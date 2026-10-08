@@ -1,0 +1,75 @@
+name: Build deb
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+    permissions:
+      contents: write
+    env:
+      THEOS: ${{ github.workspace }}/theos
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          path: src
+
+      - name: Install dependencies
+        run: brew install ldid make dpkg xz
+
+      - name: Cache Theos
+        id: theos-cache
+        uses: actions/cache@v4
+        with:
+          path: theos
+          key: theos-${{ runner.os }}-v1
+
+      - name: Set up Theos
+        if: steps.theos-cache.outputs.cache-hit != 'true'
+        run: |
+          git clone --recursive --depth 1 https://github.com/theos/theos.git "$THEOS"
+          curl -sL https://github.com/theos/sdks/archive/master.tar.gz -o sdks.tar.gz
+          tar -xzf sdks.tar.gz --strip-components=1 -C "$THEOS/sdks" 'sdks-master/iPhoneOS16.5.sdk'
+          rm sdks.tar.gz
+          ls "$THEOS/sdks"
+
+      - name: Build package
+        working-directory: src
+        run: |
+          set -o pipefail
+          if ! gmake package FINALPACKAGE=1 2>&1 | tee build.log; then
+            # Surface compiler/make errors as annotations on the run page.
+            grep -E 'error:|Error [0-9]|No such file|not found' build.log | head -20 | while IFS= read -r line; do
+              echo "::error::$line"
+            done
+            exit 1
+          fi
+
+      - name: Rename package
+        working-directory: src
+        run: |
+          VERSION=$(sed -n 's/^Version: *//p' control | tr -d '\r')
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+          mkdir -p out
+          cp packages/*.deb "out/OmniCar_${VERSION}_rootless.deb"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: OmniCar_${{ env.VERSION }}_rootless
+          path: src/out/*.deb
+          if-no-files-found: error
+
+      - name: Publish release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          name: OmniCar ${{ env.VERSION }}
+          files: src/out/*.deb

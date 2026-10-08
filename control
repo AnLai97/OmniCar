@@ -1,0 +1,19 @@
+Package: com.anlai.omnicar
+Name: OmniCar
+Version: 1.0.0
+Architecture: iphoneos-arm64
+Description: Unlock every limit of CarPlay.
+ OmniCar takes CarPlay beyond what Apple allows - more freedom, more
+ features and everything you need on the road, all in one place.
+ .
+ Features:
+  - More CarPlay upgrades are on the way
+ .
+ Set it up in Settings > OmniCar. Changes apply the next time CarPlay connects.
+ .
+ Compatibility: iOS 15 and later, rootless jailbreaks (Dopamine, palera1n).
+Icon: file:///var/jb/Library/PreferenceBundles/OmniCarPrefs.bundle/PackageIcon.png
+Maintainer: AnLai <laihoangan123456@gmail.com>
+Author: AnLai <laihoangan123456@gmail.com>
+Section: Tweaks
+Depends: mobilesubstrate (>= 0.9.5000), preferenceloader, firmware (>= 15.0)
