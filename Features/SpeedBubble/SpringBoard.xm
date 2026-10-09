@@ -27,6 +27,12 @@
     notify_register_dispatch(SPP_DARWIN_RESET, &tokReset, dispatch_get_main_queue(), ^(int t) { [[SPPBubble shared] resetLayout]; });
     // Doi kieu / bat tat trong Cai dat -> ve lai ngay
     notify_register_dispatch(SPP_DARWIN_PREFS, &tokPrefs, dispatch_get_main_queue(), ^(int t) { [[SPPBubble shared] refresh]; });
+    // Split Screen dang chia / mo bang chon tren man xe (state 1) -> bong bong tren xe tam an, 0 -> hien lai
+    static int tokBusy = 0;
+    notify_register_dispatch(OMC_DARWIN_CAR_BUSY, &tokBusy, dispatch_get_main_queue(), ^(int t) {
+        uint64_t state = 0; notify_get_state(t, &state);
+        [[SPPBubble shared] setCarBusy:state != 0];
+    });
 
     // Xe ket noi / ngat: bong bong chuyen cua so giua man xe va iPhone
     [[NSNotificationCenter defaultCenter] addObserverForName:@"CarPlayIsConnectedDidChange" object:nil

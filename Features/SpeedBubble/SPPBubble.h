@@ -9,6 +9,7 @@
 - (void)updateSpeed:(int)speed limit:(int)limit appForeground:(BOOL)fg;   // fg: app dang hien -> an
 - (void)updateSpeed:(int)speed limit:(int)limit appForeground:(BOOL)fg app:(int)app;   // app: chi so SPP_NAV_APPS
 - (void)refresh;                                    // tinh lai hien/an
+- (void)setCarBusy:(BOOL)busy;                      // Split Screen dang chiem man xe (OMC_DARWIN_CAR_BUSY) -> an tren xe
 - (void)hide;
 - (void)resetLayout;                                // Cai dat > Dat lai vi tri & kich thuoc
 - (void)runDemo;                                    // Cai dat > Xem thu: toc do gia 10 giay

@@ -1,5 +1,6 @@
 #import "SCPCarSplit.h"
 #import "SCPPrefs.h"
+#import <notify.h>
 
 // =====================================================================
 //  SCPCarSplit - split CarPlay "that": moi ngan la scene CarPlay cua app (giao dien CarPlay/template),
@@ -91,6 +92,19 @@ static void SCPCAfter(double delay, dispatch_block_t block)
 
 // Chu tren man xe: tieng Viet / tieng Anh theo Cai dat > OmniCar > ngon ngu
 static NSString *SCPCT(NSString *vi, NSString *en) { return [SCPPrefs english] ? en : vi; }
+
+// Bao SpringBoard (OMC_DARWIN_CAR_BUSY): dang chia man / bang bo cuc dang mo -> lop phu tren man xe (bong bong
+// toc do) tam an de khong de len cho dang cham. Chi gui khi trang thai doi.
+static void SCPCPublishBusy(BOOL busy)
+{
+    static int token = 0, last = -1;
+    if (!token) notify_register_check(OMC_DARWIN_CAR_BUSY, &token);
+    if (last == (int)busy) return;
+    last = busy;
+    notify_set_state(token, busy ? 1 : 0);
+    notify_post(OMC_DARWIN_CAR_BUSY);
+    SCPLog("CarSplit: man xe %@", busy ? @"ban (an lop phu)" : @"ranh");
+}
 
 static id SCPCDashboard(void)
 {
@@ -1184,8 +1198,15 @@ static BOOL SCPCIsBridgedApp(NSString *bid);
     if (stacked.superview == parent) [parent insertSubview:self.container belowSubview:stacked];
 }
 
+// Man xe dang "ban" (bong bong toc do tam an): dang chia man hoac bang bo cuc dang mo (bang chon app chi co khi dang chia)
+- (void)publishBusy
+{
+    SCPCPublishBusy(self.active || self.tray != nil);
+}
+
 - (void)rootDidLayout
 {
+    [self publishBusy];
     if (!self.active) { [self refreshAppTab]; return; }
     if (!self.container.superview) return;
     [self refreshHomeButton];   // nut Split Screen tren dock van hien khi dang chia (doi bo cuc)
@@ -1237,6 +1258,7 @@ static BOOL SCPCIsBridgedApp(NSString *bid);
     if (![self ensureContainer]) return NO;
     self.active = YES;
     self.focusedSlot = 0;
+    [self publishBusy];
     [self.pending removeAllObjects];
     self.layoutKind = SCPCLayoutColumns;
     [self setPaneCount:n];   // moi lan chia luon bat dau chia deu (keo vach chia van doi duoc)
@@ -2218,6 +2240,7 @@ static CGSize SCPCSceneSize(UIViewController *vc)
     }
     self.active = NO;
     [self.pending removeAllObjects];
+    [self publishBusy];
     [self hideRatioMenu];
     [self cancelPaneDrag];
     for (SCPCarPane *p in self.slots) [self removeCoverFromPane:p];
@@ -2262,6 +2285,7 @@ static CGSize SCPCSceneSize(UIViewController *vc)
     self.bridgedBundle = nil; self.bridgeStarting = NO;   // CarBridge tu xu ly ngat xe
     self.active = NO;
     [self.pending removeAllObjects];
+    [self publishBusy];
     for (SCPCarPane *p in [self allPanes]) [p.barTimer invalidate];
     self.floatPane = nil; self.floatClosing = NO;
     [self.dragGhost removeFromSuperview]; self.dragGhost = nil; self.dragTarget = -1;
@@ -3323,6 +3347,7 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
     [shield addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(collapseAppTray)]];
     [parent addSubview:shield];
     self.trayShield = shield;
+    [self publishBusy];
 
     BOOL v = [self vertical];
     NSArray<NSString *> *titles = nil;
@@ -3567,6 +3592,7 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
     [self.trayTimer invalidate]; self.trayTimer = nil;
     UIView *tray = self.tray, *shield = self.trayShield;
     self.tray = nil; self.trayShield = nil;
+    [self publishBusy];
     if (!tray && !shield) return;
     [UIView animateWithDuration:0.2 animations:^{
         tray.alpha = 0; tray.transform = CGAffineTransformMakeTranslation(0, -20); shield.alpha = 0;
@@ -3797,8 +3823,8 @@ static BOOL SCPCIsBridgedApp(NSString *bid)
 #define SCPC_DOCK_MIN 22.0    // nut Split Screen tren dock nho nhat (khe tren nut Home hep)
 static char kSCPCLongPressKey;
 
-// Icon OmniCar (tools/icons/omnicar_logo.py, khung 1024): o vuong bo tron gradient xanh nhu icon app, vong tron
-// trang va nut play CarPlay hoi lon hon vong tron (3 goc xuyen qua vong). Ve bang CoreGraphics de khong can file.
+// Icon OmniCar (tools/icons/omnicar_logo.py, khung 1024) ban nen trang: o vuong trang bo tron nhu icon app, vong tron
+// va nut play CarPlay to gradient xanh (3 goc nut play xuyen qua vong, vien cat mau trang). Ve bang CoreGraphics.
 static UIBezierPath *SCPCRoundedTriangle(CGFloat cx, CGFloat cy, CGFloat h, CGFloat r)
 {
     CGFloat w = h * 0.9;
@@ -3829,23 +3855,23 @@ static UIImage *SCPCLogoImage(CGFloat side)
         NSArray *cols = @[(id)[UIColor colorWithRed:0x25 / 255.0 green:0x63 / 255.0 blue:0xEB / 255.0 alpha:1].CGColor,
                           (id)[UIColor colorWithRed:0x0B / 255.0 green:0x10 / 255.0 blue:0x26 / 255.0 alpha:1].CGColor];
         CGGradientRef g = CGGradientCreateWithColors(cs, (__bridge CFArrayRef)cols, NULL);
-        void (^background)(UIBezierPath *) = ^(UIBezierPath *clip) {
+        void (^blue)(UIBezierPath *) = ^(UIBezierPath *clip) {   // to gradient xanh trong hinh (addClip theo even-odd cua path)
             CGContextSaveGState(ctx);
             [clip addClip];
             CGContextDrawLinearGradient(ctx, g, CGPointZero, CGPointMake(1024, 1024), 0);
             CGContextRestoreGState(ctx);
         };
-        // O vuong bo tron, ban kinh ~22% canh nhu icon app tren dock
-        background([UIBezierPath bezierPathWithRoundedRect:CGRectMake(0, 0, 1024, 1024) cornerRadius:1024 * 0.2237]);
-        // Vong tron trang (ban kinh ngoai 360, day 120)
+        // O vuong trang bo tron, ban kinh ~22% canh nhu icon app tren dock
+        [[UIColor whiteColor] setFill];
+        [[UIBezierPath bezierPathWithRoundedRect:CGRectMake(0, 0, 1024, 1024) cornerRadius:1024 * 0.2237] fill];
+        // Vong tron xanh (ban kinh ngoai 360, day 120)
         UIBezierPath *ring = [UIBezierPath bezierPathWithOvalInRect:CGRectMake(152, 152, 720, 720)];
         [ring appendPath:[UIBezierPath bezierPathWithOvalInRect:CGRectMake(272, 272, 480, 480)]];
         ring.usesEvenOddFillRule = YES;
-        [[UIColor whiteColor] setFill];
-        [ring fill];
-        // Nut play: vien cat bang mau nen roi tam giac trang
-        background(SCPCRoundedTriangle(512, 512, 700, 60));
-        [SCPCRoundedTriangle(512, 512, 610, 48) fill];
+        blue(ring);
+        // Nut play: vien cat mau trang roi tam giac xanh
+        [SCPCRoundedTriangle(512, 512, 700, 60) fill];
+        blue(SCPCRoundedTriangle(512, 512, 610, 48));
         CGGradientRelease(g);
         CGColorSpaceRelease(cs);
     }];

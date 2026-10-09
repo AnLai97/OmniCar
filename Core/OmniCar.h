@@ -32,6 +32,9 @@ BOOL OMCFeatureEnabled(NSString *feature);
 void OMCLogWrite(NSString *feature, NSString *message);
 #define OMCLog(feature, fmt, ...) OMCLogWrite(feature, [NSString stringWithFormat:fmt, ##__VA_ARGS__])
 #define OMC_LOG_RELAY     @"com.anlai.omnicar/log"
+// Darwin notification a feature posts while it owns the car screen (Split Screen: split active, layout
+// panel or app picker open), state 1 then 0. Overlays on the car screen (Speed Bubble) hide while it is 1.
+#define OMC_DARWIN_CAR_BUSY "com.anlai.omnicar/car.busy"
 // SpringBoard only (called by the OmniCarCore dylib): append relayed lines to the log file.
 void OMCLogRelayStart(void);
 

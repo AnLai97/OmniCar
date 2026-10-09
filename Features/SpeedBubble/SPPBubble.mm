@@ -334,6 +334,7 @@ typedef NS_ENUM(NSInteger, SPPIconShape) {
 @property (nonatomic) CFAbsoluteTime speedAt, limitAt; // lan cuoi doc duoc toc do / gioi han
 @property (nonatomic) CFAbsoluteTime carLostAt;        // luc bat dau mat man xe (0 = dang co)
 @property (nonatomic) BOOL onPhone;
+@property (nonatomic) BOOL carBusy;                  // Split Screen dang chia / mo bang tren man xe -> an bong bong tren xe
 @property (nonatomic) CGFloat scale;                 // ti le dang ap = SPP_SCALE_BASE * % trong Cai dat (rieng iPhone / xe)
 @property (nonatomic) BOOL pinching;                 // dang chum 2 ngon: khong nap lai ti le tu Cai dat
 @property (nonatomic) int app;                       // chi so SPP_NAV_APPS cua app dang cap toc do (cham / X dung app nay)
@@ -489,7 +490,9 @@ static BOOL sSeenRunning[8];
     if (now - self.limitAt > SPP_SPEED_STALE) self.limit = -1;
     int run = (self.lastUpdate > 0 && !self.demoTimer) ? [self sourceAppState] : 1;
     BOOL alive = self.lastUpdate > 0 && (run == 1 || now - self.lastUpdate < SPP_SOURCE_GONE);
-    BOOL show = alive && [SPPPrefs enabled] && ![self anyAppForeground];
+    // Split Screen dang chiem man xe (bang chon app, dang chia): bong bong tren xe de len cho dang cham -> tam an
+    BOOL carBusy = self.carBusy && SPPGetCarPlayCADisplay() != nil;
+    BOOL show = alive && [SPPPrefs enabled] && ![self anyAppForeground] && !carBusy;
     // App vua bi tat (vuot khoi da nhiem / bi he thong dong) -> an ngay
     if (show && run == 0) {
         SPPLog("bubble: %@ da tat -> an bong bong ngay", SPPNavAppName(self.app));
@@ -499,8 +502,8 @@ static BOOL sSeenRunning[8];
     }
     if (!show) {
         if (self.window && !self.window.hidden)
-            SPPLog("bubble: an (ban tin %.1fs truoc, app chay=%d, tat=%d, app dan duong dang hien=%d)",
-                   now - self.lastUpdate, run, ![SPPPrefs enabled], [self anyAppForeground]);
+            SPPLog("bubble: an (ban tin %.1fs truoc, app chay=%d, tat=%d, app dan duong dang hien=%d, man xe ban=%d)",
+                   now - self.lastUpdate, run, ![SPPPrefs enabled], [self anyAppForeground], carBusy);
         [self hide];
         return;
     }
@@ -529,6 +532,15 @@ static BOOL sSeenRunning[8];
         __weak SPPBubble *weakSelf = self;
         self.timer = [NSTimer scheduledTimerWithTimeInterval:0.5 repeats:YES block:^(NSTimer *t) { [weakSelf refresh]; }];
     }
+}
+
+// Split Screen (process CarPlay) bao man xe dang ban / ranh qua OMC_DARWIN_CAR_BUSY
+- (void)setCarBusy:(BOOL)busy
+{
+    if (_carBusy == busy) return;
+    _carBusy = busy;
+    SPPLog("bubble: man xe %@ (Split Screen)", busy ? @"ban -> an tren xe" : @"ranh");
+    [self refresh];
 }
 
 - (void)hide
