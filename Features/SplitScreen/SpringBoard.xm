@@ -323,6 +323,18 @@ static void SCPHandleURL(NSString *urlString)
         ++sCBFrameSeq;   // yeu cau moi: lan thu lai cua yeu cau cu bi bo
         // w < 0: CarBridge dung chieu / split dong luc CarBridge dang khoi dong -> bo yeu cau dang cho, an thanh "•••",
         // khong dong / doi khung cua so CarBridge (no tu lo)
+        // w == -2: bang bo cuc vua dong tren app CarBridge toan man -> hien lai CBWindow, khong doi khung
+        if (r.size.width == -2) {
+            Class mc = objc_getClass("CBBridgeManager");
+            id mgr = (mc && [mc respondsToSelector:@selector(sharedInstance)]) ? objcInvoke(mc, @"sharedInstance") : nil;
+            id win = nil;
+            @try { win = (mgr && [mgr respondsToSelector:NSSelectorFromString(@"window")]) ? objcInvoke(mgr, @"window") : nil; } @catch (NSException *e) {}
+            UIWindow *root = nil;
+            @try { root = (win && [win respondsToSelector:NSSelectorFromString(@"rootWindow")]) ? objcInvoke(win, @"rootWindow") : nil; } @catch (NSException *e) {}
+            root.hidden = NO;
+            SCPLog("CarBridge: hien lai CBWindow cua %@ (%@)", u[@"identifier"], root ? @"ok" : @"khong co cua so");
+            return;
+        }
         if (r.size.width < 0) { SCPHideBridgeHandle(); SCPLog("CarBridge: bo yeu cau dat khung cho %@", u[@"identifier"]); return; }
         BOOL handle = [u[@"handle"] boolValue] && r.size.width >= 2;
         if (handle) SCPShowBridgeHandle(CGRectMake([u[@"hx"] doubleValue], [u[@"hy"] doubleValue], [u[@"hw"] doubleValue], [u[@"hh"] doubleValue]), u[@"identifier"]);

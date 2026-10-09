@@ -628,6 +628,8 @@ static BOOL SCPCIsBridgedApp(NSString *bid);
 // Tab tren app CarPlay dang mo toan man (chua split): cham / vuot xuong -> hang icon app CarPlay
 @property (nonatomic, strong) UIView *tray;
 @property (nonatomic, strong) UIView *trayShield;
+@property (nonatomic) BOOL trayHidesBridge;           // bang bo cuc dang mo tren app CarBridge toan man -> CBWindow tam an
+@property (nonatomic, copy) NSString *trayHidesBridgeBundle;
 @property (nonatomic, strong) NSTimer *trayTimer;
 @property (nonatomic, copy) NSString *layoutApp;      // app vao o 1 khi chon bo cuc (nil = cap lan truoc)
 @property (nonatomic, strong) NSArray<NSDictionary *> *panelChoices;   // cac lua chon trong bang (tag nut = chi so)
@@ -3361,6 +3363,9 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
     [parent addSubview:shield];
     self.trayShield = shield;
     [self publishBusy];
+    // App CarBridge dang mo toan man: CBWindow (SpringBoard) nam tren moi view CarPlay nen che mat bang -> an CBWindow
+    // trong luc bang mo, hien lai khi bang dong (collapseAppTray)
+    if (!self.active && app && SCPCIsBridgedApp(app)) [self setFullscreenBridgeHidden:YES bundle:app];
 
     BOOL v = [self vertical];
     NSArray<NSString *> *titles = nil;
@@ -3606,10 +3611,25 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
     UIView *tray = self.tray, *shield = self.trayShield;
     self.tray = nil; self.trayShield = nil;
     [self publishBusy];
+    [self setFullscreenBridgeHidden:NO bundle:nil];
     if (!tray && !shield) return;
     [UIView animateWithDuration:0.2 animations:^{
         tray.alpha = 0; tray.transform = CGAffineTransformMakeTranslation(0, -20); shield.alpha = 0;
     } completion:^(BOOL f) { [tray removeFromSuperview]; [shield removeFromSuperview]; }];
+}
+
+// Bang bo cuc mo tren app CarBridge toan man: bao SpringBoard an CBWindow (w = 0) / hien lai (w = -2, khong doi khung)
+- (void)setFullscreenBridgeHidden:(BOOL)hidden bundle:(NSString *)bid
+{
+    if (hidden == self.trayHidesBridge) return;
+    if (hidden) self.trayHidesBridgeBundle = bid;
+    self.trayHidesBridge = hidden;
+    SCPLog("CarBridge: %@ CBWindow cua %@ (bang bo cuc)", hidden ? @"an" : @"hien lai", self.trayHidesBridgeBundle);
+    CGFloat w = hidden ? 0 : -2;
+    [[objc_getClass("NSDistributedNotificationCenter") defaultCenter]
+        postNotificationName:SPL_NOTIF_CBFRAME object:nil
+                    userInfo:@{@"identifier": self.trayHidesBridgeBundle ?: @"", @"x": @0, @"y": @0, @"w": @(w), @"h": @(w)}];
+    if (!hidden) self.trayHidesBridgeBundle = nil;
 }
 
 // Chon bo cuc mac dinh. Dang chia -> doi bo cuc. Dang mo 1 app toan man -> app do vao o 1, cac o con lai hien
