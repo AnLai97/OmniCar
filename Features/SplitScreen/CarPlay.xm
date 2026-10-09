@@ -1,6 +1,7 @@
 #import "common.h"
 #import "SCPPrefs.h"
 #import "SCPCarSplit.h"
+#import "SCPAppIcons.h"
 
 // Inject vao process CarPlay (com.apple.CarPlayApp, code trong DashBoard.framework, prefix DB).
 // Split hien GIAO DIEN CARPLAY cua app: DashBoard tu mo scene CarPlay cua app (giong cham icon),
@@ -59,6 +60,17 @@ static void SCPHookError(const char *where, NSException *e)
         [[SCPCarSplit shared] dashboardInvalidated];
     } @catch (NSException *e) { SCPHookError("DBDashboard invalidate", e); }
     %orig;
+}
+
+// Cham icon tren man chinh / dock: app iPhone (icon do App Bridge chen) -> host qua App Bridge, khong mo scene CarPlay
+- (void)_launchAppWithInfo:(id)info forURL:(id)url
+{
+    BOOL handled = NO;
+    @try {
+        NSString *bid = objcInvoke(info, @"bundleIdentifier");
+        handled = [[SCPCarSplit shared] launchPhoneAppIfNeeded:bid];
+    } @catch (NSException *e) { SCPHookError("_launchAppWithInfo", e); }
+    if (!handled) %orig;
 }
 
 %end
@@ -142,6 +154,7 @@ static void SCPHookError(const char *where, NSException *e)
                 [[SCPCarSplit shared] carScreenAppeared];
             } @catch (NSException *e) { SCPHookError("viewDidAppear (sau 3s)", e); }
         });
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(7 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{ SCPDumpAppLibraryOnce(); });
     } @catch (NSException *e) { SCPHookError("viewDidAppear", e); }
 }
 

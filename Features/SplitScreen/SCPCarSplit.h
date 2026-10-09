@@ -41,6 +41,7 @@
 - (void)carScreenAppeared;            // man xe vua hien (cam xe) -> tu mo split neu bat
 - (void)baseViewControllerPresented;  // DashBoard vua trinh bay app toan man -> bo the che cua soloBundle, dong app iPhone toan man
 - (void)homePressed;                  // nut Home cua CarPlay: dong app iPhone toan man (App Bridge)
+- (BOOL)launchPhoneAppIfNeeded:(NSString *)bundleID;   // cham icon app iPhone tren man chinh -> App Bridge (YES = da xu ly)
 - (void)showPickerForFocusedPane;     // omnicar://splitscreen/picker khi dang chia: bang chon app cho o dang chon
 // App Bridge (SpringBoard) bao ve
 - (void)hostedApp:(NSString *)bundleID state:(NSString *)state;   // ready | failed | gone

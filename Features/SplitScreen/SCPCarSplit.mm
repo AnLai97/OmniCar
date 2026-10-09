@@ -1,5 +1,6 @@
 #import "SCPCarSplit.h"
 #import "SCPPrefs.h"
+#import "SCPAppIcons.h"
 #import <notify.h>
 
 // =====================================================================
@@ -3623,6 +3624,7 @@ static NSSet<NSString *> *SCPCPhoneAppSet(void)
 static BOOL SCPCIsBridgedApp(NSString *bid)
 {
     if (!bid.length || !OMCFeatureEnabled(AB_FEATURE)) return NO;
+    if (SCPIsInjectedPhoneApp(bid)) return YES;   // icon chen vao thu vien CarPlay: info gia, khong phai app CarPlay that
     if (SCPCInfoIsCarPlayApp(SCPCAppInfo(bid))) return NO;
     return [SCPCPhoneAppSet() containsObject:bid];
 }
@@ -3797,6 +3799,19 @@ static NSArray<NSDictionary *> *SCPCPhoneApps(void)
 - (void)homePressed
 {
     if (self.soloHostedBundle) [self endHostedSolo];
+}
+
+// Cham icon app iPhone tren man chinh / dock CarPlay (icon do SCPAppIcons chen): dang chia -> vao o, khong thi toan man
+- (BOOL)launchPhoneAppIfNeeded:(NSString *)bid
+{
+    if (!SCPCIsBridgedApp(bid)) return NO;
+    SCPLog("AppBridge: cham icon %@ tren man chinh", bid);
+    if (self.active) { [self openApp:bid slot:-1]; return YES; }
+    if ([self.soloHostedBundle isEqualToString:bid]) return YES;
+    [self endHostedSolo];
+    [self showSoloCoverForBundle:bid];
+    [self hostSolo:bid];
+    return YES;
 }
 
 // ---------------------------------------------------------------------
