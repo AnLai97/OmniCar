@@ -20,6 +20,8 @@ layout/               entry PreferenceLoader
 Features/<Tên>/       mỗi tính năng là một component (xem bên dưới)
   StartupScreen/      video khởi động trên màn CarPlay (từ CarSplash)
   SpeedBubble/        bong bóng tốc độ + biển giới hạn từ Vietmap Live / GOFA (từ CarSpeed, ObjC++)
+  TikTok/             phát nền, tự cuộn, nút màn hình khoá, giao diện sạch cho TikTok (từ TikTokX);
+                      TikTok bị sandbox nên đọc công tắc qua state của Darwin notification, SpringBoard phát
 Template/             plist mẫu cho trang tính năng mới
 assets/               icon 1024
 ```

@@ -83,6 +83,20 @@
 			<key>icon</key>
 			<string>SpeedBubbleIcon.png</string>
 		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSLinkCell</string>
+			<key>label</key>
+			<string>TIKTOK</string>
+			<key>detail</key>
+			<string>OMCTikTokController</string>
+			<key>plist</key>
+			<string>FeatureTikTok</string>
+			<key>symbol</key>
+			<string>music.note.tv.fill</string>
+			<key>symbolColor</key>
+			<string>#E8457C</string>
+		</dict>
 	</array>
 </dict>
 </plist>

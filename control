@@ -14,17 +14,21 @@ Description: Unlock every limit of CarPlay.
     limit from Vietmap Live or GOFA while the app runs in the background - on
     the CarPlay screen, or on iPhone when no car is connected; 18 styles,
     drag, pinch, tap to reopen the app
+  - TikTok: keep audio playing when you leave TikTok or lock the screen,
+    move to the next video automatically, previous/next from the lock
+    screen, a clean distraction-free video view, and TikTok fitted to the
+    car screen when shown on CarPlay with CarBridge
   - More CarPlay upgrades are on the way
  .
  Every feature has its own switch and settings page under Settings > OmniCar.
  Changes apply the next time CarPlay connects.
  .
  Compatibility: iOS 15 and later, rootless jailbreaks (Dopamine, palera1n).
- Replaces the standalone CarSplash and CarSpeed tweaks.
+ Replaces the standalone CarSplash, CarSpeed and TikTokX tweaks.
 Icon: file:///var/jb/Library/PreferenceBundles/OmniCarPrefs.bundle/PackageIcon.png
 Maintainer: AnLai <laihoangan123456@gmail.com>
 Author: AnLai <laihoangan123456@gmail.com>
 Section: Tweaks
 Depends: mobilesubstrate (>= 0.9.5000), preferenceloader, firmware (>= 15.0)
-Conflicts: carsplash-rootless, carspeed, com.anlai97.speedpop
-Replaces: carsplash-rootless, carspeed, com.anlai97.speedpop
+Conflicts: carsplash-rootless, carspeed, com.anlai97.speedpop, tiktokx, com.anlai.tiktokx, com.tiktokx
+Replaces: carsplash-rootless, carspeed, com.anlai97.speedpop, tiktokx, com.anlai.tiktokx, com.tiktokx

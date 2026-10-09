@@ -1,0 +1,15 @@
+/* OmniCar – TikTok – English */
+
+"TIKTOK" = "TikTok";
+"TIKTOK_FOOTER" = "Background play, auto scroll and lock screen controls for TikTok. Changes apply right away, no respring needed.";
+"TIKTOK_ENABLE" = "Enable TikTok features";
+"TIKTOK_SECTION_PLAYBACK" = "Playback";
+"TIKTOK_BACKGROUND_AUDIO" = "Background Play";
+"TIKTOK_BACKGROUND_AUDIO_FOOTER" = "Keep audio playing when you leave TikTok or lock the screen.";
+"TIKTOK_AUTO_NEXT" = "Auto Scroll";
+"TIKTOK_AUTO_NEXT_FOOTER" = "Move to the next video when the current one finishes.";
+"TIKTOK_SECTION_DISPLAY" = "Controls & Display";
+"TIKTOK_REMOTE_SCROLL" = "Skip → Next/Previous";
+"TIKTOK_REMOTE_SCROLL_FOOTER" = "Replace the ±15s buttons on the lock screen and Control Center with previous/next to scroll the feed.";
+"TIKTOK_CLEAR_DISPLAY" = "Clear Display";
+"TIKTOK_CLEAR_DISPLAY_FOOTER" = "Hide the buttons, caption, search bar and other overlays on top of videos. Tap the video to show them for 3 seconds.";
