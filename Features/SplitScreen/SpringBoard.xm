@@ -59,7 +59,8 @@ static NSString *SCPSceneInfo(UIView *v)
         @try {
             if ([scene respondsToSelector:NSSelectorFromString(@"identifier")]) ident = objcInvoke(scene, @"identifier");
             id settings = [scene respondsToSelector:NSSelectorFromString(@"settings")] ? objcInvoke(scene, @"settings") : nil;
-            if (settings && [settings respondsToSelector:NSSelectorFromString(@"frame")]) frame = NSStringFromCGRect(objcInvokeT(settings, @"frame", CGRect));
+            if (settings && [settings respondsToSelector:NSSelectorFromString(@"frame")])
+                frame = NSStringFromCGRect(((CGRect (*)(id, SEL))objc_msgSend)(settings, NSSelectorFromString(@"frame")));
         } @catch (NSException *e) {}
         return [NSString stringWithFormat:@" %@=%@ id=%@ settings.frame=%@", k, NSStringFromClass([scene class]), ident ?: @"?", frame ?: @"?"];
     }
