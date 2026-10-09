@@ -129,7 +129,10 @@ static void SCPHandleURL(NSString *urlString)
                  usingBlock:^(NSNotification *note) {
         NSDictionary *u = note.userInfo;
         CGRect r = CGRectMake([u[@"x"] doubleValue], [u[@"y"] doubleValue], [u[@"w"] doubleValue], [u[@"h"] doubleValue]);
-        SCPApplyCarBridgeFrame(r, u[@"identifier"], 0, ++sCBFrameSeq);
+        ++sCBFrameSeq;   // yeu cau moi: lan thu lai cua yeu cau cu bi bo
+        // w < 0: split vua dong luc CarBridge dang khoi dong -> chi bo yeu cau dang cho, CarBridge tu chieu toan man
+        if (r.size.width < 0) { SCPLog("CarBridge: bo yeu cau dat khung cho %@ (CarBridge tu chieu toan man)", u[@"identifier"]); return; }
+        SCPApplyCarBridgeFrame(r, u[@"identifier"], 0, sCBFrameSeq);
     }];
 
     // CarPlay da nhan yeu cau -> bo yeu cau dang giu; man xe vua san sang -> gui lai yeu cau chua toi (< 10 phut)

@@ -605,6 +605,8 @@ static BOOL SCPCIsBridgedApp(NSString *bid);
 @property (nonatomic, copy) NSString *bridgedBundle;  // app CarBridge dang duoc chieu vao ngan
 @property (nonatomic, readwrite) BOOL bridgeStarting; // CarBridge dang khoi dong chieu (bo qua Home / dismiss cua no)
 @property (nonatomic) CGRect lastBridgeFrame;
+@property (nonatomic) CGSize bridgedSize;             // kich thuoc khung chieu dang ap; doi -> chieu lai (CarBridge khong tu scale)
+@property (nonatomic) NSUInteger rebridgeSeq;         // gop nhieu lan keo vach thanh 1 lan chieu lai
 @property (nonatomic) BOOL resizing;                 // dang keo vach / keo doi cho: moi o phu the icon, CBWindow an
 @property (nonatomic, strong) UIView *dragGhost;     // the icon theo tay khi keo "•••" de doi cho
 @property (nonatomic) int dragTarget;                // o dang duoc tha vao (-1 = khong)
@@ -2231,7 +2233,16 @@ static CGSize SCPCSceneSize(UIViewController *vc)
 {
     if (!self.active) return;
     SCPLog("CarSplit: tat split (goHome=%d)", goHome);
-    [self stopBridge];
+    if (self.bridgedBundle && self.bridgeStarting) {
+        // CarBridge dang khoi dong chieu: stopBridging luc nay lam CarBridge ket (man xe dung hinh, phai cam lai xe).
+        // Tha cho CarBridge chieu xong toan man nhu binh thuong, chi bo yeu cau dat khung CBWindow dang cho o SpringBoard.
+        SCPLog("CarBridge: dong split luc dang khoi dong chieu %@ -> de CarBridge chieu toan man, khong stopBridging", self.bridgedBundle);
+        [self cancelBridgeFrame];
+        self.bridgedBundle = nil; self.bridgeStarting = NO;
+        [self updateBridgeHints];
+    } else {
+        [self stopBridge];
+    }
     for (SCPCarPane *p in [self allPanes]) {
         [p.barTimer invalidate]; p.barTimer = nil;
         if (p.vc) [self detachVC:p.vc background:YES];
@@ -3725,6 +3736,7 @@ static BOOL SCPCIsBridgedApp(NSString *bid)
     }
     self.bridgedBundle = p.bundleID;
     self.lastBridgeFrame = CGRectNull;
+    self.bridgedSize = CGSizeZero;
     self.bridgeStarting = YES;
     self.bridgeStartedAt = CFAbsoluteTimeGetCurrent();
     self.focusedSlot = p.slot;
@@ -3791,6 +3803,48 @@ static BOOL SCPCIsBridgedApp(NSString *bid)
         postNotificationName:SPL_NOTIF_CBFRAME object:nil
                     userInfo:@{@"identifier": self.bridgedBundle, @"x": @(r.origin.x), @"y": @(r.origin.y),
                                @"w": @(r.size.width), @"h": @(r.size.height)}];
+    // CarBridge chi tinh ti le thu nho app luc bat dau chieu: ngan doi kich thuoc (keo vach, doi bo cuc) thi CBWindow
+    // doi khung nhung noi dung van co cu, du khoang den -> chieu lai sau khi tha tay (gop nhieu lan keo lam 1)
+    if (CGRectIsEmpty(r)) return;
+    if (CGSizeEqualToSize(self.bridgedSize, CGSizeZero)) { self.bridgedSize = r.size; return; }
+    if (fabs(r.size.width - self.bridgedSize.width) > 2 || fabs(r.size.height - self.bridgedSize.height) > 2) {
+        self.bridgedSize = r.size;
+        [self rebridgeSoon];
+    }
+}
+
+// Chieu lai app CarBridge dang o ngan (stopBridging roi startBridging) de CarBridge tinh lai ti le theo khung moi
+- (void)rebridgeSoon
+{
+    NSUInteger seq = ++self.rebridgeSeq;
+    NSString *bid = self.bridgedBundle;
+    __weak SCPCarSplit *weakSelf = self;
+    SCPCAfter(0.6, ^{
+        SCPCarSplit *me = weakSelf;
+        if (!me || seq != me.rebridgeSeq || !me.active || me.bridgeStarting || ![bid isEqualToString:me.bridgedBundle]) return;
+        SCPCarPane *p = [me bridgedPane];
+        if (!p) return;
+        SCPLog("CarBridge: ngan %d doi kich thuoc %@ -> chieu lai %@ cho dung ti le", p.slot, NSStringFromCGSize(me.bridgedSize), bid);
+        [me stopBridge];
+        me.bridgeStarting = YES; me.bridgeStartedAt = CFAbsoluteTimeGetCurrent();   // khong hien "Cham de hien" trong luc doi
+        [me updateBridgeHints];
+        SCPCAfter(0.4, ^{
+            SCPCarSplit *me2 = weakSelf;
+            if (me2.active && !me2.bridgedBundle && [p.bundleID isEqualToString:bid]) [me2 startBridgeForPane:p];
+            else me2.bridgeStarting = NO;
+        });
+    });
+}
+
+// Dong split luc CarBridge dang khoi dong: SpringBoard bo yeu cau dat khung CBWindow dang cho (w = -1), khong
+// dong / doi khung cua so CarBridge
+- (void)cancelBridgeFrame
+{
+    if (!self.bridgedBundle) return;
+    self.lastBridgeFrame = CGRectNull;
+    [[objc_getClass("NSDistributedNotificationCenter") defaultCenter]
+        postNotificationName:SPL_NOTIF_CBFRAME object:nil
+                    userInfo:@{@"identifier": self.bridgedBundle, @"x": @0, @"y": @0, @"w": @(-1), @"h": @(-1)}];
 }
 
 // Gui lai khung CBWindow du khung khong doi (SpringBoard co the da bo lo lan truoc vi CBWindow chua co)
