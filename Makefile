@@ -1,7 +1,8 @@
 TARGET := iphone:clang:16.5:15.0
 ARCHS = arm64 arm64e
 THEOS_PACKAGE_SCHEME = rootless
-INSTALL_TARGET_PROCESSES = CarPlay SpringBoard
+# "Runner" is Vietmap Live's process (Flutter), "GOFA" is com.lumi.GOFA (Speed Bubble sources).
+INSTALL_TARGET_PROCESSES = CarPlay SpringBoard Runner GOFA
 
 include $(THEOS)/makefiles/common.mk
 
@@ -15,8 +16,8 @@ TWEAK_VERSION := $(shell sed -n 's/^Version: *//p' control | tr -d '\r')
 # --- Tweak: core + every feature's hooks -------------------------------------------------------
 TWEAK_NAME = OmniCar
 
-OmniCar_FILES = Tweak.x Core/OmniCar.m $(wildcard Features/*/*.x) $(wildcard Features/*/*.m)
-OmniCar_FRAMEWORKS = UIKit AVFoundation ImageIO QuartzCore
+OmniCar_FILES = Tweak.x Core/OmniCar.m $(wildcard Features/*/*.x) $(wildcard Features/*/*.xm) $(wildcard Features/*/*.m) $(wildcard Features/*/*.mm)
+OmniCar_FRAMEWORKS = UIKit AVFoundation ImageIO QuartzCore CoreLocation
 OmniCar_CFLAGS = -fobjc-arc -ICore
 
 # --- Settings bundle: core pages + every feature's page, resources merged from every feature ----

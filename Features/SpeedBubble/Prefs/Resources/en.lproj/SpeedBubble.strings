@@ -1,0 +1,37 @@
+/* OmniCar – Speed Bubble – English */
+
+"SPEEDBUBBLE" = "Speed Bubble";
+"SPEEDBUBBLE_FOOTER" = "The bubble stays on while a navigation app runs in the background (showing -- when there is no reading) and hides when the app is opened again or closed. With CarPlay connected it shows only on the car screen; otherwise on the iPhone. Changes apply instantly.";
+"SPEEDBUBBLE_ENABLE" = "Enable Speed Bubble";
+"SPEEDBUBBLE_APPEARANCE" = "Appearance";
+"SPEEDBUBBLE_APPEARANCE_FOOTER" = "The app icon shows which app the speed comes from. Preview shows the bubble for 10 seconds.\n\nDrag to move · pinch to resize · tap to reopen the app · hold for 2 seconds (until the red ring completes) to quit the app.";
+"SPEEDBUBBLE_STYLE" = "Style";
+"SPEEDBUBBLE_SHOW_APP_ICON" = "Show app icon";
+"SPEEDBUBBLE_PREVIEW" = "Preview";
+"SPEEDBUBBLE_STYLE_0" = "Card";
+"SPEEDBUBBLE_STYLE_1" = "Mini disc";
+"SPEEDBUBBLE_STYLE_2" = "Big sign";
+"SPEEDBUBBLE_STYLE_3" = "Gauge";
+"SPEEDBUBBLE_STYLE_4" = "HUD bar";
+"SPEEDBUBBLE_STYLE_5" = "Speed color";
+"SPEEDBUBBLE_STYLE_6" = "Tower";
+"SPEEDBUBBLE_STYLE_7" = "Split pill";
+"SPEEDBUBBLE_STYLE_8" = "Neon";
+"SPEEDBUBBLE_STYLE_9" = "Meter bar";
+"SPEEDBUBBLE_STYLE_10" = "Floating text";
+"SPEEDBUBBLE_STYLE_11" = "Light card";
+"SPEEDBUBBLE_STYLE_12" = "Steering wheel";
+"SPEEDBUBBLE_STYLE_13" = "Wheel (spinning rim)";
+"SPEEDBUBBLE_STYLE_14" = "HarmonyOS card";
+"SPEEDBUBBLE_STYLE_15" = "Analog speedometer";
+"SPEEDBUBBLE_STYLE_16" = "HarmonyOS rings";
+"SPEEDBUBBLE_STYLE_17" = "Live View capsule";
+"SPEEDBUBBLE_SIZE_PHONE" = "Size on iPhone (%)";
+"SPEEDBUBBLE_SIZE_CAR" = "Size on CarPlay (%)";
+"SPEEDBUBBLE_SIZE_FOOTER" = "100 = default size (60 – 220). Pinching the bubble also resizes it on the current screen and updates this value.";
+"SPEEDBUBBLE_RESET_LAYOUT" = "Reset position & size";
+"SPEEDBUBBLE_RESET_FOOTER" = "Moves the bubble back to its default place at 100% size.";
+"SPEEDBUBBLE_SOURCES" = "Speed sources";
+"SPEEDBUBBLE_SOURCES_FOOTER" = "With both apps running, the bubble follows the one in the background. After the first install, relaunch the navigation app so the tweak loads.";
+"SPEEDBUBBLE_APP_VIETMAP" = "Vietmap Live";
+"SPEEDBUBBLE_APP_GOFA" = "GOFA";

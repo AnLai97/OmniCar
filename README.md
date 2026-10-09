@@ -18,6 +18,8 @@ Prefs/                bundle settings dùng chung
   Resources/               Root.plist, Info.plist, icon/logo/avatar, <lang>.lproj/Localizable.strings
 layout/               entry PreferenceLoader
 Features/<Tên>/       mỗi tính năng là một component (xem bên dưới)
+  StartupScreen/      video khởi động trên màn CarPlay (từ CarSplash)
+  SpeedBubble/        bong bóng tốc độ + biển giới hạn từ Vietmap Live / GOFA (từ CarSpeed, ObjC++)
 Template/             plist mẫu cho trang tính năng mới
 assets/               icon 1024
 ```
@@ -39,7 +41,7 @@ Features/StartupScreen/
       en.lproj/StartupScreen.strings
 ```
 
-Makefile gom tự động: `Features/*/*.x` vào tweak, `Features/*/Prefs/*.m` vào bundle settings,
+Makefile gom tự động: `Features/*/*.x`, `*.xm`, `*.m`, `*.mm` vào tweak, `Features/*/Prefs/*.m` vào bundle settings,
 `Features/*/Prefs/Resources` được rsync chung vào bundle (các `.lproj` tự gộp).
 `OMCLoadStrings` nạp mọi bảng `.strings` trong `<lang>.lproj`, nên key của tính năng dùng `L()`
 như key core.

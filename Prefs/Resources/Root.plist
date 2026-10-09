@@ -73,6 +73,20 @@
 			<key>symbolColor</key>
 			<string>#0A59F7</string>
 		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSLinkCell</string>
+			<key>label</key>
+			<string>SPEEDBUBBLE</string>
+			<key>detail</key>
+			<string>OMCSpeedBubbleController</string>
+			<key>plist</key>
+			<string>FeatureSpeedBubble</string>
+			<key>symbol</key>
+			<string>gauge</string>
+			<key>symbolColor</key>
+			<string>#36B37E</string>
+		</dict>
 	</array>
 </dict>
 </plist>

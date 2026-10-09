@@ -1,0 +1,37 @@
+/* OmniCar – Speed Bubble – Tiếng Việt */
+
+"SPEEDBUBBLE" = "Bong bóng tốc độ";
+"SPEEDBUBBLE_FOOTER" = "Bong bóng luôn hiện khi app dẫn đường chạy nền (không có số liệu thì hiện --) và tự ẩn khi app được mở lại hoặc bị tắt. Khi kết nối CarPlay, bong bóng chỉ hiện trên màn hình xe; không có xe thì hiện trên iPhone. Thay đổi có hiệu lực ngay.";
+"SPEEDBUBBLE_ENABLE" = "Bật bong bóng tốc độ";
+"SPEEDBUBBLE_APPEARANCE" = "Giao diện";
+"SPEEDBUBBLE_APPEARANCE_FOOTER" = "Icon app cho biết tốc độ đang lấy từ app nào. Xem thử hiện bong bóng trong 10 giây.\n\nKéo để di chuyển · chụm 2 ngón để đổi cỡ · chạm để mở lại app · giữ 2 giây (viền đỏ chạy hết vòng) để thoát hẳn app.";
+"SPEEDBUBBLE_STYLE" = "Kiểu hiển thị";
+"SPEEDBUBBLE_SHOW_APP_ICON" = "Hiện icon app";
+"SPEEDBUBBLE_PREVIEW" = "Xem thử";
+"SPEEDBUBBLE_STYLE_0" = "Thẻ ngang";
+"SPEEDBUBBLE_STYLE_1" = "Đĩa nhỏ";
+"SPEEDBUBBLE_STYLE_2" = "Biển báo lớn";
+"SPEEDBUBBLE_STYLE_3" = "Đồng hồ";
+"SPEEDBUBBLE_STYLE_4" = "Thanh HUD";
+"SPEEDBUBBLE_STYLE_5" = "Màu theo tốc độ";
+"SPEEDBUBBLE_STYLE_6" = "Cột dọc";
+"SPEEDBUBBLE_STYLE_7" = "Viên thuốc đôi";
+"SPEEDBUBBLE_STYLE_8" = "Neon";
+"SPEEDBUBBLE_STYLE_9" = "Thanh đo";
+"SPEEDBUBBLE_STYLE_10" = "Chữ nổi (không nền)";
+"SPEEDBUBBLE_STYLE_11" = "Thẻ sáng";
+"SPEEDBUBBLE_STYLE_12" = "Vô lăng";
+"SPEEDBUBBLE_STYLE_13" = "Bánh xe (mâm quay)";
+"SPEEDBUBBLE_STYLE_14" = "Thẻ HarmonyOS";
+"SPEEDBUBBLE_STYLE_15" = "Đồng hồ kim";
+"SPEEDBUBBLE_STYLE_16" = "Vòng kép HarmonyOS";
+"SPEEDBUBBLE_STYLE_17" = "Live View";
+"SPEEDBUBBLE_SIZE_PHONE" = "Cỡ trên iPhone (%)";
+"SPEEDBUBBLE_SIZE_CAR" = "Cỡ trên CarPlay (%)";
+"SPEEDBUBBLE_SIZE_FOOTER" = "100 = cỡ mặc định (60 – 220). Chụm 2 ngón trên bong bóng cũng đổi cỡ của màn đang dùng và cập nhật ở đây.";
+"SPEEDBUBBLE_RESET_LAYOUT" = "Đặt lại vị trí & kích thước";
+"SPEEDBUBBLE_RESET_FOOTER" = "Đưa bong bóng về chỗ cũ, cỡ 100%.";
+"SPEEDBUBBLE_SOURCES" = "Nguồn tốc độ";
+"SPEEDBUBBLE_SOURCES_FOOTER" = "Chạy cả hai app: bong bóng theo app đang chạy nền. Lần đầu cài, mở lại app dẫn đường để tweak được nạp.";
+"SPEEDBUBBLE_APP_VIETMAP" = "Vietmap Live";
+"SPEEDBUBBLE_APP_GOFA" = "GOFA";

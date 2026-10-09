@@ -14,6 +14,10 @@
 // Data root; features keep their files under OMC_DATA_ROOT/<Name>/.
 #define OMC_DATA_ROOT     ROOT_PATH_NS(@"/var/mobile/Library/OmniCar")
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // Re-read the prefs domain (call before reading a batch of values at a decision point).
 void OMCPrefsSync(void);
 id OMCPref(NSString *key, id fallback);
@@ -25,3 +29,7 @@ BOOL OMCFeatureEnabled(NSString *feature);
 // Logs "[OmniCar/<feature>] message" to syslog and to OmniCar.log (Documents, else /var/tmp).
 void OMCLogWrite(NSString *feature, NSString *message);
 #define OMCLog(feature, fmt, ...) OMCLogWrite(feature, [NSString stringWithFormat:fmt, ##__VA_ARGS__])
+
+#ifdef __cplusplus
+}
+#endif

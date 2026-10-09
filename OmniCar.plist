@@ -1,1 +1,1 @@
-{ Filter = { Bundles = ( "com.apple.CarPlayApp", "com.apple.springboard" ); }; }
+{ Filter = { Bundles = ( "com.apple.CarPlayApp", "com.apple.springboard", "vn.vietmap.live", "com.lumi.GOFA" ); }; }

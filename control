@@ -10,17 +10,21 @@ Description: Unlock every limit of CarPlay.
   - Startup Screen: play your own video on the CarPlay screen every time
     you connect - add clips from Photos or Files, choose the duration, Fill
     or Fit, sound through the car speakers, tap to skip
+  - Speed Bubble: a floating bubble with your current speed and the posted
+    limit from Vietmap Live or GOFA while the app runs in the background - on
+    the CarPlay screen, or on iPhone when no car is connected; 18 styles,
+    drag, pinch, tap to reopen the app
   - More CarPlay upgrades are on the way
  .
  Every feature has its own switch and settings page under Settings > OmniCar.
  Changes apply the next time CarPlay connects.
  .
  Compatibility: iOS 15 and later, rootless jailbreaks (Dopamine, palera1n).
- Replaces the standalone CarSplash tweak.
+ Replaces the standalone CarSplash and CarSpeed tweaks.
 Icon: file:///var/jb/Library/PreferenceBundles/OmniCarPrefs.bundle/PackageIcon.png
 Maintainer: AnLai <laihoangan123456@gmail.com>
 Author: AnLai <laihoangan123456@gmail.com>
 Section: Tweaks
 Depends: mobilesubstrate (>= 0.9.5000), preferenceloader, firmware (>= 15.0)
-Conflicts: carsplash-rootless
-Replaces: carsplash-rootless
+Conflicts: carsplash-rootless, carspeed, com.anlai97.speedpop
+Replaces: carsplash-rootless, carspeed, com.anlai97.speedpop
