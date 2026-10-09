@@ -92,10 +92,8 @@
 			<string>OMCTikTokController</string>
 			<key>plist</key>
 			<string>FeatureTikTok</string>
-			<key>symbol</key>
-			<string>music.note.tv.fill</string>
-			<key>symbolColor</key>
-			<string>#E8457C</string>
+			<key>icon</key>
+			<string>TikTokIcon.png</string>
 		</dict>
 	</array>
 </dict>
