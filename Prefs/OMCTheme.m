@@ -111,6 +111,14 @@ void OMCLocalizeSpecifiers(NSArray<PSSpecifier *> *specifiers) {
 		if (symbol) {
 			UIImage *icon = OMCIcon(symbol, OMCColorFromHex([spec propertyForKey:@"symbolColor"] ?: @"#0A59F7"));
 			if (icon) [spec setProperty:icon forKey:@"iconImage"];
+		} else {
+			// "icon": a 29pt image in the bundle (features may ship their own drawn tile).
+			id name = [spec propertyForKey:@"icon"];
+			if ([name isKindOfClass:[NSString class]]) {
+				NSBundle *bundle = [NSBundle bundleForClass:NSClassFromString(@"OMCRootListController")];
+				UIImage *icon = [UIImage imageNamed:[(NSString *)name stringByDeletingPathExtension] inBundle:bundle compatibleWithTraitCollection:nil];
+				if (icon) [spec setProperty:icon forKey:@"iconImage"];
+			}
 		}
 	}
 }

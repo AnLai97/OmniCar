@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<!-- Labels and footers are keys into <lang>.lproj/Localizable.strings; "symbol"/"symbolColor" draw the row icon. -->
+<!-- Labels and footers are keys into <lang>.lproj/Localizable.strings; "symbol"/"symbolColor" draw the row icon (or "icon" = a 29pt image in the bundle). -->
 <plist version="1.0">
 <dict>
 	<key>title</key>
@@ -82,10 +82,8 @@
 			<string>OMCSpeedBubbleController</string>
 			<key>plist</key>
 			<string>FeatureSpeedBubble</string>
-			<key>symbol</key>
-			<string>gauge</string>
-			<key>symbolColor</key>
-			<string>#36B37E</string>
+			<key>icon</key>
+			<string>SpeedBubbleIcon.png</string>
 		</dict>
 	</array>
 </dict>
