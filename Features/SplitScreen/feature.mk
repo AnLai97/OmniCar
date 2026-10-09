@@ -1,0 +1,1 @@
+OmniCarSplitScreen_FRAMEWORKS += QuartzCore

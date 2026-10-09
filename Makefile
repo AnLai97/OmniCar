@@ -2,7 +2,7 @@ TARGET := iphone:clang:16.5:15.0
 ARCHS = arm64 arm64e
 THEOS_PACKAGE_SCHEME = rootless
 # "Runner" is Vietmap Live's process (Flutter), "GOFA" is com.lumi.GOFA (Speed Bubble sources).
-INSTALL_TARGET_PROCESSES = CarPlay SpringBoard Runner GOFA TikTok
+INSTALL_TARGET_PROCESSES = CarPlay SpringBoard Runner GOFA
 
 include $(THEOS)/makefiles/common.mk
 
@@ -16,6 +16,7 @@ TWEAK_VERSION := $(shell sed -n 's/^Version: *//p' control | tr -d '\r')
 #   Prefs/*.m + Prefs/Resources/*    settings page, plist (feature* keys list it on the root page),
 #                                    <lang>.lproj/<Name>.strings, icon
 # Dropping a folder into Features/ is all it takes to add a feature.
+# App/ is the OmniCar companion app (omnicar:// URL scheme for Shortcuts / Siri), see below.
 
 FEATURES := $(notdir $(wildcard Features/*))
 
@@ -50,5 +51,17 @@ OmniCarPrefs_RESOURCE_DIRS = Prefs/Resources $(wildcard Features/*/Prefs/Resourc
 # TWEAK_VERSION is shown in the footer card, read from control.
 OmniCarPrefs_CFLAGS = -fobjc-arc -ICore -IPrefs -DTWEAK_VERSION=\"$(TWEAK_VERSION)\"
 
+# --- Companion app: the omnicar:// URL scheme for Shortcuts / Siri (App/main.m) -------------------
+# It only forwards the URL to SpringBoard; a feature's SpringBoard hook handles its own host
+# (omnicar://splitscreen/...). Installed to /Applications; the package manager runs uicache.
+APPLICATION_NAME = OmniCar
+
+OmniCar_FILES = App/main.m
+OmniCar_FRAMEWORKS = UIKit
+OmniCar_CFLAGS = -fobjc-arc -ICore -IFeatures/SplitScreen
+OmniCar_RESOURCE_DIRS = App/Resources
+OmniCar_CODESIGN_FLAGS = -SApp/entitlements.plist
+
 include $(THEOS_MAKE_PATH)/tweak.mk
 include $(THEOS_MAKE_PATH)/bundle.mk
+include $(THEOS_MAKE_PATH)/application.mk

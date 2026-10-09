@@ -14,21 +14,22 @@ Description: Unlock every limit of CarPlay.
     limit from Vietmap Live or GOFA while the app runs in the background - on
     the CarPlay screen, or on iPhone when no car is connected; 18 styles,
     drag, pinch, tap to reopen the app
-  - TikTok: keep audio playing when you leave TikTok or lock the screen,
-    move to the next video automatically, previous/next from the lock
-    screen, a clean distraction-free video view, and TikTok fitted to the
-    car screen when shown on CarPlay with CarBridge
+  - Split Screen: two or three CarPlay apps side by side on the car screen,
+    each with its real CarPlay interface, CarBridge apps included - 2 boxes,
+    3 boxes or 1 large + 2, drag the divider to resize, swap boxes, a
+    floating window, three favorite layouts, reopen the last split on
+    connect, and Siri / Shortcuts through the omnicar:// URL scheme
   - More CarPlay upgrades are on the way
  .
  Every feature has its own switch and settings page under Settings > OmniCar.
  Changes apply the next time CarPlay connects; respring once after installing.
  .
  Compatibility: iOS 15 and later, rootless jailbreaks (Dopamine, palera1n).
- Replaces the standalone CarSplash, CarSpeed and TikTokX tweaks.
+ Replaces the standalone CarSplash, CarSpeed and CarDuo tweaks.
 Icon: file:///var/jb/Library/PreferenceBundles/OmniCarPrefs.bundle/PackageIcon.png
 Maintainer: AnLai <laihoangan123456@gmail.com>
 Author: AnLai <laihoangan123456@gmail.com>
 Section: Tweaks
 Depends: mobilesubstrate (>= 0.9.5000), preferenceloader, firmware (>= 15.0)
-Conflicts: carsplash-rootless, carspeed, com.anlai97.speedpop, tiktokx, com.anlai.tiktokx, com.tiktokx
-Replaces: carsplash-rootless, carspeed, com.anlai97.speedpop, tiktokx, com.anlai.tiktokx, com.tiktokx
+Conflicts: carsplash-rootless, carspeed, com.anlai97.speedpop, com.anlai97.carduo, com.anpham.splitcarplay
+Replaces: carsplash-rootless, carspeed, com.anlai97.speedpop, com.anlai97.carduo, com.anpham.splitcarplay

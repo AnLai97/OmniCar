@@ -19,8 +19,10 @@ layout/               entry PreferenceLoader
 Features/<Tên>/       mỗi tính năng là một component (xem bên dưới)
   StartupScreen/      video khởi động trên màn CarPlay (từ CarSplash)
   SpeedBubble/        bong bóng tốc độ + biển giới hạn từ Vietmap Live / GOFA (từ CarSpeed, ObjC++)
-  TikTok/             phát nền, tự cuộn, nút màn hình khoá, giao diện sạch cho TikTok (từ TikTokX);
-                      TikTok bị sandbox nên đọc công tắc qua state của Darwin notification, SpringBoard phát
+  SplitScreen/        chia màn xe cho 2-3 app CarPlay chạy song song (từ CarDuo, ObjC++); split nằm trong
+                      process CarPlay, SpringBoard chỉ nhận URL và đặt cửa sổ CarBridge
+App/                  app OmniCar nhận URL omnicar://<tính năng>/<việc> cho Shortcuts / Siri rồi chuyển sang
+                      SpringBoard (distributed notification com.anlai.omnicar/url); hook của tính năng tự xử lý
 Template/             plist mẫu cho trang tính năng mới
 tools/icons/          script vẽ logo gói và icon dòng của từng tính năng (Pillow)
 assets/               icon 1024
@@ -63,9 +65,12 @@ Quy ước:
 - Darwin notification: `com.anlai.omnicar/<tên>.<việc>`. Mọi cell lưu prefs đều `PostNotification`
   `com.anlai.omnicar/prefschanged`.
 - Log: `OMCLog(@"<Tên>", ...)` ra `[OmniCar/<Tên>]` trong Console và `/var/mobile/Documents/OmniCar.log`
-  (xoay sang `.old` khi quá 2 MB). Process không ghi được file (TikTok, Vietmap, GOFA) tự gửi dòng log sang
+  (xoay sang `.old` khi quá 2 MB). Process không ghi được file (Vietmap, GOFA) tự gửi dòng log sang
   SpringBoard qua distributed notification, `OmniCarCore` ghi hộ. Mọi tính năng chỉ dùng cơ chế này.
 - Chuỗi: `<TÊN>_KEY` trong `<Tên>.strings`; `"<TÊN>"` là nhãn dòng ở trang chính.
+- URL cho Shortcuts / Siri: `omnicar://<tên thường>/<việc>?...` (`omnicar://splitscreen/open?left=..&right=..`).
+  App `App/main.m` chỉ chuyển URL sang SpringBoard; tính năng nào cần thì nghe `OMC_URL_NOTIFY` trong hook
+  SpringBoard của mình và lọc theo host.
 
 ## Thêm tính năng
 

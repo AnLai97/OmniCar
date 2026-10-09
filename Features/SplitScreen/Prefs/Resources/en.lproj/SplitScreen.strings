@@ -1,0 +1,46 @@
+/* OmniCar – Split Screen – English */
+
+"SPLITSCREEN" = "Split Screen";
+"SPLITSCREEN_FOOTER" = "Two or three CarPlay apps side by side on the car screen, each with its real CarPlay interface. Changes apply right away. Turn off to use CarPlay as usual.";
+"SPLITSCREEN_ENABLE" = "Enable Split Screen";
+
+"SPLITSCREEN_ON_CONNECT_GROUP" = "In the car";
+"SPLITSCREEN_AUTO_LAUNCH" = "Open split on connect";
+"SPLITSCREEN_ON_CONNECT_FOOTER" = "When you connect, the most recent split reopens (or Favorite layout 1 if there is none). Layout, ratio and split direction (wide car screen: left/right, tall: top/bottom) follow the car screen; drag the bars between boxes to resize, remembered per app pair.";
+
+"SPLITSCREEN_USAGE_GROUP" = "How to use";
+"SPLITSCREEN_USAGE_FOOTER" = "Tap the Split Screen button on the CarPlay dock (just above Home) to show a panel with 3 sections: Default (2 boxes / 3 boxes / 1 large + 2: the open app goes to box 1, the other boxes show an app picker), Recent (the last 3 splits, tap to reopen the same apps and layout), Favorites (the layouts below). Holding an app icon for 1 second opens the same panel. While split, the button switches the layout (apps keep their box order; with fewer boxes the last apps go to the background). HyperOS style: drag the handle between boxes to resize (it snaps to 1/3 · 1/2 · 2/3), drag it to the edge to close the squeezed box, tap the handle for preset ratios, double-tap a divider to swap the two boxes. ••• bar on each box: tap for Replace app / Full screen / Close app; drag ••• onto another box to swap them. Closing an app removes its box (3 becomes 2, 2 becomes 1 = back to full screen). The CarPlay Home button closes the split.";
+
+"SPLITSCREEN_PANEL_GROUP" = "Split Screen button panel";
+"SPLITSCREEN_SHOW_RECENT" = "Show Recent";
+"SPLITSCREEN_SHOW_FAVORITES" = "Show Favorites";
+"SPLITSCREEN_PANEL_FOOTER" = "The panel opens from the Split Screen button on the dock. Default (2 boxes / 3 boxes / 1 large + 2) is always there. Recent: the last 3 splits. Favorites: the layouts below.";
+
+"SPLITSCREEN_LAYOUT_2" = "2 boxes";
+"SPLITSCREEN_LAYOUT_3" = "3 boxes";
+"SPLITSCREEN_LAYOUT_13" = "1 large + 2";
+"SPLITSCREEN_LAYOUT_31" = "2 + 1 large";
+"SPLITSCREEN_BOX_1" = "Box 1";
+"SPLITSCREEN_BOX_2" = "Box 2";
+"SPLITSCREEN_BOX_3" = "Box 3";
+"SPLITSCREEN_FAV1_GROUP" = "Favorite layout 1";
+"SPLITSCREEN_FAV2_GROUP" = "Favorite layout 2";
+"SPLITSCREEN_FAV3_GROUP" = "Favorite layout 3";
+"SPLITSCREEN_PAIR_NAME" = "Name";
+"SPLITSCREEN_FAV1_PLACEHOLDER" = "Commute";
+"SPLITSCREEN_FAV2_PLACEHOLDER" = "Weekend";
+"SPLITSCREEN_FAV3_PLACEHOLDER" = "Road trip";
+"SPLITSCREEN_FAV_FOOTER" = "Pick a layout, then an app for each box (Box 3 only shows for 3-box layouts). Shown in the Favorites section of the Split Screen button panel; tap to open that layout with those apps. Siri/Shortcuts: omnicar://splitscreen/fav?n=1";
+
+"SPLITSCREEN_APP_NOT_SET" = "Not set";
+"SPLITSCREEN_PICKER_NONE" = "None";
+"SPLITSCREEN_PICKER_CARPLAY_APPS" = "CarPlay apps";
+"SPLITSCREEN_PICKER_CARBRIDGE_APPS" = "CarBridge apps";
+"SPLITSCREEN_PICKER_GUESS_FOOTER" = "Not connected to a car yet: showing apps with CarPlay support. The exact list refreshes each time you connect.";
+"SPLITSCREEN_PICKER_BRIDGE_FOOTER" = "iPhone apps enabled in CarBridge.";
+"SPLITSCREEN_PICKER_NO_BRIDGE_FOOTER" = "No CarBridge apps found. Enable apps in CarBridge, then connect to the car once to refresh.";
+
+"SPLITSCREEN_SHORTCUTS_GROUP" = "Siri / Shortcuts";
+"SPLITSCREEN_SHORTCUTS_FOOTER" = "Create a Shortcut with the \"Open URL\" action and run it with Siri:\nomnicar://splitscreen/open?left=com.apple.Maps&right=com.spotify.client\nomnicar://splitscreen/fav?n=1\nomnicar://splitscreen/close";
+
+"SPLITSCREEN_CREDITS_FOOTER" = "Formerly the CarDuo tweak; your CarDuo favorites are carried over. App hosting is based on carplay-cast (Ethan Arbuckle).";

@@ -1,0 +1,46 @@
+/* OmniCar – Split Screen – Tiếng Việt */
+
+"SPLITSCREEN" = "Chia màn hình";
+"SPLITSCREEN_FOOTER" = "Hai hoặc ba app CarPlay chạy song song trên màn xe, mỗi ô là giao diện CarPlay thật của app. Thay đổi áp dụng ngay. Tắt để dùng CarPlay như bình thường.";
+"SPLITSCREEN_ENABLE" = "Bật Chia màn hình";
+
+"SPLITSCREEN_ON_CONNECT_GROUP" = "Trên xe";
+"SPLITSCREEN_AUTO_LAUNCH" = "Tự mở split khi cắm xe";
+"SPLITSCREEN_ON_CONNECT_FOOTER" = "Khi cắm xe sẽ tự mở lại cách chia gần nhất (chưa có thì dùng Bố cục yêu thích 1). Bố cục, tỉ lệ và hướng chia (màn xe ngang: trái/phải, màn dọc: trên/dưới) tự theo màn xe; tỉ lệ đổi bằng cách kéo thanh giữa các ô và được nhớ riêng cho từng cặp app.";
+
+"SPLITSCREEN_USAGE_GROUP" = "Cách dùng trên xe";
+"SPLITSCREEN_USAGE_FOOTER" = "Bấm nút Chia màn hình trên dock CarPlay (ngay trên nút Home) để hiện bảng gồm 3 mục: Mặc định (2 ô / 3 ô / 1 lớn + 2: app đang mở vào ô 1, các ô còn lại hiện bảng chọn app), Gần đây (3 cách chia vừa dùng, bấm là mở lại đúng app và bố cục), Yêu thích (các bố cục bên dưới). Giữ icon app 1 giây cũng mở bảng này. Đang chia: bấm nút để đổi bố cục (app giữ thứ tự ô; bớt ô thì app ở ô cuối về nền). Kiểu HyperOS: kéo tay nắm giữa các ô để đổi tỉ lệ (thả tay tự hít 1/3 · 1/2 · 2/3), kéo sát mép để đóng ô bị ép, chạm tay nắm để chọn tỉ lệ mặc định, chạm 2 lần vào vạch để đổi chỗ 2 ô. Thanh ••• trên mỗi ô: chạm để hiện Đổi app / Toàn màn hình / Tắt app; giữ và kéo ••• thả lên ô khác để đổi chỗ. Tắt một app thì bớt một ô (3 còn 2, 2 còn 1 là về toàn màn). Nút Home của CarPlay tắt split.";
+
+"SPLITSCREEN_PANEL_GROUP" = "Bảng của nút Chia màn hình";
+"SPLITSCREEN_SHOW_RECENT" = "Hiện mục Gần đây";
+"SPLITSCREEN_SHOW_FAVORITES" = "Hiện mục Yêu thích";
+"SPLITSCREEN_PANEL_FOOTER" = "Bảng hiện khi bấm nút Chia màn hình trên dock. Mục Mặc định (2 ô / 3 ô / 1 lớn + 2) luôn có. Gần đây: 3 cách chia vừa dùng. Yêu thích: các bố cục bên dưới.";
+
+"SPLITSCREEN_LAYOUT_2" = "2 ô";
+"SPLITSCREEN_LAYOUT_3" = "3 ô";
+"SPLITSCREEN_LAYOUT_13" = "1 lớn + 2";
+"SPLITSCREEN_LAYOUT_31" = "2 + 1 lớn";
+"SPLITSCREEN_BOX_1" = "Ô 1";
+"SPLITSCREEN_BOX_2" = "Ô 2";
+"SPLITSCREEN_BOX_3" = "Ô 3";
+"SPLITSCREEN_FAV1_GROUP" = "Bố cục yêu thích 1";
+"SPLITSCREEN_FAV2_GROUP" = "Bố cục yêu thích 2";
+"SPLITSCREEN_FAV3_GROUP" = "Bố cục yêu thích 3";
+"SPLITSCREEN_PAIR_NAME" = "Tên";
+"SPLITSCREEN_FAV1_PLACEHOLDER" = "Đi làm";
+"SPLITSCREEN_FAV2_PLACEHOLDER" = "Đi chơi";
+"SPLITSCREEN_FAV3_PLACEHOLDER" = "Đi xa";
+"SPLITSCREEN_FAV_FOOTER" = "Chọn bố cục rồi chọn app cho từng ô (Ô 3 chỉ hiện khi bố cục có 3 ô). Hiện trong mục Yêu thích của bảng nút Chia màn hình trên dock, bấm là mở đúng bố cục và app đó. Siri/Shortcuts: omnicar://splitscreen/fav?n=1";
+
+"SPLITSCREEN_APP_NOT_SET" = "Chưa chọn";
+"SPLITSCREEN_PICKER_NONE" = "Không chọn";
+"SPLITSCREEN_PICKER_CARPLAY_APPS" = "App CarPlay";
+"SPLITSCREEN_PICKER_CARBRIDGE_APPS" = "App CarBridge";
+"SPLITSCREEN_PICKER_GUESS_FOOTER" = "Chưa cắm xe lần nào: đang liệt kê app có hỗ trợ CarPlay. Danh sách chính xác cập nhật mỗi lần cắm xe.";
+"SPLITSCREEN_PICKER_BRIDGE_FOOTER" = "App iPhone được bật trong CarBridge.";
+"SPLITSCREEN_PICKER_NO_BRIDGE_FOOTER" = "Không thấy app CarBridge nào. Bật app trong CarBridge rồi cắm xe một lần để cập nhật.";
+
+"SPLITSCREEN_SHORTCUTS_GROUP" = "Siri / Shortcuts";
+"SPLITSCREEN_SHORTCUTS_FOOTER" = "Tạo Shortcut với hành động \"Mở URL\" rồi gọi bằng Siri:\nomnicar://splitscreen/open?left=com.apple.Maps&right=com.spotify.client\nomnicar://splitscreen/fav?n=1\nomnicar://splitscreen/close";
+
+"SPLITSCREEN_CREDITS_FOOTER" = "Trước đây là tweak CarDuo; bố cục yêu thích của CarDuo được chuyển sang tự động. Cơ chế host app dựa trên carplay-cast (Ethan Arbuckle).";

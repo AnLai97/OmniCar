@@ -23,7 +23,7 @@ BOOL OMCFeatureEnabled(NSString *feature) {
 #pragma mark - Logging
 
 // One file for every feature and process, readable with Filza. A process that cannot write it
-// (sandboxed apps: TikTok, Vietmap Live, GOFA) relays the line to SpringBoard, where the
+// (sandboxed apps: Vietmap Live, GOFA) relays the line to SpringBoard, where the
 // OmniCarCore dylib appends it (OMCLogRelayStart). The file is rotated at OMC_LOG_MAX_BYTES.
 static NSString *const kLogPath = @"/var/mobile/Documents/OmniCar.log";
 static const unsigned long long OMC_LOG_MAX_BYTES = 2 * 1024 * 1024;
