@@ -68,10 +68,8 @@
 			<string>OMCStartupScreenController</string>
 			<key>plist</key>
 			<string>FeatureStartupScreen</string>
-			<key>symbol</key>
-			<string>play.rectangle.fill</string>
-			<key>symbolColor</key>
-			<string>#0A59F7</string>
+			<key>icon</key>
+			<string>StartupScreenIcon.png</string>
 		</dict>
 		<dict>
 			<key>cell</key>
