@@ -49,6 +49,10 @@ jobs:
             grep -E 'error:|Error [0-9]|No such file|not found' build.log | head -20 | while IFS= read -r line; do
               echo "::error::$line"
             done
+            # Packaging failures (dpkg-deb, ldid, plutil) rarely say "error:" - show the end of the log too.
+            tail -n 25 build.log | while IFS= read -r line; do
+              echo "::error::tail: $line"
+            done
             exit 1
           fi
 
