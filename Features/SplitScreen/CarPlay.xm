@@ -227,6 +227,6 @@ static void SCPHookError(const char *where, NSException *e)
             }
         } @catch (NSException *e) { SCPHookError("yeu cau tu SpringBoard", e); }
         // Bao SpringBoard da nhan (khong thi SpringBoard giu lai, gui lai khi man xe san sang)
-        [dnc postNotificationName:SPL_NOTIF_ACK object:nil userInfo:nil];
+        [[objc_getClass("NSDistributedNotificationCenter") defaultCenter] postNotificationName:SPL_NOTIF_ACK object:nil userInfo:nil];
     }];
 }
