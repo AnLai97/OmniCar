@@ -5,7 +5,8 @@
 @interface ABHost : NSObject
 + (instancetype)shared;
 - (void)openApp:(NSString *)bid frame:(CGRect)frame;                                    // frame in car-screen points
-- (void)setFrame:(CGRect)frame forApp:(NSString *)bid live:(BOOL)live handle:(BOOL)handle;
+- (void)setFrame:(CGRect)frame forApp:(NSString *)bid live:(BOOL)live handle:(BOOL)handle passInsets:(UIEdgeInsets)pass;
+- (void)setPassInsets:(UIEdgeInsets)pass forApp:(NSString *)bid;   // dai sat mep cho cham xuyen xuong CarPlay
 - (void)closeApp:(NSString *)bid terminate:(BOOL)terminate;
 - (void)closeAll;
 - (void)carDisconnected;                 // car screen gone: drop every box without touching the apps

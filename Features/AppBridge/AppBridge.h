@@ -20,6 +20,8 @@
 //   FRAME    identifier, x, y, w, h, live (0/1), handle (0/1): move / resize. live = 1 only moves the box (while a
 //            divider is dragged); live = 0 also resizes the app's scene. w < 2 hides the box. handle = 1 draws a
 //            translucent "•••" pill at the top of the box (CarPlay's own pill is under the window).
+//            pt, pl, pb, pr (optional, points): touches within that distance of the box edge fall through to
+//            CarPlay (divider drags along edges shared with another pane).
 //   CLOSE    identifier, terminate (0/1): remove the app from the car screen (and quit it)
 //   CLOSEALL (no keys)
 #define AB_NOTIF_OPEN        @"com.anlai.omnicar/appbridge.open"

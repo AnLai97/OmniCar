@@ -80,10 +80,25 @@ static void ABPostState(NSString *bid, NSString *state)
         postNotificationName:AB_NOTIF_STATE object:nil userInfo:@{@"identifier": bid, @"state": state}];
 }
 
+// Khung o: cham trong dai passInsets sat mep (canh giap o khac) khong tinh la cham vao o -> cua so (pass-through)
+// tra nil -> CarPlay nhan cham de keo vach. Thanh "•••" van cham duoc.
+@interface ABBoxView : UIView
+@property (nonatomic) UIEdgeInsets passInsets;
+@property (nonatomic, weak) UIView *handleHit;
+@end
+@implementation ABBoxView
+- (BOOL)pointInside:(CGPoint)p withEvent:(UIEvent *)e
+{
+    if (![super pointInside:p withEvent:e]) return NO;
+    if (self.handleHit && !self.handleHit.hidden && CGRectContainsPoint(self.handleHit.frame, p)) return YES;
+    return CGRectContainsPoint(UIEdgeInsetsInsetRect(self.bounds, self.passInsets), p);
+}
+@end
+
 // Mot o chua mot app
 @interface ABPane : NSObject
 @property (nonatomic, copy) NSString *bundleID;
-@property (nonatomic, strong) UIView *box;             // khung o trong cua so (toa do man xe)
+@property (nonatomic, strong) ABBoxView *box;          // khung o trong cua so (toa do man xe)
 @property (nonatomic, strong) id application;          // SBApplication
 @property (nonatomic, strong) id appViewController;    // SBAppViewController
 @property (nonatomic, strong) id sceneMonitor;         // FBSceneMonitor
@@ -171,14 +186,14 @@ static void ABPostState(NSString *bid, NSString *state)
     if (!bid.length) return;
     if (!OMCFeatureEnabled(AB_FEATURE)) { ABLog("tat trong Cai dat -> khong host %@", bid); ABPostState(bid, @"failed"); return; }
     ABPane *existing = [self paneFor:bid];
-    if (existing) { [self setFrame:frame forApp:bid live:NO handle:YES]; return; }
+    if (existing) { [self setFrame:frame forApp:bid live:NO handle:YES passInsets:existing.box.passInsets]; return; }
     if (![self ensureWindow]) { ABLog("xe chua ket noi -> khong host %@", bid); ABPostState(bid, @"failed"); return; }
 
     ABPane *pane = [ABPane new];
     pane.bundleID = bid;
     pane.frame = frame;
     pane.orientation = (frame.size.width >= frame.size.height) ? UIInterfaceOrientationLandscapeRight : UIInterfaceOrientationPortrait;
-    pane.box = [[UIView alloc] initWithFrame:frame];
+    pane.box = [[ABBoxView alloc] initWithFrame:frame];
     pane.box.backgroundColor = [UIColor blackColor];
     pane.box.clipsToBounds = YES;
     [self.window addSubview:pane.box];
@@ -334,12 +349,13 @@ static void ABPostState(NSString *bid, NSString *state)
     pane.sceneBox = boxSize;
 }
 
-- (void)setFrame:(CGRect)frame forApp:(NSString *)bid live:(BOOL)live handle:(BOOL)handle
+- (void)setFrame:(CGRect)frame forApp:(NSString *)bid live:(BOOL)live handle:(BOOL)handle passInsets:(UIEdgeInsets)pass
 {
     ABPane *p = [self paneFor:bid];
     if (!p) return;
     BOOL hidden = frame.size.width < 2 || frame.size.height < 2;
     p.box.hidden = hidden;
+    p.box.passInsets = pass;
     [self setHandleVisible:handle && !hidden forPane:p];
     if (hidden) return;
     p.frame = frame;
@@ -357,6 +373,12 @@ static void ABPostState(NSString *bid, NSString *state)
     } else {
         [p.appViewController view].center = CGPointMake(frame.size.width / 2, frame.size.height / 2);
     }
+}
+
+- (void)setPassInsets:(UIEdgeInsets)pass forApp:(NSString *)bid
+{
+    ABPane *p = [self paneFor:bid];
+    if (p) p.box.passInsets = pass;
 }
 
 #pragma mark - Thanh "•••" tren app
@@ -379,6 +401,7 @@ static void ABPostState(NSString *bid, NSString *state)
     hit.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin;
     pane.handle = pill;
     pane.handleHit = hit;
+    pane.box.handleHit = hit;
     [pane.box addSubview:hit];
     [self setHandleVisible:YES forPane:pane];
 }

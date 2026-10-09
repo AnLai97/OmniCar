@@ -3595,7 +3595,9 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
 //  SpringBoard moi khi bo cuc doi. Thanh "•••" cua o do SpringBoard ve tren app; cham -> AB_NOTIF_HANDLE_TAP ->
 //  hien thanh nut, cua so host lui xuong duoi thanh nut.
 // ---------------------------------------------------------------------
-#define SCPC_BRIDGE_SIDE   5.0    // chua mep giap ngan khac: tay nam (vien thuoc 4pt trong khe / cham tron 14pt) khong bi cua so host che
+// Canh giap o khac: cua so host phu sat khe (khong lui vao) nhung dai SCPC_BRIDGE_PASS pt sat mep cho cham xuyen xuong
+// CarPlay de keo vach / cham tay nam duoc (SpringBoard bo qua cham trong dai do)
+#define SCPC_BRIDGE_PASS   10.0
 
 // App iPhone (khong co giao dien CarPlay) ma App Bridge host duoc: app nguoi dung cai + vai app Apple hay dung
 static NSSet<NSString *> *SCPCPhoneAppSet(void)
@@ -3673,13 +3675,25 @@ static NSArray<NSDictionary *> *SCPCPhoneApps(void)
     if (self.ratioMenu && CGRectIntersectsRect(CGRectInset(self.ratioMenu.frame, -6, -6), p.view.frame)) return CGRectZero;
     // Thanh nut cua o dang hien -> cua so host lui xuong duoi thanh nut de bam duoc
     CGFloat top = p.bar.hidden ? 0 : SCPC_HANDLE_Y + SCPC_HANDLE_H + 6 + SCPC_PILL + 6;
-    CGRect b = p.view.bounds, f = p.view.frame;
-    CGSize box = p.view.superview.bounds.size;
-    CGFloat left = CGRectGetMinX(f) > 1 ? SCPC_BRIDGE_SIDE : 0, right = CGRectGetMaxX(f) < box.width - 1 ? SCPC_BRIDGE_SIDE : 0;
-    CGFloat bottom = CGRectGetMaxY(f) < box.height - 1 ? SCPC_BRIDGE_SIDE : 0;
-    if (CGRectGetMinY(f) > 1) top = MAX(top, SCPC_BRIDGE_SIDE);
-    CGRect r = CGRectMake(left, top, MAX(0, b.size.width - left - right), MAX(0, b.size.height - top - bottom));
+    CGRect b = p.view.bounds;
+    CGRect r = CGRectMake(0, top, b.size.width, MAX(0, b.size.height - top));
     return [p.view convertRect:r toView:nil];
+}
+
+// Dai sat mep cua so host cho cham xuyen xuong CarPlay (canh giap o khac: keo vach; canh giap mep vung app: 0)
+- (UIEdgeInsets)hostPassInsetsForPane:(SCPCarPane *)p
+{
+    CGRect f = p.view.frame;
+    CGSize box = p.view.superview.bounds.size;
+    return UIEdgeInsetsMake(CGRectGetMinY(f) > 1 ? SCPC_BRIDGE_PASS : 0, CGRectGetMinX(f) > 1 ? SCPC_BRIDGE_PASS : 0,
+                            CGRectGetMaxY(f) < box.height - 1 ? SCPC_BRIDGE_PASS : 0, CGRectGetMaxX(f) < box.width - 1 ? SCPC_BRIDGE_PASS : 0);
+}
+
+- (NSDictionary *)hostFrameInfo:(CGRect)r pane:(SCPCarPane *)p live:(BOOL)live handle:(BOOL)handle
+{
+    UIEdgeInsets pi = p ? [self hostPassInsetsForPane:p] : UIEdgeInsetsZero;
+    return @{@"identifier": p.bundleID ?: @"", @"x": @(r.origin.x), @"y": @(r.origin.y), @"w": @(r.size.width), @"h": @(r.size.height),
+             @"live": @(live), @"handle": @(handle), @"pt": @(pi.top), @"pl": @(pi.left), @"pb": @(pi.bottom), @"pr": @(pi.right)};
 }
 
 - (void)sendHostFrameForPane:(SCPCarPane *)p live:(BOOL)live
@@ -3689,8 +3703,7 @@ static NSArray<NSDictionary *> *SCPCPhoneApps(void)
     BOOL handle = p.bar.hidden && !CGRectIsEmpty(r);
     if (!live && CGRectEqualToRect(r, p.hostFrame) && handle == p.hostHandle) return;
     p.hostFrame = r; p.hostHandle = handle;
-    [self hostPost:AB_NOTIF_FRAME info:@{@"identifier": p.bundleID, @"x": @(r.origin.x), @"y": @(r.origin.y),
-                                         @"w": @(r.size.width), @"h": @(r.size.height), @"live": @(live), @"handle": @(handle)}];
+    [self hostPost:AB_NOTIF_FRAME info:[self hostFrameInfo:r pane:p live:live handle:handle]];
 }
 
 // live: dang keo vach -> cua so chay theo tay, scene doi kich thuoc khi tha tay (live = NO)
@@ -3728,7 +3741,7 @@ static NSArray<NSDictionary *> *SCPCPhoneApps(void)
         CGRect r = [me hostFrameForPane:pp];
         if (CGRectIsEmpty(r)) r = [pp.view convertRect:pp.view.bounds toView:nil];
         pp.hostFrame = r; pp.hostHandle = pp.bar.hidden;
-        [me hostPost:AB_NOTIF_OPEN info:@{@"identifier": bid, @"x": @(r.origin.x), @"y": @(r.origin.y), @"w": @(r.size.width), @"h": @(r.size.height)}];
+        [me hostPost:AB_NOTIF_OPEN info:[me hostFrameInfo:r pane:pp live:NO handle:pp.bar.hidden]];
     });
     // Khong thay app len sau 8s -> bo the "dang mo" (app van co the toi muon)
     SCPCAfter(8.0, ^{ SCPCarPane *pp = weakPane; if (pp && [pp.bundleID isEqualToString:bid]) [weakSelf removeLoaderFromPane:pp animated:YES]; });
