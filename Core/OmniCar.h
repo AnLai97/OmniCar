@@ -4,7 +4,7 @@
 // A feature lives in Features/<Name>/: <Name>.h (keys, paths, notification names shared with its
 // settings page), <Name>.x (hooks in %group <Name>, installed by its own %ctor), Prefs/ (its
 // settings page). Every pref key is prefixed with the feature name in lower camel case
-// ("carsplashVideoName"); "<feature>Enabled" is the feature's own switch.
+// ("startupScreenVideoName"); "<feature>Enabled" is the feature's own switch.
 
 #import <Foundation/Foundation.h>
 #import <rootless.h>
@@ -19,7 +19,7 @@ void OMCPrefsSync(void);
 id OMCPref(NSString *key, id fallback);
 // Master switch ("enabled", default YES).
 BOOL OMCEnabled(void);
-// Master switch AND "<feature>Enabled" (default YES). `feature` is the key prefix, e.g. @"carsplash".
+// Master switch AND "<feature>Enabled" (default YES). `feature` is the key prefix, e.g. @"startupScreen".
 BOOL OMCFeatureEnabled(NSString *feature);
 
 // Logs "[OmniCar/<feature>] message" to syslog and to OmniCar.log (Documents, else /var/tmp).

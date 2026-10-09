@@ -1,4 +1,4 @@
-// CarSplash - play a short video over the CarPlay screen while CarPlay is starting.
+// Startup Screen - play a short video over the CarPlay screen while CarPlay is starting.
 //
 // Runs inside CarPlay.app (com.apple.CarPlayApp). Each time a car connects, a new UIScreen
 // (and, depending on the iOS build, a UIWindowScene) is created for the car display. We put a
@@ -9,7 +9,7 @@
 // each video into JPEG frames (Videos/.frames/<video>/) and we play those as a flipbook. The
 // soundtrack (audio.m4a next to the frames) is played by the same tweak loaded into SpringBoard.
 //
-// Logs are prefixed with "[OmniCar/CarSplash]" - filter for it in Console.app to debug.
+// Logs are prefixed with "[OmniCar/StartupScreen]" - filter for it in Console.app to debug.
 
 #import <UIKit/UIKit.h>
 #import <AVFoundation/AVFoundation.h>
@@ -17,9 +17,9 @@
 #import <QuartzCore/QuartzCore.h>
 #import <objc/runtime.h>
 #import "OmniCar.h"
-#import "CarSplash.h"
+#import "StartupScreen.h"
 
-#define CSLog(fmt, ...) OMCLog(@"CarSplash", fmt, ##__VA_ARGS__)
+#define SSLog(fmt, ...) OMCLog(@"StartupScreen", fmt, ##__VA_ARGS__)
 
 static const NSTimeInterval kFadeDuration = 0.4;
 static const NSTimeInterval kMaxFullPlay  = 60.0;
@@ -29,14 +29,14 @@ static char kShownKey;
 
 #pragma mark - Preferences
 
-static NSString *CSVideoName(void) {
+static NSString *SSVideoName(void) {
 	NSFileManager *fm = [NSFileManager defaultManager];
-	NSString *name = OMCPref(CS_KEY_VIDEO_NAME, nil);
-	if (name.length && [fm fileExistsAtPath:[CS_VIDEOS_DIR stringByAppendingPathComponent:name]]) return name;
+	NSString *name = OMCPref(SS_KEY_VIDEO_NAME, nil);
+	if (name.length && [fm fileExistsAtPath:[SS_VIDEOS_DIR stringByAppendingPathComponent:name]]) return name;
 	// Fall back to the first video in the folder.
 	NSError *error = nil;
-	NSArray *files = [[fm contentsOfDirectoryAtPath:CS_VIDEOS_DIR error:&error] sortedArrayUsingSelector:@selector(compare:)];
-	if (error) CSLog(@"cannot list %@: %@", CS_VIDEOS_DIR, error);
+	NSArray *files = [[fm contentsOfDirectoryAtPath:SS_VIDEOS_DIR error:&error] sortedArrayUsingSelector:@selector(compare:)];
+	if (error) SSLog(@"cannot list %@: %@", SS_VIDEOS_DIR, error);
 	for (NSString *file in files) {
 		if (![file hasPrefix:@"."]) return file;
 	}
@@ -53,36 +53,36 @@ static AVAudioPlayer *gAudioPlayer;
 static AVAudioSessionCategory gSavedCategory;
 static AVAudioSessionCategoryOptions gSavedOptions;
 
-static void CSPostNotification(CFStringRef name) {
+static void SSPostNotification(CFStringRef name) {
 	CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), name, NULL, NULL, YES);
 }
 
-static void CSAudioRestoreSession(void) {
+static void SSAudioRestoreSession(void) {
 	AVAudioSession *session = [AVAudioSession sharedInstance];
 	[session setActive:NO withOptions:AVAudioSessionSetActiveOptionNotifyOthersOnDeactivation error:nil];
 	if (gSavedCategory) [session setCategory:gSavedCategory withOptions:gSavedOptions error:nil];
 	gSavedCategory = nil;
 }
 
-static void CSAudioStop(void) {
+static void SSAudioStop(void) {
 	AVAudioPlayer *player = gAudioPlayer;
 	if (!player) return;
 	gAudioPlayer = nil;
 	[player setVolume:0 fadeDuration:kFadeDuration];
 	dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(kFadeDuration * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
 		[player stop];
-		if (!gAudioPlayer) CSAudioRestoreSession();
+		if (!gAudioPlayer) SSAudioRestoreSession();
 	});
 }
 
-static void CSAudioPlay(void) {
+static void SSAudioPlay(void) {
 	OMCPrefsSync();
-	if (![OMCPref(CS_KEY_SOUND, @NO) boolValue]) return;
-	NSString *name = CSVideoName();
+	if (![OMCPref(SS_KEY_SOUND, @NO) boolValue]) return;
+	NSString *name = SSVideoName();
 	if (!name) return;
-	NSString *path = [CS_FRAMES_DIR(name) stringByAppendingPathComponent:@"audio.m4a"];
+	NSString *path = [SS_FRAMES_DIR(name) stringByAppendingPathComponent:@"audio.m4a"];
 	if (![[NSFileManager defaultManager] fileExistsAtPath:path]) {
-		CSLog(@"audio: no soundtrack for %@", name);
+		SSLog(@"audio: no soundtrack for %@", name);
 		return;
 	}
 
@@ -99,27 +99,27 @@ static void CSAudioPlay(void) {
 	NSError *error = nil;
 	gAudioPlayer = [[AVAudioPlayer alloc] initWithContentsOfURL:[NSURL fileURLWithPath:path] error:&error];
 	if (!gAudioPlayer) {
-		CSLog(@"audio: cannot open %@: %@", path, error);
-		CSAudioRestoreSession();
+		SSLog(@"audio: cannot open %@: %@", path, error);
+		SSAudioRestoreSession();
 		return;
 	}
 	// Loop along with the frames unless the clip plays exactly once.
-	gAudioPlayer.numberOfLoops = [OMCPref(CS_KEY_PLAY_FULL, @NO) boolValue] ? 0 : -1;
+	gAudioPlayer.numberOfLoops = [OMCPref(SS_KEY_PLAY_FULL, @NO) boolValue] ? 0 : -1;
 	BOOL ok = [gAudioPlayer play];
-	CSLog(@"audio: playing %@ ok=%d route=%@", path.lastPathComponent, ok, session.currentRoute.outputs.firstObject.portType);
+	SSLog(@"audio: playing %@ ok=%d route=%@", path.lastPathComponent, ok, session.currentRoute.outputs.firstObject.portType);
 }
 
-static void CSAudioNotification(CFNotificationCenterRef center, void *observer, CFNotificationName name, const void *object, CFDictionaryRef info) {
-	BOOL play = CFStringCompare(name, CS_NOTIFY_AUDIO_PLAY, 0) == kCFCompareEqualTo;
+static void SSAudioNotification(CFNotificationCenterRef center, void *observer, CFNotificationName name, const void *object, CFDictionaryRef info) {
+	BOOL play = CFStringCompare(name, SS_NOTIFY_AUDIO_PLAY, 0) == kCFCompareEqualTo;
 	dispatch_async(dispatch_get_main_queue(), ^{
-		if (play) CSAudioPlay();
-		else CSAudioStop();
+		if (play) SSAudioPlay();
+		else SSAudioStop();
 	});
 }
 
 #pragma mark - Frames
 
-static UIImage *CSDecodeFrame(NSString *path) {
+static UIImage *SSDecodeFrame(NSString *path) {
 	CGImageSourceRef source = CGImageSourceCreateWithURL((__bridge CFURLRef)[NSURL fileURLWithPath:path], NULL);
 	if (!source) return nil;
 	// Decode now, on the background queue, rather than lazily on the main thread at draw time.
@@ -135,13 +135,13 @@ static UIImage *CSDecodeFrame(NSString *path) {
 #pragma mark - Splash
 
 // Marker class so the window hook below ignores our own window.
-@interface CSSplashWindow : UIWindow
+@interface SSSplashWindow : UIWindow
 @end
 
-@implementation CSSplashWindow
+@implementation SSSplashWindow
 @end
 
-@interface CSSplash : NSObject
+@interface SSSplash : NSObject
 @property (nonatomic, strong) UIWindow *window;
 @property (nonatomic, strong) UIImageView *imageView;
 @property (nonatomic, weak) UIScreen *screen;
@@ -160,7 +160,7 @@ static UIImage *CSDecodeFrame(NSString *path) {
 @property (nonatomic, assign) BOOL finished;
 @end
 
-@implementation CSSplash
+@implementation SSSplash
 
 - (instancetype)initWithScreen:(UIScreen *)screen scene:(UIWindowScene *)scene framesDir:(NSString *)framesDir
                     frameCount:(NSUInteger)frameCount fps:(double)fps {
@@ -170,12 +170,12 @@ static UIImage *CSDecodeFrame(NSString *path) {
 		_frameCount = frameCount;
 		_fps = fps;
 		// Loop the clip until the configured duration is up, unless it should play exactly once.
-		_loop = ![OMCPref(CS_KEY_PLAY_FULL, @NO) boolValue];
+		_loop = ![OMCPref(SS_KEY_PLAY_FULL, @NO) boolValue];
 		_buffer = [NSMutableArray array];
-		_decodeQueue = dispatch_queue_create("com.anlai.omnicar.carsplash.decode", DISPATCH_QUEUE_SERIAL);
+		_decodeQueue = dispatch_queue_create("com.anlai.omnicar.startupscreen.decode", DISPATCH_QUEUE_SERIAL);
 
-		BOOL fit     = [OMCPref(CS_KEY_SCALE_MODE, @0) integerValue] == 1;
-		BOOL tapSkip = [OMCPref(CS_KEY_TAP_TO_SKIP, @YES) boolValue];
+		BOOL fit     = [OMCPref(SS_KEY_SCALE_MODE, @0) integerValue] == 1;
+		BOOL tapSkip = [OMCPref(SS_KEY_TAP_TO_SKIP, @YES) boolValue];
 
 		_imageView = [[UIImageView alloc] initWithFrame:screen.bounds];
 		_imageView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
@@ -189,9 +189,9 @@ static UIImage *CSDecodeFrame(NSString *path) {
 
 		// CarPlay may or may not drive the car display through a UIWindowScene.
 		if (scene) {
-			_window = [[CSSplashWindow alloc] initWithWindowScene:scene];
+			_window = [[SSSplashWindow alloc] initWithWindowScene:scene];
 		} else {
-			_window = [[CSSplashWindow alloc] initWithFrame:screen.bounds];
+			_window = [[SSSplashWindow alloc] initWithFrame:screen.bounds];
 			// No scene to attach to, so setScreen: is the only way onto the car display.
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
@@ -212,7 +212,7 @@ static UIImage *CSDecodeFrame(NSString *path) {
 
 - (void)start {
 	self.window.hidden = NO;
-	CSLog(@"splash window shown: frame=%@ level=%.0f scene=%@ frames=%lu fps=%.0f loop=%d",
+	SSLog(@"splash window shown: frame=%@ level=%.0f scene=%@ frames=%lu fps=%.0f loop=%d",
 		NSStringFromCGRect(self.window.frame), self.window.windowLevel,
 		self.window.windowScene.session.persistentIdentifier, (unsigned long)self.frameCount, self.fps, self.loop);
 
@@ -224,7 +224,7 @@ static UIImage *CSDecodeFrame(NSString *path) {
 	__weak __typeof(self) weakSelf = self;
 	dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
 		if (weakSelf && !weakSelf.shownFrames) {
-			CSLog(@"no frame shown after 10s (failed=%lu), giving up", (unsigned long)weakSelf.failedFrames);
+			SSLog(@"no frame shown after 10s (failed=%lu), giving up", (unsigned long)weakSelf.failedFrames);
 			[weakSelf dismiss];
 		}
 	});
@@ -242,14 +242,14 @@ static UIImage *CSDecodeFrame(NSString *path) {
 	self.queuedFrames++;
 	NSString *path = [self.framesDir stringByAppendingPathComponent:[NSString stringWithFormat:@"%05lu.jpg", (unsigned long)index]];
 	dispatch_async(self.decodeQueue, ^{
-		UIImage *image = CSDecodeFrame(path);
+		UIImage *image = SSDecodeFrame(path);
 		dispatch_async(dispatch_get_main_queue(), ^{
 			self.decoding = NO;
 			if (self.finished) return;
 			if (image) {
 				[self.buffer addObject:image];
 			} else if (self.failedFrames++ == 0) {
-				CSLog(@"cannot decode %@", path);
+				SSLog(@"cannot decode %@", path);
 			}
 			[self decodeMore];
 		});
@@ -285,9 +285,9 @@ static UIImage *CSDecodeFrame(NSString *path) {
 // CarPlay's main thread can stall for seconds while it starts up, so the countdown only
 // begins once the first frame is on screen.
 - (void)startCountdown {
-	NSTimeInterval limit = self.loop ? MAX(1.0, [OMCPref(CS_KEY_DURATION, @5) doubleValue]) : kMaxFullPlay;
-	CSLog(@"first frame shown, playing for up to %.0fs", limit);
-	CSPostNotification(CS_NOTIFY_AUDIO_PLAY);
+	NSTimeInterval limit = self.loop ? MAX(1.0, [OMCPref(SS_KEY_DURATION, @5) doubleValue]) : kMaxFullPlay;
+	SSLog(@"first frame shown, playing for up to %.0fs", limit);
+	SSPostNotification(SS_NOTIFY_AUDIO_PLAY);
 
 	__weak __typeof(self) weakSelf = self;
 	dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(limit * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
@@ -298,8 +298,8 @@ static UIImage *CSDecodeFrame(NSString *path) {
 - (void)dismiss {
 	if (self.finished) return;
 	self.finished = YES;
-	CSLog(@"dismissing after %lu frames", (unsigned long)self.shownFrames);
-	CSPostNotification(CS_NOTIFY_AUDIO_STOP);
+	SSLog(@"dismissing after %lu frames", (unsigned long)self.shownFrames);
+	SSPostNotification(SS_NOTIFY_AUDIO_STOP);
 
 	[UIView animateWithDuration:kFadeDuration animations:^{
 		self.window.alpha = 0.0;
@@ -310,7 +310,7 @@ static UIImage *CSDecodeFrame(NSString *path) {
 
 - (void)tearDown {
 	// Skipped by dismiss when CarPlay disconnects mid-splash.
-	if (!self.finished && self.shownFrames) CSPostNotification(CS_NOTIFY_AUDIO_STOP);
+	if (!self.finished && self.shownFrames) SSPostNotification(SS_NOTIFY_AUDIO_STOP);
 	self.finished = YES;
 	[self.displayLink invalidate];
 	self.displayLink = nil;
@@ -325,7 +325,7 @@ static UIImage *CSDecodeFrame(NSString *path) {
 
 #pragma mark - Car display detection
 
-static BOOL CSIsCarScreen(UIScreen *screen) {
+static BOOL SSIsCarScreen(UIScreen *screen) {
 	if (!screen) return NO;
 	if (screen.traitCollection.userInterfaceIdiom == UIUserInterfaceIdiomCarPlay) return YES;
 	return screen != [UIScreen mainScreen];
@@ -333,55 +333,55 @@ static BOOL CSIsCarScreen(UIScreen *screen) {
 
 // Keyed on the car UIScreen: a new screen object is created every time the car connects,
 // so this gives one splash per connection whether CarPlay uses scenes or plain windows.
-static void CSShowSplash(UIScreen *screen, UIWindowScene *scene, NSString *source) {
-	if (!CSIsCarScreen(screen)) return;
+static void SSShowSplash(UIScreen *screen, UIWindowScene *scene, NSString *source) {
+	if (!SSIsCarScreen(screen)) return;
 	if (objc_getAssociatedObject(screen, &kShownKey)) return;
 	objc_setAssociatedObject(screen, &kShownKey, @YES, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-	CSLog(@"car display detected via %@: screen=%@ scene=%@", source, screen, scene);
+	SSLog(@"car display detected via %@: screen=%@ scene=%@", source, screen, scene);
 
 	OMCPrefsSync();
-	if (!OMCFeatureEnabled(CS_FEATURE)) { CSLog(@"disabled in settings"); return; }
+	if (!OMCFeatureEnabled(SS_FEATURE)) { SSLog(@"disabled in settings"); return; }
 
-	NSString *name = CSVideoName();
-	if (!name) { CSLog(@"no video found in %@", CS_VIDEOS_DIR); return; }
+	NSString *name = SSVideoName();
+	if (!name) { SSLog(@"no video found in %@", SS_VIDEOS_DIR); return; }
 
-	NSString *framesDir = CS_FRAMES_DIR(name);
+	NSString *framesDir = SS_FRAMES_DIR(name);
 	NSDictionary *info = [NSDictionary dictionaryWithContentsOfFile:[framesDir stringByAppendingPathComponent:@"info.plist"]];
 	NSUInteger count = [info[@"count"] unsignedIntegerValue];
 	double fps = [info[@"fps"] doubleValue];
 	if (!count || fps <= 0) {
-		CSLog(@"no frames for %@ - open Settings > OmniCar > CarSplash to convert it", name);
+		SSLog(@"no frames for %@ - open Settings > OmniCar > Startup Screen to convert it", name);
 		return;
 	}
-	CSLog(@"playing %@ (%lu frames @ %.0ffps)", name, (unsigned long)count, fps);
+	SSLog(@"playing %@ (%lu frames @ %.0ffps)", name, (unsigned long)count, fps);
 
-	CSSplash *splash = [[CSSplash alloc] initWithScreen:screen scene:scene framesDir:framesDir frameCount:count fps:fps];
+	SSSplash *splash = [[SSSplash alloc] initWithScreen:screen scene:scene framesDir:framesDir frameCount:count fps:fps];
 	objc_setAssociatedObject(screen, &kSplashKey, splash, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 	[splash start];
 }
 
-static NSString *CSDescribeScreen(UIScreen *screen) {
+static NSString *SSDescribeScreen(UIScreen *screen) {
 	if (!screen) return @"(nil)";
 	return [NSString stringWithFormat:@"<%@ %p main=%d idiom=%ld bounds=%@>", NSStringFromClass([screen class]), screen,
 		screen == [UIScreen mainScreen], (long)screen.traitCollection.userInterfaceIdiom, NSStringFromCGRect(screen.bounds)];
 }
 
-static void CSHandleScene(UIScene *scene, NSString *source) {
-	CSLog(@"%@: %@ role=%@", source, NSStringFromClass([scene class]), scene.session.role);
+static void SSHandleScene(UIScene *scene, NSString *source) {
+	SSLog(@"%@: %@ role=%@", source, NSStringFromClass([scene class]), scene.session.role);
 	if (![scene isKindOfClass:[UIWindowScene class]]) return;
 	UIWindowScene *windowScene = (UIWindowScene *)scene;
-	CSLog(@"%@: idiom=%ld screen=%@", source, (long)windowScene.traitCollection.userInterfaceIdiom,
-		CSDescribeScreen(windowScene.screen));
-	CSShowSplash(windowScene.screen, windowScene, source);
+	SSLog(@"%@: idiom=%ld screen=%@", source, (long)windowScene.traitCollection.userInterfaceIdiom,
+		SSDescribeScreen(windowScene.screen));
+	SSShowSplash(windowScene.screen, windowScene, source);
 }
 
-static void CSTearDownScreen(UIScreen *screen) {
+static void SSTearDownScreen(UIScreen *screen) {
 	if (!screen) return;
-	CSSplash *splash = objc_getAssociatedObject(screen, &kSplashKey);
+	SSSplash *splash = objc_getAssociatedObject(screen, &kSplashKey);
 	[splash tearDown];
 }
 
-%group CarSplash
+%group StartupScreen
 
 %hook UIWindow
 
@@ -389,22 +389,22 @@ static void CSTearDownScreen(UIScreen *screen) {
 // posting the UIScene lifecycle notifications.
 - (void)setHidden:(BOOL)hidden {
 	%orig;
-	if (!gIsCarPlay || hidden || [self isKindOfClass:[CSSplashWindow class]]) return;
+	if (!gIsCarPlay || hidden || [self isKindOfClass:[SSSplashWindow class]]) return;
 	UIScreen *screen = self.screen;
 
 	// Diagnostics: record the first windows CarPlay shows and where they live.
 	static int logged = 0;
 	if (logged < 40) {
 		logged++;
-		CSLog(@"window shown: %@ level=%.0f scene=%@ %p %@ screen=%@", NSStringFromClass([self class]), self.windowLevel,
+		SSLog(@"window shown: %@ level=%.0f scene=%@ %p %@ screen=%@", NSStringFromClass([self class]), self.windowLevel,
 			self.windowScene ? NSStringFromClass([self.windowScene class]) : @"(nil)", self.windowScene,
-			self.windowScene.session.persistentIdentifier, CSDescribeScreen(screen));
+			self.windowScene.session.persistentIdentifier, SSDescribeScreen(screen));
 	}
 
-	if (!CSIsCarScreen(screen)) return;
+	if (!SSIsCarScreen(screen)) return;
 	UIWindowScene *scene = self.windowScene;
 	// Let CarPlay finish building its own windows first so ours ends up on top.
-	dispatch_async(dispatch_get_main_queue(), ^{ CSShowSplash(screen, scene, @"window"); });
+	dispatch_async(dispatch_get_main_queue(), ^{ SSShowSplash(screen, scene, @"window"); });
 }
 
 %end
@@ -418,37 +418,37 @@ static void CSTearDownScreen(UIScreen *screen) {
 		// SpringBoard side: only the soundtrack player.
 		if ([bundleID isEqualToString:@"com.apple.springboard"]) {
 			CFNotificationCenterRef darwin = CFNotificationCenterGetDarwinNotifyCenter();
-			CFNotificationCenterAddObserver(darwin, NULL, CSAudioNotification, CS_NOTIFY_AUDIO_PLAY, NULL, CFNotificationSuspensionBehaviorDeliverImmediately);
-			CFNotificationCenterAddObserver(darwin, NULL, CSAudioNotification, CS_NOTIFY_AUDIO_STOP, NULL, CFNotificationSuspensionBehaviorDeliverImmediately);
+			CFNotificationCenterAddObserver(darwin, NULL, SSAudioNotification, SS_NOTIFY_AUDIO_PLAY, NULL, CFNotificationSuspensionBehaviorDeliverImmediately);
+			CFNotificationCenterAddObserver(darwin, NULL, SSAudioNotification, SS_NOTIFY_AUDIO_STOP, NULL, CFNotificationSuspensionBehaviorDeliverImmediately);
 			return;
 		}
 		if (![bundleID isEqualToString:@"com.apple.CarPlayApp"]) return;
 		gIsCarPlay = YES;
-		%init(CarSplash);
+		%init(StartupScreen);
 
-		for (UIScreen *screen in [UIScreen screens]) CSLog(@"existing screen: %@", CSDescribeScreen(screen));
-		CSLog(@"videos dir %@ readable=%d", CS_VIDEOS_DIR, [[NSFileManager defaultManager] isReadableFileAtPath:CS_VIDEOS_DIR]);
+		for (UIScreen *screen in [UIScreen screens]) SSLog(@"existing screen: %@", SSDescribeScreen(screen));
+		SSLog(@"videos dir %@ readable=%d", SS_VIDEOS_DIR, [[NSFileManager defaultManager] isReadableFileAtPath:SS_VIDEOS_DIR]);
 
 		NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
 		NSOperationQueue *main = [NSOperationQueue mainQueue];
 		[nc addObserverForName:UISceneWillConnectNotification object:nil queue:main usingBlock:^(NSNotification *note) {
 			UIScene *scene = note.object;
-			dispatch_async(dispatch_get_main_queue(), ^{ CSHandleScene(scene, @"sceneConnect"); });
+			dispatch_async(dispatch_get_main_queue(), ^{ SSHandleScene(scene, @"sceneConnect"); });
 		}];
 		// Trait collection may not be resolved at connect time; retry once the scene activates.
 		[nc addObserverForName:UISceneDidActivateNotification object:nil queue:main usingBlock:^(NSNotification *note) {
-			CSHandleScene(note.object, @"sceneActivate");
+			SSHandleScene(note.object, @"sceneActivate");
 		}];
 		[nc addObserverForName:UIScreenDidConnectNotification object:nil queue:main usingBlock:^(NSNotification *note) {
-			CSLog(@"screen connected: %@", CSDescribeScreen(note.object));
+			SSLog(@"screen connected: %@", SSDescribeScreen(note.object));
 		}];
 		[nc addObserverForName:UIScreenDidDisconnectNotification object:nil queue:main usingBlock:^(NSNotification *note) {
-			CSLog(@"screen disconnected: %@", CSDescribeScreen(note.object));
-			CSTearDownScreen(note.object);
+			SSLog(@"screen disconnected: %@", SSDescribeScreen(note.object));
+			SSTearDownScreen(note.object);
 		}];
 		[nc addObserverForName:UISceneDidDisconnectNotification object:nil queue:main usingBlock:^(NSNotification *note) {
 			UIScene *scene = note.object;
-			if ([scene isKindOfClass:[UIWindowScene class]]) CSTearDownScreen(((UIWindowScene *)scene).screen);
+			if ([scene isKindOfClass:[UIWindowScene class]]) SSTearDownScreen(((UIWindowScene *)scene).screen);
 		}];
 	}
 }

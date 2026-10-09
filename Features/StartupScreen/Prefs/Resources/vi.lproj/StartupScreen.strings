@@ -1,0 +1,33 @@
+/* OmniCar – Startup Screen – Tiếng Việt */
+
+"STARTUPSCREEN" = "Màn hình khởi động";
+"STARTUPSCREEN_FOOTER" = "Phát video của riêng bạn trên màn hình CarPlay mỗi khi kết nối với xe.";
+"STARTUPSCREEN_ENABLE" = "Bật màn hình khởi động";
+
+"STARTUPSCREEN_VIDEO_GROUP" = "Video";
+"STARTUPSCREEN_VIDEO_FOOTER" = "Hỗ trợ MP4, MOV, M4V. Khi thêm video, OmniCar sẽ chuẩn bị video để phát trên CarPlay (tối đa 60 giây).";
+"STARTUPSCREEN_CURRENT_VIDEO" = "Video đang dùng";
+"STARTUPSCREEN_NO_VIDEO" = "(Chưa có video)";
+"STARTUPSCREEN_IMPORT_PHOTOS" = "Thêm video từ Ảnh";
+"STARTUPSCREEN_IMPORT_FILES" = "Thêm video từ Tệp";
+"STARTUPSCREEN_PREVIEW" = "Xem thử video";
+"STARTUPSCREEN_DELETE" = "Xoá video đang chọn";
+
+"STARTUPSCREEN_DURATION_GROUP" = "Thời lượng (giây)";
+"STARTUPSCREEN_DURATION_FOOTER" = "Nếu video ngắn hơn thời lượng đã chọn, video sẽ được lặp lại. Bật \"Phát hết video\" để bỏ qua thời lượng và tắt khi video kết thúc (tối đa 60 giây).";
+"STARTUPSCREEN_PLAY_FULL" = "Phát hết video";
+
+"STARTUPSCREEN_DISPLAY_GROUP" = "Hiển thị";
+"STARTUPSCREEN_SCALE_FILL" = "Lấp đầy";
+"STARTUPSCREEN_SCALE_FIT" = "Vừa khung";
+"STARTUPSCREEN_SOUND" = "Phát âm thanh";
+"STARTUPSCREEN_TAP_TO_SKIP" = "Chạm để bỏ qua";
+
+"STARTUPSCREEN_PREPARING" = "Đang chuẩn bị video cho CarPlay";
+"STARTUPSCREEN_PROCESS_FAILED" = "Không xử lý được video:\n%@";
+"STARTUPSCREEN_SAVE_FAILED" = "Không thể lưu video: %@";
+"STARTUPSCREEN_NO_VIDEO_PREVIEW" = "Chưa có video nào. Hãy thêm video trước.";
+"STARTUPSCREEN_NO_VIDEO_DELETE" = "Chưa có video nào để xoá.";
+"STARTUPSCREEN_DELETE_TITLE" = "Xoá video";
+"STARTUPSCREEN_DELETE_CONFIRM" = "Xoá \"%@\"?";
+"STARTUPSCREEN_DELETE_ACTION" = "Xoá";

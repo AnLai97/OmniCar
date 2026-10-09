@@ -1,30 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<!-- CarSplash page. Labels and footers are keys into <lang>.lproj/CarSplash.strings;
-     "symbol"/"symbolColor" draw the row icon. Keys are the CS_KEY_* of ../../CarSplash.h. -->
+<!-- Startup Screen page. Labels and footers are keys into <lang>.lproj/StartupScreen.strings;
+     "symbol"/"symbolColor" draw the row icon. Keys are the SS_KEY_* of ../../StartupScreen.h. -->
 <plist version="1.0">
 <dict>
 	<key>title</key>
-	<string>CarSplash</string>
+	<string>Startup Screen</string>
 	<key>items</key>
 	<array>
 		<dict>
 			<key>cell</key>
 			<string>PSGroupCell</string>
 			<key>footerText</key>
-			<string>CARSPLASH_FOOTER</string>
+			<string>STARTUPSCREEN_FOOTER</string>
 		</dict>
 		<dict>
 			<key>cell</key>
 			<string>PSSwitchCell</string>
 			<key>label</key>
-			<string>CARSPLASH_ENABLE</string>
+			<string>STARTUPSCREEN_ENABLE</string>
 			<key>symbol</key>
 			<string>power</string>
 			<key>symbolColor</key>
 			<string>#0A59F7</string>
 			<key>key</key>
-			<string>carsplashEnabled</string>
+			<string>startupScreenEnabled</string>
 			<key>default</key>
 			<true/>
 			<key>defaults</key>
@@ -37,9 +37,9 @@
 			<key>cell</key>
 			<string>PSGroupCell</string>
 			<key>label</key>
-			<string>CARSPLASH_VIDEO_GROUP</string>
+			<string>STARTUPSCREEN_VIDEO_GROUP</string>
 			<key>footerText</key>
-			<string>CARSPLASH_VIDEO_FOOTER</string>
+			<string>STARTUPSCREEN_VIDEO_FOOTER</string>
 		</dict>
 		<dict>
 			<key>cell</key>
@@ -51,13 +51,13 @@
 			<key>dynamicTitles</key>
 			<true/>
 			<key>label</key>
-			<string>CARSPLASH_CURRENT_VIDEO</string>
+			<string>STARTUPSCREEN_CURRENT_VIDEO</string>
 			<key>symbol</key>
 			<string>film</string>
 			<key>symbolColor</key>
 			<string>#7B5CF5</string>
 			<key>key</key>
-			<string>carsplashVideoName</string>
+			<string>startupScreenVideoName</string>
 			<key>defaults</key>
 			<string>com.anlai.omnicar</string>
 			<key>PostNotification</key>
@@ -67,7 +67,7 @@
 			<key>cell</key>
 			<string>PSButtonCell</string>
 			<key>label</key>
-			<string>CARSPLASH_IMPORT_PHOTOS</string>
+			<string>STARTUPSCREEN_IMPORT_PHOTOS</string>
 			<key>symbol</key>
 			<string>photo.on.rectangle</string>
 			<key>symbolColor</key>
@@ -79,7 +79,7 @@
 			<key>cell</key>
 			<string>PSButtonCell</string>
 			<key>label</key>
-			<string>CARSPLASH_IMPORT_FILES</string>
+			<string>STARTUPSCREEN_IMPORT_FILES</string>
 			<key>symbol</key>
 			<string>folder.fill</string>
 			<key>symbolColor</key>
@@ -91,7 +91,7 @@
 			<key>cell</key>
 			<string>PSButtonCell</string>
 			<key>label</key>
-			<string>CARSPLASH_PREVIEW</string>
+			<string>STARTUPSCREEN_PREVIEW</string>
 			<key>symbol</key>
 			<string>play.rectangle.fill</string>
 			<key>symbolColor</key>
@@ -103,7 +103,7 @@
 			<key>cell</key>
 			<string>PSButtonCell</string>
 			<key>label</key>
-			<string>CARSPLASH_DELETE</string>
+			<string>STARTUPSCREEN_DELETE</string>
 			<key>symbol</key>
 			<string>trash.fill</string>
 			<key>symbolColor</key>
@@ -118,15 +118,15 @@
 			<key>cell</key>
 			<string>PSGroupCell</string>
 			<key>label</key>
-			<string>CARSPLASH_DURATION_GROUP</string>
+			<string>STARTUPSCREEN_DURATION_GROUP</string>
 			<key>footerText</key>
-			<string>CARSPLASH_DURATION_FOOTER</string>
+			<string>STARTUPSCREEN_DURATION_FOOTER</string>
 		</dict>
 		<dict>
 			<key>cell</key>
 			<string>PSSliderCell</string>
 			<key>key</key>
-			<string>carsplashDuration</string>
+			<string>startupScreenDuration</string>
 			<key>default</key>
 			<real>5</real>
 			<key>min</key>
@@ -148,13 +148,13 @@
 			<key>cell</key>
 			<string>PSSwitchCell</string>
 			<key>label</key>
-			<string>CARSPLASH_PLAY_FULL</string>
+			<string>STARTUPSCREEN_PLAY_FULL</string>
 			<key>symbol</key>
 			<string>repeat</string>
 			<key>symbolColor</key>
 			<string>#00A6B2</string>
 			<key>key</key>
-			<string>carsplashPlayFull</string>
+			<string>startupScreenPlayFull</string>
 			<key>default</key>
 			<false/>
 			<key>defaults</key>
@@ -167,13 +167,13 @@
 			<key>cell</key>
 			<string>PSGroupCell</string>
 			<key>label</key>
-			<string>CARSPLASH_DISPLAY_GROUP</string>
+			<string>STARTUPSCREEN_DISPLAY_GROUP</string>
 		</dict>
 		<dict>
 			<key>cell</key>
 			<string>PSSegmentCell</string>
 			<key>key</key>
-			<string>carsplashScaleMode</string>
+			<string>startupScreenScaleMode</string>
 			<key>default</key>
 			<integer>0</integer>
 			<key>validValues</key>
@@ -183,8 +183,8 @@
 			</array>
 			<key>validTitles</key>
 			<array>
-				<string>CARSPLASH_SCALE_FILL</string>
-				<string>CARSPLASH_SCALE_FIT</string>
+				<string>STARTUPSCREEN_SCALE_FILL</string>
+				<string>STARTUPSCREEN_SCALE_FIT</string>
 			</array>
 			<key>defaults</key>
 			<string>com.anlai.omnicar</string>
@@ -195,13 +195,13 @@
 			<key>cell</key>
 			<string>PSSwitchCell</string>
 			<key>label</key>
-			<string>CARSPLASH_SOUND</string>
+			<string>STARTUPSCREEN_SOUND</string>
 			<key>symbol</key>
 			<string>speaker.wave.2.fill</string>
 			<key>symbolColor</key>
 			<string>#E8457C</string>
 			<key>key</key>
-			<string>carsplashSound</string>
+			<string>startupScreenSound</string>
 			<key>default</key>
 			<false/>
 			<key>defaults</key>
@@ -213,13 +213,13 @@
 			<key>cell</key>
 			<string>PSSwitchCell</string>
 			<key>label</key>
-			<string>CARSPLASH_TAP_TO_SKIP</string>
+			<string>STARTUPSCREEN_TAP_TO_SKIP</string>
 			<key>symbol</key>
 			<string>hand.tap.fill</string>
 			<key>symbolColor</key>
 			<string>#FF9500</string>
 			<key>key</key>
-			<string>carsplashTapToSkip</string>
+			<string>startupScreenTapToSkip</string>
 			<key>default</key>
 			<true/>
 			<key>defaults</key>

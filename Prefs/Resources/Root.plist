@@ -63,11 +63,11 @@
 			<key>cell</key>
 			<string>PSLinkCell</string>
 			<key>label</key>
-			<string>CARSPLASH</string>
+			<string>STARTUPSCREEN</string>
 			<key>detail</key>
-			<string>OMCCarSplashController</string>
+			<string>OMCStartupScreenController</string>
 			<key>plist</key>
-			<string>FeatureCarSplash</string>
+			<string>FeatureStartupScreen</string>
 			<key>symbol</key>
 			<string>play.rectangle.fill</string>
 			<key>symbolColor</key>

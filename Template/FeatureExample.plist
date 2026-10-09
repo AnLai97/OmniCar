@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <!-- Template for a feature's settings page (not shipped: Template/ is outside the build).
-     Full walkthrough in README.md; Features/CarSplash is the reference implementation.
+     Full walkthrough in README.md; Features/StartupScreen is the reference implementation.
 
      To add a feature called "Example":
        1. copy this file to Features/Example/Prefs/Resources/FeatureExample.plist and edit the

@@ -1,0 +1,33 @@
+/* OmniCar – Startup Screen – English */
+
+"STARTUPSCREEN" = "Startup Screen";
+"STARTUPSCREEN_FOOTER" = "Plays your own video on the CarPlay screen every time you connect to your car.";
+"STARTUPSCREEN_ENABLE" = "Enable Startup Screen";
+
+"STARTUPSCREEN_VIDEO_GROUP" = "Video";
+"STARTUPSCREEN_VIDEO_FOOTER" = "Supports MP4, MOV and M4V. When you add a video, OmniCar prepares it for playback on CarPlay (up to 60 seconds).";
+"STARTUPSCREEN_CURRENT_VIDEO" = "Current video";
+"STARTUPSCREEN_NO_VIDEO" = "(No videos)";
+"STARTUPSCREEN_IMPORT_PHOTOS" = "Add from Photos";
+"STARTUPSCREEN_IMPORT_FILES" = "Add from Files";
+"STARTUPSCREEN_PREVIEW" = "Preview video";
+"STARTUPSCREEN_DELETE" = "Delete selected video";
+
+"STARTUPSCREEN_DURATION_GROUP" = "Duration (seconds)";
+"STARTUPSCREEN_DURATION_FOOTER" = "Videos shorter than the chosen duration loop. Turn on \"Play full video\" to ignore the duration and stop when the video ends (up to 60 seconds).";
+"STARTUPSCREEN_PLAY_FULL" = "Play full video";
+
+"STARTUPSCREEN_DISPLAY_GROUP" = "Display";
+"STARTUPSCREEN_SCALE_FILL" = "Fill";
+"STARTUPSCREEN_SCALE_FIT" = "Fit";
+"STARTUPSCREEN_SOUND" = "Play sound";
+"STARTUPSCREEN_TAP_TO_SKIP" = "Tap to skip";
+
+"STARTUPSCREEN_PREPARING" = "Preparing video for CarPlay";
+"STARTUPSCREEN_PROCESS_FAILED" = "Couldn't process video:\n%@";
+"STARTUPSCREEN_SAVE_FAILED" = "Couldn't save video: %@";
+"STARTUPSCREEN_NO_VIDEO_PREVIEW" = "No videos yet. Add one first.";
+"STARTUPSCREEN_NO_VIDEO_DELETE" = "There's no video to delete.";
+"STARTUPSCREEN_DELETE_TITLE" = "Delete video";
+"STARTUPSCREEN_DELETE_CONFIRM" = "Delete \"%@\"?";
+"STARTUPSCREEN_DELETE_ACTION" = "Delete";

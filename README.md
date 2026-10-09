@@ -25,18 +25,18 @@ assets/               icon 1024
 ### Một tính năng = một thư mục
 
 ```
-Features/CarSplash/
-  CarSplash.h                    hợp đồng: key prefs, thư mục dữ liệu, tên notification
+Features/StartupScreen/
+  StartupScreen.h                    hợp đồng: key prefs, thư mục dữ liệu, tên notification
                                  (chỉ macro, cả tweak lẫn bundle settings đều include)
-  CarSplash.x                    hook: %group CarSplash, %ctor riêng, kiểm tra
-                                 OMCFeatureEnabled(@"carsplash") lúc hành động
+  StartupScreen.x                    hook: %group StartupScreen, %ctor riêng, kiểm tra
+                                 OMCFeatureEnabled(@"startupScreen") lúc hành động
   Prefs/
-    OMCCarSplashController.h/.m  trang settings (subclass OMCFeatureListController); chỉ cần khi
+    OMCStartupScreenController.h/.m  trang settings (subclass OMCFeatureListController); chỉ cần khi
                                  trang có action, không có thì dùng thẳng OMCFeatureListController
     Resources/
-      FeatureCarSplash.plist     các dòng của trang (luật như Root.plist)
-      vi.lproj/CarSplash.strings bảng chuỗi riêng, key có tiền tố CARSPLASH_
-      en.lproj/CarSplash.strings
+      FeatureStartupScreen.plist     các dòng của trang (luật như Root.plist)
+      vi.lproj/StartupScreen.strings bảng chuỗi riêng, key có tiền tố STARTUPSCREEN_
+      en.lproj/StartupScreen.strings
 ```
 
 Makefile gom tự động: `Features/*/*.x` vào tweak, `Features/*/Prefs/*.m` vào bundle settings,
@@ -46,7 +46,7 @@ như key core.
 
 Quy ước:
 
-- Key prefs: `<tên>Xxx` trong domain `com.anlai.omnicar` (`carsplashVideoName`).
+- Key prefs: `<tên>Xxx` trong domain `com.anlai.omnicar` (`startupScreenVideoName`).
   `<tên>Enabled` là công tắc của tính năng; `OMCFeatureEnabled(@"<tên>")` = công tắc tổng và công tắc đó.
 - Dữ liệu: `/var/mobile/Library/OmniCar/<Tên>/`.
 - Darwin notification: `com.anlai.omnicar/<tên>.<việc>`.

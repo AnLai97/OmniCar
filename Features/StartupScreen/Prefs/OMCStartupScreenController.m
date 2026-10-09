@@ -1,6 +1,6 @@
-#import "OMCCarSplashController.h"
+#import "OMCStartupScreenController.h"
 #import "OMCTheme.h"
-#import "../CarSplash.h"
+#import "../StartupScreen.h"
 #import <AVKit/AVKit.h>
 #import <AVFoundation/AVFoundation.h>
 #import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
@@ -15,15 +15,15 @@ static const CGFloat kMaxFrameSide   = 1920.0;
 // Bump when the extraction output changes so existing videos are re-extracted.
 static const NSInteger kFramesVersion = 2;
 
-@interface PSSpecifier (CarSplash)
+@interface PSSpecifier (StartupScreen)
 - (void)setValues:(NSArray *)values titles:(NSArray *)titles;
 @end
 
-@interface OMCCarSplashController () <UIImagePickerControllerDelegate, UINavigationControllerDelegate, UIDocumentPickerDelegate>
+@interface OMCStartupScreenController () <UIImagePickerControllerDelegate, UINavigationControllerDelegate, UIDocumentPickerDelegate>
 @property (nonatomic, assign) BOOL extracting;
 @end
 
-@implementation OMCCarSplashController
+@implementation OMCStartupScreenController
 
 #pragma mark - Specifiers
 
@@ -47,9 +47,9 @@ static const NSInteger kFramesVersion = 2;
 
 - (NSArray<NSString *> *)videoFiles {
 	NSFileManager *fm = [NSFileManager defaultManager];
-	[fm createDirectoryAtPath:CS_VIDEOS_DIR withIntermediateDirectories:YES attributes:nil error:nil];
+	[fm createDirectoryAtPath:SS_VIDEOS_DIR withIntermediateDirectories:YES attributes:nil error:nil];
 	NSMutableArray *files = [NSMutableArray array];
-	for (NSString *file in [fm contentsOfDirectoryAtPath:CS_VIDEOS_DIR error:nil]) {
+	for (NSString *file in [fm contentsOfDirectoryAtPath:SS_VIDEOS_DIR error:nil]) {
 		if (![file hasPrefix:@"."]) [files addObject:file];
 	}
 	return [files sortedArrayUsingSelector:@selector(localizedStandardCompare:)];
@@ -69,21 +69,21 @@ static const NSInteger kFramesVersion = 2;
 		for (NSString *file in files) [titles addObject:[file stringByDeletingPathExtension]];
 		[spec setValues:files titles:titles];
 	} else {
-		[spec setValues:@[@""] titles:@[L(@"CARSPLASH_NO_VIDEO")]];
+		[spec setValues:@[@""] titles:@[L(@"STARTUPSCREEN_NO_VIDEO")]];
 	}
 }
 
 #pragma mark - Pref helpers
 
 - (NSString *)selectedVideo {
-	NSString *name = (__bridge_transfer NSString *)CFPreferencesCopyAppValue((__bridge CFStringRef)CS_KEY_VIDEO_NAME, kPrefsDomain);
+	NSString *name = (__bridge_transfer NSString *)CFPreferencesCopyAppValue((__bridge CFStringRef)SS_KEY_VIDEO_NAME, kPrefsDomain);
 	NSArray *files = [self videoFiles];
 	if (name.length && [files containsObject:name]) return name;
 	return files.firstObject;
 }
 
 - (void)setSelectedVideo:(NSString *)name {
-	CFPreferencesSetAppValue((__bridge CFStringRef)CS_KEY_VIDEO_NAME, (__bridge CFStringRef)name, kPrefsDomain);
+	CFPreferencesSetAppValue((__bridge CFStringRef)SS_KEY_VIDEO_NAME, (__bridge CFStringRef)name, kPrefsDomain);
 	CFPreferencesAppSynchronize(kPrefsDomain);
 	[self reloadSpecifiers];
 }
@@ -91,7 +91,7 @@ static const NSInteger kFramesVersion = 2;
 #pragma mark - Frames
 
 - (BOOL)hasFramesForVideo:(NSString *)name {
-	NSString *path = [CS_FRAMES_DIR(name) stringByAppendingPathComponent:@"info.plist"];
+	NSString *path = [SS_FRAMES_DIR(name) stringByAppendingPathComponent:@"info.plist"];
 	NSDictionary *info = [NSDictionary dictionaryWithContentsOfFile:path];
 	return [info[@"version"] integerValue] >= kFramesVersion;
 }
@@ -118,8 +118,8 @@ static const NSInteger kFramesVersion = 2;
 	}
 	self.extracting = YES;
 
-	UIAlertController *progress = [UIAlertController alertControllerWithTitle:@"CarSplash"
-	                                                                  message:[L(@"CARSPLASH_PREPARING") stringByAppendingString:@"…"]
+	UIAlertController *progress = [UIAlertController alertControllerWithTitle:@"OmniCar"
+	                                                                  message:[L(@"STARTUPSCREEN_PREPARING") stringByAppendingString:@"…"]
 	                                                           preferredStyle:UIAlertControllerStyleAlert];
 	[self presentViewController:progress animated:YES completion:nil];
 
@@ -130,7 +130,7 @@ static const NSInteger kFramesVersion = 2;
 			NSError *error = nil;
 			BOOL ok = [self extractFramesForVideo:name error:&error progress:^(double fraction) {
 				dispatch_async(dispatch_get_main_queue(), ^{
-					progress.message = [NSString stringWithFormat:@"%@%@… %d%%", L(@"CARSPLASH_PREPARING"), label, (int)(fraction * 100)];
+					progress.message = [NSString stringWithFormat:@"%@%@… %d%%", L(@"STARTUPSCREEN_PREPARING"), label, (int)(fraction * 100)];
 				});
 			}];
 			if (!ok) [failed addObject:[NSString stringWithFormat:@"%@: %@", name, error.localizedDescription ?: @"?"]];
@@ -138,14 +138,14 @@ static const NSInteger kFramesVersion = 2;
 		dispatch_async(dispatch_get_main_queue(), ^{
 			self.extracting = NO;
 			[progress dismissViewControllerAnimated:YES completion:^{
-				if (failed.count) [self showMessage:[NSString stringWithFormat:L(@"CARSPLASH_PROCESS_FAILED"), [failed componentsJoinedByString:@"\n"]]];
+				if (failed.count) [self showMessage:[NSString stringWithFormat:L(@"STARTUPSCREEN_PROCESS_FAILED"), [failed componentsJoinedByString:@"\n"]]];
 				if (completion) completion();
 			}];
 		});
 	});
 }
 
-static CGImagePropertyOrientation CSOrientationForTransform(CGAffineTransform t) {
+static CGImagePropertyOrientation SSOrientationForTransform(CGAffineTransform t) {
 	if (t.a == 0 && t.b == 1 && t.c == -1 && t.d == 0) return kCGImagePropertyOrientationRight;
 	if (t.a == 0 && t.b == -1 && t.c == 1 && t.d == 0) return kCGImagePropertyOrientationLeft;
 	if (t.a == -1 && t.d == -1) return kCGImagePropertyOrientationDown;
@@ -155,11 +155,11 @@ static CGImagePropertyOrientation CSOrientationForTransform(CGAffineTransform t)
 // Decodes the video sequentially and writes one JPEG per 1/kFrameRate seconds, plus info.plist.
 - (BOOL)extractFramesForVideo:(NSString *)name error:(NSError **)error progress:(void (^)(double fraction))progress {
 	NSFileManager *fm = [NSFileManager defaultManager];
-	NSString *dir = CS_FRAMES_DIR(name);
+	NSString *dir = SS_FRAMES_DIR(name);
 	[fm removeItemAtPath:dir error:nil];
 	if (![fm createDirectoryAtPath:dir withIntermediateDirectories:YES attributes:nil error:error]) return NO;
 
-	AVURLAsset *asset = [AVURLAsset URLAssetWithURL:[NSURL fileURLWithPath:[CS_VIDEOS_DIR stringByAppendingPathComponent:name]] options:nil];
+	AVURLAsset *asset = [AVURLAsset URLAssetWithURL:[NSURL fileURLWithPath:[SS_VIDEOS_DIR stringByAppendingPathComponent:name]] options:nil];
 	AVAssetTrack *track = [asset tracksWithMediaType:AVMediaTypeVideo].firstObject;
 	AVAssetReader *reader = track ? [AVAssetReader assetReaderWithAsset:asset error:error] : nil;
 	if (!reader) {
@@ -181,7 +181,7 @@ static CGImagePropertyOrientation CSOrientationForTransform(CGAffineTransform t)
 
 	CIContext *context = [CIContext contextWithOptions:nil];
 	CGColorSpaceRef sRGB = CGColorSpaceCreateWithName(kCGColorSpaceSRGB);
-	CGImagePropertyOrientation orientation = CSOrientationForTransform(track.preferredTransform);
+	CGImagePropertyOrientation orientation = SSOrientationForTransform(track.preferredTransform);
 	NSDictionary *jpegOptions = @{(id)kCGImageDestinationLossyCompressionQuality: @0.9};
 	NSUInteger count = 0;
 	double nextTime = 0;
@@ -215,7 +215,7 @@ static CGImagePropertyOrientation CSOrientationForTransform(CGAffineTransform t)
 	// info.plist is written last: its presence marks the frames as complete.
 	if (![self extractAudioFromAsset:asset seconds:seconds toDir:dir]) {
 		// Keep the frames; the splash just plays silently.
-		NSLog(@"[OmniCar/CarSplash] audio export failed for %@", name);
+		NSLog(@"[OmniCar/StartupScreen] audio export failed for %@", name);
 	}
 	NSDictionary *info = @{@"fps": @(kFrameRate), @"count": @(count), @"version": @(kFramesVersion)};
 	return [info writeToURL:[NSURL fileURLWithPath:[dir stringByAppendingPathComponent:@"info.plist"]] error:error];
@@ -261,19 +261,19 @@ static CGImagePropertyOrientation CSOrientationForTransform(CGAffineTransform t)
 
 - (void)copyVideoAtURL:(NSURL *)source name:(NSString *)name {
 	NSFileManager *fm = [NSFileManager defaultManager];
-	[fm createDirectoryAtPath:CS_VIDEOS_DIR withIntermediateDirectories:YES attributes:nil error:nil];
+	[fm createDirectoryAtPath:SS_VIDEOS_DIR withIntermediateDirectories:YES attributes:nil error:nil];
 
 	// Avoid overwriting an existing video with the same name.
 	NSString *base = [name stringByDeletingPathExtension];
 	NSString *ext = name.pathExtension;
-	NSString *dest = [CS_VIDEOS_DIR stringByAppendingPathComponent:name];
+	NSString *dest = [SS_VIDEOS_DIR stringByAppendingPathComponent:name];
 	for (int i = 2; [fm fileExistsAtPath:dest]; i++) {
-		dest = [CS_VIDEOS_DIR stringByAppendingPathComponent:[NSString stringWithFormat:@"%@ %d.%@", base, i, ext]];
+		dest = [SS_VIDEOS_DIR stringByAppendingPathComponent:[NSString stringWithFormat:@"%@ %d.%@", base, i, ext]];
 	}
 
 	NSError *error = nil;
 	if (![fm copyItemAtPath:source.path toPath:dest error:&error]) {
-		[self showMessage:[NSString stringWithFormat:L(@"CARSPLASH_SAVE_FAILED"), error.localizedDescription]];
+		[self showMessage:[NSString stringWithFormat:L(@"STARTUPSCREEN_SAVE_FAILED"), error.localizedDescription]];
 		return;
 	}
 	[fm setAttributes:@{NSFilePosixPermissions: @0644} ofItemAtPath:dest error:nil];
@@ -283,23 +283,23 @@ static CGImagePropertyOrientation CSOrientationForTransform(CGAffineTransform t)
 
 - (void)previewVideo {
 	NSString *name = [self selectedVideo];
-	if (!name) { [self showMessage:L(@"CARSPLASH_NO_VIDEO_PREVIEW")]; return; }
+	if (!name) { [self showMessage:L(@"STARTUPSCREEN_NO_VIDEO_PREVIEW")]; return; }
 
 	AVPlayerViewController *vc = [AVPlayerViewController new];
-	vc.player = [AVPlayer playerWithURL:[NSURL fileURLWithPath:[CS_VIDEOS_DIR stringByAppendingPathComponent:name]]];
+	vc.player = [AVPlayer playerWithURL:[NSURL fileURLWithPath:[SS_VIDEOS_DIR stringByAppendingPathComponent:name]]];
 	[self presentViewController:vc animated:YES completion:^{ [vc.player play]; }];
 }
 
 - (void)deleteVideo {
 	NSString *name = [self selectedVideo];
-	if (!name) { [self showMessage:L(@"CARSPLASH_NO_VIDEO_DELETE")]; return; }
+	if (!name) { [self showMessage:L(@"STARTUPSCREEN_NO_VIDEO_DELETE")]; return; }
 
-	NSString *message = [NSString stringWithFormat:L(@"CARSPLASH_DELETE_CONFIRM"), [name stringByDeletingPathExtension]];
-	UIAlertController *alert = [UIAlertController alertControllerWithTitle:L(@"CARSPLASH_DELETE_TITLE") message:message preferredStyle:UIAlertControllerStyleAlert];
+	NSString *message = [NSString stringWithFormat:L(@"STARTUPSCREEN_DELETE_CONFIRM"), [name stringByDeletingPathExtension]];
+	UIAlertController *alert = [UIAlertController alertControllerWithTitle:L(@"STARTUPSCREEN_DELETE_TITLE") message:message preferredStyle:UIAlertControllerStyleAlert];
 	[alert addAction:[UIAlertAction actionWithTitle:L(@"CANCEL") style:UIAlertActionStyleCancel handler:nil]];
-	[alert addAction:[UIAlertAction actionWithTitle:L(@"CARSPLASH_DELETE_ACTION") style:UIAlertActionStyleDestructive handler:^(UIAlertAction *action) {
-		[[NSFileManager defaultManager] removeItemAtPath:[CS_VIDEOS_DIR stringByAppendingPathComponent:name] error:nil];
-		[[NSFileManager defaultManager] removeItemAtPath:CS_FRAMES_DIR(name) error:nil];
+	[alert addAction:[UIAlertAction actionWithTitle:L(@"STARTUPSCREEN_DELETE_ACTION") style:UIAlertActionStyleDestructive handler:^(UIAlertAction *action) {
+		[[NSFileManager defaultManager] removeItemAtPath:[SS_VIDEOS_DIR stringByAppendingPathComponent:name] error:nil];
+		[[NSFileManager defaultManager] removeItemAtPath:SS_FRAMES_DIR(name) error:nil];
 		[self setSelectedVideo:[self videoFiles].firstObject];
 	}]];
 	[self presentViewController:alert animated:YES completion:nil];
