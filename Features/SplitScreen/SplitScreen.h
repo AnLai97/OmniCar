@@ -40,6 +40,9 @@
 #define SPL_NOTIF_CBFRAME        @"com.anlai.omnicar/splitscreen.cbframe"
 // SpringBoard -> CarPlay process: CarBridge closed its CBWindow (identifier) -> bridge the app again
 #define SPL_NOTIF_CBLOST         @"com.anlai.omnicar/splitscreen.cblost"
+// SpringBoard -> CarPlay process: the "•••" handle SpringBoard draws over the CarBridge window was tapped
+// (identifier) -> show that pane's button bar
+#define SPL_NOTIF_HANDLE_TAP     @"com.anlai.omnicar/splitscreen.handletap"
 // CarPlay process -> SpringBoard: [x] on a pane -> terminate the app (identifier)
 #define SPL_NOTIF_KILL           @"com.anlai.omnicar/splitscreen.kill"
 // CarPlay process -> SpringBoard: request received (ACK) / car screen just appeared (READY: resend a held request)

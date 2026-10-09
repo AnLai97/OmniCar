@@ -239,6 +239,13 @@ static void SCPHookError(const char *where, NSException *e)
         @catch (NSException *e) { SCPHookError("CBLOST", e); }
     }];
 
+    // SpringBoard: cham thanh "•••" ve tren CBWindow -> hien thanh nut cua ngan
+    [[objc_getClass("NSDistributedNotificationCenter") defaultCenter]
+        addObserverForName:SPL_NOTIF_HANDLE_TAP object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *note) {
+        @try { [[SCPCarSplit shared] bridgeHandleTapped:note.userInfo[@"identifier"]]; }
+        @catch (NSException *e) { SCPHookError("HANDLE_TAP", e); }
+    }];
+
     // SpringBoard (URL scheme / Siri) -> mo / dong split CarPlay
     [[objc_getClass("NSDistributedNotificationCenter") defaultCenter]
         addObserverForName:SPL_NOTIF_NATIVE object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *note) {

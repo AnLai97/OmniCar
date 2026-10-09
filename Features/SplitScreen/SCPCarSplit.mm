@@ -605,6 +605,8 @@ static BOOL SCPCIsBridgedApp(NSString *bid);
 @property (nonatomic, copy) NSString *bridgedBundle;  // app CarBridge dang duoc chieu vao ngan
 @property (nonatomic, readwrite) BOOL bridgeStarting; // CarBridge dang khoi dong chieu (bo qua Home / dismiss cua no)
 @property (nonatomic) CGRect lastBridgeFrame;
+@property (nonatomic) BOOL lastBridgeHandle;          // lan gui khung gan nhat co kem thanh "•••" cho SpringBoard ve khong
+@property (nonatomic) CGRect lastHandleRect;
 @property (nonatomic) CGSize bridgedSize;             // kich thuoc khung chieu dang ap; doi -> chieu lai (CarBridge khong tu scale)
 @property (nonatomic) NSUInteger rebridgeSeq;         // gop nhieu lan keo vach thanh 1 lan chieu lai
 @property (nonatomic) BOOL resizing;                 // dang keo vach / keo doi cho: moi o phu the icon, CBWindow an
@@ -3635,7 +3637,9 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
 //  App CarBridge vao ngan -> goi CBBridgeManagerDashboard startBridging:, khung chieu = khung ngan
 //  (hook getAppFrame + bao SpringBoard dat lai CBWindow moi khi ngan doi).
 // ---------------------------------------------------------------------
-#define SCPC_BRIDGE_TOP   24.0    // chua mep tren ngan (thanh "•••") khong bi CBWindow che
+// CBWindow phu kin ngan (ke ca mep tren): thanh "•••" cua ngan bi che, nen SpringBoard ve 1 thanh "•••" mo trong cua so
+// rieng tren CBWindow (vi tri gui kem khung, xem pushBridgeFrame) va bao lai khi cham (bridgeHandleTapped:). Thanh nut
+// cua ngan dang hien thi CBWindow lui xuong duoi thanh nut nhu cu.
 #define SCPC_BRIDGE_SIDE   5.0    // chua mep giap ngan khac: tay nam (vien thuoc 4pt trong khe / cham tron 14pt) khong bi CBWindow che
 
 static id SCPCBridgeManager(void)
@@ -3643,6 +3647,8 @@ static id SCPCBridgeManager(void)
     Class c = objc_getClass("CBBridgeManagerDashboard");
     return (c && [c respondsToSelector:@selector(sharedInstance)]) ? objcInvoke(c, @"sharedInstance") : nil;
 }
+
+static void SCPCDumpBridgeAPIOnce(void);
 
 static BOOL SCPCIsBridgedApp(NSString *bid)
 {
@@ -3666,7 +3672,7 @@ static BOOL SCPCIsBridgedApp(NSString *bid)
     if (self.resizing || self.ratioHidesBridge) return CGRectZero;   // dang keo vach / doi cho / thanh ti le de len: an CBWindow
     if (!self.active || !p || p.view.alpha < 0.5 || p.view.bounds.size.width < 20 || !p.view.window) return CGRectZero;
     // Thanh nut cua ngan dang hien -> day khung chieu xuong duoi thanh nut de bam duoc
-    CGFloat top = p.bar.hidden ? SCPC_BRIDGE_TOP : SCPC_HANDLE_Y + SCPC_HANDLE_H + 6 + SCPC_PILL + 6;
+    CGFloat top = p.bar.hidden ? 0 : SCPC_HANDLE_Y + SCPC_HANDLE_H + 6 + SCPC_PILL + 6;
     // CBWindow (SpringBoard) nam tren moi view CarPlay -> canh nao giap ngan khac thi lui vao de lo nut keo
     CGRect b = p.view.bounds, f = p.view.frame;
     CGSize box = p.view.superview.bounds.size;
@@ -3731,6 +3737,7 @@ static BOOL SCPCIsBridgedApp(NSString *bid)
 {
     id mgr = SCPCBridgeManager();
     if (!mgr || !p.bundleID) return;
+    SCPCDumpBridgeAPIOnce();
     if (self.bridgedBundle && ![self.bridgedBundle isEqualToString:p.bundleID]) {
         SCPLog("CarBridge: chi chieu duoc 1 app, thay %@ bang %@", self.bridgedBundle, p.bundleID);
     }
@@ -3785,10 +3792,40 @@ static BOOL SCPCIsBridgedApp(NSString *bid)
 {
     if (!self.bridgedBundle) return;
     SCPLog("CarBridge: dung chieu %@", self.bridgedBundle);
+    [self cancelBridgeFrame];   // SpringBoard: bo yeu cau khung dang cho, an thanh "•••" ve tren CBWindow
     self.bridgedBundle = nil;
     self.bridgeStarting = NO;
     @try { objcCall(SCPCBridgeManager(), @"stopBridging"); } @catch (NSException *e) { SCPLog("CarBridge: stopBridging loi %@", e); }
     [self updateBridgeHints];
+}
+
+// SpringBoard bao: cham thanh "•••" ve tren CBWindow cua app nay -> hien / an thanh nut cua ngan do
+- (void)bridgeHandleTapped:(NSString *)bid
+{
+    SCPCarPane *p = [self paneForBundle:bid];
+    if (!self.active || !p) return;
+    [self setBarVisible:p.bar.hidden forPane:p];
+}
+
+// Chan doan 1 lan: API cua CBBridgeManagerDashboard (de tim cach doi kich thuoc app CarBridge dung ti le)
+static NSString *SCPCMethodNames(Class c)
+{
+    unsigned n = 0;
+    Method *ms = class_copyMethodList(c, &n);
+    NSMutableArray *a = [NSMutableArray array];
+    for (unsigned i = 0; i < n; i++) [a addObject:NSStringFromSelector(method_getName(ms[i]))];
+    free(ms);
+    return [[a sortedArrayUsingSelector:@selector(compare:)] componentsJoinedByString:@" "];
+}
+
+static void SCPCDumpBridgeAPIOnce(void)
+{
+    static BOOL done;
+    if (done) return;
+    done = YES;
+    Class c = objc_getClass("CBBridgeManagerDashboard");
+    if (!c) return;
+    SCPLog("DIAG CBBridgeManagerDashboard (%@): -%@ | +%@", NSStringFromClass(class_getSuperclass(c)), SCPCMethodNames(c), SCPCMethodNames(object_getClass(c)));
 }
 
 // Bao SpringBoard dat CBWindow dung khung ngan (CBWindow nam trong SpringBoard)
@@ -3797,12 +3834,22 @@ static BOOL SCPCIsBridgedApp(NSString *bid)
     if (!self.bridgedBundle) return;
     if (!self.active || ![self bridgedPane]) { [self stopBridge]; return; }
     CGRect r = [self bridgeFrame];
-    if (CGRectEqualToRect(r, self.lastBridgeFrame)) return;
-    self.lastBridgeFrame = r;
+    SCPCarPane *p = [self bridgedPane];
+    // Thanh "•••" do SpringBoard ve tren CBWindow (toa do man xe): chi khi thanh nut dang an (dang hien thi CBWindow da lui
+    // xuong duoi thanh nut, thanh "•••" cua CarPlay tu lo ra)
+    BOOL handle = p.bar.hidden && p.vc != nil && !CGRectIsEmpty(r);
+    CGRect hr = CGRectZero;
+    if (handle) {
+        CGSize s = p.view.bounds.size;
+        hr = [p.view convertRect:CGRectMake(s.width / 2 - SCPC_HANDLE_W / 2, SCPC_HANDLE_Y, SCPC_HANDLE_W, SCPC_HANDLE_H) toView:nil];
+    }
+    if (CGRectEqualToRect(r, self.lastBridgeFrame) && handle == self.lastBridgeHandle && CGRectEqualToRect(hr, self.lastHandleRect)) return;
+    self.lastBridgeFrame = r; self.lastBridgeHandle = handle; self.lastHandleRect = hr;
     [[objc_getClass("NSDistributedNotificationCenter") defaultCenter]
         postNotificationName:SPL_NOTIF_CBFRAME object:nil
                     userInfo:@{@"identifier": self.bridgedBundle, @"x": @(r.origin.x), @"y": @(r.origin.y),
-                               @"w": @(r.size.width), @"h": @(r.size.height)}];
+                               @"w": @(r.size.width), @"h": @(r.size.height), @"handle": @(handle),
+                               @"hx": @(hr.origin.x), @"hy": @(hr.origin.y), @"hw": @(hr.size.width), @"hh": @(hr.size.height)}];
     // CarBridge chi tinh ti le thu nho app luc bat dau chieu: ngan doi kich thuoc (keo vach, doi bo cuc) thi CBWindow
     // doi khung nhung noi dung van co cu, du khoang den -> chieu lai sau khi tha tay (gop nhieu lan keo lam 1)
     if (CGRectIsEmpty(r)) return;

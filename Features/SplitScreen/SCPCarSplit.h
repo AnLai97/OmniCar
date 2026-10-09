@@ -34,6 +34,7 @@
 - (id)sceneOfViewController:(id)vc;
 - (void)scene:(id)scene destroyedForViewController:(id)vc ownScene:(id)own;
 - (void)bridgeWindowLost:(NSString *)bundleID;   // SpringBoard khong con CBWindow cho app nay
+- (void)bridgeHandleTapped:(NSString *)bundleID; // SpringBoard: cham thanh "•••" ve tren CBWindow -> hien thanh nut cua ngan
 - (void)rootDidLayout;                 // DBDashboardRootViewController viewDidLayoutSubviews
 - (void)dashboardInvalidated;           // ngat xe
 - (void)refreshAppTabSoon;              // DashBoard vua mo / dong app toan man -> cap nhat nut Split Screen tren dock
