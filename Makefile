@@ -19,8 +19,13 @@ TWEAK_VERSION := $(shell sed -n 's/^Version: *//p' control | tr -d '\r')
 
 FEATURES := $(notdir $(wildcard Features/*))
 
-# --- One tweak dylib per feature ----------------------------------------------------------------
-TWEAK_NAME = $(foreach f,$(FEATURES),OmniCar$(f))
+# --- Core dylib (SpringBoard only: log relay) + one tweak dylib per feature ---------------------
+TWEAK_NAME = OmniCarCore $(foreach f,$(FEATURES),OmniCar$(f))
+
+OmniCarCore_FILES = Core/Core.x Core/OmniCar.m
+OmniCarCore_FRAMEWORKS = UIKit
+OmniCarCore_CFLAGS = -fobjc-arc -ICore -DOMC_FEATURE=\"Core\"
+$(shell cp "Core/Filter.plist" "OmniCarCore.plist")
 
 define OMC_FEATURE
 OmniCar$(1)_FILES = $(wildcard Features/$(1)/*.x) $(wildcard Features/$(1)/*.xm) $(wildcard Features/$(1)/*.m) $(wildcard Features/$(1)/*.mm) Core/OmniCar.m

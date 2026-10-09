@@ -1,13 +1,15 @@
 // Speed Bubble (ex CarSpeed) - floating speed + limit bubble fed by the nav app (Vietmap Live, GOFA).
 #pragma once
 #import "SpeedBubble.h"
+#import "OmniCar.h"
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 #import <objc/runtime.h>
 #import <objc/message.h>
 #import <dlfcn.h>
 
-#define LOGTAG "[OmniCar/SpeedBubble]"
+// Logs go through Core: OmniCar.log, relayed to SpringBoard from the sandboxed nav apps.
+#define SPPLogWrite(msg) OMCLogWrite(@"SpeedBubble", (msg))
 #define SPPLog(fmt, ...) SPPLogWrite([NSString stringWithFormat:@fmt, ##__VA_ARGS__])
 
 // App dan duong ho tro (thu tu = chi so app gui trong Darwin state; them app moi thi them CUOI danh sach + CarSpeed.plist)
@@ -34,19 +36,9 @@ static inline NSString *SPPNavAppName(int i)   { return (i >= 0 && i < SPP_NAV_A
 #define SPP_DARWIN_RESET        SB_DARWIN_RESET   // dat lai vi tri + kich thuoc bong bong
 // SpringBoard -> process CarPlay: mo app dan duong tren man xe (cham bong bong); state = chi so app
 #define SPP_DARWIN_OPEN_CAR     SB_DARWIN_OPEN_CAR
-// App dan duong (sandbox) -> SpringBoard: chuyen tiep 1 dong log
-#define SPP_NOTIF_LOG           SB_NOTIF_LOG
 
 #define objcInvokeT(a, b, t)            ((t (*)(id, SEL))objc_msgSend)(a, NSSelectorFromString(b))
 #define objcInvoke(a, b)                objcInvokeT(a, b, id)
 #define objcInvoke_1(a, b, c)           ((id (*)(id, SEL, __typeof__(c)))objc_msgSend)(a, NSSelectorFromString(b), c)
 #define objcInvoke_2(a, b, c, d)        ((id (*)(id, SEL, __typeof__(c), __typeof__(d)))objc_msgSend)(a, NSSelectorFromString(b), c, d)
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-void SPPLogWrite(NSString *msg);
-void SPPLogAppendRelayed(NSString *line);   // SpringBoard ghi ho dong log tu app dan duong
-#ifdef __cplusplus
-}
-#endif

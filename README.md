@@ -9,6 +9,7 @@ trang cài đặt riêng trong Settings > OmniCar.
 Makefile              một Makefile: mỗi tính năng -> một dylib OmniCar<Tên>.dylib, cộng bundle settings
 control               thông tin gói Sileo (tên, version, mô tả)
 Core/OmniCar.h/.m     API chung cho hook: OMCPref, OMCFeatureEnabled, OMCLog, OMC_DATA_ROOT (biên dịch kèm vào từng dylib)
+Core/Core.x           OmniCarCore.dylib, chỉ nạp SpringBoard: trạm nhận log từ app bị sandbox
 Prefs/                bundle settings dùng chung
   OMCRootListController    trang chính: header card, Bật OmniCar, Respring, danh sách tính năng (tự quét Feature*.plist)
   OMCFeatureListController trang con chuẩn: nạp plist của tính năng, dịch key, vẽ icon
@@ -61,7 +62,9 @@ Quy ước:
 - Dữ liệu: `/var/mobile/Library/OmniCar/<Tên>/`.
 - Darwin notification: `com.anlai.omnicar/<tên>.<việc>`. Mọi cell lưu prefs đều `PostNotification`
   `com.anlai.omnicar/prefschanged`.
-- Log: `OMCLog(@"<Tên>", ...)` ra `[OmniCar/<Tên>]` trong Console và `/var/mobile/Documents/OmniCar.log`.
+- Log: `OMCLog(@"<Tên>", ...)` ra `[OmniCar/<Tên>]` trong Console và `/var/mobile/Documents/OmniCar.log`
+  (xoay sang `.old` khi quá 2 MB). Process không ghi được file (TikTok, Vietmap, GOFA) tự gửi dòng log sang
+  SpringBoard qua distributed notification, `OmniCarCore` ghi hộ. Mọi tính năng chỉ dùng cơ chế này.
 - Chuỗi: `<TÊN>_KEY` trong `<Tên>.strings`; `"<TÊN>"` là nhãn dòng ở trang chính.
 
 ## Thêm tính năng

@@ -3,8 +3,9 @@
 //
 // A feature lives in Features/<Name>/ and builds to OmniCar<Name>.dylib: <Name>.h (keys, paths,
 // notification names shared with its settings page), <Name>.x (hooks in %group <Name>, installed by
-// its own %ctor), Filter.plist (processes), feature.mk (frameworks), Prefs/ (its settings page). Every pref key is prefixed with the feature name in lower camel case
-// ("startupScreenVideoName"); "<feature>Enabled" is the feature's own switch.
+// its own %ctor), Filter.plist (processes), feature.mk (frameworks), Prefs/ (its settings page).
+// Every pref key is prefixed with the feature name in lower camel case ("startupScreenVideoName");
+// "<feature>Enabled" is the feature's own switch. Core/Core.x is the OmniCarCore dylib (SpringBoard).
 
 #import <Foundation/Foundation.h>
 #import <rootless.h>
@@ -26,9 +27,13 @@ BOOL OMCEnabled(void);
 // Master switch AND "<feature>Enabled" (default YES). `feature` is the key prefix, e.g. @"startupScreen".
 BOOL OMCFeatureEnabled(NSString *feature);
 
-// Logs "[OmniCar/<feature>] message" to syslog and to OmniCar.log (Documents, else /var/tmp).
+// Logs "[OmniCar/<feature>] message" to syslog and to /var/mobile/Documents/OmniCar.log. A process
+// that cannot write there (sandboxed app) relays the line to SpringBoard over OMC_LOG_RELAY.
 void OMCLogWrite(NSString *feature, NSString *message);
 #define OMCLog(feature, fmt, ...) OMCLogWrite(feature, [NSString stringWithFormat:fmt, ##__VA_ARGS__])
+#define OMC_LOG_RELAY     @"com.anlai.omnicar/log"
+// SpringBoard only (called by the OmniCarCore dylib): append relayed lines to the log file.
+void OMCLogRelayStart(void);
 
 #ifdef __cplusplus
 }

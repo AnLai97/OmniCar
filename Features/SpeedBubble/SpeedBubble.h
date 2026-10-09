@@ -26,5 +26,3 @@
 #define SB_DARWIN_PREFS      "com.anlai.omnicar/prefschanged"
 // SpringBoard -> CarPlay process: open the nav app on the car screen (state = app index).
 #define SB_DARWIN_OPEN_CAR   "com.anlai.omnicar/speedbubble.opencar"
-// Nav app (sandboxed) -> SpringBoard: relay one log line (NSDistributedNotificationCenter).
-#define SB_NOTIF_LOG         @"com.anlai.omnicar/speedbubble.log"

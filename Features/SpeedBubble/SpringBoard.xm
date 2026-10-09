@@ -13,13 +13,6 @@
     %orig;
     SPPLog("SpringBoard ready");
 
-    // Dong log tu app dan duong (sandbox) -> ghi vao file chung
-    [[objc_getClass("NSDistributedNotificationCenter") defaultCenter] addObserverForName:SPP_NOTIF_LOG object:nil
-        queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *note) {
-        NSString *line = note.userInfo[@"line"];
-        if ([line isKindOfClass:[NSString class]]) SPPLogAppendRelayed(line);
-    }];
-
     int tokSpeed = 0, tokDemo = 0, tokPrefs = 0, tokReset = 0;
     // App dan duong gui toc do + gioi han (kem chi so app); app bi tat trong Cai dat -> bo qua
     notify_register_dispatch(SPP_DARWIN_SPEED, &tokSpeed, dispatch_get_main_queue(), ^(int t) {

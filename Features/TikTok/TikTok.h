@@ -19,9 +19,6 @@
 
 // Notification TikTok observes; its state holds the switches (see the bits below).
 #define TTK_DARWIN_STATE         "com.anlai.omnicar/tiktok.state"
-// TikTok -> SpringBoard: the in-sandbox log file changed, copy it to /var/mobile/Documents.
-#define TTK_DARWIN_LOG           "com.anlai.omnicar/tiktok.log"
-#define TTK_LOG_NAME             @"OmniCar-TikTok.txt"
 
 // State bits. "Valid" marks a state written by this build; TikTok falls back to defaults without it.
 #define TTK_STATE_VALID          (1ULL << 11)

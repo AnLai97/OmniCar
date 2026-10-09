@@ -8,73 +8,14 @@
 #import <dlfcn.h>
 #import <mach-o/loader.h>
 
-// Ghi log vao syslog va file Documents/OmniCar-TikTok.txt trong thu muc cua TikTok. TikTok bi sandbox
-// nen khong ghi ra ngoai duoc: bao TTK_DARWIN_LOG de phan chay trong SpringBoard chep file ra
-// /var/mobile/Documents/OmniCar-TikTok.txt (de tim trong Filza)
-#define kTTXLogChanged TTK_DARWIN_LOG
+// Logs go through Core: OmniCar.log, relayed to SpringBoard since TikTok is sandboxed.
 static void TTXLog(NSString *format, ...) NS_FORMAT_FUNCTION(1, 2);
 static void TTXLog(NSString *format, ...) {
 	va_list args;
 	va_start(args, format);
 	NSString *line = [[NSString alloc] initWithFormat:format arguments:args];
 	va_end(args);
-	NSLog(@"%@", line);
-	static NSString *path;
-	static dispatch_queue_t queue;
-	static dispatch_once_t once;
-	dispatch_once(&once, ^{
-		path = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES).firstObject stringByAppendingPathComponent:TTK_LOG_NAME];
-		queue = dispatch_queue_create("com.anlai.omnicar.tiktok.log", DISPATCH_QUEUE_SERIAL);
-		// Moi lan mo app ghi lai tu dau
-		[[NSFileManager defaultManager] removeItemAtPath:path error:nil];
-	});
-	NSDateFormatter *formatter = [NSDateFormatter new];
-	formatter.dateFormat = @"HH:mm:ss";
-	NSString *entry = [NSString stringWithFormat:@"%@ %@\n", [formatter stringFromDate:[NSDate date]], line];
-	dispatch_async(queue, ^{
-		NSFileHandle *file = [NSFileHandle fileHandleForWritingAtPath:path];
-		if (!file) {
-			[entry writeToFile:path atomically:NO encoding:NSUTF8StringEncoding error:nil];
-		} else {
-			if ([file seekToEndOfFile] > 1024 * 1024) return;
-			[file writeData:[entry dataUsingEncoding:NSUTF8StringEncoding]];
-			[file closeFile];
-		}
-		// Gom nhieu dong: bao SpringBoard toi da 1 lan / giay
-		static BOOL pending;
-		if (pending) return;
-		pending = YES;
-		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC), queue, ^{
-			pending = NO;
-			notify_post(kTTXLogChanged);
-		});
-	});
-}
-
-// Chay trong SpringBoard (khong bi sandbox): chep log cua TikTok ra /var/mobile/Documents
-static void TTXCopyLogToDocuments(void) {
-	NSFileManager *fm = [NSFileManager defaultManager];
-	NSString *dest = [@"/var/mobile/Documents" stringByAppendingPathComponent:TTK_LOG_NAME];
-	Class proxyClass = NSClassFromString(@"LSApplicationProxy");
-	for (NSString *bundleID in @[@"com.zhiliaoapp.musically", @"com.ss.iphone.ugc.Ame"]) {
-		id proxy = ((id (*)(id, SEL, id))objc_msgSend)(proxyClass, NSSelectorFromString(@"applicationProxyForIdentifier:"), bundleID);
-		if (![proxy respondsToSelector:NSSelectorFromString(@"dataContainerURL")]) continue;
-		NSURL *container = ((id (*)(id, SEL))objc_msgSend)(proxy, NSSelectorFromString(@"dataContainerURL"));
-		NSString *src = [[container.path stringByAppendingPathComponent:@"Documents"] stringByAppendingPathComponent:TTK_LOG_NAME];
-		if (!src || ![fm fileExistsAtPath:src]) continue;
-		[fm createDirectoryAtPath:dest.stringByDeletingLastPathComponent withIntermediateDirectories:YES attributes:nil error:nil];
-		[fm removeItemAtPath:dest error:nil];
-		NSError *error;
-		if (![fm copyItemAtPath:src toPath:dest error:&error]) NSLog(@"[OmniCar/TikTok] chep log loi: %@", error);
-		return;
-	}
-}
-
-static void TTXStartLogCopier(void) {
-	static int token;
-	notify_register_dispatch(kTTXLogChanged, &token, dispatch_get_global_queue(QOS_CLASS_UTILITY, 0), ^(int t) {
-		TTXCopyLogToDocuments();
-	});
+	OMCLogWrite(@"TikTok", line);
 }
 
 static BOOL ttxBackgroundAudio = kTTXDefaultBackgroundAudio;
@@ -150,7 +91,7 @@ static void TTXLoadPrefs(void) {
 	}
 	// Cong tac tong tat thi coi nhu tat ca tinh nang deu tat
 	if (!enabled) ttxBackgroundAudio = ttxAutoNext = ttxRemoteScroll = ttxClearDisplay = NO;
-	TTXLog(@"[OmniCar/TikTok] prefs (%@): enabled=%d backgroundAudio=%d autoNext=%d remoteScroll=%d clearDisplay=%d", source, enabled, ttxBackgroundAudio, ttxAutoNext, ttxRemoteScroll, ttxClearDisplay);
+	TTXLog(@"prefs (%@): enabled=%d backgroundAudio=%d autoNext=%d remoteScroll=%d clearDisplay=%d", source, enabled, ttxBackgroundAudio, ttxAutoNext, ttxRemoteScroll, ttxClearDisplay);
 }
 
 static void TTXSetupRemoteCommands(void);
@@ -546,7 +487,7 @@ static void TTXHookLoop(NSString *className) {
 - (void)viewWillDisappear:(BOOL)animated {
 	%orig;
 	if (ttxVisibleFeed == self) ttxVisibleFeed = nil;
-	TTXLog(@"[OmniCar/TikTok] Feed an (%@): active=%d xe=%d", NSStringFromClass(object_getClass(self)), ttxAppActive, ttxCarScreen.width > 0);
+	TTXLog(@"Feed an (%@): active=%d xe=%d", NSStringFromClass(object_getClass(self)), ttxAppActive, ttxCarScreen.width > 0);
 }
 %end
 
@@ -739,7 +680,7 @@ static void TTXCheckSearchBars(void) {
 	TTXRestoreSearchBars(nil);
 }
 
-// Ghi cay view cua o feed vao OmniCar-TikTok.txt, moi loai o mot lan (de xem bai dang anh)
+// Ghi cay view cua o feed vao log, moi loai o mot lan (de xem bai dang anh)
 static NSMutableSet<NSString *> *ttxClearLoggedPages;
 
 static void TTXLogClearTree(UIView *view, CGFloat pageArea, int depth, NSMutableString *out) {
@@ -781,7 +722,7 @@ static void TTXApplyClearDisplay(id player) {
 		[ttxClearLoggedPages addObject:pageKey];
 		NSMutableString *tree = [NSMutableString string];
 		TTXLogClearTree(page, pageArea, 0, tree);
-		TTXLog(@"[OmniCar/TikTok] Clear cay o %@ (player %@):%@", pageClass, NSStringFromClass([playerView class]), tree);
+		TTXLog(@"Clear cay o %@ (player %@):%@", pageClass, NSStringFromClass([playerView class]), tree);
 	}
 	ttxClearInfo = [NSString stringWithFormat:@"%@ trong %@: +%ld, tong %lu | tim kiem: %lu | giu: %@", NSStringFromClass([playerView class]),
 		NSStringFromClass([page class]), (long)ttxClearedViews.count - (long)before, (unsigned long)ttxClearedViews.count,
@@ -850,11 +791,11 @@ static void TTXHandleClearTouch(UIWindow *window, UIEvent *event) {
 	ttxTapSeen++;
 	UIView *page = ttxClearPage;
 	if (!page.window || page.window != touch.window) {
-		TTXLog(@"[OmniCar/TikTok] cham: khong co o video (%@)", page ? NSStringFromClass([page class]) : @"nil");
+		TTXLog(@"cham: khong co o video (%@)", page ? NSStringFromClass([page class]) : @"nil");
 		return;
 	}
 	if (!CGRectContainsPoint([page convertRect:page.bounds toView:nil], p)) {
-		TTXLog(@"[OmniCar/TikTok] cham ngoai o video");
+		TTXLog(@"cham ngoai o video");
 		return;
 	}
 	ttxTapReveal++;
@@ -978,7 +919,7 @@ static void TTXRestoreCarVideo(id player) {
 	[ttxCarLayers removeAllObjects];
 	TTXSetEnginesFit(player, NO);
 	ttxCarVideoInfo = [NSString stringWithFormat:@"ve dien thoai, tra lai %lu | %@", (unsigned long)count, ttxEngineInfo];
-	TTXLog(@"[OmniCar/TikTok] Car video: %@", ttxCarVideoInfo);
+	TTXLog(@"Car video: %@", ttxCarVideoInfo);
 }
 
 // Mo ta 1 layer: class, khung, gravity, transform, contentsRect, drawableSize (Metal)
@@ -1058,7 +999,7 @@ static void TTXApplyCarVideoView(UIView *playerView, id player) {
 	if (!described) described = [NSMutableSet set];
 	if (![described containsObject:NSStringFromClass([playerView class])]) {
 		[described addObject:NSStringFromClass([playerView class])];
-		TTXLog(@"[OmniCar/TikTok] Car video: %@ %@ trong o %@:\n%@", NSStringFromClass([playerView class]), NSStringFromCGRect(playerView.frame),
+		TTXLog(@"Car video: %@ %@ trong o %@:\n%@", NSStringFromClass([playerView class]), NSStringFromCGRect(playerView.frame),
 			NSStringFromCGRect(page.bounds), TTXDescribeSubviews(playerView, 0));
 	}
 	UIView *leaf = TTXFindRenderLeaf(playerView, 0);
@@ -1103,7 +1044,7 @@ static void TTXApplyCarVideoView(UIView *playerView, id player) {
 	ttxCarVideoInfo = [NSString stringWithFormat:@"o %@ %@ | khung %@ %@ trong %@ | thu nho %.3f dich %.0f,%.0f | nhin thay %@ | lop ve %@",
 		NSStringFromClass([page class]), NSStringFromCGRect(page.bounds), NSStringFromClass([frameView class]), NSStringFromCGRect(fPage),
 		NSStringFromClass([parent class]), k, dx, dy, NSStringFromCGRect(area), TTXDescribeLayer(leaf.layer)];
-	if (changed) TTXLog(@"[OmniCar/TikTok] Car video: %@", ttxCarVideoInfo);
+	if (changed) TTXLog(@"Car video: %@", ttxCarVideoInfo);
 }
 
 // Lop ve video (theo loai layer / ten class) nam trong o feed chua diem giua man hinh
@@ -1138,7 +1079,7 @@ static void TTXLogCarVideoChain(UIView *view) {
 		[parts addObject:[NSString stringWithFormat:@"%@ %@%@", NSStringFromClass([v class]), NSStringFromCGRect([v convertRect:v.bounds toView:nil]),
 			CGAffineTransformIsIdentity(v.transform) ? @"" : @" (transform)"]];
 	}
-	TTXLog(@"[OmniCar/TikTok] Car video nguon: %@ | %@\nchuoi: %@\ncon:\n%@", ttxCarVideoSource, ttxCarVideoInfo,
+	TTXLog(@"Car video nguon: %@ | %@\nchuoi: %@\ncon:\n%@", ttxCarVideoSource, ttxCarVideoInfo,
 		[parts componentsJoinedByString:@" < "], TTXDescribeSubviews(view, 0));
 	// Chup lai sau khi video bat dau phat (video bi nhay lech sau khi da can giua)
 	__weak UIView *weakView = view;
@@ -1146,7 +1087,7 @@ static void TTXLogCarVideoChain(UIView *view) {
 		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delay.doubleValue * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
 			UIView *v = weakView;
 			if (!v) return;
-			TTXLog(@"[OmniCar/TikTok] Car video sau %@s: %@ trong cua so %@ | %@\ncon:\n%@", delay, NSStringFromClass([v class]),
+			TTXLog(@"Car video sau %@s: %@ trong cua so %@ | %@\ncon:\n%@", delay, NSStringFromClass([v class]),
 				NSStringFromCGRect([v convertRect:v.bounds toView:nil]), ttxCarVideoInfo, TTXDescribeSubviews(v, 0));
 		});
 	}
@@ -1188,7 +1129,7 @@ static void TTXApplyCarVideo(id player, UIWindow *carWindow) {
 				}
 				[stack addObjectsFromArray:v.subviews];
 			}
-			TTXLog(@"[OmniCar/TikTok] Car video: khong tim thay o giua %@, lop ve trong cua so:\n%@", NSStringFromCGPoint(center),
+			TTXLog(@"Car video: khong tim thay o giua %@, lop ve trong cua so:\n%@", NSStringFromCGPoint(center),
 				found.count ? [found componentsJoinedByString:@"\n"] : @"khong co");
 		}
 		return;
@@ -1344,7 +1285,7 @@ static void TTXCarTick(void) {
 	static NSString *lastWindows;
 	if (![ttxCarWindows isEqualToString:lastWindows]) {
 		lastWindows = ttxCarWindows;
-		TTXLog(@"[OmniCar/TikTok] Car cua so: %@", ttxCarWindows);
+		TTXLog(@"Car cua so: %@", ttxCarWindows);
 	}
 	if (CGSizeEqualToSize(target, ttxCarScreen)) {
 		// Lop ve video cua video dang hien: dat lai moi lan (TikTok co the doi lai khi doi video)
@@ -1356,7 +1297,7 @@ static void TTXCarTick(void) {
 	ttxCarInfo = target.width > 0
 		? [NSString stringWithFormat:@"man hinh xe %@ (%@)", NSStringFromCGSize(target), carWindow]
 		: [NSString stringWithFormat:@"ve dien thoai %@", NSStringFromCGSize(TTXRealScreenSize())];
-	TTXLog(@"[OmniCar/TikTok] Car: %@", ttxCarInfo);
+	TTXLog(@"Car: %@", ttxCarInfo);
 	for (UIScene *scene in UIApplication.sharedApplication.connectedScenes) {
 		if (![scene isKindOfClass:[UIWindowScene class]]) continue;
 		for (UIWindow *w in ((UIWindowScene *)scene).windows) TTXRelayout(w, 0);
@@ -1784,7 +1725,7 @@ static NSString *TTXDiagnosticReport(void) {
 
 // Chi ghi vao syslog, khong hien popup
 static void TTXLogDiagnostics(void) {
-	TTXLog(@"[OmniCar/TikTok]\n%@", TTXDiagnosticReport());
+	TTXLog(@"\n%@", TTXDiagnosticReport());
 }
 
 // SpringBoard (reads prefs fine) writes the switches into the notification state TikTok reads:
@@ -1805,9 +1746,8 @@ static void TTXOmniCarPrefsChanged(CFNotificationCenterRef center, void *observe
 
 %ctor {
 	NSString *bundleID = [NSBundle mainBundle].bundleIdentifier;
-	// Trong SpringBoard: chep file log + phat state cho TikTok, khong hook gi
+	// Trong SpringBoard: chi phat state cho TikTok, khong hook gi
 	if ([bundleID isEqualToString:@"com.apple.springboard"]) {
-		TTXStartLogCopier();
 		TTXPublishStateFromPrefs();
 		CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, TTXOmniCarPrefsChanged,
 			OMC_PREFS_CHANGED, NULL, CFNotificationSuspensionBehaviorDeliverImmediately);
@@ -1816,7 +1756,7 @@ static void TTXOmniCarPrefsChanged(CFNotificationCenterRef center, void *observe
 	// OmniCar is also loaded into CarPlay and the nav apps: the hooks below are TikTok-only
 	if (![@[@"com.zhiliaoapp.musically", @"com.ss.iphone.ugc.Ame"] containsObject:bundleID]) return;
 	TTXLoadPrefs();
-	TTXLog(@"[OmniCar/TikTok] loaded in %@", [NSBundle mainBundle].bundleIdentifier);
+	TTXLog(@"loaded in %@", [NSBundle mainBundle].bundleIdentifier);
 	ttxPauseCalls = [NSCountedSet set];
 	ttxPauseBlocked = [NSCountedSet set];
 	ttxLoopCalls = [NSCountedSet set];
