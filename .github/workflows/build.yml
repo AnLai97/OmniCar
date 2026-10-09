@@ -52,6 +52,18 @@ jobs:
             exit 1
           fi
 
+      # Every file in the deb must be world-readable: the tweak loader reads the filter plists as
+      # user mobile, and a 0600 plist means the dylib silently never loads.
+      - name: Check package contents
+        working-directory: src
+        run: |
+          rm -rf /tmp/deb && mkdir -p /tmp/deb
+          (cd /tmp/deb && ar x "$GITHUB_WORKSPACE"/src/packages/*.deb && tar -tvf data.tar.*)
+          if (cd /tmp/deb && tar -tvf data.tar.* | grep -E '^-[rwx-]{6}-'); then
+            echo "::error::package contains files that are not world-readable (see above)"
+            exit 1
+          fi
+
       - name: Rename package
         working-directory: src
         run: |

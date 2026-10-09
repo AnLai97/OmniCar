@@ -26,14 +26,14 @@ TWEAK_NAME = OmniCarCore $(foreach f,$(FEATURES),OmniCar$(f))
 OmniCarCore_FILES = Core/Core.x Core/OmniCar.m
 OmniCarCore_FRAMEWORKS = UIKit
 OmniCarCore_CFLAGS = -fobjc-arc -ICore -DOMC_FEATURE=\"Core\"
-$(shell cp "Core/Filter.plist" "OmniCarCore.plist")
+$(shell cp "Core/Filter.plist" "OmniCarCore.plist" && chmod 644 "OmniCarCore.plist")
 
 define OMC_FEATURE
 OmniCar$(1)_FILES = $(wildcard Features/$(1)/*.x) $(wildcard Features/$(1)/*.xm) $(wildcard Features/$(1)/*.m) $(wildcard Features/$(1)/*.mm) Core/OmniCar.m
 OmniCar$(1)_FRAMEWORKS = UIKit
 # -DOMC_FEATURE keeps each dylib's objects apart (Theos hashes the flags into the object path).
 OmniCar$(1)_CFLAGS = -fobjc-arc -ICore -DOMC_FEATURE=\"$(1)\"
-$$(shell cp "Features/$(1)/Filter.plist" "OmniCar$(1).plist")
+$$(shell cp "Features/$(1)/Filter.plist" "OmniCar$(1).plist" && chmod 644 "OmniCar$(1).plist")
 endef
 $(foreach f,$(FEATURES),$(eval $(call OMC_FEATURE,$(f))))
 -include $(wildcard Features/*/feature.mk)
@@ -65,3 +65,9 @@ OmniCar_CODESIGN_FLAGS = -SApp/entitlements.plist
 include $(THEOS_MAKE_PATH)/tweak.mk
 include $(THEOS_MAKE_PATH)/bundle.mk
 include $(THEOS_MAKE_PATH)/application.mk
+
+# The loader (ElleKit) reads each dylib's filter plist as user mobile inside SpringBoard / CarPlay:
+# a plist that is not world-readable makes the dylib silently never load. The generated copies
+# above came out 0600 on CI once, so every staged plist is forced to 644 before packaging.
+after-stage::
+	find "$(THEOS_STAGING_DIR)" -name '*.plist' -exec chmod 644 {} +
