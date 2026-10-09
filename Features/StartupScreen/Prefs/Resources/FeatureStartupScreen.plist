@@ -4,6 +4,14 @@
      "symbol"/"symbolColor" draw the row icon. Keys are the SS_KEY_* of ../../StartupScreen.h. -->
 <plist version="1.0">
 <dict>
+	<key>featureLabel</key>
+	<string>STARTUPSCREEN</string>
+	<key>featureOrder</key>
+	<integer>10</integer>
+	<key>featureController</key>
+	<string>OMCStartupScreenController</string>
+	<key>featureIcon</key>
+	<string>StartupScreenIcon.png</string>
 	<key>title</key>
 	<string>Startup Screen</string>
 	<key>items</key>

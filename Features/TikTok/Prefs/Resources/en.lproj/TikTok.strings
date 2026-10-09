@@ -1,7 +1,7 @@
 /* OmniCar – TikTok – English */
 
 "TIKTOK" = "TikTok";
-"TIKTOK_FOOTER" = "Background play, auto scroll and lock screen controls for TikTok. Changes apply right away, no respring needed.";
+"TIKTOK_FOOTER" = "Background play, auto scroll and lock screen controls for TikTok. Changes apply right away, no respring needed. After installing OmniCar for the first time, tap Respring on the OmniCar page so TikTok picks up the settings.";
 "TIKTOK_ENABLE" = "Enable TikTok features";
 "TIKTOK_SECTION_PLAYBACK" = "Playback";
 "TIKTOK_BACKGROUND_AUDIO" = "Background Play";

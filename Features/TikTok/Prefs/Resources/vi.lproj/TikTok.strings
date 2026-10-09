@@ -1,7 +1,7 @@
 /* OmniCar – TikTok – Tiếng Việt */
 
 "TIKTOK" = "TikTok";
-"TIKTOK_FOOTER" = "Phát nền, tự cuộn và điều khiển màn hình khoá cho TikTok. Thay đổi có hiệu lực ngay, không cần respring.";
+"TIKTOK_FOOTER" = "Phát nền, tự cuộn và điều khiển màn hình khoá cho TikTok. Thay đổi có hiệu lực ngay, không cần respring. Riêng lần đầu cài OmniCar, bấm Respring ở trang OmniCar để TikTok nhận cài đặt.";
 "TIKTOK_ENABLE" = "Bật tính năng TikTok";
 "TIKTOK_SECTION_PLAYBACK" = "Phát lại";
 "TIKTOK_BACKGROUND_AUDIO" = "Phát nền";

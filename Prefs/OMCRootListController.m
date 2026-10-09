@@ -147,9 +147,48 @@
 	if (!_specifiers) {
 		OMCLoadStrings();
 		_specifiers = [self loadSpecifiersFromPlistName:@"Root" target:self];
+		[self insertFeatureSpecifiers];
 		OMCLocalizeSpecifiers(_specifiers);
 	}
 	return _specifiers;
+}
+
+// One PSLinkCell per Feature*.plist in the bundle, after the "features" group cell of Root.plist.
+// Each feature plist describes its row at the top level: featureLabel (strings key), featureIcon
+// (image in the bundle) or featureSymbol + featureSymbolColor, featureController (page class,
+// default OMCFeatureListController) and featureOrder (sort key, then the file name).
+- (void)insertFeatureSpecifiers {
+	NSBundle *bundle = [NSBundle bundleForClass:[self class]];
+	NSMutableArray<NSDictionary *> *features = [NSMutableArray array];
+	for (NSString *path in [bundle pathsForResourcesOfType:@"plist" inDirectory:nil]) {
+		NSString *name = path.lastPathComponent.stringByDeletingPathExtension;
+		if (![name hasPrefix:@"Feature"]) continue;
+		NSDictionary *plist = [NSDictionary dictionaryWithContentsOfFile:path];
+		if (!plist[@"featureLabel"]) continue;
+		[features addObject:@{@"plist": name, @"info": plist}];
+	}
+	[features sortUsingComparator:^NSComparisonResult(NSDictionary *a, NSDictionary *b) {
+		NSInteger oa = [a[@"info"][@"featureOrder"] integerValue], ob = [b[@"info"][@"featureOrder"] integerValue];
+		if (oa != ob) return oa < ob ? NSOrderedAscending : NSOrderedDescending;
+		return [a[@"plist"] compare:b[@"plist"]];
+	}];
+
+	NSUInteger index = NSNotFound;
+	for (NSUInteger i = 0; i < _specifiers.count; i++) {
+		if ([[_specifiers[i] identifier] isEqualToString:@"features"]) { index = i + 1; break; }
+	}
+	if (index == NSNotFound) index = _specifiers.count;
+
+	for (NSDictionary *feature in features) {
+		NSDictionary *info = feature[@"info"];
+		Class detail = NSClassFromString(info[@"featureController"] ?: @"OMCFeatureListController") ?: NSClassFromString(@"OMCFeatureListController");
+		PSSpecifier *spec = [PSSpecifier preferenceSpecifierNamed:info[@"featureLabel"] target:self set:NULL get:NULL detail:detail cell:PSLinkCell edit:Nil];
+		[spec setProperty:feature[@"plist"] forKey:@"plist"];
+		if (info[@"featureIcon"]) [spec setProperty:info[@"featureIcon"] forKey:@"icon"];
+		if (info[@"featureSymbol"]) [spec setProperty:info[@"featureSymbol"] forKey:@"symbol"];
+		if (info[@"featureSymbolColor"]) [spec setProperty:info[@"featureSymbolColor"] forKey:@"symbolColor"];
+		[_specifiers insertObject:spec atIndex:index++];
+	}
 }
 
 #pragma mark - Appearance

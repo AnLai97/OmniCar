@@ -1,9 +1,9 @@
 // OmniCar core - what every feature's hooks can rely on: the prefs domain, a prefs reader, the
-// master switch and a shared logger. Implemented in Core/OmniCar.m (tweak only).
+// master switch and a shared logger. Core/OmniCar.m is compiled into every feature dylib.
 //
-// A feature lives in Features/<Name>/: <Name>.h (keys, paths, notification names shared with its
-// settings page), <Name>.x (hooks in %group <Name>, installed by its own %ctor), Prefs/ (its
-// settings page). Every pref key is prefixed with the feature name in lower camel case
+// A feature lives in Features/<Name>/ and builds to OmniCar<Name>.dylib: <Name>.h (keys, paths,
+// notification names shared with its settings page), <Name>.x (hooks in %group <Name>, installed by
+// its own %ctor), Filter.plist (processes), feature.mk (frameworks), Prefs/ (its settings page). Every pref key is prefixed with the feature name in lower camel case
 // ("startupScreenVideoName"); "<feature>Enabled" is the feature's own switch.
 
 #import <Foundation/Foundation.h>

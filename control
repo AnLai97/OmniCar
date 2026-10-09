@@ -21,7 +21,7 @@ Description: Unlock every limit of CarPlay.
   - More CarPlay upgrades are on the way
  .
  Every feature has its own switch and settings page under Settings > OmniCar.
- Changes apply the next time CarPlay connects.
+ Changes apply the next time CarPlay connects; respring once after installing.
  .
  Compatibility: iOS 15 and later, rootless jailbreaks (Dopamine, palera1n).
  Replaces the standalone CarSplash, CarSpeed and TikTokX tweaks.

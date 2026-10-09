@@ -11,13 +11,26 @@
           (exampleEnabled, exampleMode) and declare them in Features/Example/Example.h.
        2. write Features/Example/Prefs/Resources/vi.lproj/Example.strings and en.lproj/Example.strings
           with the same keys (prefix them EXAMPLE_; "EXAMPLE" is the row label on the root page).
-       3. in Prefs/Resources/Root.plist, under FEATURES_GROUP, add a PSLinkCell row with
-          label = EXAMPLE, plist = FeatureExample, detail = OMCFeatureListController (or your
-          subclass in Features/Example/Prefs/ when the page has PSButtonCell actions).
+       3. the root page lists the feature by itself from the feature* keys below (no Root.plist
+          edit): featureLabel = its row label key, featureIcon (29pt image in Prefs/Resources) or
+          featureSymbol + featureSymbolColor, featureController = OMCFeatureListController or your
+          subclass in Features/Example/Prefs/ when the page has PSButtonCell actions, featureOrder.
        4. hooks go in Features/Example/Example.x: %group Example, %init in its own %ctor,
-          read prefs with OMCPref(EX_KEY_...) and gate on OMCFeatureEnabled(@"example"). -->
+          read prefs with OMCPref(EX_KEY_...) and gate on OMCFeatureEnabled(@"example").
+       5. Features/Example/Filter.plist lists the processes the feature's dylib loads into;
+          Features/Example/feature.mk adds frameworks: OmniCarExample_FRAMEWORKS += AVFoundation -->
 <plist version="1.0">
 <dict>
+	<key>featureLabel</key>
+	<string>EXAMPLE</string>
+	<key>featureOrder</key>
+	<integer>100</integer>
+	<key>featureController</key>
+	<string>OMCFeatureListController</string>
+	<key>featureSymbol</key>
+	<string>sparkles</string>
+	<key>featureSymbolColor</key>
+	<string>#7B5CF5</string>
 	<key>title</key>
 	<string>Example</string>
 	<key>items</key>

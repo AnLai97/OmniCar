@@ -5,6 +5,14 @@
      state TikTok reads; the page controller publishes it too (TikTok cannot read the plist). -->
 <plist version="1.0">
 <dict>
+	<key>featureLabel</key>
+	<string>TIKTOK</string>
+	<key>featureOrder</key>
+	<integer>30</integer>
+	<key>featureController</key>
+	<string>OMCTikTokController</string>
+	<key>featureIcon</key>
+	<string>TikTokIcon.png</string>
 	<key>title</key>
 	<string>TikTok</string>
 	<key>items</key>

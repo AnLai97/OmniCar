@@ -8,17 +8,29 @@ include $(THEOS)/makefiles/common.mk
 
 TWEAK_VERSION := $(shell sed -n 's/^Version: *//p' control | tr -d '\r')
 
-# Layout: Core/ (shared prefs + logging), Tweak.x (core ctor), Prefs/ (settings bundle: root page,
-# theme, feature-page base class) and one folder per feature under Features/<Name>/ holding its
-# hooks (<Name>.x), its contract header (<Name>.h) and its settings page (Prefs/*.m +
-# Prefs/Resources/*). Dropping a folder into Features/ is all it takes to add a feature.
+# Layout: Core/ (prefs + logging, compiled into every feature), Prefs/ (settings bundle: root page,
+# theme, feature-page base class) and one folder per feature under Features/<Name>/:
+#   <Name>.h / <Name>.x|.xm|.m|.mm   contract + hooks        -> its own dylib OmniCar<Name>.dylib
+#   Filter.plist                     processes it loads into -> copied to ./OmniCar<Name>.plist (generated)
+#   feature.mk (optional)            extra frameworks:  OmniCar<Name>_FRAMEWORKS += CoreLocation
+#   Prefs/*.m + Prefs/Resources/*    settings page, plist (feature* keys list it on the root page),
+#                                    <lang>.lproj/<Name>.strings, icon
+# Dropping a folder into Features/ is all it takes to add a feature.
 
-# --- Tweak: core + every feature's hooks -------------------------------------------------------
-TWEAK_NAME = OmniCar
+FEATURES := $(notdir $(wildcard Features/*))
 
-OmniCar_FILES = Tweak.x Core/OmniCar.m $(wildcard Features/*/*.x) $(wildcard Features/*/*.xm) $(wildcard Features/*/*.m) $(wildcard Features/*/*.mm)
-OmniCar_FRAMEWORKS = UIKit AVFoundation ImageIO QuartzCore CoreLocation MediaPlayer
-OmniCar_CFLAGS = -fobjc-arc -ICore
+# --- One tweak dylib per feature ----------------------------------------------------------------
+TWEAK_NAME = $(foreach f,$(FEATURES),OmniCar$(f))
+
+define OMC_FEATURE
+OmniCar$(1)_FILES = $(wildcard Features/$(1)/*.x) $(wildcard Features/$(1)/*.xm) $(wildcard Features/$(1)/*.m) $(wildcard Features/$(1)/*.mm) Core/OmniCar.m
+OmniCar$(1)_FRAMEWORKS = UIKit
+# -DOMC_FEATURE keeps each dylib's objects apart (Theos hashes the flags into the object path).
+OmniCar$(1)_CFLAGS = -fobjc-arc -ICore -DOMC_FEATURE=\"$(1)\"
+$$(shell cp "Features/$(1)/Filter.plist" "OmniCar$(1).plist")
+endef
+$(foreach f,$(FEATURES),$(eval $(call OMC_FEATURE,$(f))))
+-include $(wildcard Features/*/feature.mk)
 
 # --- Settings bundle: core pages + every feature's page, resources merged from every feature ----
 BUNDLE_NAME = OmniCarPrefs

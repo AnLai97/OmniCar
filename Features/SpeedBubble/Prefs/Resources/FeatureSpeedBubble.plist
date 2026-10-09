@@ -4,6 +4,14 @@
      "symbol"/"symbolColor" draw the row icon. Keys are the SB_KEY_* of ../../SpeedBubble.h. -->
 <plist version="1.0">
 <dict>
+	<key>featureLabel</key>
+	<string>SPEEDBUBBLE</string>
+	<key>featureOrder</key>
+	<integer>20</integer>
+	<key>featureController</key>
+	<string>OMCSpeedBubbleController</string>
+	<key>featureIcon</key>
+	<string>SpeedBubbleIcon.png</string>
 	<key>title</key>
 	<string>Speed Bubble</string>
 	<key>items</key>
