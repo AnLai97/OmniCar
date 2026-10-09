@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- Labels and footers are keys into <lang>.lproj/Localizable.strings; "symbol"/"symbolColor" draw the row icon. -->
+<plist version="1.0">
+<dict>
+	<key>title</key>
+	<string>OmniCar</string>
+	<key>items</key>
+	<array>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>footerText</key>
+			<string>GENERAL_FOOTER</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>label</key>
+			<string>ENABLE</string>
+			<key>symbol</key>
+			<string>power</string>
+			<key>symbolColor</key>
+			<string>#0A59F7</string>
+			<key>key</key>
+			<string>enabled</string>
+			<key>default</key>
+			<true/>
+			<key>defaults</key>
+			<string>com.anlai.omnicar</string>
+			<key>PostNotification</key>
+			<string>com.anlai.omnicar/prefschanged</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSButtonCell</string>
+			<key>label</key>
+			<string>RESPRING</string>
+			<key>action</key>
+			<string>respring</string>
+			<key>isDestructive</key>
+			<true/>
+			<key>symbol</key>
+			<string>arrow.clockwise.circle.fill</string>
+			<key>symbolColor</key>
+			<string>#E84026</string>
+		</dict>
+
+		<!-- FEATURES: one PSLinkCell per feature; tapping it opens the feature's own page.
+		     "detail" is the page class (OMCFeatureListController, or a subclass of it from
+		     Features/<Name>/Prefs/ when the page needs actions), "plist" names the page's plist in
+		     Features/<Name>/Prefs/Resources/. The label is a key of that feature's strings table.
+		     See README.md "Thêm tính năng". -->
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>label</key>
+			<string>FEATURES_GROUP</string>
+			<key>footerText</key>
+			<string>FEATURES_FOOTER</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSLinkCell</string>
+			<key>label</key>
+			<string>CARSPLASH</string>
+			<key>detail</key>
+			<string>OMCCarSplashController</string>
+			<key>plist</key>
+			<string>FeatureCarSplash</string>
+			<key>symbol</key>
+			<string>play.rectangle.fill</string>
+			<key>symbolColor</key>
+			<string>#0A59F7</string>
+		</dict>
+	</array>
+</dict>
+</plist>

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- Template for a feature's settings page (not shipped: Template/ is outside the build).
+     Full walkthrough in README.md; Features/CarSplash is the reference implementation.
+
+     To add a feature called "Example":
+       1. copy this file to Features/Example/Prefs/Resources/FeatureExample.plist and edit the
+          rows. Same rules as Root.plist: labels/footers/validTitles are keys into
+          <lang>.lproj/Example.strings, every labelled row has symbol + symbolColor, every stored
+          cell has defaults + PostNotification. Prefix every key with the feature name
+          (exampleEnabled, exampleMode) and declare them in Features/Example/Example.h.
+       2. write Features/Example/Prefs/Resources/vi.lproj/Example.strings and en.lproj/Example.strings
+          with the same keys (prefix them EXAMPLE_; "EXAMPLE" is the row label on the root page).
+       3. in Prefs/Resources/Root.plist, under FEATURES_GROUP, add a PSLinkCell row with
+          label = EXAMPLE, plist = FeatureExample, detail = OMCFeatureListController (or your
+          subclass in Features/Example/Prefs/ when the page has PSButtonCell actions).
+       4. hooks go in Features/Example/Example.x: %group Example, %init in its own %ctor,
+          read prefs with OMCPref(EX_KEY_...) and gate on OMCFeatureEnabled(@"example"). -->
+<plist version="1.0">
+<dict>
+	<key>title</key>
+	<string>Example</string>
+	<key>items</key>
+	<array>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>footerText</key>
+			<string>FEATURE_EXAMPLE_FOOTER</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>label</key>
+			<string>FEATURE_EXAMPLE_ENABLE</string>
+			<key>symbol</key>
+			<string>power</string>
+			<key>symbolColor</key>
+			<string>#0A59F7</string>
+			<key>key</key>
+			<string>exampleEnabled</string>
+			<key>default</key>
+			<true/>
+			<key>defaults</key>
+			<string>com.anlai.omnicar</string>
+			<key>PostNotification</key>
+			<string>com.anlai.omnicar/prefschanged</string>
+		</dict>
+
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>label</key>
+			<string>FEATURE_EXAMPLE_OPTIONS_GROUP</string>
+			<key>footerText</key>
+			<string>FEATURE_EXAMPLE_OPTIONS_FOOTER</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSegmentCell</string>
+			<key>key</key>
+			<string>exampleMode</string>
+			<key>default</key>
+			<integer>0</integer>
+			<key>validValues</key>
+			<array>
+				<integer>0</integer>
+				<integer>1</integer>
+			</array>
+			<key>validTitles</key>
+			<array>
+				<string>FEATURE_EXAMPLE_MODE_A</string>
+				<string>FEATURE_EXAMPLE_MODE_B</string>
+			</array>
+			<key>defaults</key>
+			<string>com.anlai.omnicar</string>
+			<key>PostNotification</key>
+			<string>com.anlai.omnicar/prefschanged</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>label</key>
+			<string>FEATURE_EXAMPLE_OPTION</string>
+			<key>symbol</key>
+			<string>hand.tap.fill</string>
+			<key>symbolColor</key>
+			<string>#FF9500</string>
+			<key>key</key>
+			<string>exampleOption</string>
+			<key>default</key>
+			<false/>
+			<key>defaults</key>
+			<string>com.anlai.omnicar</string>
+			<key>PostNotification</key>
+			<string>com.anlai.omnicar/prefschanged</string>
+		</dict>
+	</array>
+</dict>
+</plist>

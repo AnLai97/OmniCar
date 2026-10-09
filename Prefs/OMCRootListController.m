@@ -1,97 +1,9 @@
 #import "OMCRootListController.h"
-#import <Preferences/PSSpecifier.h>
+#import "OMCTheme.h"
 #import <Preferences/PSTableCell.h>
-#import <UIKit/UIKit.h>
-
-#define kPrefsDomain CFSTR("com.anlai.omnicar")
-// Key the language choice is stored under. On a reformat, keep the tweak's existing key/type.
-#define kLanguageKey CFSTR("language")
-// Enable switch key (same as the first switch in Root.plist); the header's status chip reads it.
-#define kEnabledKey CFSTR("enabled")
-
-#pragma mark - Localization
-
-// The app language is picked in the nav bar, so strings come from <lang>.lproj by hand
-// instead of following the system language.
-static NSDictionary<NSString *, NSString *> *sStrings;
-
-static NSArray<NSString *> *OMCLanguages(void) {
-	return @[@"vi", @"en"];
-}
-
-static NSString *OMCLanguageName(NSString *lang) {
-	return [lang isEqualToString:@"vi"] ? @"Tiếng Việt" : @"English";
-}
-
-static NSString *OMCLanguage(void) {
-	NSString *lang = (__bridge_transfer NSString *)CFPreferencesCopyAppValue(kLanguageKey, kPrefsDomain);
-	if (lang && [OMCLanguages() containsObject:lang]) return lang;
-	return [[NSLocale preferredLanguages].firstObject hasPrefix:@"vi"] ? @"vi" : @"en";
-}
-
-static void OMCLoadStrings(void) {
-	NSString *bundlePath = [NSBundle bundleForClass:NSClassFromString(@"OMCRootListController")].bundlePath;
-	NSString *path = [bundlePath stringByAppendingFormat:@"/%@.lproj/Localizable.strings", OMCLanguage()];
-	sStrings = [NSDictionary dictionaryWithContentsOfFile:path] ?: @{};
-}
-
-static NSString *L(NSString *key) {
-	return sStrings[key] ?: key;
-}
-
-#pragma mark - HarmonyOS theme
-
-static UIColor *OMCDynamicColor(UInt32 light, UInt32 dark) {
-	UIColor *(^rgb)(UInt32) = ^(UInt32 v) {
-		return [UIColor colorWithRed:((v >> 16) & 0xFF) / 255.0 green:((v >> 8) & 0xFF) / 255.0 blue:(v & 0xFF) / 255.0 alpha:1];
-	};
-	UIColor *l = rgb(light), *d = rgb(dark);
-	return [UIColor colorWithDynamicProvider:^UIColor *(UITraitCollection *traits) {
-		return traits.userInterfaceStyle == UIUserInterfaceStyleDark ? d : l;
-	}];
-}
-
-static UIColor *OMCAccentColor(void)     { return OMCDynamicColor(0x0A59F7, 0x317AF7); }
-static UIColor *OMCBackgroundColor(void) { return OMCDynamicColor(0xF1F3F5, 0x000000); }
-static UIColor *OMCCardColor(void)       { return OMCDynamicColor(0xFFFFFF, 0x202224); }
-
-static UIColor *OMCColorFromHex(NSString *hex) {
-	unsigned int v = 0;
-	[[NSScanner scannerWithString:[hex stringByReplacingOccurrencesOfString:@"#" withString:@""]] scanHexInt:&v];
-	return [UIColor colorWithRed:((v >> 16) & 0xFF) / 255.0 green:((v >> 8) & 0xFF) / 255.0 blue:(v & 0xFF) / 255.0 alpha:1];
-}
-
-// Row icon: a white SF Symbol on a rounded, softly lit color tile.
-static UIImage *OMCIcon(NSString *symbol, UIColor *color) {
-	UIImageSymbolConfiguration *config = [UIImageSymbolConfiguration configurationWithPointSize:14 weight:UIImageSymbolWeightSemibold];
-	UIImage *glyph = [[UIImage systemImageNamed:symbol withConfiguration:config] imageWithTintColor:UIColor.whiteColor renderingMode:UIImageRenderingModeAlwaysOriginal];
-	if (!glyph) return nil;
-
-	const CGFloat side = 29;
-	UIGraphicsImageRenderer *renderer = [[UIGraphicsImageRenderer alloc] initWithSize:CGSizeMake(side, side)];
-	return [renderer imageWithActions:^(UIGraphicsImageRendererContext *ctx) {
-		CGRect rect = CGRectMake(0, 0, side, side);
-		UIBezierPath *tile = [UIBezierPath bezierPathWithRoundedRect:rect cornerRadius:8.5];
-		[color setFill];
-		[tile fill];
-
-		[tile addClip];
-		CGColorSpaceRef space = CGColorSpaceCreateDeviceRGB();
-		NSArray *colors = @[(id)[UIColor colorWithWhite:1 alpha:0.22].CGColor, (id)[UIColor colorWithWhite:1 alpha:0].CGColor];
-		CGGradientRef gradient = CGGradientCreateWithColors(space, (__bridge CFArrayRef)colors, NULL);
-		CGContextDrawLinearGradient(ctx.CGContext, gradient, CGPointZero, CGPointMake(0, side), 0);
-		CGGradientRelease(gradient);
-		CGColorSpaceRelease(space);
-
-		CGSize s = glyph.size;
-		[glyph drawInRect:CGRectMake((side - s.width) / 2, (side - s.height) / 2, s.width, s.height)];
-	}];
-}
-
-static BOOL OMCEnabled(void) {
-	id value = (__bridge_transfer id)CFPreferencesCopyAppValue(kEnabledKey, kPrefsDomain);
-	return value ? [value boolValue] : YES;
-}
+#import <dlfcn.h>
+#import <objc/message.h>
+#import <spawn.h>
 
 #pragma mark - Header card
 
@@ -235,33 +147,9 @@ static BOOL OMCEnabled(void) {
 	if (!_specifiers) {
 		OMCLoadStrings();
 		_specifiers = [self loadSpecifiersFromPlistName:@"Root" target:self];
-		[self localizeSpecifiers:_specifiers];
+		OMCLocalizeSpecifiers(_specifiers);
 	}
 	return _specifiers;
-}
-
-// Root.plist holds string keys; swap them for the chosen language and attach the row icons.
-- (void)localizeSpecifiers:(NSArray<PSSpecifier *> *)specifiers {
-	for (PSSpecifier *spec in specifiers) {
-		if (spec.name.length) spec.name = L(spec.name);
-		NSString *footer = [spec propertyForKey:@"footerText"];
-		if (footer) [spec setProperty:L(footer) forKey:@"footerText"];
-
-		// Lists filled at runtime (file names etc.) set "dynamicTitles" so they are left alone.
-		if (spec.titleDictionary.count && ![[spec propertyForKey:@"dynamicTitles"] boolValue]) {
-			NSMutableDictionary *titles = [NSMutableDictionary dictionary];
-			[spec.titleDictionary enumerateKeysAndObjectsUsingBlock:^(id value, NSString *title, BOOL *stop) {
-				titles[value] = L(title);
-			}];
-			spec.titleDictionary = titles;
-		}
-
-		NSString *symbol = [spec propertyForKey:@"symbol"];
-		if (symbol) {
-			UIImage *icon = OMCIcon(symbol, OMCColorFromHex([spec propertyForKey:@"symbolColor"] ?: @"#0A59F7"));
-			if (icon) [spec setProperty:icon forKey:@"iconImage"];
-		}
-	}
 }
 
 #pragma mark - Appearance
@@ -406,33 +294,18 @@ static BOOL OMCEnabled(void) {
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
 	UITableViewCell *cell = [super tableView:tableView cellForRowAtIndexPath:indexPath];
-	cell.backgroundColor = OMCCardColor();
-	cell.textLabel.font = [UIFont systemFontOfSize:16 weight:UIFontWeightMedium];
-
-	// Action rows read as regular navigation rows; only destructive ones stay red.
-	PSSpecifier *spec = [cell isKindOfClass:[PSTableCell class]] ? ((PSTableCell *)cell).specifier : nil;
-	if (spec.cellType == PSButtonCell) {
-		BOOL destructive = [[spec propertyForKey:@"isDestructive"] boolValue];
-		cell.textLabel.textColor = destructive ? [UIColor systemRedColor] : [UIColor labelColor];
-		cell.accessoryType = destructive ? UITableViewCellAccessoryNone : UITableViewCellAccessoryDisclosureIndicator;
-	}
+	OMCStyleCell(cell);
 	return cell;
 }
 
 - (void)tableView:(UITableView *)tableView willDisplayHeaderView:(UIView *)view forSection:(NSInteger)section {
 	if ([PSListController instancesRespondToSelector:_cmd]) [super tableView:tableView willDisplayHeaderView:view forSection:section];
-	if (![view isKindOfClass:[UITableViewHeaderFooterView class]]) return;
-	UILabel *label = ((UITableViewHeaderFooterView *)view).textLabel;
-	label.font = [UIFont systemFontOfSize:14 weight:UIFontWeightMedium];
-	label.textColor = [UIColor secondaryLabelColor];
+	OMCStyleHeaderFooter(view, YES);
 }
 
 - (void)tableView:(UITableView *)tableView willDisplayFooterView:(UIView *)view forSection:(NSInteger)section {
 	if ([PSListController instancesRespondToSelector:_cmd]) [super tableView:tableView willDisplayFooterView:view forSection:section];
-	if (![view isKindOfClass:[UITableViewHeaderFooterView class]]) return;
-	UILabel *label = ((UITableViewHeaderFooterView *)view).textLabel;
-	label.font = [UIFont systemFontOfSize:12];
-	label.textColor = [UIColor secondaryLabelColor];
+	OMCStyleHeaderFooter(view, NO);
 }
 
 #pragma mark - Helpers for actions
@@ -445,5 +318,41 @@ static BOOL OMCEnabled(void) {
 
 #pragma mark - Actions
 // Tweak-specific PSButtonCell actions go here (one method per "action" in Root.plist).
+
+// "Respring" row (action = respring): confirm, then restart SpringBoard.
+- (void)respring {
+	UIAlertController *alert = [UIAlertController alertControllerWithTitle:L(@"RESPRING_CONFIRM") message:nil preferredStyle:UIAlertControllerStyleAlert];
+	[alert addAction:[UIAlertAction actionWithTitle:L(@"CANCEL") style:UIAlertActionStyleCancel handler:nil]];
+	__weak typeof(self) weakSelf = self;
+	[alert addAction:[UIAlertAction actionWithTitle:L(@"RESPRING") style:UIAlertActionStyleDestructive handler:^(UIAlertAction *a) {
+		[weakSelf performRespring];
+	}]];
+	[self presentViewController:alert animated:YES completion:nil];
+}
+
+// Userspace respring (FBSSystemService + SBSRelaunchAction, like other tweaks' Respring buttons);
+// falls back to killall SpringBoard.
+- (void)performRespring {
+	dlopen("/System/Library/PrivateFrameworks/FrontBoardServices.framework/FrontBoardServices", RTLD_LAZY);
+	dlopen("/System/Library/PrivateFrameworks/SpringBoardServices.framework/SpringBoardServices", RTLD_LAZY);
+	Class relaunch = NSClassFromString(@"SBSRelaunchAction"), service = NSClassFromString(@"FBSSystemService");
+	if (relaunch && service) {
+		id action = ((id (*)(Class, SEL, NSString *, NSUInteger, NSURL *))objc_msgSend)(relaunch,
+			NSSelectorFromString(@"actionWithReason:options:targetURL:"), @"RestartRenderServer", 4 /* FadeToBlack */, nil);
+		id shared = ((id (*)(Class, SEL))objc_msgSend)(service, NSSelectorFromString(@"sharedService"));
+		if (action && shared) {
+			((void (*)(id, SEL, NSSet *, id))objc_msgSend)(shared, NSSelectorFromString(@"sendActions:withResult:"),
+				[NSSet setWithObject:action], nil);
+			return;
+		}
+	}
+	for (NSString *path in @[@"/var/jb/usr/bin/killall", @"/usr/bin/killall"]) {
+		if (![[NSFileManager defaultManager] isExecutableFileAtPath:path]) continue;
+		pid_t pid;
+		const char *argv[] = {path.fileSystemRepresentation, "-9", "SpringBoard", NULL};
+		posix_spawn(&pid, argv[0], NULL, NULL, (char *const *)argv, NULL);
+		return;
+	}
+}
 
 @end

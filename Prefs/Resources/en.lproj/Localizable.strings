@@ -1,0 +1,19 @@
+/* OmniCar – English */
+
+"LANGUAGE" = "Language";
+"HEADER_TAGLINE" = "Unlock every limit of CarPlay";
+"STATUS_ON" = "On";
+"STATUS_OFF" = "Off";
+"VERSION_FORMAT" = "Version: %@";
+"COPYRIGHT" = "Copyright © 2026 AnLai";
+"OK" = "OK";
+"CANCEL" = "Cancel";
+
+"GENERAL_FOOTER" = "Changes apply the next time CarPlay connects. Respring after installing or updating the tweak.";
+"ENABLE" = "Enable OmniCar";
+"RESPRING" = "Respring";
+"RESPRING_CONFIRM" = "Respring now?";
+
+/* TWEAK SETTINGS */
+"FEATURES_GROUP" = "Features";
+"FEATURES_FOOTER" = "Tap a feature to set it up. More features are coming in upcoming updates.";

@@ -1,0 +1,33 @@
+/* OmniCar – CarSplash – English */
+
+"CARSPLASH" = "CarSplash";
+"CARSPLASH_FOOTER" = "Plays your own video on the CarPlay screen every time you connect to your car.";
+"CARSPLASH_ENABLE" = "Enable CarSplash";
+
+"CARSPLASH_VIDEO_GROUP" = "Video";
+"CARSPLASH_VIDEO_FOOTER" = "Supports MP4, MOV and M4V. When you add a video, CarSplash prepares it for playback on CarPlay (up to 60 seconds).";
+"CARSPLASH_CURRENT_VIDEO" = "Current video";
+"CARSPLASH_NO_VIDEO" = "(No videos)";
+"CARSPLASH_IMPORT_PHOTOS" = "Add from Photos";
+"CARSPLASH_IMPORT_FILES" = "Add from Files";
+"CARSPLASH_PREVIEW" = "Preview video";
+"CARSPLASH_DELETE" = "Delete selected video";
+
+"CARSPLASH_DURATION_GROUP" = "Duration (seconds)";
+"CARSPLASH_DURATION_FOOTER" = "Videos shorter than the chosen duration loop. Turn on \"Play full video\" to ignore the duration and stop when the video ends (up to 60 seconds).";
+"CARSPLASH_PLAY_FULL" = "Play full video";
+
+"CARSPLASH_DISPLAY_GROUP" = "Display";
+"CARSPLASH_SCALE_FILL" = "Fill";
+"CARSPLASH_SCALE_FIT" = "Fit";
+"CARSPLASH_SOUND" = "Play sound";
+"CARSPLASH_TAP_TO_SKIP" = "Tap to skip";
+
+"CARSPLASH_PREPARING" = "Preparing video for CarPlay";
+"CARSPLASH_PROCESS_FAILED" = "Couldn't process video:\n%@";
+"CARSPLASH_SAVE_FAILED" = "Couldn't save video: %@";
+"CARSPLASH_NO_VIDEO_PREVIEW" = "No videos yet. Add one first.";
+"CARSPLASH_NO_VIDEO_DELETE" = "There's no video to delete.";
+"CARSPLASH_DELETE_TITLE" = "Delete video";
+"CARSPLASH_DELETE_CONFIRM" = "Delete \"%@\"?";
+"CARSPLASH_DELETE_ACTION" = "Delete";
