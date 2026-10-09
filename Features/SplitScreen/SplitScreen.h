@@ -5,9 +5,11 @@
 //
 // Two or three CarPlay apps side by side on the car screen was the standalone CarDuo tweak; its SCP*
 // code lives in this folder mostly unchanged (split runs inside the CarPlay process, SpringBoard
-// only relays URL requests and places the CarBridge window).
+// only relays URL requests). iPhone apps without a CarPlay interface go into a box through the
+// App Bridge feature (Features/AppBridge, AB_NOTIF_* below via its header).
 
 #pragma once
+#import "../AppBridge/AppBridge.h"
 
 // Key prefix: OMCFeatureEnabled(SPL_FEATURE) reads the master switch + splitScreenEnabled.
 #define SPL_FEATURE              @"splitScreen"
@@ -22,7 +24,7 @@
 #define SPL_KEY_LAST_LEFT        @"splitScreenLastLeft"         // last pair used on the car (reopened on connect)
 #define SPL_KEY_LAST_RIGHT       @"splitScreenLastRight"
 #define SPL_KEY_CARPLAY_APPS     @"splitScreenCarPlayApps"      // written by the CarPlay process for the app picker
-#define SPL_KEY_CARBRIDGE_APPS   @"splitScreenCarBridgeApps"
+#define SPL_KEY_PHONE_APPS       @"splitScreenPhoneApps"        // iPhone apps App Bridge can show (same writer)
 #define SPL_KEY_RECENT_LAYOUTS   @"splitScreenRecentLayouts"    // @[ @{layout, apps}, ... ] newest first, max 3
 #define SPL_KEY_PAIR_RATIOS      @"splitScreenPairRatios"       // @{ "left|right": ratio }
 // Favorite layouts 1..3: splitScreenFav<n>Name / Layout (2, 3, 13, 31) / Left / Right / Third
@@ -36,13 +38,6 @@
 // SpringBoard -> CarPlay process: open / change the split (action = open | pair | picker | close | fav | closeApp;
 // identifier, slot, left, right, index)
 #define SPL_NOTIF_NATIVE         @"com.anlai.omnicar/splitscreen.native"
-// CarPlay process -> SpringBoard: place the CarBridge CBWindow on a pane (identifier, x, y, w, h; w=0 hides it)
-#define SPL_NOTIF_CBFRAME        @"com.anlai.omnicar/splitscreen.cbframe"
-// SpringBoard -> CarPlay process: CarBridge closed its CBWindow (identifier) -> bridge the app again
-#define SPL_NOTIF_CBLOST         @"com.anlai.omnicar/splitscreen.cblost"
-// SpringBoard -> CarPlay process: the "•••" handle SpringBoard draws over the CarBridge window was tapped
-// (identifier) -> show that pane's button bar
-#define SPL_NOTIF_HANDLE_TAP     @"com.anlai.omnicar/splitscreen.handletap"
 // CarPlay process -> SpringBoard: [x] on a pane -> terminate the app (identifier)
 #define SPL_NOTIF_KILL           @"com.anlai.omnicar/splitscreen.kill"
 // CarPlay process -> SpringBoard: request received (ACK) / car screen just appeared (READY: resend a held request)

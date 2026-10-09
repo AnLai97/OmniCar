@@ -1,0 +1,7 @@
+/* OmniCar – App Bridge – Tiếng Việt */
+
+"APPBRIDGE" = "App Bridge";
+"APPBRIDGE_FOOTER" = "Đưa app iPhone không có giao diện CarPlay (YouTube, TikTok, Netflix...) lên màn xe, do chính OmniCar host, không cần CarBridge. Chia màn hình dùng nó cho các ô app iPhone: chọn app iPhone bất kỳ cho một ô, kéo vạch thì app tự bố cục lại theo cỡ mới, và có thể hiện nhiều app iPhone cùng lúc.";
+"APPBRIDGE_ENABLE" = "Bật App Bridge";
+"APPBRIDGE_ZOOM" = "Cỡ app (%)";
+"APPBRIDGE_ZOOM_FOOTER" = "App được vẽ lớn hơn ô một chút rồi thu nhỏ lại, để chữ và nút của iPhone vừa mắt trên màn xe. 100 = không thu nhỏ. Áp dụng từ lần mở app vào ô tiếp theo.";

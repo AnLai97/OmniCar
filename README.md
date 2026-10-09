@@ -20,7 +20,10 @@ Features/<Tên>/       mỗi tính năng là một component (xem bên dưới)
   StartupScreen/      video khởi động trên màn CarPlay (từ CarSplash)
   SpeedBubble/        bong bóng tốc độ + biển giới hạn từ Vietmap Live / GOFA (từ CarSpeed, ObjC++)
   SplitScreen/        chia màn xe cho 2-3 app CarPlay chạy song song (từ CarDuo, ObjC++); split nằm trong
-                      process CarPlay, SpringBoard chỉ nhận URL và đặt cửa sổ CarBridge
+                      process CarPlay, SpringBoard chỉ nhận URL; app iPhone trong ô đi qua AppBridge
+  AppBridge/          đưa app iPhone không có CarPlay lên màn xe (thay CarBridge): SpringBoard tạo scene app
+                      bằng SBAppViewController trong cửa sổ riêng trên màn xe theo cơ chế carplay-cast, nhận
+                      khung ô từ SplitScreen qua AB_NOTIF_* (AppBridge.h)
 App/                  app OmniCar nhận URL omnicar://<tính năng>/<việc> cho Shortcuts / Siri rồi chuyển sang
                       SpringBoard (distributed notification com.anlai.omnicar/url); hook của tính năng tự xử lý
 Template/             plist mẫu cho trang tính năng mới

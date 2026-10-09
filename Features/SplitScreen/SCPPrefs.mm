@@ -23,7 +23,7 @@ static void migrateFromCarDuo(void)
             @"ShowFavorites": SPL_KEY_SHOW_FAVORITES, @"TipCount": SPL_KEY_TIP_COUNT, @"SplitRatio": SPL_KEY_SPLIT_RATIO,
             @"SplitDirection": SPL_KEY_SPLIT_DIRECTION, @"PaneOrientation": SPL_KEY_PANE_ORIENTATION,
             @"LastLeft": SPL_KEY_LAST_LEFT, @"LastRight": SPL_KEY_LAST_RIGHT, @"CarPlayApps": SPL_KEY_CARPLAY_APPS,
-            @"CarBridgeApps": SPL_KEY_CARBRIDGE_APPS, @"RecentLayouts": SPL_KEY_RECENT_LAYOUTS, @"PairRatios": SPL_KEY_PAIR_RATIOS,
+            @"CarBridgeApps": SPL_KEY_PHONE_APPS, @"RecentLayouts": SPL_KEY_RECENT_LAYOUTS, @"PairRatios": SPL_KEY_PAIR_RATIOS,
         };
         NSUInteger copied = 0;
         for (NSString *k in values) {
@@ -93,11 +93,11 @@ static NSString *str(NSString *key)
     if ([[self carPlayApps] isEqualToArray:ids]) return;
     store(SPL_KEY_CARPLAY_APPS, ids);
 }
-+ (void)setCarBridgeApps:(NSArray<NSString *> *)ids
++ (void)setPhoneApps:(NSArray<NSString *> *)ids
 {
-    id old = value(SPL_KEY_CARBRIDGE_APPS);
+    id old = value(SPL_KEY_PHONE_APPS);
     if ([old isKindOfClass:[NSArray class]] && [old isEqualToArray:ids]) return;
-    store(SPL_KEY_CARBRIDGE_APPS, ids);
+    store(SPL_KEY_PHONE_APPS, ids);
 }
 
 + (NSDictionary *)favorite:(NSInteger)index

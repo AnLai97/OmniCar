@@ -35,10 +35,10 @@
 "SPLITSCREEN_APP_NOT_SET" = "Not set";
 "SPLITSCREEN_PICKER_NONE" = "None";
 "SPLITSCREEN_PICKER_CARPLAY_APPS" = "CarPlay apps";
-"SPLITSCREEN_PICKER_CARBRIDGE_APPS" = "CarBridge apps";
+"SPLITSCREEN_PICKER_PHONE_APPS" = "iPhone apps (App Bridge)";
 "SPLITSCREEN_PICKER_GUESS_FOOTER" = "Not connected to a car yet: showing apps with CarPlay support. The exact list refreshes each time you connect.";
-"SPLITSCREEN_PICKER_BRIDGE_FOOTER" = "iPhone apps enabled in CarBridge.";
-"SPLITSCREEN_PICKER_NO_BRIDGE_FOOTER" = "No CarBridge apps found. Enable apps in CarBridge, then connect to the car once to refresh.";
+"SPLITSCREEN_PICKER_PHONE_FOOTER" = "iPhone apps without a CarPlay interface, shown on the car screen through App Bridge.";
+"SPLITSCREEN_PICKER_NO_PHONE_FOOTER" = "No iPhone apps listed. Turn on App Bridge and connect to the car once to refresh.";
 
 "SPLITSCREEN_SHORTCUTS_GROUP" = "Siri / Shortcuts";
 "SPLITSCREEN_SHORTCUTS_FOOTER" = "Create a Shortcut with the \"Open URL\" action and run it with Siri:\nomnicar://splitscreen/open?left=com.apple.Maps&right=com.spotify.client\nomnicar://splitscreen/fav?n=1\nomnicar://splitscreen/close";

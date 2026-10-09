@@ -1,7 +1,7 @@
 // App picker for the favorite layouts of the Split Screen page: a "Box 1: Maps >" row
-// (OMCSplitScreenAppLinkCell) that opens a list of the apps shown on CarPlay (real CarPlay apps
-// plus CarBridge apps), OMCSplitScreenAppPickerController. The chosen bundle id is stored under
-// the row's key (splitScreenFav<n>Left / Right / Third) in the OmniCar prefs domain.
+// (OMCSplitScreenAppLinkCell) that opens a list of the apps a box can show (real CarPlay apps, then
+// iPhone apps through App Bridge), OMCSplitScreenAppPickerController. The chosen bundle id is stored
+// under the row's key (splitScreenFav<n>Left / Right / Third) in the OmniCar prefs domain.
 #import <Preferences/PSViewController.h>
 #import <Preferences/PSListController.h>
 #import <Preferences/PSTableCell.h>
@@ -49,16 +49,20 @@ static UIImage *OMCSplitAppIconImage(NSString *bid)
     return [UIImage _applicationIconImageForBundleIdentifier:bid format:2 scale:[UIScreen mainScreen].scale];
 }
 
+static NSArray *OMCSplitInstalledProxies(void)
+{
+    Class WS = objc_getClass("LSApplicationWorkspace");
+    id ws = WS ? ((id (*)(id, SEL))objc_msgSend)(WS, NSSelectorFromString(@"defaultWorkspace")) : nil;
+    return ws ? ((id (*)(id, SEL))objc_msgSend)(ws, NSSelectorFromString(@"allInstalledApplications")) : nil;
+}
+
 // Chua cam xe lan nao (CarPlay chua ghi danh sach): tam doan app co CarPlay theo entitlement
 static NSArray<NSString *> *OMCSplitGuessCarPlayApps(void)
 {
     NSSet *apple = [NSSet setWithArray:@[@"com.apple.Maps", @"com.apple.Music", @"com.apple.podcasts", @"com.apple.mobilephone",
                                          @"com.apple.MobileSMS", @"com.apple.iBooks", @"com.apple.news", @"com.apple.mobilecal"]];
     NSMutableArray *out = [NSMutableArray array];
-    Class WS = objc_getClass("LSApplicationWorkspace");
-    id ws = WS ? ((id (*)(id, SEL))objc_msgSend)(WS, NSSelectorFromString(@"defaultWorkspace")) : nil;
-    NSArray *all = ws ? ((id (*)(id, SEL))objc_msgSend)(ws, NSSelectorFromString(@"allInstalledApplications")) : nil;
-    for (id proxy in all) {
+    for (id proxy in OMCSplitInstalledProxies()) {
         NSString *bid = ((id (*)(id, SEL))objc_msgSend)(proxy, NSSelectorFromString(@"bundleIdentifier"));
         if (!bid.length) continue;
         if ([apple containsObject:bid]) { [out addObject:bid]; continue; }
@@ -74,53 +78,18 @@ static NSArray<NSString *> *OMCSplitGuessCarPlayApps(void)
     return out;
 }
 
-// App bat trong CarBridge: CarBridge luu cau hinh trong 1 file plist co "carbridge" trong ten.
-// Khong biet chinh xac dinh dang -> lay moi chuoi la bundle id cua app da cai (khoa co gia tri bat, hoac phan tu mang).
-static void OMCSplitCollectBundleIDs(id obj, NSSet *installed, NSMutableOrderedSet *out, int depth)
+// App iPhone App Bridge host duoc khi CarPlay chua ghi danh sach: app nguoi dung cai (khong phai app he thong)
+static NSArray<NSString *> *OMCSplitGuessPhoneApps(NSArray<NSString *> *carPlayApps)
 {
-    if (depth > 6 || !obj) return;
-    if ([obj isKindOfClass:[NSString class]]) {
-        if ([installed containsObject:obj]) [out addObject:obj];
-    } else if ([obj isKindOfClass:[NSArray class]]) {
-        for (id o in obj) OMCSplitCollectBundleIDs(o, installed, out, depth + 1);
-    } else if ([obj isKindOfClass:[NSDictionary class]]) {
-        [obj enumerateKeysAndObjectsUsingBlock:^(id k, id v, BOOL *stop) {
-            BOOL off = [v isKindOfClass:[NSNumber class]] && ![v boolValue];
-            if (!off) OMCSplitCollectBundleIDs(k, installed, out, depth + 1);
-            OMCSplitCollectBundleIDs(v, installed, out, depth + 1);
-        }];
-    }
-}
-
-static NSArray<NSString *> *OMCSplitCarBridgeApps(void)
-{
-    NSMutableSet *installed = [NSMutableSet set];
-    Class WS = objc_getClass("LSApplicationWorkspace");
-    id ws = WS ? ((id (*)(id, SEL))objc_msgSend)(WS, NSSelectorFromString(@"defaultWorkspace")) : nil;
-    NSArray *all = ws ? ((id (*)(id, SEL))objc_msgSend)(ws, NSSelectorFromString(@"allInstalledApplications")) : nil;
-    for (id proxy in all) {
+    NSMutableArray *out = [NSMutableArray array];
+    for (id proxy in OMCSplitInstalledProxies()) {
         NSString *bid = ((id (*)(id, SEL))objc_msgSend)(proxy, NSSelectorFromString(@"bundleIdentifier"));
-        if (bid.length) [installed addObject:bid];
+        if (!bid.length || [carPlayApps containsObject:bid] || [bid isEqualToString:@"com.anlai.omnicar.app"]) continue;
+        NSString *type = [proxy respondsToSelector:NSSelectorFromString(@"applicationType")]
+            ? ((id (*)(id, SEL))objc_msgSend)(proxy, NSSelectorFromString(@"applicationType")) : nil;
+        if ([type isEqualToString:@"User"]) [out addObject:bid];
     }
-    NSMutableOrderedSet *out = [NSMutableOrderedSet orderedSet];
-    NSFileManager *fm = [NSFileManager defaultManager];
-    for (NSString *dir in @[@"/var/mobile/Library/Preferences", @"/var/jb/var/mobile/Library/Preferences"]) {
-        for (NSString *f in [fm contentsOfDirectoryAtPath:dir error:nil]) {
-            if (![f.lowercaseString containsString:@"carbridge"] || ![f hasSuffix:@".plist"]) continue;
-            NSDictionary *d = [NSDictionary dictionaryWithContentsOfFile:[dir stringByAppendingPathComponent:f]];
-            if (!d) {
-                // cfprefsd co the chua ghi file -> doc qua CFPreferences theo ten domain
-                NSString *dom = [f stringByDeletingPathExtension];
-                CFArrayRef keys = CFPreferencesCopyKeyList((__bridge CFStringRef)dom, kCFPreferencesCurrentUser, kCFPreferencesAnyHost);
-                if (keys) {
-                    d = CFBridgingRelease(CFPreferencesCopyMultiple(keys, (__bridge CFStringRef)dom, kCFPreferencesCurrentUser, kCFPreferencesAnyHost));
-                    CFRelease(keys);
-                }
-            }
-            OMCSplitCollectBundleIDs(d, installed, out, 0);
-        }
-    }
-    return out.array;
+    return out;
 }
 
 // ---------------------------------------------------------------------
@@ -148,11 +117,11 @@ static NSArray<NSString *> *OMCSplitCarBridgeApps(void)
 @end
 
 // ---------------------------------------------------------------------
-//  OMCSplitScreenAppPickerController: chi liet ke app hien tren CarPlay (app CarPlay that + app CarBridge)
+//  OMCSplitScreenAppPickerController: app CarPlay that + app iPhone (App Bridge)
 // ---------------------------------------------------------------------
 @interface OMCSplitScreenAppPickerController : PSViewController <UITableViewDataSource, UITableViewDelegate>
 @property (nonatomic, strong) UITableView *table;
-@property (nonatomic, strong) NSArray<NSDictionary *> *carPlayApps, *bridgeApps;   // @{id, name}
+@property (nonatomic, strong) NSArray<NSDictionary *> *carPlayApps, *phoneApps;   // @{id, name}
 @property (nonatomic, readwrite) BOOL fromCar;   // da co danh sach do CarPlay ghi lai (da cam xe)
 @end
 
@@ -187,20 +156,20 @@ static NSArray<NSDictionary *> *OMCSplitAppRows(NSArray *ids, NSMutableSet *seen
     self.view.tintColor = OMCAccentColor();
     _table.backgroundColor = OMCBackgroundColor();
 
-    // CarBridge: danh sach CarPlay ghi lai (chinh xac) + doc thang cau hinh CarBridge (chua cam xe van co)
     CFPreferencesAppSynchronize(kPrefsDomain);
-    NSArray *carIDs = OMCSplitPrefValue(SPL_KEY_CARPLAY_APPS), *carBridge = OMCSplitPrefValue(SPL_KEY_CARBRIDGE_APPS);
+    NSArray *carIDs = OMCSplitPrefValue(SPL_KEY_CARPLAY_APPS), *phoneIDs = OMCSplitPrefValue(SPL_KEY_PHONE_APPS);
     _fromCar = [carIDs isKindOfClass:[NSArray class]] && carIDs.count;
-    NSMutableArray *bridge = [NSMutableArray array];
-    if ([carBridge isKindOfClass:[NSArray class]]) [bridge addObjectsFromArray:carBridge];
-    [bridge addObjectsFromArray:OMCSplitCarBridgeApps()];
     NSMutableSet *seen = [NSMutableSet set];
-    _bridgeApps = OMCSplitAppRows(bridge, seen);
-
     NSMutableArray *native = [NSMutableArray array];
     if (_fromCar) [native addObjectsFromArray:carIDs];
     [native addObjectsFromArray:OMCSplitGuessCarPlayApps()];
     _carPlayApps = OMCSplitAppRows(native, seen);
+
+    // App iPhone: danh sach CarPlay ghi lai (App Bridge dang bat), chua co thi doan tu app da cai
+    NSMutableArray *phone = [NSMutableArray array];
+    if ([phoneIDs isKindOfClass:[NSArray class]] && phoneIDs.count) [phone addObjectsFromArray:phoneIDs];
+    else [phone addObjectsFromArray:OMCSplitGuessPhoneApps(native)];
+    _phoneApps = OMCSplitAppRows(phone, seen);
 }
 
 - (NSString *)currentValue
@@ -209,7 +178,7 @@ static NSArray<NSDictionary *> *OMCSplitAppRows(NSArray *ids, NSMutableSet *seen
     return [v isKindOfClass:[NSString class]] ? v : nil;
 }
 
-- (NSArray<NSDictionary *> *)rowsInSection:(NSInteger)s { return s == 1 ? _carPlayApps : _bridgeApps; }
+- (NSArray<NSDictionary *> *)rowsInSection:(NSInteger)s { return s == 1 ? _carPlayApps : _phoneApps; }
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tv { return 3; }
 
@@ -221,7 +190,7 @@ static NSArray<NSDictionary *> *OMCSplitAppRows(NSArray *ids, NSMutableSet *seen
 - (NSString *)tableView:(UITableView *)tv titleForHeaderInSection:(NSInteger)section
 {
     if (section == 1) return L(@"SPLITSCREEN_PICKER_CARPLAY_APPS");
-    if (section == 2) return L(@"SPLITSCREEN_PICKER_CARBRIDGE_APPS");
+    if (section == 2) return L(@"SPLITSCREEN_PICKER_PHONE_APPS");
     return nil;
 }
 
@@ -230,7 +199,7 @@ static NSArray<NSDictionary *> *OMCSplitAppRows(NSArray *ids, NSMutableSet *seen
     if (section == 1 && !_fromCar)
         return L(@"SPLITSCREEN_PICKER_GUESS_FOOTER");
     if (section == 2)
-        return L(_bridgeApps.count ? @"SPLITSCREEN_PICKER_BRIDGE_FOOTER" : @"SPLITSCREEN_PICKER_NO_BRIDGE_FOOTER");
+        return L(_phoneApps.count ? @"SPLITSCREEN_PICKER_PHONE_FOOTER" : @"SPLITSCREEN_PICKER_NO_PHONE_FOOTER");
     return nil;
 }
 

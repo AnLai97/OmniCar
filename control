@@ -15,10 +15,13 @@ Description: Unlock every limit of CarPlay.
     the CarPlay screen, or on iPhone when no car is connected; 18 styles,
     drag, pinch, tap to reopen the app
   - Split Screen: two or three CarPlay apps side by side on the car screen,
-    each with its real CarPlay interface, CarBridge apps included - 2 boxes,
-    3 boxes or 1 large + 2, drag the divider to resize, swap boxes, a
-    floating window, three favorite layouts, reopen the last split on
-    connect, and Siri / Shortcuts through the omnicar:// URL scheme
+    each with its real CarPlay interface - 2 boxes, 3 boxes or 1 large + 2,
+    drag the divider to resize, swap boxes, a floating window, three
+    favorite layouts, reopen the last split on connect, and Siri /
+    Shortcuts through the omnicar:// URL scheme
+  - App Bridge: iPhone apps with no CarPlay interface (YouTube, TikTok,
+    Netflix...) on the car screen, hosted by OmniCar itself, no CarBridge
+    needed - as a Split Screen box or full screen, resized live
   - More CarPlay upgrades are on the way
  .
  Every feature has its own switch and settings page under Settings > OmniCar.

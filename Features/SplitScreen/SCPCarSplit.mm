@@ -578,19 +578,34 @@ static void SCPCPopIn(NSArray<UIView *> *views)
 @property (nonatomic, strong) UIButton *popButton;    // nut "dua ra cua so noi" tren thanh nut
 @property (nonatomic, strong) NSTimer *barTimer;
 @property (nonatomic, strong) UIView *picker;         // bang chon app cho ngan nay
-@property (nonatomic, strong) UILabel *bridgeHint;    // "Cham de hien ..." khi app CarBridge cua ngan chua duoc chieu
+@property (nonatomic) CGRect hostFrame;               // khung cua so host (App Bridge) da gui lan cuoi
+@property (nonatomic) BOOL hostHandle;                // lan gui gan nhat co thanh "•••" do SpringBoard ve khong
 @property (nonatomic) CGSize sceneSize;               // kich thuoc da bao cho scene lan cuoi
 @end
 @implementation SCPCarPane
 @end
 
+// VC gia dai dien app iPhone do SpringBoard host (App Bridge) trong o: tra loi cac selector ma split goi tren
+// VC cua DashBoard (background / foreground scene, applicationInfo...) de bo cuc dung chung, khong lam gi.
+@interface SCPHostedAppVC : UIViewController
+@property (nonatomic, copy) NSString *bundleID;
+@end
+@implementation SCPHostedAppVC
+- (void)viewDidLoad { [super viewDidLoad]; self.view.backgroundColor = [UIColor colorWithWhite:0.08 alpha:1]; }
+- (void)backgroundSceneWithCompletion:(id)completion { if (completion) ((void (^)(void))completion)(); }
+- (void)foregroundSceneWithSettings:(id)settings completion:(id)completion { if (completion) ((void (^)(void))completion)(); }
+- (id)applicationInfo { return nil; }
+- (id)proxyApplicationInfo { return nil; }
+- (id)sceneHostView { return nil; }
+@end
+
+static BOOL SCPCIsHostedVC(UIViewController *vc) { return [vc isKindOfClass:[SCPHostedAppVC class]]; }
 static BOOL SCPCIsBridgedApp(NSString *bid);
 
 @interface SCPCarSplit () <UIScrollViewDelegate>
 @property (nonatomic, readwrite) BOOL active;
 @property (nonatomic, strong) NSMutableDictionary<NSString *, NSDate *> *cancelledLaunches;   // app bi huy luc dang mo
 @property (nonatomic, strong) UIView *soloCover;      // the icon app che luc ve man chinh roi mo lai app toan man
-@property (nonatomic) CFAbsoluteTime bridgeStartedAt; // lan goi CarBridge chieu gan nhat
 @property (nonatomic, strong) SCPCarSplitView *container;
 @property (nonatomic, strong) NSMutableArray<SCPCarPane *> *slots;        // cac o theo thu tu (1..3)
 @property (nonatomic, strong) NSMutableArray<NSNumber *> *fractions;      // ti le tung o, tong = 1
@@ -602,13 +617,8 @@ static BOOL SCPCIsBridgedApp(NSString *bid);
 @property (nonatomic, strong) NSMutableArray<SCPCarDividerView *> *dividers;   // vach giua o i va i + 1
 @property (nonatomic) BOOL loggedArea;
 @property (nonatomic) CFAbsoluteTime nextLaunchAt;   // lan mo app ke tiep som nhat (DashBoard can xong lan truoc)
-@property (nonatomic, copy) NSString *bridgedBundle;  // app CarBridge dang duoc chieu vao ngan
-@property (nonatomic, readwrite) BOOL bridgeStarting; // CarBridge dang khoi dong chieu (bo qua Home / dismiss cua no)
-@property (nonatomic) CGRect lastBridgeFrame;
-@property (nonatomic) BOOL lastBridgeHandle;          // lan gui khung gan nhat co kem thanh "•••" cho SpringBoard ve khong
-@property (nonatomic) CGRect lastHandleRect;
-@property (nonatomic) CGSize bridgedSize;             // kich thuoc khung chieu dang ap; doi -> chieu lai (CarBridge khong tu scale)
-@property (nonatomic) NSUInteger rebridgeSeq;         // gop nhieu lan keo vach thanh 1 lan chieu lai
+@property (nonatomic, copy) NSString *soloHostedBundle;   // app iPhone dang hien toan man qua App Bridge (khong chia)
+@property (nonatomic) CGRect soloHostedFrame;
 @property (nonatomic) BOOL resizing;                 // dang keo vach / keo doi cho: moi o phu the icon, CBWindow an
 @property (nonatomic, strong) UIView *dragGhost;     // the icon theo tay khi keo "•••" de doi cho
 @property (nonatomic) int dragTarget;                // o dang duoc tha vao (-1 = khong)
@@ -628,8 +638,7 @@ static BOOL SCPCIsBridgedApp(NSString *bid);
 // Tab tren app CarPlay dang mo toan man (chua split): cham / vuot xuong -> hang icon app CarPlay
 @property (nonatomic, strong) UIView *tray;
 @property (nonatomic, strong) UIView *trayShield;
-@property (nonatomic) BOOL trayHidesBridge;           // bang bo cuc dang mo tren app CarBridge toan man -> CBWindow tam an
-@property (nonatomic, copy) NSString *trayHidesBridgeBundle;
+@property (nonatomic) BOOL trayHidesBridge;           // bang bo cuc dang mo tren app iPhone toan man -> cua so host tam an
 @property (nonatomic, strong) NSTimer *trayTimer;
 @property (nonatomic, copy) NSString *layoutApp;      // app vao o 1 khi chon bo cuc (nil = cap lan truoc)
 @property (nonatomic, strong) NSArray<NSDictionary *> *panelChoices;   // cac lua chon trong bang (tag nut = chi so)
@@ -669,6 +678,11 @@ static BOOL SCPCIsBridgedApp(NSString *bid);
 {
     id info = SCPCAppInfo(bid);
     NSString *n = info ? objcInvoke(info, @"displayName") : nil;
+    if (!n.length && bid.length) {   // app iPhone (khong co trong thu vien CarPlay)
+        Class lp = objc_getClass("LSApplicationProxy");
+        id proxy = lp ? objcInvoke_1(lp, @"applicationProxyForIdentifier:", bid) : nil;
+        n = proxy ? objcInvoke(proxy, @"localizedName") : nil;
+    }
     return n.length ? n : bid;
 }
 
@@ -961,9 +975,6 @@ static BOOL SCPCIsBridgedApp(NSString *bid);
                 SCPCAfter(0, ^{ [me flashFocusOnPane:fpane]; });
             }
             me.focusedSlot = pane.slot;
-            // Ngan app CarBridge dang trang (CarBridge chi chieu duoc 1 app) -> cham vao thi chieu app nay
-            if ([me bridgeWaitingInPane:pane])
-                SCPCAfter(0, ^{ if ([me bridgeWaitingInPane:pane]) [me startBridgeForPane:pane]; });
         }
     };
     self.container = c;
@@ -1130,7 +1141,7 @@ static BOOL SCPCIsBridgedApp(NSString *bid);
 {
     if (i < 0 || i >= [self paneCount]) return;
     SCPCarPane *p = self.slots[i];
-    if (p.bundleID && [p.bundleID isEqualToString:self.bridgedBundle]) [self stopBridge];
+    if (SCPCIsHostedVC(p.vc)) [self hostClose:p.bundleID terminate:NO];   // app iPhone: SpringBoard bo o
     [p.barTimer invalidate]; p.barTimer = nil;
     [self removePickerFromPane:p];
     if (p.vc) [self detachVC:p.vc background:background];
@@ -1256,6 +1267,10 @@ static BOOL SCPCIsBridgedApp(NSString *bid);
     // ngan trai qua duong mo app binh thuong.
     NSString *reopen = (!self.suppressReopen && cur && [self isAdoptableViewController:cur])
         ? SCPRealBundleForInfos(objcInvoke(cur, @"applicationInfo"), objcInvoke(cur, @"proxyApplicationInfo")) : nil;
+    if (self.soloHostedBundle) {   // app iPhone dang toan man qua App Bridge -> vao o 1
+        if (!reopen && !self.suppressReopen) reopen = self.soloHostedBundle;
+        [self endHostedSolo];
+    }
     if (cur) {
         SCPLog("CarSplit: dang mo %@ toan man -> ve man chinh truoc%@", cur, reopen ? [NSString stringWithFormat:@", mo lai %@ vao ngan trai", reopen] : @"");
         SCPCSendEvent(1, @"SplitScreen: mo split");
@@ -1311,25 +1326,6 @@ static BOOL SCPCIsBridgedApp(NSString *bid);
         return;
     }
 
-    // CarBridge chi chieu duoc 1 app (YouTube, TikTok...): khong cho 2 app CarBridge chay cung luc.
-    // App CarBridge khac dang mo do -> cho no mo xong; dang nam trong ngan -> app moi thay no NGAY TRONG ngan do
-    // (app cu bi tat han khi app moi vao ngan, xem adopt:slot:).
-    if (!existing && SCPCIsBridgedApp(bid)) {
-        for (NSString *b in self.pending.allKeys) {
-            if ([b isEqualToString:bid] || !SCPCIsBridgedApp(b) || [self pendingSlotForBundle:b] < 0) continue;
-            SCPLog("CarBridge: %@ dang mo -> chua mo %@ (CarBridge chi chay 1 app)", b, bid);
-            [self toast:[NSString stringWithFormat:SCPCT(@"Đợi %@ mở xong (CarBridge chỉ chạy 1 app)", @"Wait for %@ to open (CarBridge runs 1 app)"), [self displayNameFor:b]]];
-            return;
-        }
-        SCPCarPane *ob = [self bridgedPaneOtherThan:bid];
-        if (ob) {
-            SCPLog("CarBridge: %@ thay %@ trong ngan %d (CarBridge chi chay 1 app)", bid, ob.bundleID, ob.slot);
-            [self toast:[NSString stringWithFormat:SCPCT(@"%@ thay %@ (CarBridge chỉ chạy 1 app)", @"%@ replaces %@ (CarBridge runs 1 app)"), [self displayNameFor:bid], [self displayNameFor:ob.bundleID]]];
-            SCPCarPane *asked = [self paneAtSlot:slot];
-            if (asked && asked != ob && asked.vc) [self removePickerFromPane:asked];   // o vua bam "Doi app" van con app cua no
-            slot = ob.slot;
-        }
-    }
     SCPCarPane *target = [self paneAtSlot:slot];
     if (!target) return;
     [self removePickerFromPane:target];
@@ -1338,16 +1334,19 @@ static BOOL SCPCIsBridgedApp(NSString *bid);
         if (existing.slot != slot) [self swapSlot:existing.slot with:slot];
         if (!wasActive && autoSlotRequested) [self showPickersForEmptySlots];
         [self relayoutAnimated:YES];
-        // Chon lai app CarBridge dang nam trong ngan: chieu lai neu chua chieu, khong thi kiem tra CBWindow con song
-        if (SCPCIsBridgedApp(bid)) {
-            if (![self.bridgedBundle isEqualToString:bid]) [self startBridgeForPane:target];
-            else { self.lastBridgeFrame = CGRectNull; [self pushBridgeFrameSoon]; }
-        }
+        if (SCPCIsHostedVC(target.vc)) [self sendHostFrameForPane:target live:NO];   // chon lai app iPhone dang o o: gui lai khung
         return;
     }
 
     // Dang cho chinh app nay vao dung ngan nay (vd activate vua mo lai app toan man) -> khong mo lan nua
     if ([self pendingSlotForBundle:bid] == slot) { [self relayoutAnimated:YES]; return; }
+
+    // App iPhone: SpringBoard host (App Bridge), khong qua DashBoard
+    if (SCPCIsBridgedApp(bid)) {
+        [self hostApp:bid inPane:target];
+        if (!wasActive && autoSlotRequested) [self showPickersForEmptySlots];
+        return;
+    }
 
     self.pending[bid] = @[@(slot), [NSDate date]];
     [self showLoaderInPane:target bundle:bid];   // app mo cham (CarBridge 2-6s) -> co hieu ung, khong thay dung hinh
@@ -1443,14 +1442,6 @@ static BOOL SCPCIsBridgedApp(NSString *bid);
     });
 }
 
-// App CarBridge (khac bid) dang nam trong 1 ngan, nil neu khong co
-- (SCPCarPane *)bridgedPaneOtherThan:(NSString *)bid
-{
-    for (SCPCarPane *p in self.slots)
-        if (p.vc && p.bundleID && ![p.bundleID isEqualToString:bid] && SCPCIsBridgedApp(p.bundleID)) return p;
-    return nil;
-}
-
 - (void)openPairLeft:(NSString *)left right:(NSString *)right
 {
     SCPLog("CarSplit: mo cap left=%@ right=%@", left, right);
@@ -1465,15 +1456,6 @@ static BOOL SCPCIsBridgedApp(NSString *bid);
 // phien doi workspace cua app truoc.
 - (void)openAppsInOrder:(NSArray *)apps
 {
-    // Gan day / yeu thich co 2 app CarBridge (YouTube + TikTok): CarBridge chi chay 1 app -> giu app dau, o kia hien bang chon
-    NSMutableArray *list = [apps mutableCopy];
-    BOOL hasBridged = NO;
-    for (NSUInteger k = 0; k < list.count; k++) {
-        if (![list[k] isKindOfClass:[NSString class]] || !SCPCIsBridgedApp(list[k])) continue;
-        if (hasBridged) { SCPLog("CarBridge: bo %@ khoi cach chia (CarBridge chi chay 1 app)", list[k]); list[k] = [NSNull null]; }
-        hasBridged = YES;
-    }
-    apps = list;
     double delay = 0;
     for (int s = 0; s < [self paneCount]; s++) {
         NSString *bid = (s < (int)apps.count && [apps[s] isKindOfClass:[NSString class]]) ? apps[s] : nil;
@@ -1517,9 +1499,6 @@ static BOOL SCPCIsBridgedApp(NSString *bid);
     int slot = [self pendingSlotForBundle:bid];
     SCPCarPane *existing = nil;
     for (SCPCarPane *p in [self allPanes]) if ([p.bundleID isEqualToString:bid]) existing = p;
-    // Mo tu dock / icon CarPlay (khong qua tweak): app CarBridge moi thay app CarBridge dang o ngan khac
-    SCPCarPane *ob = (slot < 0 && !existing && SCPCIsBridgedApp(bid)) ? [self bridgedPaneOtherThan:bid] : nil;
-    if (ob) { SCPLog("CarBridge: %@ mo tu CarPlay -> thay %@ o ngan %d", bid, ob.bundleID, ob.slot); slot = ob.slot; }
     // App vua bi huy luc dang mo (nut x tren the "dang mo") ma DashBoard van trinh bay -> dua ve nen, khong vao o
     NSDate *cancelled = bid ? self.cancelledLaunches[bid] : nil;
     if (cancelled) [self.cancelledLaunches removeObjectForKey:bid];
@@ -1556,12 +1535,9 @@ static BOOL SCPCIsBridgedApp(NSString *bid);
         vacated = other;
     }
     NSString *oldBid = p.vc ? p.bundleID : nil;
+    BOOL oldHosted = SCPCIsHostedVC(p.vc);
     if (p.vc) [self detachVC:p.vc background:![p.bundleID isEqualToString:bid]];
-    if (oldBid && ![oldBid isEqualToString:bid]) {
-        if ([oldBid isEqualToString:self.bridgedBundle]) [self stopBridge];
-        // YouTube <-> TikTok: tat han app CarBridge cu, khong de 2 app cung chay (tieng, pin)
-        if (SCPCIsBridgedApp(oldBid) && SCPCIsBridgedApp(bid)) [self killAppSoon:oldBid];
-    }
+    if (oldHosted && oldBid) [self hostClose:oldBid terminate:NO];   // app iPhone dang o o nay -> SpringBoard bo o
 
     UIViewController *root = SCPCRootVC();
     BOOL moved = NO;
@@ -1582,36 +1558,13 @@ static BOOL SCPCIsBridgedApp(NSString *bid);
 
     p.vc = vc; p.bundleID = bid; p.sceneSize = CGSizeZero;
     if (slot != SCPC_FLOAT_SLOT) self.focusedSlot = slot;
-    // App da vao ngan: bo the "dang mo" (app CarBridge: doi CarBridge chieu xong, xem startBridgeForPane)
-    if (!SCPCIsBridgedApp(bid)) [self removeLoaderFromPane:p animated:YES];
-    else {
-        __weak SCPCarPane *weakLoaderPane = p;
-        __weak SCPCarSplit *weakMe = self;
-        SCPCAfter(6.0, ^{ SCPCarPane *pp = weakLoaderPane; if (pp) [weakMe removeLoaderFromPane:pp animated:YES]; });
-    }
+    [self removeLoaderFromPane:p animated:YES];   // app da vao ngan: bo the "dang mo"
     SCPLog("CarSplit: dua %@ (%@) vao o %d", bid, NSStringFromClass([vc class]), slot);
     [self rememberPair];
     [self rememberRecent];
     [self raise];
     if (vacated) [self showPickerForSlot:vacated.slot];
     [self relayoutAnimated:YES];
-    // App iPhone qua CarBridge: scene DashBoard rong -> nho CarBridge chieu app vao dung ngan nay
-    if (SCPCIsBridgedApp(bid)) {
-        __weak SCPCarSplit *weakSelf = self;
-        __weak SCPCarPane *weakPane = p;
-        SCPCAfter(0.3, ^{
-            SCPCarPane *pp = weakPane;
-            if (weakSelf.active && [pp.bundleID isEqualToString:bid]) [weakSelf startBridgeForPane:pp];
-        });
-    } else if (self.bridgedBundle) {
-        // Mo app khac co the lam CarBridge dong CBWindow cua app dang chieu -> dat lai khung de SpringBoard
-        // kiem tra, mat thi bao ve (SPL_NOTIF_CBLOST) va chieu lai
-        __weak SCPCarSplit *weakSelf = self;
-        SCPCAfter(1.5, ^{
-            weakSelf.lastBridgeFrame = CGRectNull;
-            [weakSelf pushBridgeFrame];
-        });
-    }
 }
 
 // Day scene vao nen ngoai luong cua DashBoard lam no an view cua app (hidden / alpha 0). Lan sau mo app,
@@ -1792,8 +1745,7 @@ static NSString *SCPCSceneID(id scene)
     fp.view.userInteractionEnabled = YES;
     for (SCPCarDividerView *d in self.dividers) d.userInteractionEnabled = showDividers;
     if (push) [self pushSceneSizes];
-    [self pushBridgeFrameSoon];   // CBWindow cua CarBridge theo khung ngan moi
-    [self updateBridgeHints];
+    [self pushHostFramesLive:!push];   // cua so host (App Bridge) theo khung o moi; dang keo vach thi chi di theo tay
 }
 
 // FBScene cua 1 DBApplicationSceneViewController (thu vai ten thuoc tinh), nil neu khong lay duoc
@@ -1824,7 +1776,7 @@ static CGSize SCPCSceneSize(UIViewController *vc)
 - (void)pushSceneSizes
 {
     for (SCPCarPane *p in [self allPanes]) {
-        if (!p.vc) continue;
+        if (!p.vc || SCPCIsHostedVC(p.vc)) continue;   // app iPhone: SpringBoard tu doi kich thuoc scene theo khung gui
         CGSize s = [self frameForSlot:p.slot].size;
         if (s.width < 2 || s.height < 2 || CGSizeEqualToSize(s, p.sceneSize)) continue;
         p.sceneSize = s;
@@ -1949,6 +1901,14 @@ static CGSize SCPCSceneSize(UIViewController *vc)
 {
     if (!self.active) return;
     if (!bid) { [self closeGoingHome:YES]; return; }
+    if (SCPCIsBridgedApp(bid)) {   // app iPhone: App Bridge host o ca vung app, man chinh CarPlay van o duoi
+        SCPLog("CarSplit: chi giu %@ (app iPhone) -> App Bridge toan man", bid);
+        [self showSoloCoverForBundle:bid];
+        [self closeGoingHome:YES];
+        __weak SCPCarSplit *weakSelf = self;
+        SCPCAfter(0.8, ^{ SCPCarSplit *me = weakSelf; if (me && !me.active) [me hostSolo:bid]; });
+        return;
+    }
     SCPLog("CarSplit: chi giu %@ -> mo toan man", bid);
     id launchInfo = objcInvoke_1(objc_getClass("DBApplicationLaunchInfo"), @"launchInfoForApplication:", SCPCAppInfo(bid));
     if (launchInfo) [self showSoloCoverForBundle:bid];   // che man chinh nhay qua + app ve lai tu dau
@@ -2222,6 +2182,7 @@ static CGSize SCPCSceneSize(UIViewController *vc)
 // DashBoard vua trinh bay 1 app toan man (hook presentBaseViewController): bo the icon cua soloBundle
 - (void)baseViewControllerPresented
 {
+    [self endHostedSolo];   // DashBoard mo app toan man -> app iPhone toan man (neu co) nhuong cho
     if (!self.soloCover) return;
     __weak SCPCarSplit *weakSelf = self;
     SCPCAfter(0.35, ^{ [weakSelf hideSoloCover]; });   // doi app ve khung dau tien
@@ -2237,16 +2198,7 @@ static CGSize SCPCSceneSize(UIViewController *vc)
 {
     if (!self.active) return;
     SCPLog("CarSplit: tat split (goHome=%d)", goHome);
-    if (self.bridgedBundle && self.bridgeStarting) {
-        // CarBridge dang khoi dong chieu: stopBridging luc nay lam CarBridge ket (man xe dung hinh, phai cam lai xe).
-        // Tha cho CarBridge chieu xong toan man nhu binh thuong, chi bo yeu cau dat khung CBWindow dang cho o SpringBoard.
-        SCPLog("CarBridge: dong split luc dang khoi dong chieu %@ -> de CarBridge chieu toan man, khong stopBridging", self.bridgedBundle);
-        [self cancelBridgeFrame];
-        self.bridgedBundle = nil; self.bridgeStarting = NO;
-        [self updateBridgeHints];
-    } else {
-        [self stopBridge];
-    }
+    [self hostCloseAll];   // app iPhone trong cac o: SpringBoard bo moi o (app van chay nen)
     for (SCPCarPane *p in [self allPanes]) {
         [p.barTimer invalidate]; p.barTimer = nil;
         if (p.vc) [self detachVC:p.vc background:YES];
@@ -2271,22 +2223,12 @@ static CGSize SCPCSceneSize(UIViewController *vc)
 // Settings chi cho chon app ma CarPlay hien duoc (app CarPlay that va app CarBridge)
 - (void)publishCarPlayApps
 {
-    NSMutableArray *ids = [NSMutableArray array], *bridged = [NSMutableArray array];
-    for (NSDictionary *a in SCPCCarPlayApps()) {
-        if (SCPCIsBridgedApp(a[@"id"])) [bridged addObject:a[@"id"]]; else [ids addObject:a[@"id"]];
-    }
-    // App CarBridge co the khong nam trong thu vien app cua DashBoard -> hoi thang CarBridge
-    Class ws = objc_getClass("LSApplicationWorkspace");
-    NSArray *all = ws ? objcInvoke(objcInvoke(ws, @"defaultWorkspace"), @"allInstalledApplications") : nil;
-    NSArray<NSString *> *home = SCPCHomeScreenBundles();
-    for (id proxy in all) {
-        NSString *bid = objcInvoke(proxy, @"bundleIdentifier");
-        if (home && ![home containsObject:bid]) continue;   // da an khoi man chinh CarPlay
-        if (bid.length && ![bridged containsObject:bid] && SCPCIsBridgedApp(bid)) [bridged addObject:bid];
-    }
+    NSMutableArray *ids = [NSMutableArray array], *phone = [NSMutableArray array];
+    for (NSDictionary *a in SCPCCarPlayApps()) [ids addObject:a[@"id"]];
+    for (NSDictionary *a in SCPCPhoneApps()) [phone addObject:a[@"id"]];
     if (ids.count) [SCPPrefs setCarPlayApps:ids];
-    [SCPPrefs setCarBridgeApps:bridged];
-    SCPLog("CarSplit: %lu app CarPlay + %lu app CarBridge cho Settings: %@", (unsigned long)ids.count, (unsigned long)bridged.count, bridged);
+    [SCPPrefs setPhoneApps:phone];
+    SCPLog("CarSplit: %lu app CarPlay + %lu app iPhone (App Bridge) cho Settings", (unsigned long)ids.count, (unsigned long)phone.count);
 }
 
 // DashBoard bi huy (ngat xe): bo trang thai, khong goi gi vao scene nua
@@ -2295,9 +2237,9 @@ static CGSize SCPCSceneSize(UIViewController *vc)
     [self removeAppTab];
     [self removeHomeButton];
     self.autoLaunchDone = NO;
+    self.soloHostedBundle = nil;   // App Bridge tu bo o khi xe ngat
     if (!self.active) return;
     SCPLog("CarSplit: DashBoard invalidate -> bo split");
-    self.bridgedBundle = nil; self.bridgeStarting = NO;   // CarBridge tu xu ly ngat xe
     self.active = NO;
     [self.pending removeAllObjects];
     [self publishBusy];
@@ -2395,14 +2337,15 @@ static UIView *SCPCDotsHandle(void)
         p.barTimer = [NSTimer scheduledTimerWithTimeInterval:6 repeats:NO block:^(NSTimer *t) {
             if (weakPane) [weakSelf setBarVisible:NO forPane:weakPane];
         }];
-        if (wasHidden && [p.bundleID isEqualToString:self.bridgedBundle]) [self pushBridgeFrame];   // nhuong cho thanh nut cung luc thanh hien
+        if (wasHidden) [self sendHostFrameForPane:p live:NO];   // o app iPhone: cua so host nhuong cho thanh nut
     } else if (!p.bar.hidden) {
         UIView *bar = p.bar;
-        BOOL bridged = p.bundleID && [p.bundleID isEqualToString:self.bridgedBundle];
         __weak SCPCarSplit *weakSelf = self;
+        __weak SCPCarPane *weakPane = p;
         [UIView animateWithDuration:0.16 animations:^{ bar.alpha = 0; } completion:^(BOOL f) {
             bar.hidden = YES; bar.alpha = 1;
-            if (bridged) [weakSelf pushBridgeFrame];   // keo app len lai ngay khi thanh an xong
+            SCPCarPane *pp = weakPane;
+            if (pp) [weakSelf sendHostFrameForPane:pp live:NO];   // o app iPhone: cua so host len lai khi thanh an xong
         }];
     }
 }
@@ -2712,7 +2655,6 @@ static UIView *SCPCDotsHandle(void)
     if (self.resizing) return;
     self.resizing = YES;
     for (SCPCarPane *p in self.slots) [self addCoverToPane:p];
-    if (self.bridgedBundle) { self.lastBridgeFrame = CGRectNull; [self pushBridgeFrame]; }   // khung 0 -> an CBWindow
 }
 
 // Tha tay: dat CBWindow vao khung moi, doi scene ve xong kich thuoc moi roi moi bo the icon
@@ -2720,12 +2662,7 @@ static UIView *SCPCDotsHandle(void)
 {
     if (!self.resizing) return;
     self.resizing = NO;
-    if (self.bridgedBundle) {
-        self.lastBridgeFrame = CGRectNull;
-        [self pushBridgeFrame];
-        [self repushBridgeFrameAfter:0.6];   // SpringBoard co the bo lo lan dau (CBWindow chua san sang)
-        [self repushBridgeFrameAfter:1.6];
-    }
+    [self pushHostFramesLive:NO];   // tha tay: cua so host (App Bridge) doi kich thuoc scene theo o
     NSArray *panes = [self.slots copy];
     __weak SCPCarSplit *weakSelf = self;
     SCPCAfter(0.45, ^{
@@ -3063,14 +3000,13 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
     [self.container addSubview:m];
     // Khong che cac o (ban do van hien). Chi khi thanh de len o dang chieu CarBridge (CBWindow nam tren moi view
     // CarPlay) moi an CBWindow va phu the icon rieng o do.
-    SCPCarPane *bp = [self bridgedPane];
-    if (bp && CGRectIntersectsRect(CGRectInset(m.frame, -6, -6), bp.view.frame)) {
-        self.ratioHidesBridge = YES;
-        [self addCoverToPane:bp];
-        self.lastBridgeFrame = CGRectNull;
-        [self pushBridgeFrame];
-    }
     self.ratioMenu = m;
+    for (SCPCarPane *hp in [self hostedPanes]) {   // thanh de len o app iPhone -> cua so host tam an, phu the icon
+        if (!CGRectIntersectsRect(CGRectInset(m.frame, -6, -6), hp.view.frame)) continue;
+        self.ratioHidesBridge = YES;
+        [self addCoverToPane:hp];
+    }
+    [self pushHostFramesLive:NO];
     self.ratioKnob = d.knob;
     SCPCKnobActive(d.knob, YES);
     SCPCDropIn(m);
@@ -3090,10 +3026,9 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
     [UIView animateWithDuration:0.15 animations:^{ m.alpha = 0; } completion:^(BOOL f) { [m removeFromSuperview]; }];
     if (self.ratioHidesBridge) {
         self.ratioHidesBridge = NO;
-        if (!self.resizing) [self removeCoverFromPane:[self bridgedPane]];
-        self.lastBridgeFrame = CGRectNull;
-        [self pushBridgeFrame];
+        if (!self.resizing) for (SCPCarPane *hp in [self hostedPanes]) [self removeCoverFromPane:hp];
     }
+    [self pushHostFramesLive:NO];
 }
 
 // Chon 1 ti le: cac o co gian ve dung ti le (the icon che trong luc scene doi kich thuoc)
@@ -3156,7 +3091,7 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
     scroll.alwaysBounceVertical = YES;
     [pv addSubview:scroll];
 
-    NSArray *apps = SCPCCarPlayApps();
+    NSArray *apps = [SCPCCarPlayApps() arrayByAddingObjectsFromArray:SCPCPhoneApps()];   // app CarPlay roi app iPhone (App Bridge)
     NSMutableSet *inUse = [NSMutableSet set];
     for (SCPCarPane *o in [self allPanes]) if (o.bundleID) [inUse addObject:o.bundleID];
     CGFloat cellW = 66, cellH = 64, icon = 40;   // vung cham >= 44pt, chu 11pt de doc khi lai xe
@@ -3257,6 +3192,7 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
 // App CarPlay dang mo toan man (co the dua vao ngan), nil neu dang o man chinh / app khong ho tro
 - (NSString *)fullscreenAppBundle
 {
+    if (self.soloHostedBundle) return self.soloHostedBundle;   // app iPhone toan man qua App Bridge
     UIViewController *cur = objcInvoke(SCPCRootVC(), @"currentBaseViewController");
     if (!cur || ![self isAdoptableViewController:cur]) return nil;
     return SCPRealBundleForInfos(objcInvoke(cur, @"applicationInfo"), objcInvoke(cur, @"proxyApplicationInfo"));
@@ -3365,7 +3301,8 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
     [self publishBusy];
     // App CarBridge dang mo toan man: CBWindow (SpringBoard) nam tren moi view CarPlay nen che mat bang -> an CBWindow
     // trong luc bang mo, hien lai khi bang dong (collapseAppTray)
-    if (!self.active && app && SCPCIsBridgedApp(app)) [self setFullscreenBridgeHidden:YES bundle:app];
+    if (!self.active && self.soloHostedBundle) [self setFullscreenBridgeHidden:YES bundle:self.soloHostedBundle];
+    [self pushHostFramesLive:NO];   // dang chia: o app iPhone nhuong cho bang
 
     BOOL v = [self vertical];
     NSArray<NSString *> *titles = nil;
@@ -3612,24 +3549,23 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
     self.tray = nil; self.trayShield = nil;
     [self publishBusy];
     [self setFullscreenBridgeHidden:NO bundle:nil];
+    [self pushHostFramesLive:NO];   // bang dong: o app iPhone hien lai
     if (!tray && !shield) return;
     [UIView animateWithDuration:0.2 animations:^{
         tray.alpha = 0; tray.transform = CGAffineTransformMakeTranslation(0, -20); shield.alpha = 0;
     } completion:^(BOOL f) { [tray removeFromSuperview]; [shield removeFromSuperview]; }];
 }
 
-// Bang bo cuc mo tren app CarBridge toan man: bao SpringBoard an CBWindow (w = 0) / hien lai (w = -2, khong doi khung)
+// Bang bo cuc mo tren app iPhone toan man (App Bridge): cua so host che mat bang -> an (khung 0) / hien lai
 - (void)setFullscreenBridgeHidden:(BOOL)hidden bundle:(NSString *)bid
 {
-    if (hidden == self.trayHidesBridge) return;
-    if (hidden) self.trayHidesBridgeBundle = bid;
+    NSString *solo = self.soloHostedBundle;
+    if (!solo || hidden == self.trayHidesBridge) return;
     self.trayHidesBridge = hidden;
-    SCPLog("CarBridge: %@ CBWindow cua %@ (bang bo cuc)", hidden ? @"an" : @"hien lai", self.trayHidesBridgeBundle);
-    CGFloat w = hidden ? 0 : -2;
-    [[objc_getClass("NSDistributedNotificationCenter") defaultCenter]
-        postNotificationName:SPL_NOTIF_CBFRAME object:nil
-                    userInfo:@{@"identifier": self.trayHidesBridgeBundle ?: @"", @"x": @0, @"y": @0, @"w": @(w), @"h": @(w)}];
-    if (!hidden) self.trayHidesBridgeBundle = nil;
+    CGRect r = hidden ? CGRectZero : self.soloHostedFrame;
+    SCPLog("AppBridge: %@ app toan man %@ (bang bo cuc)", hidden ? @"an" : @"hien lai", solo);
+    [self hostPost:AB_NOTIF_FRAME info:@{@"identifier": solo, @"x": @(r.origin.x), @"y": @(r.origin.y),
+                                         @"w": @(r.size.width), @"h": @(r.size.height), @"live": @NO, @"handle": @NO}];
 }
 
 // Chon bo cuc mac dinh. Dang chia -> doi bo cuc. Dang mo 1 app toan man -> app do vao o 1, cac o con lai hien
@@ -3652,48 +3588,89 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
 }
 
 // ---------------------------------------------------------------------
-//  CarBridge (YouTube, TikTok... app iPhone tren CarPlay): DashBoard chi tao scene rong (ngan trang),
-//  CarBridge tu ve app bang cua so rieng CBWindow (SpringBoard) khi duoc kich hoat tu cham icon.
-//  App CarBridge vao ngan -> goi CBBridgeManagerDashboard startBridging:, khung chieu = khung ngan
-//  (hook getAppFrame + bao SpringBoard dat lai CBWindow moi khi ngan doi).
+//  App Bridge (app iPhone tren CarPlay, thay CarBridge): SpringBoard host scene cua app trong cua so rieng tren
+//  man xe (Features/AppBridge), cua so nam tren moi view cua CarPlay. O ben CarPlay giu 1 VC gia (SCPHostedAppVC)
+//  de bo cuc / thanh nut / doi cho / nho cap dung chung voi app CarPlay, va gui khung o (toa do man xe) cho
+//  SpringBoard moi khi bo cuc doi. Thanh "•••" cua o do SpringBoard ve tren app; cham -> AB_NOTIF_HANDLE_TAP ->
+//  hien thanh nut, cua so host lui xuong duoi thanh nut.
 // ---------------------------------------------------------------------
-// CBWindow phu kin ngan (ke ca mep tren): thanh "•••" cua ngan bi che, nen SpringBoard ve 1 thanh "•••" mo trong cua so
-// rieng tren CBWindow (vi tri gui kem khung, xem pushBridgeFrame) va bao lai khi cham (bridgeHandleTapped:). Thanh nut
-// cua ngan dang hien thi CBWindow lui xuong duoi thanh nut nhu cu.
-#define SCPC_BRIDGE_SIDE   5.0    // chua mep giap ngan khac: tay nam (vien thuoc 4pt trong khe / cham tron 14pt) khong bi CBWindow che
+#define SCPC_BRIDGE_SIDE   5.0    // chua mep giap ngan khac: tay nam (vien thuoc 4pt trong khe / cham tron 14pt) khong bi cua so host che
 
-static id SCPCBridgeManager(void)
+// App iPhone (khong co giao dien CarPlay) ma App Bridge host duoc: app nguoi dung cai + vai app Apple hay dung
+static NSSet<NSString *> *SCPCPhoneAppSet(void)
 {
-    Class c = objc_getClass("CBBridgeManagerDashboard");
-    return (c && [c respondsToSelector:@selector(sharedInstance)]) ? objcInvoke(c, @"sharedInstance") : nil;
+    static NSSet *set; static CFAbsoluteTime at;
+    CFAbsoluteTime now = CFAbsoluteTimeGetCurrent();
+    if (set && now - at < 60) return set;
+    at = now;
+    NSMutableSet *s = [NSMutableSet set];
+    NSSet *appleAllowed = [NSSet setWithArray:@[@"com.apple.mobilesafari", @"com.apple.mobileslideshow", @"com.apple.tv",
+                                                @"com.apple.mobilenotes", @"com.apple.weather", @"com.apple.stocks"]];
+    Class ws = objc_getClass("LSApplicationWorkspace");
+    NSArray *all = ws ? objcInvoke(objcInvoke(ws, @"defaultWorkspace"), @"allInstalledApplications") : nil;
+    for (id proxy in all) {
+        NSString *bid = objcInvoke(proxy, @"bundleIdentifier");
+        if (!bid.length || [bid isEqualToString:@"com.anlai.omnicar.app"]) continue;
+        NSString *type = [proxy respondsToSelector:NSSelectorFromString(@"applicationType")] ? objcInvoke(proxy, @"applicationType") : nil;
+        if (![type isEqualToString:@"User"] && ![appleAllowed containsObject:bid]) continue;
+        [s addObject:bid];
+    }
+    set = s;
+    return set;
 }
 
-static void SCPCDumpBridgeAPIOnce(void);
-
+// Ten giu tu thoi CarBridge: app iPhone duoc dua len xe qua App Bridge (khong phai app CarPlay)
 static BOOL SCPCIsBridgedApp(NSString *bid)
 {
-    Class c = objc_getClass("CBBridgeManagerDashboard");
-    SEL s = NSSelectorFromString(@"isBridgedApp:");
-    if (!c || !bid || ![c respondsToSelector:s]) return NO;
-    return ((BOOL (*)(id, SEL, id))objc_msgSend)(c, s, bid);
+    if (!bid.length || !OMCFeatureEnabled(AB_FEATURE)) return NO;
+    if (SCPCInfoIsCarPlayApp(SCPCAppInfo(bid))) return NO;
+    return [SCPCPhoneAppSet() containsObject:bid];
 }
 
+// Danh sach app iPhone cho bang chon / Settings: @{ id, name }, xep theo ten
+static NSArray<NSDictionary *> *SCPCPhoneApps(void)
+{
+    NSMutableArray *out = [NSMutableArray array];
+    if (!OMCFeatureEnabled(AB_FEATURE)) return out;
+    Class ws = objc_getClass("LSApplicationWorkspace");
+    NSArray *all = ws ? objcInvoke(objcInvoke(ws, @"defaultWorkspace"), @"allInstalledApplications") : nil;
+    NSSet *set = SCPCPhoneAppSet();
+    for (id proxy in all) {
+        NSString *bid = objcInvoke(proxy, @"bundleIdentifier");
+        if (![set containsObject:bid] || SCPCInfoIsCarPlayApp(SCPCAppInfo(bid))) continue;
+        NSString *name = [proxy respondsToSelector:NSSelectorFromString(@"localizedName")] ? objcInvoke(proxy, @"localizedName") : nil;
+        [out addObject:@{@"id": bid, @"name": name.length ? name : bid}];
+    }
+    [out sortUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"name" ascending:YES selector:@selector(localizedCaseInsensitiveCompare:)]]];
+    return out;
+}
+
+- (NSArray<SCPCarPane *> *)hostedPanes
+{
+    NSMutableArray *a = [NSMutableArray array];
+    for (SCPCarPane *p in [self allPanes]) if (SCPCIsHostedVC(p.vc)) [a addObject:p];
+    return a;
+}
+
+// O dau tien dang host app iPhone (thong bao tranh o nay: cua so host nam tren moi view CarPlay)
 - (SCPCarPane *)bridgedPane
 {
-    if (!self.bridgedBundle) return nil;
-    for (SCPCarPane *p in self.slots) if ([p.bundleID isEqualToString:self.bridgedBundle]) return p;
-    return nil;
+    return [self hostedPanes].firstObject;
 }
 
-// Khung CBWindow (toa do man xe) cho app CarBridge dang o trong ngan; CGRectZero neu ngan dang an
-- (CGRect)bridgeFrame
+- (void)hostPost:(NSString *)name info:(NSDictionary *)info
 {
-    SCPCarPane *p = [self bridgedPane];
-    if (self.resizing || self.ratioHidesBridge) return CGRectZero;   // dang keo vach / doi cho / thanh ti le de len: an CBWindow
-    if (!self.active || !p || p.view.alpha < 0.5 || p.view.bounds.size.width < 20 || !p.view.window) return CGRectZero;
-    // Thanh nut cua ngan dang hien -> day khung chieu xuong duoi thanh nut de bam duoc
+    [[objc_getClass("NSDistributedNotificationCenter") defaultCenter] postNotificationName:name object:nil userInfo:info];
+}
+
+// Khung cua so host (toa do man xe) cho o; CGRectZero = an (o dang an / bang bo cuc dang mo / bang chon / thanh ti le de len)
+- (CGRect)hostFrameForPane:(SCPCarPane *)p
+{
+    if (!self.active || !p.vc || p.picker || p.view.alpha < 0.5 || p.view.bounds.size.width < 20 || !p.view.window) return CGRectZero;
+    if (self.tray) return CGRectZero;   // bang bo cuc ve trong CarPlay -> nhuong cho
+    if (self.ratioMenu && CGRectIntersectsRect(CGRectInset(self.ratioMenu.frame, -6, -6), p.view.frame)) return CGRectZero;
+    // Thanh nut cua o dang hien -> cua so host lui xuong duoi thanh nut de bam duoc
     CGFloat top = p.bar.hidden ? 0 : SCPC_HANDLE_Y + SCPC_HANDLE_H + 6 + SCPC_PILL + 6;
-    // CBWindow (SpringBoard) nam tren moi view CarPlay -> canh nao giap ngan khac thi lui vao de lo nut keo
     CGRect b = p.view.bounds, f = p.view.frame;
     CGSize box = p.view.superview.bounds.size;
     CGFloat left = CGRectGetMinX(f) > 1 ? SCPC_BRIDGE_SIDE : 0, right = CGRectGetMaxX(f) < box.width - 1 ? SCPC_BRIDGE_SIDE : 0;
@@ -3703,123 +3680,87 @@ static BOOL SCPCIsBridgedApp(NSString *bid)
     return [p.view convertRect:r toView:nil];
 }
 
-// Ngan dang chua app CarBridge nhung CarBridge dang chieu app khac (chi chieu duoc 1 app) -> ngan trang
-- (BOOL)bridgeWaitingInPane:(SCPCarPane *)p
+- (void)sendHostFrameForPane:(SCPCarPane *)p live:(BOOL)live
 {
-    return self.active && p.vc && p.bundleID && !p.picker && !self.bridgeStarting
-        && SCPCIsBridgedApp(p.bundleID) && ![p.bundleID isEqualToString:self.bridgedBundle];
+    if (!SCPCIsHostedVC(p.vc) || !p.bundleID) return;
+    CGRect r = [self hostFrameForPane:p];
+    BOOL handle = p.bar.hidden && !CGRectIsEmpty(r);
+    if (!live && CGRectEqualToRect(r, p.hostFrame) && handle == p.hostHandle) return;
+    p.hostFrame = r; p.hostHandle = handle;
+    [self hostPost:AB_NOTIF_FRAME info:@{@"identifier": p.bundleID, @"x": @(r.origin.x), @"y": @(r.origin.y),
+                                         @"w": @(r.size.width), @"h": @(r.size.height), @"live": @(live), @"handle": @(handle)}];
 }
 
-- (void)updateBridgeHints
+// live: dang keo vach -> cua so chay theo tay, scene doi kich thuoc khi tha tay (live = NO)
+- (void)pushHostFramesLive:(BOOL)live
 {
-    for (SCPCarPane *p in self.slots) {
-        BOOL waiting = [self bridgeWaitingInPane:p];
-        if (waiting && !p.bridgeHint) {
-            UILabel *l = [[UILabel alloc] init];
-            l.textColor = [UIColor whiteColor];
-            l.backgroundColor = [UIColor colorWithWhite:0.16 alpha:0.92];   // ngan CarBridge trang -> nhan nen toi
-            l.font = [UIFont systemFontOfSize:14 weight:UIFontWeightMedium];
-            l.textAlignment = NSTextAlignmentCenter;
-            l.layer.cornerRadius = 17;
-            l.clipsToBounds = YES;
-            l.userInteractionEnabled = NO;
-            p.bridgeHint = l;
-        }
-        if (!p.bridgeHint) continue;
-        p.bridgeHint.text = waiting ? [NSString stringWithFormat:SCPCT(@"Chạm để hiện %@", @"Tap to show %@"), [self displayNameFor:p.bundleID]] : nil;
-        p.bridgeHint.hidden = !waiting;
-        [p.bridgeHint sizeToFit];
-        CGFloat w = MIN(p.bridgeHint.bounds.size.width + 32, p.view.bounds.size.width - 16);
-        p.bridgeHint.bounds = CGRectMake(0, 0, MAX(0, w), 34);
-        p.bridgeHint.center = CGPointMake(CGRectGetMidX(p.view.bounds), CGRectGetMidY(p.view.bounds));
-        if (p.bridgeHint.superview != p.view) [p.view addSubview:p.bridgeHint];
-        [p.view bringSubviewToFront:p.bridgeHint];
-        [p.view bringSubviewToFront:p.handle];
-        [p.view bringSubviewToFront:p.bar];
+    for (SCPCarPane *p in [self hostedPanes]) [self sendHostFrameForPane:p live:live];
+}
+
+// Mo app iPhone vao o: VC gia ben CarPlay + SpringBoard host app o dung khung cua o
+- (void)hostApp:(NSString *)bid inPane:(SCPCarPane *)p
+{
+    if (p.vc) {
+        if (SCPCIsHostedVC(p.vc)) [self hostClose:p.bundleID terminate:NO];
+        else [self detachVC:p.vc background:YES];
+        p.vc = nil; p.bundleID = nil;
     }
-}
-
-// SpringBoard bao CBWindow da mat (CarBridge dong khi app khac mo...) -> chieu lai, toi da 1 lan / 3s
-- (void)bridgeWindowLost:(NSString *)bid
-{
-    SCPCarPane *p = [self paneForBundle:bid];
-    if (!self.active || !p || self.bridgeStarting || ![bid isEqualToString:self.bridgedBundle]) return;
-    static CFAbsoluteTime last;
-    CFAbsoluteTime now = CFAbsoluteTimeGetCurrent();
-    if (now - last < 3) return;
-    last = now;
-    SCPLog("CarBridge: CBWindow cua %@ mat -> chieu lai", bid);
-    self.bridgedBundle = nil;   // de startBridgeForPane khong bao "thay app"
-    [self startBridgeForPane:p];
-}
-
-- (void)startBridgeForPane:(SCPCarPane *)p
-{
-    id mgr = SCPCBridgeManager();
-    if (!mgr || !p.bundleID) return;
-    SCPCDumpBridgeAPIOnce();
-    if (self.bridgedBundle && ![self.bridgedBundle isEqualToString:p.bundleID]) {
-        SCPLog("CarBridge: chi chieu duoc 1 app, thay %@ bang %@", self.bridgedBundle, p.bundleID);
-    }
-    self.bridgedBundle = p.bundleID;
-    self.lastBridgeFrame = CGRectNull;
-    self.bridgedSize = CGSizeZero;
-    self.bridgeStarting = YES;
-    self.bridgeStartedAt = CFAbsoluteTimeGetCurrent();
-    self.focusedSlot = p.slot;
-    if (self.floatPane) [self relayoutAnimated:YES];   // cua so noi tranh khoi o sap chieu CarBridge
-    [self updateBridgeHints];
-    SCPLog("CarBridge: chieu %@ vao ngan %d, khung %@", p.bundleID, p.slot, NSStringFromCGRect([self bridgeFrame]));
-    NSString *bid = p.bundleID;
+    SCPHostedAppVC *vc = [SCPHostedAppVC new];
+    vc.bundleID = bid;
+    vc.view.frame = p.host.bounds;
+    vc.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    [p.host addSubview:vc.view];
+    p.vc = vc; p.bundleID = bid; p.sceneSize = CGSizeZero; p.hostFrame = CGRectNull; p.hostHandle = NO;
+    if (p.slot != SCPC_FLOAT_SLOT) self.focusedSlot = p.slot;
+    [self showLoaderInPane:p bundle:bid];
+    SCPLog("AppBridge: host %@ vao o %d", bid, p.slot);
+    [self rememberPair];
+    [self rememberRecent];
+    [self raise];
+    [self relayoutAnimated:YES];
     __weak SCPCarSplit *weakSelf = self;
-    @try {
-        // Completion cua CarBridge co the khong chay tren main thread -> dua ve main truoc khi dong vao view
-        void (^done)(void) = ^{
-            SCPCAfter(0, ^{
-                SCPLog("CarBridge: da chieu %@", bid);
-                weakSelf.bridgeStarting = NO;   // chieu xong: Home lai dong split ngay
-                [weakSelf pushBridgeFrame];
-            });
-            SCPCAfter(0.5, ^{ [weakSelf removeBridgeLoader:bid]; });   // CBWindow da phu ngan -> bo the "dang mo"
-        };
-        ((void (*)(id, SEL, id, id))objc_msgSend)(mgr, NSSelectorFromString(@"startBridging:withCompletion:"), bid, done);
-    } @catch (NSException *e) { SCPLog("CarBridge: startBridging loi %@", e); }
-    // Cho CarBridge tao xong CBWindow roi dat khung (vai lan cho chac), het giai doan khoi dong sau 4s
-    for (NSNumber *d in @[@1.0, @2.5, @4.0]) {
-        SCPCAfter(d.doubleValue, ^{
-            SCPCarSplit *me = weakSelf;
-            if (d.doubleValue >= 4.0) { me.bridgeStarting = NO; [me updateBridgeHints]; }
-            if (d.doubleValue >= 2.5) [me removeBridgeLoader:bid];
-            [me pushBridgeFrame];
-        });
+    __weak SCPCarPane *weakPane = p;
+    SCPCAfter(0.05, ^{
+        SCPCarSplit *me = weakSelf; SCPCarPane *pp = weakPane;
+        if (!me.active || !pp || ![pp.bundleID isEqualToString:bid]) return;
+        CGRect r = [me hostFrameForPane:pp];
+        if (CGRectIsEmpty(r)) r = [pp.view convertRect:pp.view.bounds toView:nil];
+        pp.hostFrame = r; pp.hostHandle = pp.bar.hidden;
+        [me hostPost:AB_NOTIF_OPEN info:@{@"identifier": bid, @"x": @(r.origin.x), @"y": @(r.origin.y), @"w": @(r.size.width), @"h": @(r.size.height)}];
+    });
+    // Khong thay app len sau 8s -> bo the "dang mo" (app van co the toi muon)
+    SCPCAfter(8.0, ^{ SCPCarPane *pp = weakPane; if (pp && [pp.bundleID isEqualToString:bid]) [weakSelf removeLoaderFromPane:pp animated:YES]; });
+}
+
+- (void)hostClose:(NSString *)bid terminate:(BOOL)terminate
+{
+    if (!bid.length) return;
+    [self hostPost:AB_NOTIF_CLOSE info:@{@"identifier": bid, @"terminate": @(terminate)}];
+}
+
+- (void)hostCloseAll
+{
+    [self hostPost:AB_NOTIF_CLOSEALL info:@{}];
+}
+
+// SpringBoard bao trang thai app dang host (AB_NOTIF_STATE): ready / failed / gone
+- (void)hostedApp:(NSString *)bid state:(NSString *)state
+{
+    if (self.soloHostedBundle && [self.soloHostedBundle isEqualToString:bid]) {
+        if ([state isEqualToString:@"ready"]) [self hideSoloCover];
+        else { SCPLog("AppBridge: app toan man %@ %@", bid, state); [self endHostedSolo]; [self hideSoloCover]; }
+        return;
     }
-}
-
-// Home trong luc CarBridge khoi dong: CarBridge tu gui Home ngay luc bat dau chieu (~1s dau) -> bo qua;
-// sau do la nguoi dung bam -> dong split nhu binh thuong
-- (BOOL)ignoreHomeDuringBridgeStart
-{
-    return self.bridgeStarting && CFAbsoluteTimeGetCurrent() - self.bridgeStartedAt < 1.2;
-}
-
-- (void)removeBridgeLoader:(NSString *)bid
-{
     SCPCarPane *p = [self paneForBundle:bid];
-    if (p) [self removeLoaderFromPane:p animated:YES];
+    if (!self.active || !p || !SCPCIsHostedVC(p.vc)) return;
+    if ([state isEqualToString:@"ready"]) { [self removeLoaderFromPane:p animated:YES]; return; }
+    SCPLog("AppBridge: %@ %@ -> dong o %d", bid, state, p.slot);
+    if ([state isEqualToString:@"failed"])
+        [self toast:[NSString stringWithFormat:SCPCT(@"Không mở được %@ trên xe", @"Couldn't show %@ on the car"), [self displayNameFor:bid]]];
+    [self closeSlot:p.slot background:NO];
 }
 
-- (void)stopBridge
-{
-    if (!self.bridgedBundle) return;
-    SCPLog("CarBridge: dung chieu %@", self.bridgedBundle);
-    [self cancelBridgeFrame];   // SpringBoard: bo yeu cau khung dang cho, an thanh "•••" ve tren CBWindow
-    self.bridgedBundle = nil;
-    self.bridgeStarting = NO;
-    @try { objcCall(SCPCBridgeManager(), @"stopBridging"); } @catch (NSException *e) { SCPLog("CarBridge: stopBridging loi %@", e); }
-    [self updateBridgeHints];
-}
-
-// SpringBoard bao: cham thanh "•••" ve tren CBWindow cua app nay -> hien / an thanh nut cua ngan do
+// SpringBoard bao: cham thanh "•••" ve tren app dang host -> hien / an thanh nut cua o do
 - (void)bridgeHandleTapped:(NSString *)bid
 {
     SCPCarPane *p = [self paneForBundle:bid];
@@ -3827,111 +3768,35 @@ static BOOL SCPCIsBridgedApp(NSString *bid)
     [self setBarVisible:p.bar.hidden forPane:p];
 }
 
-// Chan doan 1 lan: API cua CBBridgeManagerDashboard (de tim cach doi kich thuoc app CarBridge dung ti le)
-static NSString *SCPCMethodNames(Class c)
+// ---- App iPhone toan man (khong chia): host o ca vung app, man chinh CarPlay van o duoi ----
+- (void)hostSolo:(NSString *)bid
 {
-    unsigned n = 0;
-    Method *ms = class_copyMethodList(c, &n);
-    NSMutableArray *a = [NSMutableArray array];
-    for (unsigned i = 0; i < n; i++) [a addObject:NSStringFromSelector(method_getName(ms[i]))];
-    free(ms);
-    return [[a sortedArrayUsingSelector:@selector(compare:)] componentsJoinedByString:@" "];
+    UIView *parent = [self tabParent];
+    if (!parent) return;
+    CGRect r = [parent convertRect:[self appAreaInParent:parent] toView:nil];
+    self.soloHostedBundle = bid;
+    self.soloHostedFrame = r;
+    self.trayHidesBridge = NO;
+    SCPLog("AppBridge: %@ toan man %@", bid, NSStringFromCGRect(r));
+    [self hostPost:AB_NOTIF_OPEN info:@{@"identifier": bid, @"x": @(r.origin.x), @"y": @(r.origin.y), @"w": @(r.size.width), @"h": @(r.size.height)}];
+    [self hostPost:AB_NOTIF_FRAME info:@{@"identifier": bid, @"x": @(r.origin.x), @"y": @(r.origin.y), @"w": @(r.size.width), @"h": @(r.size.height), @"live": @NO, @"handle": @NO}];
+    [self refreshAppTabSoon];
 }
 
-static void SCPCDumpBridgeAPIOnce(void)
+- (void)endHostedSolo
 {
-    static BOOL done;
-    if (done) return;
-    done = YES;
-    Class c = objc_getClass("CBBridgeManagerDashboard");
-    if (!c) return;
-    SCPLog("DIAG CBBridgeManagerDashboard (%@): -%@ | +%@", NSStringFromClass(class_getSuperclass(c)), SCPCMethodNames(c), SCPCMethodNames(object_getClass(c)));
+    NSString *bid = self.soloHostedBundle;
+    if (!bid) return;
+    self.soloHostedBundle = nil;
+    self.trayHidesBridge = NO;
+    SCPLog("AppBridge: dong app toan man %@", bid);
+    [self hostClose:bid terminate:NO];
 }
 
-// Bao SpringBoard dat CBWindow dung khung ngan (CBWindow nam trong SpringBoard)
-- (void)pushBridgeFrame
+// Nut Home cua CarPlay (hook _handleHomeEvent): app iPhone toan man -> dong
+- (void)homePressed
 {
-    if (!self.bridgedBundle) return;
-    if (!self.active || ![self bridgedPane]) { [self stopBridge]; return; }
-    CGRect r = [self bridgeFrame];
-    SCPCarPane *p = [self bridgedPane];
-    // Thanh "•••" do SpringBoard ve tren CBWindow (toa do man xe): chi khi thanh nut dang an (dang hien thi CBWindow da lui
-    // xuong duoi thanh nut, thanh "•••" cua CarPlay tu lo ra)
-    BOOL handle = p.bar.hidden && p.vc != nil && !CGRectIsEmpty(r);
-    CGRect hr = CGRectZero;
-    if (handle) {
-        CGSize s = p.view.bounds.size;
-        hr = [p.view convertRect:CGRectMake(s.width / 2 - SCPC_HANDLE_W / 2, SCPC_HANDLE_Y, SCPC_HANDLE_W, SCPC_HANDLE_H) toView:nil];
-    }
-    if (CGRectEqualToRect(r, self.lastBridgeFrame) && handle == self.lastBridgeHandle && CGRectEqualToRect(hr, self.lastHandleRect)) return;
-    self.lastBridgeFrame = r; self.lastBridgeHandle = handle; self.lastHandleRect = hr;
-    [[objc_getClass("NSDistributedNotificationCenter") defaultCenter]
-        postNotificationName:SPL_NOTIF_CBFRAME object:nil
-                    userInfo:@{@"identifier": self.bridgedBundle, @"x": @(r.origin.x), @"y": @(r.origin.y),
-                               @"w": @(r.size.width), @"h": @(r.size.height), @"handle": @(handle),
-                               @"hx": @(hr.origin.x), @"hy": @(hr.origin.y), @"hw": @(hr.size.width), @"hh": @(hr.size.height)}];
-    // CarBridge chi tinh ti le thu nho app luc bat dau chieu: ngan doi kich thuoc (keo vach, doi bo cuc) thi CBWindow
-    // doi khung nhung noi dung van co cu, du khoang den -> chieu lai sau khi tha tay (gop nhieu lan keo lam 1)
-    if (CGRectIsEmpty(r)) return;
-    if (CGSizeEqualToSize(self.bridgedSize, CGSizeZero)) { self.bridgedSize = r.size; return; }
-    if (fabs(r.size.width - self.bridgedSize.width) > 2 || fabs(r.size.height - self.bridgedSize.height) > 2) {
-        self.bridgedSize = r.size;
-        [self rebridgeSoon];
-    }
-}
-
-// Chieu lai app CarBridge dang o ngan (stopBridging roi startBridging) de CarBridge tinh lai ti le theo khung moi
-- (void)rebridgeSoon
-{
-    NSUInteger seq = ++self.rebridgeSeq;
-    NSString *bid = self.bridgedBundle;
-    __weak SCPCarSplit *weakSelf = self;
-    SCPCAfter(0.6, ^{
-        SCPCarSplit *me = weakSelf;
-        if (!me || seq != me.rebridgeSeq || !me.active || me.bridgeStarting || ![bid isEqualToString:me.bridgedBundle]) return;
-        SCPCarPane *p = [me bridgedPane];
-        if (!p) return;
-        SCPLog("CarBridge: ngan %d doi kich thuoc %@ -> chieu lai %@ cho dung ti le", p.slot, NSStringFromCGSize(me.bridgedSize), bid);
-        [me stopBridge];
-        me.bridgeStarting = YES; me.bridgeStartedAt = CFAbsoluteTimeGetCurrent();   // khong hien "Cham de hien" trong luc doi
-        [me updateBridgeHints];
-        SCPCAfter(0.4, ^{
-            SCPCarSplit *me2 = weakSelf;
-            if (me2.active && !me2.bridgedBundle && [p.bundleID isEqualToString:bid]) [me2 startBridgeForPane:p];
-            else me2.bridgeStarting = NO;
-        });
-    });
-}
-
-// Dong split luc CarBridge dang khoi dong: SpringBoard bo yeu cau dat khung CBWindow dang cho (w = -1), khong
-// dong / doi khung cua so CarBridge
-- (void)cancelBridgeFrame
-{
-    if (!self.bridgedBundle) return;
-    self.lastBridgeFrame = CGRectNull;
-    [[objc_getClass("NSDistributedNotificationCenter") defaultCenter]
-        postNotificationName:SPL_NOTIF_CBFRAME object:nil
-                    userInfo:@{@"identifier": self.bridgedBundle, @"x": @0, @"y": @0, @"w": @(-1), @"h": @(-1)}];
-}
-
-// Gui lai khung CBWindow du khung khong doi (SpringBoard co the da bo lo lan truoc vi CBWindow chua co)
-- (void)repushBridgeFrameAfter:(double)delay
-{
-    if (!self.bridgedBundle) return;
-    __weak SCPCarSplit *weakSelf = self;
-    SCPCAfter(delay, ^{
-        weakSelf.lastBridgeFrame = CGRectNull;
-        [weakSelf pushBridgeFrame];
-    });
-}
-
-- (void)pushBridgeFrameSoon
-{
-    if (!self.bridgedBundle) return;
-    __weak SCPCarSplit *weakSelf = self;
-    SCPCAfter(0.5, ^{
-        [weakSelf pushBridgeFrame];
-    });
+    if (self.soloHostedBundle) [self endHostedSolo];
 }
 
 // ---------------------------------------------------------------------
@@ -4256,9 +4121,8 @@ static void SCPCDumpTree(UIView *v, UIView *root, int depth, NSMutableString *ou
     }
     if (!apps) { SCPLog("CarSplit: chua co cach chia gan day / yeu thich -> khong tu mo"); return; }
     NSString *cur = [self fullscreenAppBundle];
-    if (cur && SCPCIsBridgedApp(cur)) { SCPLog("CarSplit: CarPlay dang mo %@ (CarBridge) -> khong tu chia", cur); return; }
     NSMutableArray *list = [NSMutableArray array];
-    for (id a in apps) [list addObject:([a isKindOfClass:[NSString class]] && !SCPCIsBridgedApp(a)) ? a : [NSNull null]];
+    for (id a in apps) [list addObject:[a isKindOfClass:[NSString class]] ? a : [NSNull null]];
     if (cur && ![list containsObject:cur] && list.count) list[0] = cur;
     SCPLog("CarSplit: tu mo khi cam xe: bo cuc %d, app %@ (dang mo %@)", layoutID, list, cur ?: @"-");
     [self openSetupLayout:layoutID apps:list];

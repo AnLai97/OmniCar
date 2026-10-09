@@ -5,6 +5,7 @@
 // Inject vao process CarPlay (com.apple.CarPlayApp, code trong DashBoard.framework, prefix DB).
 // Split hien GIAO DIEN CARPLAY cua app: DashBoard tu mo scene CarPlay cua app (giong cham icon),
 // tweak dua view controller cua scene do vao 1 ngan va bao kich thuoc ngan cho scene (xem SCPCarSplit.mm).
+// App iPhone khong co CarPlay: SpringBoard host qua App Bridge, CarPlay chi giu o va gui khung.
 //
 // Quy tac on dinh: phan code cua tweak trong moi hook nam trong @try. Loi cua tweak chi ghi log
 // (va tat split neu can), %orig cua DashBoard luon duoc goi nhu binh thuong -> CarPlay khong bi sap.
@@ -40,14 +41,14 @@ static void SCPHookError(const char *where, NSException *e)
     return e;
 }
 
-// Nut Home cua CarPlay khi dang split -> tat split (scene ve background) roi de DashBoard ve man chinh
+// Nut Home cua CarPlay: dang split -> tat split (scene ve background) roi de DashBoard ve man chinh;
+// app iPhone toan man (App Bridge) -> dong
 - (void)_handleHomeEvent:(id)event
 {
     @try {
         SCPCarSplit *sp = [SCPCarSplit shared];
-        // CarBridge tu gui Home ngay luc bat dau chieu (~1s dau) -> giu split; sau do la nguoi dung bam -> dong
-        if (sp.active && [sp ignoreHomeDuringBridgeStart]) SCPLog("CarSplit: Home do CarBridge luc bat dau chieu -> giu split");
-        else if (sp.active) [sp closeGoingHome:NO];
+        if (sp.active) [sp closeGoingHome:NO];
+        [sp homePressed];
     } @catch (NSException *e) { SCPHookError("_handleHomeEvent", e); }
     %orig;
 }
@@ -91,7 +92,7 @@ static void SCPHookError(const char *where, NSException *e)
     }
     %orig;
     @try {
-        [sp baseViewControllerPresented];   // bo the icon che luc thoat chia / toan man hinh
+        [sp baseViewControllerPresented];   // bo the icon che luc thoat chia / toan man hinh, dong app iPhone toan man
         [sp refreshAppTabSoon];   // app vua mo toan man -> tab icon o mep tren
         // App tung nam trong ngan: DashBoard co the trinh bay lai view dang bi an -> man den, cham khong vao.
         // Doi animation mo xong, van la app dang hien ma view con an thi hien lai.
@@ -114,7 +115,7 @@ static void SCPHookError(const char *where, NSException *e)
     SCPCarSplit *sp = [SCPCarSplit shared];
     @try {
         // Dang split thi currentBaseViewController = nil; workspace ve man chinh -> tat split
-        if (sp.active && !sp.bridgeStarting && !objcInvoke(self, @"currentBaseViewController")) {
+        if (sp.active && !objcInvoke(self, @"currentBaseViewController")) {
             SCPLog("CarSplit: DashBoard ve man chinh -> tat split");
             [sp closeGoingHome:NO];
         }
@@ -185,70 +186,27 @@ static void SCPHookError(const char *where, NSException *e)
 
 %end // CARPLAY
 
-// ---- CarBridge (app iPhone tren CarPlay): chieu vao ngan thay vi toan man ----
-%group CARBRIDGE
-%hook CBBridgeManagerDashboard
-
-// Khung CBWindow: dang chieu vao ngan -> khung ngan
-- (CGRect)getAppFrame
-{
-    @try {
-        CGRect r = [[SCPCarSplit shared] bridgeFrame];
-        if (r.size.width > 1 && r.size.height > 1) return r;
-    } @catch (NSException *e) { SCPHookError("getAppFrame", e); }
-    return %orig;
-}
-
-// Truoc khi chieu CarBridge dua CarPlay ve man chinh -> dang split thi bo qua (se dong split)
-- (void)prepareHomeScreenForBridge:(id)completion
-{
-    if ([SCPCarSplit shared].active) {
-        SCPLog("CarBridge: dang split -> bo qua ve man chinh");
-        if (completion) ((void (^)(void))completion)();
-        return;
-    }
-    %orig;
-}
-
-// CarBridge dong app CarPlay dang mo (vd Vietmap o ngan kia) -> dang split thi giu lai
-- (void)closeOfficialTopApp:(id)arg
-{
-    if ([SCPCarSplit shared].active) {
-        SCPLog("CarBridge: dang split -> giu app CarPlay o ngan kia");
-        if (arg && [arg isKindOfClass:NSClassFromString(@"NSBlock")]) ((void (^)(void))arg)();
-        return;
-    }
-    %orig;
-}
-
-%end
-%end // CARBRIDGE
-
 %ctor
 {
     if (![[[NSBundle mainBundle] bundleIdentifier] isEqualToString:@"com.apple.CarPlayApp"]) return;
     SCPLog("loaded into CarPlay");
     %init(CARPLAY);
-    if (objc_getClass("CBBridgeManagerDashboard")) { %init(CARBRIDGE); SCPLog("CarBridge: da noi vao CarBridge"); }
-    else SCPLog("CarBridge: khong co (bo qua)");
 
-    // SpringBoard: CarBridge da dong CBWindow cua app dang nam trong ngan -> chieu lai
-    [[objc_getClass("NSDistributedNotificationCenter") defaultCenter]
-        addObserverForName:SPL_NOTIF_CBLOST object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *note) {
-        @try { [[SCPCarSplit shared] bridgeWindowLost:note.userInfo[@"identifier"]]; }
-        @catch (NSException *e) { SCPHookError("CBLOST", e); }
+    NSNotificationCenter *dnc = [objc_getClass("NSDistributedNotificationCenter") defaultCenter];
+    NSOperationQueue *main = [NSOperationQueue mainQueue];
+
+    // App Bridge (SpringBoard): trang thai app iPhone dang host / cham thanh "•••" ve tren app
+    [dnc addObserverForName:AB_NOTIF_STATE object:nil queue:main usingBlock:^(NSNotification *note) {
+        @try { [[SCPCarSplit shared] hostedApp:note.userInfo[@"identifier"] state:note.userInfo[@"state"]]; }
+        @catch (NSException *e) { SCPHookError("AB_STATE", e); }
     }];
-
-    // SpringBoard: cham thanh "•••" ve tren CBWindow -> hien thanh nut cua ngan
-    [[objc_getClass("NSDistributedNotificationCenter") defaultCenter]
-        addObserverForName:SPL_NOTIF_HANDLE_TAP object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *note) {
+    [dnc addObserverForName:AB_NOTIF_HANDLE_TAP object:nil queue:main usingBlock:^(NSNotification *note) {
         @try { [[SCPCarSplit shared] bridgeHandleTapped:note.userInfo[@"identifier"]]; }
-        @catch (NSException *e) { SCPHookError("HANDLE_TAP", e); }
+        @catch (NSException *e) { SCPHookError("AB_HANDLE_TAP", e); }
     }];
 
     // SpringBoard (URL scheme / Siri) -> mo / dong split CarPlay
-    [[objc_getClass("NSDistributedNotificationCenter") defaultCenter]
-        addObserverForName:SPL_NOTIF_NATIVE object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *note) {
+    [dnc addObserverForName:SPL_NOTIF_NATIVE object:nil queue:main usingBlock:^(NSNotification *note) {
         NSDictionary *u = note.userInfo;
         NSString *action = u[@"action"];
         SCPLog("CarSplit: yeu cau %@", u);
@@ -269,6 +227,6 @@ static void SCPHookError(const char *where, NSException *e)
             }
         } @catch (NSException *e) { SCPHookError("yeu cau tu SpringBoard", e); }
         // Bao SpringBoard da nhan (khong thi SpringBoard giu lai, gui lai khi man xe san sang)
-        [[objc_getClass("NSDistributedNotificationCenter") defaultCenter] postNotificationName:SPL_NOTIF_ACK object:nil userInfo:nil];
+        [dnc postNotificationName:SPL_NOTIF_ACK object:nil userInfo:nil];
     }];
 }

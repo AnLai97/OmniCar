@@ -35,10 +35,10 @@
 "SPLITSCREEN_APP_NOT_SET" = "Chưa chọn";
 "SPLITSCREEN_PICKER_NONE" = "Không chọn";
 "SPLITSCREEN_PICKER_CARPLAY_APPS" = "App CarPlay";
-"SPLITSCREEN_PICKER_CARBRIDGE_APPS" = "App CarBridge";
+"SPLITSCREEN_PICKER_PHONE_APPS" = "App iPhone (App Bridge)";
 "SPLITSCREEN_PICKER_GUESS_FOOTER" = "Chưa cắm xe lần nào: đang liệt kê app có hỗ trợ CarPlay. Danh sách chính xác cập nhật mỗi lần cắm xe.";
-"SPLITSCREEN_PICKER_BRIDGE_FOOTER" = "App iPhone được bật trong CarBridge.";
-"SPLITSCREEN_PICKER_NO_BRIDGE_FOOTER" = "Không thấy app CarBridge nào. Bật app trong CarBridge rồi cắm xe một lần để cập nhật.";
+"SPLITSCREEN_PICKER_PHONE_FOOTER" = "App iPhone không có giao diện CarPlay, hiện trên màn xe qua App Bridge.";
+"SPLITSCREEN_PICKER_NO_PHONE_FOOTER" = "Chưa có app iPhone nào. Bật App Bridge rồi cắm xe một lần để cập nhật.";
 
 "SPLITSCREEN_SHORTCUTS_GROUP" = "Siri / Shortcuts";
 "SPLITSCREEN_SHORTCUTS_FOOTER" = "Tạo Shortcut với hành động \"Mở URL\" rồi gọi bằng Siri:\nomnicar://splitscreen/open?left=com.apple.Maps&right=com.spotify.client\nomnicar://splitscreen/fav?n=1\nomnicar://splitscreen/close";
