@@ -20,7 +20,7 @@
 // Kieu HyperOS: cac o cach nhau 1 khe den mong, giua khe la tay nam vien thuoc trang (keo = doi ti le,
 // cham 2 lan = doi cho, keo sat mep = dong app bi ep). Dau moi o co thanh "•••": cham -> thanh nut,
 // keo tha len o khac -> doi cho.
-#define SCPC_GAP          6.0     // khe den giua 2 o (tay nam nam gon trong khe; vung cham rong SCPC_DIVIDER_HIT)
+#define SCPC_GAP          4.0     // khe den giua 2 o (tay nam nam gon trong khe; vung cham rong SCPC_DIVIDER_HIT)
 #define SCPC_INSET        0.0     // o sat dock va mep man nhu app toan man -> khong phi cho
 #define SCPC_RADIUS       12.0    // chi bo goc giap o ben canh; goc sat mep man de vuong
 #define SCPC_BTN          34.0    // nut trong thanh vien thuoc
