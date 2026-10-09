@@ -9,7 +9,7 @@
 #import <dlfcn.h>
 
 // Logs go through Core: OmniCar.log, relayed to SpringBoard from the sandboxed nav apps.
-#define SPPLogWrite(msg) OMCLogWrite(@"SpeedBubble", (msg))
+#define SPPLogWrite(...) OMCLogWrite(@"SpeedBubble", __VA_ARGS__)
 #define SPPLog(fmt, ...) SPPLogWrite([NSString stringWithFormat:@fmt, ##__VA_ARGS__])
 
 // App dan duong ho tro (thu tu = chi so app gui trong Darwin state; them app moi thi them CUOI danh sach + CarSpeed.plist)
