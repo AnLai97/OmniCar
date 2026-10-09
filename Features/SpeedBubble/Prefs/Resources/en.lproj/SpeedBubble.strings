@@ -1,7 +1,7 @@
 /* OmniCar – Speed Bubble – English */
 
 "SPEEDBUBBLE" = "Speed Bubble";
-"SPEEDBUBBLE_FOOTER" = "The bubble stays on while a navigation app runs in the background (showing -- when there is no reading) and hides when the app is opened again or closed. With CarPlay connected it shows only on the car screen; otherwise on the iPhone. Changes apply instantly.";
+"SPEEDBUBBLE_FOOTER" = "The bubble stays on while a navigation app runs in the background (showing -- when there is no reading) and hides when the app is opened again, shown in the map tile of the CarPlay Dashboard, or closed. With CarPlay connected it shows only on the car screen; otherwise on the iPhone. Changes apply instantly.";
 "SPEEDBUBBLE_ENABLE" = "Enable Speed Bubble";
 "SPEEDBUBBLE_APPEARANCE" = "Appearance";
 "SPEEDBUBBLE_APPEARANCE_FOOTER" = "The app icon shows which app the speed comes from. Preview shows the bubble for 10 seconds.\n\nDrag to move · pinch to resize · tap to reopen the app · hold for 2 seconds (until the red ring completes) to quit the app.";

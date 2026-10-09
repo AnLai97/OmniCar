@@ -3797,53 +3797,57 @@ static BOOL SCPCIsBridgedApp(NSString *bid)
 #define SCPC_DOCK_MIN 22.0    // nut Split Screen tren dock nho nhat (khe tren nut Home hep)
 static char kSCPCLongPressKey;
 
-// Logo Split Screen (art/AppIcon.svg, khung 1024): 2 o xanh CarPlay vien trang, mui ten dan duong + song am
+// Icon OmniCar (tools/icons/omnicar_logo.py, khung 1024): o vuong bo tron gradient xanh nhu icon app, vong tron
+// trang va nut play CarPlay hoi lon hon vong tron (3 goc xuyen qua vong). Ve bang CoreGraphics de khong can file.
+static UIBezierPath *SCPCRoundedTriangle(CGFloat cx, CGFloat cy, CGFloat h, CGFloat r)
+{
+    CGFloat w = h * 0.9;
+    CGPoint p[3] = { CGPointMake(cx - w / 2 + w / 6, cy - h / 2), CGPointMake(cx - w / 2 + w / 6, cy + h / 2), CGPointMake(cx + w / 2 + w / 6, cy) };
+    UIBezierPath *path = [UIBezierPath bezierPath];
+    for (int i = 0; i < 3; i++) {
+        CGPoint prev = p[(i + 2) % 3], cur = p[i], next = p[(i + 1) % 3];
+        CGFloat ax = prev.x - cur.x, ay = prev.y - cur.y, bx = next.x - cur.x, by = next.y - cur.y;
+        CGFloat la = hypot(ax, ay), lb = hypot(bx, by);
+        ax /= la; ay /= la; bx /= lb; by /= lb;
+        CGFloat theta = acos(MAX(-1, MIN(1, ax * bx + ay * by)));   // goc tai dinh
+        CGFloat d = r / tan(theta / 2);                               // lui tu dinh theo 2 canh de bo goc ban kinh r
+        CGPoint a = CGPointMake(cur.x + ax * d, cur.y + ay * d), b = CGPointMake(cur.x + bx * d, cur.y + by * d);
+        if (i == 0) [path moveToPoint:a]; else [path addLineToPoint:a];
+        [path addQuadCurveToPoint:b controlPoint:cur];
+    }
+    [path closePath];
+    return path;
+}
+
 static UIImage *SCPCLogoImage(CGFloat side)
 {
     UIGraphicsImageRenderer *r = [[UIGraphicsImageRenderer alloc] initWithSize:CGSizeMake(side, side)];
     UIImage *img = [r imageWithActions:^(UIGraphicsImageRendererContext *rc) {
         CGContextRef ctx = rc.CGContext;
-        CGFloat s = side / 1024.0;
-        CGContextScaleCTM(ctx, s, s);
+        CGContextScaleCTM(ctx, side / 1024.0, side / 1024.0);
         CGColorSpaceRef cs = CGColorSpaceCreateDeviceRGB();
-        void (^pane)(CGRect, CGFloat, UIColor *, UIColor *) = ^(CGRect f, CGFloat rad, UIColor *c0, UIColor *c1) {
-            UIBezierPath *p = [UIBezierPath bezierPathWithRoundedRect:f cornerRadius:rad];
+        NSArray *cols = @[(id)[UIColor colorWithRed:0x25 / 255.0 green:0x63 / 255.0 blue:0xEB / 255.0 alpha:1].CGColor,
+                          (id)[UIColor colorWithRed:0x0B / 255.0 green:0x10 / 255.0 blue:0x26 / 255.0 alpha:1].CGColor];
+        CGGradientRef g = CGGradientCreateWithColors(cs, (__bridge CFArrayRef)cols, NULL);
+        void (^background)(UIBezierPath *) = ^(UIBezierPath *clip) {
             CGContextSaveGState(ctx);
-            [p addClip];
-            NSArray *cols = @[(id)c0.CGColor, (id)c1.CGColor];
-            CGGradientRef g = CGGradientCreateWithColors(cs, (__bridge CFArrayRef)cols, NULL);
-            CGContextDrawLinearGradient(ctx, g, f.origin, CGPointMake(CGRectGetMaxX(f), CGRectGetMaxY(f)), 0);
-            CGGradientRelease(g);
-            NSArray *sheen = @[(id)[UIColor colorWithWhite:1 alpha:0.18].CGColor, (id)[UIColor colorWithWhite:1 alpha:0].CGColor];
-            CGFloat locs[2] = {0, 0.45};
-            g = CGGradientCreateWithColors(cs, (__bridge CFArrayRef)sheen, locs);
-            CGContextDrawLinearGradient(ctx, g, f.origin, CGPointMake(f.origin.x, CGRectGetMaxY(f)), 0);
-            CGGradientRelease(g);
+            [clip addClip];
+            CGContextDrawLinearGradient(ctx, g, CGPointZero, CGPointMake(1024, 1024), 0);
             CGContextRestoreGState(ctx);
         };
-        CGContextSaveGState(ctx);
-        CGContextSetShadowWithColor(ctx, CGSizeMake(0, 12 * s), 16 * s,   // bong khong theo CTM -> tu nhan ti le
-        [UIColor colorWithRed:0.02 green:0.25 blue:0.10 alpha:0.3].CGColor);
+        // O vuong bo tron, ban kinh ~22% canh nhu icon app tren dock
+        background([UIBezierPath bezierPathWithRoundedRect:CGRectMake(0, 0, 1024, 1024) cornerRadius:1024 * 0.2237]);
+        // Vong tron trang (ban kinh ngoai 360, day 120)
+        UIBezierPath *ring = [UIBezierPath bezierPathWithOvalInRect:CGRectMake(152, 152, 720, 720)];
+        [ring appendPath:[UIBezierPath bezierPathWithOvalInRect:CGRectMake(272, 272, 480, 480)]];
+        ring.usesEvenOddFillRule = YES;
         [[UIColor whiteColor] setFill];
-        [[UIBezierPath bezierPathWithRoundedRect:CGRectMake(82, 186, 532, 652) cornerRadius:132] fill];
-        [[UIBezierPath bezierPathWithRoundedRect:CGRectMake(634, 186, 308, 652) cornerRadius:118] fill];
-        CGContextRestoreGState(ctx);
-        pane(CGRectMake(96, 200, 504, 624), 118, [UIColor colorWithRed:0x5E/255.0 green:0xE8/255.0 blue:0x6A/255.0 alpha:1],
-             [UIColor colorWithRed:0x0F/255.0 green:0xB5/255.0 blue:0x1E/255.0 alpha:1]);
-        pane(CGRectMake(648, 200, 280, 624), 104, [UIColor colorWithRed:0x2C/255.0 green:0xC8/255.0 blue:0x52/255.0 alpha:1],
-             [UIColor colorWithRed:0x06/255.0 green:0x86/255.0 blue:0x2E/255.0 alpha:1]);
+        [ring fill];
+        // Nut play: vien cat bang mau nen roi tam giac trang
+        background(SCPCRoundedTriangle(512, 512, 700, 60));
+        [SCPCRoundedTriangle(512, 512, 610, 48) fill];
+        CGGradientRelease(g);
         CGColorSpaceRelease(cs);
-        [[UIColor whiteColor] setFill];
-        UIBezierPath *arrow = [UIBezierPath bezierPath];
-        [arrow moveToPoint:CGPointMake(348, 370)];
-        [arrow addLineToPoint:CGPointMake(441, 637)];
-        [arrow addLineToPoint:CGPointMake(348, 583)];
-        [arrow addLineToPoint:CGPointMake(255, 637)];
-        [arrow closePath];
-        [arrow fill];
-        [[UIBezierPath bezierPathWithRoundedRect:CGRectMake(695, 447, 46, 130) cornerRadius:23] fill];
-        [[UIBezierPath bezierPathWithRoundedRect:CGRectMake(765, 387, 46, 250) cornerRadius:23] fill];
-        [[UIBezierPath bezierPathWithRoundedRect:CGRectMake(835, 427, 46, 170) cornerRadius:23] fill];
     }];
     return [img imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
 }

@@ -34,14 +34,14 @@ static BOOL SPPIsCircle(UIView *v)
 }
 
 // App dang hien (scene iPhone hoac CarPlay dang o tren cung) -> SpringBoard an bong bong.
-// Bo qua scene Dashboard / man dong ho CarPlay: he thong tu mo khi xe ket noi, nguoi dung chua mo app.
+// Scene Dashboard (o ban do tren man dau tien cua CarPlay) chi active khi Dashboard dang hien: ban do cua app da
+// o tren man xe thi khong can bong bong. Bo qua man dong ho (InstrumentCluster): khong phai man xe.
 static BOOL SPPAppForeground(void)
 {
     if (![NSThread isMainThread]) return NO;
     for (UIScene *sc in [UIApplication sharedApplication].connectedScenes) {
         if (sc.activationState != UISceneActivationStateForegroundActive) continue;
-        NSString *role = sc.session.role;
-        if ([role containsString:@"Dashboard"] || [role containsString:@"InstrumentCluster"]) continue;
+        if ([sc.session.role containsString:@"InstrumentCluster"]) continue;
         return YES;
     }
     return NO;

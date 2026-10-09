@@ -1,7 +1,7 @@
 /* OmniCar – Speed Bubble – Tiếng Việt */
 
 "SPEEDBUBBLE" = "Bong bóng tốc độ";
-"SPEEDBUBBLE_FOOTER" = "Bong bóng luôn hiện khi app dẫn đường chạy nền (không có số liệu thì hiện --) và tự ẩn khi app được mở lại hoặc bị tắt. Khi kết nối CarPlay, bong bóng chỉ hiện trên màn hình xe; không có xe thì hiện trên iPhone. Thay đổi có hiệu lực ngay.";
+"SPEEDBUBBLE_FOOTER" = "Bong bóng luôn hiện khi app dẫn đường chạy nền (không có số liệu thì hiện --) và tự ẩn khi app được mở lại, đang hiện trong ô bản đồ của màn Dashboard CarPlay, hoặc bị tắt. Khi kết nối CarPlay, bong bóng chỉ hiện trên màn hình xe; không có xe thì hiện trên iPhone. Thay đổi có hiệu lực ngay.";
 "SPEEDBUBBLE_ENABLE" = "Bật bong bóng tốc độ";
 "SPEEDBUBBLE_APPEARANCE" = "Giao diện";
 "SPEEDBUBBLE_APPEARANCE_FOOTER" = "Icon app cho biết tốc độ đang lấy từ app nào. Xem thử hiện bong bóng trong 10 giây.\n\nKéo để di chuyển · chụm 2 ngón để đổi cỡ · chạm để mở lại app · giữ 2 giây (viền đỏ chạy hết vòng) để thoát hẳn app.";
