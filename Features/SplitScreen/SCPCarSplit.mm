@@ -1927,6 +1927,22 @@ static CGSize SCPCSceneSize(UIViewController *vc)
         return;
     }
     SCPLog("CarSplit: chi giu %@ -> mo toan man", bid);
+    // VC cua app dang nam trong o: tra thang cho DashBoard trinh bay toan man (goi presentBaseViewController that, hook
+    // cho qua vi split da tat), khong ve Home roi mo lai: workspace cua DashBoard van coi app nay la app dang mo (split
+    // da chan lan trinh bay dau), nen "mo lai" sau Home bi bo qua -> chi thay man chinh (log 10/10 15:33, 16:xx)
+    SCPCarPane *keepPane = nil;
+    for (SCPCarPane *p in [self allPanes]) if (p.vc && [p.bundleID isEqualToString:bid] && !SCPCIsHostedVC(p.vc)) keepPane = p;
+    UIViewController *keepVC = keepPane.vc;
+    UIViewController *root = SCPCRootVC();
+    SEL present = NSSelectorFromString(@"presentBaseViewController:animated:launchSource:completion:");
+    if (keepVC && root && [root respondsToSelector:present]) {
+        keepPane.vc = nil; keepPane.bundleID = nil;   // closeGoingHome khong detach / dua ve nen VC nay
+        [self detachVC:keepVC background:NO];
+        [self closeGoingHome:NO];
+        ((void (*)(id, SEL, id, BOOL, unsigned long long, id))objc_msgSend)(root, present, keepVC, YES, 0, nil);
+        SCPLog("CarSplit: tra %@ cho DashBoard trinh bay toan man", bid);
+        return;
+    }
     id launchInfo = objcInvoke_1(objc_getClass("DBApplicationLaunchInfo"), @"launchInfoForApplication:", SCPCAppInfo(bid));
     if (launchInfo) [self showSoloCoverForBundle:bid];   // che man chinh nhay qua + app ve lai tu dau
     [self closeGoingHome:YES];
