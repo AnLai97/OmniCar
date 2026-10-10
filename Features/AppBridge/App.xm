@@ -10,9 +10,16 @@ static long long sForcedOrientation = -1;   // UIInterfaceOrientation dang ep, -
 static void ABApplyForcedOrientation(void)
 {
     if (sForcedOrientation <= 0) return;
-    UIWindow *key = nil;
-    for (UIWindow *w in [UIApplication sharedApplication].windows) if (w.isKeyWindow) { key = w; break; }
-    if (!key) key = [UIApplication sharedApplication].windows.firstObject;
+    UIWindow *key = nil, *any = nil;
+    for (UIScene *s in [UIApplication sharedApplication].connectedScenes) {
+        if (![s isKindOfClass:[UIWindowScene class]]) continue;
+        for (UIWindow *w in ((UIWindowScene *)s).windows) {
+            if (!any) any = w;
+            if (w.isKeyWindow) { key = w; break; }
+        }
+        if (key) break;
+    }
+    if (!key) key = any;
     SEL sel = NSSelectorFromString(@"_setRotatableViewOrientation:duration:force:");
     if (key && [key respondsToSelector:sel])
         ((void (*)(id, SEL, long long, double, BOOL))objc_msgSend)(key, sel, sForcedOrientation, 0.0, YES);
