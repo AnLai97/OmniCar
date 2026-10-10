@@ -2,6 +2,10 @@
 #import "SCPPrefs.h"
 #import "SCPCarSplit.h"
 #import "SCPAppIcons.h"
+#import <signal.h>
+#import <execinfo.h>
+#import <unistd.h>
+#import <fcntl.h>
 
 // Inject vao process CarPlay (com.apple.CarPlayApp, code trong DashBoard.framework, prefix DB).
 // Split hien GIAO DIEN CARPLAY cua app: DashBoard tu mo scene CarPlay cua app (giong cham icon),
@@ -200,13 +204,53 @@ static void SCPHookError(const char *where, NSException *e)
 
 %end // CARPLAY
 
-// Exception ObjC khong ai bat (trong code DashBoard, ke ca do tweak gay ra) -> ghi vao OmniCar.log truoc khi CarPlay sap,
-// de biet sap vi gi (CarPlay sap thi crash log nam cho khac, kho lay). Goi tiep handler cu neu co.
+// CarPlay sap (exception ObjC khong ai bat, hoac signal SIGSEGV / SIGABRT...): ghi ly do + backtrace vao mot file trong
+// tmp cua process NGAY LUC DO (OMCLog la async, process chet truoc khi kip ghi), lan khoi dong sau doc file do ra OmniCar.log
+// ("CARPLAY SAP LAN TRUOC"). Crash log he thong cua CarPlay kho lay, cai nay du de biet sap o dau.
+static char sCrashPath[1024];
 static NSUncaughtExceptionHandler *sPrevHandler;
+
 static void SCPUncaughtException(NSException *e)
 {
-    SCPLog("CARPLAY SAP (uncaught %@): %@\n%@", e.name, e.reason, e.callStackSymbols);
+    NSString *text = [NSString stringWithFormat:@"uncaught %@: %@\n%@\n", e.name, e.reason, [e.callStackSymbols componentsJoinedByString:@"\n"]];
+    [text writeToFile:@(sCrashPath) atomically:NO encoding:NSUTF8StringEncoding error:nil];
+    SCPLog("CARPLAY SAP: %@", text);
     if (sPrevHandler) sPrevHandler(e);
+}
+
+static void SCPSignalHandler(int sig, siginfo_t *si, void *ctx)
+{
+    int fd = open(sCrashPath, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+    if (fd >= 0) {
+        char head[160];
+        int n = snprintf(head, sizeof head, "signal %d (code %d) addr %p pid %d\n", sig, si ? (int)si->si_code : 0, si ? si->si_addr : NULL, (int)getpid());
+        if (n > 0) write(fd, head, (size_t)n);
+        void *frames[64];
+        int count = backtrace(frames, 64);
+        backtrace_symbols_fd(frames, count, fd);
+        close(fd);
+    }
+    signal(sig, SIG_DFL);   // de he thong van tao crash log nhu thuong
+    raise(sig);
+}
+
+static void SCPInstallCrashLogger(void)
+{
+    NSString *path = [NSTemporaryDirectory() stringByAppendingPathComponent:@"OmniCar-CarPlay-crash.txt"];
+    strlcpy(sCrashPath, path.fileSystemRepresentation, sizeof sCrashPath);
+    NSString *prev = [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:nil];
+    if (prev.length) {
+        SCPLog("CARPLAY SAP LAN TRUOC:\n%@", prev);
+        unlink(sCrashPath);
+    }
+    sPrevHandler = NSGetUncaughtExceptionHandler();
+    NSSetUncaughtExceptionHandler(SCPUncaughtException);
+    struct sigaction sa = {};
+    sa.sa_sigaction = SCPSignalHandler;
+    sa.sa_flags = SA_SIGINFO;
+    sigemptyset(&sa.sa_mask);
+    int sigs[] = { SIGSEGV, SIGBUS, SIGABRT, SIGILL, SIGTRAP, SIGFPE };
+    for (size_t i = 0; i < sizeof sigs / sizeof sigs[0]; i++) sigaction(sigs[i], &sa, NULL);
 }
 
 %ctor
@@ -214,8 +258,7 @@ static void SCPUncaughtException(NSException *e)
     if (![[[NSBundle mainBundle] bundleIdentifier] isEqualToString:@"com.apple.CarPlayApp"]) return;
     SCPLog("loaded into CarPlay");
     %init(CARPLAY);
-    sPrevHandler = NSGetUncaughtExceptionHandler();
-    NSSetUncaughtExceptionHandler(SCPUncaughtException);
+    SCPInstallCrashLogger();
 
     NSNotificationCenter *dnc = [objc_getClass("NSDistributedNotificationCenter") defaultCenter];
     NSOperationQueue *main = [NSOperationQueue mainQueue];

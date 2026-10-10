@@ -1,22 +1,33 @@
 #import "SCPAppIcons.h"
 
 // =====================================================================
-//  Icon app iPhone tren man chinh CarPlay (iOS 16, theo carplay-cast nhanh ios16).
-//  DashBoard chi ve icon cho DBApplicationInfo co _carPlayDeclaration. +[DashBoard _newApplicationLibrary] goc chi
-//  gom app CarPlay; hook (AppIcons.xm) thay bang SCPNewLibraryWithPhoneApps(): FBSApplicationLibrary gom moi app,
-//  roi SCPAddPhoneAppDeclarations() gan CRCarPlayAppDeclaration gia (khong template, "supportsMaps" de DashBoard
-//  mo nhu app UIKit) cho app trong AB_KEY_APPS. Tag "OmniCarAppBridge" danh dau app da chen.
+//  Icon app iPhone tren man chinh CarPlay (iOS 16.5). DashBoard chi ve icon cho DBApplicationInfo co _carPlayDeclaration.
+//  Cach lam (nhe hon carplay-cast, giu nguyen thu vien goc cua DashBoard):
+//    1. +[DashBoard _newApplicationLibrary] (AppIcons.xm): lay thu vien goc roi addApplicationProxy:withOverrideURL: cho
+//       tung app trong AB_KEY_APPS (them tuong minh thi khong qua bo loc "chi app CarPlay" cua thu vien).
+//    2. -[DBApplicationInfo _loadFromProxy:] (AppIcons.xm): sau %orig, app da chon ma khong co declaration thi gan
+//       CRCarPlayAppDeclaration gia (khong template, supportsMaps -> DashBoard coi nhu app UIKit) + tag "OmniCarAppBridge".
+//       Chay ngay luc thu vien tao info nen DashBoard thay app nhu app CarPlay that tu dau.
+//  Doi danh sach trong Settings: them / bo proxy tren thu vien dang dung roi _handleAppLibraryRefresh (SCPRefreshAppIconsSoon).
 // =====================================================================
 
 #define SCP_INJECT_TAG @"OmniCarAppBridge"
 
-static NSMutableSet<NSString *> *sInjected;
-static NSSet<NSString *> *sBuiltChosen;   // danh sach chon luc gan declaration lan cuoi (de biet prefschanged co doi gi khong)
+static NSMutableSet<NSString *> *sInjected;   // bundle id da gan declaration gia (doc / ghi tren nhieu queue -> @synchronized)
+static NSSet<NSString *> *sBuiltChosen;       // danh sach chon luc them proxy lan cuoi (de biet prefschanged co doi gi khong)
 static __weak id sHomeVC;
+
+static NSMutableSet<NSString *> *SCPInjectedSet(void)
+{
+    static dispatch_once_t once;
+    dispatch_once(&once, ^{ sInjected = [NSMutableSet set]; });
+    return sInjected;
+}
 
 BOOL SCPIsInjectedPhoneApp(NSString *bid)
 {
-    return bid && [sInjected containsObject:bid];
+    if (!bid) return NO;
+    @synchronized (SCPInjectedSet()) { return [sInjected containsObject:bid]; }
 }
 
 NSSet<NSString *> *SCPChosenPhoneApps(void)
@@ -44,49 +55,110 @@ static BOOL SCPSetIvar(id obj, NSString *name, id value)
     @catch (NSException *e) { SCPLog("AppIcons: khong dat duoc %@ cua %@: %@", name, [obj class], e); return NO; }
 }
 
-void SCPAddPhoneAppDeclarations(id library)
+// -[DBApplicationInfo _loadFromProxy:] vua chay: app da chon ma khong co declaration -> gan declaration gia
+void SCPInjectDeclarationIfChosen(id info)
+{
+    NSString *bid = SCPTryGet(info, @"bundleIdentifier");
+    if (!bid.length) return;
+    NSSet *chosen = SCPChosenPhoneApps();
+    if (![chosen containsObject:bid]) return;
+    if (SCPIvar(info, @"_carPlayDeclaration")) {
+        NSArray *tags = SCPTryGet(info, @"tags");
+        if (![tags containsObject:SCP_INJECT_TAG]) SCPLog("AppIcons: %@ da co declaration that (app CarPlay) -> khong chen", bid);
+        return;
+    }
+    Class Decl = objc_getClass("CRCarPlayAppDeclaration");
+    if (!Decl) { SCPLog("AppIcons: khong co lop CRCarPlayAppDeclaration"); return; }
+    id decl = [[Decl alloc] init];
+    objcCall_1(decl, @"setSupportsTemplates:", (BOOL)NO);   // khong template: CarPlayTemplateUIHost se khong tim template roi sap
+    objcCall_1(decl, @"setSupportsMaps:", (BOOL)YES);
+    objcCall_1(decl, @"setBundleIdentifier:", bid);
+    // iOS 16.5: _bundlePath la NSString (DIAG); carplay-cast truyen NSURL
+    id bundleURL = SCPTryGet(info, @"bundleURL");
+    NSString *bundlePath = [bundleURL isKindOfClass:[NSURL class]] ? [(NSURL *)bundleURL path] : ([bundleURL isKindOfClass:[NSString class]] ? bundleURL : nil);
+    if (bundlePath) objcCall_1(decl, @"setBundlePath:", bundlePath);
+    if (!SCPSetIvar(info, @"_carPlayDeclaration", decl)) return;
+    NSArray *tags = SCPTryGet(info, @"tags");
+    SCPSetIvar(info, @"_tags", [@[SCP_INJECT_TAG] arrayByAddingObjectsFromArray:[tags isKindOfClass:[NSArray class]] ? tags : @[]]);
+    BOOL valid = objcInvokeT(info, @"isValid", BOOL);
+    if (!valid) SCPSetIvar(info, @"_valid", @YES);   // DashBoard co the bo qua info "khong hop le"
+    @synchronized (SCPInjectedSet()) { [sInjected addObject:bid]; }
+    SCPLog("AppIcons: chen %@: valid=%d hidden=%d installed=%d fullScreen=%d path=%@", bid, valid,
+           objcInvokeT(info, @"isHidden", BOOL), objcInvokeT(info, @"isInstalled", BOOL), objcInvokeT(info, @"presentsFullScreen", BOOL), bundlePath);
+}
+
+static id SCPProxyFor(NSString *bid)
+{
+    Class Proxy = objc_getClass("LSApplicationProxy");
+    id proxy = Proxy ? objcInvoke_1(Proxy, @"applicationProxyForIdentifier:", bid) : nil;
+    id state = SCPTryGet(proxy, @"appState");
+    return (state && objcInvokeT(state, @"isValid", BOOL)) ? proxy : nil;
+}
+
+// Them app da chon vao thu vien (bo qua app da co trong thu vien: app CarPlay that)
+void SCPAddChosenAppsToLibrary(id library)
 {
     NSSet *chosen = SCPChosenPhoneApps();
-    NSMutableSet *injected = [NSMutableSet set];
     sBuiltChosen = chosen;
-    Class Decl = objc_getClass("CRCarPlayAppDeclaration");
-    if (!Decl) { SCPLog("AppIcons: khong co lop CRCarPlayAppDeclaration"); sInjected = injected; return; }
-    NSArray *all = SCPTryGet(library, @"allInstalledApplications");
-    NSUInteger kept = 0;
-    for (id info in all) {
-        NSString *bid = SCPTryGet(info, @"bundleIdentifier");
-        if (!bid.length) continue;
-        NSArray *tags = SCPTryGet(info, @"tags");
-        if ([tags containsObject:SCP_INJECT_TAG]) {   // da chen tu lan truoc (DashBoard goi lai sau khi cai / go app)
-            if ([chosen containsObject:bid]) { [injected addObject:bid]; kept++; }
-            continue;
-        }
-        if (![chosen containsObject:bid] || SCPIvar(info, @"_carPlayDeclaration")) continue;   // app CarPlay that: de yen
-        id decl = [[Decl alloc] init];
-        objcCall_1(decl, @"setSupportsTemplates:", (BOOL)NO);   // khong template: CarPlayTemplateUIHost se khong tim template roi sap
-        objcCall_1(decl, @"setSupportsMaps:", (BOOL)YES);
-        objcCall_1(decl, @"setBundleIdentifier:", bid);
-        // iOS 16.5: _bundlePath la NSString (DIAG), carplay-cast truyen NSURL -> DashBoard goi method chuoi len NSURL -> sap
-        id bundleURL = SCPTryGet(info, @"bundleURL");
-        NSString *bundlePath = [bundleURL isKindOfClass:[NSURL class]] ? [(NSURL *)bundleURL path] : ([bundleURL isKindOfClass:[NSString class]] ? bundleURL : nil);
-        if (bundlePath) objcCall_1(decl, @"setBundlePath:", bundlePath);
-        if (!SCPSetIvar(info, @"_carPlayDeclaration", decl)) continue;
-        NSArray *newTags = [@[SCP_INJECT_TAG] arrayByAddingObjectsFromArray:[tags isKindOfClass:[NSArray class]] ? tags : @[]];
-        SCPSetIvar(info, @"_tags", newTags);
-        [injected addObject:bid];
-        SCPLog("AppIcons: chen %@: valid=%d hidden=%d installed=%d fullScreen=%d path=%@", bid,
-               objcInvokeT(info, @"isValid", BOOL), objcInvokeT(info, @"isHidden", BOOL), objcInvokeT(info, @"isInstalled", BOOL),
-               objcInvokeT(info, @"presentsFullScreen", BOOL), bundlePath);
+    NSUInteger added = 0;
+    for (NSString *bid in chosen) {
+        if (objcInvoke_1(library, @"applicationInfoForBundleIdentifier:", bid)) continue;
+        id proxy = SCPProxyFor(bid);
+        if (!proxy) { SCPLog("AppIcons: %@ khong cai / khong hop le -> bo qua", bid); continue; }
+        objcCall_2(library, @"addApplicationProxy:withOverrideURL:", proxy, (id)nil);
+        added++;
     }
-    sInjected = injected;
-    SCPLog("AppIcons: %lu app iPhone tren man chinh (%lu moi, %lu da co), %lu app chon",
-           (unsigned long)injected.count, (unsigned long)(injected.count - kept), (unsigned long)kept, (unsigned long)chosen.count);
+    SCPLog("AppIcons: them %lu / %lu app da chon vao thu vien %@", (unsigned long)added, (unsigned long)chosen.count, [library class]);
+}
+
+void SCPSetHomeViewController(id vc)
+{
+    sHomeVC = vc;
+}
+
+static id SCPCurrentLibrary(void)
+{
+    id home = sHomeVC;
+    id lib = home ? SCPTryGet(home, @"library") : nil;
+    return lib ?: SCPTryGet([UIApplication sharedApplication], @"sharedApplicationLibrary");
+}
+
+// Danh sach app chon doi trong Settings: them / bo proxy tren thu vien dang dung roi ve lai man chinh (debounce 0.8s vi
+// moi cong tac mot prefschanged)
+void SCPRefreshAppIconsSoon(void)
+{
+    static NSUInteger gen;
+    NSUInteger my = ++gen;
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.8 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        if (my != gen) return;
+        NSSet *chosen = SCPChosenPhoneApps();
+        if ([chosen isEqualToSet:sBuiltChosen ?: [NSSet set]]) return;   // khong doi (prefs khac)
+        SCPAppIconsRetry();
+        @try {
+            id lib = SCPCurrentLibrary();
+            if (!lib) { SCPLog("AppIcons: chua co thu vien de cap nhat"); return; }
+            NSMutableSet *removed = [NSMutableSet set];
+            @synchronized (SCPInjectedSet()) {
+                for (NSString *bid in sInjected) if (![chosen containsObject:bid]) [removed addObject:bid];
+                [sInjected minusSet:removed];
+            }
+            for (NSString *bid in removed) {
+                id proxy = SCPProxyFor(bid);
+                if (proxy) objcCall_1(lib, @"removeApplicationProxy:", proxy);
+            }
+            SCPAddChosenAppsToLibrary(lib);
+            SCPLog("AppIcons: danh sach doi -> bo %lu app, ve lai man chinh", (unsigned long)removed.count);
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                @try { objcCall(sHomeVC, @"_handleAppLibraryRefresh"); } @catch (NSException *e) { SCPLog("AppIcons: refresh loi %@", e); }
+            });
+        } @catch (NSException *e) { SCPLog("AppIcons: cap nhat thu vien loi %@", e); }
+    });
 }
 
 // ---------------------------------------------------------------------
-//  Cau dao chong crash-loop: ghi "dang chen" vao prefs truoc khi thay thu vien, xoa khi man xe hien (carScreenAppeared).
-//  Lan khoi dong sau ma con "dang chen" = CarPlay sap sau khi chen -> ghi version bi sap, khong chen nua cho den khi
-//  nguoi dung doi danh sach app (prefschanged) hoac cai ban moi (version khac).
+//  Cau dao chong crash-loop: ghi "dang chen" vao prefs truoc khi them app vao thu vien, xoa khi man xe hien
+//  (carScreenAppeared). Lan khoi dong sau ma con "dang chen" = CarPlay sap sau khi chen -> ghi version bi sap, khong chen
+//  nua cho den khi nguoi dung doi danh sach app (prefschanged) hoac cai ban moi (version khac).
 // ---------------------------------------------------------------------
 #define SCP_KEY_ICONS_PENDING  @"splitScreenIconsPending"
 #define SCP_KEY_ICONS_CRASHED  @"splitScreenIconsCrashed"
@@ -134,65 +206,6 @@ void SCPAppIconsRetry(void)
         SCPIconsStore(SCP_KEY_ICONS_CRASHED, nil);
         SCPLog("AppIcons: danh sach app doi -> cho phep chen icon lai");
     }
-}
-
-id SCPNewLibraryWithPhoneApps(void)
-{
-    Class Config = objc_getClass("FBSApplicationLibraryConfiguration"), Lib = objc_getClass("FBSApplicationLibrary"),
-          Info = objc_getClass("DBApplicationInfo"), Placeholder = objc_getClass("FBSApplicationPlaceholder");
-    if (!Config || !Lib || !Info) {
-        SCPLog("AppIcons: thieu lop (config %d lib %d info %d)", Config != nil, Lib != nil, Info != nil);
-        return nil;
-    }
-    id config = [[Config alloc] init];
-    objcCall_1(config, @"setApplicationInfoClass:", Info);
-    if (Placeholder) objcCall_1(config, @"setApplicationPlaceholderClass:", Placeholder);
-    objcCall_1(config, @"setAllowConcurrentLoading:", (BOOL)YES);
-    BOOL (^filter)(id, NSSet *) = ^BOOL(id appProxy, NSSet *arg2) {
-        NSArray *appTags = SCPTryGet(appProxy, @"appTags");
-        return ![appTags containsObject:@"hidden"];   // app an (he thong) khong vao thu vien
-    };
-    objcCall_1(config, @"setInstalledApplicationFilter:", filter);
-    id library = objcInvoke_1([Lib alloc], @"initWithConfiguration:", config);
-    if (!library) { SCPLog("AppIcons: khong tao duoc FBSApplicationLibrary"); return nil; }
-    SCPAddPhoneAppDeclarations(library);
-    // App he thong cua CarPlay bi loc "hidden" o tren: them lai nhu thu vien goc (carplay-cast)
-    Class Proxy = objc_getClass("LSApplicationProxy");
-    for (NSString *ident in @[@"com.apple.CarPlayTemplateUIHost", @"com.apple.MusicUIService", @"com.apple.springboard",
-                              @"com.apple.InCallService", @"com.apple.CarPlaySettings", @"com.apple.CarPlayApp",
-                              @"com.apple.CarPlayWallpaper"]) {
-        id proxy = Proxy ? objcInvoke_1(Proxy, @"applicationProxyForIdentifier:", ident) : nil;
-        id state = SCPTryGet(proxy, @"appState");
-        if (state && objcInvokeT(state, @"isValid", BOOL)) objcCall_2(library, @"addApplicationProxy:withOverrideURL:", proxy, (id)nil);
-    }
-    return library;
-}
-
-void SCPSetHomeViewController(id vc)
-{
-    sHomeVC = vc;
-}
-
-// Danh sach app chon doi trong Settings: thu vien moi + ve lai man chinh (debounce 0.8s vi moi cong tac mot prefschanged)
-void SCPRefreshAppIconsSoon(void)
-{
-    static NSUInteger gen;
-    NSUInteger my = ++gen;
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.8 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        if (my != gen) return;
-        id home = sHomeVC;
-        if (!home) return;
-        if ([SCPChosenPhoneApps() isEqualToSet:sBuiltChosen ?: [NSSet set]]) return;   // khong doi (prefs khac)
-        SCPAppIconsRetry();
-        @try {
-            Class DashBoard = objc_getClass("DashBoard");
-            id lib = DashBoard ? objcInvoke(DashBoard, @"_newApplicationLibrary") : nil;   // qua hook -> co app iPhone
-            if (!lib) return;
-            objcCall_1(home, @"setLibrary:", lib);
-            objcCall(home, @"_handleAppLibraryRefresh");
-            SCPLog("AppIcons: ve lai man chinh sau khi doi danh sach app");
-        } @catch (NSException *e) { SCPLog("AppIcons: ve lai man chinh loi %@", e); }
-    });
 }
 
 // =====================================================================
@@ -272,6 +285,7 @@ void SCPDumpAppLibraryOnce(void)
         UIApplication *app = [UIApplication sharedApplication];
         id lib = SCPTryGet(app, @"sharedApplicationLibrary");
         SCPDumpObj(@"thu vien app (sharedApplicationLibrary)", lib);
+        SCPDumpObj(@"cau hinh thu vien", SCPIvar(lib, @"_configuration"));
         NSArray *all = SCPTryGet(lib, @"allInstalledApplications");
         SCPLog("DIAG allInstalledApplications: %lu muc", (unsigned long)[all count]);
         id info = nil;
@@ -279,9 +293,8 @@ void SCPDumpAppLibraryOnce(void)
         if (!info) info = all.firstObject;
         SCPDumpObj(@"app info", info);
         SCPDumpObj(@"declaration", SCPTryGet(info, @"carPlayDeclaration"));
-        for (NSString *cn in @[@"DashBoard", @"CRCarPlayAppDeclaration", @"DBApplicationInfo", @"DBApplicationLaunchInfo",
-                               @"DBDashboardHomeViewController", @"DBDashboard", @"DBIconModel", @"DBIconView",
-                               @"FBSApplicationLibrary", @"FBSApplicationLibraryConfiguration"]) {
+        for (NSString *cn in @[@"DashBoard", @"DBDashboardHomeViewController", @"DBIconModel", @"DBIconView", @"DBApplicationIcon",
+                               @"SBApplicationIcon", @"FBSApplicationLibraryConfiguration"]) {
             Class c = objc_getClass(cn.UTF8String);
             if (c) SCPDumpClass([@"lop " stringByAppendingString:cn], c);
             else SCPLog("DIAG lop %@: khong co", cn);

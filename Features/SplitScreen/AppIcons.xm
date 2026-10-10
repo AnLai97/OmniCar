@@ -4,7 +4,7 @@
 #import <notify.h>
 
 // Inject vao process CarPlay cung OmniCarSplitScreen.dylib: icon app iPhone da chon (App Bridge) tren man chinh
-// CarPlay. Cach lam theo carplay-cast (nhanh ios16), xem SCPAppIcons.mm. Moi hook boc @try nhu CarPlay.xm.
+// CarPlay. Xem SCPAppIcons.mm. Moi hook boc @try nhu CarPlay.xm.
 
 static void SCPIconsHookError(const char *where, NSException *e)
 {
@@ -13,26 +13,32 @@ static void SCPIconsHookError(const char *where, NSException *e)
 
 %group APPICONS
 
-// Thu vien app cua DashBoard: goc chi gom app CarPlay -> thay bang thu vien gom moi app + declaration gia cho app da chon
+// Thu vien app cua DashBoard: giu nguyen, chi them app da chon vao (them tuong minh thi khong qua bo loc cua thu vien)
 %hook DashBoard
 
 + (id)_newApplicationLibrary
 {
+    id lib = %orig;
     @try {
-        if (SCPChosenPhoneApps().count) {
-            if (!SCPAppIconsBeginInjection()) return %orig;   // tung sap o ban nay -> thu vien goc
-            id lib = SCPNewLibraryWithPhoneApps();
-            if (lib) return lib;
-        } else {
-            SCPAddPhoneAppDeclarations(nil);   // xoa danh sach da chen (app chon = 0 hoac App Bridge tat)
-        }
+        if (SCPChosenPhoneApps().count && SCPAppIconsBeginInjection()) SCPAddChosenAppsToLibrary(lib);
     } @catch (NSException *e) { SCPIconsHookError("_newApplicationLibrary", e); }
-    return %orig;
+    return lib;
 }
 
 %end
 
-// Man chinh: nho lai de doi thu vien khi danh sach app doi; cai / go app thi DashBoard goi _handleAppLibraryRefresh
+// Info cua tung app vua nap tu proxy: app da chon -> declaration gia (chay ca tren work queue cua thu vien)
+%hook DBApplicationInfo
+
+- (void)_loadFromProxy:(id)proxy
+{
+    %orig;
+    @try { SCPInjectDeclarationIfChosen(self); } @catch (NSException *e) { SCPIconsHookError("_loadFromProxy", e); }
+}
+
+%end
+
+// Man chinh: nho lai de cap nhat thu vien khi danh sach app doi
 %hook DBDashboardHomeViewController
 
 - (id)initWithEnvironment:(id)env
@@ -40,14 +46,6 @@ static void SCPIconsHookError(const char *where, NSException *e)
     id r = %orig;
     SCPSetHomeViewController(r);
     return r;
-}
-
-- (void)_handleAppLibraryRefresh
-{
-    @try {
-        if (SCPChosenPhoneApps().count) SCPAddPhoneAppDeclarations(objcInvoke(self, @"library"));
-    } @catch (NSException *e) { SCPIconsHookError("_handleAppLibraryRefresh", e); }
-    %orig;
 }
 
 %end
@@ -76,7 +74,7 @@ static void SCPIconsHookError(const char *where, NSException *e)
     if (![[[NSBundle mainBundle] bundleIdentifier] isEqualToString:@"com.apple.CarPlayApp"]) return;
     %init(APPICONS);
     if (!objc_getClass("DashBoard")) SCPLog("AppIcons: khong co lop DashBoard, icon app iPhone khong chen duoc");
-    // Settings doi danh sach app (hoac bat / tat App Bridge) -> thu vien moi, ve lai man chinh
+    // Settings doi danh sach app (hoac bat / tat App Bridge) -> cap nhat thu vien, ve lai man chinh
     static int token;
     notify_register_dispatch("com.anlai.omnicar/prefschanged", &token, dispatch_get_main_queue(), ^(int t) { SCPRefreshAppIconsSoon(); });
 }
