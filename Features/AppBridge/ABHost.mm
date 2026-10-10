@@ -149,6 +149,41 @@ static void ABPostOrientation(NSString *bid, long long orientation)
 @implementation ABPane
 @end
 
+#pragma mark - Cham tron cua vach chia (ve lai len tren cac o)
+
+// Cung kieu voi cham tron ben CarPlay (SCPCKnobStyle / SCPCKnobActive trong SCPCarSplit.mm)
+#define AB_KNOB      14.0
+#define AB_KNOB_GROW 1.6
+#define AB_KNOB_HIT  26.0   // = SCPC_DIVIDER_HIT: vung cham quanh cham tron
+
+// Cham tron nam trong cua so cua SpringBoard nen cham vao no den SpringBoard, khong bao gio den CarPlay (log 10/10 22:18:
+// cham cham tron canh o YouTube khong co gi). Nen cham tron tu nhan cham (vung rong nhu ben CarPlay) va chuyen tung pha
+// sang CarPlay (AB_NOTIF_KNOB_TOUCH); CarPlay keo / bam vach nhu cham vao cham tron cua chinh no.
+@interface ABKnobView : UIView
+@property (nonatomic) int index;   // vach thu may (CarPlay gui kem trong AB_NOTIF_KNOBS)
+@property (nonatomic) CGPoint lastSent;
+@end
+@implementation ABKnobView
+- (BOOL)pointInside:(CGPoint)p withEvent:(UIEvent *)e
+{
+    return CGRectContainsPoint(CGRectInset(self.bounds, -AB_KNOB_HIT, -AB_KNOB_HIT), p);
+}
+- (void)relay:(int)phase touches:(NSSet<UITouch *> *)touches
+{
+    CGPoint p = [touches.anyObject locationInView:self.window];
+    if (phase == 1 && hypot(p.x - self.lastSent.x, p.y - self.lastSent.y) < 1) return;
+    self.lastSent = p;
+    [[objc_getClass("NSDistributedNotificationCenter") defaultCenter]
+        postNotificationName:AB_NOTIF_KNOB_TOUCH object:nil
+                    userInfo:@{@"index": @(self.index), @"phase": @(phase), @"x": @(p.x), @"y": @(p.y)}];
+}
+- (void)touchesBegan:(NSSet<UITouch *> *)t withEvent:(UIEvent *)e { [self relay:0 touches:t]; }
+- (void)touchesMoved:(NSSet<UITouch *> *)t withEvent:(UIEvent *)e { [self relay:1 touches:t]; }
+- (void)touchesEnded:(NSSet<UITouch *> *)t withEvent:(UIEvent *)e { [self relay:2 touches:t]; }
+- (void)touchesCancelled:(NSSet<UITouch *> *)t withEvent:(UIEvent *)e { [self relay:3 touches:t]; }
+@end
+
+
 @interface ABHost ()
 @property (nonatomic, strong) UIWindow *window;
 @property (nonatomic, copy) NSString *displayID;
@@ -702,37 +737,6 @@ static UIButton *ABRoundButton(NSString *glyph, id target, SEL action)
 #pragma mark - Cham tron cua vach chia (ve lai len tren cac o)
 
 // Cung kieu voi cham tron ben CarPlay (SCPCKnobStyle / SCPCKnobActive trong SCPCarSplit.mm)
-#define AB_KNOB      14.0
-#define AB_KNOB_GROW 1.6
-#define AB_KNOB_HIT  26.0   // = SCPC_DIVIDER_HIT: vung cham quanh cham tron
-
-// Cham tron nam trong cua so cua SpringBoard nen cham vao no den SpringBoard, khong bao gio den CarPlay (log 10/10 22:18:
-// cham cham tron canh o YouTube khong co gi). Nen cham tron tu nhan cham (vung rong nhu ben CarPlay) va chuyen tung pha
-// sang CarPlay (AB_NOTIF_KNOB_TOUCH); CarPlay keo / bam vach nhu cham vao cham tron cua chinh no.
-@interface ABKnobView : UIView
-@property (nonatomic) int index;   // vach thu may (CarPlay gui kem trong AB_NOTIF_KNOBS)
-@property (nonatomic) CGPoint lastSent;
-@end
-@implementation ABKnobView
-- (BOOL)pointInside:(CGPoint)p withEvent:(UIEvent *)e
-{
-    return CGRectContainsPoint(CGRectInset(self.bounds, -AB_KNOB_HIT, -AB_KNOB_HIT), p);
-}
-- (void)relay:(int)phase touches:(NSSet<UITouch *> *)touches
-{
-    CGPoint p = [touches.anyObject locationInView:self.window];
-    if (phase == 1 && hypot(p.x - self.lastSent.x, p.y - self.lastSent.y) < 1) return;
-    self.lastSent = p;
-    [[objc_getClass("NSDistributedNotificationCenter") defaultCenter]
-        postNotificationName:AB_NOTIF_KNOB_TOUCH object:nil
-                    userInfo:@{@"index": @(self.index), @"phase": @(phase), @"x": @(p.x), @"y": @(p.y)}];
-}
-- (void)touchesBegan:(NSSet<UITouch *> *)t withEvent:(UIEvent *)e { [self relay:0 touches:t]; }
-- (void)touchesMoved:(NSSet<UITouch *> *)t withEvent:(UIEvent *)e { [self relay:1 touches:t]; }
-- (void)touchesEnded:(NSSet<UITouch *> *)t withEvent:(UIEvent *)e { [self relay:2 touches:t]; }
-- (void)touchesCancelled:(NSSet<UITouch *> *)t withEvent:(UIEvent *)e { [self relay:3 touches:t]; }
-@end
-
 static ABKnobView *ABMakeKnob(void)
 {
     ABKnobView *k = [[ABKnobView alloc] initWithFrame:CGRectMake(0, 0, AB_KNOB, AB_KNOB)];
