@@ -622,6 +622,7 @@ static BOOL SCPCIsBridgedApp(NSString *bid);
 @property (nonatomic) CFAbsoluteTime nextLaunchAt;   // lan mo app ke tiep som nhat (DashBoard can xong lan truoc)
 @property (nonatomic, copy) NSString *soloHostedBundle;   // app iPhone dang hien toan man qua App Bridge (khong chia)
 @property (nonatomic) CGRect soloHostedFrame;
+@property (nonatomic) BOOL ignoreHomeOnce;                // su kien Home do chinh split gui (tat split) -> khong dong app toan man
 @property (nonatomic) BOOL resizing;                 // dang keo vach / keo doi cho: moi o phu the icon, CBWindow an
 @property (nonatomic, strong) UIView *dragGhost;     // the icon theo tay khi keo "•••" de doi cho
 @property (nonatomic) int dragTarget;                // o dang duoc tha vao (-1 = khong)
@@ -1911,7 +1912,9 @@ static CGSize SCPCSceneSize(UIViewController *vc)
         // Host toan man TRUOC (o dang host chi truot ra ca vung app), roi moi tat split: hostCloseAll giu app nay lai,
         // man chinh CarPlay ve ben duoi ma khong lo ra -> khong nhay ve Home
         [self hostSolo:bid];
+        self.ignoreHomeOnce = YES;   // su kien Home ben duoi la cua minh, khong phai nguoi dung bam -> khong dong app
         [self closeGoingHome:YES];
+        self.ignoreHomeOnce = NO;    // handleEvent dong bo; khong dung toi thi bo co
         return;
     }
     SCPLog("CarSplit: chi giu %@ -> mo toan man", bid);
@@ -3857,6 +3860,8 @@ static NSArray<NSDictionary *> *SCPCPhoneApps(void)
 // Nut Home cua CarPlay (hook _handleHomeEvent): app iPhone toan man -> dong
 - (void)homePressed
 {
+    // Home do chinh split gui khi tat split (soloBundle app iPhone): man chinh ve ben duoi, app toan man giu nguyen
+    if (self.ignoreHomeOnce) { self.ignoreHomeOnce = NO; return; }
     if (self.soloHostedBundle) [self endHostedSolo];
 }
 

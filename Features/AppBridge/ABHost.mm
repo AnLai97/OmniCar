@@ -374,6 +374,10 @@ static void ABPostOrientation(NSString *bid, long long orientation)
             ((void (*)(id, SEL, CGRect))objc_msgSend)(settings, NSSelectorFromString(@"setFrame:"), target);
             if ([settings respondsToSelector:NSSelectorFromString(@"setInterfaceOrientation:")])
                 ((void (*)(id, SEL, long long))objc_msgSend)(settings, NSSelectorFromString(@"setInterfaceOrientation:"), orient);
+            // Scene phai foreground moi ve: host lai ngay sau khi dong (teardown da cho scene ve nen) thi o den
+            // (log 10/10 16:01: YouTube vao o 140ms sau khi dong cua so toan man). carplay-cast cung dat o day.
+            objcCall_1(settings, @"setBackgrounded:", (BOOL)NO);
+            objcCall_1(settings, @"setForeground:", (BOOL)YES);
         });
     } @catch (NSException *e) { ABLog("updateSettings %@ loi %@", pane.bundleID, e); }
     pane.sceneBox = boxSize;
