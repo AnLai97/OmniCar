@@ -244,7 +244,16 @@ static NSArray<NSDictionary *> *SCPCCarPlayApps(void)
 static UIImage *SCPCAppIcon(NSString *bid)
 {
     if ([UIImage respondsToSelector:@selector(_applicationIconImageForBundleIdentifier:format:scale:)]) {
-        return [UIImage _applicationIconImageForBundleIdentifier:bid format:2 scale:2.0];
+        UIImage *img = [UIImage _applicationIconImageForBundleIdentifier:bid format:2 scale:2.0];
+        // Chan doan icon khac kieu giua app (icon YouTube trong bang bo cuc): log 1 lan moi app kich thuoc tra ve
+        static NSMutableSet *seen;
+        if (!seen) seen = [NSMutableSet set];
+        if (bid && ![seen containsObject:bid]) {
+            [seen addObject:bid];
+            SCPLog("DIAG icon %@: %@ scale %.0f (%.0fx%.0f px)", bid, img ? NSStringFromCGSize(img.size) : @"nil", img.scale,
+                   img.size.width * img.scale, img.size.height * img.scale);
+        }
+        return img;
     }
     return nil;
 }
