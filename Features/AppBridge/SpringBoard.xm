@@ -26,14 +26,17 @@ static int (*orig_BKSDisplayServicesSetScreenBlanked)(int) = NULL;
             [[ABHost shared] openApp:u[@"identifier"] frame:r];
             [[ABHost shared] setPassInsets:UIEdgeInsetsMake([u[@"pt"] doubleValue], [u[@"pl"] doubleValue], [u[@"pb"] doubleValue], [u[@"pr"] doubleValue])
                                     forApp:u[@"identifier"]];
+            [[ABHost shared] setClipTop:[u[@"ct"] doubleValue] forApp:u[@"identifier"]];
         } @catch (NSException *e) { ABLog("open loi %@\n%@", e, e.callStackSymbols); }
     }];
     [dnc addObserverForName:AB_NOTIF_FRAME object:nil queue:main usingBlock:^(NSNotification *note) {
         NSDictionary *u = note.userInfo;
         CGRect r = CGRectMake([u[@"x"] doubleValue], [u[@"y"] doubleValue], [u[@"w"] doubleValue], [u[@"h"] doubleValue]);
         UIEdgeInsets pass = UIEdgeInsetsMake([u[@"pt"] doubleValue], [u[@"pl"] doubleValue], [u[@"pb"] doubleValue], [u[@"pr"] doubleValue]);
-        @try { [[ABHost shared] setFrame:r forApp:u[@"identifier"] live:[u[@"live"] boolValue] handle:[u[@"handle"] boolValue] passInsets:pass]; }
-        @catch (NSException *e) { ABLog("frame loi %@", e); }
+        @try {
+            [[ABHost shared] setFrame:r forApp:u[@"identifier"] live:[u[@"live"] boolValue] handle:[u[@"handle"] boolValue] passInsets:pass];
+            [[ABHost shared] setClipTop:[u[@"ct"] doubleValue] forApp:u[@"identifier"]];
+        } @catch (NSException *e) { ABLog("frame loi %@", e); }
     }];
     [dnc addObserverForName:AB_NOTIF_CLOSE object:nil queue:main usingBlock:^(NSNotification *note) {
         @try { [[ABHost shared] closeApp:note.userInfo[@"identifier"] terminate:[note.userInfo[@"terminate"] boolValue]]; }

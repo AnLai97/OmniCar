@@ -3677,11 +3677,15 @@ static NSArray<NSDictionary *> *SCPCPhoneApps(void)
     if (!self.active || !p.vc || p.picker || p.view.alpha < 0.5 || p.view.bounds.size.width < 20 || !p.view.window) return CGRectZero;
     if (self.tray) return CGRectZero;   // bang bo cuc ve trong CarPlay -> nhuong cho
     if (self.ratioMenu && CGRectIntersectsRect(CGRectInset(self.ratioMenu.frame, -6, -6), p.view.frame)) return CGRectZero;
-    // Thanh nut cua o dang hien -> cua so host lui xuong duoi thanh nut de bam duoc
-    CGFloat top = p.bar.hidden ? 0 : SCPC_HANDLE_Y + SCPC_HANDLE_H + 6 + SCPC_PILL + 6;
-    CGRect b = p.view.bounds;
-    CGRect r = CGRectMake(0, top, b.size.width, MAX(0, b.size.height - top));
-    return [p.view convertRect:r toView:nil];
+    // Khung day du ca khi thanh nut dang hien: cua so host chi CHE phan tren (ct, xem hostClipTopForPane) chu khong lui
+    // xuong, de noi dung app khong bi day / bo cuc lai moi lan mo thanh nut
+    return [p.view convertRect:p.view.bounds toView:nil];
+}
+
+// Thanh nut cua o dang hien -> cua so host che tung ay pt tren cung (thanh nut ve ben CarPlay lo ra, cham xuyen xuong)
+- (CGFloat)hostClipTopForPane:(SCPCarPane *)p
+{
+    return p.bar.hidden ? 0 : SCPC_HANDLE_Y + SCPC_HANDLE_H + 6 + SCPC_PILL + 6;
 }
 
 // Dai sat mep cua so host cho cham xuyen xuong CarPlay (canh giap o khac: keo vach; canh giap mep vung app: 0)
@@ -3697,7 +3701,8 @@ static NSArray<NSDictionary *> *SCPCPhoneApps(void)
 {
     UIEdgeInsets pi = p ? [self hostPassInsetsForPane:p] : UIEdgeInsetsZero;
     return @{@"identifier": p.bundleID ?: @"", @"x": @(r.origin.x), @"y": @(r.origin.y), @"w": @(r.size.width), @"h": @(r.size.height),
-             @"live": @(live), @"handle": @(handle), @"pt": @(pi.top), @"pl": @(pi.left), @"pb": @(pi.bottom), @"pr": @(pi.right)};
+             @"live": @(live), @"handle": @(handle), @"pt": @(pi.top), @"pl": @(pi.left), @"pb": @(pi.bottom), @"pr": @(pi.right),
+             @"ct": @(p ? [self hostClipTopForPane:p] : 0)};
 }
 
 - (void)sendHostFrameForPane:(SCPCarPane *)p live:(BOOL)live

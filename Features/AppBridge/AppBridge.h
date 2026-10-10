@@ -29,6 +29,8 @@
 //            translucent "•••" pill at the top of the box (CarPlay's own pill is under the window).
 //            pt, pl, pb, pr (optional, points): touches within that distance of the box edge fall through to
 //            CarPlay (divider drags along edges shared with another pane).
+//            ct (optional, points): the box hides its top ct points (masked, touches there fall through) so the
+//            pane's button bar drawn by CarPlay shows over the app without pushing the app down. Also on OPEN.
 //   CLOSE    identifier, terminate (0/1): remove the app from the car screen (and quit it)
 //   CLOSEALL (no keys)
 #define AB_NOTIF_OPEN        @"com.anlai.omnicar/appbridge.open"

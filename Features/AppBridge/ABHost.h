@@ -7,6 +7,7 @@
 - (void)openApp:(NSString *)bid frame:(CGRect)frame;                                    // frame in car-screen points
 - (void)setFrame:(CGRect)frame forApp:(NSString *)bid live:(BOOL)live handle:(BOOL)handle passInsets:(UIEdgeInsets)pass;
 - (void)setPassInsets:(UIEdgeInsets)pass forApp:(NSString *)bid;   // dai sat mep cho cham xuyen xuong CarPlay
+- (void)setClipTop:(CGFloat)top forApp:(NSString *)bid;             // che `top` pt tren cung cua o (thanh nut ben CarPlay lo ra), app khong bi day
 - (void)closeApp:(NSString *)bid terminate:(BOOL)terminate;
 - (void)closeAll;
 - (void)carDisconnected;                 // car screen gone: drop every box without touching the apps

@@ -94,6 +94,7 @@ static void ABPostOrientation(NSString *bid, long long orientation)
 // tra nil -> CarPlay nhan cham de keo vach. Thanh "•••" van cham duoc.
 @interface ABBoxView : UIView
 @property (nonatomic) UIEdgeInsets passInsets;
+@property (nonatomic) CGFloat clipTop;             // che `clipTop` pt tren cung (thanh nut cua o ve ben CarPlay lo ra), cham o do xuyen xuong
 @property (nonatomic, weak) UIView *handleHit;
 @end
 @implementation ABBoxView
@@ -101,7 +102,28 @@ static void ABPostOrientation(NSString *bid, long long orientation)
 {
     if (![super pointInside:p withEvent:e]) return NO;
     if (self.handleHit && !self.handleHit.hidden && CGRectContainsPoint(self.handleHit.frame, p)) return YES;
+    if (p.y < self.clipTop) return NO;
     return CGRectContainsPoint(UIEdgeInsetsInsetRect(self.bounds, self.passInsets), p);
+}
+- (void)setClipTop:(CGFloat)clipTop
+{
+    _clipTop = MAX(0, clipTop);
+    [self updateMask];
+}
+- (void)layoutSubviews
+{
+    [super layoutSubviews];
+    [self updateMask];
+}
+// Mask thay vi thu nho khung: app giu nguyen kich thuoc / bo cuc, chi phan tren bi che
+- (void)updateMask
+{
+    if (_clipTop <= 0) { self.layer.mask = nil; return; }
+    CALayer *mask = self.layer.mask ?: [CALayer layer];
+    mask.backgroundColor = [UIColor blackColor].CGColor;
+    CGRect b = self.bounds;
+    mask.frame = CGRectMake(0, _clipTop, b.size.width, MAX(0, b.size.height - _clipTop));
+    self.layer.mask = mask;
 }
 @end
 
@@ -182,12 +204,11 @@ static void ABPostOrientation(NSString *bid, long long orientation)
     return YES;
 }
 
+// Het o: GIU cua so (rong, pass-through, vo hai). Huy roi tao lai UIRootSceneWindow tren man xe thi cua so moi khong hien
+// len tren CarPlay nua (log 10/10 15:30: YouTube vao o / toan man sau khi dong o cuoi -> chi thay man chinh CarPlay).
+// Chi bo cua so khi xe ngat (carDisconnected) hoac man xe doi (ensureWindow).
 - (void)dropWindowIfEmpty
 {
-    if (self.panes.count || !self.window) return;
-    UIWindow *w = self.window;
-    self.window = nil;
-    w.hidden = YES;
 }
 
 #pragma mark - Mo app
@@ -445,6 +466,12 @@ static void ABPostOrientation(NSString *bid, long long orientation)
 {
     ABPane *p = [self paneFor:bid];
     if (p) p.box.passInsets = pass;
+}
+
+- (void)setClipTop:(CGFloat)top forApp:(NSString *)bid
+{
+    ABPane *p = [self paneFor:bid];
+    if (p && p.box.clipTop != top) p.box.clipTop = top;
 }
 
 #pragma mark - Thanh "•••" tren app
