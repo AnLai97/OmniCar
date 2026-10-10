@@ -1936,7 +1936,15 @@ static CGSize SCPCSceneSize(UIViewController *vc)
     }
     __weak SCPCarSplit *weakSelf = self;
     SCPCAfter(0.8, ^{
-        if (weakSelf && !weakSelf.active) SCPCSendEvent(4, launchInfo);
+        SCPCarSplit *me = weakSelf;
+        if (!me || me.active) return;
+        // Mo lai nhu cham icon tren man chinh (_launchAppWithInfo:forURL:); su kien DBEvent 4 voi launchInfo lay truoc
+        // khi ve Home khong mo duoc (log 10/10 15:33: "mo toan man" roi khong co gi)
+        id d = SCPCDashboard();
+        id info = SCPCAppInfo(bid);
+        SCPLog("CarSplit: mo lai %@ toan man (dashboard=%d, info=%d)", bid, d != nil, info != nil);
+        if (d && info && [d respondsToSelector:NSSelectorFromString(@"_launchAppWithInfo:forURL:")]) objcCall_2(d, @"_launchAppWithInfo:forURL:", info, (id)nil);
+        else SCPCSendEvent(4, launchInfo);
     });
 }
 
@@ -3726,6 +3734,8 @@ static NSArray<NSDictionary *> *SCPCPhoneApps(void)
     NSMutableDictionary *d = [@{@"identifier": p.bundleID ?: @"", @"x": @(r.origin.x), @"y": @(r.origin.y), @"w": @(r.size.width), @"h": @(r.size.height),
                                 @"live": @(live), @"handle": @(handle), @"pt": @(pi.top), @"pl": @(pi.left), @"pb": @(pi.bottom), @"pr": @(pi.right)} mutableCopy];
     if (p) [d addEntriesFromDictionary:[self hostBarInfoForPane:p]];
+    // Bo goc nhu o CarPlay (SCPC_RADIUS o goc giap o khac, cua so noi 4 goc): cua so host ve cung goc
+    if (p) { d[@"r"] = @(p.view.layer.cornerRadius); d[@"corners"] = @((unsigned long long)p.view.layer.maskedCorners); }
     return d;
 }
 

@@ -32,6 +32,8 @@
 //            bar (0/1): SpringBoard draws the pane's button bar (change app, float/dock, full screen, close) over the
 //            app, under the "•••" pill; a CarPlay-drawn bar could never show above the host window. pop = 1 float
 //            glyph, 2 dock glyph; popDim = 1 draws the float button dimmed (tap still reports). Also on OPEN.
+//            r, corners (optional): corner radius and CACornerMask of the CarPlay pane under the box, so the
+//            hosted app is clipped exactly like a native pane (12 pt on the corners shared with another pane).
 //   CLOSE    identifier, terminate (0/1): remove the app from the car screen (and quit it)
 //   CLOSEALL except (optional bundle id kept, e.g. the app that is becoming full screen)
 #define AB_NOTIF_OPEN        @"com.anlai.omnicar/appbridge.open"

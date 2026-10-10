@@ -494,6 +494,17 @@ static void ABPostOrientation(NSString *bid, long long orientation)
     if (p) p.box.passInsets = pass;
 }
 
+// Bo goc cua o nhu o CarPlay ben duoi (goc giap o khac bo 12pt, goc sat mep man vuong; cua so noi 4 goc)
+- (void)setCornerRadius:(CGFloat)radius corners:(CACornerMask)corners forApp:(NSString *)bid
+{
+    ABPane *p = [self paneFor:bid];
+    if (!p) return;
+    p.box.layer.cornerRadius = radius;
+    p.box.layer.maskedCorners = corners;
+    p.box.layer.cornerCurve = kCACornerCurveContinuous;
+    p.box.clipsToBounds = YES;
+}
+
 #pragma mark - Thanh nut cua o (ve de len app)
 
 // Cung hinh voi thanh nut cua Split Screen ben CarPlay (SCPCGlyph / SCPCRoundButton / SCPCPill trong SCPCarSplit.mm):
