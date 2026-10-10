@@ -80,12 +80,14 @@ static void ABPostState(NSString *bid, NSString *state)
         postNotificationName:AB_NOTIF_STATE object:nil userInfo:@{@"identifier": bid, @"state": state}];
 }
 
-// Bao app (App.xm trong app) ep cua so theo huong cua o; -1 = thoi ep (app ve lai binh thuong tren iPhone)
+// Bao app (App.xm trong app) huong goc cua o + huong "thiet bi" gia (CO DINH = huong cua o: doi theo hinh dang o thi
+// YouTube coi nhu may vua xoay, tu vao/ra fullscreen khi keo vach); -1 = thoi host (app ve lai binh thuong tren iPhone)
 static void ABPostOrientation(NSString *bid, long long orientation)
 {
     if (!bid) return;
+    long long device = orientation > 0 ? orientation : 0;
     [[objc_getClass("NSDistributedNotificationCenter") defaultCenter]
-        postNotificationName:AB_NOTIF_ORIENTATION object:bid userInfo:@{@"orientation": @(orientation)}];
+        postNotificationName:AB_NOTIF_ORIENTATION object:bid userInfo:@{@"orientation": @(orientation), @"device": @(device)}];
 }
 
 // Khung o: cham trong dai passInsets sat mep (canh giap o khac) khong tinh la cham vao o -> cua so (pass-through)
@@ -110,7 +112,8 @@ static void ABPostOrientation(NSString *bid, long long orientation)
 @property (nonatomic, strong) id application;          // SBApplication
 @property (nonatomic, strong) id appViewController;    // SBAppViewController
 @property (nonatomic, strong) id sceneMonitor;         // FBSceneMonitor
-@property (nonatomic) long long orientation;           // UIInterfaceOrientation ap cho scene (1 doc, 3 ngang)
+@property (nonatomic) long long orientation;           // huong goc cua o (AB_KEY_ORIENTATION, mac dinh doc), KHONG theo hinh dang o
+@property (nonatomic) long long requestedOrientation;  // huong app tu xin (YouTube fullscreen -> ngang), 0 = theo orientation
 @property (nonatomic) CGRect frame;                    // khung muon (live hay khong)
 @property (nonatomic) CGSize sceneBox;                 // kich thuoc o da bao cho scene lan cuoi
 @property (nonatomic) BOOL ready;
@@ -200,7 +203,11 @@ static void ABPostOrientation(NSString *bid, long long orientation)
     ABPane *pane = [ABPane new];
     pane.bundleID = bid;
     pane.frame = frame;
-    pane.orientation = (frame.size.width >= frame.size.height) ? UIInterfaceOrientationLandscapeRight : UIInterfaceOrientationPortrait;
+    // Huong goc: doc (o rong = cua so doc rong). App chi ho tro doc (YouTube) ma ep ngang thi ve nghieng; app can ngang
+    // (video fullscreen) se tu xin qua AB_DARWIN_APP_ORIENT -> requestedOrientation
+    OMCPrefsSync();
+    long long base = [OMCPref(AB_KEY_ORIENTATION, @1) longLongValue];
+    pane.orientation = (base == UIInterfaceOrientationLandscapeLeft || base == UIInterfaceOrientationLandscapeRight) ? base : UIInterfaceOrientationPortrait;
     pane.box = [[ABBoxView alloc] initWithFrame:frame];
     pane.box.backgroundColor = [UIColor blackColor];
     pane.box.clipsToBounds = YES;
@@ -275,6 +282,7 @@ static void ABPostOrientation(NSString *bid, long long orientation)
                 ABPane *p = weakPane;
                 ABHost *me = weakSelf;
                 if (!p || !me || ![me.panes containsObject:p]) return;
+                ABPostOrientation(p.bundleID, p.orientation);   // App.xm trong app: huong cua o + huong "thiet bi" gia
                 [me layoutPane:p];
                 if (!p.ready) { p.ready = YES; ABPostState(p.bundleID, @"ready"); }
             });
@@ -343,7 +351,8 @@ static void ABPostOrientation(NSString *bid, long long orientation)
 
     id scene = objcInvoke(objcInvoke(pane.appViewController, @"sceneHandle"), @"sceneIfExists");
     if (!scene) return;
-    long long orient = pane.orientation;
+    // Huong dat thang vao scene settings (duong UIKit thuc su nghe): app xin huong khac thi theo app, khong thi huong goc cua o
+    long long orient = [self effectiveOrientation:pane];
     // Khung scene tinh theo toa do DOC cua man hinh: giao dien ngang thi UIKit tu hoan doi rong/cao, nen gui (cao x rong)
     BOOL landscape = (orient == UIInterfaceOrientationLandscapeLeft || orient == UIInterfaceOrientationLandscapeRight);
     CGRect target = landscape ? CGRectMake(0, 0, paneSize.height, paneSize.width) : CGRectMake(0, 0, paneSize.width, paneSize.height);
@@ -352,13 +361,59 @@ static void ABPostOrientation(NSString *bid, long long orientation)
             ((void (*)(id, SEL, CGRect))objc_msgSend)(settings, NSSelectorFromString(@"setFrame:"), target);
             if ([settings respondsToSelector:NSSelectorFromString(@"setInterfaceOrientation:")])
                 ((void (*)(id, SEL, long long))objc_msgSend)(settings, NSSelectorFromString(@"setInterfaceOrientation:"), orient);
-            if ([settings respondsToSelector:NSSelectorFromString(@"setDeviceOrientation:")])
-                ((void (*)(id, SEL, long long))objc_msgSend)(settings, NSSelectorFromString(@"setDeviceOrientation:"), orient);
         });
     } @catch (NSException *e) { ABLog("updateSettings %@ loi %@", pane.bundleID, e); }
     pane.sceneBox = boxSize;
-    // App chi ho tro doc (YouTube) se khong tu xoay theo scene -> App.xm trong app ep cua so theo huong nay
-    ABPostOrientation(pane.bundleID, orient);
+}
+
+- (long long)effectiveOrientation:(ABPane *)pane
+{
+    return pane.requestedOrientation > 0 ? pane.requestedOrientation : pane.orientation;
+}
+
+// App bao vua doi yeu cau xoay (code: huong muon, 0 = ve huong o, 0xFF = chi doi mask -> suy ra tu mask): dat
+// requestedOrientation roi "lay" scene (khung lech 1pt, ngay sau do khung dung) de UIKit trong app tinh lai huong
+- (void)appWithHash:(unsigned long long)hash changedOrientation:(int)code supportedMask:(NSUInteger)mask
+{
+    for (ABPane *p in self.panes) {
+        if (ABBundleHash(p.bundleID) != hash) continue;
+        long long want = 0;
+        if (code != 0xFF) want = code;
+        else if (mask && !(mask & UIInterfaceOrientationMaskPortrait)) {
+            // App khong con cho phep doc (fullscreen video) -> xoay scene sang huong no cho phep
+            if (mask & UIInterfaceOrientationMaskLandscapeLeft)            want = UIInterfaceOrientationLandscapeLeft;
+            else if (mask & UIInterfaceOrientationMaskLandscapeRight)      want = UIInterfaceOrientationLandscapeRight;
+            else if (mask & UIInterfaceOrientationMaskPortraitUpsideDown)  want = UIInterfaceOrientationPortraitUpsideDown;
+        }
+        p.requestedOrientation = want;
+        ABLog("%@ doi yeu cau xoay (ma %d, mask %lu) -> scene huong %lld", p.bundleID, code, (unsigned long)mask, [self effectiveOrientation:p]);
+        [self nudgePane:p];
+        return;
+    }
+    ABLog("apporient: khong co o cho hash %llu", hash);
+}
+
+- (void)nudgePane:(ABPane *)pane
+{
+    id scene = objcInvoke(objcInvoke(pane.appViewController, @"sceneHandle"), @"sceneIfExists");
+    if (!scene) return;
+    CGFloat z = [self zoom];
+    CGSize box = pane.box.bounds.size;
+    CGSize sz = CGSizeMake(round(box.width / z), round(box.height / z));
+    long long o = [self effectiveOrientation:pane];
+    BOOL landscape = (o == UIInterfaceOrientationLandscapeLeft || o == UIInterfaceOrientationLandscapeRight);
+    CGRect off = landscape ? CGRectMake(0, 0, sz.height, MAX(1, sz.width - 1)) : CGRectMake(0, 0, sz.width, MAX(1, sz.height - 1));
+    @try {
+        objcCall_1(scene, @"updateSettingsWithBlock:", ^(id settings) {
+            ((void (*)(id, SEL, CGRect))objc_msgSend)(settings, NSSelectorFromString(@"setFrame:"), off);
+        });
+    } @catch (NSException *e) { ABLog("nudge %@ loi %@", pane.bundleID, e); }
+    __weak ABHost *weakSelf = self;
+    __weak ABPane *weakPane = pane;
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.05 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        ABPane *p = weakPane;
+        if (p) [weakSelf layoutPane:p];
+    });
 }
 
 - (void)setFrame:(CGRect)frame forApp:(NSString *)bid live:(BOOL)live handle:(BOOL)handle passInsets:(UIEdgeInsets)pass
@@ -372,16 +427,15 @@ static void ABPostOrientation(NSString *bid, long long orientation)
     if (hidden) return;
     p.frame = frame;
     p.box.frame = frame;
-    long long want = (frame.size.width >= frame.size.height) ? UIInterfaceOrientationLandscapeRight : UIInterfaceOrientationPortrait;
     if (live) {   // dang keo vach: o chay theo tay, noi dung giu nguyen (scene doi kich thuoc khi tha tay)
         UIView *appView = [p.appViewController view];
         appView.center = CGPointMake(frame.size.width / 2, frame.size.height / 2);
         return;
     }
-    if (want != p.orientation || !CGSizeEqualToSize(p.sceneBox, frame.size)) {
-        p.orientation = want;
+    // Huong KHONG doi theo hinh dang o (xem openApp); chi scene doi kich thuoc
+    if (!CGSizeEqualToSize(p.sceneBox, frame.size)) {
         [self layoutPane:p];
-        ABLog("%@ -> %@ (huong %lld)", bid, NSStringFromCGRect(frame), want);
+        ABLog("%@ -> %@ (huong %lld)", bid, NSStringFromCGRect(frame), [self effectiveOrientation:p]);
     } else {
         [p.appViewController view].center = CGPointMake(frame.size.width / 2, frame.size.height / 2);
     }

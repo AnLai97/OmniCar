@@ -1,150 +1,159 @@
 #import "common.h"
-#import <substrate.h>
+#import <notify.h>
 
-// Phan cua App Bridge chay TRONG app nguoi dung (dylib nap vao moi process UIKit, xem Filter.plist). Chi lam mot viec:
-// khi SpringBoard dang host app nay tren man xe, ep app xoay theo huong cua o (AB_NOTIF_ORIENTATION), vi app ma giao
-// dien chinh chi ho tro doc (YouTube, TikTok) se ve doc trong o ngang -> bi xoay 90 do.
-//
-// iOS 16 quyet dinh huong cua scene theo -[UIViewController supportedInterfaceOrientations] cua VC dang hien (giao voi
-// -[UIApplication supportedInterfaceOrientationsForWindow:] / Info.plist), khong con theo _setRotatableViewOrientation:
-// cua UIWindow (cach carplay-cast). Cac VC cua app override supportedInterfaceOrientations nen hook lop UIViewController
-// khong an: luc nhan yeu cau, duyet VC dang hien (root, con, presented) va hook dung lop implement method do (MSHookMessageEx
-// moi lop mot lan), tra ve mask cua huong ep; roi bao UIKit tinh lai (setNeedsUpdateOfSupportedInterfaceOrientations,
-// attemptRotationToDeviceOrientation). Khong host nua (-1) thi thoi ep, app ve lai binh thuong tren iPhone.
+// Phan cua App Bridge chay TRONG app (dylib nap vao moi process UIKit, xem Filter.plist). Port tu CarDuo 1.0
+// (src/hooks/UIApplication.xm), bo thiet ke da chay duoc YouTube tren xe:
+//  - SpringBoard gui huong GOC cua o (AB_NOTIF_ORIENTATION: orientation, mac dinh doc) + huong "thiet bi" gia (device).
+//    App chi bi xoay ve huong do khi no CON CHO PHEP huong do; app chi cho ngang (video fullscreen) thi de UIKit theo app.
+//  - App xin huong khac (YouTube fullscreen: requestGeometryUpdateWithPreferences:, setOrientation:, doi mask
+//    supportedInterfaceOrientations) -> bao SpringBoard qua Darwin notify + state (AB_DARWIN_APP_ORIENT), SpringBoard
+//    doi huong scene cho app. Huong "thiet bi" gia + su kien xoay gia de YouTube bam fullscreen thi xin ngang that.
+//  - -1 = khong host nua: thoi moi can thiep.
 
-static long long sForcedOrientation = -1;   // UIInterfaceOrientation dang ep, -1 = khong ep
+static int orientationOverride = -1;        // huong goc cua o SpringBoard gui, -1 = khong host
+static long long appWantsOrientation = 0;   // huong app TU XIN (fullscreen video -> ngang); 0 = theo huong cua o
+static int fakeDeviceOrientation = 0;       // huong "thiet bi" gia (SpringBoard gui), 0 = dung huong that
+static NSUInteger ABAppEffectiveMask(void);
 
-static UIInterfaceOrientationMask ABMaskFor(long long o)
+// Phat su kien "thiet bi vua xoay" (gia) sau `delay` giay
+static void ABPostFakeDeviceRotation(double delay)
 {
-    switch (o) {
-        case UIInterfaceOrientationPortrait:           return UIInterfaceOrientationMaskPortrait;
-        case UIInterfaceOrientationPortraitUpsideDown: return UIInterfaceOrientationMaskPortraitUpsideDown;
-        case UIInterfaceOrientationLandscapeLeft:      return UIInterfaceOrientationMaskLandscapeLeft;
-        case UIInterfaceOrientationLandscapeRight:     return UIInterfaceOrientationMaskLandscapeRight;
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delay * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        if (fakeDeviceOrientation <= 0) return;
+        NSUInteger m = ABAppEffectiveMask();
+        if (!(m & UIInterfaceOrientationMaskPortrait)) { ABLog("bo qua su kien xoay gia: app dang chi cho mask %lu", (unsigned long)m); return; }
+        [[NSNotificationCenter defaultCenter] postNotificationName:UIDeviceOrientationDidChangeNotification object:[UIDevice currentDevice]];
+    });
+}
+
+static long long ABEffectiveOrientation(void)
+{
+    return appWantsOrientation > 0 ? appWantsOrientation : orientationOverride;
+}
+
+// Mask huong ma cua so DANG cho phep: VC tren cung cua chuoi present
+static NSUInteger ABWindowMask(UIWindow *w)
+{
+    UIViewController *vc = w.rootViewController;
+    if (!vc) return UIInterfaceOrientationMaskAll;
+    while (vc.presentedViewController && !vc.presentedViewController.isBeingDismissed) vc = vc.presentedViewController;
+    NSUInteger mask = vc.supportedInterfaceOrientations;
+    return mask ? mask : UIInterfaceOrientationMaskAll;
+}
+
+// Duyet cay VC (con + presented) dang hien: co VC nao chi cho NGANG -> tra mask do (YouTube fullscreen: VC goc van
+// tra "doc", nhung VC con fullscreen tra "ngang")
+static NSUInteger ABLandscapeOnlyMaskInTree(UIViewController *vc, int depth)
+{
+    if (!vc || depth > 12) return 0;
+    if (vc.isViewLoaded && vc.view.window && !vc.view.hidden) {
+        NSUInteger m = vc.supportedInterfaceOrientations;
+        if (m && !(m & UIInterfaceOrientationMaskPortrait) && (m & UIInterfaceOrientationMaskLandscape)) return m;
     }
-    return UIInterfaceOrientationMaskAll;
-}
-
-// ---- Hook supportedInterfaceOrientations tren dung lop cua VC (moi lop mot lan) ----
-static NSMutableDictionary<NSString *, NSValue *> *sOrigByClass;   // ten lop -> IMP goc
-
-static UIInterfaceOrientationMask ABForcedSupportedOrientations(id self, SEL _cmd)
-{
-    if (sForcedOrientation > 0) return ABMaskFor(sForcedOrientation);
-    for (Class c = object_getClass(self); c; c = class_getSuperclass(c)) {
-        NSValue *v = sOrigByClass[NSStringFromClass(c)];
-        if (v) return ((UIInterfaceOrientationMask (*)(id, SEL))[v pointerValue])(self, _cmd);
+    if (vc.presentedViewController && !vc.presentedViewController.isBeingDismissed) {
+        NSUInteger m = ABLandscapeOnlyMaskInTree(vc.presentedViewController, depth + 1);
+        if (m) return m;
     }
-    return UIInterfaceOrientationMaskAll;
-}
-
-static void ABHookOrientationOfVC(UIViewController *vc)
-{
-    if (!vc) return;
-    SEL sel = @selector(supportedInterfaceOrientations);
-    // Lop gan nhat (ke ca lop cha) co implement rieng supportedInterfaceOrientations
-    Class c = object_getClass(vc);
-    Method m = class_getInstanceMethod(c, sel);
-    if (!m) return;
-    Class owner = c;
-    for (Class k = c; k; k = class_getSuperclass(k)) {
-        unsigned n = 0; Method *ms = class_copyMethodList(k, &n); BOOL found = NO;
-        for (unsigned i = 0; i < n; i++) if (method_getName(ms[i]) == sel) { found = YES; break; }
-        free(ms);
-        if (found) { owner = k; break; }
+    for (UIViewController *c in vc.childViewControllers) {
+        NSUInteger m = ABLandscapeOnlyMaskInTree(c, depth + 1);
+        if (m) return m;
     }
-    if (owner == [UIViewController class]) return;   // lop UIViewController da hook bang %hook ben duoi
-    NSString *name = NSStringFromClass(owner);
-    if (sOrigByClass[name]) return;
-    IMP orig = NULL;
-    MSHookMessageEx(owner, sel, (IMP)ABForcedSupportedOrientations, &orig);
-    if (orig) sOrigByClass[name] = [NSValue valueWithPointer:(void *)orig];
-    ABLog("hook supportedInterfaceOrientations cua %@", name);
+    return 0;
 }
 
-static void ABWalkVC(UIViewController *vc, int depth)
+static UIWindow *ABBestWindow(void)
 {
-    if (!vc || depth > 12) return;
-    ABHookOrientationOfVC(vc);
-    for (UIViewController *c in vc.childViewControllers) ABWalkVC(c, depth + 1);
-    if (vc.presentedViewController) ABWalkVC(vc.presentedViewController, depth + 1);
-}
-
-static NSArray<UIWindow *> *ABWindows(void)
-{
-    NSMutableArray *out = [NSMutableArray array];
-    for (UIScene *s in [UIApplication sharedApplication].connectedScenes) {
-        if (![s isKindOfClass:[UIWindowScene class]]) continue;
-        [out addObjectsFromArray:((UIWindowScene *)s).windows];
-    }
-    return out;
-}
-
-// Bao UIKit tinh lai huong cho moi cua so (iOS 16: setNeedsUpdateOfSupportedInterfaceOrientations; cu: attemptRotation...)
-static void ABApplyForcedOrientation(void)
-{
-    for (UIWindow *w in ABWindows()) {
-        UIViewController *root = w.rootViewController;
-        if (sForcedOrientation > 0) ABWalkVC(root, 0);
-        for (UIViewController *vc = root; vc; vc = vc.presentedViewController) {
-            SEL need = NSSelectorFromString(@"setNeedsUpdateOfSupportedInterfaceOrientations");
-            if ([vc respondsToSelector:need]) ((void (*)(id, SEL))objc_msgSend)(vc, need);
+    UIWindow *best = nil;
+    for (UIScene *sc in [UIApplication sharedApplication].connectedScenes) {
+        if (![sc isKindOfClass:[UIWindowScene class]]) continue;
+        for (UIWindow *w in ((UIWindowScene *)sc).windows) {
+            if (!w.rootViewController || w.hidden) continue;
+            if (w.isKeyWindow) { best = w; break; }
+            if (!best) best = w;
         }
-        SEL rot = NSSelectorFromString(@"_setRotatableViewOrientation:duration:force:");
-        if (sForcedOrientation > 0 && [w respondsToSelector:rot])
-            ((void (*)(id, SEL, long long, double, BOOL))objc_msgSend)(w, rot, sForcedOrientation, 0.0, YES);
+        if (best && best.isKeyWindow) break;
     }
-    SEL attempt = NSSelectorFromString(@"attemptRotationToDeviceOrientation");
-    if ([UIViewController respondsToSelector:attempt]) ((void (*)(id, SEL))objc_msgSend)([UIViewController class], attempt);
+    return best;
+}
+
+// Mask hieu luc cua ca app: uu tien VC chi-cho-ngang dang hien, khong thi VC tren cung cua cua so key
+static NSUInteger ABAppEffectiveMask(void)
+{
+    UIWindow *best = ABBestWindow();
+    if (!best) return UIInterfaceOrientationMaskAll;
+    NSUInteger landscapeOnly = ABLandscapeOnlyMaskInTree(best.rootViewController, 0);
+    if (landscapeOnly) return landscapeOnly;
+    return ABWindowMask(best);
+}
+
+// Bao SpringBoard (Darwin notify + state): app vua doi yeu cau xoay. Gom cac lan goi lien tiep, gui mask cuoi sau 0.25s
+static void ABTellSpringBoardNow(long long o)
+{
+    static int token = 0;
+    if (!token) notify_register_check(AB_DARWIN_APP_ORIENT, &token);
+    NSUInteger mask = ABAppEffectiveMask();
+    uint64_t state = (ABBundleHash([[NSBundle mainBundle] bundleIdentifier]) << 24) | (((uint64_t)mask & 0xFFFF) << 8) | ((uint64_t)o & 0xFF);
+    notify_set_state(token, state);
+    notify_post(AB_DARWIN_APP_ORIENT);
+    ABLog("bao SpringBoard: ma %lld, mask %lu", o, (unsigned long)mask);
+}
+
+static void ABTellSpringBoard(long long o)
+{
+    static dispatch_block_t pending = nil;
+    if (pending) { dispatch_block_cancel(pending); pending = nil; }
+    pending = dispatch_block_create((dispatch_block_flags_t)0, ^{
+        pending = nil;
+        ABTellSpringBoardNow(o);
+    });
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.25 * NSEC_PER_SEC)), dispatch_get_main_queue(), pending);
+}
+
+// Mask app xin -> 1 huong cu the. Co doc thi coi nhu "tra ve binh thuong" (0)
+static long long ABOrientationFromMask(NSUInteger mask)
+{
+    if (mask & UIInterfaceOrientationMaskPortrait) return 0;
+    if (mask & UIInterfaceOrientationMaskLandscapeLeft)  return UIInterfaceOrientationLandscapeLeft;
+    if (mask & UIInterfaceOrientationMaskLandscapeRight) return UIInterfaceOrientationLandscapeRight;
+    if (mask & UIInterfaceOrientationMaskPortraitUpsideDown) return UIInterfaceOrientationPortraitUpsideDown;
+    return 0;
+}
+
+// SpringBoard gui huong cua o
+static void ABHandleOrientationRequest(NSDictionary *info)
+{
+    int newOverride = [info[@"orientation"] intValue];
+    BOOL changed = (newOverride != orientationOverride);
+    orientationOverride = newOverride;
+    appWantsOrientation = 0;
+    fakeDeviceOrientation = (orientationOverride > 0) ? [info[@"device"] intValue] : 0;
+    ABLog("huong o %d, thiet bi gia %d (doi=%d)", orientationOverride, fakeDeviceOrientation, (int)changed);
+    if (!changed) return;   // khong doi -> khong ep xoay, khong phat su kien xoay (tranh YouTube tu vao/ra fullscreen)
+    // YouTube chi xin ngang khi bam fullscreen neu truoc do DA nhan 1 su kien xoay thiet bi. Phat vai lan sau khi app len
+    if (fakeDeviceOrientation > 0) for (NSNumber *d in @[@0.3, @1.5, @4.0]) ABPostFakeDeviceRotation(d.doubleValue);
+
+    int o = orientationOverride;
+    if (o == -1) o = MAX(1, (int)[[UIDevice currentDevice] orientation]);
+    // Khong ep sang huong app dang khong cho phep (vd fullscreen video chi ngang)
+    NSUInteger mask = ABAppEffectiveMask();
+    if (o > 0 && !(mask & (1u << o))) { ABLog("bo qua ep xoay %d: app chi cho mask %lu", o, (unsigned long)mask); return; }
+    UIWindow *key = ABBestWindow();
+    SEL sel = NSSelectorFromString(@"_setRotatableViewOrientation:duration:force:");
+    if (key && [key respondsToSelector:sel]) ((void (*)(id, SEL, long long, double, BOOL))objc_msgSend)(key, sel, (long long)o, 0.0, YES);
 }
 
 %group APPS
 
-// VC khong override: lop goc
-%hook UIViewController
-
-- (UIInterfaceOrientationMask)supportedInterfaceOrientations
-{
-    if (sForcedOrientation > 0) return ABMaskFor(sForcedOrientation);
-    return %orig;
-}
-
-- (BOOL)shouldAutorotate
-{
-    if (sForcedOrientation > 0) return YES;
-    return %orig;
-}
-
-// VC vua hien (push / present sau khi da ep): hook lop cua no
-- (void)viewDidAppear:(BOOL)animated
-{
-    %orig;
-    if (sForcedOrientation > 0) {
-        @try { ABHookOrientationOfVC(self); } @catch (NSException *e) {}
-    }
-}
-
-%end
-
-// Mask cua Info.plist (UISupportedInterfaceOrientations): app chi khai bao doc thi UIKit cung khong cho xoay
-%hook UIApplication
-
-- (UIInterfaceOrientationMask)supportedInterfaceOrientationsForWindow:(UIWindow *)window
-{
-    if (sForcedOrientation > 0) return ABMaskFor(sForcedOrientation);
-    return %orig;
-}
-
-%end
-
-// UIKit sap xoay cua so (duong cu): dang ep thi luon xoay theo huong cua o
 %hook UIWindow
 
 - (void)_setRotatableViewOrientation:(long long)orientation duration:(double)duration force:(BOOL)force
 {
-    long long want = sForcedOrientation;
-    if (want > 0 && orientation != want) {
-        %orig(want, duration, force);
+    long long target = ABEffectiveOrientation();
+    NSUInteger mask = ABWindowMask(self);
+    // Chi ep ve huong cua o khi app con cho phep huong do; app dang chi cho ngang (fullscreen video) -> theo app
+    BOOL canForce = target > 0 && (mask & (1u << target)) != 0;
+    if (canForce && orientation != target) {
+        %orig(target, duration, force);
     } else {
         %orig;
     }
@@ -152,27 +161,62 @@ static void ABApplyForcedOrientation(void)
 
 %end
 
+// iOS 16: app xin xoay bang requestGeometryUpdateWithPreferences: (YouTube fullscreen)
+%hook UIWindowScene
+
+- (void)requestGeometryUpdateWithPreferences:(id)prefs errorHandler:(id)handler
+{
+    if (orientationOverride > 0 && [prefs respondsToSelector:@selector(interfaceOrientations)]) {
+        NSUInteger mask = ((NSUInteger (*)(id, SEL))objc_msgSend)(prefs, @selector(interfaceOrientations));
+        appWantsOrientation = ABOrientationFromMask(mask);
+        ABLog("app xin huong mask=%lu -> %lld", (unsigned long)mask, appWantsOrientation);
+        ABTellSpringBoard(appWantsOrientation);
+    }
+    %orig;
+}
+
+%end
+
+// App doi danh sach huong ho tro (iOS 16) -> SpringBoard lay lai scene
+%hook UIViewController
+
+- (void)setNeedsUpdateOfSupportedInterfaceOrientations
+{
+    %orig;
+    if (orientationOverride > 0) ABTellSpringBoard(0xFF);
+}
+
+%end
+
+// App cu: ep xoay bang [UIDevice setOrientation:]; app hoi huong thiet bi -> tra loi theo huong dang ap
+%hook UIDevice
+
+- (void)beginGeneratingDeviceOrientationNotifications
+{
+    %orig;
+    if (fakeDeviceOrientation > 0) ABPostFakeDeviceRotation(0.2);
+}
+
+- (void)setOrientation:(long long)orientation animated:(BOOL)animated
+{
+    if (orientationOverride > 0) {
+        appWantsOrientation = (orientation == UIInterfaceOrientationLandscapeLeft || orientation == UIInterfaceOrientationLandscapeRight) ? orientation : 0;
+        ABLog("app setOrientation %lld -> %lld", orientation, appWantsOrientation);
+        ABTellSpringBoard(appWantsOrientation);
+    }
+    %orig;
+}
+
+- (long long)orientation
+{
+    if (appWantsOrientation > 0) return appWantsOrientation;   // gia tri so trung nhau giua UIInterface / UIDeviceOrientation
+    if (fakeDeviceOrientation > 0) return fakeDeviceOrientation;
+    return %orig;
+}
+
+%end
+
 %end // APPS
-
-// AppDelegate co application:supportedInterfaceOrientationsForWindow: thi UIKit hoi no thay vi UIApplication -> hook lop delegate
-static IMP sOrigDelegateMask;
-static UIInterfaceOrientationMask ABDelegateMask(id self, SEL _cmd, UIApplication *app, UIWindow *window)
-{
-    if (sForcedOrientation > 0) return ABMaskFor(sForcedOrientation);
-    return sOrigDelegateMask ? ((UIInterfaceOrientationMask (*)(id, SEL, id, id))sOrigDelegateMask)(self, _cmd, app, window) : UIInterfaceOrientationMaskAll;
-}
-
-static void ABHookDelegateOnce(void)
-{
-    static BOOL done;
-    if (done) return;
-    id delegate = [UIApplication sharedApplication].delegate;
-    SEL sel = @selector(application:supportedInterfaceOrientationsForWindow:);
-    if (!delegate || ![delegate respondsToSelector:sel]) return;
-    done = YES;
-    MSHookMessageEx(object_getClass(delegate), sel, (IMP)ABDelegateMask, &sOrigDelegateMask);
-    ABLog("hook application:supportedInterfaceOrientationsForWindow: cua %@", NSStringFromClass(object_getClass(delegate)));
-}
 
 %ctor
 {
@@ -182,16 +226,9 @@ static void ABHookDelegateOnce(void)
     if (!bid.length || ![mb.bundlePath containsString:@".app"]) return;
     if ([@[@"com.apple.springboard", @"com.apple.CarPlayApp", @"com.apple.CarPlayTemplateUIHost", @"com.apple.CarPlaySettings",
            @"com.apple.InCallService", @"com.apple.Preferences"] containsObject:bid]) return;
-    sOrigByClass = [NSMutableDictionary dictionary];
     %init(APPS);
     [[objc_getClass("NSDistributedNotificationCenter") defaultCenter]
         addObserverForName:AB_NOTIF_ORIENTATION object:bid queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *note) {
-        long long o = [note.userInfo[@"orientation"] longLongValue];
-        sForcedOrientation = (o > 0) ? o : -1;
-        ABLog("%@: ep huong %lld", bid, sForcedOrientation);
-        @try {
-            if (sForcedOrientation > 0) ABHookDelegateOnce();
-            ABApplyForcedOrientation();
-        } @catch (NSException *e) { ABLog("%@: ep huong loi %@", bid, e); }
+        @try { ABHandleOrientationRequest(note.userInfo); } @catch (NSException *e) { ABLog("%@: xoay loi %@", bid, e); }
     }];
 }

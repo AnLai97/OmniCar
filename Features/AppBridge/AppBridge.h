@@ -39,7 +39,24 @@
 #define AB_NOTIF_STATE       @"com.anlai.omnicar/appbridge.state"
 // SpringBoard -> CarPlay process: the "•••" pill over the hosted app was tapped (identifier)
 #define AB_NOTIF_HANDLE_TAP  @"com.anlai.omnicar/appbridge.handletap"
-// SpringBoard -> the hosted app itself (object = bundle id, userInfo orientation = UIInterfaceOrientation, -1 = stop
-// forcing): the app-side hook (App.xm, loaded into user apps) forces its windows to that orientation, since apps whose
-// main UI is portrait-only (YouTube) would otherwise draw sideways in a landscape box. carplay-cast does the same.
+// Orientation model (from CarDuo 1.0, which ran YouTube fine): the scene of a hosted app is PORTRAIT by default
+// whatever the box shape (a wide box is a wide portrait window), because an app whose main UI is portrait-only
+// (YouTube, TikTok) draws sideways in a landscape scene. The app itself may ask for landscape (YouTube full-screen
+// video); then the host rotates the scene for it. The app side (App.xm, loaded into apps) never forces an
+// orientation the app does not allow.
+//   SpringBoard -> app (distributed notification, object = bundle id): orientation = the box's base
+//   UIInterfaceOrientation (-1 = no longer hosted), device = the fake device orientation the app should report.
 #define AB_NOTIF_ORIENTATION @"com.anlai.omnicar/appbridge.orientation"
+//   app -> SpringBoard (Darwin notify with state, gets through the app sandbox): the app just changed what it wants.
+//   state = (ABBundleHash(bundle id) << 24) | (supported orientation mask << 8) | code
+//   code = the UIInterfaceOrientation the app asks for, 0 = back to the box's orientation, 0xFF = the supported mask
+//   changed, SpringBoard derives the orientation from the mask.
+#define AB_DARWIN_APP_ORIENT "com.anlai.omnicar/appbridge.apporient"
+// Base scene orientation for hosted apps: 1 portrait (default), 3 landscape.
+#define AB_KEY_ORIENTATION   @"appBridgeOrientation"
+static inline unsigned long long ABBundleHash(NSString *bid)
+{
+    unsigned int h = 2166136261u;
+    for (const char *c = bid.UTF8String; c && *c; c++) { h ^= (unsigned char)*c; h *= 16777619u; }
+    return h;
+}

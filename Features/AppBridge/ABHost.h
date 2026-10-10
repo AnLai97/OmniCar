@@ -11,5 +11,7 @@
 - (void)closeAll;
 - (void)carDisconnected;                 // car screen gone: drop every box without touching the apps
 - (BOOL)hostsApp:(NSString *)bid;        // SpringBoard hooks: keep this app's scene foreground / alive under lock
+// AB_DARWIN_APP_ORIENT: the hosted app (found by ABBundleHash) asks for another orientation (YouTube full-screen video)
+- (void)appWithHash:(unsigned long long)hash changedOrientation:(int)code supportedMask:(NSUInteger)mask;
 - (NSUInteger)count;
 @end

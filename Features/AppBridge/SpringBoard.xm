@@ -1,6 +1,7 @@
 #import "common.h"
 #import "ABHost.h"
 #import <substrate.h>
+#import <notify.h>
 
 // Dylib nap vao moi process UIKit (Filter: com.apple.UIKit): phan SpringBoard o day, phan trong app (ep huong) o App.xm.
 // Inject vao SpringBoard: nhan AB_NOTIF_* tu process CarPlay (Split Screen) va giu app dang host song:
@@ -41,6 +42,17 @@ static int (*orig_BKSDisplayServicesSetScreenBlanked)(int) = NULL;
     [dnc addObserverForName:AB_NOTIF_CLOSEALL object:nil queue:main usingBlock:^(NSNotification *note) {
         @try { [[ABHost shared] closeAll]; } @catch (NSException *e) { ABLog("closeall loi %@", e); }
     }];
+    // App dang host vua doi yeu cau xoay (YouTube fullscreen): App.xm gui Darwin notify kem state (qua duoc sandbox)
+    static int tokOrient = 0;
+    notify_register_dispatch(AB_DARWIN_APP_ORIENT, &tokOrient, dispatch_get_main_queue(), ^(int t) {
+        uint64_t state = 0;
+        notify_get_state(t, &state);
+        unsigned long long hash = state >> 24;
+        NSUInteger mask = (NSUInteger)((state >> 8) & 0xFFFF);
+        int code = (int)(state & 0xFF);
+        @try { [[ABHost shared] appWithHash:hash changedOrientation:code supportedMask:mask]; }
+        @catch (NSException *e) { ABLog("apporient loi %@", e); }
+    });
     // Xe ngat -> bo moi o (app van chay nen)
     [[NSNotificationCenter defaultCenter] addObserverForName:@"CarPlayIsConnectedDidChange" object:nil queue:main
                                                   usingBlock:^(NSNotification *note) {
