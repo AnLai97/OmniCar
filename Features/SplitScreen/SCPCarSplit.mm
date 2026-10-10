@@ -28,9 +28,7 @@
 #define SCPC_HANDLE_W     34.0    // thanh "•••" o dau moi o
 #define SCPC_HANDLE_H     12.0
 #define SCPC_HANDLE_Y     6.0     // khoang tu mep tren o toi thanh "•••"
-#define SCPC_KNOB_LEN     40.0    // tay nam vien thuoc tren vach
-#define SCPC_KNOB_THICK   4.0
-#define SCPC_KNOB_DOT     14.0    // 1 lon + 2: tay nam tron o cho giao 2 vach (keo 2 chieu)
+#define SCPC_KNOB_DOT     22.0    // tay nam tron giua vach (va o giao 2 vach khi 1 lon + 2): keo de doi co o
 #define SCPC_DIVIDER_HIT  26.0
 #define SCPC_DISMISS      0.12    // keo vach cho 1 o con duoi ti le nay -> dong o do (HyperOS: keo sat mep)
 #define SCPC_MIN_FRAC     0.2     // o nho nhat sau khi tha tay
@@ -2748,18 +2746,22 @@ static void SCPCKnobActive(UIView *knob, BOOL on)
     } completion:nil];
 }
 
-// Kieu tay nam: 1 = vien thuoc dung (vach doc), 2 = vien thuoc nam (vach ngang), 3 = cham tron (1 lon + 2).
-// Chi doi khi doi kieu (tag luu kieu hien tai).
+// Tay nam: nut tron (SCPC_KNOB_DOT) giua vach / o giao 2 vach, vong trang vien toi + cham o giua (y tuong nguoi dung,
+// anh 10/10). Cung mot kieu cho moi bo cuc; style chi con de biet da dung kich thuoc chua (tag).
 static void SCPCKnobStyle(UIView *knob, NSInteger style)
 {
-    if (knob.tag == style) return;
-    knob.tag = style;
-    CGSize sz = (style == 3) ? CGSizeMake(SCPC_KNOB_DOT, SCPC_KNOB_DOT)
-              : (style == 1 ? CGSizeMake(SCPC_KNOB_THICK, SCPC_KNOB_LEN) : CGSizeMake(SCPC_KNOB_LEN, SCPC_KNOB_THICK));
-    knob.bounds = CGRectMake(0, 0, sz.width, sz.height);
-    knob.layer.cornerRadius = MIN(sz.width, sz.height) / 2;
-    knob.layer.borderWidth = (style == 3) ? 2.5 : 0;   // cham tron to hon khe -> vien den cho tach khoi nen app
-    knob.layer.borderColor = [UIColor blackColor].CGColor;
+    if (knob.tag == 3) return;
+    knob.tag = 3;
+    knob.bounds = CGRectMake(0, 0, SCPC_KNOB_DOT, SCPC_KNOB_DOT);
+    knob.layer.cornerRadius = SCPC_KNOB_DOT / 2;
+    knob.layer.borderWidth = 2;   // nut to hon khe -> vien toi cho tach khoi nen app
+    knob.layer.borderColor = [UIColor colorWithWhite:0 alpha:0.75].CGColor;
+    CALayer *dot = [CALayer layer];
+    dot.backgroundColor = [UIColor colorWithWhite:0 alpha:0.75].CGColor;
+    CGFloat ds = 6;
+    dot.frame = CGRectMake((SCPC_KNOB_DOT - ds) / 2, (SCPC_KNOB_DOT - ds) / 2, ds, ds);
+    dot.cornerRadius = ds / 2;
+    [knob.layer addSublayer:dot];
 }
 
 - (SCPCarDividerView *)newDividerAt:(int)i
