@@ -18,7 +18,6 @@
 + (NSInteger)splitDirection;     // 0 trai/phai, 1 tren/duoi
 + (NSArray<NSString *> *)carPlayApps;   // app CarPlay hien duoc (CarPlay process ghi lai)
 + (void)setCarPlayApps:(NSArray<NSString *> *)ids;
-+ (void)setPhoneApps:(NSArray<NSString *> *)ids;       // app iPhone App Bridge host duoc (CarPlay process ghi lai)
 
 // Bo cuc yeu thich 1..3: @{ @"name", @"layout": 2|3|13|31, @"left", @"right", @"third" } (nil neu chua dat app nao)
 + (NSDictionary *)favorite:(NSInteger)index;

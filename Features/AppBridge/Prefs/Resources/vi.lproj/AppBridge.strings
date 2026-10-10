@@ -5,3 +5,13 @@
 "APPBRIDGE_ENABLE" = "Bật App Bridge";
 "APPBRIDGE_ZOOM" = "Cỡ app (%)";
 "APPBRIDGE_ZOOM_FOOTER" = "App được vẽ lớn hơn ô một chút rồi thu nhỏ lại, để chữ và nút của iPhone vừa mắt trên màn xe. 100 = không thu nhỏ. Áp dụng từ lần mở app vào ô tiếp theo.";
+"APPBRIDGE_APPS" = "App trên màn xe";
+"APPBRIDGE_APPS_FOOTER" = "Chọn app iPhone muốn đưa lên màn hình CarPlay. Chỉ app đã chọn mới xuất hiện trong mục App iPhone khi chọn app cho ô của Chia màn hình (trên xe và trong Cài đặt).";
+"APPBRIDGE_APPS_NONE" = "Chưa chọn";
+"APPBRIDGE_APPS_COUNT" = "%ld app";
+"APPBRIDGE_APPS_ON_CAR" = "Trên màn xe";
+"APPBRIDGE_APPS_OTHER" = "App khác";
+"APPBRIDGE_APPS_OTHER_FOOTER" = "App đã có giao diện CarPlay riêng không nằm trong danh sách này: CarPlay tự hiện chúng.";
+"APPBRIDGE_APPS_SEARCH" = "Tìm app";
+"APPBRIDGE_APPS_EMPTY" = "Không tìm thấy app iPhone nào trên máy.";
+"APPBRIDGE_APPS_NO_MATCH" = "Không có app nào khớp.";

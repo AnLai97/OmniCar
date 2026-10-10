@@ -23,7 +23,8 @@ Features/<Tên>/       mỗi tính năng là một component (xem bên dưới)
                       process CarPlay, SpringBoard chỉ nhận URL; app iPhone trong ô đi qua AppBridge
   AppBridge/          đưa app iPhone không có CarPlay lên màn xe (thay CarBridge): SpringBoard tạo scene app
                       bằng SBAppViewController trong cửa sổ riêng trên màn xe theo cơ chế carplay-cast, nhận
-                      khung ô từ SplitScreen qua AB_NOTIF_* (AppBridge.h)
+                      khung ô từ SplitScreen qua AB_NOTIF_* (AppBridge.h); trang settings có danh sách app
+                      iPhone muốn đưa lên xe (Prefs/OMCAppBridgeAppsController, key appBridgeApps)
 App/                  app OmniCar nhận URL omnicar://<tính năng>/<việc> cho Shortcuts / Siri rồi chuyển sang
                       SpringBoard (distributed notification com.anlai.omnicar/url); hook của tính năng tự xử lý
 Template/             plist mẫu cho trang tính năng mới

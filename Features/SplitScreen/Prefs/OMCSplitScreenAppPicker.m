@@ -78,16 +78,16 @@ static NSArray<NSString *> *OMCSplitGuessCarPlayApps(void)
     return out;
 }
 
-// App iPhone App Bridge host duoc khi CarPlay chua ghi danh sach: app nguoi dung cai (khong phai app he thong)
-static NSArray<NSString *> *OMCSplitGuessPhoneApps(NSArray<NSString *> *carPlayApps)
+// App iPhone App Bridge dua len xe: danh sach chon trong App Bridge > App tren man xe (AB_KEY_APPS), chi app con cai
+static NSArray<NSString *> *OMCSplitChosenPhoneApps(void)
 {
+    id chosen = OMCSplitPrefValue(AB_KEY_APPS);
+    if (![chosen isKindOfClass:[NSArray class]] || ![chosen count]) return @[];
+    NSSet *want = [NSSet setWithArray:chosen];
     NSMutableArray *out = [NSMutableArray array];
     for (id proxy in OMCSplitInstalledProxies()) {
         NSString *bid = ((id (*)(id, SEL))objc_msgSend)(proxy, NSSelectorFromString(@"bundleIdentifier"));
-        if (!bid.length || [carPlayApps containsObject:bid] || [bid isEqualToString:@"com.anlai.omnicar.app"]) continue;
-        NSString *type = [proxy respondsToSelector:NSSelectorFromString(@"applicationType")]
-            ? ((id (*)(id, SEL))objc_msgSend)(proxy, NSSelectorFromString(@"applicationType")) : nil;
-        if ([type isEqualToString:@"User"]) [out addObject:bid];
+        if (bid.length && [want containsObject:bid]) [out addObject:bid];
     }
     return out;
 }
@@ -157,7 +157,7 @@ static NSArray<NSDictionary *> *OMCSplitAppRows(NSArray *ids, NSMutableSet *seen
     _table.backgroundColor = OMCBackgroundColor();
 
     CFPreferencesAppSynchronize(kPrefsDomain);
-    NSArray *carIDs = OMCSplitPrefValue(SPL_KEY_CARPLAY_APPS), *phoneIDs = OMCSplitPrefValue(SPL_KEY_PHONE_APPS);
+    NSArray *carIDs = OMCSplitPrefValue(SPL_KEY_CARPLAY_APPS);
     _fromCar = [carIDs isKindOfClass:[NSArray class]] && carIDs.count;
     NSMutableSet *seen = [NSMutableSet set];
     NSMutableArray *native = [NSMutableArray array];
@@ -165,11 +165,8 @@ static NSArray<NSDictionary *> *OMCSplitAppRows(NSArray *ids, NSMutableSet *seen
     [native addObjectsFromArray:OMCSplitGuessCarPlayApps()];
     _carPlayApps = OMCSplitAppRows(native, seen);
 
-    // App iPhone: danh sach CarPlay ghi lai (App Bridge dang bat), chua co thi doan tu app da cai
-    NSMutableArray *phone = [NSMutableArray array];
-    if ([phoneIDs isKindOfClass:[NSArray class]] && phoneIDs.count) [phone addObjectsFromArray:phoneIDs];
-    else [phone addObjectsFromArray:OMCSplitGuessPhoneApps(native)];
-    _phoneApps = OMCSplitAppRows(phone, seen);
+    // App iPhone: dung danh sach nguoi dung chon trong App Bridge (cung nguon voi bang chon tren xe)
+    _phoneApps = OMCSplitAppRows(OMCSplitChosenPhoneApps(), seen);
 }
 
 - (NSString *)currentValue

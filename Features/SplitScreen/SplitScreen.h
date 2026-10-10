@@ -23,8 +23,7 @@
 #define SPL_KEY_SPLIT_DIRECTION  @"splitScreenSplitDirection"   // 0 left/right, 1 top/bottom
 #define SPL_KEY_LAST_LEFT        @"splitScreenLastLeft"         // last pair used on the car (reopened on connect)
 #define SPL_KEY_LAST_RIGHT       @"splitScreenLastRight"
-#define SPL_KEY_CARPLAY_APPS     @"splitScreenCarPlayApps"      // written by the CarPlay process for the app picker
-#define SPL_KEY_PHONE_APPS       @"splitScreenPhoneApps"        // iPhone apps App Bridge can show (same writer)
+#define SPL_KEY_CARPLAY_APPS     @"splitScreenCarPlayApps"      // written by the CarPlay process for the app picker (iPhone apps come from AB_KEY_APPS)
 #define SPL_KEY_RECENT_LAYOUTS   @"splitScreenRecentLayouts"    // @[ @{layout, apps}, ... ] newest first, max 3
 #define SPL_KEY_PAIR_RATIOS      @"splitScreenPairRatios"       // @{ "left|right": ratio }
 // Favorite layouts 1..3: splitScreenFav<n>Name / Layout (2, 3, 13, 31) / Left / Right / Third

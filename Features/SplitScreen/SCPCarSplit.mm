@@ -2221,15 +2221,14 @@ static CGSize SCPCSceneSize(UIViewController *vc)
     [self refreshAppTabSoon];   // DashBoard co the dang mo 1 app toan man -> hien tab
 }
 
-// Settings chi cho chon app ma CarPlay hien duoc (app CarPlay that va app CarBridge)
+// Settings chi cho chon app ma CarPlay hien duoc: app CarPlay that ghi o day, app iPhone la danh sach
+// nguoi dung chon trong App Bridge (AB_KEY_APPS, Settings doc thang)
 - (void)publishCarPlayApps
 {
-    NSMutableArray *ids = [NSMutableArray array], *phone = [NSMutableArray array];
+    NSMutableArray *ids = [NSMutableArray array];
     for (NSDictionary *a in SCPCCarPlayApps()) [ids addObject:a[@"id"]];
-    for (NSDictionary *a in SCPCPhoneApps()) [phone addObject:a[@"id"]];
     if (ids.count) [SCPPrefs setCarPlayApps:ids];
-    [SCPPrefs setPhoneApps:phone];
-    SCPLog("CarSplit: %lu app CarPlay + %lu app iPhone (App Bridge) cho Settings", (unsigned long)ids.count, (unsigned long)phone.count);
+    SCPLog("CarSplit: %lu app CarPlay cho Settings, %lu app iPhone da chon (App Bridge)", (unsigned long)ids.count, (unsigned long)SCPCPhoneApps().count);
 }
 
 // DashBoard bi huy (ngat xe): bo trang thai, khong goi gi vao scene nua
@@ -3599,24 +3598,28 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
 // CarPlay de keo vach / cham tay nam duoc (SpringBoard bo qua cham trong dai do)
 #define SCPC_BRIDGE_PASS   10.0
 
-// App iPhone (khong co giao dien CarPlay) ma App Bridge host duoc: app nguoi dung cai + vai app Apple hay dung
+// App iPhone App Bridge dua len xe: danh sach nguoi dung chon trong Settings > App Bridge > App tren man xe
+// (AB_KEY_APPS), chi giu app con cai. Chua chon gi = khong co app iPhone nao. Cache 60s, doi prefs thi lam lai.
 static NSSet<NSString *> *SCPCPhoneAppSet(void)
 {
-    static NSSet *set; static CFAbsoluteTime at;
+    static NSSet *set; static CFAbsoluteTime at; static int token; static dispatch_once_t once;
+    dispatch_once(&once, ^{
+        notify_register_dispatch("com.anlai.omnicar/prefschanged", &token, dispatch_get_main_queue(), ^(int t) { at = 0; });
+    });
     CFAbsoluteTime now = CFAbsoluteTimeGetCurrent();
-    if (set && now - at < 60) return set;
+    if (set && at > 0 && now - at < 60) return set;
     at = now;
+    OMCPrefsSync();
+    id chosen = OMCPref(AB_KEY_APPS, nil);
     NSMutableSet *s = [NSMutableSet set];
-    NSSet *appleAllowed = [NSSet setWithArray:@[@"com.apple.mobilesafari", @"com.apple.mobileslideshow", @"com.apple.tv",
-                                                @"com.apple.mobilenotes", @"com.apple.weather", @"com.apple.stocks"]];
-    Class ws = objc_getClass("LSApplicationWorkspace");
-    NSArray *all = ws ? objcInvoke(objcInvoke(ws, @"defaultWorkspace"), @"allInstalledApplications") : nil;
-    for (id proxy in all) {
-        NSString *bid = objcInvoke(proxy, @"bundleIdentifier");
-        if (!bid.length || [bid isEqualToString:@"com.anlai.omnicar.app"]) continue;
-        NSString *type = [proxy respondsToSelector:NSSelectorFromString(@"applicationType")] ? objcInvoke(proxy, @"applicationType") : nil;
-        if (![type isEqualToString:@"User"] && ![appleAllowed containsObject:bid]) continue;
-        [s addObject:bid];
+    if ([chosen isKindOfClass:[NSArray class]] && [chosen count]) {
+        NSSet *want = [NSSet setWithArray:chosen];
+        Class ws = objc_getClass("LSApplicationWorkspace");
+        NSArray *all = ws ? objcInvoke(objcInvoke(ws, @"defaultWorkspace"), @"allInstalledApplications") : nil;
+        for (id proxy in all) {
+            NSString *bid = objcInvoke(proxy, @"bundleIdentifier");
+            if (bid.length && [want containsObject:bid]) [s addObject:bid];
+        }
     }
     set = s;
     return set;
