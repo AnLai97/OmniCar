@@ -1,7 +1,9 @@
 /* OmniCar – App Bridge – Tiếng Việt */
 
 "APPBRIDGE" = "App Bridge";
-"APPBRIDGE_FOOTER" = "App Bridge đưa app iPhone không có giao diện CarPlay (YouTube, TikTok, Netflix...) lên màn xe, do chính OmniCar host, không cần CarBridge. App mở cho xe chạy ở chế độ iPad (YouTube có giao diện như trên iPad); app đang mở sẵn trên điện thoại sẽ được tắt và mở lại. Tắt công tắc thì không app iPhone nào hiện trên xe.";
+"APPBRIDGE_FOOTER" = "App Bridge đưa app iPhone không có giao diện CarPlay (YouTube, TikTok, Netflix...) lên màn xe, do chính OmniCar host, không cần CarBridge. Tắt công tắc thì không app iPhone nào hiện trên xe.";
+"APPBRIDGE_ZOOM" = "Cỡ app (%)";
+"APPBRIDGE_ZOOM_FOOTER" = "Cỡ app: app được vẽ lớn hơn ô một chút rồi thu nhỏ lại, để chữ và nút của iPhone vừa mắt trên màn xe. 100 = không thu nhỏ. Áp dụng từ lần mở app vào ô tiếp theo.";
 "APPBRIDGE_ENABLE" = "Hiện app iPhone trên xe";
 "APPBRIDGE_APPS" = "App trên màn xe";
 "APPBRIDGE_APPS_FOOTER" = "Chưa chọn app nào. Bật công tắc cạnh app bên dưới để icon của nó hiện trên màn chính CarPlay.";

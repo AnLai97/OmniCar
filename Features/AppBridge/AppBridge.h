@@ -12,11 +12,9 @@
 // Key prefix: OMCFeatureEnabled(AB_FEATURE) reads the master switch + appBridgeEnabled.
 #define AB_FEATURE           @"appBridge"
 #define AB_KEY_ENABLED       @"appBridgeEnabled"     // BOOL, default YES
-// Hosted apps run as iPad (App.xm reports UIUserInterfaceIdiomPad to the app when it was launched for the car): a wide
-// box then gets the real iPad layout (YouTube with its sidebar) instead of a stretched phone layout. SpringBoard sets
-// this Darwin notify state to ABBundleHash(bundle id) right before launching the app and clears it 20 s later; an app
-// already running in phone mode is terminated first so it relaunches in iPad mode.
-#define AB_DARWIN_LAUNCHING  "com.anlai.omnicar/appbridge.launching"
+// The app renders at (pane size / zoom) and is scaled down by zoom, so iPhone text and buttons do not
+// look huge on the car screen. 60..100 %, default 80.
+#define AB_KEY_ZOOM          @"appBridgeZoom"
 // The iPhone apps the user picked for the car screen (root page "Apps" > "Apps on the car screen",
 // Prefs/OMCAppBridgeAppsController.m, which also holds the switch and zoom above - App Bridge has no feature
 // page of its own): NSArray of bundle ids, user apps and system apps alike. Only these are offered as iPhone
