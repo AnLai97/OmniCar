@@ -31,6 +31,8 @@ Features/<Tên>/       mỗi tính năng là một component (xem bên dưới)
                       chạy app ở chế độ iPad khi được mở cho xe (AB_DARWIN_LAUNCHING)
 App/                  app OmniCar nhận URL omnicar://<tính năng>/<việc> cho Shortcuts / Siri rồi chuyển sang
                       SpringBoard (distributed notification com.anlai.omnicar/url); hook của tính năng tự xử lý
+App/Web/              app "Web" (com.anlai.omnicar.web): WKWebView trần, user agent Safari macOS + thu phóng trang, để
+                      App Bridge đưa trang web bản PC (YouTube desktop) lên xe; địa chỉ / thu phóng đặt ở trang Ứng dụng
 Template/             plist mẫu cho trang tính năng mới
 tools/icons/          script vẽ logo gói và icon dòng của từng tính năng (Pillow)
 assets/               icon 1024

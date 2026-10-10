@@ -55,13 +55,21 @@ OmniCarPrefs_CFLAGS = -fobjc-arc -ICore -IPrefs -DTWEAK_VERSION=\"$(TWEAK_VERSIO
 # --- Companion app: the omnicar:// URL scheme for Shortcuts / Siri (App/main.m) -------------------
 # It only forwards the URL to SpringBoard; a feature's SpringBoard hook handles its own host
 # (omnicar://splitscreen/...). Installed to /Applications; the package manager runs uicache.
-APPLICATION_NAME = OmniCar
+APPLICATION_NAME = OmniCar OmniCarWeb
 
 OmniCar_FILES = App/main.m
 OmniCar_FRAMEWORKS = UIKit
 OmniCar_CFLAGS = -fobjc-arc -ICore -IFeatures/SplitScreen
 OmniCar_RESOURCE_DIRS = App/Resources
 OmniCar_CODESIGN_FLAGS = -SApp/entitlements.plist
+
+# --- "Web" app (App/Web/main.m): a bare WKWebView with a desktop user agent, hosted on the car through App Bridge
+# for sites whose PC layout is wanted (YouTube). Page and zoom come from the OmniCar prefs (Apps page).
+OmniCarWeb_FILES = App/Web/main.m
+OmniCarWeb_FRAMEWORKS = UIKit WebKit
+OmniCarWeb_CFLAGS = -fobjc-arc -ICore -IFeatures/AppBridge
+OmniCarWeb_RESOURCE_DIRS = App/Web/Resources
+OmniCarWeb_CODESIGN_FLAGS = -SApp/entitlements.plist
 
 include $(THEOS_MAKE_PATH)/tweak.mk
 include $(THEOS_MAKE_PATH)/bundle.mk

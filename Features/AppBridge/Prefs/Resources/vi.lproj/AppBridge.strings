@@ -14,3 +14,7 @@
 "APPBRIDGE_APPS_SEARCH" = "Tìm app";
 "APPBRIDGE_APPS_EMPTY" = "Không tìm thấy app iPhone nào trên máy.";
 "APPBRIDGE_APPS_NO_MATCH" = "Không có app nào khớp.";
+"APPBRIDGE_WEB_GROUP" = "App Web (trang web bản PC)";
+"APPBRIDGE_WEB_URL" = "Địa chỉ";
+"APPBRIDGE_WEB_ZOOM" = "Thu phóng trang";
+"APPBRIDGE_WEB_FOOTER" = "App \"Web\" đi kèm OmniCar mở trang này với user agent Safari trên Mac, nên trang hiện giao diện như trên PC/laptop (YouTube bản desktop). Bật \"Web\" trong danh sách app ở trên để icon hiện trên màn chính CarPlay. Thu phóng: 60% = trang rộng gấp 1,7 lần ô, chữ nhỏ hơn; đổi là áp dụng ngay.";

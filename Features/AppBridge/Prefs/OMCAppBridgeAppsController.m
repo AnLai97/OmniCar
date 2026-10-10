@@ -132,7 +132,8 @@ static UIImage *OMCABIconImage(NSString *bid)
 //    muc 1: Tren man xe (da chon)   muc 2: App cua ban   muc 3: App he thong
 // ---------------------------------------------------------------------
 static char kOMCABBundleKey;
-enum { OMCABSectionSettings = 0, OMCABSectionChosen, OMCABSectionUser, OMCABSectionSystem, OMCABSectionCount };
+// muc 4: app "Web" di kem (App/Web): dia chi trang + thu phong
+enum { OMCABSectionSettings = 0, OMCABSectionChosen, OMCABSectionUser, OMCABSectionSystem, OMCABSectionWeb, OMCABSectionCount };
 
 @interface OMCAppBridgeAppsController : PSViewController <UITableViewDataSource, UITableViewDelegate, UISearchResultsUpdating>
 @property (nonatomic, strong) UITableView *table;
@@ -141,6 +142,7 @@ enum { OMCABSectionSettings = 0, OMCABSectionChosen, OMCABSectionUser, OMCABSect
 @property (nonatomic, strong) NSArray<NSDictionary *> *chosenRows, *userRows, *systemRows;   // sau khi loc theo o tim
 @property (nonatomic, copy) NSString *filter;
 @property (nonatomic, strong) NSCache<NSString *, UIImage *> *icons;
+@property (nonatomic, strong) UILabel *zoomValue;   // "60%" canh thanh thu phong cua app Web
 @end
 
 @implementation OMCAppBridgeAppsController
@@ -211,7 +213,7 @@ enum { OMCABSectionSettings = 0, OMCABSectionChosen, OMCABSectionUser, OMCABSect
     // Doi cong tac chay xong animation roi moi chuyen dong sang muc kia
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         [self rebuildRows];
-        [self.table reloadSections:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(OMCABSectionChosen, OMCABSectionCount - OMCABSectionChosen)]
+        [self.table reloadSections:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(OMCABSectionChosen, 3)]   // 3 muc app, khong dong vao muc Web
                   withRowAnimation:UITableViewRowAnimationAutomatic];
     });
 }
@@ -263,12 +265,19 @@ enum { OMCABSectionSettings = 0, OMCABSectionChosen, OMCABSectionUser, OMCABSect
 - (NSInteger)tableView:(UITableView *)tv numberOfRowsInSection:(NSInteger)section
 {
     if (section == OMCABSectionSettings) return [self searching] ? 0 : 1;   // cong tac App Bridge
+    if (section == OMCABSectionWeb) return [self searching] ? 0 : 2;        // dia chi, thu phong
     return [self rowsInSection:section].count;
+}
+
+- (CGFloat)tableView:(UITableView *)tv heightForRowAtIndexPath:(NSIndexPath *)ip
+{
+    return (ip.section == OMCABSectionWeb && ip.row == 1) ? 72 : 56;
 }
 
 - (NSString *)tableView:(UITableView *)tv titleForHeaderInSection:(NSInteger)section
 {
     if (section == OMCABSectionSettings) return nil;
+    if (section == OMCABSectionWeb) return [self searching] ? nil : L(@"APPBRIDGE_WEB_GROUP");
     if (![self rowsInSection:section].count) return nil;
     if (section == OMCABSectionChosen) return L(@"APPBRIDGE_APPS_ON_CAR");
     if (section == OMCABSectionUser) return L(@"APPBRIDGE_APPS_USER");
@@ -278,6 +287,7 @@ enum { OMCABSectionSettings = 0, OMCABSectionChosen, OMCABSectionUser, OMCABSect
 - (NSString *)tableView:(UITableView *)tv titleForFooterInSection:(NSInteger)section
 {
     if (section == OMCABSectionSettings) return [self searching] ? nil : L(@"APPBRIDGE_FOOTER");
+    if (section == OMCABSectionWeb) return [self searching] ? nil : L(@"APPBRIDGE_WEB_FOOTER");
     if (section == OMCABSectionChosen) return (_chosenRows.count || [self searching]) ? nil : L(@"APPBRIDGE_APPS_FOOTER");
     if (section != OMCABSectionSystem) return nil;
     if (!_apps.count) return L(@"APPBRIDGE_APPS_EMPTY");
@@ -294,9 +304,102 @@ enum { OMCABSectionSettings = 0, OMCABSectionChosen, OMCABSectionUser, OMCABSect
                           key:AB_KEY_ENABLED defaultOn:YES action:@selector(enabledChanged:)];
 }
 
+#pragma mark - App "Web": dia chi trang + thu phong
+
+- (void)urlEditingEnded:(UITextField *)field
+{
+    NSString *s = [field.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+    OMCABStore(AB_KEY_WEB_URL, s.length ? s : nil);
+    field.text = s.length ? s : AB_WEB_DEFAULT_URL;
+}
+
+- (NSInteger)webZoomPercent
+{
+    id v = OMCABPref(AB_KEY_WEB_ZOOM);
+    NSInteger z = v ? [v integerValue] : AB_WEB_DEFAULT_ZOOM;
+    return MIN(150, MAX(30, z));
+}
+
+- (void)webZoomMoved:(UISlider *)slider
+{
+    NSInteger z = (NSInteger)lround(slider.value / 5.0) * 5;   // buoc 5 %
+    slider.value = z;
+    _zoomValue.text = [NSString stringWithFormat:@"%ld%%", (long)z];
+}
+
+- (void)webZoomDone:(UISlider *)slider
+{
+    [self webZoomMoved:slider];
+    OMCABStore(AB_KEY_WEB_ZOOM, @((NSInteger)slider.value));
+}
+
+- (UITableViewCell *)webCellForRow:(NSInteger)row inTable:(UITableView *)tv
+{
+    CGFloat w = tv.bounds.size.width - 2 * tv.layoutMargins.left;   // be rong cell inset-grouped
+    if (row == 0) {
+        UITableViewCell *c = [tv dequeueReusableCellWithIdentifier:@"weburl"];
+        if (!c) {
+            c = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"weburl"];
+            c.selectionStyle = UITableViewCellSelectionStyleNone;
+            UITextField *f = [UITextField new];
+            f.tag = 3;
+            f.font = [UIFont systemFontOfSize:15];
+            f.textColor = [UIColor secondaryLabelColor];
+            f.textAlignment = NSTextAlignmentRight;
+            f.keyboardType = UIKeyboardTypeURL;
+            f.autocapitalizationType = UITextAutocapitalizationTypeNone;
+            f.autocorrectionType = UITextAutocorrectionTypeNo;
+            f.returnKeyType = UIReturnKeyDone;
+            f.clearButtonMode = UITextFieldViewModeWhileEditing;
+            [f addTarget:self action:@selector(urlEditingEnded:) forControlEvents:UIControlEventEditingDidEnd | UIControlEventEditingDidEndOnExit];
+            [c.contentView addSubview:f];
+        }
+        OMCStyleCell(c);
+        c.textLabel.text = L(@"APPBRIDGE_WEB_URL");
+        c.imageView.image = OMCIcon(@"globe", OMCColorFromHex(@"#0A59F7"));
+        UITextField *f = [c.contentView viewWithTag:3];
+        id v = OMCABPref(AB_KEY_WEB_URL);
+        f.text = ([v isKindOfClass:[NSString class]] && [v length]) ? v : AB_WEB_DEFAULT_URL;
+        f.frame = CGRectMake(w * 0.38, 0, w * 0.62 - 16, 56);
+        return c;
+    }
+    UITableViewCell *c = [tv dequeueReusableCellWithIdentifier:@"webzoom"];
+    if (!c) {
+        c = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"webzoom"];
+        c.selectionStyle = UITableViewCellSelectionStyleNone;
+        UILabel *value = [UILabel new];
+        value.font = [UIFont monospacedDigitSystemFontOfSize:15 weight:UIFontWeightRegular];
+        value.textColor = [UIColor secondaryLabelColor];
+        value.textAlignment = NSTextAlignmentRight;
+        value.tag = 1;
+        [c.contentView addSubview:value];
+        UISlider *slider = [UISlider new];
+        slider.minimumValue = 30;
+        slider.maximumValue = 150;
+        slider.minimumTrackTintColor = OMCAccentColor();
+        slider.tag = 2;
+        [slider addTarget:self action:@selector(webZoomMoved:) forControlEvents:UIControlEventValueChanged];
+        [slider addTarget:self action:@selector(webZoomDone:) forControlEvents:UIControlEventTouchUpInside | UIControlEventTouchUpOutside | UIControlEventTouchCancel];
+        [c.contentView addSubview:slider];
+    }
+    OMCStyleCell(c);
+    c.textLabel.text = L(@"APPBRIDGE_WEB_ZOOM");
+    c.imageView.image = OMCIcon(@"textformat.size", OMCColorFromHex(@"#8A47E8"));
+    UILabel *value = [c.contentView viewWithTag:1];
+    UISlider *slider = [c.contentView viewWithTag:2];
+    _zoomValue = value;
+    NSInteger z = [self webZoomPercent];
+    slider.value = z;
+    value.text = [NSString stringWithFormat:@"%ld%%", (long)z];
+    value.frame = CGRectMake(w - 16 - 56, 10, 56, 24);
+    slider.frame = CGRectMake(60, 34, w - 60 - 16, 30);
+    return c;
+}
+
 - (UITableViewCell *)tableView:(UITableView *)tv cellForRowAtIndexPath:(NSIndexPath *)ip
 {
     if (ip.section == OMCABSectionSettings) return [self settingsCellForRow:ip.row inTable:tv];
+    if (ip.section == OMCABSectionWeb) return [self webCellForRow:ip.row inTable:tv];
     UITableViewCell *c = [tv dequeueReusableCellWithIdentifier:@"app"];
     if (!c) {
         c = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:@"app"];
@@ -327,6 +430,7 @@ enum { OMCABSectionSettings = 0, OMCABSectionChosen, OMCABSectionUser, OMCABSect
 - (void)tableView:(UITableView *)tv didSelectRowAtIndexPath:(NSIndexPath *)ip
 {
     [tv deselectRowAtIndexPath:ip animated:YES];
+    if (ip.section == OMCABSectionWeb) return;
     UISwitch *sw = (UISwitch *)[tv cellForRowAtIndexPath:ip].accessoryView;
     if (![sw isKindOfClass:[UISwitch class]]) return;
     [sw setOn:!sw.on animated:YES];

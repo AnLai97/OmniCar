@@ -21,7 +21,9 @@ Description: Unlock every limit of CarPlay.
     Shortcuts through the omnicar:// URL scheme
   - App Bridge: iPhone apps with no CarPlay interface, such as YouTube,
     TikTok or Netflix, on the car screen, hosted by OmniCar itself with no
-    CarBridge needed - as a Split Screen box or full screen, resized live
+    CarBridge needed - as a Split Screen box or full screen, resized live;
+    apps run in iPad mode on the car, and the bundled "Web" app shows any
+    site with its desktop layout (YouTube on the big screen like on a PC)
   - More CarPlay upgrades are on the way
  .
  Every feature has its own switch and settings page under Settings > OmniCar.
