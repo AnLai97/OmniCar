@@ -157,17 +157,17 @@ static void ABPostOrientation(NSString *bid, long long orientation)
 #define AB_KNOB_HIT  26.0   // = SCPC_DIVIDER_HIT: vung cham quanh cham tron
 
 // Cham tron nam trong cua so cua SpringBoard nen cham vao no den SpringBoard, khong bao gio den CarPlay (log 10/10 22:18:
-// cham cham tron canh o YouTube khong co gi). Nen cham tron tu nhan cham (vung rong nhu ben CarPlay) va chuyen tung pha
-// sang CarPlay (AB_NOTIF_KNOB_TOUCH); CarPlay keo / bam vach nhu cham vao cham tron cua chinh no.
+// cham cham tron canh o YouTube khong co gi). Nen cham tron tu nhan cham va chuyen tung pha sang CarPlay
+// (AB_NOTIF_KNOB_TOUCH); CarPlay keo / bam vach nhu cham vao cham tron cua chinh no.
+// backboardd dua cham thang vao tien trinh so huu lop VE THAT tai diem cham (app iPhone duoc host co lop rieng), nen vung
+// cham rong quanh cham tron phai la mot lop co ve (dem AB_KNOB_HIT moi ben, trang alpha 0.02 - mat khong thay) chu khong
+// phai pointInside mo rong: cham vao vung trong suot roi vao app, SpringBoard khong bao gio nhan duoc.
 @interface ABKnobView : UIView
-@property (nonatomic) int index;   // vach thu may (CarPlay gui kem trong AB_NOTIF_KNOBS)
+@property (nonatomic) int index;          // vach thu may (CarPlay gui kem trong AB_NOTIF_KNOBS)
 @property (nonatomic) CGPoint lastSent;
+@property (nonatomic, strong) UIView *dot; // hinh cham tron that (AB_KNOB) giua dem
 @end
 @implementation ABKnobView
-- (BOOL)pointInside:(CGPoint)p withEvent:(UIEvent *)e
-{
-    return CGRectContainsPoint(CGRectInset(self.bounds, -AB_KNOB_HIT, -AB_KNOB_HIT), p);
-}
 - (void)relay:(int)phase touches:(NSSet<UITouch *> *)touches
 {
     CGPoint p = [touches.anyObject locationInView:self.window];
@@ -742,8 +742,13 @@ static UIButton *ABRoundButton(NSString *glyph, id target, SEL action)
 // Cung kieu voi cham tron ben CarPlay (SCPCKnobStyle / SCPCKnobActive trong SCPCarSplit.mm)
 static ABKnobView *ABMakeKnob(void)
 {
-    ABKnobView *k = [[ABKnobView alloc] initWithFrame:CGRectMake(0, 0, AB_KNOB, AB_KNOB)];
-    k.multipleTouchEnabled = NO;
+    CGFloat pad = AB_KNOB + 2 * AB_KNOB_HIT;
+    ABKnobView *v = [[ABKnobView alloc] initWithFrame:CGRectMake(0, 0, pad, pad)];
+    v.multipleTouchEnabled = NO;
+    v.backgroundColor = [UIColor colorWithWhite:1 alpha:0.02];   // co ve -> backboardd giao cham cho SpringBoard
+    UIView *k = [[UIView alloc] initWithFrame:CGRectMake(AB_KNOB_HIT, AB_KNOB_HIT, AB_KNOB, AB_KNOB)];
+    k.userInteractionEnabled = NO;
+    k.backgroundColor = [UIColor colorWithWhite:0.12 alpha:0.88];
     k.layer.cornerRadius = AB_KNOB / 2;
     k.layer.borderWidth = 1.5;
     k.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.95].CGColor;
@@ -755,7 +760,9 @@ static ABKnobView *ABMakeKnob(void)
     dot.cornerRadius = ds / 2;
     dot.backgroundColor = [UIColor whiteColor].CGColor;
     [k.layer addSublayer:dot];
-    return k;
+    [v addSubview:k];
+    v.dot = k;
+    return v;
 }
 
 // Cham tron luon nam tren moi o (o them sau bang addSubview se de len)
@@ -782,8 +789,8 @@ static ABKnobView *ABMakeKnob(void)
         v.center = CGPointMake([k[0] doubleValue], [k[1] doubleValue]);
         [UIView animateWithDuration:on ? 0.15 : 0.3 delay:0 usingSpringWithDamping:0.7 initialSpringVelocity:0
                             options:UIViewAnimationOptionBeginFromCurrentState animations:^{
-            v.transform = on ? CGAffineTransformMakeScale(AB_KNOB_GROW, AB_KNOB_GROW) : CGAffineTransformIdentity;
-            v.backgroundColor = on ? [UIColor colorWithRed:0.20 green:0.51 blue:1.0 alpha:1] : [UIColor colorWithWhite:0.12 alpha:0.88];
+            v.dot.transform = on ? CGAffineTransformMakeScale(AB_KNOB_GROW, AB_KNOB_GROW) : CGAffineTransformIdentity;
+            v.dot.backgroundColor = on ? [UIColor colorWithRed:0.20 green:0.51 blue:1.0 alpha:1] : [UIColor colorWithWhite:0.12 alpha:0.88];
         } completion:nil];
     }
 }
