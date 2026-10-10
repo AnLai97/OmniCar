@@ -55,7 +55,7 @@
 #define AB_DARWIN_APP_ORIENT "com.anlai.omnicar/appbridge.apporient"
 // Base scene orientation for hosted apps: 1 portrait (default), 3 landscape.
 #define AB_KEY_ORIENTATION   @"appBridgeOrientation"
-// BOOL, default YES: cap the app's logical width at AB_PHONE_MAX_WIDTH points (scaling the scene up to fill the box)
+// BOOL, default NO: cap the app's logical width at AB_PHONE_MAX_WIDTH points (scaling the scene up to fill the box)
 // so a wide box still gets the iPhone layout; a 595 pt wide portrait window makes YouTube switch to its tablet-style
 // layout with the content in a narrow centre column.
 #define AB_KEY_PHONE_LAYOUT  @"appBridgePhoneLayout"

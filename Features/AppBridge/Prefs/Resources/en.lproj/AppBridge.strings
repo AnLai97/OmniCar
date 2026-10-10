@@ -17,4 +17,4 @@
 "APPBRIDGE_APPS_EMPTY" = "No iPhone apps found on this device.";
 "APPBRIDGE_APPS_NO_MATCH" = "No app matches.";
 "APPBRIDGE_PHONE_LAYOUT" = "Phone layout";
-"APPBRIDGE_PHONE_LAYOUT_FOOTER" = "Phone layout: caps the app's width at 480 pt and scales it up to fill the box, so the app keeps its iPhone layout instead of switching to an iPad-style one in a wide box (YouTube squeezes its content into a centre column). Off = the app gets the full box width.";
+"APPBRIDGE_PHONE_LAYOUT_FOOTER" = "Phone layout (off by default): caps the app's width at 480 pt and scales it up to fill the box, so the app keeps its iPhone layout. Off = the app gets the full box width, and a wide box gets an iPad-style layout (YouTube puts its content in a centre column).";

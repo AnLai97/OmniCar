@@ -167,7 +167,7 @@ static void ABPostOrientation(NSString *bid, long long orientation)
 {
     CGFloat z = [self zoom];
     OMCPrefsSync();
-    id phone = OMCPref(AB_KEY_PHONE_LAYOUT, @YES);
+    id phone = OMCPref(AB_KEY_PHONE_LAYOUT, @NO);
     if ([phone boolValue] && box.width / z > AB_PHONE_MAX_WIDTH) z = box.width / AB_PHONE_MAX_WIDTH;
     return z;
 }

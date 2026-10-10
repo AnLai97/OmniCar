@@ -235,7 +235,7 @@ enum { OMCABSectionSettings = 0, OMCABSectionChosen, OMCABSectionUser, OMCABSect
 
 // Dong cong tac cua muc cai dat: label, icon, key prefs (mac dinh YES), action
 - (UITableViewCell *)switchCellIn:(UITableView *)tv reuse:(NSString *)reuse label:(NSString *)label symbol:(NSString *)symbol
-                            color:(NSString *)hex key:(NSString *)key action:(SEL)action
+                            color:(NSString *)hex key:(NSString *)key defaultOn:(BOOL)defaultOn action:(SEL)action
 {
     UITableViewCell *c = [tv dequeueReusableCellWithIdentifier:reuse];
     if (!c) {
@@ -250,7 +250,7 @@ enum { OMCABSectionSettings = 0, OMCABSectionChosen, OMCABSectionUser, OMCABSect
     c.textLabel.text = L(label);
     c.imageView.image = OMCIcon(symbol, OMCColorFromHex(hex));
     id v = OMCABPref(key);
-    [(UISwitch *)c.accessoryView setOn:(v ? [v boolValue] : YES) animated:NO];
+    [(UISwitch *)c.accessoryView setOn:(v ? [v boolValue] : defaultOn) animated:NO];
     return c;
 }
 
@@ -324,10 +324,10 @@ enum { OMCABSectionSettings = 0, OMCABSectionChosen, OMCABSectionUser, OMCABSect
 {
     if (row == 0)
         return [self switchCellIn:tv reuse:@"enable" label:@"APPBRIDGE_ENABLE" symbol:@"power" color:@"#0A59F7"
-                              key:AB_KEY_ENABLED action:@selector(enabledChanged:)];
+                              key:AB_KEY_ENABLED defaultOn:YES action:@selector(enabledChanged:)];
     if (row == 2)
         return [self switchCellIn:tv reuse:@"phone" label:@"APPBRIDGE_PHONE_LAYOUT" symbol:@"iphone" color:@"#36B37E"
-                              key:AB_KEY_PHONE_LAYOUT action:@selector(phoneLayoutChanged:)];
+                              key:AB_KEY_PHONE_LAYOUT defaultOn:NO action:@selector(phoneLayoutChanged:)];
     UITableViewCell *c = [tv dequeueReusableCellWithIdentifier:@"zoom"];
     if (!c) {
         c = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"zoom"];

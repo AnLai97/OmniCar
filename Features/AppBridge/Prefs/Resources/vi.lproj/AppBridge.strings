@@ -17,4 +17,4 @@
 "APPBRIDGE_APPS_EMPTY" = "Không tìm thấy app iPhone nào trên máy.";
 "APPBRIDGE_APPS_NO_MATCH" = "Không có app nào khớp.";
 "APPBRIDGE_PHONE_LAYOUT" = "Giao diện điện thoại";
-"APPBRIDGE_PHONE_LAYOUT_FOOTER" = "Giao diện điện thoại: giới hạn bề rộng app ở 480pt rồi phóng to cho vừa ô, để app giữ bố cục iPhone thay vì chuyển sang bố cục kiểu iPad khi ô rộng (YouTube gom nội dung vào cột giữa). Tắt thì app dùng hết bề rộng ô.";
+"APPBRIDGE_PHONE_LAYOUT_FOOTER" = "Giao diện điện thoại (mặc định tắt): giới hạn bề rộng app ở 480pt rồi phóng to cho vừa ô, để app giữ bố cục iPhone. Tắt thì app dùng hết bề rộng ô, ô rộng sẽ ra bố cục kiểu iPad (YouTube gom nội dung vào cột giữa).";
