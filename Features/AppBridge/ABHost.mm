@@ -80,6 +80,14 @@ static void ABPostState(NSString *bid, NSString *state)
         postNotificationName:AB_NOTIF_STATE object:nil userInfo:@{@"identifier": bid, @"state": state}];
 }
 
+// Bao app (App.xm trong app) ep cua so theo huong cua o; -1 = thoi ep (app ve lai binh thuong tren iPhone)
+static void ABPostOrientation(NSString *bid, long long orientation)
+{
+    if (!bid) return;
+    [[objc_getClass("NSDistributedNotificationCenter") defaultCenter]
+        postNotificationName:AB_NOTIF_ORIENTATION object:bid userInfo:@{@"orientation": @(orientation)}];
+}
+
 // Khung o: cham trong dai passInsets sat mep (canh giap o khac) khong tinh la cham vao o -> cua so (pass-through)
 // tra nil -> CarPlay nhan cham de keo vach. Thanh "•••" van cham duoc.
 @interface ABBoxView : UIView
@@ -344,9 +352,13 @@ static void ABPostState(NSString *bid, NSString *state)
             ((void (*)(id, SEL, CGRect))objc_msgSend)(settings, NSSelectorFromString(@"setFrame:"), target);
             if ([settings respondsToSelector:NSSelectorFromString(@"setInterfaceOrientation:")])
                 ((void (*)(id, SEL, long long))objc_msgSend)(settings, NSSelectorFromString(@"setInterfaceOrientation:"), orient);
+            if ([settings respondsToSelector:NSSelectorFromString(@"setDeviceOrientation:")])
+                ((void (*)(id, SEL, long long))objc_msgSend)(settings, NSSelectorFromString(@"setDeviceOrientation:"), orient);
         });
     } @catch (NSException *e) { ABLog("updateSettings %@ loi %@", pane.bundleID, e); }
     pane.sceneBox = boxSize;
+    // App chi ho tro doc (YouTube) se khong tu xoay theo scene -> App.xm trong app ep cua so theo huong nay
+    ABPostOrientation(pane.bundleID, orient);
 }
 
 - (void)setFrame:(CGRect)frame forApp:(NSString *)bid live:(BOOL)live handle:(BOOL)handle passInsets:(UIEdgeInsets)pass
@@ -431,6 +443,7 @@ static void ABPostState(NSString *bid, NSString *state)
     [pane.sceneMonitor invalidate];
     pane.sceneMonitor = nil;
     NSString *appID = pane.bundleID;
+    ABPostOrientation(appID, -1);   // thoi ep huong, app ve lai binh thuong tren iPhone
     id appVC = pane.appViewController;
     @try {
         objcCall_1(appVC, @"_setCurrentMode:", (long long)0);

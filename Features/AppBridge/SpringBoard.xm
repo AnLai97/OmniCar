@@ -2,6 +2,7 @@
 #import "ABHost.h"
 #import <substrate.h>
 
+// Dylib nap vao moi process UIKit (Filter: com.apple.UIKit): phan SpringBoard o day, phan trong app (ep huong) o App.xm.
 // Inject vao SpringBoard: nhan AB_NOTIF_* tu process CarPlay (Split Screen) va giu app dang host song:
 // khong bi dua ve nen khi khoa may / mo app khac tren iPhone, man iPhone tat van render (carplay-cast).
 

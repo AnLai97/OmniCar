@@ -82,9 +82,11 @@ void SCPInjectDeclarationIfChosen(id info)
     SCPSetIvar(info, @"_tags", [@[SCP_INJECT_TAG] arrayByAddingObjectsFromArray:[tags isKindOfClass:[NSArray class]] ? tags : @[]]);
     BOOL valid = objcInvokeT(info, @"isValid", BOOL);
     if (!valid) SCPSetIvar(info, @"_valid", @YES);   // DashBoard co the bo qua info "khong hop le"
-    @synchronized (SCPInjectedSet()) { [sInjected addObject:bid]; }
-    SCPLog("AppIcons: chen %@: valid=%d hidden=%d installed=%d fullScreen=%d path=%@", bid, valid,
-           objcInvokeT(info, @"isHidden", BOOL), objcInvokeT(info, @"isInstalled", BOOL), objcInvokeT(info, @"presentsFullScreen", BOOL), bundlePath);
+    BOOL first;
+    @synchronized (SCPInjectedSet()) { first = ![sInjected containsObject:bid]; [sInjected addObject:bid]; }
+    // _loadFromProxy: duoc goi lai nhieu lan (thu vien dong bo lai) -> chi log lan dau
+    if (first) SCPLog("AppIcons: chen %@: valid=%d hidden=%d installed=%d fullScreen=%d path=%@", bid, valid,
+                      objcInvokeT(info, @"isHidden", BOOL), objcInvokeT(info, @"isInstalled", BOOL), objcInvokeT(info, @"presentsFullScreen", BOOL), bundlePath);
 }
 
 static id SCPProxyFor(NSString *bid)

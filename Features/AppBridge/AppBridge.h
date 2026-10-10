@@ -41,3 +41,7 @@
 #define AB_NOTIF_STATE       @"com.anlai.omnicar/appbridge.state"
 // SpringBoard -> CarPlay process: the "•••" pill over the hosted app was tapped (identifier)
 #define AB_NOTIF_HANDLE_TAP  @"com.anlai.omnicar/appbridge.handletap"
+// SpringBoard -> the hosted app itself (object = bundle id, userInfo orientation = UIInterfaceOrientation, -1 = stop
+// forcing): the app-side hook (App.xm, loaded into user apps) forces its windows to that orientation, since apps whose
+// main UI is portrait-only (YouTube) would otherwise draw sideways in a landscape box. carplay-cast does the same.
+#define AB_NOTIF_ORIENTATION @"com.anlai.omnicar/appbridge.orientation"
