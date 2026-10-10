@@ -660,6 +660,7 @@ static BOOL SCPCIsBridgedApp(NSString *bid);
 @property (nonatomic, strong) UIView *ratioMenu;     // cham tay nam: thanh chon ti le mac dinh
 @property (nonatomic, weak) UIView *ratioKnob;       // tay nam dang mo thanh ti le (to xanh)
 @property (nonatomic, strong) NSTimer *ratioTimer;
+@property (nonatomic) BOOL ratioOverlay;              // thanh ti le nam tren trayWindow (de len o App Bridge, khong an o)
 @property (nonatomic) BOOL ratioHidesBridge;          // thanh ti le de len o CarBridge -> CBWindow tam an
 // Cua so noi kieu HyperOS: 1 o rieng nam tren cac o chia, keo "•••" de di chuyen, tha ra hit sat canh
 @property (nonatomic, strong) SCPCarPane *floatPane;
@@ -1771,7 +1772,7 @@ static NSString *SCPCSceneID(id scene)
             [self.container bringSubviewToFront:fp.view];
         }
         if (self.dragGhost) [self.container bringSubviewToFront:self.dragGhost];
-        if (self.ratioMenu) [self.container bringSubviewToFront:self.ratioMenu];
+        if (self.ratioMenu.superview == self.container) [self.container bringSubviewToFront:self.ratioMenu];
     };
     if (animated) {
         [UIView animateWithDuration:0.45 delay:0 usingSpringWithDamping:0.86 initialSpringVelocity:0.4
@@ -2335,6 +2336,7 @@ static CGSize SCPCSceneSize(UIViewController *vc)
     for (SCPCarPane *p in [self allPanes]) [p.barTimer invalidate];
     self.floatPane = nil; self.floatClosing = NO;
     [self.dragGhost removeFromSuperview]; self.dragGhost = nil; self.dragTarget = -1;
+    [self.ratioMenu removeFromSuperview];
     [self.ratioTimer invalidate]; self.ratioTimer = nil; self.ratioMenu = nil;
     self.resizing = NO;
     [self.container removeFromSuperview];
@@ -2850,7 +2852,7 @@ static void SCPCKnobStyle(UIView *knob, NSInteger style)
         knob.center = CGPointMake(s.width / 2, s.height / 2);
     }
     [self.container bringSubviewToFront:d];
-    if (self.ratioMenu) [self.container bringSubviewToFront:self.ratioMenu];
+    if (self.ratioMenu.superview == self.container) [self.container bringSubviewToFront:self.ratioMenu];
     [self publishKnobsSoon];
 }
 
@@ -3155,11 +3157,14 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
     CGFloat x = MIN(cs.width - ms.width / 2 - 6, MAX(ms.width / 2 + 6, CGRectGetMidX(kf)));
     m.center = CGPointMake(x, MIN(cs.height - ms.height / 2 - 6, y));
 
-    [self.container addSubview:m];
-    // Khong che cac o (ban do van hien). Chi khi thanh de len o dang chieu CarBridge (CBWindow nam tren moi view
-    // CarPlay) moi an CBWindow va phu the icon rieng o do.
+    // Thanh nam tren cua so rieng (tren o App Bridge): man hinh giu nguyen, chi hien thanh (nguoi dung 10/10 23:19: cham
+    // cham tron thi YouTube nhay sang logo). Khong tao duoc cua so -> trong container nhu cu, an o app iPhone bi de.
+    UIWindow *ow = [self trayWindowForParent:self.container];
+    self.ratioOverlay = (ow != nil);
+    if (ow) { m.center = [self.container convertPoint:m.center toView:nil]; [ow addSubview:m]; }
+    else [self.container addSubview:m];
     self.ratioMenu = m;
-    for (SCPCarPane *hp in [self hostedPanes]) {   // thanh de len o app iPhone -> cua so host tam an, phu the icon
+    if (!ow) for (SCPCarPane *hp in [self hostedPanes]) {   // thanh de len o app iPhone -> cua so host tam an, phu the icon
         if (!CGRectIntersectsRect(CGRectInset(m.frame, -6, -6), hp.view.frame)) continue;
         self.ratioHidesBridge = YES;
         [self addCoverToPane:hp];
@@ -3181,7 +3186,12 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
     if (!m) return;
     if (self.ratioKnob) SCPCKnobActive(self.ratioKnob, NO);
     self.ratioKnob = nil;
-    [UIView animateWithDuration:0.15 animations:^{ m.alpha = 0; } completion:^(BOOL f) { [m removeFromSuperview]; }];
+    UIWindow *tw = self.ratioOverlay ? self.trayWindow : nil;
+    __weak SCPCarSplit *weakSelf = self;
+    [UIView animateWithDuration:0.15 animations:^{ m.alpha = 0; } completion:^(BOOL f) {
+        [m removeFromSuperview];
+        if (tw && !weakSelf.tray && !weakSelf.ratioMenu) tw.hidden = YES;
+    }];
     if (self.ratioHidesBridge) {
         self.ratioHidesBridge = NO;
         if (!self.resizing) for (SCPCarPane *hp in [self hostedPanes]) [self removeCoverFromPane:hp];
@@ -3445,6 +3455,26 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
 // hien de len ca o app iPhone ma khong phai an o (nguoi dung: bam OmniCar thi man hinh giu nguyen, chi hien bang).
 // Cung cach SpringBoard dat cua so len man xe (ABMakeCarWindow): UIRootSceneWindow theo FBSDisplayConfiguration.
 #define SCPC_TRAY_LEVEL (UIWindowLevelStatusBar + 65)
+// Cua so chi nhan cham o view con (thanh ti le); cho trong suot cham xuyen xuong (doi class cua instance luc chay)
+static UIView *SCPCPassHitTest(id self, SEL _cmd, CGPoint p, UIEvent *e)
+{
+    struct objc_super sup = { self, class_getSuperclass(object_getClass(self)) };
+    UIView *v = ((UIView *(*)(struct objc_super *, SEL, CGPoint, UIEvent *))objc_msgSendSuper)(&sup, _cmd, p, e);
+    return (v == self) ? nil : v;
+}
+static void SCPCMakePassThrough(UIWindow *w)
+{
+    Class base = object_getClass(w);
+    NSString *name = [NSString stringWithFormat:@"SCPCPass_%@", NSStringFromClass(base)];
+    Class cls = objc_getClass(name.UTF8String);
+    if (!cls) {
+        cls = objc_allocateClassPair(base, name.UTF8String, 0);
+        Method m = class_getInstanceMethod(base, @selector(hitTest:withEvent:));
+        class_addMethod(cls, @selector(hitTest:withEvent:), (IMP)SCPCPassHitTest, method_getTypeEncoding(m));
+        objc_registerClassPair(cls);
+    }
+    object_setClass(w, cls);
+}
 - (UIWindow *)trayWindowForParent:(UIView *)parent
 {
     UIScreen *screen = parent.window.screen;
@@ -3463,6 +3493,7 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
         return nil;
     }
     w = rw;
+    SCPCMakePassThrough(w);   // thanh ti le khong co lop phu: cho trong cham xuyen xuong o / CarPlay
     w.windowLevel = SCPC_TRAY_LEVEL;
     w.backgroundColor = [UIColor clearColor];
     w.hidden = NO;
@@ -3771,7 +3802,7 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
         tray.alpha = 0; tray.transform = CGAffineTransformMakeTranslation(0, -20); shield.alpha = 0;
     } completion:^(BOOL f) {
         [tray removeFromSuperview]; [shield removeFromSuperview];
-        if (tw && !weakSelf.tray) tw.hidden = YES;   // khong mo bang moi trong luc thu -> an cua so (giu lai cho lan sau)
+        if (tw && !weakSelf.tray && !weakSelf.ratioMenu) tw.hidden = YES;   // khong con gi tren cua so -> an (giu lai cho lan sau)
     }];
 }
 
@@ -3894,7 +3925,7 @@ static NSArray<NSDictionary *> *SCPCPhoneApps(void)
 {
     if (!self.active || !p.vc || p.picker || p.view.alpha < 0.5 || p.view.bounds.size.width < 20 || !p.view.window) return CGRectZero;
     if (self.tray && !self.trayOverlay) return CGRectZero;   // bang bo cuc ve trong view goc CarPlay (khong co cua so rieng) -> nhuong cho
-    if (self.ratioMenu && CGRectIntersectsRect(CGRectInset(self.ratioMenu.frame, -6, -6), p.view.frame)) return CGRectZero;
+    if (self.ratioMenu && !self.ratioOverlay && CGRectIntersectsRect(CGRectInset(self.ratioMenu.frame, -6, -6), p.view.frame)) return CGRectZero;
     // Khung day du ca khi thanh nut dang hien: thanh nut do SpringBoard ve de len app (bar trong hostBarInfoForPane), app
     // xuong, de noi dung app khong bi day / bo cuc lai moi lan mo thanh nut
     return [p.view convertRect:p.view.bounds toView:nil];
