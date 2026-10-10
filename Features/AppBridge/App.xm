@@ -48,9 +48,10 @@ static void ABApplyForcedOrientation(void)
 {
     NSBundle *mb = [NSBundle mainBundle];
     NSString *bid = mb.bundleIdentifier;
-    // Chi app nguoi dung (va app Apple trong AB_APPLE_PHONE_APPS); khong dong vao SpringBoard / CarPlay / daemon
+    // Moi app co the duoc chon (app nguoi dung lan app he thong); khong dong vao SpringBoard / CarPlay / daemon
     if (!bid.length || ![mb.bundlePath containsString:@".app"]) return;
-    if ([bid hasPrefix:@"com.apple."] && ![AB_APPLE_PHONE_APPS containsObject:bid]) return;
+    if ([@[@"com.apple.springboard", @"com.apple.CarPlayApp", @"com.apple.CarPlayTemplateUIHost", @"com.apple.CarPlaySettings",
+           @"com.apple.InCallService", @"com.apple.Preferences"] containsObject:bid]) return;
     %init(APPS);
     [[objc_getClass("NSDistributedNotificationCenter") defaultCenter]
         addObserverForName:AB_NOTIF_ORIENTATION object:bid queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *note) {

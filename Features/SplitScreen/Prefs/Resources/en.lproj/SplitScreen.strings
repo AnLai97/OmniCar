@@ -37,8 +37,8 @@
 "SPLITSCREEN_PICKER_CARPLAY_APPS" = "CarPlay apps";
 "SPLITSCREEN_PICKER_PHONE_APPS" = "iPhone apps (App Bridge)";
 "SPLITSCREEN_PICKER_GUESS_FOOTER" = "Not connected to a car yet: showing apps with CarPlay support. The exact list refreshes each time you connect.";
-"SPLITSCREEN_PICKER_PHONE_FOOTER" = "iPhone apps chosen in App Bridge > Apps on the car screen, shown on the car screen through App Bridge.";
-"SPLITSCREEN_PICKER_NO_PHONE_FOOTER" = "No iPhone app chosen yet. Pick them in App Bridge > Apps on the car screen.";
+"SPLITSCREEN_PICKER_PHONE_FOOTER" = "iPhone apps chosen in Apps > Apps on the car screen, shown on the car screen through App Bridge.";
+"SPLITSCREEN_PICKER_NO_PHONE_FOOTER" = "No iPhone app chosen yet. Pick them in Apps > Apps on the car screen.";
 
 "SPLITSCREEN_SHORTCUTS_GROUP" = "Siri / Shortcuts";
 "SPLITSCREEN_SHORTCUTS_FOOTER" = "Create a Shortcut with the \"Open URL\" action and run it with Siri:\nomnicar://splitscreen/open?left=com.apple.Maps&right=com.spotify.client\nomnicar://splitscreen/fav?n=1\nomnicar://splitscreen/close";

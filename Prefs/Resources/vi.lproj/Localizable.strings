@@ -17,3 +17,7 @@
 /* TWEAK SETTINGS */
 "FEATURES_GROUP" = "Tính năng";
 "FEATURES_FOOTER" = "Chạm vào một tính năng để cài đặt riêng cho nó. Sẽ có thêm tính năng trong những bản cập nhật tới.";
+
+"APPS_GROUP" = "Ứng dụng";
+"APPS" = "App trên màn xe";
+"APPS_FOOTER" = "Chọn app iPhone muốn đưa lên màn hình CarPlay: icon hiện trên màn chính CarPlay, chạm là mở toàn màn hoặc vào ô của Chia màn hình.";

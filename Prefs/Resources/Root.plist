@@ -46,6 +46,31 @@
 			<string>#E84026</string>
 		</dict>
 
+		<!-- APPS: the iPhone apps shown on the car screen through App Bridge (not a feature page: the switch,
+		     the zoom and the app list all live in OMCAppBridgeAppsController, Features/AppBridge/Prefs). -->
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>label</key>
+			<string>APPS_GROUP</string>
+			<key>footerText</key>
+			<string>APPS_FOOTER</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSLinkCell</string>
+			<key>cellClass</key>
+			<string>OMCAppBridgeAppsLinkCell</string>
+			<key>detail</key>
+			<string>OMCAppBridgeAppsController</string>
+			<key>label</key>
+			<string>APPS</string>
+			<key>symbol</key>
+			<string>square.grid.2x2.fill</string>
+			<key>symbolColor</key>
+			<string>#8A47E8</string>
+		</dict>
+
 		<!-- FEATURES: the rows are built at runtime from every Feature*.plist in the bundle
 		     (featureLabel / featureIcon or featureSymbol+featureSymbolColor / featureController /
 		     featureOrder keys at the top of each one) and inserted after this group cell. -->

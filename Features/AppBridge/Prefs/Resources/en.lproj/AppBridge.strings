@@ -1,17 +1,18 @@
 /* OmniCar – App Bridge – English */
 
 "APPBRIDGE" = "App Bridge";
-"APPBRIDGE_FOOTER" = "Shows iPhone apps that have no CarPlay interface (YouTube, TikTok, Netflix...) on the car screen, hosted by OmniCar itself - no CarBridge needed. Split Screen uses it for its iPhone-app boxes: pick any iPhone app for a box, drag the divider and the app relayouts to the new size, and several iPhone apps can be shown at once.";
-"APPBRIDGE_ENABLE" = "Enable App Bridge";
+"APPBRIDGE_FOOTER" = "App Bridge shows iPhone apps that have no CarPlay interface (YouTube, TikTok, Netflix...) on the car screen, hosted by OmniCar itself - no CarBridge needed. Off = no iPhone app on the car.";
+"APPBRIDGE_ENABLE" = "Show iPhone apps on the car";
 "APPBRIDGE_ZOOM" = "App size (%)";
 "APPBRIDGE_ZOOM_FOOTER" = "The app is rendered a little larger than its box and scaled down, so iPhone text and buttons stay a comfortable size on the car screen. 100 = no scaling. Applies the next time an app is opened in a box.";
 "APPBRIDGE_APPS" = "Apps on the car screen";
-"APPBRIDGE_APPS_FOOTER" = "Pick the iPhone apps you want on the CarPlay screen. Only the chosen apps show up in the iPhone apps section when picking an app for a Split Screen box (on the car and in Settings).";
+"APPBRIDGE_APPS_FOOTER" = "No app chosen yet. Turn on the switch next to an app below to put its icon on the CarPlay home screen.";
 "APPBRIDGE_APPS_NONE" = "None";
 "APPBRIDGE_APPS_COUNT" = "%ld apps";
 "APPBRIDGE_APPS_ON_CAR" = "On the car screen";
-"APPBRIDGE_APPS_OTHER" = "Other apps";
-"APPBRIDGE_APPS_OTHER_FOOTER" = "Apps with their own CarPlay interface are not listed: CarPlay shows them by itself.";
+"APPBRIDGE_APPS_USER" = "Your apps";
+"APPBRIDGE_APPS_SYSTEM" = "System apps";
+"APPBRIDGE_APPS_OTHER_FOOTER" = "Apps with their own CarPlay interface and hidden system apps are not listed.";
 "APPBRIDGE_APPS_SEARCH" = "Search apps";
 "APPBRIDGE_APPS_EMPTY" = "No iPhone apps found on this device.";
 "APPBRIDGE_APPS_NO_MATCH" = "No app matches.";

@@ -1,7 +1,8 @@
-// "Apps on the car screen" of the App Bridge page: a link row (OMCAppBridgeAppsLinkCell, shows how many apps
-// are chosen) that opens OMCAppBridgeAppsController, every iPhone app App Bridge can host with a switch and a
-// search field. The chosen bundle ids are stored as an array under AB_KEY_APPS in the OmniCar prefs domain;
-// the CarPlay side (SCPCPhoneAppSet in SCPCarSplit.mm) and the Split Screen box picker list exactly these apps.
+// "Ung dung" cua trang chinh OmniCar: dong "App tren man xe" (OMCAppBridgeAppsLinkCell, hien so app da chon) mo
+// OMCAppBridgeAppsController - trang cua App Bridge: cong tac + co app o tren, roi moi app iPhone host duoc voi cong tac
+// (muc "Tren man xe" / "App cua ban" / "App he thong") va o tim. App Bridge khong phai mot tinh nang co trang rieng:
+// cac key AB_KEY_* deu dat o day. Bundle id da chon luu thanh mang AB_KEY_APPS trong prefs OmniCar; CarPlay
+// (SCPCPhoneAppSet, SCPAppIcons) va bang chon app cua Chia man hinh dung dung danh sach nay.
 #import <Preferences/PSViewController.h>
 #import <Preferences/PSListController.h>
 #import <Preferences/PSTableCell.h>
@@ -21,24 +22,35 @@
 + (UIImage *)_applicationIconImageForBundleIdentifier:(NSString *)bid format:(int)format scale:(double)scale;
 @end
 
+static id OMCABPref(NSString *key)
+{
+    return CFBridgingRelease(CFPreferencesCopyAppValue((__bridge CFStringRef)key, kPrefsDomain));
+}
+
+static void OMCABStore(NSString *key, id value)
+{
+    CFPreferencesSetAppValue((__bridge CFStringRef)key, (__bridge CFPropertyListRef)value, kPrefsDomain);
+    CFPreferencesAppSynchronize(kPrefsDomain);
+    notify_post("com.anlai.omnicar/prefschanged");
+}
+
 static NSArray<NSString *> *OMCABChosenApps(void)
 {
     CFPreferencesAppSynchronize(kPrefsDomain);
-    id v = CFBridgingRelease(CFPreferencesCopyAppValue((__bridge CFStringRef)AB_KEY_APPS, kPrefsDomain));
+    id v = OMCABPref(AB_KEY_APPS);
     return [v isKindOfClass:[NSArray class]] ? v : @[];
-}
-
-static void OMCABStoreChosenApps(NSArray<NSString *> *ids)
-{
-    CFPreferencesSetAppValue((__bridge CFStringRef)AB_KEY_APPS, (__bridge CFPropertyListRef)ids, kPrefsDomain);
-    CFPreferencesAppSynchronize(kPrefsDomain);
-    notify_post("com.anlai.omnicar/prefschanged");
 }
 
 static id OMCABGet(id obj, NSString *sel)
 {
     if (!obj || ![obj respondsToSelector:NSSelectorFromString(sel)]) return nil;
     return ((id (*)(id, SEL))objc_msgSend)(obj, NSSelectorFromString(sel));
+}
+
+static BOOL OMCABGetBool(id obj, NSString *sel)
+{
+    if (!obj || ![obj respondsToSelector:NSSelectorFromString(sel)]) return NO;
+    return ((BOOL (*)(id, SEL))objc_msgSend)(obj, NSSelectorFromString(sel));
 }
 
 // App co giao dien CarPlay rieng thi CarPlay tu hien, khong can App Bridge -> khong dua vao danh sach
@@ -52,21 +64,28 @@ static BOOL OMCABHasCarPlayEntitlement(id proxy)
     return NO;
 }
 
-// Moi app App Bridge host duoc: app nguoi dung cai + vai app Apple (AB_APPLE_PHONE_APPS), tru app co CarPlay. @{id, name}, xep theo ten
+// Moi app App Bridge host duoc: app nguoi dung cai + app he thong co icon (khong "hidden", mo duoc), tru app co CarPlay.
+// @{id, name, system}, xep theo ten
 static NSArray<NSDictionary *> *OMCABHostableApps(void)
 {
     NSMutableArray *out = [NSMutableArray array];
     Class WS = objc_getClass("LSApplicationWorkspace");
     NSArray *all = OMCABGet(OMCABGet(WS, @"defaultWorkspace"), @"allInstalledApplications");
-    NSSet *apple = [NSSet setWithArray:AB_APPLE_PHONE_APPS];
+    NSSet *skip = [NSSet setWithArray:@[@"com.anlai.omnicar.app", @"com.apple.springboard", @"com.apple.CarPlayApp",
+                                        @"com.apple.CarPlaySettings", @"com.apple.CarPlayTemplateUIHost", @"com.apple.webapp"]];
     for (id proxy in all) {
         NSString *bid = OMCABGet(proxy, @"bundleIdentifier");
-        if (![bid isKindOfClass:[NSString class]] || !bid.length || [bid isEqualToString:@"com.anlai.omnicar.app"]) continue;
+        if (![bid isKindOfClass:[NSString class]] || !bid.length || [skip containsObject:bid]) continue;
         NSString *type = OMCABGet(proxy, @"applicationType");
-        if (![type isEqualToString:@"User"] && ![apple containsObject:bid]) continue;
+        BOOL user = [type isEqualToString:@"User"];
+        if (!user && ![type isEqualToString:@"System"]) continue;
+        NSArray *tags = OMCABGet(proxy, @"appTags");
+        if ([tags isKindOfClass:[NSArray class]] && [tags containsObject:@"hidden"]) continue;
+        if (OMCABGetBool(proxy, @"isLaunchProhibited") || OMCABGetBool(proxy, @"isPlaceholder")) continue;
         if (OMCABHasCarPlayEntitlement(proxy)) continue;
         NSString *name = OMCABGet(proxy, @"localizedName");
-        [out addObject:@{@"id": bid, @"name": ([name isKindOfClass:[NSString class]] && name.length) ? name : bid}];
+        if (![name isKindOfClass:[NSString class]] || !name.length) continue;   // app he thong khong ten = khong phai app co icon
+        [out addObject:@{@"id": bid, @"name": name, @"system": @(!user)}];
     }
     [out sortUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"name" ascending:YES selector:@selector(localizedCaseInsensitiveCompare:)]]];
     return out;
@@ -85,7 +104,7 @@ static UIImage *OMCABIconImage(NSString *bid)
 }
 
 // ---------------------------------------------------------------------
-//  OMCAppBridgeAppsLinkCell: dong "App tren man xe        3 app >"
+//  OMCAppBridgeAppsLinkCell: dong "App tren man xe        3 app >" (trang chinh)
 // ---------------------------------------------------------------------
 @interface OMCAppBridgeAppsLinkCell : PSTableCell
 @end
@@ -108,17 +127,21 @@ static UIImage *OMCABIconImage(NSString *bid)
 @end
 
 // ---------------------------------------------------------------------
-//  OMCAppBridgeAppsController: danh sach app iPhone voi cong tac, muc "Tren man xe" roi "App khac"
+//  OMCAppBridgeAppsController
+//    muc 0: cong tac App Bridge, co app (slider)
+//    muc 1: Tren man xe (da chon)   muc 2: App cua ban   muc 3: App he thong
 // ---------------------------------------------------------------------
 static char kOMCABBundleKey;
+enum { OMCABSectionSettings = 0, OMCABSectionChosen, OMCABSectionUser, OMCABSectionSystem, OMCABSectionCount };
 
 @interface OMCAppBridgeAppsController : PSViewController <UITableViewDataSource, UITableViewDelegate, UISearchResultsUpdating>
 @property (nonatomic, strong) UITableView *table;
 @property (nonatomic, strong) NSArray<NSDictionary *> *apps;                      // moi app host duoc, xep theo ten
 @property (nonatomic, strong) NSMutableSet<NSString *> *chosen;                   // bundle id dang bat
-@property (nonatomic, strong) NSArray<NSDictionary *> *chosenRows, *otherRows;    // sau khi loc theo o tim
+@property (nonatomic, strong) NSArray<NSDictionary *> *chosenRows, *userRows, *systemRows;   // sau khi loc theo o tim
 @property (nonatomic, copy) NSString *filter;
 @property (nonatomic, strong) NSCache<NSString *, UIImage *> *icons;
+@property (nonatomic, strong) UILabel *zoomValue;
 @end
 
 @implementation OMCAppBridgeAppsController
@@ -154,17 +177,22 @@ static char kOMCABBundleKey;
     self.definesPresentationContext = YES;
 }
 
+- (BOOL)searching { return _filter.length > 0; }
+
 - (void)rebuildRows
 {
-    NSMutableArray *on = [NSMutableArray array], *off = [NSMutableArray array];
+    NSMutableArray *on = [NSMutableArray array], *user = [NSMutableArray array], *sys = [NSMutableArray array];
     NSString *q = _filter.length ? _filter : nil;
     for (NSDictionary *a in _apps) {
         if (q && [a[@"name"] rangeOfString:q options:NSCaseInsensitiveSearch | NSDiacriticInsensitiveSearch].location == NSNotFound
               && [a[@"id"] rangeOfString:q options:NSCaseInsensitiveSearch].location == NSNotFound) continue;
-        [[_chosen containsObject:a[@"id"]] ? on : off addObject:a];
+        if ([_chosen containsObject:a[@"id"]]) [on addObject:a];
+        else if ([a[@"system"] boolValue]) [sys addObject:a];
+        else [user addObject:a];
     }
     _chosenRows = on;
-    _otherRows = off;
+    _userRows = user;
+    _systemRows = sys;
 }
 
 - (void)updateSearchResultsForSearchController:(UISearchController *)searchController
@@ -180,11 +208,12 @@ static char kOMCABBundleKey;
     if (on) [_chosen addObject:bid]; else [_chosen removeObject:bid];
     NSMutableArray *ids = [NSMutableArray array];
     for (NSDictionary *a in _apps) if ([_chosen containsObject:a[@"id"]]) [ids addObject:a[@"id"]];
-    OMCABStoreChosenApps(ids);
+    OMCABStore(AB_KEY_APPS, ids);
     // Doi cong tac chay xong animation roi moi chuyen dong sang muc kia
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         [self rebuildRows];
-        [self.table reloadSections:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, 2)] withRowAnimation:UITableViewRowAnimationAutomatic];
+        [self.table reloadSections:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(OMCABSectionChosen, OMCABSectionCount - OMCABSectionChosen)]
+                  withRowAnimation:UITableViewRowAnimationAutomatic];
     });
 }
 
@@ -194,33 +223,132 @@ static char kOMCABBundleKey;
     if ([bid isKindOfClass:[NSString class]]) [self setApp:bid on:sw.on];
 }
 
+- (void)enabledChanged:(UISwitch *)sw
+{
+    OMCABStore(AB_KEY_ENABLED, @(sw.on));
+}
+
+- (NSInteger)zoomPercent
+{
+    id v = OMCABPref(AB_KEY_ZOOM);
+    NSInteger z = v ? [v integerValue] : 80;
+    return MIN(100, MAX(60, z));
+}
+
+- (void)zoomMoved:(UISlider *)slider
+{
+    NSInteger z = (NSInteger)lround(slider.value / 5.0) * 5;   // buoc 5 %
+    slider.value = z;
+    _zoomValue.text = [NSString stringWithFormat:@"%ld%%", (long)z];
+}
+
+- (void)zoomDone:(UISlider *)slider
+{
+    [self zoomMoved:slider];
+    OMCABStore(AB_KEY_ZOOM, @((NSInteger)slider.value));
+}
+
 #pragma mark - Table
 
-- (NSArray<NSDictionary *> *)rowsInSection:(NSInteger)s { return s == 0 ? _chosenRows : _otherRows; }
+- (NSArray<NSDictionary *> *)rowsInSection:(NSInteger)s
+{
+    if (s == OMCABSectionChosen) return _chosenRows;
+    if (s == OMCABSectionUser) return _userRows;
+    if (s == OMCABSectionSystem) return _systemRows;
+    return @[];
+}
 
-- (NSInteger)numberOfSectionsInTableView:(UITableView *)tv { return 2; }
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tv { return OMCABSectionCount; }
 
-- (NSInteger)tableView:(UITableView *)tv numberOfRowsInSection:(NSInteger)section { return [self rowsInSection:section].count; }
+- (NSInteger)tableView:(UITableView *)tv numberOfRowsInSection:(NSInteger)section
+{
+    if (section == OMCABSectionSettings) return [self searching] ? 0 : 2;
+    return [self rowsInSection:section].count;
+}
+
+- (CGFloat)tableView:(UITableView *)tv heightForRowAtIndexPath:(NSIndexPath *)ip
+{
+    return (ip.section == OMCABSectionSettings && ip.row == 1) ? 72 : 56;
+}
 
 - (NSString *)tableView:(UITableView *)tv titleForHeaderInSection:(NSInteger)section
 {
+    if (section == OMCABSectionSettings) return nil;
     if (![self rowsInSection:section].count) return nil;
-    return L(section == 0 ? @"APPBRIDGE_APPS_ON_CAR" : @"APPBRIDGE_APPS_OTHER");
+    if (section == OMCABSectionChosen) return L(@"APPBRIDGE_APPS_ON_CAR");
+    if (section == OMCABSectionUser) return L(@"APPBRIDGE_APPS_USER");
+    return L(@"APPBRIDGE_APPS_SYSTEM");
 }
 
 - (NSString *)tableView:(UITableView *)tv titleForFooterInSection:(NSInteger)section
 {
-    if (section != 1) return nil;
+    if (section == OMCABSectionSettings) return [self searching] ? nil : [NSString stringWithFormat:@"%@\n\n%@", L(@"APPBRIDGE_FOOTER"), L(@"APPBRIDGE_ZOOM_FOOTER")];
+    if (section == OMCABSectionChosen) return (_chosenRows.count || [self searching]) ? nil : L(@"APPBRIDGE_APPS_FOOTER");
+    if (section != OMCABSectionSystem) return nil;
     if (!_apps.count) return L(@"APPBRIDGE_APPS_EMPTY");
-    if (!_chosenRows.count && !_otherRows.count) return L(@"APPBRIDGE_APPS_NO_MATCH");
+    if (!_chosenRows.count && !_userRows.count && !_systemRows.count) return L(@"APPBRIDGE_APPS_NO_MATCH");
     return L(@"APPBRIDGE_APPS_OTHER_FOOTER");
 }
 
 - (void)tableView:(UITableView *)tv willDisplayHeaderView:(UIView *)view forSection:(NSInteger)section { OMCStyleHeaderFooter(view, YES); }
 - (void)tableView:(UITableView *)tv willDisplayFooterView:(UIView *)view forSection:(NSInteger)section { OMCStyleHeaderFooter(view, NO); }
 
+- (UITableViewCell *)settingsCellForRow:(NSInteger)row inTable:(UITableView *)tv
+{
+    if (row == 0) {
+        UITableViewCell *c = [tv dequeueReusableCellWithIdentifier:@"enable"];
+        if (!c) {
+            c = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"enable"];
+            UISwitch *sw = [UISwitch new];
+            sw.onTintColor = OMCAccentColor();
+            [sw addTarget:self action:@selector(enabledChanged:) forControlEvents:UIControlEventValueChanged];
+            c.accessoryView = sw;
+            c.selectionStyle = UITableViewCellSelectionStyleNone;
+        }
+        OMCStyleCell(c);
+        c.textLabel.text = L(@"APPBRIDGE_ENABLE");
+        c.imageView.image = OMCIcon(@"power", OMCColorFromHex(@"#0A59F7"));
+        id v = OMCABPref(AB_KEY_ENABLED);
+        [(UISwitch *)c.accessoryView setOn:(v ? [v boolValue] : YES) animated:NO];
+        return c;
+    }
+    UITableViewCell *c = [tv dequeueReusableCellWithIdentifier:@"zoom"];
+    if (!c) {
+        c = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"zoom"];
+        c.selectionStyle = UITableViewCellSelectionStyleNone;
+        UILabel *value = [UILabel new];
+        value.font = [UIFont monospacedDigitSystemFontOfSize:15 weight:UIFontWeightRegular];
+        value.textColor = [UIColor secondaryLabelColor];
+        value.textAlignment = NSTextAlignmentRight;
+        value.tag = 1;
+        [c.contentView addSubview:value];
+        UISlider *slider = [UISlider new];
+        slider.minimumValue = 60;
+        slider.maximumValue = 100;
+        slider.minimumTrackTintColor = OMCAccentColor();
+        slider.tag = 2;
+        [slider addTarget:self action:@selector(zoomMoved:) forControlEvents:UIControlEventValueChanged];
+        [slider addTarget:self action:@selector(zoomDone:) forControlEvents:UIControlEventTouchUpInside | UIControlEventTouchUpOutside | UIControlEventTouchCancel];
+        [c.contentView addSubview:slider];
+    }
+    OMCStyleCell(c);
+    c.textLabel.text = L(@"APPBRIDGE_ZOOM");
+    c.imageView.image = OMCIcon(@"textformat.size", OMCColorFromHex(@"#8A47E8"));
+    UILabel *value = [c.contentView viewWithTag:1];
+    UISlider *slider = [c.contentView viewWithTag:2];
+    _zoomValue = value;
+    NSInteger z = [self zoomPercent];
+    slider.value = z;
+    value.text = [NSString stringWithFormat:@"%ld%%", (long)z];
+    CGFloat w = tv.bounds.size.width - 2 * tv.layoutMargins.left;   // be rong cell inset-grouped
+    value.frame = CGRectMake(w - 16 - 56, 10, 56, 24);
+    slider.frame = CGRectMake(60, 34, w - 60 - 16, 30);
+    return c;
+}
+
 - (UITableViewCell *)tableView:(UITableView *)tv cellForRowAtIndexPath:(NSIndexPath *)ip
 {
+    if (ip.section == OMCABSectionSettings) return [self settingsCellForRow:ip.row inTable:tv];
     UITableViewCell *c = [tv dequeueReusableCellWithIdentifier:@"app"];
     if (!c) {
         c = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:@"app"];
@@ -251,10 +379,12 @@ static char kOMCABBundleKey;
 - (void)tableView:(UITableView *)tv didSelectRowAtIndexPath:(NSIndexPath *)ip
 {
     [tv deselectRowAtIndexPath:ip animated:YES];
+    if (ip.section == OMCABSectionSettings && ip.row == 1) return;
     UISwitch *sw = (UISwitch *)[tv cellForRowAtIndexPath:ip].accessoryView;
     if (![sw isKindOfClass:[UISwitch class]]) return;
     [sw setOn:!sw.on animated:YES];
-    [self switchChanged:sw];
+    if (ip.section == OMCABSectionSettings) [self enabledChanged:sw];
+    else [self switchChanged:sw];
 }
 
 @end

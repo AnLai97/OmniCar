@@ -14,14 +14,12 @@
 // The app renders at (pane size / zoom) and is scaled down by zoom, so iPhone text and buttons do not
 // look huge on the car screen. 60..100 %, default 80.
 #define AB_KEY_ZOOM          @"appBridgeZoom"
-// The iPhone apps the user picked for the car screen (settings page "Apps on the car screen",
-// Prefs/OMCAppBridgeAppsController.m): NSArray of bundle ids. Only these are offered as iPhone apps on
-// CarPlay - the iPhone-app section of Split Screen's box picker (on the car and in Settings) and, once
-// SCPAppIcons injects icons, the home screen. Unset / empty = no iPhone app on the car.
+// The iPhone apps the user picked for the car screen (root page "Apps" > "Apps on the car screen",
+// Prefs/OMCAppBridgeAppsController.m, which also holds the switch and zoom above - App Bridge has no feature
+// page of its own): NSArray of bundle ids, user apps and system apps alike. Only these are offered as iPhone
+// apps on CarPlay - home screen icons (SCPAppIcons) and the iPhone-app section of Split Screen's box picker
+// (on the car and in Settings). Unset / empty = no iPhone app on the car.
 #define AB_KEY_APPS          @"appBridgeApps"
-// Apple apps worth bridging besides user-installed ones (other system apps are left out of the list).
-#define AB_APPLE_PHONE_APPS  @[@"com.apple.mobilesafari", @"com.apple.mobileslideshow", @"com.apple.tv", \
-                               @"com.apple.mobilenotes", @"com.apple.weather", @"com.apple.stocks"]
 
 // CarPlay process -> SpringBoard (distributed notifications, userInfo keys):
 //   OPEN     identifier, x, y, w, h (car-screen points): host the app at that frame; already hosted -> frame update

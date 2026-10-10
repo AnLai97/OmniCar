@@ -17,3 +17,7 @@
 /* TWEAK SETTINGS */
 "FEATURES_GROUP" = "Features";
 "FEATURES_FOOTER" = "Tap a feature to set it up. More features are coming in upcoming updates.";
+
+"APPS_GROUP" = "Apps";
+"APPS" = "Apps on the car screen";
+"APPS_FOOTER" = "Pick the iPhone apps you want on the CarPlay screen: their icons appear on the CarPlay home screen, a tap opens them full screen or into a Split Screen box.";
