@@ -23,6 +23,7 @@
 #define SCPC_GAP          1.0     // vach mong giua 2 o nhu cua so Windows (vung cham rong SCPC_DIVIDER_HIT, cham tron de keo)
 #define SCPC_INSET        0.0     // o sat dock va mep man nhu app toan man -> khong phi cho
 #define SCPC_RADIUS       0.0     // o vuong nhu cua so Windows (khong bo goc)
+#define SCPC_FRAME_W      1.0     // vien trang quanh moi o, noi lien voi vach (nen trang) va cham tron (vong trang)
 #define SCPC_BTN          34.0    // nut trong thanh vien thuoc
 #define SCPC_PILL         42.0    // be day thanh vien thuoc
 #define SCPC_HANDLE_W     34.0    // thanh "•••" o dau moi o
@@ -560,6 +561,10 @@ static void SCPCPopIn(NSArray<UIView *> *views)
 @property (nonatomic, strong) UIView *knob;
 @end
 static void SCPCKnobActive(UIView *knob, BOOL on);
+// Vien trang quanh o (mac dinh; vien xanh khi chon / keo tha thay tam roi tra lai)
+static UIColor *SCPCFrameColor(void) { return [UIColor colorWithWhite:1 alpha:0.9]; }
+static void SCPCFrame(UIView *v) { v.layer.borderWidth = SCPC_FRAME_W; v.layer.borderColor = SCPCFrameColor().CGColor; }
+
 @implementation SCPCarDividerView
 // Ngon tay vua cham vao cham tron -> phong to ngay (chua can keo), nhac tay -> thu lai
 - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)e
@@ -1027,6 +1032,7 @@ static BOOL SCPCIsBridgedApp(NSString *bid);
     p.view.layer.cornerRadius = SCPC_RADIUS;
     p.view.layer.cornerCurve = kCACornerCurveContinuous;
     p.view.clipsToBounds = YES;
+    SCPCFrame(p.view);
     p.host = [[UIView alloc] initWithFrame:CGRectZero];
     p.host.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     [p.view addSubview:p.host];
@@ -1044,7 +1050,7 @@ static BOOL SCPCIsBridgedApp(NSString *bid);
     __weak SCPCarSplit *weakSelf = self;
     SCPCAfter(1.0, ^{
         SCPCarPane *pp = weakPane;
-        if (pp && !weakSelf.dragGhost) pp.view.layer.borderWidth = 0;
+        if (pp && !weakSelf.dragGhost) SCPCFrame(pp.view);
     });
 }
 
@@ -2008,8 +2014,6 @@ static CGSize SCPCSceneSize(UIViewController *vc)
     if (!self.container) return nil;
     SCPCarPane *p = [self newPane];
     p.slot = SCPC_FLOAT_SLOT;
-    p.view.layer.borderWidth = 1;
-    p.view.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.18].CGColor;
     [self.container addSubview:p.view];
     self.floatPane = p;
     self.floatLarge = NO;
@@ -2497,8 +2501,8 @@ static UIView *SCPCDotsHandle(void)
     if (target == self.dragTarget) return;
     self.dragTarget = target;
     for (SCPCarPane *o in self.slots) {
-        BOOL on = (o.slot == target);
-        o.view.layer.borderWidth = on ? 3 : 0;
+        if (o.slot != target) { SCPCFrame(o.view); continue; }
+        o.view.layer.borderWidth = 3;
         o.view.layer.borderColor = SCPCAccent().CGColor;
     }
 }
@@ -2522,7 +2526,7 @@ static UIView *SCPCDotsHandle(void)
 {
     self.dragGhost = nil;
     self.dragTarget = -1;
-    for (SCPCarPane *o in self.slots) { o.view.layer.borderWidth = 0; o.cover.alpha = 1; }
+    for (SCPCarPane *o in self.slots) { SCPCFrame(o.view); o.cover.alpha = 1; }
 }
 
 - (void)cancelPaneDrag
@@ -2797,7 +2801,7 @@ static void SCPCKnobStyle(UIView *knob, NSInteger style)
 {
     SCPCarDividerView *d = [[SCPCarDividerView alloc] initWithFrame:CGRectZero];
     d.index = i;
-    d.backgroundColor = [UIColor clearColor];
+    d.backgroundColor = SCPCFrameColor();   // vach trang noi lien vien cac o va cham tron
     UIView *knob = [[UIView alloc] initWithFrame:CGRectZero];
     knob.backgroundColor = [UIColor whiteColor];
     knob.layer.cornerCurve = kCACornerCurveContinuous;
@@ -3082,13 +3086,17 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
         int idx = [info[@"index"] intValue], phase = [info[@"phase"] intValue];
         SCPCarDividerView *d = nil;
         for (SCPCarDividerView *x in self.dividers) if (x.index == idx) d = x;
-        if (!d || !self.active || !self.container || !d.window) return;
+        if (!d || !self.active || !self.container || !d.window) {
+            if (phase == 0) SCPLog("CarSplit: cham tron SpringBoard vach %d bo qua (vach %@, active %d)", idx, d ? @"co" : @"khong", (int)self.active);
+            return;
+        }
         CGPoint w = CGPointMake([info[@"x"] doubleValue], [info[@"y"] doubleValue]);
         CGPoint c = [self.container convertPoint:w fromView:nil];
         CGPoint loc = [d convertPoint:w fromView:nil];
         CGPoint tr = CGPointMake(c.x - start.x, c.y - start.y);
         if (phase == 0) {
             start = c; panning = NO;
+            SCPLog("CarSplit: cham tron SpringBoard vach %d tai %@", idx, NSStringFromCGPoint(loc));
             if (d.knob && !d.knob.hidden) SCPCKnobActive(d.knob, YES);
         } else if (phase == 1) {
             if (panning) { [self dividerPan:d state:UIGestureRecognizerStateChanged location:loc translation:tr]; return; }

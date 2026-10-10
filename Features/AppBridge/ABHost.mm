@@ -173,6 +173,7 @@ static void ABPostOrientation(NSString *bid, long long orientation)
     CGPoint p = [touches.anyObject locationInView:self.window];
     if (phase == 1 && hypot(p.x - self.lastSent.x, p.y - self.lastSent.y) < 1) return;
     self.lastSent = p;
+    if (phase != 1) ABLog("cham tron vach %d: pha %d tai %@", self.index, phase, NSStringFromCGPoint(p));
     [[objc_getClass("NSDistributedNotificationCenter") defaultCenter]
         postNotificationName:AB_NOTIF_KNOB_TOUCH object:nil
                     userInfo:@{@"index": @(self.index), @"phase": @(phase), @"x": @(p.x), @"y": @(p.y)}];
@@ -272,6 +273,8 @@ static void ABPostOrientation(NSString *bid, long long orientation)
     pane.box = [[ABBoxView alloc] initWithFrame:frame];
     pane.box.backgroundColor = [UIColor blackColor];
     pane.box.clipsToBounds = YES;
+    pane.box.layer.borderWidth = 1;   // vien trang nhu o CarPlay (SCPC_FRAME_W), noi lien vach va cham tron
+    pane.box.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.9].CGColor;
     pane.box.alpha = 0;   // hien dan khi app san sang (afterLaunch), khong nhay cuc
     [self.window addSubview:pane.box];
     [self raiseKnobs];   // o moi them vao nam tren cac cham tron da ve -> dua cham tron len lai
