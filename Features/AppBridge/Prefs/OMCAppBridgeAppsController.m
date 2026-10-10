@@ -228,6 +228,32 @@ enum { OMCABSectionSettings = 0, OMCABSectionChosen, OMCABSectionUser, OMCABSect
     OMCABStore(AB_KEY_ENABLED, @(sw.on));
 }
 
+- (void)phoneLayoutChanged:(UISwitch *)sw
+{
+    OMCABStore(AB_KEY_PHONE_LAYOUT, @(sw.on));
+}
+
+// Dong cong tac cua muc cai dat: label, icon, key prefs (mac dinh YES), action
+- (UITableViewCell *)switchCellIn:(UITableView *)tv reuse:(NSString *)reuse label:(NSString *)label symbol:(NSString *)symbol
+                            color:(NSString *)hex key:(NSString *)key action:(SEL)action
+{
+    UITableViewCell *c = [tv dequeueReusableCellWithIdentifier:reuse];
+    if (!c) {
+        c = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:reuse];
+        UISwitch *sw = [UISwitch new];
+        sw.onTintColor = OMCAccentColor();
+        [sw addTarget:self action:action forControlEvents:UIControlEventValueChanged];
+        c.accessoryView = sw;
+        c.selectionStyle = UITableViewCellSelectionStyleNone;
+    }
+    OMCStyleCell(c);
+    c.textLabel.text = L(label);
+    c.imageView.image = OMCIcon(symbol, OMCColorFromHex(hex));
+    id v = OMCABPref(key);
+    [(UISwitch *)c.accessoryView setOn:(v ? [v boolValue] : YES) animated:NO];
+    return c;
+}
+
 - (NSInteger)zoomPercent
 {
     id v = OMCABPref(AB_KEY_ZOOM);
@@ -262,7 +288,7 @@ enum { OMCABSectionSettings = 0, OMCABSectionChosen, OMCABSectionUser, OMCABSect
 
 - (NSInteger)tableView:(UITableView *)tv numberOfRowsInSection:(NSInteger)section
 {
-    if (section == OMCABSectionSettings) return [self searching] ? 0 : 2;
+    if (section == OMCABSectionSettings) return [self searching] ? 0 : 3;   // cong tac, co app, giao dien dien thoai
     return [self rowsInSection:section].count;
 }
 
@@ -282,7 +308,8 @@ enum { OMCABSectionSettings = 0, OMCABSectionChosen, OMCABSectionUser, OMCABSect
 
 - (NSString *)tableView:(UITableView *)tv titleForFooterInSection:(NSInteger)section
 {
-    if (section == OMCABSectionSettings) return [self searching] ? nil : [NSString stringWithFormat:@"%@\n\n%@", L(@"APPBRIDGE_FOOTER"), L(@"APPBRIDGE_ZOOM_FOOTER")];
+    if (section == OMCABSectionSettings)
+        return [self searching] ? nil : [NSString stringWithFormat:@"%@\n\n%@\n\n%@", L(@"APPBRIDGE_FOOTER"), L(@"APPBRIDGE_ZOOM_FOOTER"), L(@"APPBRIDGE_PHONE_LAYOUT_FOOTER")];
     if (section == OMCABSectionChosen) return (_chosenRows.count || [self searching]) ? nil : L(@"APPBRIDGE_APPS_FOOTER");
     if (section != OMCABSectionSystem) return nil;
     if (!_apps.count) return L(@"APPBRIDGE_APPS_EMPTY");
@@ -295,23 +322,12 @@ enum { OMCABSectionSettings = 0, OMCABSectionChosen, OMCABSectionUser, OMCABSect
 
 - (UITableViewCell *)settingsCellForRow:(NSInteger)row inTable:(UITableView *)tv
 {
-    if (row == 0) {
-        UITableViewCell *c = [tv dequeueReusableCellWithIdentifier:@"enable"];
-        if (!c) {
-            c = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"enable"];
-            UISwitch *sw = [UISwitch new];
-            sw.onTintColor = OMCAccentColor();
-            [sw addTarget:self action:@selector(enabledChanged:) forControlEvents:UIControlEventValueChanged];
-            c.accessoryView = sw;
-            c.selectionStyle = UITableViewCellSelectionStyleNone;
-        }
-        OMCStyleCell(c);
-        c.textLabel.text = L(@"APPBRIDGE_ENABLE");
-        c.imageView.image = OMCIcon(@"power", OMCColorFromHex(@"#0A59F7"));
-        id v = OMCABPref(AB_KEY_ENABLED);
-        [(UISwitch *)c.accessoryView setOn:(v ? [v boolValue] : YES) animated:NO];
-        return c;
-    }
+    if (row == 0)
+        return [self switchCellIn:tv reuse:@"enable" label:@"APPBRIDGE_ENABLE" symbol:@"power" color:@"#0A59F7"
+                              key:AB_KEY_ENABLED action:@selector(enabledChanged:)];
+    if (row == 2)
+        return [self switchCellIn:tv reuse:@"phone" label:@"APPBRIDGE_PHONE_LAYOUT" symbol:@"iphone" color:@"#36B37E"
+                              key:AB_KEY_PHONE_LAYOUT action:@selector(phoneLayoutChanged:)];
     UITableViewCell *c = [tv dequeueReusableCellWithIdentifier:@"zoom"];
     if (!c) {
         c = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"zoom"];
@@ -383,8 +399,9 @@ enum { OMCABSectionSettings = 0, OMCABSectionChosen, OMCABSectionUser, OMCABSect
     UISwitch *sw = (UISwitch *)[tv cellForRowAtIndexPath:ip].accessoryView;
     if (![sw isKindOfClass:[UISwitch class]]) return;
     [sw setOn:!sw.on animated:YES];
-    if (ip.section == OMCABSectionSettings) [self enabledChanged:sw];
-    else [self switchChanged:sw];
+    if (ip.section != OMCABSectionSettings) [self switchChanged:sw];
+    else if (ip.row == 0) [self enabledChanged:sw];
+    else [self phoneLayoutChanged:sw];
 }
 
 @end

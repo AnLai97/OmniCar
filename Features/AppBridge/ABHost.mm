@@ -153,12 +153,23 @@ static void ABPostOrientation(NSString *bid, long long orientation)
     return nil;
 }
 
-// Ti le thu nho noi dung app (Cai dat > App Bridge)
+// Ti le thu nho noi dung app (Cai dat > Ung dung)
 - (CGFloat)zoom
 {
     OMCPrefsSync();
     double z = [OMCPref(AB_KEY_ZOOM, @80) doubleValue] / 100.0;
     return MIN(1.0, MAX(0.6, z));
+}
+
+// Ti le ap cho o nay: zoom, nhung "Giao dien dien thoai" thi be rong logic cua app toi da AB_PHONE_MAX_WIDTH pt (o rong
+// hon thi phong to > 1): cua so doc rong 595 pt lam YouTube chuyen sang bo cuc kieu tablet, noi dung gom vao cot giua
+- (CGFloat)zoomForBox:(CGSize)box
+{
+    CGFloat z = [self zoom];
+    OMCPrefsSync();
+    id phone = OMCPref(AB_KEY_PHONE_LAYOUT, @YES);
+    if ([phone boolValue] && box.width / z > AB_PHONE_MAX_WIDTH) z = box.width / AB_PHONE_MAX_WIDTH;
+    return z;
 }
 
 #pragma mark - Cua so
@@ -226,7 +237,7 @@ static void ABPostOrientation(NSString *bid, long long orientation)
         return;
     }
     [self layoutPane:pane];
-    ABLog("host %@ tai %@ (huong %lld, zoom %.2f)", bid, NSStringFromCGRect(frame), pane.orientation, [self zoom]);
+    ABLog("host %@ tai %@ (huong %lld, zoom %.2f)", bid, NSStringFromCGRect(frame), pane.orientation, [self zoomForBox:frame.size]);
     // Khong co tin "launch xong" (app da chay san) thi van bao ready sau 2.5s
     __weak ABPane *weakPane = pane;
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
@@ -334,7 +345,7 @@ static void ABPostOrientation(NSString *bid, long long orientation)
     if (!pane.appViewController) return;
     CGSize boxSize = pane.box.bounds.size;
     if (boxSize.width < 2 || boxSize.height < 2) return;
-    CGFloat z = [self zoom];
+    CGFloat z = [self zoomForBox:boxSize];
     CGSize paneSize = CGSizeMake(round(boxSize.width / z), round(boxSize.height / z));
     UIView *appView = [pane.appViewController view];
     appView.transform = CGAffineTransformIdentity;
@@ -397,8 +408,8 @@ static void ABPostOrientation(NSString *bid, long long orientation)
 {
     id scene = objcInvoke(objcInvoke(pane.appViewController, @"sceneHandle"), @"sceneIfExists");
     if (!scene) return;
-    CGFloat z = [self zoom];
     CGSize box = pane.box.bounds.size;
+    CGFloat z = [self zoomForBox:box];
     CGSize sz = CGSizeMake(round(box.width / z), round(box.height / z));
     long long o = [self effectiveOrientation:pane];
     BOOL landscape = (o == UIInterfaceOrientationLandscapeLeft || o == UIInterfaceOrientationLandscapeRight);
