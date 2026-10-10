@@ -3685,7 +3685,7 @@ static NSArray<NSDictionary *> *SCPCPhoneApps(void)
     if (!self.active || !p.vc || p.picker || p.view.alpha < 0.5 || p.view.bounds.size.width < 20 || !p.view.window) return CGRectZero;
     if (self.tray) return CGRectZero;   // bang bo cuc ve trong CarPlay -> nhuong cho
     if (self.ratioMenu && CGRectIntersectsRect(CGRectInset(self.ratioMenu.frame, -6, -6), p.view.frame)) return CGRectZero;
-    // Khung day du ca khi thanh nut dang hien: cua so host chi CHE phan tren (ct, xem hostClipTopForPane) chu khong lui
+    // Khung day du ca khi thanh nut dang hien: thanh nut do SpringBoard ve de len app (bar trong hostBarInfoForPane), app
     // xuong, de noi dung app khong bi day / bo cuc lai moi lan mo thanh nut
     return [p.view convertRect:p.view.bounds toView:nil];
 }
