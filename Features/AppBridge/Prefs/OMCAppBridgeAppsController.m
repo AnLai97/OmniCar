@@ -263,15 +263,14 @@ enum { OMCABSectionSettings = 0, OMCABSectionChosen, OMCABSectionUser, OMCABSect
 
 - (NSInteger)tableView:(UITableView *)tv numberOfRowsInSection:(NSInteger)section
 {
-    if (section == OMCABSectionSettings) return [self searching] ? 0 : 2;   // cong tac App Bridge, co app
+    if (section == OMCABSectionSettings) return [self searching] ? 0 : 1;   // cong tac App Bridge
     if (section == OMCABSectionWeb) return [self searching] ? 0 : 2;        // dia chi, thu phong
     return [self rowsInSection:section].count;
 }
 
 - (CGFloat)tableView:(UITableView *)tv heightForRowAtIndexPath:(NSIndexPath *)ip
 {
-    BOOL slider = (ip.section == OMCABSectionWeb && ip.row == 1) || (ip.section == OMCABSectionSettings && ip.row == 1);
-    return slider ? 72 : 56;
+    return (ip.section == OMCABSectionWeb && ip.row == 1) ? 72 : 56;
 }
 
 - (NSString *)tableView:(UITableView *)tv titleForHeaderInSection:(NSInteger)section
@@ -286,8 +285,7 @@ enum { OMCABSectionSettings = 0, OMCABSectionChosen, OMCABSectionUser, OMCABSect
 
 - (NSString *)tableView:(UITableView *)tv titleForFooterInSection:(NSInteger)section
 {
-    if (section == OMCABSectionSettings)
-        return [self searching] ? nil : [NSString stringWithFormat:@"%@\n\n%@", L(@"APPBRIDGE_FOOTER"), L(@"APPBRIDGE_ZOOM_FOOTER")];
+    if (section == OMCABSectionSettings) return [self searching] ? nil : L(@"APPBRIDGE_FOOTER");
     if (section == OMCABSectionWeb) return [self searching] ? nil : L(@"APPBRIDGE_WEB_FOOTER");
     if (section == OMCABSectionChosen) return (_chosenRows.count || [self searching]) ? nil : L(@"APPBRIDGE_APPS_FOOTER");
     if (section != OMCABSectionSystem) return nil;
@@ -301,10 +299,6 @@ enum { OMCABSectionSettings = 0, OMCABSectionChosen, OMCABSectionUser, OMCABSect
 
 - (UITableViewCell *)settingsCellForRow:(NSInteger)row inTable:(UITableView *)tv
 {
-    if (row == 1)
-        return [self sliderCellIn:tv reuse:@"appzoom" label:@"APPBRIDGE_ZOOM" symbol:@"textformat.size" color:@"#8A47E8"
-                              min:60 max:100 value:[self percentFor:AB_KEY_ZOOM fallback:80 min:60 max:100]
-                             done:@selector(appZoomDone:)];
     return [self switchCellIn:tv reuse:@"enable" label:@"APPBRIDGE_ENABLE" symbol:@"power" color:@"#0A59F7"
                           key:AB_KEY_ENABLED defaultOn:YES action:@selector(enabledChanged:)];
 }
@@ -325,12 +319,6 @@ enum { OMCABSectionSettings = 0, OMCABSectionChosen, OMCABSectionUser, OMCABSect
     slider.value = z;
     UILabel *value = [slider.superview viewWithTag:1];
     value.text = [NSString stringWithFormat:@"%ld%%", (long)z];
-}
-
-- (void)appZoomDone:(UISlider *)slider
-{
-    [self sliderMoved:slider];
-    OMCABStore(AB_KEY_ZOOM, @((NSInteger)slider.value));
 }
 
 - (void)webZoomDone:(UISlider *)slider
@@ -450,7 +438,7 @@ enum { OMCABSectionSettings = 0, OMCABSectionChosen, OMCABSectionUser, OMCABSect
 - (void)tableView:(UITableView *)tv didSelectRowAtIndexPath:(NSIndexPath *)ip
 {
     [tv deselectRowAtIndexPath:ip animated:YES];
-    if (ip.section == OMCABSectionWeb || (ip.section == OMCABSectionSettings && ip.row == 1)) return;
+    if (ip.section == OMCABSectionWeb) return;
     UISwitch *sw = (UISwitch *)[tv cellForRowAtIndexPath:ip].accessoryView;
     if (![sw isKindOfClass:[UISwitch class]]) return;
     [sw setOn:!sw.on animated:YES];

@@ -13,8 +13,8 @@
 #define AB_FEATURE           @"appBridge"
 #define AB_KEY_ENABLED       @"appBridgeEnabled"     // BOOL, default YES
 // The app renders at (pane size / zoom) and is scaled down by zoom, so iPhone text and buttons do not
-// look huge on the car screen. 60..100 %, default 80.
-#define AB_KEY_ZOOM          @"appBridgeZoom"
+// look huge on the car screen. Fixed at 60 %, no setting.
+#define AB_ZOOM              0.6
 // The iPhone apps the user picked for the car screen (root page "Apps" > "Apps on the car screen",
 // Prefs/OMCAppBridgeAppsController.m, which also holds the switch and zoom above - App Bridge has no feature
 // page of its own): NSArray of bundle ids, user apps and system apps alike. Only these are offered as iPhone
