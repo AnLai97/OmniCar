@@ -156,7 +156,9 @@ static void ABPostOrientation(NSString *bid, long long orientation)
 // Ti le thu nho noi dung app (Cai dat > App Bridge)
 - (CGFloat)zoom
 {
-    return AB_ZOOM;   // co dinh, khong co cai dat
+    OMCPrefsSync();
+    double z = [OMCPref(AB_KEY_ZOOM, @80) doubleValue] / 100.0;
+    return MIN(1.0, MAX(0.6, z));
 }
 
 #pragma mark - Cua so

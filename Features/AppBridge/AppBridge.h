@@ -13,8 +13,8 @@
 #define AB_FEATURE           @"appBridge"
 #define AB_KEY_ENABLED       @"appBridgeEnabled"     // BOOL, default YES
 // The app renders at (pane size / zoom) and is scaled down by zoom, so iPhone text and buttons do not
-// look huge on the car screen. Fixed at 60 %, no setting.
-#define AB_ZOOM              0.6
+// look huge on the car screen. 60..100 %, default 80.
+#define AB_KEY_ZOOM          @"appBridgeZoom"
 // The iPhone apps the user picked for the car screen (root page "Apps" > "Apps on the car screen",
 // Prefs/OMCAppBridgeAppsController.m, which also holds the switch and zoom above - App Bridge has no feature
 // page of its own): NSArray of bundle ids, user apps and system apps alike. Only these are offered as iPhone
@@ -55,13 +55,6 @@
 #define AB_DARWIN_APP_ORIENT "com.anlai.omnicar/appbridge.apporient"
 // Base scene orientation for hosted apps: 1 portrait (default), 3 landscape.
 #define AB_KEY_ORIENTATION   @"appBridgeOrientation"
-// The bundled "Web" app (App/Web, com.anlai.omnicar.web): a bare WKWebView with a desktop user agent, for sites whose
-// PC layout is wanted on the car (YouTube). Page URL and page zoom in percent (30..150), set on the Apps page.
-#define AB_WEB_BUNDLE        @"com.anlai.omnicar.web"
-#define AB_KEY_WEB_URL       @"appBridgeWebURL"
-#define AB_KEY_WEB_ZOOM      @"appBridgeWebZoom"
-#define AB_WEB_DEFAULT_URL   @"https://www.youtube.com"
-#define AB_WEB_DEFAULT_ZOOM  60
 static inline unsigned long long ABBundleHash(NSString *bid)
 {
     unsigned int h = 2166136261u;

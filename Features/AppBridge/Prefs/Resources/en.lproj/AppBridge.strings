@@ -3,6 +3,8 @@
 "APPBRIDGE" = "App Bridge";
 "APPBRIDGE_FOOTER" = "App Bridge shows iPhone apps that have no CarPlay interface (YouTube, TikTok, Netflix...) on the car screen, hosted by OmniCar itself - no CarBridge needed. Off = no iPhone app on the car.";
 "APPBRIDGE_ENABLE" = "Show iPhone apps on the car";
+"APPBRIDGE_ZOOM" = "App size (%)";
+"APPBRIDGE_ZOOM_FOOTER" = "The app is rendered a little larger than its box and scaled down, so iPhone text and buttons stay a comfortable size on the car screen. 100 = no scaling. Applies the next time an app is opened in a box.";
 "APPBRIDGE_APPS" = "Apps on the car screen";
 "APPBRIDGE_APPS_FOOTER" = "No app chosen yet. Turn on the switch next to an app below to put its icon on the CarPlay home screen.";
 "APPBRIDGE_APPS_NONE" = "None";
@@ -14,7 +16,3 @@
 "APPBRIDGE_APPS_SEARCH" = "Search apps";
 "APPBRIDGE_APPS_EMPTY" = "No iPhone apps found on this device.";
 "APPBRIDGE_APPS_NO_MATCH" = "No app matches.";
-"APPBRIDGE_WEB_GROUP" = "Web app (desktop site)";
-"APPBRIDGE_WEB_URL" = "Address";
-"APPBRIDGE_WEB_ZOOM" = "Page zoom";
-"APPBRIDGE_WEB_FOOTER" = "The bundled \"Web\" app opens this page with a Mac Safari user agent, so the site shows its PC / laptop layout (desktop YouTube). Turn on \"Web\" in the app list above to put its icon on the CarPlay home screen. Zoom: 60% = the page is 1.7x wider than the box with smaller text; changes apply at once.";
