@@ -107,6 +107,27 @@ static void ABPostOrientation(NSString *bid, long long orientation)
 }
 @end
 
+// Nut tron 34pt cua thanh nut, vung cham 44pt, nhun khi bam (SCPCButton ben CarPlay)
+@interface ABBarButton : UIButton
+@end
+@implementation ABBarButton
+- (BOOL)pointInside:(CGPoint)pt withEvent:(UIEvent *)e
+{
+    CGFloat dx = MIN(0, (self.bounds.size.width - 44) / 2), dy = MIN(0, (self.bounds.size.height - 44) / 2);
+    return CGRectContainsPoint(CGRectInset(self.bounds, dx, dy), pt);
+}
+- (void)setHighlighted:(BOOL)h
+{
+    BOOL changed = (h != self.highlighted);
+    [super setHighlighted:h];
+    if (!changed) return;
+    [UIView animateWithDuration:h ? 0.12 : 0.3 delay:0 usingSpringWithDamping:0.7 initialSpringVelocity:0
+                        options:UIViewAnimationOptionAllowUserInteraction | UIViewAnimationOptionBeginFromCurrentState
+                     animations:^{ self.transform = h ? CGAffineTransformMakeScale(0.9, 0.9) : CGAffineTransformIdentity; }
+                     completion:nil];
+}
+@end
+
 // Mot o chua mot app
 @interface ABPane : NSObject
 @property (nonatomic, copy) NSString *bundleID;
@@ -523,27 +544,6 @@ static UIImage *ABGlyph(NSString *name)
     cache[name] = img;
     return img;
 }
-
-// Nut tron 34pt, vung cham 44pt, nhun khi bam (SCPCButton)
-@interface ABBarButton : UIButton
-@end
-@implementation ABBarButton
-- (BOOL)pointInside:(CGPoint)pt withEvent:(UIEvent *)e
-{
-    CGFloat dx = MIN(0, (self.bounds.size.width - 44) / 2), dy = MIN(0, (self.bounds.size.height - 44) / 2);
-    return CGRectContainsPoint(CGRectInset(self.bounds, dx, dy), pt);
-}
-- (void)setHighlighted:(BOOL)h
-{
-    BOOL changed = (h != self.highlighted);
-    [super setHighlighted:h];
-    if (!changed) return;
-    [UIView animateWithDuration:h ? 0.12 : 0.3 delay:0 usingSpringWithDamping:0.7 initialSpringVelocity:0
-                        options:UIViewAnimationOptionAllowUserInteraction | UIViewAnimationOptionBeginFromCurrentState
-                     animations:^{ self.transform = h ? CGAffineTransformMakeScale(0.9, 0.9) : CGAffineTransformIdentity; }
-                     completion:nil];
-}
-@end
 
 static UIButton *ABRoundButton(NSString *glyph, id target, SEL action)
 {
