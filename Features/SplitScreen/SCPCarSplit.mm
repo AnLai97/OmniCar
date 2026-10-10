@@ -637,6 +637,7 @@ static BOOL SCPCIsBridgedApp(NSString *bid);
 @property (nonatomic, readwrite) BOOL active;
 @property (nonatomic, strong) NSMutableDictionary<NSString *, NSDate *> *cancelledLaunches;   // app bi huy luc dang mo
 @property (nonatomic, strong) UIView *soloCover;      // the icon app che luc ve man chinh roi mo lai app toan man
+@property (nonatomic, strong) UIView *trayCover;      // the icon app che vung app toan man (App Bridge) khi bang bo cuc mo (cua so host an)
 @property (nonatomic, strong) SCPCarSplitView *container;
 @property (nonatomic, strong) NSMutableArray<SCPCarPane *> *slots;        // cac o theo thu tu (1..3)
 @property (nonatomic, strong) NSMutableArray<NSNumber *> *fractions;      // ti le tung o, tong = 1
@@ -3564,6 +3565,23 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
     self.tray = panel;
     [self pushHostFramesLive:NO];   // dang chia: o app iPhone nhuong cho bang (hostFrameForPane xet self.tray -> phai dat tray truoc;
                                     // log 10/10 22:48: goi truoc khi dat tray nen o YouTube van de len bang)
+    // Cua so host an thi o app iPhone chi con nen den / app toan man lo man chinh (log 10/10 22:59) -> the icon app nhu luc
+    // thanh ti le de len o (addCoverToPane); app toan man: the icon phu ca vung app, duoi lop phu cua bang
+    for (SCPCarPane *hp in [self hostedPanes]) [self addCoverToPane:hp];
+    if (!self.active && self.soloHostedBundle) {
+        [self.trayCover removeFromSuperview];
+        UIView *cover = [[UIView alloc] initWithFrame:area];
+        cover.backgroundColor = [UIColor colorWithWhite:0.1 alpha:1];
+        cover.userInteractionEnabled = NO;
+        UIImageView *iv = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 56, 56)];
+        iv.image = SCPCAppIcon(self.soloHostedBundle);
+        SCPCStyleIcon(iv);
+        iv.center = CGPointMake(cover.bounds.size.width / 2, cover.bounds.size.height / 2);
+        [cover addSubview:iv];
+        [parent addSubview:cover];
+        [self raiseView:cover];
+        self.trayCover = cover;
+    }
     [self raiseView:shield];
     [self raiseView:panel];
     shield.alpha = 0;
@@ -3705,6 +3723,10 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
     [self publishBusy];
     [self setFullscreenBridgeHidden:NO bundle:nil];
     [self pushHostFramesLive:NO];   // bang dong: o app iPhone hien lai
+    if (!self.resizing && !self.ratioMenu) for (SCPCarPane *hp in [self hostedPanes]) [self removeCoverFromPane:hp];
+    UIView *tc = self.trayCover;
+    self.trayCover = nil;
+    if (tc) [UIView animateWithDuration:0.2 animations:^{ tc.alpha = 0; } completion:^(BOOL f) { [tc removeFromSuperview]; }];
     if (!tray && !shield) return;
     [UIView animateWithDuration:0.2 animations:^{
         tray.alpha = 0; tray.transform = CGAffineTransformMakeTranslation(0, -20); shield.alpha = 0;
