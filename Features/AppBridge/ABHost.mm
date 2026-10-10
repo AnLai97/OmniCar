@@ -90,8 +90,12 @@ static void ABPostOrientation(NSString *bid, long long orientation)
         postNotificationName:AB_NOTIF_ORIENTATION object:bid userInfo:@{@"orientation": @(orientation), @"device": @(device)}];
 }
 
-// Khung o: cham trong dai passInsets sat mep (canh giap o khac) khong tinh la cham vao o -> cua so (pass-through)
-// tra nil -> CarPlay nhan cham de keo vach. Thanh "•••" van cham duoc.
+// Vung cham cua cac cham tron (toa do cua so, cap nhat trong setKnobs): cham vao day khong tinh la cham vao o, de CarPlay
+// nhan cham keo vach. Rong bang ben CarPlay (SCPCarDividerView pointInside: knob +- SCPC_DIVIDER_HIT).
+static NSArray<NSValue *> *ABKnobHitRects;
+
+// Khung o: cham trong dai passInsets sat mep (canh giap o khac) hoac trong vung cham cua mot cham tron khong tinh la cham
+// vao o -> cua so (pass-through) tra nil -> CarPlay nhan cham de keo vach. Thanh "•••" van cham duoc.
 @interface ABBoxView : UIView
 @property (nonatomic) UIEdgeInsets passInsets;
 @property (nonatomic, weak) UIView *handleHit;
@@ -103,6 +107,8 @@ static void ABPostOrientation(NSString *bid, long long orientation)
     if (![super pointInside:p withEvent:e]) return NO;
     if (self.handleHit && !self.handleHit.hidden && CGRectContainsPoint(self.handleHit.frame, p)) return YES;
     if (self.bar && !self.bar.hidden && CGRectContainsPoint(self.bar.frame, p)) return YES;
+    CGPoint w = [self convertPoint:p toView:nil];
+    for (NSValue *r in ABKnobHitRects) if (CGRectContainsPoint(r.CGRectValue, w)) return NO;
     return CGRectContainsPoint(UIEdgeInsetsInsetRect(self.bounds, self.passInsets), p);
 }
 @end
@@ -239,6 +245,7 @@ static void ABPostOrientation(NSString *bid, long long orientation)
     pane.box.clipsToBounds = YES;
     pane.box.alpha = 0;   // hien dan khi app san sang (afterLaunch), khong nhay cuc
     [self.window addSubview:pane.box];
+    [self raiseKnobs];   // o moi them vao nam tren cac cham tron da ve -> dua cham tron len lai
     [self setupHandleForPane:pane];
     [self.panes addObject:pane];
 
@@ -703,6 +710,7 @@ static UIButton *ABRoundButton(NSString *glyph, id target, SEL action)
 // Cung kieu voi cham tron ben CarPlay (SCPCKnobStyle / SCPCKnobActive trong SCPCarSplit.mm)
 #define AB_KNOB      14.0
 #define AB_KNOB_GROW 1.6
+#define AB_KNOB_HIT  26.0   // = SCPC_DIVIDER_HIT: vung cham quanh cham tron (cham vao o trong vung nay xuyen xuong CarPlay)
 
 static UIView *ABMakeKnob(void)
 {
@@ -722,12 +730,19 @@ static UIView *ABMakeKnob(void)
     return k;
 }
 
+// Cham tron luon nam tren moi o (o them sau bang addSubview se de len)
+- (void)raiseKnobs
+{
+    for (UIView *v in self.knobViews) if (v.superview == self.window) [self.window bringSubviewToFront:v];
+}
+
 - (void)setKnobs:(NSArray *)knobs
 {
     if (!self.knobViews) self.knobViews = [NSMutableArray array];
     if (![knobs isKindOfClass:[NSArray class]]) knobs = @[];
     if (knobs.count && ![self ensureWindow]) return;
     while (self.knobViews.count > knobs.count) { [self.knobViews.lastObject removeFromSuperview]; [self.knobViews removeLastObject]; }
+    NSMutableArray<NSValue *> *hit = [NSMutableArray array];
     for (NSUInteger i = 0; i < knobs.count; i++) {
         NSArray *k = knobs[i];
         if (![k isKindOfClass:[NSArray class]] || k.count < 3) continue;
@@ -737,12 +752,14 @@ static UIView *ABMakeKnob(void)
         [self.window bringSubviewToFront:v];
         BOOL on = [k[2] boolValue];
         v.center = CGPointMake([k[0] doubleValue], [k[1] doubleValue]);
+        [hit addObject:[NSValue valueWithCGRect:CGRectInset(CGRectMake(v.center.x - AB_KNOB / 2, v.center.y - AB_KNOB / 2, AB_KNOB, AB_KNOB), -AB_KNOB_HIT, -AB_KNOB_HIT)]];
         [UIView animateWithDuration:on ? 0.15 : 0.3 delay:0 usingSpringWithDamping:0.7 initialSpringVelocity:0
                             options:UIViewAnimationOptionBeginFromCurrentState animations:^{
             v.transform = on ? CGAffineTransformMakeScale(AB_KNOB_GROW, AB_KNOB_GROW) : CGAffineTransformIdentity;
             v.backgroundColor = on ? [UIColor colorWithRed:0.20 green:0.51 blue:1.0 alpha:1] : [UIColor colorWithWhite:0.12 alpha:0.88];
         } completion:nil];
     }
+    ABKnobHitRects = hit;
 }
 
 - (void)setHandleOffset:(CGFloat)dx forApp:(NSString *)bid
@@ -842,6 +859,7 @@ static void ABTerminate(NSString *bid)
 {
     [self.knobViews makeObjectsPerformSelector:@selector(removeFromSuperview)];
     [self.knobViews removeAllObjects];
+    ABKnobHitRects = nil;
     if (!self.panes.count && !self.window) return;
     ABLog("xe ngat -> bo %lu o", (unsigned long)self.panes.count);
     for (ABPane *p in [self.panes copy]) [self teardownPane:p];

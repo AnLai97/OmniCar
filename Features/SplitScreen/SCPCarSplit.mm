@@ -3815,6 +3815,7 @@ static NSArray<NSDictionary *> *SCPCPhoneApps(void)
     if (!live && CGRectEqualToRect(r, p.hostFrame) && handle == p.hostHandle && bar == p.hostBar) return;
     p.hostFrame = r; p.hostHandle = handle; p.hostBar = bar;
     [self hostPost:AB_NOTIF_FRAME info:[self hostFrameInfo:r pane:p live:live handle:handle]];
+    [self publishKnobsSoon];   // gui kem cham tron (gom 1 lan/vong runloop): SpringBoard moi respring hay vua tao cua so cung co
 }
 
 // live: dang keo vach -> cua so chay theo tay, scene doi kich thuoc khi tha tay (live = NO)
