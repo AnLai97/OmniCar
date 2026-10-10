@@ -25,8 +25,12 @@ static void ABApplyForcedOrientation(void)
 
 - (void)_setRotatableViewOrientation:(long long)orientation duration:(double)duration force:(BOOL)force
 {
-    if (sForcedOrientation > 0 && orientation != sForcedOrientation) { %orig(sForcedOrientation, duration, force); return; }
-    %orig;
+    long long want = sForcedOrientation;
+    if (want > 0 && orientation != want) {
+        %orig(want, duration, force);
+    } else {
+        %orig;
+    }
 }
 
 %end
