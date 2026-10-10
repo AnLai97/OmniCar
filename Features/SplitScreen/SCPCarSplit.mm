@@ -20,9 +20,9 @@
 // Kieu HyperOS: cac o cach nhau 1 khe den mong, giua khe la tay nam vien thuoc trang (keo = doi ti le,
 // cham 2 lan = doi cho, keo sat mep = dong app bi ep). Dau moi o co thanh "•••": cham -> thanh nut,
 // keo tha len o khac -> doi cho.
-#define SCPC_GAP          4.0     // khe den giua 2 o (tay nam nam gon trong khe; vung cham rong SCPC_DIVIDER_HIT)
+#define SCPC_GAP          1.0     // vach mong giua 2 o nhu cua so Windows (vung cham rong SCPC_DIVIDER_HIT, cham tron de keo)
 #define SCPC_INSET        0.0     // o sat dock va mep man nhu app toan man -> khong phi cho
-#define SCPC_RADIUS       12.0    // chi bo goc giap o ben canh; goc sat mep man de vuong
+#define SCPC_RADIUS       0.0     // o vuong nhu cua so Windows (khong bo goc)
 #define SCPC_BTN          34.0    // nut trong thanh vien thuoc
 #define SCPC_PILL         42.0    // be day thanh vien thuoc
 #define SCPC_HANDLE_W     34.0    // thanh "•••" o dau moi o
@@ -1735,7 +1735,7 @@ static NSString *SCPCSceneID(id scene)
         if (fp) {   // cua so noi: bo du 4 goc, nam tren cac o va vach chia
             fp.view.frame = self.floatFrame;
             fp.view.alpha = 1;
-            fp.view.layer.cornerRadius = 14;
+            fp.view.layer.cornerRadius = SCPC_RADIUS;
             fp.view.layer.maskedCorners = kCALayerMinXMinYCorner | kCALayerMaxXMinYCorner | kCALayerMinXMaxYCorner | kCALayerMaxXMaxYCorner;
             fp.host.frame = fp.view.bounds;
             fp.picker.frame = fp.view.bounds;
