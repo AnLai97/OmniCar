@@ -277,6 +277,10 @@ static void SCPInstallCrashLogger(void)
         @try { [[SCPCarSplit shared] bridgeBarAction:note.userInfo[@"action"] forBundle:note.userInfo[@"identifier"]]; }
         @catch (NSException *e) { SCPHookError("AB_BAR_ACTION", e); }
     }];
+    [dnc addObserverForName:AB_NOTIF_KNOB_TOUCH object:nil queue:main usingBlock:^(NSNotification *note) {
+        @try { [[SCPCarSplit shared] remoteKnobTouch:note.userInfo]; }
+        @catch (NSException *e) { SCPHookError("AB_KNOB_TOUCH", e); }
+    }];
 
     // SpringBoard (URL scheme / Siri) -> mo / dong split CarPlay
     [dnc addObserverForName:SPL_NOTIF_NATIVE object:nil queue:main usingBlock:^(NSNotification *note) {

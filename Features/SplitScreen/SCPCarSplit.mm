@@ -2860,7 +2860,8 @@ static CGFloat SCPCSnap(CGFloat f, CGFloat pair, int n)
 - (void)dividerPanned:(UIPanGestureRecognizer *)g
 {
     @try {
-        [self dividerPannedUnsafe:g];
+        SCPCarDividerView *d = (SCPCarDividerView *)g.view;
+        [self dividerPan:d state:g.state location:[g locationInView:d] translation:[g translationInView:self.container]];
     } @catch (NSException *e) {
         SCPLog("CarSplit: loi keo vach %@", e);
         [self markDismissSlot:-1];
@@ -2869,31 +2870,32 @@ static CGFloat SCPCSnap(CGFloat f, CGFloat pair, int n)
     }
 }
 
-- (void)dividerPannedUnsafe:(UIPanGestureRecognizer *)g
+// Keo vach d (tu UIPanGestureRecognizer cua no, hoac tu cham tron SpringBoard ve: remoteKnobTouch). loc = diem trong d,
+// tr = do doi trong container.
+- (void)dividerPan:(SCPCarDividerView *)d state:(UIGestureRecognizerState)st location:(CGPoint)loc translation:(CGPoint)tr
 {
     // Keo vach i: chi doi ti le 2 o hai ben (o i va i + 1), cac o khac giu nguyen
-    SCPCarDividerView *d = (SCPCarDividerView *)g.view;
     int i = d.index, n = [self paneCount];
-    BOOL ended = (g.state == UIGestureRecognizerStateEnded || g.state == UIGestureRecognizerStateCancelled
-                  || g.state == UIGestureRecognizerStateFailed);
+    BOOL ended = (st == UIGestureRecognizerStateEnded || st == UIGestureRecognizerStateCancelled
+                  || st == UIGestureRecognizerStateFailed);
     if (i < 0 || i + 1 >= n) { if (ended) [self endResize]; return; }
-    if (g.state == UIGestureRecognizerStateBegan) {
+    if (st == UIGestureRecognizerStateBegan) {
         for (SCPCarPane *p in self.slots) [self setBarVisible:NO forPane:p];
         [self hideRatioMenu];   // truoc beginResize: hideRatioMenu goi endResize
         [self beginResize];
     }
-    if ([self mainStack]) { [self mainStackDividerPanned:g ended:ended]; return; }
+    if ([self mainStack]) { [self mainStackDividerPan:d state:st location:loc translation:tr ended:ended]; return; }
     static CGFloat startA = 0.5, startB = 0.5;
     CGRect a = CGRectInset(self.container.bounds, SCPC_INSET, SCPC_INSET);
     BOOL v = [self vertical];
     CGFloat len = (v ? a.size.height : a.size.width) - SCPC_GAP * (n - 1);
     if (len < 10) { if (ended) [self endResize]; return; }
     if ((int)self.fractions.count != n) [self resetFractions];
-    if (g.state == UIGestureRecognizerStateBegan) {
+    if (st == UIGestureRecognizerStateBegan) {
         startA = [self fractionAt:i]; startB = [self fractionAt:i + 1];
         SCPCKnobActive(d.knob, YES);
     }
-    CGPoint t = [g translationInView:self.container];
+    CGPoint t = tr;
     CGFloat pair = startA + startB;
     // Trong luc keo cho ep sat mep (de dong o); tha tay moi hit ti le / dong
     CGFloat na = MIN(pair - 0.04, MAX(0.04, startA + (v ? t.y : t.x) / len));
@@ -2930,9 +2932,8 @@ static CGFloat SCPCSnap(CGFloat f, CGFloat pair, int n)
 // 1 lon + 2 nho. Keo tay nam o cho giao 2 vach: doi ca be rong o lon (f0) lan chieu cao 2 o nho (f1) cung luc.
 // Keo doc theo vach (khong cham tay nam): vach 0 doi f0, vach 1 doi f1. Ep sat mep: f0 -> dong o lon,
 // f1 -> dong o nho bi ep.
-- (void)mainStackDividerPanned:(UIPanGestureRecognizer *)g ended:(BOOL)ended
+- (void)mainStackDividerPan:(SCPCarDividerView *)d state:(UIGestureRecognizerState)st location:(CGPoint)loc translation:(CGPoint)tr ended:(BOOL)ended
 {
-    SCPCarDividerView *d = (SCPCarDividerView *)g.view;
     int i = d.index;
     static CGFloat start0 = 0.5, start1 = 0.5;
     static BOOL both = NO;
@@ -2945,13 +2946,13 @@ static CGFloat SCPCSnap(CGFloat f, CGFloat pair, int n)
     if (len0 < 10 || len1 < 10) { if (ended) [self endResize]; return; }
     if ((int)self.fractions.count != 2) [self resetFractions];
     UIView *knob = self.dividers.count ? self.dividers[0].knob : nil;
-    if (g.state == UIGestureRecognizerStateBegan) {
+    if (st == UIGestureRecognizerStateBegan) {
         start0 = [self fractionAt:0]; start1 = [self fractionAt:1];
-        both = (i == 0 && !d.knob.hidden && CGRectContainsPoint(CGRectInset(d.knob.frame, -SCPC_DIVIDER_HIT, -SCPC_DIVIDER_HIT), [g locationInView:d]));
+        both = (i == 0 && !d.knob.hidden && CGRectContainsPoint(CGRectInset(d.knob.frame, -SCPC_DIVIDER_HIT, -SCPC_DIVIDER_HIT), loc));
         axis = 0;
         if (both || i == 0) SCPCKnobActive(knob, YES);
     }
-    CGPoint t = [g translationInView:self.container];
+    CGPoint t = tr;
     CGFloat f0 = start0, f1 = start1;
     CGFloat d0 = (along0 ? t.y : t.x) * ([self mainRight] ? -1 : 1);   // 2 + 1 lon: keo vach ve phia o lon = o lon nho lai
     CGFloat d1 = along1 ? t.y : t.x;
@@ -2999,10 +3000,10 @@ static CGFloat SCPCSnap(CGFloat f, CGFloat pair, int n)
 }
 
 // Cham 2 lan vao vach: doi cho 2 o hai ben (HyperOS)
-- (void)dividerDoubleTapped:(UITapGestureRecognizer *)g
+- (void)dividerDoubleTapped:(UITapGestureRecognizer *)g { [self dividerDoubleTapOn:(SCPCarDividerView *)g.view]; }
+- (void)dividerDoubleTapOn:(SCPCarDividerView *)d
 {
     @try {
-        SCPCarDividerView *d = (SCPCarDividerView *)g.view;
         int i = d.index;
         if (i < 0 || i + 1 >= [self paneCount]) return;
         SCPLog("CarSplit: cham 2 lan vach %d -> doi cho o %d va %d", i, i, i + 1);
@@ -3056,13 +3057,62 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
 // Cham 1 lan vao tay nam: hien / an thanh ti le mac dinh
 - (void)dividerTapped:(UITapGestureRecognizer *)g
 {
+    SCPCarDividerView *d = (SCPCarDividerView *)g.view;
+    [self dividerTapOn:d at:[g locationInView:d]];
+}
+- (void)dividerTapOn:(SCPCarDividerView *)d at:(CGPoint)loc
+{
     @try {
-        SCPCarDividerView *d = (SCPCarDividerView *)g.view;
         if (!d.knob || d.knob.hidden) return;
-        if (!CGRectContainsPoint(CGRectInset(d.knob.frame, -SCPC_DIVIDER_HIT, -SCPC_DIVIDER_HIT), [g locationInView:d])) return;
+        if (!CGRectContainsPoint(CGRectInset(d.knob.frame, -SCPC_DIVIDER_HIT, -SCPC_DIVIDER_HIT), loc)) return;
         if (self.ratioMenu) { [self hideRatioMenu]; return; }
         [self showRatioMenuForDivider:d];
     } @catch (NSException *e) { SCPLog("CarSplit: loi cham tay nam %@\n%@", e, e.callStackSymbols); }
+}
+
+// SpringBoard bao cham vao cham tron no ve len tren o app iPhone (AB_NOTIF_KNOB_TOUCH; cham do khong bao gio toi CarPlay):
+// phase 0 bat dau / 1 di / 2 nhac / 3 huy, x y = diem man xe. Dieu khien vach nhu cham vao cham tron cua chinh CarPlay:
+// di > 8 pt = keo (dividerPan), nhac ma chua keo = cham (thanh ti le), 2 cham nhanh = doi cho.
+- (void)remoteKnobTouch:(NSDictionary *)info
+{
+    static CGPoint start;
+    static BOOL panning;
+    static NSTimeInterval lastTap;
+    @try {
+        int idx = [info[@"index"] intValue], phase = [info[@"phase"] intValue];
+        SCPCarDividerView *d = nil;
+        for (SCPCarDividerView *x in self.dividers) if (x.index == idx) d = x;
+        if (!d || !self.active || !self.container || !d.window) return;
+        CGPoint w = CGPointMake([info[@"x"] doubleValue], [info[@"y"] doubleValue]);
+        CGPoint c = [self.container convertPoint:w fromView:nil];
+        CGPoint loc = [d convertPoint:w fromView:nil];
+        CGPoint tr = CGPointMake(c.x - start.x, c.y - start.y);
+        if (phase == 0) {
+            start = c; panning = NO;
+            if (d.knob && !d.knob.hidden) SCPCKnobActive(d.knob, YES);
+        } else if (phase == 1) {
+            if (panning) { [self dividerPan:d state:UIGestureRecognizerStateChanged location:loc translation:tr]; return; }
+            if (hypot(tr.x, tr.y) < 8) return;
+            panning = YES;
+            [self dividerPan:d state:UIGestureRecognizerStateBegan location:loc translation:tr];
+        } else if (panning) {
+            panning = NO;
+            [self dividerPan:d state:(phase == 2 ? UIGestureRecognizerStateEnded : UIGestureRecognizerStateCancelled) location:loc translation:tr];
+        } else {
+            if (d.knob) SCPCKnobActive(d.knob, NO);
+            if (phase != 2) return;
+            NSTimeInterval now = CACurrentMediaTime();
+            [self dividerTapOn:d at:loc];
+            if (now - lastTap < 0.35) { lastTap = 0; [self dividerDoubleTapOn:d]; }
+            else lastTap = now;
+        }
+    } @catch (NSException *e) {
+        SCPLog("CarSplit: loi cham tron tu SpringBoard %@", e);
+        panning = NO;
+        [self markDismissSlot:-1];
+        [self endResize];
+        [self relayoutAnimated:YES];
+    }
 }
 
 - (void)showRatioMenuForDivider:(SCPCarDividerView *)d
@@ -3890,7 +3940,7 @@ static NSArray<NSDictionary *> *SCPCPhoneApps(void)
             if (!k || k.hidden || d.alpha < 0.5 || !k.window) continue;
             CGPoint c = [d convertPoint:k.center toView:nil];
             BOOL on = !CGAffineTransformIsIdentity(k.transform);
-            [knobs addObject:@[@(c.x), @(c.y), @(on)]];
+            [knobs addObject:@[@(c.x), @(c.y), @(on), @(d.index)]];
         }
     }
     if (!knobs.count && !sentAny) return;
