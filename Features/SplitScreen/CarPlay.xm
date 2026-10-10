@@ -152,6 +152,7 @@ static void SCPHookError(const char *where, NSException *e)
             @try {
                 [[SCPCarSplit shared] publishCarPlayApps];
                 [[SCPCarSplit shared] carScreenAppeared];
+                SCPAppIconsCarScreenOK();   // man xe hien duoc sau khi chen icon -> khong phai crash-loop
             } @catch (NSException *e) { SCPHookError("viewDidAppear (sau 3s)", e); }
         });
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(7 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{ SCPDumpAppLibraryOnce(); });
@@ -199,11 +200,22 @@ static void SCPHookError(const char *where, NSException *e)
 
 %end // CARPLAY
 
+// Exception ObjC khong ai bat (trong code DashBoard, ke ca do tweak gay ra) -> ghi vao OmniCar.log truoc khi CarPlay sap,
+// de biet sap vi gi (CarPlay sap thi crash log nam cho khac, kho lay). Goi tiep handler cu neu co.
+static NSUncaughtExceptionHandler *sPrevHandler;
+static void SCPUncaughtException(NSException *e)
+{
+    SCPLog("CARPLAY SAP (uncaught %@): %@\n%@", e.name, e.reason, e.callStackSymbols);
+    if (sPrevHandler) sPrevHandler(e);
+}
+
 %ctor
 {
     if (![[[NSBundle mainBundle] bundleIdentifier] isEqualToString:@"com.apple.CarPlayApp"]) return;
     SCPLog("loaded into CarPlay");
     %init(CARPLAY);
+    sPrevHandler = NSGetUncaughtExceptionHandler();
+    NSSetUncaughtExceptionHandler(SCPUncaughtException);
 
     NSNotificationCenter *dnc = [objc_getClass("NSDistributedNotificationCenter") defaultCenter];
     NSOperationQueue *main = [NSOperationQueue mainQueue];

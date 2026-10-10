@@ -32,7 +32,8 @@ define OMC_FEATURE
 OmniCar$(1)_FILES = $(wildcard Features/$(1)/*.x) $(wildcard Features/$(1)/*.xm) $(wildcard Features/$(1)/*.m) $(wildcard Features/$(1)/*.mm) Core/OmniCar.m
 OmniCar$(1)_FRAMEWORKS = UIKit
 # -DOMC_FEATURE keeps each dylib's objects apart (Theos hashes the flags into the object path).
-OmniCar$(1)_CFLAGS = -fobjc-arc -ICore -DOMC_FEATURE=\"$(1)\"
+# TWEAK_VERSION: features that remember "this build crashed" (Split Screen app icons) retry on a new build.
+OmniCar$(1)_CFLAGS = -fobjc-arc -ICore -DOMC_FEATURE=\"$(1)\" -DTWEAK_VERSION=\"$(TWEAK_VERSION)\"
 $$(shell cp "Features/$(1)/Filter.plist" "OmniCar$(1).plist" && chmod 644 "OmniCar$(1).plist")
 endef
 $(foreach f,$(FEATURES),$(eval $(call OMC_FEATURE,$(f))))

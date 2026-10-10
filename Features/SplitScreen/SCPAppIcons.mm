@@ -66,15 +66,74 @@ void SCPAddPhoneAppDeclarations(id library)
         objcCall_1(decl, @"setSupportsTemplates:", (BOOL)NO);   // khong template: CarPlayTemplateUIHost se khong tim template roi sap
         objcCall_1(decl, @"setSupportsMaps:", (BOOL)YES);
         objcCall_1(decl, @"setBundleIdentifier:", bid);
-        objcCall_1(decl, @"setBundlePath:", SCPTryGet(info, @"bundleURL"));
+        // iOS 16.5: _bundlePath la NSString (DIAG), carplay-cast truyen NSURL -> DashBoard goi method chuoi len NSURL -> sap
+        id bundleURL = SCPTryGet(info, @"bundleURL");
+        NSString *bundlePath = [bundleURL isKindOfClass:[NSURL class]] ? [(NSURL *)bundleURL path] : ([bundleURL isKindOfClass:[NSString class]] ? bundleURL : nil);
+        if (bundlePath) objcCall_1(decl, @"setBundlePath:", bundlePath);
         if (!SCPSetIvar(info, @"_carPlayDeclaration", decl)) continue;
         NSArray *newTags = [@[SCP_INJECT_TAG] arrayByAddingObjectsFromArray:[tags isKindOfClass:[NSArray class]] ? tags : @[]];
         SCPSetIvar(info, @"_tags", newTags);
         [injected addObject:bid];
+        SCPLog("AppIcons: chen %@: valid=%d hidden=%d installed=%d fullScreen=%d path=%@", bid,
+               objcInvokeT(info, @"isValid", BOOL), objcInvokeT(info, @"isHidden", BOOL), objcInvokeT(info, @"isInstalled", BOOL),
+               objcInvokeT(info, @"presentsFullScreen", BOOL), bundlePath);
     }
     sInjected = injected;
     SCPLog("AppIcons: %lu app iPhone tren man chinh (%lu moi, %lu da co), %lu app chon",
            (unsigned long)injected.count, (unsigned long)(injected.count - kept), (unsigned long)kept, (unsigned long)chosen.count);
+}
+
+// ---------------------------------------------------------------------
+//  Cau dao chong crash-loop: ghi "dang chen" vao prefs truoc khi thay thu vien, xoa khi man xe hien (carScreenAppeared).
+//  Lan khoi dong sau ma con "dang chen" = CarPlay sap sau khi chen -> ghi version bi sap, khong chen nua cho den khi
+//  nguoi dung doi danh sach app (prefschanged) hoac cai ban moi (version khac).
+// ---------------------------------------------------------------------
+#define SCP_KEY_ICONS_PENDING  @"splitScreenIconsPending"
+#define SCP_KEY_ICONS_CRASHED  @"splitScreenIconsCrashed"
+#ifndef TWEAK_VERSION
+#define TWEAK_VERSION "dev"
+#endif
+
+static void SCPIconsStore(NSString *key, id value)
+{
+    CFPreferencesSetAppValue((__bridge CFStringRef)key, (__bridge CFPropertyListRef)value, OMC_PREFS_DOMAIN);
+    CFPreferencesAppSynchronize(OMC_PREFS_DOMAIN);
+}
+
+// YES = duoc phep chen lan nay (va da danh dau "dang chen")
+BOOL SCPAppIconsBeginInjection(void)
+{
+    OMCPrefsSync();
+    NSString *ver = @TWEAK_VERSION;
+    if ([OMCPref(SCP_KEY_ICONS_PENDING, nil) boolValue]) {
+        SCPLog("AppIcons: lan truoc CarPlay sap sau khi chen icon -> tat chen icon o ban %@ (doi danh sach app de thu lai)", ver);
+        SCPIconsStore(SCP_KEY_ICONS_CRASHED, ver);
+        SCPIconsStore(SCP_KEY_ICONS_PENDING, nil);
+    }
+    if ([OMCPref(SCP_KEY_ICONS_CRASHED, nil) isEqual:ver]) {
+        SCPLog("AppIcons: dang tat vi tung sap o ban %@", ver);
+        return NO;
+    }
+    SCPIconsStore(SCP_KEY_ICONS_PENDING, @YES);
+    return YES;
+}
+
+void SCPAppIconsCarScreenOK(void)
+{
+    OMCPrefsSync();
+    if ([OMCPref(SCP_KEY_ICONS_PENDING, nil) boolValue]) {
+        SCPIconsStore(SCP_KEY_ICONS_PENDING, nil);
+        SCPLog("AppIcons: man xe hien binh thuong sau khi chen icon");
+    }
+}
+
+void SCPAppIconsRetry(void)
+{
+    OMCPrefsSync();
+    if (OMCPref(SCP_KEY_ICONS_CRASHED, nil)) {
+        SCPIconsStore(SCP_KEY_ICONS_CRASHED, nil);
+        SCPLog("AppIcons: danh sach app doi -> cho phep chen icon lai");
+    }
 }
 
 id SCPNewLibraryWithPhoneApps(void)
@@ -124,6 +183,7 @@ void SCPRefreshAppIconsSoon(void)
         id home = sHomeVC;
         if (!home) return;
         if ([SCPChosenPhoneApps() isEqualToSet:sBuiltChosen ?: [NSSet set]]) return;   // khong doi (prefs khac)
+        SCPAppIconsRetry();
         @try {
             Class DashBoard = objc_getClass("DashBoard");
             id lib = DashBoard ? objcInvoke(DashBoard, @"_newApplicationLibrary") : nil;   // qua hook -> co app iPhone

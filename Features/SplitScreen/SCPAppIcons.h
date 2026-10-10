@@ -23,6 +23,10 @@ void SCPAddPhoneAppDeclarations(id library);
 void SCPSetHomeViewController(id vc);
 // Danh sach app da chon vua doi (prefschanged): tao thu vien moi va ve lai man chinh (co debounce)
 void SCPRefreshAppIconsSoon(void);
+// Cau dao chong crash-loop (xem SCPAppIcons.mm): hoi truoc khi chen; bao man xe da hien; cho phep thu lai
+BOOL SCPAppIconsBeginInjection(void);
+void SCPAppIconsCarScreenOK(void);
+void SCPAppIconsRetry(void);
 #ifdef __cplusplus
 }
 #endif

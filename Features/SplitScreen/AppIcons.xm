@@ -20,6 +20,7 @@ static void SCPIconsHookError(const char *where, NSException *e)
 {
     @try {
         if (SCPChosenPhoneApps().count) {
+            if (!SCPAppIconsBeginInjection()) return %orig;   // tung sap o ban nay -> thu vien goc
             id lib = SCPNewLibraryWithPhoneApps();
             if (lib) return lib;
         } else {
