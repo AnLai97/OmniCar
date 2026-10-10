@@ -7,6 +7,7 @@
 // be shown at once. It replaces CarBridge for Split Screen.
 
 #pragma once
+#import <Foundation/Foundation.h>   // ABBundleHash below (every includer is Objective-C)
 
 // Key prefix: OMCFeatureEnabled(AB_FEATURE) reads the master switch + appBridgeEnabled.
 #define AB_FEATURE           @"appBridge"
