@@ -54,6 +54,15 @@ static void SCPIconsHookError(const char *where, NSException *e)
 // dua sang App Bridge, khong bao gio de DashBoard tao scene CarPlay cho app iPhone (man den)
 %hook DBApplicationLaunchInfo
 
+// Bien the 1 tham so (Split Screen va DashBoard goi) khong di qua ban 2 tham so: cung chan app iPhone
++ (id)launchInfoForApplication:(id)info
+{
+    NSString *bid = nil;
+    @try { bid = objcInvoke(info, @"bundleIdentifier"); } @catch (NSException *e) {}
+    if (SCPIsInjectedPhoneApp(bid)) return nil;   // chi chan, khong tu mo (nguoi goi tu quyet)
+    return %orig;
+}
+
 + (id)launchInfoForApplication:(id)info withActivationSettings:(id)settings
 {
     NSString *bid = nil;

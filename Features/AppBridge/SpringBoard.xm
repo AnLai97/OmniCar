@@ -26,7 +26,7 @@ static int (*orig_BKSDisplayServicesSetScreenBlanked)(int) = NULL;
             [[ABHost shared] openApp:u[@"identifier"] frame:r];
             [[ABHost shared] setPassInsets:UIEdgeInsetsMake([u[@"pt"] doubleValue], [u[@"pl"] doubleValue], [u[@"pb"] doubleValue], [u[@"pr"] doubleValue])
                                     forApp:u[@"identifier"]];
-            [[ABHost shared] setClipTop:[u[@"ct"] doubleValue] forApp:u[@"identifier"]];
+            [[ABHost shared] setBarVisible:[u[@"bar"] boolValue] pop:[u[@"pop"] intValue] dim:[u[@"popDim"] boolValue] forApp:u[@"identifier"]];
         } @catch (NSException *e) { ABLog("open loi %@\n%@", e, e.callStackSymbols); }
     }];
     [dnc addObserverForName:AB_NOTIF_FRAME object:nil queue:main usingBlock:^(NSNotification *note) {
@@ -35,7 +35,7 @@ static int (*orig_BKSDisplayServicesSetScreenBlanked)(int) = NULL;
         UIEdgeInsets pass = UIEdgeInsetsMake([u[@"pt"] doubleValue], [u[@"pl"] doubleValue], [u[@"pb"] doubleValue], [u[@"pr"] doubleValue]);
         @try {
             [[ABHost shared] setFrame:r forApp:u[@"identifier"] live:[u[@"live"] boolValue] handle:[u[@"handle"] boolValue] passInsets:pass];
-            [[ABHost shared] setClipTop:[u[@"ct"] doubleValue] forApp:u[@"identifier"]];
+            [[ABHost shared] setBarVisible:[u[@"bar"] boolValue] pop:[u[@"pop"] intValue] dim:[u[@"popDim"] boolValue] forApp:u[@"identifier"]];
         } @catch (NSException *e) { ABLog("frame loi %@", e); }
     }];
     [dnc addObserverForName:AB_NOTIF_CLOSE object:nil queue:main usingBlock:^(NSNotification *note) {
@@ -43,7 +43,7 @@ static int (*orig_BKSDisplayServicesSetScreenBlanked)(int) = NULL;
         @catch (NSException *e) { ABLog("close loi %@", e); }
     }];
     [dnc addObserverForName:AB_NOTIF_CLOSEALL object:nil queue:main usingBlock:^(NSNotification *note) {
-        @try { [[ABHost shared] closeAll]; } @catch (NSException *e) { ABLog("closeall loi %@", e); }
+        @try { [[ABHost shared] closeAllExcept:note.userInfo[@"except"]]; } @catch (NSException *e) { ABLog("closeall loi %@", e); }
     }];
     // App dang host vua doi yeu cau xoay (YouTube fullscreen): App.xm gui Darwin notify kem state (qua duoc sandbox)
     static int tokOrient = 0;

@@ -582,6 +582,7 @@ static void SCPCPopIn(NSArray<UIView *> *views)
 @property (nonatomic, strong) UIView *picker;         // bang chon app cho ngan nay
 @property (nonatomic) CGRect hostFrame;               // khung cua so host (App Bridge) da gui lan cuoi
 @property (nonatomic) BOOL hostHandle;                // lan gui gan nhat co thanh "•••" do SpringBoard ve khong
+@property (nonatomic) BOOL hostBar;                   // lan gui gan nhat co thanh nut do SpringBoard ve de len app khong
 @property (nonatomic) CGSize sceneSize;               // kich thuoc da bao cho scene lan cuoi
 @end
 @implementation SCPCarPane
@@ -1887,7 +1888,9 @@ static CGSize SCPCSceneSize(UIViewController *vc)
     NSString *activeBase = objcInvoke(objcInvoke(SCPCDashboard(), @"workspaceOwner"), @"activeBaseApplicationBundleID");
     SCPCarPane *other = nil;
     for (SCPCarPane *p in self.slots) if (p.vc && p.bundleID) { other = p; break; }
-    if (closedBid && other && [activeBase isEqualToString:closedBid]) {
+    // App iPhone (App Bridge) khong mo qua DashBoard: declaration gia lam DashBoard tao scene CarPlay den cho no,
+    // split nhan scene do vao o va dong cua so host (log 10/10 15:43: YouTube "khong ve" trong o sau khi dong o khac)
+    if (closedBid && other && [activeBase isEqualToString:closedBid] && !SCPCIsBridgedApp(other.bundleID)) {
         NSString *ob = other.bundleID;
         self.pending[ob] = @[@(other.slot), [NSDate date]];
         id launchInfo = objcInvoke_1(objc_getClass("DBApplicationLaunchInfo"), @"launchInfoForApplication:", SCPCAppInfo(ob));
@@ -1905,10 +1908,10 @@ static CGSize SCPCSceneSize(UIViewController *vc)
     if (!bid) { [self closeGoingHome:YES]; return; }
     if (SCPCIsBridgedApp(bid)) {   // app iPhone: App Bridge host o ca vung app, man chinh CarPlay van o duoi
         SCPLog("CarSplit: chi giu %@ (app iPhone) -> App Bridge toan man", bid);
-        [self showSoloCoverForBundle:bid];
+        // Host toan man TRUOC (o dang host chi truot ra ca vung app), roi moi tat split: hostCloseAll giu app nay lai,
+        // man chinh CarPlay ve ben duoi ma khong lo ra -> khong nhay ve Home
+        [self hostSolo:bid];
         [self closeGoingHome:YES];
-        __weak SCPCarSplit *weakSelf = self;
-        SCPCAfter(0.8, ^{ SCPCarSplit *me = weakSelf; if (me && !me.active) [me hostSolo:bid]; });
         return;
     }
     SCPLog("CarSplit: chi giu %@ -> mo toan man", bid);
@@ -2072,9 +2075,14 @@ static CGSize SCPCSceneSize(UIViewController *vc)
 
 - (void)panePopOut:(UIButton *)b
 {
+    SCPCarPane *p = [self paneForView:b];
+    if (p) [self popOutPane:p];
+}
+
+- (void)popOutPane:(SCPCarPane *)p
+{
     @try {
-        SCPCarPane *p = [self paneForView:b];
-        if (p && p == self.floatPane) { [self floatDockBack]; return; }   // nut cua cua so noi = dua ve o
+        if (p == self.floatPane) { [self floatDockBack]; return; }   // nut cua cua so noi = dua ve o
         NSString *why = [self popOutBlockReason:p];
         if (why) { [self toast:why]; return; }
         [self setBarVisible:NO forPane:p];
@@ -3682,10 +3690,13 @@ static NSArray<NSDictionary *> *SCPCPhoneApps(void)
     return [p.view convertRect:p.view.bounds toView:nil];
 }
 
-// Thanh nut cua o dang hien -> cua so host che tung ay pt tren cung (thanh nut ve ben CarPlay lo ra, cham xuyen xuong)
-- (CGFloat)hostClipTopForPane:(SCPCarPane *)p
+// Thanh nut cua o app iPhone do SpringBoard ve de len app (thanh ve ben CarPlay nam duoi cua so host, khong thay):
+// bar = dang hien, pop = 1 nut "noi" / 2 nut "ghim" (cua so noi), popDim = khong noi ra duoc (bam thi bao ly do)
+- (NSDictionary *)hostBarInfoForPane:(SCPCarPane *)p
 {
-    return p.bar.hidden ? 0 : SCPC_HANDLE_Y + SCPC_HANDLE_H + 6 + SCPC_PILL + 6;
+    BOOL isFloat = (p == self.floatPane);
+    BOOL canPop = isFloat ? (p.vc && [self paneCount] < SCPC_MAX_PANES) : [self canPopOutPane:p];
+    return @{@"bar": @(!p.bar.hidden), @"pop": @(isFloat ? 2 : 1), @"popDim": @(!canPop)};
 }
 
 // Dai sat mep cua so host cho cham xuyen xuong CarPlay (canh giap o khac: keo vach; canh giap mep vung app: 0)
@@ -3700,18 +3711,20 @@ static NSArray<NSDictionary *> *SCPCPhoneApps(void)
 - (NSDictionary *)hostFrameInfo:(CGRect)r pane:(SCPCarPane *)p live:(BOOL)live handle:(BOOL)handle
 {
     UIEdgeInsets pi = p ? [self hostPassInsetsForPane:p] : UIEdgeInsetsZero;
-    return @{@"identifier": p.bundleID ?: @"", @"x": @(r.origin.x), @"y": @(r.origin.y), @"w": @(r.size.width), @"h": @(r.size.height),
-             @"live": @(live), @"handle": @(handle), @"pt": @(pi.top), @"pl": @(pi.left), @"pb": @(pi.bottom), @"pr": @(pi.right),
-             @"ct": @(p ? [self hostClipTopForPane:p] : 0)};
+    NSMutableDictionary *d = [@{@"identifier": p.bundleID ?: @"", @"x": @(r.origin.x), @"y": @(r.origin.y), @"w": @(r.size.width), @"h": @(r.size.height),
+                                @"live": @(live), @"handle": @(handle), @"pt": @(pi.top), @"pl": @(pi.left), @"pb": @(pi.bottom), @"pr": @(pi.right)} mutableCopy];
+    if (p) [d addEntriesFromDictionary:[self hostBarInfoForPane:p]];
+    return d;
 }
 
 - (void)sendHostFrameForPane:(SCPCarPane *)p live:(BOOL)live
 {
     if (!SCPCIsHostedVC(p.vc) || !p.bundleID) return;
     CGRect r = [self hostFrameForPane:p];
-    BOOL handle = p.bar.hidden && !CGRectIsEmpty(r);
-    if (!live && CGRectEqualToRect(r, p.hostFrame) && handle == p.hostHandle) return;
-    p.hostFrame = r; p.hostHandle = handle;
+    BOOL handle = !CGRectIsEmpty(r);   // thanh "•••" luon hien, thanh nut (SpringBoard ve) nam duoi no
+    BOOL bar = !p.bar.hidden;
+    if (!live && CGRectEqualToRect(r, p.hostFrame) && handle == p.hostHandle && bar == p.hostBar) return;
+    p.hostFrame = r; p.hostHandle = handle; p.hostBar = bar;
     [self hostPost:AB_NOTIF_FRAME info:[self hostFrameInfo:r pane:p live:live handle:handle]];
 }
 
@@ -3749,8 +3762,8 @@ static NSArray<NSDictionary *> *SCPCPhoneApps(void)
         if (!me.active || !pp || ![pp.bundleID isEqualToString:bid]) return;
         CGRect r = [me hostFrameForPane:pp];
         if (CGRectIsEmpty(r)) r = [pp.view convertRect:pp.view.bounds toView:nil];
-        pp.hostFrame = r; pp.hostHandle = pp.bar.hidden;
-        [me hostPost:AB_NOTIF_OPEN info:[me hostFrameInfo:r pane:pp live:NO handle:pp.bar.hidden]];
+        pp.hostFrame = r; pp.hostHandle = !CGRectIsEmpty(r); pp.hostBar = !pp.bar.hidden;
+        [me hostPost:AB_NOTIF_OPEN info:[me hostFrameInfo:r pane:pp live:NO handle:pp.hostHandle]];
     });
     // Khong thay app len sau 8s -> bo the "dang mo" (app van co the toi muon)
     SCPCAfter(8.0, ^{ SCPCarPane *pp = weakPane; if (pp && [pp.bundleID isEqualToString:bid]) [weakSelf removeLoaderFromPane:pp animated:YES]; });
@@ -3764,7 +3777,9 @@ static NSArray<NSDictionary *> *SCPCPhoneApps(void)
 
 - (void)hostCloseAll
 {
-    [self hostPost:AB_NOTIF_CLOSEALL info:@{}];
+    // App dang chuyen sang toan man (soloBundle) giu lai: cua so cua no chi doi khung, khong dong roi mo lai
+    NSString *keep = self.soloHostedBundle;
+    [self hostPost:AB_NOTIF_CLOSEALL info:keep ? @{@"except": keep} : @{}];
 }
 
 // SpringBoard bao trang thai app dang host (AB_NOTIF_STATE): ready / failed / gone
@@ -3790,6 +3805,28 @@ static NSArray<NSDictionary *> *SCPCPhoneApps(void)
     SCPCarPane *p = [self paneForBundle:bid];
     if (!self.active || !p) return;
     [self setBarVisible:p.bar.hidden forPane:p];
+}
+
+// Nut tren thanh nut do SpringBoard ve de len app iPhone (AB_NOTIF_BAR_ACTION): cung viec voi 4 nut cua thanh CarPlay
+- (void)bridgeBarAction:(NSString *)action forBundle:(NSString *)bid
+{
+    SCPCarPane *p = [self paneForBundle:bid];
+    if (!self.active || !p) return;
+    SCPLog("AppBridge: thanh nut %@ cua %@", action, bid);
+    if ([action isEqualToString:@"replace"]) {
+        [self setBarVisible:NO forPane:p];
+        [self showPickerForSlot:p.slot];
+    } else if ([action isEqualToString:@"full"]) {
+        [self setBarVisible:NO forPane:p];
+        SCPLog("CarSplit: [toan man hinh] o %d -> chi giu %@", p.slot, p.bundleID);
+        [self soloBundle:p.bundleID];
+    } else if ([action isEqualToString:@"pop"]) {
+        [self popOutPane:p];
+    } else if ([action isEqualToString:@"close"]) {
+        [self setBarVisible:NO forPane:p];
+        [self closeSlot:p.slot background:YES];
+        if (SCPCIsBridgedApp(bid)) [self killAppSoon:bid];   // nhu nut [x] cua thanh CarPlay: tat han de khong phat tieng ngam
+    }
 }
 
 // ---- App iPhone toan man (khong chia): host o ca vung app, man chinh CarPlay van o duoi ----

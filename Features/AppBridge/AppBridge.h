@@ -29,10 +29,11 @@
 //            translucent "•••" pill at the top of the box (CarPlay's own pill is under the window).
 //            pt, pl, pb, pr (optional, points): touches within that distance of the box edge fall through to
 //            CarPlay (divider drags along edges shared with another pane).
-//            ct (optional, points): the box hides its top ct points (masked, touches there fall through) so the
-//            pane's button bar drawn by CarPlay shows over the app without pushing the app down. Also on OPEN.
+//            bar (0/1): SpringBoard draws the pane's button bar (change app, float/dock, full screen, close) over the
+//            app, under the "•••" pill; a CarPlay-drawn bar could never show above the host window. pop = 1 float
+//            glyph, 2 dock glyph; popDim = 1 draws the float button dimmed (tap still reports). Also on OPEN.
 //   CLOSE    identifier, terminate (0/1): remove the app from the car screen (and quit it)
-//   CLOSEALL (no keys)
+//   CLOSEALL except (optional bundle id kept, e.g. the app that is becoming full screen)
 #define AB_NOTIF_OPEN        @"com.anlai.omnicar/appbridge.open"
 #define AB_NOTIF_FRAME       @"com.anlai.omnicar/appbridge.frame"
 #define AB_NOTIF_CLOSE       @"com.anlai.omnicar/appbridge.close"
@@ -42,6 +43,9 @@
 #define AB_NOTIF_STATE       @"com.anlai.omnicar/appbridge.state"
 // SpringBoard -> CarPlay process: the "•••" pill over the hosted app was tapped (identifier)
 #define AB_NOTIF_HANDLE_TAP  @"com.anlai.omnicar/appbridge.handletap"
+// SpringBoard -> CarPlay process: a button of the bar drawn over the hosted app was tapped
+// (identifier, action = replace | pop | full | close)
+#define AB_NOTIF_BAR_ACTION  @"com.anlai.omnicar/appbridge.baraction"
 // Orientation model (from CarDuo 1.0, which ran YouTube fine): the scene of a hosted app is PORTRAIT by default
 // whatever the box shape (a wide box is a wide portrait window), because an app whose main UI is portrait-only
 // (YouTube, TikTok) draws sideways in a landscape scene. The app itself may ask for landscape (YouTube full-screen

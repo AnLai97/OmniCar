@@ -94,36 +94,16 @@ static void ABPostOrientation(NSString *bid, long long orientation)
 // tra nil -> CarPlay nhan cham de keo vach. Thanh "•••" van cham duoc.
 @interface ABBoxView : UIView
 @property (nonatomic) UIEdgeInsets passInsets;
-@property (nonatomic) CGFloat clipTop;             // che `clipTop` pt tren cung (thanh nut cua o ve ben CarPlay lo ra), cham o do xuyen xuong
 @property (nonatomic, weak) UIView *handleHit;
+@property (nonatomic, weak) UIView *bar;           // thanh nut ve de len app: luon nhan cham
 @end
 @implementation ABBoxView
 - (BOOL)pointInside:(CGPoint)p withEvent:(UIEvent *)e
 {
     if (![super pointInside:p withEvent:e]) return NO;
     if (self.handleHit && !self.handleHit.hidden && CGRectContainsPoint(self.handleHit.frame, p)) return YES;
-    if (p.y < self.clipTop) return NO;
+    if (self.bar && !self.bar.hidden && CGRectContainsPoint(self.bar.frame, p)) return YES;
     return CGRectContainsPoint(UIEdgeInsetsInsetRect(self.bounds, self.passInsets), p);
-}
-- (void)setClipTop:(CGFloat)clipTop
-{
-    _clipTop = MAX(0, clipTop);
-    [self updateMask];
-}
-- (void)layoutSubviews
-{
-    [super layoutSubviews];
-    [self updateMask];
-}
-// Mask thay vi thu nho khung: app giu nguyen kich thuoc / bo cuc, chi phan tren bi che
-- (void)updateMask
-{
-    if (_clipTop <= 0) { self.layer.mask = nil; return; }
-    CALayer *mask = self.layer.mask ?: [CALayer layer];
-    mask.backgroundColor = [UIColor blackColor].CGColor;
-    CGRect b = self.bounds;
-    mask.frame = CGRectMake(0, _clipTop, b.size.width, MAX(0, b.size.height - _clipTop));
-    self.layer.mask = mask;
 }
 @end
 
@@ -141,6 +121,8 @@ static void ABPostOrientation(NSString *bid, long long orientation)
 @property (nonatomic) BOOL ready;
 @property (nonatomic, strong) UIView *handle;          // thanh "•••" mo tren app
 @property (nonatomic, strong) UIView *handleHit;       // vung cham cua thanh
+@property (nonatomic, strong) UIView *bar;             // thanh nut cua o (doi app / noi / toan man / dong) ve de len app
+@property (nonatomic, strong) UIButton *popButton;     // nut noi / ghim tren thanh (glyph doi theo "pop")
 @end
 @implementation ABPane
 @end
@@ -232,6 +214,7 @@ static void ABPostOrientation(NSString *bid, long long orientation)
     pane.box = [[ABBoxView alloc] initWithFrame:frame];
     pane.box.backgroundColor = [UIColor blackColor];
     pane.box.clipsToBounds = YES;
+    pane.box.alpha = 0;   // hien dan khi app san sang (afterLaunch), khong nhay cuc
     [self.window addSubview:pane.box];
     [self setupHandleForPane:pane];
     [self.panes addObject:pane];
@@ -252,8 +235,16 @@ static void ABPostOrientation(NSString *bid, long long orientation)
     __weak ABPane *weakPane = pane;
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         ABPane *p = weakPane;
+        if (p && [self.panes containsObject:p]) [self revealPane:p];
         if (p && !p.ready && [self.panes containsObject:p]) { p.ready = YES; ABPostState(p.bundleID, @"ready"); }
     });
+}
+
+// O hien dan (0.25s) khi app san sang
+- (void)revealPane:(ABPane *)pane
+{
+    if (pane.box.alpha >= 1) return;
+    [UIView animateWithDuration:0.25 animations:^{ pane.box.alpha = 1; }];
 }
 
 // Port tu CRCarplayWindow -setupLiveAppView (carplay-cast), selector iOS 16.x
@@ -305,6 +296,7 @@ static void ABPostOrientation(NSString *bid, long long orientation)
                 if (!p || !me || ![me.panes containsObject:p]) return;
                 ABPostOrientation(p.bundleID, p.orientation);   // App.xm trong app: huong cua o + huong "thiet bi" gia
                 [me layoutPane:p];
+                [me revealPane:p];
                 if (!p.ready) { p.ready = YES; ABPostState(p.bundleID, @"ready"); }
             });
         };
@@ -446,13 +438,22 @@ static void ABPostOrientation(NSString *bid, long long orientation)
     p.box.passInsets = pass;
     [self setHandleVisible:handle && !hidden forPane:p];
     if (hidden) return;
+    CGRect old = p.frame;
     p.frame = frame;
-    p.box.frame = frame;
     if (live) {   // dang keo vach: o chay theo tay, noi dung giu nguyen (scene doi kich thuoc khi tha tay)
+        p.box.frame = frame;
         UIView *appView = [p.appViewController view];
         appView.center = CGPointMake(frame.size.width / 2, frame.size.height / 2);
+        [self layoutBarForPane:p];
         return;
     }
+    // Khung o truot muot toi vi tri moi (doi bo cuc / toan man); scene doi kich thuoc ngay
+    BOOL moved = !CGRectEqualToRect(old, frame) && !CGRectIsEmpty(old);
+    [UIView animateWithDuration:(moved ? 0.25 : 0) delay:0 options:UIViewAnimationOptionCurveEaseInOut animations:^{
+        p.box.frame = frame;
+        [self layoutBarForPane:p];
+        [self setHandleVisible:!p.handleHit.hidden forPane:p];
+    } completion:nil];
     // Huong KHONG doi theo hinh dang o (xem openApp); chi scene doi kich thuoc
     if (!CGSizeEqualToSize(p.sceneBox, frame.size)) {
         [self layoutPane:p];
@@ -468,11 +469,114 @@ static void ABPostOrientation(NSString *bid, long long orientation)
     if (p) p.box.passInsets = pass;
 }
 
-- (void)setClipTop:(CGFloat)top forApp:(NSString *)bid
+#pragma mark - Thanh nut cua o (ve de len app)
+
+#define AB_BAR_H     42.0
+#define AB_BAR_BTN   32.0
+#define AB_BAR_GAP   10.0
+#define AB_BAR_Y     (6 + 12 + 6 + AB_BAR_H / 2)   // duoi thanh "•••" nhu thanh nut cua CarPlay
+
+static UIButton *ABBarButton(NSString *symbol, UIColor *tint, id target, SEL action)
+{
+    UIButton *b = [UIButton buttonWithType:UIButtonTypeSystem];
+    UIImageSymbolConfiguration *cfg = [UIImageSymbolConfiguration configurationWithPointSize:15 weight:UIImageSymbolWeightSemibold];
+    [b setImage:[UIImage systemImageNamed:symbol withConfiguration:cfg] forState:UIControlStateNormal];
+    b.tintColor = tint;
+    b.frame = CGRectMake(0, 0, AB_BAR_BTN, AB_BAR_BTN);
+    b.backgroundColor = [UIColor colorWithWhite:1 alpha:0.14];
+    b.layer.cornerRadius = AB_BAR_BTN / 2;
+    [b addTarget:target action:action forControlEvents:UIControlEventTouchUpInside];
+    return b;
+}
+
+- (UIView *)buildBarForPane:(ABPane *)pane
+{
+    UIButton *replace = ABBarButton(@"arrow.triangle.2.circlepath", [UIColor whiteColor], self, @selector(barReplace:));
+    UIButton *pop = ABBarButton(@"rectangle.on.rectangle", [UIColor whiteColor], self, @selector(barPop:));
+    UIButton *full = ABBarButton(@"arrow.up.left.and.arrow.down.right", [UIColor whiteColor], self, @selector(barFull:));
+    UIButton *close = ABBarButton(@"xmark", [UIColor colorWithRed:1 green:0.32 blue:0.28 alpha:1], self, @selector(barClose:));
+    pane.popButton = pop;
+    NSArray *btns = @[replace, pop, full, close];
+    CGFloat sep = 12;   // khoang cach rong hon truoc nut dong
+    CGFloat w = 12 + 3 * AB_BAR_BTN + 2 * AB_BAR_GAP + sep + AB_BAR_BTN + 12;
+    UIVisualEffectView *bar = [[UIVisualEffectView alloc] initWithEffect:[UIBlurEffect effectWithStyle:UIBlurEffectStyleSystemThinMaterialDark]];
+    bar.frame = CGRectMake(0, 0, w, AB_BAR_H);
+    bar.layer.cornerRadius = AB_BAR_H / 2;
+    bar.clipsToBounds = YES;
+    CGFloat x = 12;
+    for (NSUInteger i = 0; i < btns.count; i++) {
+        UIButton *b = btns[i];
+        if (i == 3) x += sep;
+        b.frame = CGRectMake(x, (AB_BAR_H - AB_BAR_BTN) / 2, AB_BAR_BTN, AB_BAR_BTN);
+        [bar.contentView addSubview:b];
+        x += AB_BAR_BTN + AB_BAR_GAP;
+    }
+    bar.hidden = YES;
+    bar.alpha = 0;
+    pane.bar = bar;
+    pane.box.bar = bar;
+    [pane.box addSubview:bar];
+    return bar;
+}
+
+- (void)layoutBarForPane:(ABPane *)pane
+{
+    UIView *bar = pane.bar;
+    if (!bar) return;
+    CGSize s = pane.box.bounds.size;
+    // O hep: thu nho ca thanh cho vua o
+    CGFloat avail = s.width - 10, bw = bar.bounds.size.width;
+    CGFloat k = (bw > avail && avail > 40) ? avail / bw : 1;
+    bar.transform = CGAffineTransformMakeScale(k, k);
+    bar.center = CGPointMake(s.width / 2, AB_BAR_Y);
+    [pane.box bringSubviewToFront:bar];
+    [pane.box bringSubviewToFront:pane.handleHit];
+}
+
+- (void)setBarVisible:(BOOL)visible pop:(int)pop dim:(BOOL)dim forApp:(NSString *)bid
 {
     ABPane *p = [self paneFor:bid];
-    if (p && p.box.clipTop != top) p.box.clipTop = top;
+    if (!p) return;
+    if (!p.bar && !visible) return;
+    UIView *bar = p.bar ?: [self buildBarForPane:p];
+    UIImageSymbolConfiguration *cfg = [UIImageSymbolConfiguration configurationWithPointSize:15 weight:UIImageSymbolWeightSemibold];
+    [p.popButton setImage:[UIImage systemImageNamed:(pop == 2 ? @"rectangle.inset.filled" : @"rectangle.on.rectangle") withConfiguration:cfg]
+                 forState:UIControlStateNormal];
+    p.popButton.alpha = dim ? 0.35 : 1;
+    [self layoutBarForPane:p];
+    if (visible == !bar.hidden) return;
+    if (visible) {
+        bar.hidden = NO;
+        bar.transform = CGAffineTransformConcat(bar.transform, CGAffineTransformMakeTranslation(0, -8));
+        CGAffineTransform t = bar.transform;
+        [UIView animateWithDuration:0.22 delay:0 options:UIViewAnimationOptionCurveEaseOut animations:^{
+            bar.alpha = 1;
+            bar.transform = CGAffineTransformConcat(t, CGAffineTransformMakeTranslation(0, 8));
+        } completion:nil];
+    } else {
+        [UIView animateWithDuration:0.16 animations:^{ bar.alpha = 0; } completion:^(BOOL f) { if (bar.alpha == 0) bar.hidden = YES; }];
+    }
 }
+
+- (ABPane *)paneOfBarButton:(UIView *)v
+{
+    for (ABPane *p in self.panes) if (p.bar && [v isDescendantOfView:p.bar]) return p;
+    return nil;
+}
+
+- (void)postBarAction:(NSString *)action from:(UIView *)v
+{
+    ABPane *p = [self paneOfBarButton:v];
+    if (!p) return;
+    ABLog("thanh nut %@: %@", p.bundleID, action);
+    [[objc_getClass("NSDistributedNotificationCenter") defaultCenter]
+        postNotificationName:AB_NOTIF_BAR_ACTION object:nil userInfo:@{@"identifier": p.bundleID, @"action": action}];
+}
+
+- (void)barReplace:(UIButton *)b { [self postBarAction:@"replace" from:b]; }
+- (void)barPop:(UIButton *)b     { [self postBarAction:@"pop" from:b]; }
+- (void)barFull:(UIButton *)b    { [self postBarAction:@"full" from:b]; }
+- (void)barClose:(UIButton *)b   { [self postBarAction:@"close" from:b]; }
 
 #pragma mark - Thanh "•••" tren app
 
@@ -544,7 +648,9 @@ static void ABPostOrientation(NSString *bid, long long orientation)
         }
     } @catch (NSException *e) { ABLog("teardown %@ loi %@", appID, e); }
     pane.appViewController = nil;
-    [pane.box removeFromSuperview];
+    UIView *box = pane.box;
+    box.userInteractionEnabled = NO;
+    [UIView animateWithDuration:0.15 animations:^{ box.alpha = 0; } completion:^(BOOL f) { [box removeFromSuperview]; }];
 }
 
 static void ABTerminate(NSString *bid)
@@ -574,10 +680,18 @@ static void ABTerminate(NSString *bid)
 
 - (void)closeAll
 {
+    [self closeAllExcept:nil];
+}
+
+- (void)closeAllExcept:(NSString *)keep
+{
     if (!self.panes.count) return;
-    ABLog("dong tat ca (%lu app)", (unsigned long)self.panes.count);
-    for (ABPane *p in [self.panes copy]) [self teardownPane:p];
-    [self.panes removeAllObjects];
+    ABLog("dong tat ca (%lu app%@)", (unsigned long)self.panes.count, keep ? [@", giu " stringByAppendingString:keep] : @"");
+    for (ABPane *p in [self.panes copy]) {
+        if (keep && [p.bundleID isEqualToString:keep]) continue;
+        [self teardownPane:p];
+        [self.panes removeObject:p];
+    }
     [self dropWindowIfEmpty];
 }
 
