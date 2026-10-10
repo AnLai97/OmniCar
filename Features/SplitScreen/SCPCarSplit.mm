@@ -28,7 +28,8 @@
 #define SCPC_HANDLE_W     34.0    // thanh "•••" o dau moi o
 #define SCPC_HANDLE_H     12.0
 #define SCPC_HANDLE_Y     6.0     // khoang tu mep tren o toi thanh "•••"
-#define SCPC_KNOB_DOT     22.0    // tay nam tron giua vach (va o giao 2 vach khi 1 lon + 2): keo de doi co o
+#define SCPC_KNOB_DOT     14.0    // tay nam tron giua vach (va o giao 2 vach khi 1 lon + 2); cham vao phong to SCPC_KNOB_GROW de keo
+#define SCPC_KNOB_GROW    1.6
 #define SCPC_DIVIDER_HIT  26.0
 #define SCPC_DISMISS      0.12    // keo vach cho 1 o con duoi ti le nay -> dong o do (HyperOS: keo sat mep)
 #define SCPC_MIN_FRAC     0.2     // o nho nhat sau khi tha tay
@@ -558,7 +559,24 @@ static void SCPCPopIn(NSArray<UIView *> *views)
 @property (nonatomic) int index;
 @property (nonatomic, strong) UIView *knob;
 @end
+static void SCPCKnobActive(UIView *knob, BOOL on);
 @implementation SCPCarDividerView
+// Ngon tay vua cham vao cham tron -> phong to ngay (chua can keo), nhac tay -> thu lai
+- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)e
+{
+    [super touchesBegan:touches withEvent:e];
+    if (self.knob && !self.knob.hidden) SCPCKnobActive(self.knob, YES);
+}
+- (void)touchesEnded:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)e
+{
+    [super touchesEnded:touches withEvent:e];
+    if (self.knob) SCPCKnobActive(self.knob, NO);
+}
+- (void)touchesCancelled:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)e
+{
+    [super touchesCancelled:touches withEvent:e];
+    if (self.knob) SCPCKnobActive(self.knob, NO);
+}
 - (BOOL)pointInside:(CGPoint)p withEvent:(UIEvent *)e
 {
     // Quanh tay nam: vung cham rong de de keo / cham. Doc phan con lai cua vach: hep (+-6) de khong che
@@ -2743,7 +2761,7 @@ static void SCPCKnobActive(UIView *knob, BOOL on)
     [UIView animateWithDuration:on ? 0.15 : 0.3 delay:0 usingSpringWithDamping:0.7 initialSpringVelocity:0
                         options:UIViewAnimationOptionAllowUserInteraction | UIViewAnimationOptionBeginFromCurrentState
                      animations:^{
-        knob.transform = on ? CGAffineTransformMakeScale(1.3, 1.3) : CGAffineTransformIdentity;
+        knob.transform = on ? CGAffineTransformMakeScale(SCPC_KNOB_GROW, SCPC_KNOB_GROW) : CGAffineTransformIdentity;
         knob.backgroundColor = on ? SCPCAccent() : [UIColor whiteColor];
     } completion:nil];
 }
@@ -2756,7 +2774,7 @@ static void SCPCKnobStyle(UIView *knob, NSInteger style)
     knob.tag = 3;
     knob.bounds = CGRectMake(0, 0, SCPC_KNOB_DOT, SCPC_KNOB_DOT);
     knob.layer.cornerRadius = SCPC_KNOB_DOT / 2;
-    knob.layer.borderWidth = 2;   // cham tron dac, vien toi cho tach khoi nen app; cung mot kieu o moi vach
+    knob.layer.borderWidth = 1.5;   // cham tron dac, vien toi cho tach khoi nen app; cung mot kieu o moi vach
     knob.layer.borderColor = [UIColor colorWithWhite:0 alpha:0.75].CGColor;
 }
 
@@ -2774,6 +2792,7 @@ static void SCPCKnobStyle(UIView *knob, NSInteger style)
     [d addSubview:knob];
     d.knob = knob;
     UIPanGestureRecognizer *pan = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(dividerPanned:)];
+    pan.cancelsTouchesInView = NO;   // cham tron giu to suot luc keo (touchesBegan da phong to), khong bi huy roi phong lai
     pan.maximumNumberOfTouches = 1;
     [d addGestureRecognizer:pan];
     UITapGestureRecognizer *dbl = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(dividerDoubleTapped:)];
