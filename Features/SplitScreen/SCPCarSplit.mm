@@ -22,8 +22,7 @@
 // keo tha len o khac -> doi cho.
 #define SCPC_GAP          1.0     // vach mong giua 2 o nhu cua so Windows (vung cham rong SCPC_DIVIDER_HIT, cham tron de keo)
 #define SCPC_INSET        0.0     // o sat dock va mep man nhu app toan man -> khong phi cho
-#define SCPC_RADIUS       0.0     // o vuong nhu cua so Windows (khong bo goc)
-#define SCPC_FRAME_W      1.0     // vien trang quanh moi o, noi lien voi vach (nen trang) va cham tron (vong trang)
+#define SCPC_RADIUS       6.0     // bo goc nhe o goc giap o khac; goc ngay cham tron (1 lon + 2) de vuong cho cham tron ngoi sat
 #define SCPC_BTN          34.0    // nut trong thanh vien thuoc
 #define SCPC_PILL         42.0    // be day thanh vien thuoc
 #define SCPC_HANDLE_W     34.0    // thanh "•••" o dau moi o
@@ -561,9 +560,8 @@ static void SCPCPopIn(NSArray<UIView *> *views)
 @property (nonatomic, strong) UIView *knob;
 @end
 static void SCPCKnobActive(UIView *knob, BOOL on);
-// Vien trang quanh o (mac dinh; vien xanh khi chon / keo tha thay tam roi tra lai)
-static UIColor *SCPCFrameColor(void) { return [UIColor colorWithWhite:1 alpha:0.9]; }
-static void SCPCFrame(UIView *v) { v.layer.borderWidth = SCPC_FRAME_W; v.layer.borderColor = SCPCFrameColor().CGColor; }
+// O khong vien (vien xanh khi chon / keo tha chi tam, xong thi bo)
+static void SCPCFrame(UIView *v) { v.layer.borderWidth = 0; }
 
 @implementation SCPCarDividerView
 // Ngon tay vua cham vao cham tron -> phong to ngay (chua can keo), nhac tay -> thu lai
@@ -899,6 +897,8 @@ static BOOL SCPCIsBridgedApp(NSString *bid);
             m = v ? top : left;
             if (s == 1) m |= v ? right : bottom;
             else m |= v ? left : top;
+            // Goc cua o nho ngay cho giao 2 vach (cham tron ngoi do) de vuong: giao cua 2 canh giap
+            m &= ~((v ? top : left) & (s == 1 ? (v ? right : bottom) : (v ? left : top)));
         }
         return [self mainRight] ? SCPCMirrorMask(m, v) : m;
     }
@@ -2014,6 +2014,8 @@ static CGSize SCPCSceneSize(UIViewController *vc)
     if (!self.container) return nil;
     SCPCarPane *p = [self newPane];
     p.slot = SCPC_FLOAT_SLOT;
+    p.view.layer.borderWidth = 1;
+    p.view.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.18].CGColor;
     [self.container addSubview:p.view];
     self.floatPane = p;
     self.floatLarge = NO;
@@ -2801,7 +2803,7 @@ static void SCPCKnobStyle(UIView *knob, NSInteger style)
 {
     SCPCarDividerView *d = [[SCPCarDividerView alloc] initWithFrame:CGRectZero];
     d.index = i;
-    d.backgroundColor = SCPCFrameColor();   // vach trang noi lien vien cac o va cham tron
+    d.backgroundColor = [UIColor clearColor];
     UIView *knob = [[UIView alloc] initWithFrame:CGRectZero];
     knob.backgroundColor = [UIColor whiteColor];
     knob.layer.cornerCurve = kCACornerCurveContinuous;
@@ -3454,7 +3456,6 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
     // App CarBridge dang mo toan man: CBWindow (SpringBoard) nam tren moi view CarPlay nen che mat bang -> an CBWindow
     // trong luc bang mo, hien lai khi bang dong (collapseAppTray)
     if (!self.active && self.soloHostedBundle) [self setFullscreenBridgeHidden:YES bundle:self.soloHostedBundle];
-    [self pushHostFramesLive:NO];   // dang chia: o app iPhone nhuong cho bang
 
     BOOL v = [self vertical];
     NSArray<NSString *> *titles = nil;
@@ -3561,6 +3562,8 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
 
     [parent addSubview:panel];
     self.tray = panel;
+    [self pushHostFramesLive:NO];   // dang chia: o app iPhone nhuong cho bang (hostFrameForPane xet self.tray -> phai dat tray truoc;
+                                    // log 10/10 22:48: goi truoc khi dat tray nen o YouTube van de len bang)
     [self raiseView:shield];
     [self raiseView:panel];
     shield.alpha = 0;
