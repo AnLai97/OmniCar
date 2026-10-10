@@ -1,4 +1,6 @@
 #import "ABHost.h"
+#import <notify.h>
+#import <signal.h>
 #import "common.h"
 
 // =====================================================================
@@ -153,23 +155,54 @@ static void ABPostOrientation(NSString *bid, long long orientation)
     return nil;
 }
 
-// Ti le thu nho noi dung app (Cai dat > Ung dung)
-- (CGFloat)zoom
+#pragma mark - Che do iPad
+
+// App mo cho xe chay o che do iPad: App.xm doc co AB_DARWIN_LAUNCHING (= hash bundle id) luc khoi dong va tu nhan la iPad.
+// Nho pid cua lan chay do; app dang chay san o che do iPhone (mo tren dien thoai truoc) thi tat de mo lai dung che do.
+static NSMutableDictionary<NSString *, NSNumber *> *sPadPIDs;
+static NSMutableDictionary<NSString *, NSNumber *> *sKilledAt;
+
+static int ABPidOf(NSString *bid)
 {
-    OMCPrefsSync();
-    double z = [OMCPref(AB_KEY_ZOOM, @80) doubleValue] / 100.0;
-    return MIN(1.0, MAX(0.6, z));
+    id ctl = objcInvoke(objc_getClass("SBApplicationController"), @"sharedInstance");
+    id app = ctl ? objcInvoke_1(ctl, @"applicationWithBundleIdentifier:", bid) : nil;
+    id state = app ? objcInvoke(app, @"processState") : nil;
+    return state ? objcInvokeT(state, @"pid", int) : 0;
 }
 
-// Ti le ap cho o nay: zoom, nhung "Giao dien dien thoai" thi be rong logic cua app toi da AB_PHONE_MAX_WIDTH pt (o rong
-// hon thi phong to > 1): cua so doc rong 595 pt lam YouTube chuyen sang bo cuc kieu tablet, noi dung gom vao cot giua
-- (CGFloat)zoomForBox:(CGSize)box
+static void ABMarkLaunchingForCar(NSString *bid)
 {
-    CGFloat z = [self zoom];
-    OMCPrefsSync();
-    id phone = OMCPref(AB_KEY_PHONE_LAYOUT, @NO);
-    if ([phone boolValue] && box.width / z > AB_PHONE_MAX_WIDTH) z = box.width / AB_PHONE_MAX_WIDTH;
-    return z;
+    static int token;
+    if (!token) notify_register_check(AB_DARWIN_LAUNCHING, &token);
+    uint64_t hash = ABBundleHash(bid);
+    notify_set_state(token, hash);
+    // 20s sau bo co, de sau do mo app tren dien thoai khong bi che do iPad
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(20 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        uint64_t s = 0;
+        notify_get_state(token, &s);
+        if (s == hash) notify_set_state(token, 0);
+    });
+}
+
+// YES = vua tat app (dang chay che do iPhone), goi lai openApp sau mot lat
+- (BOOL)terminateIfPhoneMode:(NSString *)bid
+{
+    if (!sPadPIDs) { sPadPIDs = [NSMutableDictionary dictionary]; sKilledAt = [NSMutableDictionary dictionary]; }
+    int pid = ABPidOf(bid);
+    if (pid <= 0) return NO;
+    if ([sPadPIDs[bid] intValue] == pid) return NO;   // lan chay nay da la che do iPad
+    CFAbsoluteTime now = CFAbsoluteTimeGetCurrent();
+    if (now - [sKilledAt[bid] doubleValue] < 3) return NO;   // vua tat, process dang thoat -> khong tat lai
+    sKilledAt[bid] = @(now);
+    Class sc = objc_getClass("FBSSystemService");
+    id svc = (sc && [sc respondsToSelector:@selector(sharedService)]) ? objcInvoke(sc, @"sharedService") : nil;
+    SEL sel = NSSelectorFromString(@"terminateApplication:forReason:andReport:withDescription:");
+    @try {
+        if ([svc respondsToSelector:sel]) ((void (*)(id, SEL, id, long long, BOOL, id))objc_msgSend)(svc, sel, bid, 1, NO, @"OmniCar App Bridge: mo lai che do iPad");
+        else kill(pid, SIGKILL);
+    } @catch (NSException *e) { kill(pid, SIGKILL); }
+    ABLog("%@ dang chay che do iPhone (pid %d) -> tat de mo lai che do iPad", bid, pid);
+    return YES;
 }
 
 #pragma mark - Cua so
@@ -210,6 +243,15 @@ static void ABPostOrientation(NSString *bid, long long orientation)
     ABPane *existing = [self paneFor:bid];
     if (existing) { [self setFrame:frame forApp:bid live:NO handle:YES passInsets:existing.box.passInsets]; return; }
     if (![self ensureWindow]) { ABLog("xe chua ket noi -> khong host %@", bid); ABPostState(bid, @"failed"); return; }
+    // Che do iPad: app dang chay san o che do iPhone thi tat, doi no thoat roi mo lai
+    if ([self terminateIfPhoneMode:bid]) {
+        __weak ABHost *weakSelf = self;
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.8 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [weakSelf openApp:bid frame:frame];
+        });
+        return;
+    }
+    ABMarkLaunchingForCar(bid);
 
     ABPane *pane = [ABPane new];
     pane.bundleID = bid;
@@ -237,7 +279,7 @@ static void ABPostOrientation(NSString *bid, long long orientation)
         return;
     }
     [self layoutPane:pane];
-    ABLog("host %@ tai %@ (huong %lld, zoom %.2f)", bid, NSStringFromCGRect(frame), pane.orientation, [self zoomForBox:frame.size]);
+    ABLog("host %@ tai %@ (huong %lld, che do iPad)", bid, NSStringFromCGRect(frame), pane.orientation);
     // Khong co tin "launch xong" (app da chay san) thi van bao ready sau 2.5s
     __weak ABPane *weakPane = pane;
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
@@ -293,6 +335,8 @@ static void ABPostOrientation(NSString *bid, long long orientation)
                 ABPane *p = weakPane;
                 ABHost *me = weakSelf;
                 if (!p || !me || ![me.panes containsObject:p]) return;
+                int pid = ABPidOf(p.bundleID);
+                if (pid > 0) sPadPIDs[p.bundleID] = @(pid);   // lan chay nay mo cho xe = che do iPad
                 ABPostOrientation(p.bundleID, p.orientation);   // App.xm trong app: huong cua o + huong "thiet bi" gia
                 [me layoutPane:p];
                 if (!p.ready) { p.ready = YES; ABPostState(p.bundleID, @"ready"); }
@@ -345,13 +389,10 @@ static void ABPostOrientation(NSString *bid, long long orientation)
     if (!pane.appViewController) return;
     CGSize boxSize = pane.box.bounds.size;
     if (boxSize.width < 2 || boxSize.height < 2) return;
-    CGFloat z = [self zoomForBox:boxSize];
-    CGSize paneSize = CGSizeMake(round(boxSize.width / z), round(boxSize.height / z));
+    CGSize paneSize = boxSize;   // app ve dung co o (che do iPad, khong thu nho)
     UIView *appView = [pane.appViewController view];
     appView.transform = CGAffineTransformIdentity;
     appView.frame = CGRectMake(0, 0, paneSize.width, paneSize.height);
-    appView.transform = CGAffineTransformMakeScale(z, z);
-    appView.center = CGPointMake(boxSize.width / 2, boxSize.height / 2);
     id deviceAppVC = nil, sceneView = nil; UIView *hostingContentView = nil;
     @try {
         deviceAppVC = getIvar(pane.appViewController, @"_deviceAppViewController");
@@ -408,9 +449,7 @@ static void ABPostOrientation(NSString *bid, long long orientation)
 {
     id scene = objcInvoke(objcInvoke(pane.appViewController, @"sceneHandle"), @"sceneIfExists");
     if (!scene) return;
-    CGSize box = pane.box.bounds.size;
-    CGFloat z = [self zoomForBox:box];
-    CGSize sz = CGSizeMake(round(box.width / z), round(box.height / z));
+    CGSize sz = pane.box.bounds.size;
     long long o = [self effectiveOrientation:pane];
     BOOL landscape = (o == UIInterfaceOrientationLandscapeLeft || o == UIInterfaceOrientationLandscapeRight);
     CGRect off = landscape ? CGRectMake(0, 0, sz.height, MAX(1, sz.width - 1)) : CGRectMake(0, 0, sz.width, MAX(1, sz.height - 1));

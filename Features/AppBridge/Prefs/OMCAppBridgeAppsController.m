@@ -141,7 +141,6 @@ enum { OMCABSectionSettings = 0, OMCABSectionChosen, OMCABSectionUser, OMCABSect
 @property (nonatomic, strong) NSArray<NSDictionary *> *chosenRows, *userRows, *systemRows;   // sau khi loc theo o tim
 @property (nonatomic, copy) NSString *filter;
 @property (nonatomic, strong) NSCache<NSString *, UIImage *> *icons;
-@property (nonatomic, strong) UILabel *zoomValue;
 @end
 
 @implementation OMCAppBridgeAppsController
@@ -228,11 +227,6 @@ enum { OMCABSectionSettings = 0, OMCABSectionChosen, OMCABSectionUser, OMCABSect
     OMCABStore(AB_KEY_ENABLED, @(sw.on));
 }
 
-- (void)phoneLayoutChanged:(UISwitch *)sw
-{
-    OMCABStore(AB_KEY_PHONE_LAYOUT, @(sw.on));
-}
-
 // Dong cong tac cua muc cai dat: label, icon, key prefs (mac dinh YES), action
 - (UITableViewCell *)switchCellIn:(UITableView *)tv reuse:(NSString *)reuse label:(NSString *)label symbol:(NSString *)symbol
                             color:(NSString *)hex key:(NSString *)key defaultOn:(BOOL)defaultOn action:(SEL)action
@@ -254,26 +248,6 @@ enum { OMCABSectionSettings = 0, OMCABSectionChosen, OMCABSectionUser, OMCABSect
     return c;
 }
 
-- (NSInteger)zoomPercent
-{
-    id v = OMCABPref(AB_KEY_ZOOM);
-    NSInteger z = v ? [v integerValue] : 80;
-    return MIN(100, MAX(60, z));
-}
-
-- (void)zoomMoved:(UISlider *)slider
-{
-    NSInteger z = (NSInteger)lround(slider.value / 5.0) * 5;   // buoc 5 %
-    slider.value = z;
-    _zoomValue.text = [NSString stringWithFormat:@"%ld%%", (long)z];
-}
-
-- (void)zoomDone:(UISlider *)slider
-{
-    [self zoomMoved:slider];
-    OMCABStore(AB_KEY_ZOOM, @((NSInteger)slider.value));
-}
-
 #pragma mark - Table
 
 - (NSArray<NSDictionary *> *)rowsInSection:(NSInteger)s
@@ -288,13 +262,8 @@ enum { OMCABSectionSettings = 0, OMCABSectionChosen, OMCABSectionUser, OMCABSect
 
 - (NSInteger)tableView:(UITableView *)tv numberOfRowsInSection:(NSInteger)section
 {
-    if (section == OMCABSectionSettings) return [self searching] ? 0 : 3;   // cong tac, co app, giao dien dien thoai
+    if (section == OMCABSectionSettings) return [self searching] ? 0 : 1;   // cong tac App Bridge
     return [self rowsInSection:section].count;
-}
-
-- (CGFloat)tableView:(UITableView *)tv heightForRowAtIndexPath:(NSIndexPath *)ip
-{
-    return (ip.section == OMCABSectionSettings && ip.row == 1) ? 72 : 56;
 }
 
 - (NSString *)tableView:(UITableView *)tv titleForHeaderInSection:(NSInteger)section
@@ -308,8 +277,7 @@ enum { OMCABSectionSettings = 0, OMCABSectionChosen, OMCABSectionUser, OMCABSect
 
 - (NSString *)tableView:(UITableView *)tv titleForFooterInSection:(NSInteger)section
 {
-    if (section == OMCABSectionSettings)
-        return [self searching] ? nil : [NSString stringWithFormat:@"%@\n\n%@\n\n%@", L(@"APPBRIDGE_FOOTER"), L(@"APPBRIDGE_ZOOM_FOOTER"), L(@"APPBRIDGE_PHONE_LAYOUT_FOOTER")];
+    if (section == OMCABSectionSettings) return [self searching] ? nil : L(@"APPBRIDGE_FOOTER");
     if (section == OMCABSectionChosen) return (_chosenRows.count || [self searching]) ? nil : L(@"APPBRIDGE_APPS_FOOTER");
     if (section != OMCABSectionSystem) return nil;
     if (!_apps.count) return L(@"APPBRIDGE_APPS_EMPTY");
@@ -322,44 +290,8 @@ enum { OMCABSectionSettings = 0, OMCABSectionChosen, OMCABSectionUser, OMCABSect
 
 - (UITableViewCell *)settingsCellForRow:(NSInteger)row inTable:(UITableView *)tv
 {
-    if (row == 0)
-        return [self switchCellIn:tv reuse:@"enable" label:@"APPBRIDGE_ENABLE" symbol:@"power" color:@"#0A59F7"
-                              key:AB_KEY_ENABLED defaultOn:YES action:@selector(enabledChanged:)];
-    if (row == 2)
-        return [self switchCellIn:tv reuse:@"phone" label:@"APPBRIDGE_PHONE_LAYOUT" symbol:@"iphone" color:@"#36B37E"
-                              key:AB_KEY_PHONE_LAYOUT defaultOn:NO action:@selector(phoneLayoutChanged:)];
-    UITableViewCell *c = [tv dequeueReusableCellWithIdentifier:@"zoom"];
-    if (!c) {
-        c = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"zoom"];
-        c.selectionStyle = UITableViewCellSelectionStyleNone;
-        UILabel *value = [UILabel new];
-        value.font = [UIFont monospacedDigitSystemFontOfSize:15 weight:UIFontWeightRegular];
-        value.textColor = [UIColor secondaryLabelColor];
-        value.textAlignment = NSTextAlignmentRight;
-        value.tag = 1;
-        [c.contentView addSubview:value];
-        UISlider *slider = [UISlider new];
-        slider.minimumValue = 60;
-        slider.maximumValue = 100;
-        slider.minimumTrackTintColor = OMCAccentColor();
-        slider.tag = 2;
-        [slider addTarget:self action:@selector(zoomMoved:) forControlEvents:UIControlEventValueChanged];
-        [slider addTarget:self action:@selector(zoomDone:) forControlEvents:UIControlEventTouchUpInside | UIControlEventTouchUpOutside | UIControlEventTouchCancel];
-        [c.contentView addSubview:slider];
-    }
-    OMCStyleCell(c);
-    c.textLabel.text = L(@"APPBRIDGE_ZOOM");
-    c.imageView.image = OMCIcon(@"textformat.size", OMCColorFromHex(@"#8A47E8"));
-    UILabel *value = [c.contentView viewWithTag:1];
-    UISlider *slider = [c.contentView viewWithTag:2];
-    _zoomValue = value;
-    NSInteger z = [self zoomPercent];
-    slider.value = z;
-    value.text = [NSString stringWithFormat:@"%ld%%", (long)z];
-    CGFloat w = tv.bounds.size.width - 2 * tv.layoutMargins.left;   // be rong cell inset-grouped
-    value.frame = CGRectMake(w - 16 - 56, 10, 56, 24);
-    slider.frame = CGRectMake(60, 34, w - 60 - 16, 30);
-    return c;
+    return [self switchCellIn:tv reuse:@"enable" label:@"APPBRIDGE_ENABLE" symbol:@"power" color:@"#0A59F7"
+                          key:AB_KEY_ENABLED defaultOn:YES action:@selector(enabledChanged:)];
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tv cellForRowAtIndexPath:(NSIndexPath *)ip
@@ -395,13 +327,11 @@ enum { OMCABSectionSettings = 0, OMCABSectionChosen, OMCABSectionUser, OMCABSect
 - (void)tableView:(UITableView *)tv didSelectRowAtIndexPath:(NSIndexPath *)ip
 {
     [tv deselectRowAtIndexPath:ip animated:YES];
-    if (ip.section == OMCABSectionSettings && ip.row == 1) return;
     UISwitch *sw = (UISwitch *)[tv cellForRowAtIndexPath:ip].accessoryView;
     if (![sw isKindOfClass:[UISwitch class]]) return;
     [sw setOn:!sw.on animated:YES];
-    if (ip.section != OMCABSectionSettings) [self switchChanged:sw];
-    else if (ip.row == 0) [self enabledChanged:sw];
-    else [self phoneLayoutChanged:sw];
+    if (ip.section == OMCABSectionSettings) [self enabledChanged:sw];
+    else [self switchChanged:sw];
 }
 
 @end

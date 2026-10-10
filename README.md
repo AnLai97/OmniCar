@@ -27,7 +27,8 @@ Features/<Tên>/       mỗi tính năng là một component (xem bên dưới)
                       khung ô từ SplitScreen qua AB_NOTIF_* (AppBridge.h); trang settings có danh sách app
                       iPhone muốn đưa lên xe: không có trang tính năng, mà là mục "Ứng dụng" của trang chính (Root.plist ->
                       Prefs/OMCAppBridgeAppsController: công tắc, cỡ app, danh sách app người dùng + hệ thống, key appBridgeApps). Dylib nạp vào mọi
-                      process UIKit: App.xm trong app ép cửa sổ xoay theo hướng ô (AB_NOTIF_ORIENTATION)
+                      process UIKit: App.xm trong app xoay theo hướng ô (AB_NOTIF_ORIENTATION, mô hình CarDuo 1.0) và
+                      chạy app ở chế độ iPad khi được mở cho xe (AB_DARWIN_LAUNCHING)
 App/                  app OmniCar nhận URL omnicar://<tính năng>/<việc> cho Shortcuts / Siri rồi chuyển sang
                       SpringBoard (distributed notification com.anlai.omnicar/url); hook của tính năng tự xử lý
 Template/             plist mẫu cho trang tính năng mới

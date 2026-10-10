@@ -12,9 +12,11 @@
 // Key prefix: OMCFeatureEnabled(AB_FEATURE) reads the master switch + appBridgeEnabled.
 #define AB_FEATURE           @"appBridge"
 #define AB_KEY_ENABLED       @"appBridgeEnabled"     // BOOL, default YES
-// The app renders at (pane size / zoom) and is scaled down by zoom, so iPhone text and buttons do not
-// look huge on the car screen. 60..100 %, default 80.
-#define AB_KEY_ZOOM          @"appBridgeZoom"
+// Hosted apps run as iPad (App.xm reports UIUserInterfaceIdiomPad to the app when it was launched for the car): a wide
+// box then gets the real iPad layout (YouTube with its sidebar) instead of a stretched phone layout. SpringBoard sets
+// this Darwin notify state to ABBundleHash(bundle id) right before launching the app and clears it 20 s later; an app
+// already running in phone mode is terminated first so it relaunches in iPad mode.
+#define AB_DARWIN_LAUNCHING  "com.anlai.omnicar/appbridge.launching"
 // The iPhone apps the user picked for the car screen (root page "Apps" > "Apps on the car screen",
 // Prefs/OMCAppBridgeAppsController.m, which also holds the switch and zoom above - App Bridge has no feature
 // page of its own): NSArray of bundle ids, user apps and system apps alike. Only these are offered as iPhone
@@ -55,11 +57,6 @@
 #define AB_DARWIN_APP_ORIENT "com.anlai.omnicar/appbridge.apporient"
 // Base scene orientation for hosted apps: 1 portrait (default), 3 landscape.
 #define AB_KEY_ORIENTATION   @"appBridgeOrientation"
-// BOOL, default NO: cap the app's logical width at AB_PHONE_MAX_WIDTH points (scaling the scene up to fill the box)
-// so a wide box still gets the iPhone layout; a 595 pt wide portrait window makes YouTube switch to its tablet-style
-// layout with the content in a narrow centre column.
-#define AB_KEY_PHONE_LAYOUT  @"appBridgePhoneLayout"
-#define AB_PHONE_MAX_WIDTH   480.0
 static inline unsigned long long ABBundleHash(NSString *bid)
 {
     unsigned int h = 2166136261u;

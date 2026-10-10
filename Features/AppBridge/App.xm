@@ -142,6 +142,20 @@ static void ABHandleOrientationRequest(NSDictionary *info)
     if (key && [key respondsToSelector:sel]) ((void (*)(id, SEL, long long, double, BOOL))objc_msgSend)(key, sel, (long long)o, 0.0, YES);
 }
 
+// ---- Che do iPad: SpringBoard dat AB_DARWIN_LAUNCHING = hash bundle id ngay truoc khi mo app cho xe; app doc luc khoi dong
+// va tu nhan la iPad (UIDevice / UITraitCollection) -> app universal (YouTube) dung giao dien iPad trong o rong ----
+%group PAD
+
+%hook UIDevice
+- (long long)userInterfaceIdiom { return UIUserInterfaceIdiomPad; }
+%end
+
+%hook UITraitCollection
+- (long long)userInterfaceIdiom { return UIUserInterfaceIdiomPad; }
+%end
+
+%end // PAD
+
 %group APPS
 
 %hook UIWindow
@@ -227,6 +241,17 @@ static void ABHandleOrientationRequest(NSDictionary *info)
     if ([@[@"com.apple.springboard", @"com.apple.CarPlayApp", @"com.apple.CarPlayTemplateUIHost", @"com.apple.CarPlaySettings",
            @"com.apple.InCallService", @"com.apple.Preferences"] containsObject:bid]) return;
     %init(APPS);
+    // Mo cho xe? (SpringBoard dat co ngay truoc khi launch, giu 20s)
+    int tok = 0;
+    uint64_t st = 0;
+    if (notify_register_check(AB_DARWIN_LAUNCHING, &tok) == NOTIFY_STATUS_OK) {
+        notify_get_state(tok, &st);
+        notify_cancel(tok);
+    }
+    if (st && st == ABBundleHash(bid)) {
+        %init(PAD);
+        ABLog("%@: mo cho xe -> che do iPad", bid);
+    }
     [[objc_getClass("NSDistributedNotificationCenter") defaultCenter]
         addObserverForName:AB_NOTIF_ORIENTATION object:bid queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *note) {
         @try { ABHandleOrientationRequest(note.userInfo); } @catch (NSException *e) { ABLog("%@: xoay loi %@", bid, e); }
