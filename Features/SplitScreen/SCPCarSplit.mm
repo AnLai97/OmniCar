@@ -1941,6 +1941,22 @@ static CGSize SCPCSceneSize(UIViewController *vc)
         [self closeGoingHome:NO];
         ((void (*)(id, SEL, id, BOOL, unsigned long long, id))objc_msgSend)(root, present, keepVC, YES, 0, nil);
         SCPLog("CarSplit: tra %@ cho DashBoard trinh bay toan man", bid);
+        // Scene van giu co o (DashBoard khong hoi lai kich thuoc cho scene da co): bao lai nhu luc doi co o
+        // (foregroundSceneWithSettings: -> DashBoard lay frame qua hook sceneFrameForAppInfo, gio la ca man)
+        SCPCAfter(0.15, ^{
+            @try {
+                ((void (*)(id, SEL, id, id))objc_msgSend)(keepVC, NSSelectorFromString(@"foregroundSceneWithSettings:completion:"), nil, ^{});
+                SCPLog("CarSplit: scene %@ -> toan man %@", bid, NSStringFromCGSize(keepVC.view.bounds.size));
+            } @catch (NSException *e) { SCPLog("CarSplit: foregroundScene toan man loi %@", e); }
+        });
+        SCPCAfter(0.6, ^{
+            UIView *h = nil;
+            @try { h = objcInvoke(keepVC, @"sceneHostView"); } @catch (NSException *e) {}
+            if (h && h.superview == keepVC.view && !CGRectEqualToRect(h.frame, keepVC.view.bounds)) {
+                SCPLog("CarSplit: sceneHostView %@ -> %@ (toan man)", NSStringFromCGRect(h.frame), NSStringFromCGRect(keepVC.view.bounds));
+                h.frame = keepVC.view.bounds;
+            }
+        });
         return;
     }
     id launchInfo = objcInvoke_1(objc_getClass("DBApplicationLaunchInfo"), @"launchInfoForApplication:", SCPCAppInfo(bid));
