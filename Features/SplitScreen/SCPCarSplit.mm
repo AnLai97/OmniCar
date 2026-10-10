@@ -146,6 +146,7 @@ static BOOL SCPCInfoIsCarPlayApp(id info)
     if (!bid.length || [bid isEqualToString:SCP_TEMPLATE_HOST] || [bid isEqualToString:@"com.apple.CarPlayApp"]
         || [bid isEqualToString:@"com.apple.CarPlaySettings"]
         || [bid isEqualToString:@"com.apple.InCallService"]) return NO;   // man goi dien: DashBoard khong tao scene VC -> khong vao ngan duoc
+    if (SCPIsInjectedPhoneApp(bid)) return NO;   // declaration gia do SCPAppIcons gan: app iPhone, di qua App Bridge
     if (![info respondsToSelector:NSSelectorFromString(@"carPlayDeclaration")]) return NO;
     if (!objcInvoke(info, @"carPlayDeclaration")) return NO;
     if (SCPCBool(info, @"isHidden") || SCPCBool(info, @"presentsFullScreen")) return NO;

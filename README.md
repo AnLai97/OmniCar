@@ -20,7 +20,8 @@ Features/<Tên>/       mỗi tính năng là một component (xem bên dưới)
   StartupScreen/      video khởi động trên màn CarPlay (từ CarSplash)
   SpeedBubble/        bong bóng tốc độ + biển giới hạn từ Vietmap Live / GOFA (từ CarSpeed, ObjC++)
   SplitScreen/        chia màn xe cho 2-3 app CarPlay chạy song song (từ CarDuo, ObjC++); split nằm trong
-                      process CarPlay, SpringBoard chỉ nhận URL; app iPhone trong ô đi qua AppBridge
+                      process CarPlay, SpringBoard chỉ nhận URL; app iPhone trong ô đi qua AppBridge; AppIcons.xm +
+                      SCPAppIcons.mm chèn icon app iPhone đã chọn lên màn chính CarPlay (declaration giả, như carplay-cast)
   AppBridge/          đưa app iPhone không có CarPlay lên màn xe (thay CarBridge): SpringBoard tạo scene app
                       bằng SBAppViewController trong cửa sổ riêng trên màn xe theo cơ chế carplay-cast, nhận
                       khung ô từ SplitScreen qua AB_NOTIF_* (AppBridge.h); trang settings có danh sách app
