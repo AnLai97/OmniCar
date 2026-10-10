@@ -475,46 +475,119 @@ static void ABPostOrientation(NSString *bid, long long orientation)
 
 #pragma mark - Thanh nut cua o (ve de len app)
 
+// Cung hinh voi thanh nut cua Split Screen ben CarPlay (SCPCGlyph / SCPCRoundButton / SCPCPill trong SCPCarSplit.mm):
+// pill toi 42pt, nut tron 34pt, glyph kieu HyperOS luoi 24, net 1.8; nut dong mau do
 #define AB_BAR_H     42.0
-#define AB_BAR_BTN   32.0
-#define AB_BAR_GAP   10.0
+#define AB_BAR_BTN   34.0
 #define AB_BAR_Y     (6 + 12 + 6 + AB_BAR_H / 2)   // duoi thanh "•••" nhu thanh nut cua CarPlay
 
-static UIButton *ABBarButton(NSString *symbol, UIColor *tint, id target, SEL action)
+#define AB_M(x, y) [p moveToPoint:CGPointMake(x, y)]
+#define AB_L(x, y) [p addLineToPoint:CGPointMake(x, y)]
+#define AB_RR(x, y, w, h, r) [p appendPath:[UIBezierPath bezierPathWithRoundedRect:CGRectMake(x, y, w, h) cornerRadius:r]]
+
+static UIImage *ABGlyph(NSString *name)
 {
-    UIButton *b = [UIButton buttonWithType:UIButtonTypeSystem];
-    UIImageSymbolConfiguration *cfg = [UIImageSymbolConfiguration configurationWithPointSize:15 weight:UIImageSymbolWeightSemibold];
-    [b setImage:[UIImage systemImageNamed:symbol withConfiguration:cfg] forState:UIControlStateNormal];
-    b.tintColor = tint;
-    b.frame = CGRectMake(0, 0, AB_BAR_BTN, AB_BAR_BTN);
-    b.backgroundColor = [UIColor colorWithWhite:1 alpha:0.14];
+    static NSMutableDictionary<NSString *, UIImage *> *cache;
+    if (!cache) cache = [NSMutableDictionary dictionary];
+    if (cache[name]) return cache[name];
+    CGFloat pt = 20;
+    UIGraphicsImageRenderer *r = [[UIGraphicsImageRenderer alloc] initWithSize:CGSizeMake(pt, pt)];
+    UIImage *img = [r imageWithActions:^(UIGraphicsImageRendererContext *rc) {
+        CGContextScaleCTM(rc.CGContext, pt / 24.0, pt / 24.0);
+        [[UIColor blackColor] set];
+        UIBezierPath *p = [UIBezierPath bezierPath], *f = [UIBezierPath bezierPath];
+        p.lineWidth = 1.8; p.lineCapStyle = kCGLineCapRound; p.lineJoinStyle = kCGLineJoinRound;
+        if ([name isEqualToString:@"fullscreen"]) {      // 2 mui ten cheo ra 2 goc
+            AB_M(13.5, 4); AB_L(20, 4); AB_L(20, 10.5);
+            AB_M(20, 4); AB_L(14, 10);
+            AB_M(10.5, 20); AB_L(4, 20); AB_L(4, 13.5);
+            AB_M(4, 20); AB_L(10, 14);
+        } else if ([name isEqualToString:@"replace"]) {  // 3 o app + dau cong o goc
+            AB_RR(3.5, 3.5, 7.5, 7.5, 2.4); AB_RR(13, 3.5, 7.5, 7.5, 2.4);
+            AB_RR(3.5, 13, 7.5, 7.5, 2.4);
+            AB_M(16.75, 13.5); AB_L(16.75, 20); AB_M(13.5, 16.75); AB_L(20, 16.75);
+        } else if ([name isEqualToString:@"close"]) {
+            AB_M(7, 7); AB_L(17, 17); AB_M(17, 7); AB_L(7, 17);
+        } else if ([name isEqualToString:@"float"]) {    // cua so noi: khung + o nho to dac goc duoi phai
+            AB_RR(3.5, 4.5, 17, 15, 3);
+            [f appendPath:[UIBezierPath bezierPathWithRoundedRect:CGRectMake(11.5, 11, 6.5, 6) cornerRadius:1.6]];
+        } else if ([name isEqualToString:@"dock"]) {     // dua ve o: khung chia doi, nua trai to dac
+            AB_RR(3.5, 4.5, 17, 15, 3);
+            AB_M(12, 4.5); AB_L(12, 19.5);
+            [f appendPath:[UIBezierPath bezierPathWithRoundedRect:CGRectMake(5.6, 6.6, 4.6, 10.8) cornerRadius:1.4]];
+        }
+        [p stroke];
+        [f fill];
+    }];
+    img = [img imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+    cache[name] = img;
+    return img;
+}
+
+// Nut tron 34pt, vung cham 44pt, nhun khi bam (SCPCButton)
+@interface ABBarButton : UIButton
+@end
+@implementation ABBarButton
+- (BOOL)pointInside:(CGPoint)pt withEvent:(UIEvent *)e
+{
+    CGFloat dx = MIN(0, (self.bounds.size.width - 44) / 2), dy = MIN(0, (self.bounds.size.height - 44) / 2);
+    return CGRectContainsPoint(CGRectInset(self.bounds, dx, dy), pt);
+}
+- (void)setHighlighted:(BOOL)h
+{
+    BOOL changed = (h != self.highlighted);
+    [super setHighlighted:h];
+    if (!changed) return;
+    [UIView animateWithDuration:h ? 0.12 : 0.3 delay:0 usingSpringWithDamping:0.7 initialSpringVelocity:0
+                        options:UIViewAnimationOptionAllowUserInteraction | UIViewAnimationOptionBeginFromCurrentState
+                     animations:^{ self.transform = h ? CGAffineTransformMakeScale(0.9, 0.9) : CGAffineTransformIdentity; }
+                     completion:nil];
+}
+@end
+
+static UIButton *ABRoundButton(NSString *glyph, id target, SEL action)
+{
+    UIButton *b = [ABBarButton buttonWithType:UIButtonTypeCustom];
+    b.bounds = CGRectMake(0, 0, AB_BAR_BTN, AB_BAR_BTN);
     b.layer.cornerRadius = AB_BAR_BTN / 2;
+    b.tintColor = [UIColor colorWithWhite:1 alpha:0.94];
+    [b setImage:ABGlyph(glyph) forState:UIControlStateNormal];
     [b addTarget:target action:action forControlEvents:UIControlEventTouchUpInside];
     return b;
 }
 
 - (UIView *)buildBarForPane:(ABPane *)pane
 {
-    UIButton *replace = ABBarButton(@"arrow.triangle.2.circlepath", [UIColor whiteColor], self, @selector(barReplace:));
-    UIButton *pop = ABBarButton(@"rectangle.on.rectangle", [UIColor whiteColor], self, @selector(barPop:));
-    UIButton *full = ABBarButton(@"arrow.up.left.and.arrow.down.right", [UIColor whiteColor], self, @selector(barFull:));
-    UIButton *close = ABBarButton(@"xmark", [UIColor colorWithRed:1 green:0.32 blue:0.28 alpha:1], self, @selector(barClose:));
+    UIButton *replace = ABRoundButton(@"replace", self, @selector(barReplace:));
+    UIButton *pop = ABRoundButton(@"float", self, @selector(barPop:));
+    UIButton *full = ABRoundButton(@"fullscreen", self, @selector(barFull:));
+    UIButton *close = ABRoundButton(@"close", self, @selector(barClose:));
+    close.tintColor = [UIColor colorWithRed:1.0 green:0.36 blue:0.33 alpha:1];
     pane.popButton = pop;
-    NSArray *btns = @[replace, pop, full, close];
-    CGFloat sep = 12;   // khoang cach rong hon truoc nut dong
-    CGFloat w = 12 + 3 * AB_BAR_BTN + 2 * AB_BAR_GAP + sep + AB_BAR_BTN + 12;
-    UIVisualEffectView *bar = [[UIVisualEffectView alloc] initWithEffect:[UIBlurEffect effectWithStyle:UIBlurEffectStyleSystemThinMaterialDark]];
-    bar.frame = CGRectMake(0, 0, w, AB_BAR_H);
+    // SCPCPill: pad 4, buoc 36, khe 9 truoc nut dong (co vach mo)
+    CGFloat pad = (AB_BAR_H - AB_BAR_BTN) / 2, step = AB_BAR_BTN + 2, sep = 9;
+    CGFloat len = pad * 2 - 2 + 3 * step + sep + step;
+    UIView *bar = [[UIView alloc] initWithFrame:CGRectMake(0, 0, len, AB_BAR_H)];
+    bar.backgroundColor = [UIColor colorWithWhite:0.13 alpha:0.94];
     bar.layer.cornerRadius = AB_BAR_H / 2;
-    bar.clipsToBounds = YES;
-    CGFloat x = 12;
-    for (NSUInteger i = 0; i < btns.count; i++) {
-        UIButton *b = btns[i];
-        if (i == 3) x += sep;
-        b.frame = CGRectMake(x, (AB_BAR_H - AB_BAR_BTN) / 2, AB_BAR_BTN, AB_BAR_BTN);
-        [bar.contentView addSubview:b];
-        x += AB_BAR_BTN + AB_BAR_GAP;
+    bar.layer.cornerCurve = kCACornerCurveContinuous;
+    bar.layer.borderWidth = 0.5;
+    bar.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.12].CGColor;
+    bar.layer.shadowColor = [UIColor blackColor].CGColor;
+    bar.layer.shadowOpacity = 0.35; bar.layer.shadowRadius = 8; bar.layer.shadowOffset = CGSizeMake(0, 2);
+    CGFloat o = pad;
+    for (UIButton *b in @[replace, pop, full]) {
+        b.center = CGPointMake(o + AB_BAR_BTN / 2, AB_BAR_H / 2);
+        [bar addSubview:b];
+        o += step;
     }
+    UIView *line = [[UIView alloc] initWithFrame:CGRectMake(o - 1 + sep / 2, (AB_BAR_H - 18) / 2, 1, 18)];
+    line.backgroundColor = [UIColor colorWithWhite:1 alpha:0.18];
+    line.userInteractionEnabled = NO;
+    [bar addSubview:line];
+    o += sep;
+    close.center = CGPointMake(o + AB_BAR_BTN / 2, AB_BAR_H / 2);
+    [bar addSubview:close];
     bar.hidden = YES;
     bar.alpha = 0;
     pane.bar = bar;
@@ -543,9 +616,7 @@ static UIButton *ABBarButton(NSString *symbol, UIColor *tint, id target, SEL act
     if (!p) return;
     if (!p.bar && !visible) return;
     UIView *bar = p.bar ?: [self buildBarForPane:p];
-    UIImageSymbolConfiguration *cfg = [UIImageSymbolConfiguration configurationWithPointSize:15 weight:UIImageSymbolWeightSemibold];
-    [p.popButton setImage:[UIImage systemImageNamed:(pop == 2 ? @"rectangle.inset.filled" : @"rectangle.on.rectangle") withConfiguration:cfg]
-                 forState:UIControlStateNormal];
+    [p.popButton setImage:ABGlyph(pop == 2 ? @"dock" : @"float") forState:UIControlStateNormal];
     p.popButton.alpha = dim ? 0.35 : 1;
     [self layoutBarForPane:p];
     if (visible == !bar.hidden) return;
