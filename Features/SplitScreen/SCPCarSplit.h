@@ -37,6 +37,7 @@
 - (void)refreshAppTabSoon;              // DashBoard vua mo / dong app toan man -> cap nhat nut Split Screen tren dock
 - (void)repairPresentedViewController:(UIViewController *)vc;   // app toan man con bi an tu split -> hien lai
 - (void)removeAppTab;
+- (void)publishKnobsSoon;             // gui vi tri cham tron cua cac vach cho SpringBoard (ve len tren cua so App Bridge)
 - (void)publishCarPlayApps;          // ghi danh sach app CarPlay + app iPhone cho Settings loc app
 - (void)carScreenAppeared;            // man xe vua hien (cam xe) -> tu mo split neu bat
 - (void)baseViewControllerPresented;  // DashBoard vua trinh bay app toan man -> bo the che cua soloBundle, dong app iPhone toan man

@@ -11,6 +11,7 @@
 - (void)setBarVisible:(BOOL)visible pop:(int)pop dim:(BOOL)dim forApp:(NSString *)bid;
 - (void)setCornerRadius:(CGFloat)radius corners:(CACornerMask)corners forApp:(NSString *)bid;   // bo goc nhu o CarPlay
 - (void)setHandleOffset:(CGFloat)dx forApp:(NSString *)bid;   // thanh "•••" lech ngang (o duoi vach ngang: tranh cham tron cua vach)
+- (void)setKnobs:(NSArray *)knobs;   // cham tron cua vach chia (AB_NOTIF_KNOBS): ve len tren cac o, khong nhan cham
 - (void)closeApp:(NSString *)bid terminate:(BOOL)terminate;
 - (void)closeAll;
 - (void)closeAllExcept:(NSString *)keep;   // giu lai app dang chuyen sang toan man (khong nhay ve Home)

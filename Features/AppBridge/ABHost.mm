@@ -153,6 +153,7 @@ static void ABPostOrientation(NSString *bid, long long orientation)
 @property (nonatomic, strong) UIWindow *window;
 @property (nonatomic, copy) NSString *displayID;
 @property (nonatomic, strong) NSMutableArray<ABPane *> *panes;
+@property (nonatomic, strong) NSMutableArray<UIView *> *knobViews;   // cham tron cua vach chia ve len tren cac o
 @end
 
 @implementation ABHost
@@ -697,6 +698,53 @@ static UIButton *ABRoundButton(NSString *glyph, id target, SEL action)
     [pane.box bringSubviewToFront:pane.handleHit];
 }
 
+#pragma mark - Cham tron cua vach chia (ve lai len tren cac o)
+
+// Cung kieu voi cham tron ben CarPlay (SCPCKnobStyle / SCPCKnobActive trong SCPCarSplit.mm)
+#define AB_KNOB      14.0
+#define AB_KNOB_GROW 1.6
+
+static UIView *ABMakeKnob(void)
+{
+    UIView *k = [[UIView alloc] initWithFrame:CGRectMake(0, 0, AB_KNOB, AB_KNOB)];
+    k.userInteractionEnabled = NO;   // cham xuyen xuong vach chia cua CarPlay
+    k.layer.cornerRadius = AB_KNOB / 2;
+    k.layer.borderWidth = 1.5;
+    k.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.95].CGColor;
+    k.layer.shadowColor = [UIColor blackColor].CGColor;
+    k.layer.shadowOpacity = 0.45; k.layer.shadowRadius = 3; k.layer.shadowOffset = CGSizeMake(0, 1);
+    CALayer *dot = [CALayer layer];
+    CGFloat ds = 4;
+    dot.frame = CGRectMake((AB_KNOB - ds) / 2, (AB_KNOB - ds) / 2, ds, ds);
+    dot.cornerRadius = ds / 2;
+    dot.backgroundColor = [UIColor whiteColor].CGColor;
+    [k.layer addSublayer:dot];
+    return k;
+}
+
+- (void)setKnobs:(NSArray *)knobs
+{
+    if (!self.knobViews) self.knobViews = [NSMutableArray array];
+    if (![knobs isKindOfClass:[NSArray class]]) knobs = @[];
+    if (knobs.count && ![self ensureWindow]) return;
+    while (self.knobViews.count > knobs.count) { [self.knobViews.lastObject removeFromSuperview]; [self.knobViews removeLastObject]; }
+    for (NSUInteger i = 0; i < knobs.count; i++) {
+        NSArray *k = knobs[i];
+        if (![k isKindOfClass:[NSArray class]] || k.count < 3) continue;
+        UIView *v = (i < self.knobViews.count) ? self.knobViews[i] : nil;
+        if (!v) { v = ABMakeKnob(); [self.knobViews addObject:v]; }
+        if (v.superview != self.window) [self.window addSubview:v];
+        [self.window bringSubviewToFront:v];
+        BOOL on = [k[2] boolValue];
+        v.center = CGPointMake([k[0] doubleValue], [k[1] doubleValue]);
+        [UIView animateWithDuration:on ? 0.15 : 0.3 delay:0 usingSpringWithDamping:0.7 initialSpringVelocity:0
+                            options:UIViewAnimationOptionBeginFromCurrentState animations:^{
+            v.transform = on ? CGAffineTransformMakeScale(AB_KNOB_GROW, AB_KNOB_GROW) : CGAffineTransformIdentity;
+            v.backgroundColor = on ? [UIColor colorWithRed:0.20 green:0.51 blue:1.0 alpha:1] : [UIColor colorWithWhite:0.12 alpha:0.88];
+        } completion:nil];
+    }
+}
+
 - (void)setHandleOffset:(CGFloat)dx forApp:(NSString *)bid
 {
     ABPane *p = [self paneFor:bid];
@@ -792,6 +840,8 @@ static void ABTerminate(NSString *bid)
 
 - (void)carDisconnected
 {
+    [self.knobViews makeObjectsPerformSelector:@selector(removeFromSuperview)];
+    [self.knobViews removeAllObjects];
     if (!self.panes.count && !self.window) return;
     ABLog("xe ngat -> bo %lu o", (unsigned long)self.panes.count);
     for (ABPane *p in [self.panes copy]) [self teardownPane:p];

@@ -49,6 +49,10 @@ static int (*orig_BKSDisplayServicesSetScreenBlanked)(int) = NULL;
     [dnc addObserverForName:AB_NOTIF_CLOSEALL object:nil queue:main usingBlock:^(NSNotification *note) {
         @try { [[ABHost shared] closeAllExcept:note.userInfo[@"except"]]; } @catch (NSException *e) { ABLog("closeall loi %@", e); }
     }];
+    // Cham tron cua vach chia (CarPlay gui) -> ve len tren cac o app iPhone
+    [dnc addObserverForName:AB_NOTIF_KNOBS object:nil queue:main usingBlock:^(NSNotification *note) {
+        @try { [[ABHost shared] setKnobs:note.userInfo[@"knobs"]]; } @catch (NSException *e) { ABLog("knobs loi %@", e); }
+    }];
     // App dang host vua doi yeu cau xoay (YouTube fullscreen): App.xm gui Darwin notify kem state (qua duoc sandbox)
     static int tokOrient = 0;
     notify_register_dispatch(AB_DARWIN_APP_ORIENT, &tokOrient, dispatch_get_main_queue(), ^(int t) {

@@ -45,6 +45,10 @@
 #define AB_NOTIF_STATE       @"com.anlai.omnicar/appbridge.state"
 // SpringBoard -> CarPlay process: the "•••" pill over the hosted app was tapped (identifier)
 #define AB_NOTIF_HANDLE_TAP  @"com.anlai.omnicar/appbridge.handletap"
+// CarPlay process -> SpringBoard: the split's divider knobs (knobs = array of @[x, y, active] in car-screen points,
+// empty = none). The host window sits above CarPlay and would hide a knob next to an iPhone-app box, so SpringBoard
+// draws the same knobs on top of its window (no touch handling: touches fall through to CarPlay's divider).
+#define AB_NOTIF_KNOBS       @"com.anlai.omnicar/appbridge.knobs"
 // SpringBoard -> CarPlay process: a button of the bar drawn over the hosted app was tapped
 // (identifier, action = replace | pop | full | close)
 #define AB_NOTIF_BAR_ACTION  @"com.anlai.omnicar/appbridge.baraction"

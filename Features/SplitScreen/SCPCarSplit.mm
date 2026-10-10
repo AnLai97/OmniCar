@@ -1303,6 +1303,7 @@ static BOOL SCPCIsBridgedApp(NSString *bid);
     if (cur) {
         SCPLog("CarSplit: dang mo %@ toan man -> ve man chinh truoc%@", cur, reopen ? [NSString stringWithFormat:@", mo lai %@ vao ngan trai", reopen] : @"");
         SCPCSendEvent(1, @"SplitScreen: mo split");
+        [self dismissStuckBaseSoon];
         self.nextLaunchAt = CFAbsoluteTimeGetCurrent() + SCPC_HOME_SETTLE;   // cho DashBoard ve Home xong
     }
     if (![self ensureContainer]) return NO;
@@ -2296,6 +2297,7 @@ static CGSize SCPCSceneSize(UIViewController *vc)
     [UIView animateWithDuration:0.2 animations:^{ c.alpha = 0; } completion:^(BOOL f) { [c removeFromSuperview]; }];
     if (goHome) SCPCSendEvent(1, @"SplitScreen: dong split");
     [self refreshAppTabSoon];   // DashBoard co the dang mo 1 app toan man -> hien tab
+    [self publishKnobsSoon];    // het split -> SpringBoard bo cham tron ve tren cua so App Bridge
 }
 
 // Settings chi cho chon app ma CarPlay hien duoc: app CarPlay that ghi o day, app iPhone la danh sach
@@ -2756,14 +2758,18 @@ static UIView *SCPCDotsHandle(void)
 //  Vach chia + tay nam (HyperOS): keo doi ti le (tha tay hit 1/3 · 1/2 · 2/3), keo sat mep -> dong o bi ep,
 //  cham 2 lan -> doi cho 2 o hai ben.
 // ---------------------------------------------------------------------
+// Mau cua cham tron: nen toi trong, vien trang, cham trang o giua (kieu nut joystick); dang cham / keo: nen xanh HyperOS
+static UIColor *SCPCKnobFill(BOOL on) { return on ? SCPCAccent() : [UIColor colorWithWhite:0.12 alpha:0.88]; }
+
 static void SCPCKnobActive(UIView *knob, BOOL on)
 {
     [UIView animateWithDuration:on ? 0.15 : 0.3 delay:0 usingSpringWithDamping:0.7 initialSpringVelocity:0
                         options:UIViewAnimationOptionAllowUserInteraction | UIViewAnimationOptionBeginFromCurrentState
                      animations:^{
         knob.transform = on ? CGAffineTransformMakeScale(SCPC_KNOB_GROW, SCPC_KNOB_GROW) : CGAffineTransformIdentity;
-        knob.backgroundColor = on ? SCPCAccent() : [UIColor whiteColor];
+        knob.backgroundColor = SCPCKnobFill(on);
     } completion:nil];
+    [[SCPCarSplit shared] publishKnobsSoon];   // o app iPhone (App Bridge) ve de len cham tron -> SpringBoard ve lai cham tron len tren
 }
 
 // Tay nam: nut tron (SCPC_KNOB_DOT) giua vach / o giao 2 vach, vong trang vien toi + cham o giua (y tuong nguoi dung,
@@ -2774,8 +2780,17 @@ static void SCPCKnobStyle(UIView *knob, NSInteger style)
     knob.tag = 3;
     knob.bounds = CGRectMake(0, 0, SCPC_KNOB_DOT, SCPC_KNOB_DOT);
     knob.layer.cornerRadius = SCPC_KNOB_DOT / 2;
-    knob.layer.borderWidth = 1.5;   // cham tron dac, vien toi cho tach khoi nen app; cung mot kieu o moi vach
-    knob.layer.borderColor = [UIColor colorWithWhite:0 alpha:0.75].CGColor;
+    knob.backgroundColor = SCPCKnobFill(NO);
+    knob.layer.borderWidth = 1.5;
+    knob.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.95].CGColor;
+    knob.layer.shadowColor = [UIColor blackColor].CGColor;
+    knob.layer.shadowOpacity = 0.45; knob.layer.shadowRadius = 3; knob.layer.shadowOffset = CGSizeMake(0, 1);
+    CALayer *dot = [CALayer layer];
+    CGFloat ds = 4;
+    dot.frame = CGRectMake((SCPC_KNOB_DOT - ds) / 2, (SCPC_KNOB_DOT - ds) / 2, ds, ds);
+    dot.cornerRadius = ds / 2;
+    dot.backgroundColor = [UIColor whiteColor].CGColor;
+    [knob.layer addSublayer:dot];
 }
 
 - (SCPCarDividerView *)newDividerAt:(int)i
@@ -2826,6 +2841,7 @@ static void SCPCKnobStyle(UIView *knob, NSInteger style)
     }
     [self.container bringSubviewToFront:d];
     if (self.ratioMenu) [self.container bringSubviewToFront:self.ratioMenu];
+    [self publishKnobsSoon];
 }
 
 // Ti le hit khi tha tay. 2 o: 1/3 · 1/2 · 2/3 (nhu HyperOS). 3 o: buoc 1/12, moi o >= SCPC_MIN_FRAC.
@@ -3848,6 +3864,39 @@ static NSArray<NSDictionary *> *SCPCPhoneApps(void)
     [self hostPost:AB_NOTIF_CLOSE info:@{@"identifier": bid, @"terminate": @(terminate)}];
 }
 
+// Cham tron cua cac vach -> SpringBoard ve lai len tren cua so App Bridge (cua so do nam tren CarPlay, che cham tron
+// canh o app iPhone). Gom nhieu lan goi trong 1 vong runloop thanh 1 lan gui; chi gui khi co o app iPhone hoac vua het.
+- (void)publishKnobsSoon
+{
+    static BOOL queued;
+    if (queued) return;
+    queued = YES;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        queued = NO;
+        [self publishKnobsNow];
+    });
+}
+
+- (void)publishKnobsNow
+{
+    static BOOL sentAny;
+    BOOL hosted = NO;
+    for (SCPCarPane *p in [self allPanes]) if (SCPCIsHostedVC(p.vc)) hosted = YES;
+    NSMutableArray *knobs = [NSMutableArray array];
+    if (self.active && hosted && !self.tray) {
+        for (SCPCarDividerView *d in self.dividers) {
+            UIView *k = d.knob;
+            if (!k || k.hidden || d.alpha < 0.5 || !k.window) continue;
+            CGPoint c = [d convertPoint:k.center toView:nil];
+            BOOL on = !CGAffineTransformIsIdentity(k.transform);
+            [knobs addObject:@[@(c.x), @(c.y), @(on)]];
+        }
+    }
+    if (!knobs.count && !sentAny) return;
+    sentAny = knobs.count > 0;
+    [self hostPost:AB_NOTIF_KNOBS info:@{@"knobs": knobs}];
+}
+
 - (void)hostCloseAll
 {
     // App dang chuyen sang toan man (soloBundle) giu lai: cua so cua no chi doi khung, khong dong roi mo lai
@@ -3928,8 +3977,28 @@ static NSArray<NSDictionary *> *SCPCPhoneApps(void)
 }
 
 // Nut Home cua CarPlay (hook _handleHomeEvent): app iPhone toan man -> dong
+// Sau su kien Home: DashBoard co the van giu 1 VC "toan man" ma workspace cua no da coi la Home (VC split tra lai bang
+// presentBaseViewController, log 10/10 17:47: Home khi dang chia -> man trang/den, currentBaseViewController van la GOFA).
+// Con VC do ma split khong dung -> bao DashBoard dong no that de man chinh hien ra.
+- (void)dismissStuckBaseSoon
+{
+    __weak SCPCarSplit *weakSelf = self;
+    SCPCAfter(0.35, ^{
+        SCPCarSplit *me = weakSelf;
+        if (!me || me.soloHostedBundle) return;
+        UIViewController *root = SCPCRootVC();
+        UIViewController *cur = objcInvoke(root, @"currentBaseViewController");
+        if (!cur) return;
+        for (SCPCarPane *p in [me allPanes]) if (p.vc == cur) return;   // dang nam trong o: split lo
+        SCPLog("CarSplit: DashBoard con giu %@ sau Home -> dong de hien man chinh", cur);
+        SEL dis = NSSelectorFromString(@"dismissBaseViewControllerAnimated:completion:");
+        if ([root respondsToSelector:dis]) ((void (*)(id, SEL, BOOL, id))objc_msgSend)(root, dis, YES, nil);
+    });
+}
+
 - (void)homePressed
 {
+    [self dismissStuckBaseSoon];
     // Home do chinh split gui khi tat split (soloBundle app iPhone): man chinh ve ben duoi, app toan man giu nguyen
     if (self.ignoreHomeOnce) { self.ignoreHomeOnce = NO; return; }
     if (self.soloHostedBundle) [self endHostedSolo];
