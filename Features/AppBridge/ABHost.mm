@@ -144,6 +144,7 @@ static void ABPostOrientation(NSString *bid, long long orientation)
 @property (nonatomic, strong) UIView *handleHit;       // vung cham cua thanh
 @property (nonatomic, strong) UIView *bar;             // thanh nut cua o (doi app / noi / toan man / dong) ve de len app
 @property (nonatomic, strong) UIButton *popButton;     // nut noi / ghim tren thanh (glyph doi theo "pop")
+@property (nonatomic) CGFloat handleOffset;            // thanh "•••" lech ngang (hx tu CarPlay)
 @end
 @implementation ABPane
 @end
@@ -692,8 +693,16 @@ static UIButton *ABRoundButton(NSString *glyph, id target, SEL action)
 - (void)setHandleVisible:(BOOL)visible forPane:(ABPane *)pane
 {
     pane.handleHit.hidden = !visible;
-    pane.handleHit.center = CGPointMake(pane.box.bounds.size.width / 2, 12);
+    pane.handleHit.center = CGPointMake(pane.box.bounds.size.width / 2 + pane.handleOffset, 12);
     [pane.box bringSubviewToFront:pane.handleHit];
+}
+
+- (void)setHandleOffset:(CGFloat)dx forApp:(NSString *)bid
+{
+    ABPane *p = [self paneFor:bid];
+    if (!p || p.handleOffset == dx) return;
+    p.handleOffset = dx;
+    [self setHandleVisible:!p.handleHit.hidden forPane:p];
 }
 
 - (void)handleTapped:(UITapGestureRecognizer *)g

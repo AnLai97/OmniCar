@@ -28,6 +28,7 @@ static int (*orig_BKSDisplayServicesSetScreenBlanked)(int) = NULL;
                                     forApp:u[@"identifier"]];
             [[ABHost shared] setBarVisible:[u[@"bar"] boolValue] pop:[u[@"pop"] intValue] dim:[u[@"popDim"] boolValue] forApp:u[@"identifier"]];
             [[ABHost shared] setCornerRadius:[u[@"r"] doubleValue] corners:(CACornerMask)[u[@"corners"] unsignedLongLongValue] forApp:u[@"identifier"]];
+            [[ABHost shared] setHandleOffset:[u[@"hx"] doubleValue] forApp:u[@"identifier"]];
         } @catch (NSException *e) { ABLog("open loi %@\n%@", e, e.callStackSymbols); }
     }];
     [dnc addObserverForName:AB_NOTIF_FRAME object:nil queue:main usingBlock:^(NSNotification *note) {
@@ -38,6 +39,7 @@ static int (*orig_BKSDisplayServicesSetScreenBlanked)(int) = NULL;
             [[ABHost shared] setFrame:r forApp:u[@"identifier"] live:[u[@"live"] boolValue] handle:[u[@"handle"] boolValue] passInsets:pass];
             [[ABHost shared] setBarVisible:[u[@"bar"] boolValue] pop:[u[@"pop"] intValue] dim:[u[@"popDim"] boolValue] forApp:u[@"identifier"]];
             [[ABHost shared] setCornerRadius:[u[@"r"] doubleValue] corners:(CACornerMask)[u[@"corners"] unsignedLongLongValue] forApp:u[@"identifier"]];
+            [[ABHost shared] setHandleOffset:[u[@"hx"] doubleValue] forApp:u[@"identifier"]];
         } @catch (NSException *e) { ABLog("frame loi %@", e); }
     }];
     [dnc addObserverForName:AB_NOTIF_CLOSE object:nil queue:main usingBlock:^(NSNotification *note) {

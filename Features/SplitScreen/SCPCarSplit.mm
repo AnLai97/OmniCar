@@ -2365,7 +2365,9 @@ static UIView *SCPCDotsHandle(void)
 - (void)layoutBarForPane:(SCPCarPane *)p
 {
     CGSize s = p.view.bounds.size;
-    p.handle.center = CGPointMake(s.width / 2, SCPC_HANDLE_Y + SCPC_HANDLE_H / 2);
+    // O nam duoi mot vach ngang: cham tron cua vach o ngay giua mep tren -> thanh "•••" lech sang phai cho khoi trung
+    BOOL underDivider = (p != self.floatPane) && CGRectGetMinY(p.view.frame) > SCPC_INSET + 1;
+    p.handle.center = CGPointMake(s.width / 2 + (underDivider ? SCPC_KNOB_DOT + 24 : 0), SCPC_HANDLE_Y + SCPC_HANDLE_H / 2);
     p.handle.hidden = (p.vc == nil);   // dang chon app thi khong can
     p.bar.center = CGPointMake(s.width / 2, SCPC_HANDLE_Y + SCPC_HANDLE_H + 6 + SCPC_PILL / 2);
     // O hep (3 o, ~150pt): thu nho ca thanh nut cho vua o thay vi bi cat mep
@@ -2754,14 +2756,8 @@ static void SCPCKnobStyle(UIView *knob, NSInteger style)
     knob.tag = 3;
     knob.bounds = CGRectMake(0, 0, SCPC_KNOB_DOT, SCPC_KNOB_DOT);
     knob.layer.cornerRadius = SCPC_KNOB_DOT / 2;
-    knob.layer.borderWidth = 2;   // nut to hon khe -> vien toi cho tach khoi nen app
+    knob.layer.borderWidth = 2;   // cham tron dac, vien toi cho tach khoi nen app; cung mot kieu o moi vach
     knob.layer.borderColor = [UIColor colorWithWhite:0 alpha:0.75].CGColor;
-    CALayer *dot = [CALayer layer];
-    dot.backgroundColor = [UIColor colorWithWhite:0 alpha:0.75].CGColor;
-    CGFloat ds = 6;
-    dot.frame = CGRectMake((SCPC_KNOB_DOT - ds) / 2, (SCPC_KNOB_DOT - ds) / 2, ds, ds);
-    dot.cornerRadius = ds / 2;
-    [knob.layer addSublayer:dot];
 }
 
 - (SCPCarDividerView *)newDividerAt:(int)i
@@ -2806,8 +2802,8 @@ static void SCPCKnobStyle(UIView *knob, NSInteger style)
         }
     } else {
         knob.hidden = NO;
-        // Vach ngang: tay nam lech sang 1/4 chieu dai, khong trung thanh "•••" o giua mep tren o phia duoi
-        knob.center = v ? CGPointMake(MAX(knob.bounds.size.width / 2 + 6, s.width * 0.25), s.height / 2) : CGPointMake(s.width / 2, s.height / 2);
+        // Cham tron o chinh giua moi vach (dong nhat); thanh "•••" cua o ngay duoi vach ngang lech sang phai (layoutBarForPane)
+        knob.center = CGPointMake(s.width / 2, s.height / 2);
     }
     [self.container bringSubviewToFront:d];
     if (self.ratioMenu) [self.container bringSubviewToFront:self.ratioMenu];
@@ -3770,6 +3766,8 @@ static NSArray<NSDictionary *> *SCPCPhoneApps(void)
     if (p) [d addEntriesFromDictionary:[self hostBarInfoForPane:p]];
     // Bo goc nhu o CarPlay (SCPC_RADIUS o goc giap o khac, cua so noi 4 goc): cua so host ve cung goc
     if (p) { d[@"r"] = @(p.view.layer.cornerRadius); d[@"corners"] = @((unsigned long long)p.view.layer.maskedCorners); }
+    // Thanh "•••" lech sang phai nhu thanh cua o CarPlay khi o nam duoi vach ngang (cham tron cua vach o giua)
+    if (p) d[@"hx"] = @((p != self.floatPane && CGRectGetMinY(p.view.frame) > SCPC_INSET + 1) ? SCPC_KNOB_DOT + 24 : 0);
     return d;
 }
 
