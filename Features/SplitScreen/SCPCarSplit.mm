@@ -638,6 +638,8 @@ static BOOL SCPCIsBridgedApp(NSString *bid);
 @property (nonatomic, strong) NSMutableDictionary<NSString *, NSDate *> *cancelledLaunches;   // app bi huy luc dang mo
 @property (nonatomic, strong) UIView *soloCover;      // the icon app che luc ve man chinh roi mo lai app toan man
 @property (nonatomic, strong) UIView *trayCover;      // the icon app che vung app toan man (App Bridge) khi bang bo cuc mo (cua so host an)
+@property (nonatomic, strong) UIWindow *trayWindow;    // cua so rieng cua bang bo cuc (tren cua so App Bridge), giu lai giua cac lan mo
+@property (nonatomic) BOOL trayOverlay;                // bang dang nam trong trayWindow (de len o app iPhone, khong can an o)
 @property (nonatomic, strong) SCPCarSplitView *container;
 @property (nonatomic, strong) NSMutableArray<SCPCarPane *> *slots;        // cac o theo thu tu (1..3)
 @property (nonatomic, strong) NSMutableArray<NSNumber *> *fractions;      // ti le tung o, tong = 1
@@ -2324,6 +2326,7 @@ static CGSize SCPCSceneSize(UIViewController *vc)
     [self removeHomeButton];
     self.autoLaunchDone = NO;
     self.soloHostedBundle = nil;   // App Bridge tu bo o khi xe ngat
+    self.trayWindow.hidden = YES; self.trayWindow = nil;   // cua so bang bo cuc gan voi man xe cu
     if (!self.active) return;
     SCPLog("CarSplit: DashBoard invalidate -> bo split");
     self.active = NO;
@@ -3438,6 +3441,36 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
 
 // Bang cua nut Split Screen / logo: Mac dinh (2 o / 3 o / 1 lon + 2), Gan day, Yeu thich. app = app vao o 1 khi
 // chon bo cuc mac dinh (app dang mo / icon vua giu); nil = tu man chinh -> cap app lan truoc.
+// Cua so rieng cho bang bo cuc, muc tren cua so App Bridge cua SpringBoard (+60) va duoi bong bong toc do (+70): bang
+// hien de len ca o app iPhone ma khong phai an o (nguoi dung: bam OmniCar thi man hinh giu nguyen, chi hien bang).
+// Cung cach SpringBoard dat cua so len man xe (ABMakeCarWindow): UIRootSceneWindow theo FBSDisplayConfiguration.
+#define SCPC_TRAY_LEVEL (UIWindowLevelStatusBar + 65)
+- (UIWindow *)trayWindowForParent:(UIView *)parent
+{
+    UIScreen *screen = parent.window.screen;
+    if (!screen) return nil;
+    UIWindow *w = self.trayWindow;
+    if (w && w.screen == screen) { w.hidden = NO; return w; }
+    if (w) { w.hidden = YES; self.trayWindow = nil; }
+    id config = [screen respondsToSelector:NSSelectorFromString(@"displayConfiguration")] ? objcInvoke(screen, @"displayConfiguration") : nil;
+    if (!config) {
+        id display = [screen respondsToSelector:NSSelectorFromString(@"_display")] ? objcInvoke(screen, @"_display") : nil;
+        if (display) config = objcInvoke_2([objc_getClass("FBSDisplayConfiguration") alloc], @"initWithCADisplay:isMainDisplay:", display, (BOOL)NO);
+    }
+    id rw = config ? objcInvoke_1([objc_getClass("UIRootSceneWindow") alloc], @"initWithDisplayConfiguration:", config) : nil;
+    if (![rw isKindOfClass:[UIWindow class]]) {
+        SCPLog("CarSplit: khong tao duoc cua so bang bo cuc (config %@, window %@) -> bang nam trong view goc, an o app iPhone", config, rw);
+        return nil;
+    }
+    w = rw;
+    w.windowLevel = SCPC_TRAY_LEVEL;
+    w.backgroundColor = [UIColor clearColor];
+    w.hidden = NO;
+    self.trayWindow = w;
+    SCPLog("CarSplit: cua so bang bo cuc %@ muc %.0f", NSStringFromCGRect(w.bounds), w.windowLevel);
+    return w;
+}
+
 - (void)showLayoutPanelForApp:(NSString *)app
 {
     [self collapseAppTray];
@@ -3445,18 +3478,20 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
     if (!parent || ![SCPPrefs enabled]) return;
     self.layoutApp = app;
     CGRect area = [self appAreaInParent:parent];
+    UIWindow *host = [self trayWindowForParent:parent];   // nil -> bang trong view goc nhu cu (phai an o app iPhone)
+    self.trayOverlay = (host != nil);
 
     // Lop phu: cham ra ngoai bang -> thu lai
-    UIView *shield = [[UIView alloc] initWithFrame:parent.bounds];
+    UIView *shield = [[UIView alloc] initWithFrame:host ? host.bounds : parent.bounds];
     shield.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     shield.backgroundColor = [UIColor colorWithWhite:0 alpha:0.3];
     [shield addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(collapseAppTray)]];
-    [parent addSubview:shield];
+    [host ?: parent addSubview:shield];
     self.trayShield = shield;
     [self publishBusy];
     // App CarBridge dang mo toan man: CBWindow (SpringBoard) nam tren moi view CarPlay nen che mat bang -> an CBWindow
     // trong luc bang mo, hien lai khi bang dong (collapseAppTray)
-    if (!self.active && self.soloHostedBundle) [self setFullscreenBridgeHidden:YES bundle:self.soloHostedBundle];
+    if (!host && !self.active && self.soloHostedBundle) [self setFullscreenBridgeHidden:YES bundle:self.soloHostedBundle];
 
     BOOL v = [self vertical];
     NSArray<NSString *> *titles = nil;
@@ -3478,7 +3513,9 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
     h = MIN(h, area.size.height - 12);
     CGFloat contentW = w;
     w = MIN(w, area.size.width - 12);   // man xe hep / doc: bang cuon ngang
-    UIView *panel = [[UIView alloc] initWithFrame:CGRectMake(CGRectGetMidX(area) - w / 2, CGRectGetMinY(area) + 6, w, h)];
+    CGRect pf = CGRectMake(CGRectGetMidX(area) - w / 2, CGRectGetMinY(area) + 6, w, h);
+    if (host) pf = [parent convertRect:pf toView:nil];   // cua so rieng phu kin man xe nhu cua so chinh -> cung toa do man xe
+    UIView *panel = [[UIView alloc] initWithFrame:pf];
     SCPCChrome(panel, 20);
     panel.backgroundColor = [UIColor colorWithWhite:0.12 alpha:0.96];
     panel.layer.shadowOpacity = 0.45; panel.layer.shadowRadius = 14; panel.layer.shadowOffset = CGSizeMake(0, 4);
@@ -3561,14 +3598,14 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
     scroll.contentSize = CGSizeMake(contentW, y);
     self.panelChoices = choices;
 
-    [parent addSubview:panel];
+    [host ?: parent addSubview:panel];
     self.tray = panel;
     [self pushHostFramesLive:NO];   // dang chia: o app iPhone nhuong cho bang (hostFrameForPane xet self.tray -> phai dat tray truoc;
                                     // log 10/10 22:48: goi truoc khi dat tray nen o YouTube van de len bang)
     // Cua so host an thi o app iPhone chi con nen den / app toan man lo man chinh (log 10/10 22:59) -> the icon app nhu luc
     // thanh ti le de len o (addCoverToPane); app toan man: the icon phu ca vung app, duoi lop phu cua bang
-    for (SCPCarPane *hp in [self hostedPanes]) [self addCoverToPane:hp];
-    if (!self.active && self.soloHostedBundle) {
+    if (!host) for (SCPCarPane *hp in [self hostedPanes]) [self addCoverToPane:hp];
+    if (!host && !self.active && self.soloHostedBundle) {
         [self.trayCover removeFromSuperview];
         UIView *cover = [[UIView alloc] initWithFrame:area];
         cover.backgroundColor = [UIColor colorWithWhite:0.1 alpha:1];
@@ -3717,6 +3754,7 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
 
 - (void)collapseAppTray
 {
+    __weak SCPCarSplit *weakSelf = self;
     [self.trayTimer invalidate]; self.trayTimer = nil;
     UIView *tray = self.tray, *shield = self.trayShield;
     self.tray = nil; self.trayShield = nil;
@@ -3728,9 +3766,13 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
     self.trayCover = nil;
     if (tc) [UIView animateWithDuration:0.2 animations:^{ tc.alpha = 0; } completion:^(BOOL f) { [tc removeFromSuperview]; }];
     if (!tray && !shield) return;
+    UIWindow *tw = self.trayWindow;
     [UIView animateWithDuration:0.2 animations:^{
         tray.alpha = 0; tray.transform = CGAffineTransformMakeTranslation(0, -20); shield.alpha = 0;
-    } completion:^(BOOL f) { [tray removeFromSuperview]; [shield removeFromSuperview]; }];
+    } completion:^(BOOL f) {
+        [tray removeFromSuperview]; [shield removeFromSuperview];
+        if (tw && !weakSelf.tray) tw.hidden = YES;   // khong mo bang moi trong luc thu -> an cua so (giu lai cho lan sau)
+    }];
 }
 
 // Bang bo cuc mo tren app iPhone toan man (App Bridge): cua so host che mat bang -> an (khung 0) / hien lai
@@ -3851,7 +3893,7 @@ static NSArray<NSDictionary *> *SCPCPhoneApps(void)
 - (CGRect)hostFrameForPane:(SCPCarPane *)p
 {
     if (!self.active || !p.vc || p.picker || p.view.alpha < 0.5 || p.view.bounds.size.width < 20 || !p.view.window) return CGRectZero;
-    if (self.tray) return CGRectZero;   // bang bo cuc ve trong CarPlay -> nhuong cho
+    if (self.tray && !self.trayOverlay) return CGRectZero;   // bang bo cuc ve trong view goc CarPlay (khong co cua so rieng) -> nhuong cho
     if (self.ratioMenu && CGRectIntersectsRect(CGRectInset(self.ratioMenu.frame, -6, -6), p.view.frame)) return CGRectZero;
     // Khung day du ca khi thanh nut dang hien: thanh nut do SpringBoard ve de len app (bar trong hostBarInfoForPane), app
     // xuong, de noi dung app khong bi day / bo cuc lai moi lan mo thanh nut
