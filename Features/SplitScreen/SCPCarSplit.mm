@@ -3342,7 +3342,8 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
     if (!overlay && self.active) [self pushHostFramesLive:NO];   // bang nam trong CarPlay: tra lai o app iPhone
 }
 
-// So do bo cuc nho: o dang chon xanh, o con cho chon (cham de chuyen) sang, o da co app toi
+// So do bo cuc nho: o da co app (hoac dang mo) hien logo app; o dang chon xanh voi dau "+"; o khac con cho chon
+// "+" mo (cham de chuyen sang o do)
 - (UIView *)pickerMapForPane:(SCPCarPane *)target height:(CGFloat)mh
 {
     CGSize cs = self.container.bounds.size;
@@ -3353,13 +3354,33 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
         CGRect r = (p == self.floatPane) ? self.floatFrame : [self frameForSlot:p.slot];
         if (r.size.width < 1 || r.size.height < 1) continue;
         r = CGRectInset(CGRectMake(r.origin.x * k, r.origin.y * k, r.size.width * k, r.size.height * k), 1.5, 1.5);
+        NSString *bid = p.picker ? nil : p.bundleID;
+        if (!p.picker && !bid)   // app dang mo vao o nay (cho DashBoard)
+            for (NSString *pb in self.pending) if ([self.pending[pb][0] intValue] == p.slot) { bid = pb; break; }
         UIButton *b = [SCPCButton buttonWithType:UIButtonTypeCustom];
         b.frame = r;
         b.tag = p.slot;
-        b.layer.cornerRadius = 4;
+        b.layer.cornerRadius = 5;
         b.layer.cornerCurve = kCACornerCurveContinuous;
-        b.backgroundColor = (p == target) ? SCPCAccent() : p.picker ? [UIColor colorWithWhite:1 alpha:0.4] : [UIColor colorWithWhite:1 alpha:0.12];
+        b.backgroundColor = (p == target) ? SCPCAccent() : p.picker ? [UIColor colorWithWhite:1 alpha:0.22] : [UIColor colorWithWhite:1 alpha:0.1];
         if (p == self.floatPane) { b.layer.borderWidth = 1; b.layer.borderColor = [UIColor colorWithWhite:0.1 alpha:1].CGColor; }
+        CGFloat side = MIN(r.size.width, r.size.height);
+        if (bid) {
+            CGFloat s = MIN(22, floor(side * 0.7));
+            UIImageView *iv = [[UIImageView alloc] initWithFrame:CGRectMake((r.size.width - s) / 2, (r.size.height - s) / 2, s, s)];
+            iv.image = SCPCAppIcon(bid);
+            SCPCStyleIcon(iv);
+            iv.userInteractionEnabled = NO;
+            [b addSubview:iv];
+        } else if (p.picker) {
+            UILabel *plus = [[UILabel alloc] initWithFrame:b.bounds];
+            plus.text = @"+";
+            plus.textAlignment = NSTextAlignmentCenter;
+            plus.textColor = [UIColor colorWithWhite:1 alpha:(p == target) ? 1 : 0.55];
+            plus.font = [UIFont systemFontOfSize:MIN(22, floor(side * 0.8)) weight:(p == target) ? UIFontWeightBold : UIFontWeightRegular];
+            plus.userInteractionEnabled = NO;
+            [b addSubview:plus];
+        }
         b.userInteractionEnabled = (p.picker && p != target);
         [b addTarget:self action:@selector(pickerMapTapped:) forControlEvents:UIControlEventTouchUpInside];
         [map addSubview:b];
@@ -3412,9 +3433,9 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
     UIView *sheet = glass.contentView;   // noi dung nam tren kinh; card la khung hien / an
     CGFloat w = pf.size.width, h = pf.size.height, headH = 64;
 
-    UIView *map = [self pickerMapForPane:target height:36];
+    UIView *map = [self pickerMapForPane:target height:44];
     CGFloat textX = 20;
-    if (map) { map.frame = CGRectMake(20, (headH - 36) / 2, map.bounds.size.width, 36); [sheet addSubview:map]; textX = CGRectGetMaxX(map.frame) + 14; }
+    if (map) { map.frame = CGRectMake(20, (headH - 44) / 2, map.bounds.size.width, 44); [sheet addSubview:map]; textX = CGRectGetMaxX(map.frame) + 14; }
 
     int waiting = 0;
     for (SCPCarPane *p in [self allPanes]) if (p.picker && p != target) waiting++;
