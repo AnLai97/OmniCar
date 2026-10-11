@@ -3750,10 +3750,10 @@ static void SCPCMakePassThrough(UIWindow *w)
     UIWindow *host = [self trayWindowForParent:parent];   // nil -> bang trong view goc nhu cu (phai an o app iPhone)
     self.trayOverlay = (host != nil);
 
-    // Lop phu: cham ra ngoai bang -> thu lai
-    UIView *shield = [[UIView alloc] initWithFrame:host ? host.bounds : parent.bounds];
-    shield.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-    shield.backgroundColor = [UIColor colorWithWhite:0 alpha:0.3];
+    // Lop phu trong suot chi tren vung app (HarmonyOS: khong to toi, khong che dock): cham ra ngoai bang -> thu lai.
+    // Cua so rieng cho cham xuyen o cho trong (SCPCMakePassThrough) nen dock van bam duoc.
+    UIView *shield = [[UIView alloc] initWithFrame:host ? [parent convertRect:area toView:nil] : area];
+    shield.backgroundColor = [UIColor clearColor];
     [shield addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(collapseAppTray)]];
     [host ?: parent addSubview:shield];
     self.trayShield = shield;
@@ -3784,15 +3784,25 @@ static void SCPCMakePassThrough(UIWindow *w)
     w = MIN(w, area.size.width - 12);   // man xe hep / doc: bang cuon ngang
     CGRect pf = CGRectMake(CGRectGetMidX(area) - w / 2, CGRectGetMinY(area) + 6, w, h);
     if (host) pf = [parent convertRect:pf toView:nil];   // cua so rieng phu kin man xe nhu cua so chinh -> cung toa do man xe
+    // Kieu HarmonyOS: the kinh mo mong (nhin xuyen), bo goc lon lien tuc, vien sang manh, bong mem
     UIView *panel = [[UIView alloc] initWithFrame:pf];
-    SCPCChrome(panel, 20);
-    panel.backgroundColor = [UIColor colorWithWhite:0.12 alpha:0.96];
-    panel.layer.shadowOpacity = 0.45; panel.layer.shadowRadius = 14; panel.layer.shadowOffset = CGSizeMake(0, 4);
+    panel.layer.cornerRadius = 24;
+    panel.layer.cornerCurve = kCACornerCurveContinuous;
+    panel.layer.shadowColor = [UIColor blackColor].CGColor;
+    panel.layer.shadowOpacity = 0.35; panel.layer.shadowRadius = 24; panel.layer.shadowOffset = CGSizeMake(0, 8);
+    UIVisualEffectView *glass = [[UIVisualEffectView alloc] initWithEffect:[UIBlurEffect effectWithStyle:UIBlurEffectStyleSystemUltraThinMaterialDark]];
+    glass.frame = panel.bounds;
+    glass.contentView.backgroundColor = [UIColor colorWithWhite:0.1 alpha:0.18];
+    glass.layer.cornerRadius = 24;
+    glass.layer.cornerCurve = kCACornerCurveContinuous;
+    glass.layer.borderWidth = 0.5;
+    glass.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.22].CGColor;
+    glass.clipsToBounds = YES;
+    [panel addSubview:glass];
     UIScrollView *scroll = [[UIScrollView alloc] initWithFrame:panel.bounds];   // man xe thap: cuon duoc
     scroll.showsVerticalScrollIndicator = NO;
     scroll.delegate = self;   // cuon bang -> hen gio thu lai tinh tu dau
-    scroll.layer.cornerRadius = 20; scroll.clipsToBounds = YES;
-    [panel addSubview:scroll];
+    [glass.contentView addSubview:scroll];
 
     NSMutableArray *choices = [NSMutableArray array], *cells = [NSMutableArray array];
     CGFloat y = pad;
@@ -3890,11 +3900,19 @@ static void SCPCMakePassThrough(UIWindow *w)
     }
     [self raiseView:shield];
     [self raiseView:panel];
-    shield.alpha = 0;
-    panel.alpha = 0; panel.transform = CGAffineTransformMakeTranslation(0, -h);
-    [UIView animateWithDuration:0.35 delay:0 usingSpringWithDamping:0.85 initialSpringVelocity:0.4 options:0
-                     animations:^{ shield.alpha = 1; panel.alpha = 1; panel.transform = CGAffineTransformIdentity; } completion:nil];
-    SCPCPopIn(cells);
+    // Hien kieu HarmonyOS: bang nho ra tu mep tren + phong nhe theo lo xo, cac muc mo + troi len lan luot
+    panel.alpha = 0;
+    panel.transform = CGAffineTransformScale(CGAffineTransformMakeTranslation(0, -18), 0.92, 0.92);
+    [UIView animateWithDuration:0.5 delay:0 usingSpringWithDamping:0.86 initialSpringVelocity:0.4
+                        options:UIViewAnimationOptionAllowUserInteraction
+                     animations:^{ panel.alpha = 1; panel.transform = CGAffineTransformIdentity; } completion:nil];
+    NSInteger ci = 0;
+    for (UIView *c in cells) {
+        c.alpha = 0; c.transform = CGAffineTransformMakeTranslation(0, 12);
+        [UIView animateWithDuration:0.45 delay:0.06 + ci++ * 0.025 usingSpringWithDamping:0.85 initialSpringVelocity:0.3
+                            options:UIViewAnimationOptionAllowUserInteraction
+                         animations:^{ c.alpha = 1; c.transform = CGAffineTransformIdentity; } completion:nil];
+    }
     [self restartTrayTimer];
     SCPLog("CarSplit: bang bo cuc cho %@ (%@, %lu lua chon)", app ?: (self.active ? @"doi bo cuc" : @"cap lan truoc"),
            [titles componentsJoinedByString:@" / "], (unsigned long)choices.count);
@@ -4038,8 +4056,8 @@ static void SCPCMakePassThrough(UIWindow *w)
     if (tc) [UIView animateWithDuration:0.2 animations:^{ tc.alpha = 0; } completion:^(BOOL f) { [tc removeFromSuperview]; }];
     if (!tray && !shield) return;
     UIWindow *tw = self.trayWindow;
-    [UIView animateWithDuration:0.2 animations:^{
-        tray.alpha = 0; tray.transform = CGAffineTransformMakeTranslation(0, -20); shield.alpha = 0;
+    [UIView animateWithDuration:0.22 delay:0 options:UIViewAnimationOptionCurveEaseIn animations:^{   // thu ve mep tren + nho lai
+        tray.alpha = 0; tray.transform = CGAffineTransformScale(CGAffineTransformMakeTranslation(0, -14), 0.94, 0.94);
     } completion:^(BOOL f) {
         [tray removeFromSuperview]; [shield removeFromSuperview];
         if (tw && !weakSelf.tray && !weakSelf.ratioMenu && !weakSelf.pickerSheet) tw.hidden = YES;   // khong con gi tren cua so -> an (giu lai cho lan sau)
