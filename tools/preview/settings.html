@@ -125,7 +125,7 @@ body { display: flex; flex-wrap: wrap; justify-content: center; gap: 22px; paddi
   <h1>Cài đặt OmniCar · bản thiết kế lại</h1>
   <p>Bấm thẳng vào iPhone bên cạnh. Chưa phải code thật — duyệt xong mới làm vào tweak.</p>
   <ul>
-    <li><b>Trang chính</b>: công tắc tổng nằm luôn trong thẻ logo, mỗi tính năng 1 dòng có trạng thái Bật/Tắt; Respring và Ngôn ngữ thành 2 nút nhỏ trên thanh trên.</li>
+    <li><b>Trang chính</b>: công tắc tổng nằm luôn trong thẻ logo, <b>App trên màn xe</b> là mục riêng (Ứng dụng), mỗi tính năng 1 dòng có trạng thái Bật/Tắt; Respring và Ngôn ngữ thành 2 nút nhỏ trên thanh trên.</li>
     <li><b>Chia màn hình</b>: 3 bố cục yêu thích gom thành 3 dòng (hình bố cục + app) thay vì ~15 dòng; đoạn hướng dẫn dài chuyển vào trang <b>Hướng dẫn</b>.</li>
     <li><b>Bong bóng tốc độ</b>: chọn nguồn bằng nút chia đôi, 2 thanh cỡ chung 1 nhóm, Xem thử / Đặt lại cạnh nhau.</li>
     <li><b>Màn hình khởi động</b>: Thêm video từ Ảnh / Tệp gộp 1 dòng.</li>
@@ -222,8 +222,10 @@ function rootPage() {
   return `<div class="hero"><img src="../../assets/icon-1024.png" alt=""><div class="t"><div class="n">OmniCar</div>
       <div class="s ${S.enabled ? '' : 'off'}"><span class="dot"></span>${S.enabled ? 'Đang bật' : 'Đang tắt'} · 2.0</div></div>${sw('enabled')}</div>`
     + group([
+      row({ icon: 'apps', lab: 'App trên màn xe', sub: 'App iPhone hiện trên CarPlay', right: `<span class="val">${S.bridge ? S.bridgeApps.length + ' app' : 'Tắt'}</span>`, link: 'bridge' }),
+    ], 'Ứng dụng')
+    + group([
       row({ icon: 'split', lab: 'Chia màn hình', right: onoff(S.split), link: 'split' }),
-      row({ icon: 'apps', lab: 'App trên màn xe', right: `<span class="val">${S.bridge ? S.bridgeApps.length + ' app' : 'Tắt'}</span>`, link: 'bridge' }),
       row({ icon: 'speed', lab: 'Bong bóng tốc độ', right: onoff(S.bubble), link: 'bubble' }),
       row({ icon: 'play', lab: 'Màn hình khởi động', right: onoff(S.startup), link: 'startup' }),
     ], 'Tính năng', 'Thay đổi áp dụng ngay. Respring sau khi cài hoặc cập nhật.')
