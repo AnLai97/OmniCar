@@ -648,7 +648,6 @@ static BOOL SCPCIsBridgedApp(NSString *bid);
 @property (nonatomic, strong) UIView *trayCover;      // the icon app che vung app toan man (App Bridge) khi bang bo cuc mo (cua so host an)
 @property (nonatomic, strong) UIWindow *trayWindow;    // cua so rieng cua bang bo cuc (tren cua so App Bridge), giu lai giua cac lan mo
 @property (nonatomic) BOOL trayOverlay;                // bang dang nam trong trayWindow (de len o app iPhone, khong can an o)
-@property (nonatomic) BOOL trayDockRight;              // dock ben phai -> bang bo cuc sat mep phai, troi ra / thu ve phia phai
 @property (nonatomic, strong) UIView *pickerSheet;     // bang chon app toan man (trong trayWindow, hoac container neu khong tao duoc)
 @property (nonatomic, strong) UIView *pickerShield;    // lop phu duoi bang chon app
 @property (nonatomic, weak) SCPCarPane *pickerSheetPane;   // o dang chon app trong bang
@@ -3823,10 +3822,7 @@ static void SCPCMakePassThrough(UIWindow *w)
     h = MIN(h, area.size.height - 12);
     CGFloat contentW = w;
     w = MIN(w, area.size.width - 16);   // man xe hep / doc: bang cuon ngang
-    // Bang nam sat dock (noi bam nut Split Screen), giua theo chieu doc. Dock ben trai: vung app bat dau lech khoi
-    // mep trai; khong thi dock ben phai (xe tay lai nghich) -> bang sat mep phai
-    self.trayDockRight = CGRectGetMinX(area) < 1 && CGRectGetMaxX(area) < parent.bounds.size.width - 1;
-    CGRect pf = CGRectMake(self.trayDockRight ? CGRectGetMaxX(area) - 8 - w : CGRectGetMinX(area) + 8, CGRectGetMidY(area) - h / 2, w, h);
+    CGRect pf = CGRectMake(CGRectGetMidX(area) - w / 2, CGRectGetMinY(area) + 6, w, h);   // phia tren, can giua vung app
     if (host) pf = [parent convertRect:pf toView:nil];   // cua so rieng phu kin man xe nhu cua so chinh -> cung toa do man xe
     // Kieu HarmonyOS: the kinh mo mong (nhin xuyen), bo goc lon lien tuc, vien sang manh, bong mem
     UIView *panel = [[UIView alloc] initWithFrame:pf];
@@ -3944,9 +3940,9 @@ static void SCPCMakePassThrough(UIWindow *w)
     }
     [self raiseView:shield];
     [self raiseView:panel];
-    // Hien kieu HarmonyOS: bang troi ra tu phia dock + phong nhe theo lo xo, cac muc mo + troi len lan luot
+    // Hien kieu HarmonyOS: bang nho ra tu mep tren + phong nhe theo lo xo, cac muc mo + troi len lan luot
     panel.alpha = 0;
-    panel.transform = CGAffineTransformScale(CGAffineTransformMakeTranslation(self.trayDockRight ? 18 : -18, 0), 0.92, 0.92);   // tu phia dock ra
+    panel.transform = CGAffineTransformScale(CGAffineTransformMakeTranslation(0, -18), 0.92, 0.92);   // nho ra tu mep tren
     [UIView animateWithDuration:0.5 delay:0 usingSpringWithDamping:0.86 initialSpringVelocity:0.4
                         options:UIViewAnimationOptionAllowUserInteraction
                      animations:^{ panel.alpha = 1; panel.transform = CGAffineTransformIdentity; } completion:nil];
@@ -4127,9 +4123,8 @@ static void SCPCMakePassThrough(UIWindow *w)
     if (tc) [UIView animateWithDuration:0.2 animations:^{ tc.alpha = 0; } completion:^(BOOL f) { [tc removeFromSuperview]; }];
     if (!tray && !shield) return;
     UIWindow *tw = self.trayWindow;
-    BOOL dockRight = self.trayDockRight;
-    [UIView animateWithDuration:0.22 delay:0 options:UIViewAnimationOptionCurveEaseIn animations:^{   // thu ve phia dock + nho lai
-        tray.alpha = 0; tray.transform = CGAffineTransformScale(CGAffineTransformMakeTranslation(dockRight ? 14 : -14, 0), 0.94, 0.94);
+    [UIView animateWithDuration:0.22 delay:0 options:UIViewAnimationOptionCurveEaseIn animations:^{   // thu ve mep tren + nho lai
+        tray.alpha = 0; tray.transform = CGAffineTransformScale(CGAffineTransformMakeTranslation(0, -14), 0.94, 0.94);
     } completion:^(BOOL f) {
         [tray removeFromSuperview]; [shield removeFromSuperview];
         if (tw && !weakSelf.tray && !weakSelf.ratioMenu && !weakSelf.pickerSheet) tw.hidden = YES;   // khong con gi tren cua so -> an (giu lai cho lan sau)
