@@ -3437,16 +3437,20 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
     BOOL inFloat = (target == self.floatPane);
     for (NSDictionary *app in [SCPCCarPlayApps() arrayByAddingObjectsFromArray:SCPCPhoneApps()])
         if (!inFloat || !SCPCIsBridgedApp(app[@"id"])) [apps addObject:app];   // cua so noi khong nhan YouTube / TikTok
-    // Hien duoc nhieu app tren man xe thap: header 1 dong gon (46pt), le popup hep, ca chieu rong vung app.
-    // App van cach nhau de cham khi xe chay (o 78 x 68pt, icon 36pt), het cho thi chia trang vuot ngang co cham trang
-    CGFloat cellW = 78, cellH = 68, icon = 36, headH = 46, gridPad = 12;
-    CGFloat maxW = area.size.width - 24;
-    NSInteger cols = MAX(1, MIN((NSInteger)((maxW - gridPad * 2) / cellW), MAX((NSInteger)4, (NSInteger)apps.count)));
-    NSInteger maxRows = MAX(1, (NSInteger)((area.size.height - 16 - headH - 4 - 18) / cellH));
+    // Popup 2 phan: cot trai (goc tren trai) la so do bo cuc lon de cham chon o + chu "Chon app cho o N", nut dong o
+    // goc duoi trai; ben phai la luoi app dung het chieu cao (man xe thap van duoc nhieu hang). App van cach nhau de
+    // cham khi xe chay (o 78 x 68pt, icon 36pt); het cho thi chia trang vuot ngang co cham trang
+    CGFloat cellW = 78, cellH = 68, icon = 36, gridPad = 10, sideW = 150, pad = 14;
+    CGSize cs = self.container.bounds.size;
+    CGFloat mapW = sideW - pad * 2, mapH = (cs.width > 1) ? MIN(84, mapW * cs.height / cs.width) : 60;
+    NSInteger cols = MAX(1, MIN((NSInteger)((area.size.width - 24 - sideW - gridPad * 2) / cellW), MAX((NSInteger)4, (NSInteger)apps.count)));
+    NSInteger maxRows = MAX(1, (NSInteger)((area.size.height - 16 - 12 - 16) / cellH));
     NSInteger rows = MAX(1, MIN(maxRows, ((NSInteger)apps.count + cols - 1) / cols));
     NSInteger perPage = rows * cols, pages = MAX(1, ((NSInteger)apps.count + perPage - 1) / perPage);
-    CGFloat w = cols * cellW + gridPad * 2, gridH = rows * cellH + 4, dotsH = pages > 1 ? 18 : 6;
-    CGFloat h = headH + gridH + dotsH;
+    CGFloat gridW = cols * cellW + gridPad * 2, gridH = rows * cellH + 4, dotsH = pages > 1 ? 16 : 0;
+    CGFloat sideMinH = pad + mapH + 10 + 40 + 16 + 32 + pad;   // so do + 2 dong chu + nut dong
+    CGFloat h = MIN(area.size.height - 16, MAX(sideMinH, 8 + gridH + dotsH + 6)), w = sideW + gridW;
+    CGFloat gridX = sideW, gridY = MAX(8, (h - gridH - dotsH) / 2);
     CGRect pf = CGRectMake(CGRectGetMidX(area) - w / 2, CGRectGetMidY(area) - h / 2, w, h);
 
     UIView *card = [[UIView alloc] initWithFrame:pf];
@@ -3465,40 +3469,42 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
     [card addSubview:glass];
     UIView *sheet = glass.contentView;   // noi dung nam tren kinh; card la khung hien / an
 
-    UIView *map = [self pickerMapForPane:target height:32];
-    CGFloat textX = 16;
-    if (map) { map.frame = CGRectMake(16, (headH - 32) / 2, map.bounds.size.width, 32); [sheet addSubview:map]; textX = CGRectGetMaxX(map.frame) + 12; }
+    UIView *side = [[UIView alloc] initWithFrame:CGRectMake(0, 0, sideW, h)];   // cot trai, nen sang hon chut
+    side.backgroundColor = [UIColor colorWithWhite:1 alpha:0.05];
+    [sheet addSubview:side];
+    UIView *map = [self pickerMapForPane:target height:mapH];
+    if (map) { map.frame = CGRectMake(pad, pad, map.bounds.size.width, mapH); [side addSubview:map]; }
 
     int waiting = 0;
     for (SCPCarPane *p in [self allPanes]) if (p.picker && p != target) waiting++;
     NSString *where = (target == self.floatPane) ? SCPCT(@"cửa sổ nổi", @"the floating window")
                     : [NSString stringWithFormat:SCPCT(@"ô %d", @"pane %d"), (int)[[self panesInReadingOrder] indexOfObject:target] + 1];
-    // Tieu de + "con N o nua" tren cung 1 dong (dam trang · xam nhat)
-    UILabel *title = [[UILabel alloc] initWithFrame:CGRectMake(textX, (headH - 22) / 2, w - textX - 56, 22)];
-    NSMutableAttributedString *ts = [[NSMutableAttributedString alloc]
-        initWithString:[NSString stringWithFormat:SCPCT(@"Chọn app cho %@", @"Choose an app for %@"), where]
-            attributes:@{NSFontAttributeName: [UIFont systemFontOfSize:17 weight:UIFontWeightBold], NSForegroundColorAttributeName: [UIColor whiteColor]}];
-    if (waiting) {
-        NSString *more = waiting == 1 ? SCPCT(@"còn 1 ô nữa", @"1 more pane")
-                                      : [NSString stringWithFormat:SCPCT(@"còn %d ô nữa", @"%d more panes"), waiting];
-        [ts appendAttributedString:[[NSAttributedString alloc] initWithString:[@"  ·  " stringByAppendingString:more]
-            attributes:@{NSFontAttributeName: [UIFont systemFontOfSize:13 weight:UIFontWeightRegular],
-                         NSForegroundColorAttributeName: [UIColor colorWithWhite:1 alpha:0.5]}]];
-    }
-    title.attributedText = ts;
+    UILabel *title = [[UILabel alloc] initWithFrame:CGRectMake(pad, pad + mapH + 10, sideW - pad * 2, 40)];
+    title.text = [NSString stringWithFormat:SCPCT(@"Chọn app cho\n%@", @"Choose an app\nfor %@"), where];
+    title.numberOfLines = 2;
+    title.textColor = [UIColor whiteColor];
+    title.font = [UIFont systemFontOfSize:15 weight:UIFontWeightBold];
     title.adjustsFontSizeToFitWidth = YES;
-    title.minimumScaleFactor = 0.7;
-    [sheet addSubview:title];
+    title.minimumScaleFactor = 0.75;
+    [side addSubview:title];
+    if (waiting) {
+        UILabel *sub = [[UILabel alloc] initWithFrame:CGRectMake(pad, CGRectGetMaxY(title.frame) + 2, sideW - pad * 2, 15)];
+        sub.text = waiting == 1 ? SCPCT(@"Còn 1 ô nữa", @"1 more pane")
+                                : [NSString stringWithFormat:SCPCT(@"Còn %d ô nữa", @"%d more panes"), waiting];
+        sub.textColor = [UIColor colorWithWhite:1 alpha:0.5];
+        sub.font = [UIFont systemFontOfSize:12 weight:UIFontWeightRegular];
+        [side addSubview:sub];
+    }
 
     UIButton *cancel = SCPCRoundButton(SCPCGlyph(@"close", 14, NO), self, @selector(pickerCancel:));
     cancel.bounds = CGRectMake(0, 0, 32, 32);
     cancel.layer.cornerRadius = 16;
     cancel.backgroundColor = [UIColor colorWithWhite:1 alpha:0.12];
     cancel.tintColor = [UIColor colorWithWhite:1 alpha:0.9];
-    cancel.center = CGPointMake(w - 30, headH / 2);
-    [sheet addSubview:cancel];
+    cancel.center = CGPointMake(pad + 16, h - pad - 16);   // goc duoi trai
+    [side addSubview:cancel];
 
-    UIScrollView *scroll = [[UIScrollView alloc] initWithFrame:CGRectMake(0, headH, w, gridH)];
+    UIScrollView *scroll = [[UIScrollView alloc] initWithFrame:CGRectMake(gridX, gridY, gridW, gridH)];
     scroll.pagingEnabled = YES;   // vuot ngang theo trang, khong co thanh cuon
     scroll.showsHorizontalScrollIndicator = NO;
     scroll.showsVerticalScrollIndicator = NO;
@@ -3513,7 +3519,7 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
     for (NSDictionary *app in apps) {
         NSInteger page = i / perPage, row = (i % perPage) / cols, col = i % cols;
         UIButton *b = [SCPCButton buttonWithType:UIButtonTypeCustom];
-        b.frame = CGRectMake(page * w + gridPad + col * cellW, 2 + row * cellH, cellW, cellH);
+        b.frame = CGRectMake(page * gridW + gridPad + col * cellW, 2 + row * cellH, cellW, cellH);
         b.accessibilityIdentifier = app[@"id"];
         [b addTarget:self action:@selector(pickerAppTapped:) forControlEvents:UIControlEventTouchUpInside];
         UIImageView *iv = [[UIImageView alloc] initWithFrame:CGRectMake((cellW - icon) / 2, 6, icon, icon)];
@@ -3546,10 +3552,10 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
         if (i < perPage) [cells addObject:b];   // trang dau: hien lan luot
         i++;
     }
-    scroll.contentSize = CGSizeMake(pages * w, gridH);
+    scroll.contentSize = CGSizeMake(pages * gridW, gridH);
     UIView *dots = nil;
     if (pages > 1) {   // cham trang HarmonyOS: trang dang xem la vien dai, trang khac cham tron mo
-        dots = [[UIView alloc] initWithFrame:CGRectMake(0, headH + gridH, w, dotsH - 4)];
+        dots = [[UIView alloc] initWithFrame:CGRectMake(gridX, gridY + gridH, gridW, dotsH)];
         dots.userInteractionEnabled = NO;
         for (NSInteger k = 0; k < pages; k++) {
             UIView *d = [[UIView alloc] init];
