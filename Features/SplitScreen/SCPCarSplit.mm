@@ -488,6 +488,27 @@ static UIButton *SCPCCircleButton(UIImage *img, CGFloat size, id target, SEL act
     return b;
 }
 
+// Nen kinh mo kieu HarmonyOS (thanh nut cua o, thanh ti le): nhin xuyen, vien sang manh, bong mem
+static void SCPCGlass(UIView *v, CGFloat radius)
+{
+    v.backgroundColor = [UIColor clearColor];
+    v.layer.cornerRadius = radius;
+    v.layer.cornerCurve = kCACornerCurveContinuous;
+    v.layer.shadowColor = [UIColor blackColor].CGColor;
+    v.layer.shadowOpacity = 0.3; v.layer.shadowRadius = 12; v.layer.shadowOffset = CGSizeMake(0, 4);
+    UIVisualEffectView *glass = [[UIVisualEffectView alloc] initWithEffect:[UIBlurEffect effectWithStyle:UIBlurEffectStyleSystemUltraThinMaterialDark]];
+    glass.frame = v.bounds;
+    glass.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    glass.contentView.backgroundColor = [UIColor colorWithWhite:0.1 alpha:0.2];
+    glass.layer.cornerRadius = radius;
+    glass.layer.cornerCurve = kCACornerCurveContinuous;
+    glass.layer.borderWidth = 0.5;
+    glass.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.22].CGColor;
+    glass.clipsToBounds = YES;
+    glass.userInteractionEnabled = NO;
+    [v insertSubview:glass atIndex:0];
+}
+
 // Thanh vien thuoc chua cac nut (ngang hoac doc). [NSNull null] = vach ngan cach (truoc nut tat / dong)
 static UIView *SCPCPill(NSArray *items, BOOL vertical)
 {
@@ -495,7 +516,7 @@ static UIView *SCPCPill(NSArray *items, BOOL vertical)
     CGFloat len = pad * 2 - 2;
     for (id it in items) len += [it isKindOfClass:[UIButton class]] ? step : sep;
     UIView *v = [[UIView alloc] initWithFrame:vertical ? CGRectMake(0, 0, SCPC_PILL, len) : CGRectMake(0, 0, len, SCPC_PILL)];
-    SCPCChrome(v, SCPC_PILL / 2);
+    SCPCGlass(v, SCPC_PILL / 2);
     CGFloat o = pad;
     for (id it in items) {
         if (![it isKindOfClass:[UIButton class]]) {
@@ -516,12 +537,12 @@ static UIView *SCPCPill(NSArray *items, BOOL vertical)
     return v;
 }
 
-// Hien nhe: mo dan + phong tu 0.85
+// Hien kieu HarmonyOS: mo dan + troi xuong nhe tu tren + phong tu 0.9, lo xo em (khong nay)
 static void SCPCDropIn(UIView *v)
 {
     CGAffineTransform target = v.transform;   // giu ti le thu nho (thanh nut trong o hep)
-    v.alpha = 0; v.transform = CGAffineTransformScale(target, 0.85, 0.85);
-    [UIView animateWithDuration:0.4 delay:0 usingSpringWithDamping:0.75 initialSpringVelocity:0.5
+    v.alpha = 0; v.transform = CGAffineTransformConcat(CGAffineTransformScale(target, 0.9, 0.9), CGAffineTransformMakeTranslation(0, -8));
+    [UIView animateWithDuration:0.45 delay:0 usingSpringWithDamping:0.86 initialSpringVelocity:0.4
                         options:UIViewAnimationOptionAllowUserInteraction | UIViewAnimationOptionBeginFromCurrentState
                      animations:^{ v.alpha = 1; v.transform = target; } completion:nil];
 }
@@ -2437,8 +2458,11 @@ static UIView *SCPCDotsHandle(void)
         UIView *bar = p.bar;
         __weak SCPCarSplit *weakSelf = self;
         __weak SCPCarPane *weakPane = p;
-        [UIView animateWithDuration:0.16 animations:^{ bar.alpha = 0; } completion:^(BOOL f) {
-            bar.hidden = YES; bar.alpha = 1;
+        CGAffineTransform t = bar.transform;
+        [UIView animateWithDuration:0.18 delay:0 options:UIViewAnimationOptionCurveEaseIn animations:^{   // mo + nho lai nhe
+            bar.alpha = 0; bar.transform = CGAffineTransformScale(t, 0.94, 0.94);
+        } completion:^(BOOL f) {
+            bar.hidden = YES; bar.alpha = 1; bar.transform = t;
             SCPCarPane *pp = weakPane;
             if (pp) [weakSelf sendHostFrameForPane:pp live:NO];   // o app iPhone: cua so host len lai khi thanh an xong
         }];

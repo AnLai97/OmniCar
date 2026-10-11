@@ -617,14 +617,23 @@ static UIButton *ABRoundButton(NSString *glyph, id target, SEL action)
     // SCPCPill: pad 4, buoc 36, khe 9 truoc nut dong (co vach mo)
     CGFloat pad = (AB_BAR_H - AB_BAR_BTN) / 2, step = AB_BAR_BTN + 2, sep = 9;
     CGFloat len = pad * 2 - 2 + 3 * step + sep + step;
+    // Kinh mo kieu HarmonyOS nhu SCPCGlass ben CarPlay: nhin xuyen, vien sang manh, bong mem
     UIView *bar = [[UIView alloc] initWithFrame:CGRectMake(0, 0, len, AB_BAR_H)];
-    bar.backgroundColor = [UIColor colorWithWhite:0.13 alpha:0.94];
+    bar.backgroundColor = [UIColor clearColor];
     bar.layer.cornerRadius = AB_BAR_H / 2;
     bar.layer.cornerCurve = kCACornerCurveContinuous;
-    bar.layer.borderWidth = 0.5;
-    bar.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.12].CGColor;
     bar.layer.shadowColor = [UIColor blackColor].CGColor;
-    bar.layer.shadowOpacity = 0.35; bar.layer.shadowRadius = 8; bar.layer.shadowOffset = CGSizeMake(0, 2);
+    bar.layer.shadowOpacity = 0.3; bar.layer.shadowRadius = 12; bar.layer.shadowOffset = CGSizeMake(0, 4);
+    UIVisualEffectView *glass = [[UIVisualEffectView alloc] initWithEffect:[UIBlurEffect effectWithStyle:UIBlurEffectStyleSystemUltraThinMaterialDark]];
+    glass.frame = bar.bounds;
+    glass.contentView.backgroundColor = [UIColor colorWithWhite:0.1 alpha:0.2];
+    glass.layer.cornerRadius = AB_BAR_H / 2;
+    glass.layer.cornerCurve = kCACornerCurveContinuous;
+    glass.layer.borderWidth = 0.5;
+    glass.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.22].CGColor;
+    glass.clipsToBounds = YES;
+    glass.userInteractionEnabled = NO;
+    [bar addSubview:glass];
     CGFloat o = pad;
     for (UIButton *b in @[replace, pop, full]) {
         b.center = CGPointMake(o + AB_BAR_BTN / 2, AB_BAR_H / 2);
@@ -671,15 +680,20 @@ static UIButton *ABRoundButton(NSString *glyph, id target, SEL action)
     [self layoutBarForPane:p];
     if (visible == !bar.hidden) return;
     if (visible) {
+        // Kieu HarmonyOS nhu SCPCDropIn: troi xuong nhe + phong tu 0.9, lo xo em
         bar.hidden = NO;
-        bar.transform = CGAffineTransformConcat(bar.transform, CGAffineTransformMakeTranslation(0, -8));
         CGAffineTransform t = bar.transform;
-        [UIView animateWithDuration:0.22 delay:0 options:UIViewAnimationOptionCurveEaseOut animations:^{
+        bar.transform = CGAffineTransformConcat(CGAffineTransformScale(t, 0.9, 0.9), CGAffineTransformMakeTranslation(0, -8));
+        [UIView animateWithDuration:0.45 delay:0 usingSpringWithDamping:0.86 initialSpringVelocity:0.4
+                            options:UIViewAnimationOptionAllowUserInteraction animations:^{
             bar.alpha = 1;
-            bar.transform = CGAffineTransformConcat(t, CGAffineTransformMakeTranslation(0, 8));
+            bar.transform = t;
         } completion:nil];
     } else {
-        [UIView animateWithDuration:0.16 animations:^{ bar.alpha = 0; } completion:^(BOOL f) { if (bar.alpha == 0) bar.hidden = YES; }];
+        CGAffineTransform t = bar.transform;
+        [UIView animateWithDuration:0.18 delay:0 options:UIViewAnimationOptionCurveEaseIn animations:^{
+            bar.alpha = 0; bar.transform = CGAffineTransformScale(t, 0.94, 0.94);
+        } completion:^(BOOL f) { if (bar.alpha == 0) { bar.hidden = YES; bar.transform = t; } }];
     }
 }
 
