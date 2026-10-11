@@ -3430,7 +3430,7 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
     NSArray *apps = [SCPCCarPlayApps() arrayByAddingObjectsFromArray:SCPCPhoneApps()];   // app CarPlay roi app iPhone (App Bridge)
     NSMutableSet *inUse = [NSMutableSet set];
     for (SCPCarPane *o in [self allPanes]) if (o.bundleID) [inUse addObject:o.bundleID];
-    CGFloat cellW = 92, cellH = 92, icon = 56;   // ca man hinh: icon lon, chu 12pt de cham / doc khi lai xe
+    CGFloat cellW = 76, cellH = 76, icon = 44;   // icon nho gon, vung cham van >= 44pt, chu 11pt de doc khi lai xe
     NSInteger cols = MAX(1, (NSInteger)((w - 16) / cellW));
     CGFloat padX = (w - cols * cellW) / 2;
     NSInteger i = 0;
@@ -3449,22 +3449,22 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
         iv.userInteractionEnabled = NO;
         [b addSubview:iv];
         if ([inUse containsObject:app[@"id"]]) {   // dang mo o 1 o khac: dau tich xanh (cham van chuyen app sang o nay)
-            UIImageView *tick = [[UIImageView alloc] initWithImage:SCPCGlyph(@"check", 13, NO)];
+            UIImageView *tick = [[UIImageView alloc] initWithImage:SCPCGlyph(@"check", 12, NO)];
             tick.tintColor = [UIColor whiteColor];
             tick.backgroundColor = SCPCAccent();
-            tick.frame = CGRectMake(CGRectGetMaxX(iv.frame) - 14, CGRectGetMinY(iv.frame) - 5, 20, 20);
+            tick.frame = CGRectMake(CGRectGetMaxX(iv.frame) - 12, CGRectGetMinY(iv.frame) - 4, 16, 16);
             tick.contentMode = UIViewContentModeCenter;
-            tick.layer.cornerRadius = 10;
-            tick.layer.borderWidth = 2;
+            tick.layer.cornerRadius = 8;
+            tick.layer.borderWidth = 1.5;
             tick.layer.borderColor = [UIColor colorWithWhite:0.09 alpha:1].CGColor;
             tick.clipsToBounds = YES;
             tick.userInteractionEnabled = NO;
             [b addSubview:tick];
         }
-        UILabel *l = [[UILabel alloc] initWithFrame:CGRectMake(2, icon + 10, cellW - 4, 16)];
+        UILabel *l = [[UILabel alloc] initWithFrame:CGRectMake(2, icon + 9, cellW - 4, 15)];
         l.text = app[@"name"];
         l.textColor = [UIColor colorWithWhite:1 alpha:0.85];
-        l.font = [UIFont systemFontOfSize:12 weight:UIFontWeightMedium];
+        l.font = [UIFont systemFontOfSize:11 weight:UIFontWeightMedium];
         l.textAlignment = NSTextAlignmentCenter;
         l.numberOfLines = 1;
         l.userInteractionEnabled = NO;
