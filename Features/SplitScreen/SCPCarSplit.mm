@@ -648,6 +648,7 @@ static BOOL SCPCIsBridgedApp(NSString *bid);
 @property (nonatomic, strong) UIView *trayCover;      // the icon app che vung app toan man (App Bridge) khi bang bo cuc mo (cua so host an)
 @property (nonatomic, strong) UIWindow *trayWindow;    // cua so rieng cua bang bo cuc (tren cua so App Bridge), giu lai giua cac lan mo
 @property (nonatomic) BOOL trayOverlay;                // bang dang nam trong trayWindow (de len o app iPhone, khong can an o)
+@property (nonatomic) BOOL trayDockRight;              // dock ben phai -> bang bo cuc sat mep phai, troi ra / thu ve phia phai
 @property (nonatomic, strong) UIView *pickerSheet;     // bang chon app toan man (trong trayWindow, hoac container neu khong tao duoc)
 @property (nonatomic, strong) UIView *pickerShield;    // lop phu duoi bang chon app
 @property (nonatomic, weak) SCPCarPane *pickerSheetPane;   // o dang chon app trong bang
@@ -3448,7 +3449,7 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
     NSInteger rows = MAX(1, MIN(maxRows, ((NSInteger)apps.count + cols - 1) / cols));
     NSInteger perPage = rows * cols, pages = MAX(1, ((NSInteger)apps.count + perPage - 1) / perPage);
     CGFloat gridW = cols * cellW + gridPad * 2, gridH = rows * cellH + 4, dotsH = pages > 1 ? 16 : 0;
-    CGFloat sideMinH = pad + mapH + 10 + 40 + 16 + 32 + pad;   // so do + 2 dong chu + nut dong
+    CGFloat sideMinH = pad + mapH + 10 + 26 + 17 + 12 + 32 + pad;   // so do + 2 dong chu + nut dong
     CGFloat h = MIN(area.size.height - 16, MAX(sideMinH, 8 + gridH + dotsH + 6)), w = sideW + gridW;
     CGFloat gridX = sideW, gridY = MAX(8, (h - gridH - dotsH) / 2);
     CGRect pf = CGRectMake(CGRectGetMidX(area) - w / 2, CGRectGetMidY(area) - h / 2, w, h);
@@ -3477,20 +3478,20 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
 
     int waiting = 0;
     for (SCPCarPane *p in [self allPanes]) if (p.picker && p != target) waiting++;
-    NSString *where = (target == self.floatPane) ? SCPCT(@"cửa sổ nổi", @"the floating window")
-                    : [NSString stringWithFormat:SCPCT(@"ô %d", @"pane %d"), (int)[[self panesInReadingOrder] indexOfObject:target] + 1];
-    UILabel *title = [[UILabel alloc] initWithFrame:CGRectMake(pad, pad + mapH + 10, sideW - pad * 2, 40)];
-    title.text = [NSString stringWithFormat:SCPCT(@"Chọn app cho\n%@", @"Choose an app\nfor %@"), where];
-    title.numberOfLines = 2;
+    // Chu ngan gon: "Ô 1" (hoac "Cửa sổ nổi") + "Còn N ô"; luoi app ben canh da noi la dang chon app
+    NSString *where = (target == self.floatPane) ? SCPCT(@"Cửa sổ nổi", @"Floating")
+                    : [NSString stringWithFormat:SCPCT(@"Ô %d", @"Pane %d"), (int)[[self panesInReadingOrder] indexOfObject:target] + 1];
+    UILabel *title = [[UILabel alloc] initWithFrame:CGRectMake(pad, pad + mapH + 10, sideW - pad * 2, 26)];
+    title.text = where;
+    title.numberOfLines = 1;
     title.textColor = [UIColor whiteColor];
-    title.font = [UIFont systemFontOfSize:15 weight:UIFontWeightBold];
+    title.font = [UIFont systemFontOfSize:20 weight:UIFontWeightBold];
     title.adjustsFontSizeToFitWidth = YES;
     title.minimumScaleFactor = 0.75;
     [side addSubview:title];
     if (waiting) {
         UILabel *sub = [[UILabel alloc] initWithFrame:CGRectMake(pad, CGRectGetMaxY(title.frame) + 2, sideW - pad * 2, 15)];
-        sub.text = waiting == 1 ? SCPCT(@"Còn 1 ô nữa", @"1 more pane")
-                                : [NSString stringWithFormat:SCPCT(@"Còn %d ô nữa", @"%d more panes"), waiting];
+        sub.text = [NSString stringWithFormat:SCPCT(@"Còn %d ô", @"%d more"), waiting];
         sub.textColor = [UIColor colorWithWhite:1 alpha:0.5];
         sub.font = [UIFont systemFontOfSize:12 weight:UIFontWeightRegular];
         [side addSubview:sub];
@@ -3567,7 +3568,7 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
     self.pickerDots = dots;
     dots.tag = 1;   // trang 1 (scrollViewDidScroll chi ve lai khi doi trang)
     [self layoutPickerDotsForPage:0];
-    if (i == 0) title.text = SCPCT(@"Không tìm thấy app CarPlay", @"No CarPlay apps found");
+    if (i == 0) title.text = SCPCT(@"Không có app", @"No apps");
 
     [parent addSubview:card];
     if (self.tray && self.tray.superview == parent) {   // bang bo cuc dang mo cung cua so -> giu no o tren
@@ -3814,15 +3815,19 @@ static void SCPCMakePassThrough(UIWindow *w)
     // Chi icon, khong chu: moi hang = icon muc (bo cuc / gan day / yeu thich) + cac hinh bo cuc
     NSDictionary *sectionName = @{@"layouts": SCPCT(@"Bố cục", @"Layouts"), @"recent": SCPCT(@"Gần đây", @"Recent"),
                                   @"favorite": SCPCT(@"Yêu thích", @"Favorites")};
-    CGFloat pad = 8, iconCol = 30, rowH = 44, cellW = 66, imgW = 56, imgH = 30, rowGap = 4;
+    // O bo cuc to (84 x 56pt, hinh 72 x 40) de cham trung khi xe chay
+    CGFloat pad = 10, iconCol = 32, rowH = 56, cellW = 84, imgW = 72, imgH = 40, rowGap = 6;
     NSUInteger cols = 1;
     for (NSArray *sec in sections) cols = MAX(cols, sec.count);
-    CGFloat exitW = 44;   // nut thoat cuoi hang dau
+    CGFloat exitW = 52;   // nut thoat cuoi hang dau
     CGFloat w = pad * 2 + iconCol + cols * cellW + exitW, h = pad * 2 + sections.count * rowH + (sections.count - 1) * rowGap;
     h = MIN(h, area.size.height - 12);
     CGFloat contentW = w;
-    w = MIN(w, area.size.width - 12);   // man xe hep / doc: bang cuon ngang
-    CGRect pf = CGRectMake(CGRectGetMidX(area) - w / 2, CGRectGetMinY(area) + 6, w, h);
+    w = MIN(w, area.size.width - 16);   // man xe hep / doc: bang cuon ngang
+    // Bang nam sat dock (noi bam nut Split Screen), giua theo chieu doc. Dock ben trai: vung app bat dau lech khoi
+    // mep trai; khong thi dock ben phai (xe tay lai nghich) -> bang sat mep phai
+    self.trayDockRight = CGRectGetMinX(area) < 1 && CGRectGetMaxX(area) < parent.bounds.size.width - 1;
+    CGRect pf = CGRectMake(self.trayDockRight ? CGRectGetMaxX(area) - 8 - w : CGRectGetMinX(area) + 8, CGRectGetMidY(area) - h / 2, w, h);
     if (host) pf = [parent convertRect:pf toView:nil];   // cua so rieng phu kin man xe nhu cua so chinh -> cung toa do man xe
     // Kieu HarmonyOS: the kinh mo mong (nhin xuyen), bo goc lon lien tuc, vien sang manh, bong mem
     UIView *panel = [[UIView alloc] initWithFrame:pf];
@@ -3940,9 +3945,9 @@ static void SCPCMakePassThrough(UIWindow *w)
     }
     [self raiseView:shield];
     [self raiseView:panel];
-    // Hien kieu HarmonyOS: bang nho ra tu mep tren + phong nhe theo lo xo, cac muc mo + troi len lan luot
+    // Hien kieu HarmonyOS: bang troi ra tu phia dock + phong nhe theo lo xo, cac muc mo + troi len lan luot
     panel.alpha = 0;
-    panel.transform = CGAffineTransformScale(CGAffineTransformMakeTranslation(0, -18), 0.92, 0.92);
+    panel.transform = CGAffineTransformScale(CGAffineTransformMakeTranslation(self.trayDockRight ? 18 : -18, 0), 0.92, 0.92);   // tu phia dock ra
     [UIView animateWithDuration:0.5 delay:0 usingSpringWithDamping:0.86 initialSpringVelocity:0.4
                         options:UIViewAnimationOptionAllowUserInteraction
                      animations:^{ panel.alpha = 1; panel.transform = CGAffineTransformIdentity; } completion:nil];
@@ -4123,8 +4128,9 @@ static void SCPCMakePassThrough(UIWindow *w)
     if (tc) [UIView animateWithDuration:0.2 animations:^{ tc.alpha = 0; } completion:^(BOOL f) { [tc removeFromSuperview]; }];
     if (!tray && !shield) return;
     UIWindow *tw = self.trayWindow;
-    [UIView animateWithDuration:0.22 delay:0 options:UIViewAnimationOptionCurveEaseIn animations:^{   // thu ve mep tren + nho lai
-        tray.alpha = 0; tray.transform = CGAffineTransformScale(CGAffineTransformMakeTranslation(0, -14), 0.94, 0.94);
+    BOOL dockRight = self.trayDockRight;
+    [UIView animateWithDuration:0.22 delay:0 options:UIViewAnimationOptionCurveEaseIn animations:^{   // thu ve phia dock + nho lai
+        tray.alpha = 0; tray.transform = CGAffineTransformScale(CGAffineTransformMakeTranslation(dockRight ? 14 : -14, 0), 0.94, 0.94);
     } completion:^(BOOL f) {
         [tray removeFromSuperview]; [shield removeFromSuperview];
         if (tw && !weakSelf.tray && !weakSelf.ratioMenu && !weakSelf.pickerSheet) tw.hidden = YES;   // khong con gi tren cua so -> an (giu lai cho lan sau)
