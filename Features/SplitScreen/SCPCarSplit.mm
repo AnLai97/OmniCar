@@ -3329,7 +3329,13 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
     if (!sheet && !shield) return;
     __weak SCPCarSplit *weakSelf = self;
     UIWindow *tw = self.trayWindow;
-    [UIView animateWithDuration:0.2 animations:^{ sheet.alpha = 0; shield.alpha = 0; } completion:^(BOOL f) {
+    // HarmonyOS: bang chim xuong + thu nho nhe, lop mo tan dan
+    [UIView animateWithDuration:0.22 delay:0 options:UIViewAnimationOptionCurveEaseIn animations:^{
+        sheet.alpha = 0;
+        if ([shield isKindOfClass:[UIVisualEffectView class]]) { ((UIVisualEffectView *)shield).effect = nil; ((UIVisualEffectView *)shield).contentView.alpha = 0; }
+        else shield.alpha = 0;
+        sheet.transform = CGAffineTransformScale(CGAffineTransformMakeTranslation(0, 24), 0.94, 0.94);
+    } completion:^(BOOL f) {
         [sheet removeFromSuperview]; [shield removeFromSuperview];
         if (tw && !weakSelf.tray && !weakSelf.ratioMenu && !weakSelf.pickerSheet) tw.hidden = YES;
     }];
@@ -3377,60 +3383,75 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
     CGRect area = overlay ? [self.container convertRect:self.container.bounds toView:nil] : self.container.bounds;
     UIView *parent = overlay ? host : self.container;
 
+    // Kieu HarmonyOS: nen sau mo (kinh mo toi), bang kinh mo bo goc lon lien tuc, nut dong tron xam, khong vach ke
     UIView *shield = oldShield;
     if (!shield || shield.superview != parent) {
         [oldShield removeFromSuperview];
-        shield = [[UIView alloc] initWithFrame:parent.bounds];   // chan cham xuong cac o / dock trong luc chon
-        shield.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-        shield.backgroundColor = [UIColor colorWithWhite:0 alpha:0.35];
+        UIVisualEffectView *blur = [[UIVisualEffectView alloc] initWithEffect:[UIBlurEffect effectWithStyle:UIBlurEffectStyleDark]];
+        blur.frame = parent.bounds;   // chan cham xuong cac o / dock trong luc chon
+        blur.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+        blur.contentView.backgroundColor = [UIColor colorWithWhite:0 alpha:0.25];
+        shield = blur;
         [parent addSubview:shield];
     }
 
-    CGRect pf = CGRectInset(area, 8, 8);
-    UIView *sheet = [[UIView alloc] initWithFrame:pf];
-    SCPCChrome(sheet, 20);
-    sheet.backgroundColor = [UIColor colorWithWhite:0.09 alpha:0.98];
-    CGFloat w = pf.size.width, h = pf.size.height, headH = 60;
+    CGRect pf = CGRectInset(area, 10, 10);
+    UIView *card = [[UIView alloc] initWithFrame:pf];
+    card.layer.cornerRadius = 24;
+    card.layer.cornerCurve = kCACornerCurveContinuous;
+    card.layer.shadowColor = [UIColor blackColor].CGColor;
+    card.layer.shadowOpacity = 0.4; card.layer.shadowRadius = 20; card.layer.shadowOffset = CGSizeMake(0, 6);
+    UIVisualEffectView *glass = [[UIVisualEffectView alloc] initWithEffect:[UIBlurEffect effectWithStyle:UIBlurEffectStyleSystemThickMaterialDark]];
+    glass.frame = card.bounds;
+    glass.layer.cornerRadius = 24;
+    glass.layer.cornerCurve = kCACornerCurveContinuous;
+    glass.layer.borderWidth = 0.5;
+    glass.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.14].CGColor;
+    glass.clipsToBounds = YES;
+    [card addSubview:glass];
+    UIView *sheet = glass.contentView;   // noi dung nam tren kinh; card la khung hien / an
+    CGFloat w = pf.size.width, h = pf.size.height, headH = 64;
 
-    UIView *map = [self pickerMapForPane:target height:40];
-    CGFloat textX = 16;
-    if (map) { map.frame = CGRectMake(16, (headH - 40) / 2, map.bounds.size.width, 40); [sheet addSubview:map]; textX = CGRectGetMaxX(map.frame) + 14; }
+    UIView *map = [self pickerMapForPane:target height:36];
+    CGFloat textX = 20;
+    if (map) { map.frame = CGRectMake(20, (headH - 36) / 2, map.bounds.size.width, 36); [sheet addSubview:map]; textX = CGRectGetMaxX(map.frame) + 14; }
 
     int waiting = 0;
     for (SCPCarPane *p in [self allPanes]) if (p.picker && p != target) waiting++;
     NSString *where = (target == self.floatPane) ? SCPCT(@"cửa sổ nổi", @"the floating window")
                     : [NSString stringWithFormat:SCPCT(@"ô %d", @"pane %d"), target.slot + 1];
-    UILabel *title = [[UILabel alloc] initWithFrame:CGRectMake(textX, waiting ? 10 : 18, w - textX - 64, 24)];
+    UILabel *title = [[UILabel alloc] initWithFrame:CGRectMake(textX, waiting ? 12 : 20, w - textX - 64, 24)];
     title.text = [NSString stringWithFormat:SCPCT(@"Chọn app cho %@", @"Choose an app for %@"), where];
     title.textColor = [UIColor whiteColor];
-    title.font = [UIFont systemFontOfSize:18 weight:UIFontWeightBold];
+    title.font = [UIFont systemFontOfSize:20 weight:UIFontWeightBold];
     title.adjustsFontSizeToFitWidth = YES;
     [sheet addSubview:title];
     if (waiting) {
-        UILabel *sub = [[UILabel alloc] initWithFrame:CGRectMake(textX, 34, w - textX - 64, 17)];
+        UILabel *sub = [[UILabel alloc] initWithFrame:CGRectMake(textX, 37, w - textX - 64, 16)];
         sub.text = waiting == 1 ? SCPCT(@"Còn 1 ô nữa", @"1 more pane to go")
                                 : [NSString stringWithFormat:SCPCT(@"Còn %d ô nữa", @"%d more panes to go"), waiting];
-        sub.textColor = [UIColor colorWithWhite:1 alpha:0.55];
-        sub.font = [UIFont systemFontOfSize:13 weight:UIFontWeightMedium];
+        sub.textColor = [UIColor colorWithWhite:1 alpha:0.5];
+        sub.font = [UIFont systemFontOfSize:12 weight:UIFontWeightRegular];
         [sheet addSubview:sub];
     }
 
-    UIButton *cancel = SCPCCircleButton(SCPCGlyph(@"close", 18, NO), 40, self, @selector(pickerCancel:));
-    cancel.center = CGPointMake(w - 32, headH / 2);
+    UIButton *cancel = SCPCRoundButton(SCPCGlyph(@"close", 15, NO), self, @selector(pickerCancel:));
+    cancel.bounds = CGRectMake(0, 0, 36, 36);
+    cancel.layer.cornerRadius = 18;
+    cancel.backgroundColor = [UIColor colorWithWhite:1 alpha:0.12];
+    cancel.tintColor = [UIColor colorWithWhite:1 alpha:0.9];
+    cancel.center = CGPointMake(w - 36, headH / 2);
     [sheet addSubview:cancel];
 
-    UIView *line = [[UIView alloc] initWithFrame:CGRectMake(16, headH, w - 32, 0.5)];
-    line.backgroundColor = [UIColor colorWithWhite:1 alpha:0.12];
-    [sheet addSubview:line];
-
-    UIScrollView *scroll = [[UIScrollView alloc] initWithFrame:CGRectMake(0, headH + 1, w, h - headH - 1)];
+    UIScrollView *scroll = [[UIScrollView alloc] initWithFrame:CGRectMake(0, headH, w, h - headH)];
     scroll.alwaysBounceVertical = YES;
+    scroll.showsVerticalScrollIndicator = NO;
     [sheet addSubview:scroll];
 
     NSArray *apps = [SCPCCarPlayApps() arrayByAddingObjectsFromArray:SCPCPhoneApps()];   // app CarPlay roi app iPhone (App Bridge)
     NSMutableSet *inUse = [NSMutableSet set];
     for (SCPCarPane *o in [self allPanes]) if (o.bundleID) [inUse addObject:o.bundleID];
-    CGFloat cellW = 76, cellH = 76, icon = 44;   // icon nho gon, vung cham van >= 44pt, chu 11pt de doc khi lai xe
+    CGFloat cellW = 64, cellH = 62, icon = 36;   // icon nho, ca o (64pt) van la vung cham, chu 10pt
     NSInteger cols = MAX(1, (NSInteger)((w - 16) / cellW));
     CGFloat padX = (w - cols * cellW) / 2;
     NSInteger i = 0;
@@ -3440,56 +3461,68 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
         if (inFloat && SCPCIsBridgedApp(app[@"id"])) continue;   // cua so noi khong nhan YouTube / TikTok
         NSInteger row = i / cols, col = i % cols;
         UIButton *b = [SCPCButton buttonWithType:UIButtonTypeCustom];
-        b.frame = CGRectMake(padX + col * cellW, 10 + row * cellH, cellW, cellH);
+        b.frame = CGRectMake(padX + col * cellW, 6 + row * cellH, cellW, cellH);
         b.accessibilityIdentifier = app[@"id"];
         [b addTarget:self action:@selector(pickerAppTapped:) forControlEvents:UIControlEventTouchUpInside];
-        UIImageView *iv = [[UIImageView alloc] initWithFrame:CGRectMake((cellW - icon) / 2, 6, icon, icon)];
+        UIImageView *iv = [[UIImageView alloc] initWithFrame:CGRectMake((cellW - icon) / 2, 5, icon, icon)];
         iv.image = SCPCAppIcon(app[@"id"]);
         SCPCStyleIcon(iv);
         iv.userInteractionEnabled = NO;
         [b addSubview:iv];
         if ([inUse containsObject:app[@"id"]]) {   // dang mo o 1 o khac: dau tich xanh (cham van chuyen app sang o nay)
-            UIImageView *tick = [[UIImageView alloc] initWithImage:SCPCGlyph(@"check", 12, NO)];
+            UIImageView *tick = [[UIImageView alloc] initWithImage:SCPCGlyph(@"check", 10, NO)];
             tick.tintColor = [UIColor whiteColor];
             tick.backgroundColor = SCPCAccent();
-            tick.frame = CGRectMake(CGRectGetMaxX(iv.frame) - 12, CGRectGetMinY(iv.frame) - 4, 16, 16);
+            tick.frame = CGRectMake(CGRectGetMaxX(iv.frame) - 10, CGRectGetMinY(iv.frame) - 4, 14, 14);
             tick.contentMode = UIViewContentModeCenter;
-            tick.layer.cornerRadius = 8;
-            tick.layer.borderWidth = 1.5;
+            tick.layer.cornerRadius = 7;
+            tick.layer.borderWidth = 1;
             tick.layer.borderColor = [UIColor colorWithWhite:0.09 alpha:1].CGColor;
             tick.clipsToBounds = YES;
             tick.userInteractionEnabled = NO;
             [b addSubview:tick];
         }
-        UILabel *l = [[UILabel alloc] initWithFrame:CGRectMake(2, icon + 9, cellW - 4, 15)];
+        UILabel *l = [[UILabel alloc] initWithFrame:CGRectMake(1, icon + 9, cellW - 2, 13)];
         l.text = app[@"name"];
         l.textColor = [UIColor colorWithWhite:1 alpha:0.85];
-        l.font = [UIFont systemFontOfSize:11 weight:UIFontWeightMedium];
+        l.font = [UIFont systemFontOfSize:10 weight:UIFontWeightRegular];
         l.textAlignment = NSTextAlignmentCenter;
         l.numberOfLines = 1;
         l.userInteractionEnabled = NO;
         [b addSubview:l];
         [scroll addSubview:b];
-        if (i < cols * 3) [cells addObject:b];
+        if (i < cols * 4) [cells addObject:b];
         i++;
     }
-    scroll.contentSize = CGSizeMake(w, 20 + ((i + cols - 1) / cols) * cellH);
+    scroll.contentSize = CGSizeMake(w, 16 + ((i + cols - 1) / cols) * cellH);
     if (i == 0) title.text = SCPCT(@"Không tìm thấy app CarPlay", @"No CarPlay apps found");
 
-    [parent addSubview:sheet];
+    [parent addSubview:card];
     if (self.tray && self.tray.superview == parent) {   // bang bo cuc dang mo cung cua so -> giu no o tren
         [parent bringSubviewToFront:self.trayShield];
         [parent bringSubviewToFront:self.tray];
     }
-    self.pickerSheet = sheet; self.pickerShield = shield; self.pickerSheetOverlay = overlay;
-    if (oldSheet) {   // doi sang o khac: bang cu mo dan
-        [UIView animateWithDuration:0.15 animations:^{ oldSheet.alpha = 0; } completion:^(BOOL f) { [oldSheet removeFromSuperview]; }];
-    } else {
-        sheet.alpha = 0; sheet.transform = CGAffineTransformMakeScale(0.96, 0.96);
-        if (shield != oldShield) shield.alpha = 0;
-        [UIView animateWithDuration:0.25 animations:^{ sheet.alpha = 1; sheet.transform = CGAffineTransformIdentity; shield.alpha = 1; }];
+    self.pickerSheet = card; self.pickerShield = shield; self.pickerSheetOverlay = overlay;
+    // Hien kieu HarmonyOS: bang troi len tu duoi + phong nhe theo lo xo, nen mo dan; doi o: bang cu mo, bang moi troi len it
+    BOOL fresh = !oldSheet;
+    if (oldSheet) [UIView animateWithDuration:0.15 animations:^{ oldSheet.alpha = 0; } completion:^(BOOL f) { [oldSheet removeFromSuperview]; }];
+    UIVisualEffectView *fx = (shield != oldShield && [shield isKindOfClass:[UIVisualEffectView class]]) ? (UIVisualEffectView *)shield : nil;
+    UIVisualEffect *fxTo = fx.effect;
+    if (fx) { fx.effect = nil; fx.contentView.alpha = 0; }   // mo dan bang effect (doi alpha cua view mo bi loi ve)
+    card.alpha = 0;
+    card.transform = fresh ? CGAffineTransformScale(CGAffineTransformMakeTranslation(0, 48), 0.92, 0.92) : CGAffineTransformMakeTranslation(0, 14);
+    [UIView animateWithDuration:fresh ? 0.5 : 0.35 delay:0 usingSpringWithDamping:0.86 initialSpringVelocity:0.4
+                        options:UIViewAnimationOptionAllowUserInteraction | UIViewAnimationOptionBeginFromCurrentState
+                     animations:^{ card.alpha = 1; card.transform = CGAffineTransformIdentity; } completion:nil];
+    if (fx) [UIView animateWithDuration:0.35 animations:^{ fx.effect = fxTo; fx.contentView.alpha = 1; }];
+    // Icon hien lan luot theo hang: mo + troi len nhe (khong bung tu nho nhu SCPCPopIn)
+    for (UIView *c in cells) {
+        NSInteger row = (NSInteger)((c.frame.origin.y - 6) / cellH), col = (NSInteger)((c.frame.origin.x - padX) / cellW);
+        c.alpha = 0; c.transform = CGAffineTransformMakeTranslation(0, 16);
+        [UIView animateWithDuration:0.45 delay:(fresh ? 0.08 : 0.03) + row * 0.05 + col * 0.012 usingSpringWithDamping:0.85 initialSpringVelocity:0.3
+                            options:UIViewAnimationOptionAllowUserInteraction
+                         animations:^{ c.alpha = 1; c.transform = CGAffineTransformIdentity; } completion:nil];
     }
-    SCPCPopIn(cells);
     if (!overlay) [self pushHostFramesLive:NO];   // bang nam trong CarPlay: o app iPhone nhuong cho (hostFrameForPane)
     SCPLog("CarSplit: bang chon %ld app toan man cho o %d (%s, %d o cho)", (long)i, target.slot, overlay ? "cua so rieng" : "container", waiting);
 }
