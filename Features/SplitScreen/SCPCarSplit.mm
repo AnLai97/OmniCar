@@ -4540,6 +4540,8 @@ static UIBezierPath *SCPCRoundedTriangle(CGFloat cx, CGFloat cy, CGFloat h, CGFl
     return path;
 }
 
+// Logo OmniCar kieu kinh (cung hinh tools/icons/omnicar_logo_glass.ps1): o toi gradient + vet sang tren + vien
+// sang manh, vong tron + nut play trang co quang sang trang toa ra ngoai vong
 static UIImage *SCPCLogoImage(CGFloat side)
 {
     UIGraphicsImageRenderer *r = [[UIGraphicsImageRenderer alloc] initWithSize:CGSizeMake(side, side)];
@@ -4547,26 +4549,42 @@ static UIImage *SCPCLogoImage(CGFloat side)
         CGContextRef ctx = rc.CGContext;
         CGContextScaleCTM(ctx, side / 1024.0, side / 1024.0);
         CGColorSpaceRef cs = CGColorSpaceCreateDeviceRGB();
-        NSArray *cols = @[(id)[UIColor colorWithRed:0x25 / 255.0 green:0x63 / 255.0 blue:0xEB / 255.0 alpha:1].CGColor,
-                          (id)[UIColor colorWithRed:0x0B / 255.0 green:0x10 / 255.0 blue:0x26 / 255.0 alpha:1].CGColor];
+        NSArray *cols = @[(id)[UIColor colorWithRed:0x33 / 255.0 green:0x37 / 255.0 blue:0x3F / 255.0 alpha:1].CGColor,
+                          (id)[UIColor colorWithRed:0x0C / 255.0 green:0x0D / 255.0 blue:0x10 / 255.0 alpha:1].CGColor];
         CGGradientRef g = CGGradientCreateWithColors(cs, (__bridge CFArrayRef)cols, NULL);
-        void (^blue)(UIBezierPath *) = ^(UIBezierPath *clip) {   // to gradient xanh trong hinh (addClip theo even-odd cua path)
+        NSArray *sheenCols = @[(id)[UIColor colorWithWhite:1 alpha:24 / 255.0].CGColor, (id)[UIColor colorWithWhite:1 alpha:0].CGColor];
+        CGGradientRef sheen = CGGradientCreateWithColors(cs, (__bridge CFArrayRef)sheenCols, NULL);
+        void (^glass)(UIBezierPath *) = ^(UIBezierPath *clip) {   // nen kinh toi + vet sang nua tren, trong hinh clip
             CGContextSaveGState(ctx);
             [clip addClip];
-            CGContextDrawLinearGradient(ctx, g, CGPointZero, CGPointMake(1024, 1024), 0);
+            CGContextDrawLinearGradient(ctx, g, CGPointZero, CGPointMake(0, 1024), 0);
+            CGContextDrawLinearGradient(ctx, sheen, CGPointZero, CGPointMake(0, 512), 0);
             CGContextRestoreGState(ctx);
         };
-        // O vuong trang bo tron, ban kinh ~22% canh nhu icon app tren dock
-        [[UIColor whiteColor] setFill];
-        [[UIBezierPath bezierPathWithRoundedRect:CGRectMake(0, 0, 1024, 1024) cornerRadius:1024 * 0.2237] fill];
-        // Vong tron xanh (ban kinh ngoai 360, day 120)
+        // O bo tron ban kinh ~22% nhu icon app tren dock, vien trang 27% mong
+        UIBezierPath *tile = [UIBezierPath bezierPathWithRoundedRect:CGRectMake(0, 0, 1024, 1024) cornerRadius:1024 * 0.2237];
+        [[UIColor colorWithWhite:1 alpha:70 / 255.0] setFill];
+        [tile fill];
+        glass([UIBezierPath bezierPathWithRoundedRect:CGRectMake(4, 4, 1016, 1016) cornerRadius:1016 * 0.2237]);
+        // Quang sang trang toa ra ngoai vong: vong mong tu ban kinh 361 ra 408, nhat dan
+        for (int k = 0; k < 16; k++) {
+            CGFloat rr = 361.5 + k * 3, a = 56 / 255.0 * pow(1 - k / 16.0, 2);
+            UIBezierPath *o = [UIBezierPath bezierPathWithOvalInRect:CGRectMake(512 - rr, 512 - rr, 2 * rr, 2 * rr)];
+            o.lineWidth = 3.2;
+            [[UIColor colorWithWhite:1 alpha:a] setStroke];
+            [o stroke];
+        }
+        // Vong tron trang (ban kinh ngoai 360, day 120)
         UIBezierPath *ring = [UIBezierPath bezierPathWithOvalInRect:CGRectMake(152, 152, 720, 720)];
         [ring appendPath:[UIBezierPath bezierPathWithOvalInRect:CGRectMake(272, 272, 480, 480)]];
         ring.usesEvenOddFillRule = YES;
-        blue(ring);
-        // Nut play: vien cat mau trang roi tam giac xanh
-        [SCPCRoundedTriangle(512, 512, 700, 60) fill];
-        blue(SCPCRoundedTriangle(512, 512, 610, 48));
+        [[UIColor whiteColor] setFill];
+        [ring fill];
+        // Nut play: vien cat bang nen kinh roi tam giac trang
+        glass(SCPCRoundedTriangle(512, 512, 700, 60));
+        [[UIColor whiteColor] setFill];
+        [SCPCRoundedTriangle(512, 512, 610, 48) fill];
+        CGGradientRelease(sheen);
         CGGradientRelease(g);
         CGColorSpaceRelease(cs);
     }];

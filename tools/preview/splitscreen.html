@@ -336,8 +336,18 @@ function renderDock() {
     d.onclick = () => openFromDock(id);
   }
   el('div', 'spacer', dock);
-  const om = el('div', 'dapp', dock, '<svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="#fff" stroke-width="2.2"><circle cx="12" cy="12" r="8"/><path d="M12 4v16"/></svg>');
-  om.style.background = 'linear-gradient(160deg,#2b2f3a,#11131a)'; om.title = 'OmniCar';
+  // SCPCLogoImage: o kinh toi, vong + nut play trang, quang sang trang ngoai vong
+  const om = el('div', 'dapp', dock, `<svg viewBox="0 0 1024 1024" width="50" height="50">
+    <defs><linearGradient id="lg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#33373f"/><stop offset="1" stop-color="#0c0d10"/></linearGradient>
+      <linearGradient id="ls" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".094"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/></linearGradient>
+      <filter id="glow" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="16"/></filter></defs>
+    <rect width="1024" height="1024" rx="229" fill="rgba(255,255,255,.27)"/><rect x="4" y="4" width="1016" height="1016" rx="227" fill="url(#lg)"/>
+    <rect x="4" y="4" width="1016" height="1016" rx="227" fill="url(#ls)"/>
+    <circle cx="512" cy="512" r="372" fill="none" stroke="#fff" stroke-opacity=".55" stroke-width="24" filter="url(#glow)"/>
+    <path fill="#fff" fill-rule="evenodd" d="M152 512a360 360 0 1 0 720 0a360 360 0 1 0-720 0zM272 512a240 240 0 1 0 480 0a240 240 0 1 0-480 0z"/>
+    <path fill="url(#lg)" stroke="url(#lg)" stroke-width="60" stroke-linejoin="round" d="M332 215L332 809L858 512Z"/>
+    <path fill="#fff" stroke="#fff" stroke-width="40" stroke-linejoin="round" d="M352 250L352 774L812 512Z"/></svg>`);
+  om.style.background = 'none'; om.style.boxShadow = 'none'; om.title = 'OmniCar';
   om.onclick = () => S.trayEl ? closeTray() : openTray();
   const grid = el('div', 'grid', dock, '<i></i><i></i><i></i><i></i><i></i><i></i>');
   grid.onclick = () => { closeAll(); S.mode = 'home'; render(); };
