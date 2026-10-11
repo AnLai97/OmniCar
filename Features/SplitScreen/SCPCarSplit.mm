@@ -384,7 +384,6 @@ static NSArray<NSValue *> *SCPCLayoutBoxes(int layoutID, BOOL vertical, CGSize s
 // moi o la icon cua app trong o do.
 // Hinh 1 bo cuc trong bang nut Split Screen. apps[i] = bundle cua app trong o i -> o hien icon app do;
 // NSNull / thieu (apps = nil: moi o) -> o trong vien mo + dau cong = cho chon app.
-// Ve tren nen trang (bang bo cuc trang phat sang): o va dau cong mau toi
 static UIImage *SCPCLayoutImage(int layoutID, BOOL vertical, CGSize size, NSArray *apps)
 {
     NSArray<NSValue *> *boxes = SCPCLayoutBoxes(layoutID, vertical, size);
@@ -395,7 +394,7 @@ static UIImage *SCPCLayoutImage(int layoutID, BOOL vertical, CGSize size, NSArra
             NSString *bid = (i < apps.count && [apps[i] isKindOfClass:[NSString class]]) ? apps[i] : nil;
             UIImage *icon = bid ? SCPCAppIcon(bid) : nil;
             if (icon) {
-                [[UIColor colorWithWhite:0 alpha:0.07] setFill];
+                [[UIColor colorWithWhite:1 alpha:0.14] setFill];
                 [[UIBezierPath bezierPathWithRoundedRect:b cornerRadius:5] fill];
                 CGFloat side = floor(MIN(b.size.width, b.size.height) - 4);
                 CGRect ir = CGRectMake(CGRectGetMidX(b) - side / 2, CGRectGetMidY(b) - side / 2, side, side);
@@ -405,9 +404,9 @@ static UIImage *SCPCLayoutImage(int layoutID, BOOL vertical, CGSize size, NSArra
                 CGContextRestoreGState(rc.CGContext);
                 continue;
             }
-            [[UIColor colorWithWhite:0 alpha:0.06] setFill];
+            [[UIColor colorWithWhite:1 alpha:0.12] setFill];
             [[UIBezierPath bezierPathWithRoundedRect:b cornerRadius:5] fill];
-            [[UIColor colorWithWhite:0 alpha:0.45] setStroke];
+            [[UIColor colorWithWhite:1 alpha:0.55] setStroke];
             UIBezierPath *edge = [UIBezierPath bezierPathWithRoundedRect:CGRectInset(b, 0.6, 0.6) cornerRadius:4.4];
             edge.lineWidth = 1.2;
             [edge stroke];
@@ -418,7 +417,7 @@ static UIImage *SCPCLayoutImage(int layoutID, BOOL vertical, CGSize size, NSArra
             [plus addLineToPoint:CGPointMake(CGRectGetMidX(b) + arm, CGRectGetMidY(b))];
             [plus moveToPoint:CGPointMake(CGRectGetMidX(b), CGRectGetMidY(b) - arm)];
             [plus addLineToPoint:CGPointMake(CGRectGetMidX(b), CGRectGetMidY(b) + arm)];
-            [[UIColor colorWithWhite:0 alpha:0.7] setStroke];
+            [[UIColor colorWithWhite:1 alpha:0.8] setStroke];
             [plus stroke];
         }
     }];
@@ -3847,24 +3846,31 @@ static void SCPCMakePassThrough(UIWindow *w)
     self.trayDockRight = CGRectGetMinX(area) < 1 && CGRectGetMaxX(area) < parent.bounds.size.width - 1;
     CGRect pf = CGRectMake(self.trayDockRight ? CGRectGetMaxX(area) - 8 - w : CGRectGetMinX(area) + 8, CGRectGetMidY(area) - h / 2, w, h);
     if (host) pf = [parent convertRect:pf toView:nil];   // cua so rieng phu kin man xe nhu cua so chinh -> cung toa do man xe
-    // Trang phat sang nhu thanh nut cua o / thanh ti le: nen trang gan dac, quang sang trang, noi dung mau toi
+    // Kieu HarmonyOS: the kinh mo mong (nhin xuyen), bo goc lon lien tuc, vien sang manh, bong mem
     UIView *panel = [[UIView alloc] initWithFrame:pf];
-    panel.backgroundColor = [UIColor colorWithWhite:1 alpha:0.94];
     panel.layer.cornerRadius = 24;
     panel.layer.cornerCurve = kCACornerCurveContinuous;
-    panel.layer.shadowColor = [UIColor whiteColor].CGColor;
-    panel.layer.shadowOpacity = 0.7; panel.layer.shadowRadius = 14; panel.layer.shadowOffset = CGSizeZero;
+    panel.layer.shadowColor = [UIColor blackColor].CGColor;
+    panel.layer.shadowOpacity = 0.35; panel.layer.shadowRadius = 24; panel.layer.shadowOffset = CGSizeMake(0, 8);
+    UIVisualEffectView *glass = [[UIVisualEffectView alloc] initWithEffect:[UIBlurEffect effectWithStyle:UIBlurEffectStyleSystemUltraThinMaterialDark]];
+    glass.frame = panel.bounds;
+    glass.contentView.backgroundColor = [UIColor colorWithWhite:0.1 alpha:0.18];
+    glass.layer.cornerRadius = 24;
+    glass.layer.cornerCurve = kCACornerCurveContinuous;
+    glass.layer.borderWidth = 0.5;
+    glass.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.22].CGColor;
+    glass.clipsToBounds = YES;
+    [panel addSubview:glass];
     UIScrollView *scroll = [[UIScrollView alloc] initWithFrame:panel.bounds];   // man xe thap: cuon duoc
     scroll.showsVerticalScrollIndicator = NO;
     scroll.delegate = self;   // cuon bang -> hen gio thu lai tinh tu dau
-    scroll.layer.cornerRadius = 24; scroll.layer.cornerCurve = kCACornerCurveContinuous; scroll.clipsToBounds = YES;
-    [panel addSubview:scroll];
+    [glass.contentView addSubview:scroll];
 
     NSMutableArray *choices = [NSMutableArray array], *cells = [NSMutableArray array];
     CGFloat y = pad;
     for (NSUInteger si = 0; si < sections.count; si++) {
         UIImageView *head = [[UIImageView alloc] initWithImage:SCPCGlyph(titles[si], 18, NO)];
-        head.tintColor = [UIColor colorWithWhite:0 alpha:0.45];
+        head.tintColor = [UIColor colorWithWhite:1 alpha:0.5];
         head.center = CGPointMake(pad + iconCol / 2, y + rowH / 2);
         head.accessibilityLabel = (si == 0 && self.active) ? SCPCT(@"Đổi bố cục", @"Change layout") : sectionName[titles[si]];
         [scroll addSubview:head];
@@ -3875,7 +3881,7 @@ static void SCPCMakePassThrough(UIWindow *w)
             CAShapeLayer *dash = [CAShapeLayer layer];
             dash.path = [UIBezierPath bezierPathWithRoundedRect:CGRectInset(ph.bounds, 0.5, 0.5) cornerRadius:6].CGPath;
             dash.fillColor = nil;
-            dash.strokeColor = [UIColor colorWithWhite:0 alpha:0.25].CGColor;
+            dash.strokeColor = [UIColor colorWithWhite:1 alpha:0.25].CGColor;
             dash.lineWidth = 1; dash.lineDashPattern = @[@3, @3];
             [ph.layer addSublayer:dash];
             ph.accessibilityLabel = SCPCT(@"Chia màn xong sẽ hiện ở đây", @"Your splits will show up here");
@@ -3893,7 +3899,7 @@ static void SCPCMakePassThrough(UIWindow *w)
             [choices addObject:c];
             [b addTarget:self action:@selector(panelChoiceTapped:) forControlEvents:UIControlEventTouchUpInside];
             if (si == 0 && layoutID == current) {   // bo cuc dang dung
-                b.backgroundColor = [UIColor colorWithWhite:0 alpha:0.1];   // bo cuc dang dung: nen xam nhat
+                b.backgroundColor = [SCPCAccent() colorWithAlphaComponent:0.22];
                 b.layer.cornerRadius = 12;
             }
             NSArray *picApps = c[@"apps"] ?: slotApps;
@@ -3907,10 +3913,10 @@ static void SCPCMakePassThrough(UIWindow *w)
         if (si == 0) {   // nut thoat chia man, tach khoi cac bo cuc bang 1 vach mo
             CGFloat px = pad + iconCol + cols * cellW;
             UIView *sep = [[UIView alloc] initWithFrame:CGRectMake(px + 2, y + 10, 1, rowH - 20)];
-            sep.backgroundColor = [UIColor colorWithWhite:0 alpha:0.12];
+            sep.backgroundColor = [UIColor colorWithWhite:1 alpha:0.15];
             [scroll addSubview:sep];
             UIButton *exitBtn = SCPCRoundButton(SCPCGlyph(@"exit", 20, NO), self, @selector(exitTapped));
-            exitBtn.tintColor = [UIColor colorWithRed:0.88 green:0.2 blue:0.18 alpha:1];
+            exitBtn.tintColor = SCPCDanger();
             exitBtn.center = CGPointMake(px + 4 + (exitW - 4) / 2, y + rowH / 2);
             exitBtn.accessibilityLabel = self.active ? SCPCT(@"Thoát chia màn", @"Exit split") : SCPCT(@"Đóng", @"Close");
             NSString *keep = [self exitKeepBundle];
@@ -3920,7 +3926,7 @@ static void SCPCMakePassThrough(UIWindow *w)
                 kv.image = keepIcon;
                 SCPCStyleIcon(kv);
                 kv.layer.borderWidth = 1;
-                kv.layer.borderColor = [UIColor whiteColor].CGColor;
+                kv.layer.borderColor = [UIColor colorWithWhite:0.12 alpha:1].CGColor;
                 kv.userInteractionEnabled = NO;
                 [exitBtn addSubview:kv];
             }
