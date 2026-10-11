@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OmniCar Settings</title>
+<!--
+  Ban xem truoc trang Cai dat OmniCar (PreferenceLoader) sau khi thiet ke lai: gon, it chu, de bam.
+  Chua phai code that - duyet xong moi lam vao Prefs/ va Features/*/Prefs/. Mo bang trinh duyet.
+-->
+<style>
+:root {
+  --bg: #f1f3f5; --card: #fff; --text: #0f1115; --sub: #6b7280; --sep: rgba(60,60,67,.14);
+  --tint: #1f2329; --danger: #e5352b; --page: #e9ecef; --chev: #c4c7cc;
+}
+.dark {
+  --bg: #000; --card: #1c1c1e; --text: #f2f3f5; --sub: #8e939b; --sep: rgba(84,84,88,.5);
+  --tint: #e9ebee; --danger: #ff5c54; --chev: #5a5d63;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: #0f1115; color: #e8eaef; font: 14px/1.4 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif; }
+body { display: flex; flex-wrap: wrap; justify-content: center; gap: 22px; padding: 20px 14px; }
+.side { max-width: 320px; display: flex; flex-direction: column; gap: 12px; }
+.side h1 { font-size: 17px; margin: 0; }
+.side p, .side li { color: #9aa3b2; font-size: 13px; margin: 0; }
+.side ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 5px; }
+.side b { color: #e8eaef; font-weight: 600; }
+.btns { display: flex; gap: 8px; flex-wrap: wrap; }
+.btns button { background: #232834; color: #e8eaef; border: 1px solid #303746; border-radius: 8px; padding: 6px 10px; font: inherit; font-size: 13px; cursor: pointer; }
+.btns button.on { background: #e8eaef; color: #111; }
+
+/* iPhone */
+.phone { width: 390px; height: 844px; max-width: 100%; border-radius: 52px; background: #050506; padding: 12px; box-shadow: 0 30px 80px rgba(0,0,0,.6), inset 0 0 0 1px #24262c; flex: none; }
+.screen { position: relative; width: 100%; height: 100%; border-radius: 42px; overflow: hidden; background: var(--bg); color: var(--text); }
+.status { height: 50px; display: flex; justify-content: space-between; align-items: center; padding: 0 30px; font-weight: 600; font-size: 15px; }
+.page { position: absolute; top: 50px; left: 0; right: 0; bottom: 0; overflow-y: auto; background: var(--bg); transition: transform .35s cubic-bezier(.2,.9,.3,1); scrollbar-width: none; }
+.page::-webkit-scrollbar { display: none; }
+.page.right { transform: translateX(100%); }
+.page.left { transform: translateX(-28%); }
+.nav { height: 44px; display: flex; align-items: center; padding: 0 12px; gap: 6px; position: sticky; top: 0; background: var(--bg); z-index: 3; }
+.nav .back { color: var(--text); display: flex; align-items: center; gap: 2px; cursor: pointer; font-size: 17px; }
+.nav .title { flex: 1; text-align: center; font-weight: 600; font-size: 17px; margin-right: 40px; }
+.nav .icons { margin-left: auto; display: flex; gap: 16px; }
+.nav svg { width: 22px; height: 22px; }
+.large { font-size: 32px; font-weight: 700; padding: 2px 18px 8px; letter-spacing: .2px; }
+
+.group { margin: 0 16px 22px; }
+.ghead { font-size: 13px; color: var(--sub); padding: 0 16px 6px; text-transform: none; }
+.gfoot { font-size: 12px; color: var(--sub); padding: 6px 16px 0; }
+.card { background: var(--card); border-radius: 14px; overflow: hidden; }
+.row { display: flex; align-items: center; gap: 12px; min-height: 48px; padding: 0 14px; position: relative; cursor: default; }
+.row + .row::before { content: ""; position: absolute; top: 0; right: 0; left: 55px; height: .5px; background: var(--sep); }
+.row.noicon + .row.noicon::before, .card > .row.noicon:first-child + .row::before { left: 14px; }
+.row.link { cursor: pointer; }
+.row.link:active { background: rgba(127,127,127,.12); }
+.row .lab { flex: 1; font-size: 16px; font-weight: 500; }
+.row .lab small { display: block; font-size: 12.5px; font-weight: 400; color: var(--sub); margin-top: 1px; }
+.row .val { color: var(--sub); font-size: 15px; }
+.row .chev { width: 8px; height: 13px; color: var(--chev); flex: none; }
+.row.danger .lab { color: var(--danger); }
+.row.center .lab { text-align: center; }
+.tile { width: 29px; height: 29px; border-radius: 8.5px; display: grid; place-items: center; flex: none; background: linear-gradient(180deg, #3a3f48, #121418); box-shadow: inset 0 0 0 .5px rgba(255,255,255,.25); color: #fff; }
+.tile svg { width: 17px; height: 17px; }
+
+/* Cong tac kieu iOS */
+.sw { width: 51px; height: 31px; border-radius: 16px; background: rgba(120,120,128,.24); position: relative; cursor: pointer; flex: none; transition: background .25s; }
+.sw::after { content: ""; position: absolute; top: 2px; left: 2px; width: 27px; height: 27px; border-radius: 14px; background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,.25); transition: transform .25s cubic-bezier(.3,1.3,.5,1); }
+.sw.on { background: var(--tint); }
+.dark .sw.on::after { background: #1c1c1e; }
+.sw.on::after { transform: translateX(20px); }
+
+/* The dau trang */
+.hero { margin: 4px 16px 22px; border-radius: 22px; padding: 16px; display: flex; align-items: center; gap: 14px; color: #fff;
+  background: linear-gradient(180deg, #353a43, #101216); box-shadow: inset 0 0 0 .5px rgba(255,255,255,.22), 0 10px 24px rgba(0,0,0,.18); position: relative; overflow: hidden; }
+.hero::before { content: ""; position: absolute; inset: 0 0 50% 0; background: linear-gradient(180deg, rgba(255,255,255,.08), transparent); pointer-events: none; }
+.hero img { width: 58px; height: 58px; border-radius: 14px; flex: none; }
+.hero .t { flex: 1; }
+.hero .n { font-size: 21px; font-weight: 700; }
+.hero .s { font-size: 12.5px; color: rgba(255,255,255,.7); margin-top: 2px; display: flex; align-items: center; gap: 6px; }
+.hero .dot { width: 7px; height: 7px; border-radius: 4px; background: #fff; box-shadow: 0 0 6px rgba(255,255,255,.9); }
+.hero .s.off .dot { background: rgba(255,255,255,.35); box-shadow: none; }
+.hero .sw { background: rgba(255,255,255,.18); }
+.hero .sw.on { background: #fff; }
+.hero .sw.on::after { background: #1b1d22; }
+
+/* Bo cuc yeu thich */
+.lay { width: 46px; height: 28px; position: relative; flex: none; }
+.lay i { position: absolute; border-radius: 4px; background: rgba(127,127,127,.18); display: grid; place-items: center; overflow: hidden; }
+.lay i b { width: 15px; height: 15px; border-radius: 4px; display: block; }
+.lays { display: flex; gap: 10px; padding: 12px 14px; justify-content: space-between; }
+.lays .opt { flex: 1; aspect-ratio: 1.55; border-radius: 10px; position: relative; cursor: pointer; background: rgba(127,127,127,.1); }
+.lays .opt .lay { position: absolute; inset: 9px; width: auto; height: auto; }
+.lays .opt.sel { background: #fff; box-shadow: 0 0 0 1.5px rgba(255,255,255,.95), 0 0 10px rgba(255,255,255,.8); }
+.lays .opt.sel .lay i { background: rgba(0,0,0,.14); }
+:root:not(.dark) .lays .opt.sel { background: #1f2329; box-shadow: 0 0 10px rgba(31,35,41,.35); }
+:root:not(.dark) .lays .opt.sel .lay i { background: rgba(255,255,255,.3); }
+.field { flex: 1; border: 0; background: transparent; font: inherit; font-size: 16px; color: var(--text); text-align: right; outline: none; }
+.app { width: 29px; height: 29px; border-radius: 8px; display: grid; place-items: center; color: #fff; font-weight: 700; font-size: 14px; flex: none; }
+
+.seg { display: flex; background: rgba(120,120,128,.14); border-radius: 9px; padding: 2px; flex: none; }
+.seg span { padding: 5px 12px; font-size: 13.5px; font-weight: 500; border-radius: 7px; cursor: pointer; }
+.seg span.on { background: var(--card); box-shadow: 0 2px 6px rgba(0,0,0,.14); }
+.dark .seg span.on { background: #636366; }
+.slider { flex: 1; -webkit-appearance: none; appearance: none; height: 4px; border-radius: 2px; background: rgba(120,120,128,.3); outline: none; }
+.slider::-webkit-slider-thumb { -webkit-appearance: none; width: 26px; height: 26px; border-radius: 13px; background: #fff; box-shadow: 0 2px 7px rgba(0,0,0,.28); cursor: pointer; }
+.slider::-moz-range-thumb { width: 26px; height: 26px; border-radius: 13px; background: #fff; border: 0; box-shadow: 0 2px 7px rgba(0,0,0,.28); }
+.num { width: 46px; text-align: right; color: var(--sub); font-variant-numeric: tabular-nums; }
+.pair { display: flex; gap: 10px; padding: 10px 14px; }
+.pair div { flex: 1; text-align: center; padding: 11px 0; border-radius: 11px; background: rgba(127,127,127,.12); font-weight: 600; cursor: pointer; }
+.pair div:active { transform: scale(.97); }
+.search { margin: 0 16px 14px; background: rgba(120,120,128,.14); border-radius: 10px; padding: 8px 12px; color: var(--sub); display: flex; gap: 8px; align-items: center; }
+.tip { padding: 12px 16px; display: flex; gap: 12px; align-items: flex-start; }
+.tip + .tip { border-top: .5px solid var(--sep); }
+.tip .k { font-weight: 600; min-width: 92px; }
+.tip .d { color: var(--sub); font-size: 14px; }
+.mono { font: 12px/1.6 ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--sub); padding: 12px 16px; word-break: break-all; }
+.toast { position: absolute; left: 50%; bottom: 40px; transform: translateX(-50%); background: rgba(30,30,32,.92); color: #fff; padding: 9px 16px; border-radius: 18px; font-size: 13px; white-space: nowrap; z-index: 9; }
+.menu { position: absolute; right: 30px; width: 210px; background: var(--card); border-radius: 13px; box-shadow: 0 12px 40px rgba(0,0,0,.25); z-index: 8; overflow: hidden; }
+.menu div { padding: 12px 16px; font-size: 16px; cursor: pointer; display: flex; justify-content: space-between; }
+.menu div + div { border-top: .5px solid var(--sep); }
+</style>
+</head>
+<body>
+<div class="side">
+  <h1>Cài đặt OmniCar · bản thiết kế lại</h1>
+  <p>Bấm thẳng vào iPhone bên cạnh. Chưa phải code thật — duyệt xong mới làm vào tweak.</p>
+  <ul>
+    <li><b>Trang chính</b>: công tắc tổng nằm luôn trong thẻ logo, mỗi tính năng 1 dòng có trạng thái Bật/Tắt; Respring và Ngôn ngữ thành 2 nút nhỏ trên thanh trên.</li>
+    <li><b>Chia màn hình</b>: 3 bố cục yêu thích gom thành 3 dòng (hình bố cục + app) thay vì ~15 dòng; đoạn hướng dẫn dài chuyển vào trang <b>Hướng dẫn</b>.</li>
+    <li><b>Bong bóng tốc độ</b>: chọn nguồn bằng nút chia đôi, 2 thanh cỡ chung 1 nhóm, Xem thử / Đặt lại cạnh nhau.</li>
+    <li><b>Màn hình khởi động</b>: Thêm video từ Ảnh / Tệp gộp 1 dòng.</li>
+    <li>Chú thích dưới mỗi nhóm tối đa 1 dòng hoặc bỏ hẳn. Không dùng màu xanh: icon ô kính tối như logo, công tắc màu than chì (sáng) / trắng (tối).</li>
+  </ul>
+  <div class="btns">
+    <button id="theme">Giao diện tối</button>
+    <button id="home">Về trang chính</button>
+  </div>
+</div>
+
+<div class="phone"><div class="screen" id="scr">
+  <div class="status"><span>9:41</span><span>●●● 5G ▮</span></div>
+</div></div>
+
+<script>
+const scr = document.getElementById('scr');
+const ICON = {
+  split: '<rect x="3" y="5" width="8" height="14" rx="2"/><rect x="13" y="5" width="8" height="14" rx="2"/>',
+  apps: '<rect x="4" y="4" width="6.5" height="6.5" rx="2"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="2"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="2"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="2"/>',
+  speed: '<path d="M4.5 16a7.5 7.5 0 1 1 15 0"/><path d="M12 16l3.5-4.5"/>',
+  play: '<rect x="3.5" y="5" width="17" height="14" rx="3"/><path d="M10.5 9.5v5l4-2.5z" fill="currentColor"/>',
+  book: '<path d="M5 5.5A2 2 0 0 1 7 4h11v14H7a2 2 0 0 0-2 2z"/><path d="M5 20V5.5"/>',
+  globe: '<circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.5 2.5 2.5 14.5 0 17M12 3.5c-2.5 2.5-2.5 14.5 0 17"/>',
+  respring: '<path d="M19 12a7 7 0 1 1-2.05-4.95"/><path d="M19 4.5v4h-4"/>',
+  car: '<path d="M5 14l1.6-4.6A2 2 0 0 1 8.5 8h7a2 2 0 0 1 1.9 1.4L19 14v4h-2.5v-1.5h-9V18H5z"/><circle cx="8" cy="14.5" r="1"/><circle cx="16" cy="14.5" r="1"/>',
+  back: '<path d="M15 5l-7 7 7 7"/>',
+  search: '<circle cx="11" cy="11" r="6.5"/><path d="M16 16l4 4"/>',
+};
+const ic = (n, sw = 1.9) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round">${ICON[n]}</svg>`;
+const chev = '<svg class="chev" viewBox="0 0 8 13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1.5 1.5l5 5-5 5"/></svg>';
+const APPS = { maps: ['Bản đồ', '#1f8fff', '➤'], music: ['Nhạc', '#ff2d55', '♫'], spotify: ['Spotify', '#1db954', 'S'], gofa: ['GOFA', '#0bb04c', 'G'],
+  vietmap: ['Vietmap', '#f07a12', 'V'], youtube: ['YouTube', '#ff2a20', '▶'], zing: ['Zing MP3', '#6a3df0', 'Z'], phone: ['Điện thoại', '#2fbf55', '✆'], tiktok: ['TikTok', '#111', '♪'] };
+const appIcon = (id, s = 29) => { const a = APPS[id]; return a ? `<div class="app" style="width:${s}px;height:${s}px;background:${a[1]};font-size:${s * .48}px">${a[2]}</div>` : `<div class="app" style="width:${s}px;height:${s}px;background:rgba(127,127,127,.25)">+</div>`; };
+
+const S = {
+  enabled: true, split: true, autoLaunch: true, recent: true, favs: true, bridge: true, bubble: true, startup: false,
+  zoom: 85, showIcon: true, sizePhone: 100, sizeCar: 120, source: 0, style: 14, duration: 5, playFull: false, scale: 0, sound: true, tapSkip: true,
+  video: 'Logo xe.mp4', lang: 'vi',
+  fav: [{ name: 'Đi làm', layout: 2, apps: ['maps', 'music'] }, { name: 'Đi chơi', layout: 13, apps: ['gofa', 'spotify', 'phone'] }, { name: '', layout: 2, apps: [null, null] }],
+  bridgeApps: ['youtube', 'tiktok'],
+};
+const STYLES = ['Thẻ ngang', 'Đĩa nhỏ', 'Biển báo lớn', 'Đồng hồ', 'Thanh HUD', 'Màu theo tốc độ', 'Cột dọc', 'Viên thuốc đôi', 'Neon', 'Thanh đo', 'Chữ nổi', 'Thẻ sáng', 'Vô lăng', 'Bánh xe', 'Thẻ HarmonyOS', 'Đồng hồ kim', 'Vòng kép HarmonyOS', 'Live View'];
+const LAYOUTS = [2, 3, 13, 31];
+const PH = ['Đi làm', 'Đi chơi', 'Đi xa'];
+
+// --- dieu huong kieu UINavigationController
+const stack = [];
+function push(builder, title, anim = true) {
+  const pg = document.createElement('div'); pg.className = 'page' + (anim && stack.length ? ' right' : '');
+  pg.builder = builder; pg.ptitle = title;
+  draw(pg);
+  scr.appendChild(pg);
+  const prev = stack[stack.length - 1];
+  stack.push(pg);
+  if (anim && prev) requestAnimationFrame(() => { pg.classList.remove('right'); prev.classList.add('left'); });
+}
+function pop() {
+  if (stack.length < 2) return;
+  const pg = stack.pop(), prev = stack[stack.length - 1];
+  pg.classList.add('right'); prev.classList.remove('left');
+  draw(prev);
+  setTimeout(() => pg.remove(), 360);
+}
+function draw(pg) {
+  const idx = stack.indexOf(pg), prev = idx > 0 ? stack[idx - 1] : stack[stack.length - 1];   // trang chua vao stack: trang truoc la dinh stack
+  const isRoot = stack.length === 0 || stack[0] === pg;
+  pg.innerHTML = (isRoot
+    ? `<div class="nav"><div class="icons"><span title="Ngôn ngữ" data-act="lang">${ic('globe')}</span><span title="Respring" data-act="respring">${ic('respring')}</span></div></div><div class="large">OmniCar</div>`
+    : `<div class="nav"><div class="back" data-act="back"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">${ICON.back}</svg>${prev?.ptitle || 'OmniCar'}</div><div class="title">${pg.ptitle}</div></div>`)
+    + pg.builder();
+  bind(pg);
+}
+function redraw() { stack.forEach(draw); }
+
+// --- dong
+const sw = (key, extra = '') => `<div class="sw ${S[key] ? 'on' : ''}" data-sw="${key}" ${extra}></div>`;
+const group = (rows, head, foot) => `<div class="group">${head ? `<div class="ghead">${head}</div>` : ''}<div class="card">${rows.join('')}</div>${foot ? `<div class="gfoot">${foot}</div>` : ''}</div>`;
+const row = ({ icon, lab, sub, right = '', link, act, cls = '' }) =>
+  `<div class="row ${link || act ? 'link' : ''} ${icon ? '' : 'noicon'} ${cls}" ${link ? `data-link="${link}"` : ''} ${act ? `data-act="${act}"` : ''}>${icon ? `<div class="tile">${ic(icon)}</div>` : ''}<div class="lab">${lab}${sub ? `<small>${sub}</small>` : ''}</div>${right}${link ? chev : ''}</div>`;
+const onoff = v => `<span class="val">${v ? 'Bật' : 'Tắt'}</span>`;
+function layMini(layout, apps, w = 46, h = 28, iconS = 15) {
+  const g = 2, boxes = [];
+  if (layout === 13 || layout === 31) {
+    const mw = (w - g) / 2, th = (h - g) / 2;
+    boxes.push([0, 0, mw, h], [mw + g, 0, w - mw - g, th], [mw + g, th + g, w - mw - g, h - th - g]);
+    if (layout === 31) boxes.forEach(b => b[0] = w - b[0] - b[2]);
+  } else { const n = layout, bw = (w - g * (n - 1)) / n; for (let i = 0; i < n; i++) boxes.push([i * (bw + g), 0, bw, h]); }
+  return `<div class="lay" style="width:${w}px;height:${h}px">` + boxes.map((b, i) => `<i style="left:${b[0]}px;top:${b[1]}px;width:${b[2]}px;height:${b[3]}px">${apps && apps[i] && APPS[apps[i]] ? `<b style="background:${APPS[apps[i]][1]};width:${iconS}px;height:${iconS}px"></b>` : ''}</i>`).join('') + '</div>';
+}
+
+// --- cac trang
+function rootPage() {
+  return `<div class="hero"><img src="../../assets/icon-1024.png" alt=""><div class="t"><div class="n">OmniCar</div>
+      <div class="s ${S.enabled ? '' : 'off'}"><span class="dot"></span>${S.enabled ? 'Đang bật' : 'Đang tắt'} · 2.0</div></div>${sw('enabled')}</div>`
+    + group([
+      row({ icon: 'split', lab: 'Chia màn hình', right: onoff(S.split), link: 'split' }),
+      row({ icon: 'apps', lab: 'App trên màn xe', right: `<span class="val">${S.bridge ? S.bridgeApps.length + ' app' : 'Tắt'}</span>`, link: 'bridge' }),
+      row({ icon: 'speed', lab: 'Bong bóng tốc độ', right: onoff(S.bubble), link: 'bubble' }),
+      row({ icon: 'play', lab: 'Màn hình khởi động', right: onoff(S.startup), link: 'startup' }),
+    ], 'Tính năng', 'Thay đổi áp dụng ngay. Respring sau khi cài hoặc cập nhật.')
+    + `<div class="gfoot" style="text-align:center;padding:4px 0 30px">OmniCar 2.0 · © 2026 AnLai</div>`;
+}
+function splitPage() {
+  return group([row({ lab: 'Chia màn hình', right: sw('split') }), row({ lab: 'Tự mở khi cắm xe', right: sw('autoLaunch') })])
+    + group([row({ lab: 'Gần đây', right: sw('recent') }), row({ lab: 'Yêu thích', right: sw('favs') })], 'Bảng OmniCar trên xe')
+    + group(S.fav.map((f, i) => row({ lab: f.name || PH[i], sub: f.apps.some(Boolean) ? f.apps.filter(Boolean).map(a => APPS[a][0]).join(' + ') : 'Chưa chọn app', right: layMini(f.layout, f.apps), link: 'fav' + i })),
+      'Bố cục yêu thích', 'Siri: omnicar://splitscreen/fav?n=1')
+    + group([row({ icon: 'book', lab: 'Hướng dẫn', link: 'guide' })]);
+}
+function favPage(i) {
+  const f = S.fav[i], n = f.layout === 2 ? 2 : 3;
+  return group([`<div class="row noicon"><div class="lab">Tên</div><input class="field" data-fav="${i}" placeholder="${PH[i]}" value="${f.name}"></div>`])
+    + group([`<div class="lays">${LAYOUTS.map(l => `<div class="opt ${l === f.layout ? 'sel' : ''}" data-lay="${i}:${l}">${layMini(l, null)}</div>`).join('')}</div>`], 'Bố cục')
+    + group(Array.from({ length: n }, (_, k) => `<div class="row link" data-pick="${i}:${k}">${appIcon(f.apps[k])}<div class="lab">Ô ${k + 1}</div><span class="val">${f.apps[k] ? APPS[f.apps[k]][0] : 'Chưa chọn'}</span>${chev}</div>`), 'App');
+}
+function pickPage(i, k) {
+  const cur = S.fav[i].apps[k];
+  return group([`<div class="row link" data-set="${i}:${k}:">${appIcon(null)}<div class="lab">Không chọn</div>${!cur ? '<span class="val">✓</span>' : ''}</div>`]
+    .concat(['maps', 'music', 'spotify', 'gofa', 'vietmap', 'zing', 'phone'].map(a => `<div class="row link" data-set="${i}:${k}:${a}">${appIcon(a)}<div class="lab">${APPS[a][0]}</div>${cur === a ? '<span class="val">✓</span>' : ''}</div>`)), 'App CarPlay')
+    + group(['youtube', 'tiktok'].map(a => `<div class="row link" data-set="${i}:${k}:${a}">${appIcon(a)}<div class="lab">${APPS[a][0]}</div>${cur === a ? '<span class="val">✓</span>' : ''}</div>`), 'App iPhone (App Bridge)');
+}
+function guidePage() {
+  const tips = [['Nút OmniCar', 'Trên dock xe: chọn bố cục, Gần đây, Yêu thích, thoát chia màn.'], ['Chấm tròn', 'Chạm: chọn tỉ lệ · kéo: đổi tỉ lệ · kéo sát mép: đóng ô.'],
+    ['Thanh •••', 'Chạm: Đổi app / Cửa sổ nổi / Toàn màn / Đóng · kéo thả lên ô khác: đổi chỗ.'], ['Vạch chia', 'Chạm 2 lần: đổi chỗ 2 ô.'], ['Nút Home', 'Thoát chia màn.']];
+  return group(tips.map(t => `<div class="tip"><div class="k">${t[0]}</div><div class="d">${t[1]}</div></div>`), 'Trên xe')
+    + group([`<div class="mono">omnicar://splitscreen/open?left=com.apple.Maps&amp;right=com.spotify.client<br>omnicar://splitscreen/fav?n=1<br>omnicar://splitscreen/close</div>`], 'Siri / Shortcuts (Mở URL)')
+    + `<div class="gfoot" style="padding:0 32px 30px">Trước đây là CarDuo. Host app dựa trên carplay-cast (Ethan Arbuckle).</div>`;
+}
+function bridgePage() {
+  const all = ['youtube', 'tiktok', 'zing', 'phone'];
+  return group([row({ lab: 'Hiện app iPhone trên xe', right: sw('bridge') }),
+      `<div class="row noicon"><div class="lab" style="flex:none">Cỡ app</div><input type="range" class="slider" min="60" max="100" value="${S.zoom}" data-range="zoom"><span class="num">${S.zoom}%</span></div>`])
+    + `<div class="search">${ic('search')}<span>Tìm app</span></div>`
+    + group(all.map(a => `<div class="row">${appIcon(a)}<div class="lab">${APPS[a][0]}</div><div class="sw ${S.bridgeApps.includes(a) ? 'on' : ''}" data-app="${a}"></div></div>`), 'App của bạn', 'App đã có CarPlay riêng không nằm ở đây.');
+}
+function bubblePage() {
+  return group([row({ lab: 'Bong bóng tốc độ', right: sw('bubble') })])
+    + group([`<div class="row noicon"><div class="lab">Nguồn</div><div class="seg">${['Vietmap Live', 'GOFA'].map((s, k) => `<span class="${S.source === k ? 'on' : ''}" data-src="${k}">${s}</span>`).join('')}</div></div>`,
+      row({ lab: 'Kiểu', right: `<span class="val">${STYLES[S.style]}</span>`, link: 'styles' }),
+      row({ lab: 'Hiện icon app', right: sw('showIcon') })])
+    + group([`<div class="row noicon"><div class="lab" style="flex:none;width:70px">iPhone</div><input type="range" class="slider" min="60" max="220" value="${S.sizePhone}" data-range="sizePhone"><span class="num">${S.sizePhone}%</span></div>`,
+      `<div class="row noicon"><div class="lab" style="flex:none;width:70px">CarPlay</div><input type="range" class="slider" min="60" max="220" value="${S.sizeCar}" data-range="sizeCar"><span class="num">${S.sizeCar}%</span></div>`,
+      `<div class="pair"><div data-act="toast:Bong bóng hiện 10 giây">Xem thử</div><div data-act="reset">Đặt lại</div></div>`], 'Cỡ', 'Kéo để dời · chụm 2 ngón để đổi cỡ · giữ 2 giây để thoát app.');
+}
+function stylesPage() {
+  return group(STYLES.map((s, k) => `<div class="row noicon link" data-style="${k}"><div class="lab">${s}</div>${S.style === k ? '<span class="val">✓</span>' : ''}</div>`));
+}
+function startupPage() {
+  return group([row({ lab: 'Màn hình khởi động', right: sw('startup') })])
+    + group([row({ lab: 'Video', right: `<span class="val">${S.video || 'Chưa có'}</span>`, link: 'videos' }),
+      row({ lab: 'Thêm video', act: 'addvideo', right: chev }), row({ lab: 'Xem thử', act: 'toast:Đang phát video' }),
+      row({ lab: 'Xoá video', act: 'delvideo', cls: 'danger' })], null, 'MP4, MOV, M4V · tối đa 60 giây.')
+    + group([`<div class="row noicon"><div class="lab" style="flex:none">Thời lượng</div><input type="range" class="slider" min="1" max="30" value="${S.duration}" data-range="duration" ${S.playFull ? 'disabled style="opacity:.4"' : ''}><span class="num">${S.duration} s</span></div>`,
+      row({ lab: 'Phát hết video', right: sw('playFull') })])
+    + group([`<div class="row noicon"><div class="lab">Khung hình</div><div class="seg">${['Lấp đầy', 'Vừa khung'].map((s, k) => `<span class="${S.scale === k ? 'on' : ''}" data-scale="${k}">${s}</span>`).join('')}</div></div>`,
+      row({ lab: 'Âm thanh', right: sw('sound') }), row({ lab: 'Chạm để bỏ qua', right: sw('tapSkip') })]);
+}
+function videosPage() { return group(['Logo xe.mp4', 'Intro VinFast.mov'].map(v => `<div class="row noicon link" data-video="${v}"><div class="lab">${v}</div>${S.video === v ? '<span class="val">✓</span>' : ''}</div>`)); }
+
+const PAGES = { split: [splitPage, 'Chia màn hình'], bridge: [bridgePage, 'App trên màn xe'], bubble: [bubblePage, 'Bong bóng tốc độ'], startup: [startupPage, 'Khởi động'],
+  guide: [guidePage, 'Hướng dẫn'], styles: [stylesPage, 'Kiểu'], videos: [videosPage, 'Video'] };
+
+function toast(msg) { const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; scr.appendChild(t); setTimeout(() => t.remove(), 1800); }
+function menu(items, top) {
+  const m = document.createElement('div'); m.className = 'menu'; m.style.top = top + 'px';
+  items.forEach(([lab, fn]) => { const d = document.createElement('div'); d.innerHTML = lab; d.onclick = e => { e.stopPropagation(); m.remove(); fn && fn(); }; m.appendChild(d); });
+  scr.appendChild(m); setTimeout(() => document.addEventListener('click', () => m.remove(), { once: true }), 0);
+}
+
+function bind(pg) {
+  pg.querySelectorAll('[data-sw]').forEach(e => e.onclick = ev => { ev.stopPropagation(); S[e.dataset.sw] = !S[e.dataset.sw]; redraw(); });
+  pg.querySelectorAll('[data-link]').forEach(e => e.onclick = () => {
+    const l = e.dataset.link;
+    if (l.startsWith('fav')) { const i = +l.slice(3); push(() => favPage(i), S.fav[i].name || PH[i]); return; }
+    push(PAGES[l][0], PAGES[l][1]);
+  });
+  pg.querySelectorAll('[data-act]').forEach(e => e.onclick = ev => {
+    const a = e.dataset.act; ev.stopPropagation();
+    if (a === 'back') return pop();
+    if (a === 'respring') return menu([['<b>Respring</b>', () => toast('Đang respring…')], ['Huỷ']], 92);
+    if (a === 'lang') return menu([['Tiếng Việt', null], ['English', () => toast('Bản xem trước chỉ có tiếng Việt')]], 92);
+    if (a === 'addvideo') return menu([['Từ Ảnh', () => toast('Mở thư viện Ảnh')], ['Từ Tệp', () => toast('Mở Tệp')]], 260);
+    if (a === 'delvideo') return menu([['<span style="color:var(--danger)">Xoá "' + S.video + '"</span>', () => { S.video = ''; redraw(); }], ['Huỷ']], 330);
+    if (a === 'reset') { S.sizePhone = S.sizeCar = 100; redraw(); return toast('Đã đặt lại vị trí và cỡ'); }
+    if (a.startsWith('toast:')) return toast(a.slice(6));
+  });
+  pg.querySelectorAll('[data-range]').forEach(e => e.oninput = () => { S[e.dataset.range] = +e.value; e.nextElementSibling.textContent = e.value + (e.dataset.range === 'duration' ? ' s' : '%'); });
+  pg.querySelectorAll('[data-src]').forEach(e => e.onclick = () => { S.source = +e.dataset.src; redraw(); });
+  pg.querySelectorAll('[data-scale]').forEach(e => e.onclick = () => { S.scale = +e.dataset.scale; redraw(); });
+  pg.querySelectorAll('[data-style]').forEach(e => e.onclick = () => { S.style = +e.dataset.style; pop(); });
+  pg.querySelectorAll('[data-video]').forEach(e => e.onclick = () => { S.video = e.dataset.video; pop(); });
+  pg.querySelectorAll('[data-app]').forEach(e => e.onclick = () => { const a = e.dataset.app; S.bridgeApps = S.bridgeApps.includes(a) ? S.bridgeApps.filter(x => x !== a) : [...S.bridgeApps, a]; redraw(); });
+  pg.querySelectorAll('[data-fav]').forEach(e => e.oninput = () => { S.fav[+e.dataset.fav].name = e.value; });
+  pg.querySelectorAll('[data-lay]').forEach(e => e.onclick = () => { const [i, l] = e.dataset.lay.split(':').map(Number); S.fav[i].layout = l; const n = l === 2 ? 2 : 3; S.fav[i].apps = Array.from({ length: n }, (_, k) => S.fav[i].apps[k] || null); redraw(); });
+  pg.querySelectorAll('[data-pick]').forEach(e => e.onclick = () => { const [i, k] = e.dataset.pick.split(':').map(Number); push(() => pickPage(i, k), 'Ô ' + (k + 1)); });
+  pg.querySelectorAll('[data-set]').forEach(e => e.onclick = () => { const [i, k, a] = e.dataset.set.split(':'); S.fav[+i].apps[+k] = a || null; pop(); });
+}
+
+document.getElementById('theme').onclick = e => { document.documentElement.classList.toggle('dark'); e.target.classList.toggle('on'); };
+document.getElementById('home').onclick = () => { while (stack.length > 1) { stack.pop().remove(); } stack[0].classList.remove('left'); draw(stack[0]); };
+push(rootPage, 'OmniCar', false);
+</script>
+</body>
+</html>
