@@ -226,35 +226,29 @@
 		</dict>
 		<dict>
 			<key>cell</key>
-			<string>PSSwitchCell</string>
+			<string>PSLinkListCell</string>
+			<key>detail</key>
+			<string>PSListItemsController</string>
 			<key>label</key>
-			<string>SPEEDBUBBLE_APP_VIETMAP</string>
-			<key>symbol</key>
-			<string>map.fill</string>
-			<key>symbolColor</key>
-			<string>#36B37E</string>
-			<key>key</key>
-			<string>speedBubbleAppVietmap</string>
-			<key>default</key>
-			<true/>
-			<key>defaults</key>
-			<string>com.anlai.omnicar</string>
-			<key>PostNotification</key>
-			<string>com.anlai.omnicar/prefschanged</string>
-		</dict>
-		<dict>
-			<key>cell</key>
-			<string>PSSwitchCell</string>
-			<key>label</key>
-			<string>SPEEDBUBBLE_APP_GOFA</string>
+			<string>SPEEDBUBBLE_SOURCE</string>
 			<key>symbol</key>
 			<string>location.fill</string>
 			<key>symbolColor</key>
 			<string>#1E9BF0</string>
 			<key>key</key>
-			<string>speedBubbleAppGOFA</string>
+			<string>speedBubbleSource</string>
 			<key>default</key>
-			<true/>
+			<integer>0</integer>
+			<key>validValues</key>
+			<array>
+				<integer>0</integer>
+				<integer>1</integer>
+			</array>
+			<key>validTitles</key>
+			<array>
+				<string>SPEEDBUBBLE_APP_VIETMAP</string>
+				<string>SPEEDBUBBLE_APP_GOFA</string>
+			</array>
 			<key>defaults</key>
 			<string>com.anlai.omnicar</string>
 			<key>PostNotification</key>

@@ -32,6 +32,7 @@
 "SPEEDBUBBLE_RESET_LAYOUT" = "Đặt lại vị trí & kích thước";
 "SPEEDBUBBLE_RESET_FOOTER" = "Đưa bong bóng về chỗ cũ, cỡ 100%.";
 "SPEEDBUBBLE_SOURCES" = "Nguồn tốc độ";
-"SPEEDBUBBLE_SOURCES_FOOTER" = "Chạy cả hai app: bong bóng theo app đang chạy nền. Lần đầu cài, mở lại app dẫn đường để tweak được nạp.";
+"SPEEDBUBBLE_SOURCES_FOOTER" = "Bong bóng chỉ lấy tốc độ từ app được chọn. Lần đầu cài, mở lại app dẫn đường để tweak được nạp.";
+"SPEEDBUBBLE_SOURCE" = "Lấy tốc độ từ";
 "SPEEDBUBBLE_APP_VIETMAP" = "Vietmap Live";
 "SPEEDBUBBLE_APP_GOFA" = "GOFA";

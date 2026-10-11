@@ -1,5 +1,5 @@
 #import "SPPPrefs.h"
-#import "SpeedBubble.h"
+#import "common.h"
 #import "OmniCar.h"
 
 // Reads the OmniCar prefs domain (written by the settings bundle through cfprefsd); every read
@@ -32,14 +32,16 @@ static id value(NSString *key)
     CFPreferencesAppSynchronize(OMC_PREFS_DOMAIN);
 }
 
-// Keyed by index in SPP_NAV_APPS: Vietmap Live, GOFA
-+ (BOOL)appEnabled:(int)appIndex
+// Index in SPP_NAV_APPS: Vietmap Live, GOFA. Chi 1 nguon. Chua chon lan nao: lay tu 2 cong tac cu
+// (chi tat Vietmap -> GOFA), giong OMCSpeedBubbleController ghi lai khi mo trang cai dat.
++ (int)source
 {
-    static NSArray *keys; static dispatch_once_t once;
-    dispatch_once(&once, ^{ keys = @[SB_KEY_APP_VIETMAP, SB_KEY_APP_GOFA]; });
-    if (appIndex < 0 || appIndex >= (int)keys.count) return NO;
-    id v = value(keys[appIndex]);
-    return v ? [v boolValue] : YES;
+    id v = value(SB_KEY_SOURCE);
+    if (v) { int i = [v intValue]; return (i >= 0 && i < SPP_NAV_APP_COUNT) ? i : 0; }
+    id vm = value(SB_KEY_APP_VIETMAP), gf = value(SB_KEY_APP_GOFA);
+    return (vm && ![vm boolValue] && !(gf && ![gf boolValue])) ? 1 : 0;
 }
+
++ (BOOL)appEnabled:(int)appIndex { return appIndex == [self source]; }
 
 @end

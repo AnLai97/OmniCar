@@ -32,6 +32,7 @@
 "SPEEDBUBBLE_RESET_LAYOUT" = "Reset position & size";
 "SPEEDBUBBLE_RESET_FOOTER" = "Moves the bubble back to its default place at 100% size.";
 "SPEEDBUBBLE_SOURCES" = "Speed sources";
-"SPEEDBUBBLE_SOURCES_FOOTER" = "With both apps running, the bubble follows the one in the background. After the first install, relaunch the navigation app so the tweak loads.";
+"SPEEDBUBBLE_SOURCES_FOOTER" = "The bubble only takes the speed from the selected app. After the first install, relaunch the navigation app so the tweak loads.";
+"SPEEDBUBBLE_SOURCE" = "Speed from";
 "SPEEDBUBBLE_APP_VIETMAP" = "Vietmap Live";
 "SPEEDBUBBLE_APP_GOFA" = "GOFA";

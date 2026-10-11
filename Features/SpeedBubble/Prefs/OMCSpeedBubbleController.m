@@ -5,6 +5,22 @@
 
 @implementation OMCSpeedBubbleController
 
+// Only one speed source now (SB_KEY_SOURCE). First visit after the update: carry over the old
+// per-app switches (only Vietmap off -> GOFA), the same rule SPPPrefs uses until this is written.
+- (void)viewDidLoad {
+	CFPreferencesAppSynchronize(kPrefsDomain);
+	CFPropertyListRef cur = CFPreferencesCopyAppValue((__bridge CFStringRef)SB_KEY_SOURCE, kPrefsDomain);
+	if (cur) CFRelease(cur);
+	else {
+		id vm = CFBridgingRelease(CFPreferencesCopyAppValue((__bridge CFStringRef)SB_KEY_APP_VIETMAP, kPrefsDomain));
+		id gf = CFBridgingRelease(CFPreferencesCopyAppValue((__bridge CFStringRef)SB_KEY_APP_GOFA, kPrefsDomain));
+		BOOL gofa = vm && ![vm boolValue] && !(gf && ![gf boolValue]);
+		CFPreferencesSetAppValue((__bridge CFStringRef)SB_KEY_SOURCE, (__bridge CFPropertyListRef)@(gofa ? 1 : 0), kPrefsDomain);
+		CFPreferencesAppSynchronize(kPrefsDomain);
+	}
+	[super viewDidLoad];
+}
+
 #pragma mark - Actions
 // Darwin notifications handled by SpringBoard (../SpringBoard.xm).
 
