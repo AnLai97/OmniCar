@@ -526,19 +526,6 @@ static void SCPCDropIn(UIView *v)
                      animations:^{ v.alpha = 1; v.transform = target; } completion:nil];
 }
 
-static void SCPCPopIn(NSArray<UIView *> *views)
-{
-    NSInteger i = 0;
-    for (UIView *v in views) {
-        if (v.hidden) continue;
-        v.alpha = 0; v.transform = CGAffineTransformMakeScale(0.3, 0.3);
-        [UIView animateWithDuration:0.5 delay:i * 0.04 usingSpringWithDamping:0.6 initialSpringVelocity:0.6
-                            options:UIViewAnimationOptionAllowUserInteraction | UIViewAnimationOptionBeginFromCurrentState
-                         animations:^{ v.alpha = 1; v.transform = CGAffineTransformIdentity; } completion:nil];
-        i++;
-    }
-}
-
 // ---------------------------------------------------------------------
 //  View
 // ---------------------------------------------------------------------
@@ -3543,7 +3530,7 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
     [UIView animateWithDuration:fresh ? 0.5 : 0.35 delay:0 usingSpringWithDamping:0.86 initialSpringVelocity:0.4
                         options:UIViewAnimationOptionAllowUserInteraction | UIViewAnimationOptionBeginFromCurrentState
                      animations:^{ card.alpha = 1; card.transform = CGAffineTransformIdentity; } completion:nil];
-    // Icon hien lan luot theo hang: mo + troi len nhe (khong bung tu nho nhu SCPCPopIn)
+    // Icon hien lan luot theo hang: mo + troi len nhe
     for (UIView *c in cells) {
         NSInteger row = (NSInteger)((c.frame.origin.y - 6) / cellH), col = (NSInteger)((c.frame.origin.x - padX) / cellW);
         c.alpha = 0; c.transform = CGAffineTransformMakeTranslation(0, 16);
