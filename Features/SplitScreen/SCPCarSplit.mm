@@ -3274,7 +3274,7 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
     pv.frame = CGRectMake(0, 0, size.width, size.height);
     pv.backgroundColor = [UIColor colorWithWhite:0.08 alpha:0.98];
     pv.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-    pv.layer.borderColor = SCPCAccent().CGColor;
+    pv.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.95].CGColor;   // vien trang (o dang chon), cung mau o sang trong so do
     UILabel *plus = [[UILabel alloc] initWithFrame:pv.bounds];
     plus.text = @"+";
     plus.textColor = [UIColor colorWithWhite:1 alpha:0.35];
@@ -3389,7 +3389,11 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
         b.tag = p.slot;
         b.layer.cornerRadius = 5;
         b.layer.cornerCurve = kCACornerCurveContinuous;
-        b.backgroundColor = (p == target) ? SCPCAccent() : p.picker ? [UIColor colorWithWhite:1 alpha:0.22] : [UIColor colorWithWhite:1 alpha:0.1];
+        b.backgroundColor = (p == target) ? [UIColor whiteColor] : p.picker ? [UIColor colorWithWhite:1 alpha:0.22] : [UIColor colorWithWhite:1 alpha:0.1];
+        if (p == target) {   // o dang chon: trang phat sang
+            b.layer.shadowColor = [UIColor whiteColor].CGColor;
+            b.layer.shadowOpacity = 0.9; b.layer.shadowRadius = 7; b.layer.shadowOffset = CGSizeZero;
+        }
         if (p == self.floatPane) { b.layer.borderWidth = 1; b.layer.borderColor = [UIColor colorWithWhite:0.1 alpha:1].CGColor; }
         CGFloat side = MIN(r.size.width, r.size.height);
         if (bid) {
@@ -3403,7 +3407,7 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
             UILabel *plus = [[UILabel alloc] initWithFrame:b.bounds];
             plus.text = @"+";
             plus.textAlignment = NSTextAlignmentCenter;
-            plus.textColor = [UIColor colorWithWhite:1 alpha:(p == target) ? 1 : 0.55];
+            plus.textColor = (p == target) ? [UIColor colorWithWhite:0.1 alpha:0.9] : [UIColor colorWithWhite:1 alpha:0.55];   // o trang: dau + toi
             plus.font = [UIFont systemFontOfSize:MIN(22, floor(side * 0.8)) weight:(p == target) ? UIFontWeightBold : UIFontWeightRegular];
             plus.userInteractionEnabled = NO;
             [b addSubview:plus];
@@ -3449,7 +3453,7 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
     NSInteger rows = MAX(1, MIN(maxRows, ((NSInteger)apps.count + cols - 1) / cols));
     NSInteger perPage = rows * cols, pages = MAX(1, ((NSInteger)apps.count + perPage - 1) / perPage);
     CGFloat gridW = cols * cellW + gridPad * 2, gridH = rows * cellH + 4, dotsH = pages > 1 ? 16 : 0;
-    CGFloat sideMinH = pad + 32 + 8 + mapH + 6 + 17 + pad;   // dong "Ô 1" + nut X, so do, "Còn N ô"
+    CGFloat sideMinH = pad + 32 + 8 + mapH + pad;   // nut X, so do
     CGFloat h = MIN(area.size.height - 16, MAX(sideMinH, 8 + gridH + dotsH + 6)), w = sideW + gridW;
     CGFloat gridX = 0, gridY = MAX(8, (h - gridH - dotsH) / 2);   // luoi app ben trai, cot thong tin ben phai
     CGRect pf = CGRectMake(CGRectGetMidX(area) - w / 2, CGRectGetMidY(area) - h / 2, w, h);
@@ -3478,24 +3482,6 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
 
     int waiting = 0;
     for (SCPCarPane *p in [self allPanes]) if (p.picker && p != target) waiting++;
-    // Chu ngan gon: "Ô 1" (hoac "Cửa sổ nổi") + "Còn N ô"; luoi app ben canh da noi la dang chon app
-    NSString *where = (target == self.floatPane) ? SCPCT(@"Cửa sổ nổi", @"Floating")
-                    : [NSString stringWithFormat:SCPCT(@"Ô %d", @"Pane %d"), (int)[[self panesInReadingOrder] indexOfObject:target] + 1];
-    UILabel *title = [[UILabel alloc] initWithFrame:CGRectMake(pad, pad + 3, sideW - pad * 2 - 36, 26)];   // canh nut X
-    title.text = where;
-    title.numberOfLines = 1;
-    title.textColor = [UIColor whiteColor];
-    title.font = [UIFont systemFontOfSize:20 weight:UIFontWeightBold];
-    title.adjustsFontSizeToFitWidth = YES;
-    title.minimumScaleFactor = 0.75;
-    [side addSubview:title];
-    if (waiting) {
-        UILabel *sub = [[UILabel alloc] initWithFrame:CGRectMake(pad, pad + 32 + 8 + mapH + 6, sideW - pad * 2, 15)];
-        sub.text = [NSString stringWithFormat:SCPCT(@"Còn %d ô", @"%d more"), waiting];
-        sub.textColor = [UIColor colorWithWhite:1 alpha:0.5];
-        sub.font = [UIFont systemFontOfSize:12 weight:UIFontWeightRegular];
-        [side addSubview:sub];
-    }
 
     UIButton *cancel = SCPCRoundButton(SCPCGlyph(@"close", 14, NO), self, @selector(pickerCancel:));
     cancel.bounds = CGRectMake(0, 0, 32, 32);
@@ -3575,7 +3561,13 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
     self.pickerDots = dots;
     dots.tag = 1;   // trang 1 (scrollViewDidScroll chi ve lai khi doi trang)
     [self layoutPickerDotsForPage:0];
-    if (i == 0) title.text = SCPCT(@"Không có app", @"No apps");
+    if (i == 0) {   // khong co app nao: 1 dong chu giua luoi
+        UILabel *none = [[UILabel alloc] initWithFrame:scroll.bounds];
+        none.text = SCPCT(@"Không có app", @"No apps");
+        none.textColor = [UIColor colorWithWhite:1 alpha:0.6];
+        none.textAlignment = NSTextAlignmentCenter;
+        [scroll addSubview:none];
+    }
 
     [parent addSubview:card];
     if (self.tray && self.tray.superview == parent) {   // bang bo cuc dang mo cung cua so -> giu no o tren
