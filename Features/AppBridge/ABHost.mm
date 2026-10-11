@@ -617,23 +617,15 @@ static UIButton *ABRoundButton(NSString *glyph, id target, SEL action)
     // SCPCPill: pad 4, buoc 36, khe 9 truoc nut dong (co vach mo)
     CGFloat pad = (AB_BAR_H - AB_BAR_BTN) / 2, step = AB_BAR_BTN + 2, sep = 9;
     CGFloat len = pad * 2 - 2 + 3 * step + sep + step;
-    // Kinh mo kieu HarmonyOS nhu SCPCGlass ben CarPlay: nhin xuyen, vien sang manh, bong mem
+    // Vien trang phat sang nhu SCPCGlowPill ben CarPlay: nen trang, quang sang trang, nut toi, nut dong do dam
     UIView *bar = [[UIView alloc] initWithFrame:CGRectMake(0, 0, len, AB_BAR_H)];
-    bar.backgroundColor = [UIColor clearColor];
+    bar.backgroundColor = [UIColor colorWithWhite:1 alpha:0.94];
     bar.layer.cornerRadius = AB_BAR_H / 2;
     bar.layer.cornerCurve = kCACornerCurveContinuous;
-    bar.layer.shadowColor = [UIColor blackColor].CGColor;
-    bar.layer.shadowOpacity = 0.3; bar.layer.shadowRadius = 12; bar.layer.shadowOffset = CGSizeMake(0, 4);
-    UIVisualEffectView *glass = [[UIVisualEffectView alloc] initWithEffect:[UIBlurEffect effectWithStyle:UIBlurEffectStyleSystemUltraThinMaterialDark]];
-    glass.frame = bar.bounds;
-    glass.contentView.backgroundColor = [UIColor colorWithWhite:0.1 alpha:0.2];
-    glass.layer.cornerRadius = AB_BAR_H / 2;
-    glass.layer.cornerCurve = kCACornerCurveContinuous;
-    glass.layer.borderWidth = 0.5;
-    glass.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.22].CGColor;
-    glass.clipsToBounds = YES;
-    glass.userInteractionEnabled = NO;
-    [bar addSubview:glass];
+    bar.layer.shadowColor = [UIColor whiteColor].CGColor;
+    bar.layer.shadowOpacity = 0.75; bar.layer.shadowRadius = 10; bar.layer.shadowOffset = CGSizeZero;
+    for (UIButton *b in @[replace, pop, full]) b.tintColor = [UIColor colorWithWhite:0.12 alpha:0.92];
+    close.tintColor = [UIColor colorWithRed:0.88 green:0.2 blue:0.18 alpha:1];
     CGFloat o = pad;
     for (UIButton *b in @[replace, pop, full]) {
         b.center = CGPointMake(o + AB_BAR_BTN / 2, AB_BAR_H / 2);
@@ -641,7 +633,7 @@ static UIButton *ABRoundButton(NSString *glyph, id target, SEL action)
         o += step;
     }
     UIView *line = [[UIView alloc] initWithFrame:CGRectMake(o - 1 + sep / 2, (AB_BAR_H - 18) / 2, 1, 18)];
-    line.backgroundColor = [UIColor colorWithWhite:1 alpha:0.18];
+    line.backgroundColor = [UIColor colorWithWhite:0 alpha:0.15];
     line.userInteractionEnabled = NO;
     [bar addSubview:line];
     o += sep;
