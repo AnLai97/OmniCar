@@ -127,7 +127,7 @@ body { display: flex; flex-wrap: wrap; justify-content: center; gap: 22px; paddi
   <ul>
     <li><b>Trang chính</b>: công tắc tổng nằm luôn trong thẻ logo, <b>App trên màn xe</b> là mục riêng (Ứng dụng), mỗi tính năng 1 dòng có trạng thái Bật/Tắt; Respring và Ngôn ngữ thành 2 nút nhỏ trên thanh trên.</li>
     <li><b>Chia màn hình</b>: 3 bố cục yêu thích gom thành 3 dòng (hình bố cục + app) thay vì ~15 dòng; đoạn hướng dẫn dài chuyển vào trang <b>Hướng dẫn</b>.</li>
-    <li><b>Bong bóng tốc độ</b>: chọn nguồn bằng nút chia đôi, 2 thanh cỡ chung 1 nhóm, Xem thử / Đặt lại cạnh nhau.</li>
+    <li><b>Bong bóng tốc độ</b>: Nguồn là 1 dòng mở danh sách (thêm app dẫn đường mới sau này chỉ thêm 1 dòng), 2 thanh cỡ chung 1 nhóm, Xem thử / Đặt lại cạnh nhau.</li>
     <li><b>Màn hình khởi động</b>: Thêm video từ Ảnh / Tệp gộp 1 dòng.</li>
     <li>Chú thích dưới mỗi nhóm tối đa 1 dòng hoặc bỏ hẳn. Không dùng màu xanh: icon ô kính tối như logo, công tắc màu than chì (sáng) / trắng (tối).</li>
   </ul>
@@ -266,12 +266,18 @@ function bridgePage() {
 }
 function bubblePage() {
   return group([row({ lab: 'Bong bóng tốc độ', right: sw('bubble') })])
-    + group([`<div class="row noicon"><div class="lab">Nguồn</div><div class="seg">${['Vietmap Live', 'GOFA'].map((s, k) => `<span class="${S.source === k ? 'on' : ''}" data-src="${k}">${s}</span>`).join('')}</div></div>`,
+    + group([row({ lab: 'Nguồn', right: `<span class="val">${SOURCES[S.source][0]}</span>`, link: 'sources' }),
       row({ lab: 'Kiểu', right: `<span class="val">${STYLES[S.style]}</span>`, link: 'styles' }),
       row({ lab: 'Hiện icon app', right: sw('showIcon') })])
     + group([`<div class="row noicon"><div class="lab" style="flex:none;width:70px">iPhone</div><input type="range" class="slider" min="60" max="220" value="${S.sizePhone}" data-range="sizePhone"><span class="num">${S.sizePhone}%</span></div>`,
       `<div class="row noicon"><div class="lab" style="flex:none;width:70px">CarPlay</div><input type="range" class="slider" min="60" max="220" value="${S.sizeCar}" data-range="sizeCar"><span class="num">${S.sizeCar}%</span></div>`,
       `<div class="pair"><div data-act="toast:Bong bóng hiện 10 giây">Xem thử</div><div data-act="reset">Đặt lại</div></div>`], 'Cỡ', 'Kéo để dời · chụm 2 ngón để đổi cỡ · giữ 2 giây để thoát app.');
+}
+// Nguon toc do: danh sach (sau nay them app dan duong moi chi them 1 dong). Moi nguon: ten, mau icon, chu tren icon
+const SOURCES = [['Vietmap Live', '#f07a12', 'V'], ['GOFA', '#0bb04c', 'G']];
+function sourcesPage() {
+  return group(SOURCES.map((s, k) => `<div class="row link" data-src="${k}"><div class="app" style="background:${s[1]}">${s[2]}</div><div class="lab">${s[0]}</div>${S.source === k ? '<span class="val">✓</span>' : ''}</div>`),
+    null, 'Bong bóng chỉ lấy tốc độ từ app được chọn.');
 }
 function stylesPage() {
   return group(STYLES.map((s, k) => `<div class="row noicon link" data-style="${k}"><div class="lab">${s}</div>${S.style === k ? '<span class="val">✓</span>' : ''}</div>`));
@@ -289,7 +295,7 @@ function startupPage() {
 function videosPage() { return group(['Logo xe.mp4', 'Intro VinFast.mov'].map(v => `<div class="row noicon link" data-video="${v}"><div class="lab">${v}</div>${S.video === v ? '<span class="val">✓</span>' : ''}</div>`)); }
 
 const PAGES = { split: [splitPage, 'Chia màn hình'], bridge: [bridgePage, 'App trên màn xe'], bubble: [bubblePage, 'Bong bóng tốc độ'], startup: [startupPage, 'Khởi động'],
-  guide: [guidePage, 'Hướng dẫn'], styles: [stylesPage, 'Kiểu'], videos: [videosPage, 'Video'] };
+  guide: [guidePage, 'Hướng dẫn'], styles: [stylesPage, 'Kiểu'], videos: [videosPage, 'Video'], sources: [sourcesPage, 'Nguồn'] };
 
 function toast(msg) { const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; scr.appendChild(t); setTimeout(() => t.remove(), 1800); }
 function menu(items, top) {
@@ -316,7 +322,7 @@ function bind(pg) {
     if (a.startsWith('toast:')) return toast(a.slice(6));
   });
   pg.querySelectorAll('[data-range]').forEach(e => e.oninput = () => { S[e.dataset.range] = +e.value; e.nextElementSibling.textContent = e.value + (e.dataset.range === 'duration' ? ' s' : '%'); });
-  pg.querySelectorAll('[data-src]').forEach(e => e.onclick = () => { S.source = +e.dataset.src; redraw(); });
+  pg.querySelectorAll('[data-src]').forEach(e => e.onclick = () => { S.source = +e.dataset.src; pop(); });
   pg.querySelectorAll('[data-scale]').forEach(e => e.onclick = () => { S.scale = +e.dataset.scale; redraw(); });
   pg.querySelectorAll('[data-style]').forEach(e => e.onclick = () => { S.style = +e.dataset.style; pop(); });
   pg.querySelectorAll('[data-video]').forEach(e => e.onclick = () => { S.video = e.dataset.video; pop(); });
