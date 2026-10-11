@@ -2701,6 +2701,7 @@ static UIView *SCPCDotsHandle(void)
     p.loader = card;
     // Nut x: app mo lau / treo -> huy, o hien lai bang chon app
     UIButton *stop = SCPCCircleButton(SCPCGlyph(@"close", 16, NO), 32, self, @selector(loaderCancelTapped:));
+    stop.tintColor = SCPCDanger();   // moi dau x (tat / thoat) mau do
     stop.center = CGPointMake(card.bounds.size.width - 22, 22);
     stop.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleBottomMargin;
     stop.accessibilityLabel = SCPCT(@"Huỷ mở app", @"Cancel opening");
@@ -3489,7 +3490,7 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
     cancel.bounds = CGRectMake(0, 0, 32, 32);
     cancel.layer.cornerRadius = 16;
     cancel.backgroundColor = [UIColor colorWithWhite:1 alpha:0.12];
-    cancel.tintColor = [UIColor colorWithWhite:1 alpha:0.9];
+    cancel.tintColor = SCPCDanger();   // moi dau x (tat / thoat) mau do
     cancel.center = CGPointMake(sideW - pad - 16, pad + 16);   // goc tren phai cua popup
     [side addSubview:cancel];
 
