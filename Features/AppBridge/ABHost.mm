@@ -757,7 +757,10 @@ static ABKnobView *ABMakeKnob(void)
     CGFloat pad = AB_KNOB + 2 * AB_KNOB_HIT;
     ABKnobView *v = [[ABKnobView alloc] initWithFrame:CGRectMake(0, 0, pad, pad)];
     v.multipleTouchEnabled = NO;
-    v.backgroundColor = [UIColor colorWithWhite:1 alpha:0.02];   // co ve -> backboardd giao cham cho SpringBoard
+    // Co ve -> backboardd giao cham cho SpringBoard. Tron (khong thanh hinh vuong mo quanh cham) va gan nhu trong
+    // suot: 0.012 ~ 3/255, van khac 0 sau khi luong tu hoa 8 bit nen lop van duoc tinh la co ve
+    v.backgroundColor = [UIColor colorWithWhite:1 alpha:0.012];
+    v.layer.cornerRadius = pad / 2;
     UIView *k = [[UIView alloc] initWithFrame:CGRectMake(AB_KNOB_HIT, AB_KNOB_HIT, AB_KNOB, AB_KNOB)];
     k.userInteractionEnabled = NO;
     k.backgroundColor = [UIColor colorWithWhite:0.12 alpha:0.88];
