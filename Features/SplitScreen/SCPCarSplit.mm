@@ -537,22 +537,6 @@ static UIView *SCPCPill(NSArray *items, BOOL vertical)
     return v;
 }
 
-// Thanh nut cua o: vien trang phat sang (cung kieu o dang chon trong popup chon app) thay cho kinh mo; nut toi,
-// nut dong do dam cho noi tren nen trang
-static void SCPCGlowPill(UIView *v)
-{
-    for (UIView *sv in [v.subviews copy]) if ([sv isKindOfClass:[UIVisualEffectView class]]) [sv removeFromSuperview];
-    v.backgroundColor = [UIColor colorWithWhite:1 alpha:0.94];
-    v.layer.shadowColor = [UIColor whiteColor].CGColor;
-    v.layer.shadowOpacity = 0.75; v.layer.shadowRadius = 10; v.layer.shadowOffset = CGSizeZero;
-    for (UIView *sv in v.subviews) {
-        if ([sv isKindOfClass:[UIButton class]]) {
-            BOOL danger = [sv.tintColor isEqual:SCPCDanger()];
-            sv.tintColor = danger ? [UIColor colorWithRed:0.88 green:0.2 blue:0.18 alpha:1] : [UIColor colorWithWhite:0.12 alpha:0.92];
-        } else sv.backgroundColor = [UIColor colorWithWhite:0 alpha:0.15];   // vach ngan truoc nut dong
-    }
-}
-
 // Hien kieu HarmonyOS: mo dan + troi xuong nhe tu tren + phong tu 0.9, lo xo em (khong nay)
 static void SCPCDropIn(UIView *v)
 {
@@ -2418,7 +2402,6 @@ static UIView *SCPCDotsHandle(void)
     UIButton *close = SCPCRoundButton(SCPCGlyph(@"close", 20, NO), self, @selector(paneClose:));
     close.tintColor = SCPCDanger();
     UIView *bar = SCPCPill(@[replace, pop, full, [NSNull null], close], NO);
-    SCPCGlowPill(bar);
     bar.hidden = YES;
     p.bar = bar;
     [p.view addSubview:bar];
@@ -3188,14 +3171,13 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
     for (NSUInteger k = 0; k < presets.count; k++) {
         UIButton *b = SCPCRoundButton(SCPCRatioGlyph(presets[k], [self mainStack], [self mainRight], v, 22), self, @selector(ratioPresetTapped:));
         b.tag = (NSInteger)k;
+        if ([self fractionsMatch:presets[k]]) {   // ti le dang dung
+            b.tintColor = SCPCAccent();
+            b.backgroundColor = [SCPCAccent() colorWithAlphaComponent:0.22];
+        }
         [btns addObject:b];
     }
     UIView *m = SCPCPill(btns, NO);
-    SCPCGlowPill(m);   // trang phat sang nhu thanh nut cua o
-    for (UIButton *b in btns) if ([self fractionsMatch:presets[b.tag]]) {   // ti le dang dung: nut tron toi, hinh trang
-        b.tintColor = [UIColor whiteColor];
-        b.backgroundColor = [UIColor colorWithWhite:0.12 alpha:0.9];
-    }
     // Ngay tren tay nam (khong du cho thi ngay duoi), luon nam gon trong vung app
     CGRect kf = [self.container convertRect:d.knob.frame fromView:d];
     CGSize ms = m.bounds.size, cs = self.container.bounds.size;
