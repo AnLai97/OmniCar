@@ -262,7 +262,6 @@ static UIImage *SCPCAppIcon(NSString *bid)
 //  nut gom trong thanh vien thuoc, cham thi nut lun nhe.
 // ---------------------------------------------------------------------
 static UIColor *SCPCInk(void) { return [UIColor colorWithWhite:1 alpha:0.94]; }
-static UIColor *SCPCAccent(void) { return [UIColor colorWithRed:0.20 green:0.51 blue:1.0 alpha:1]; }   // xanh HyperOS #3482FF
 static UIColor *SCPCDanger(void) { return [UIColor colorWithRed:1.0 green:0.36 blue:0.33 alpha:1]; }  // nut dong
 
 // Icon kieu HyperOS: luoi 24x24, net 1.8 deu, dau net va goc bo tron; phan to dac (fill) ve rieng.
@@ -2683,7 +2682,7 @@ static UIView *SCPCDotsHandle(void)
     arc.frame = spin.bounds;
     arc.path = [UIBezierPath bezierPathWithArcCenter:CGPointMake(10, 10) radius:8 startAngle:-M_PI_2 endAngle:M_PI clockwise:YES].CGPath;
     arc.fillColor = nil;
-    arc.strokeColor = SCPCAccent().CGColor;
+    arc.strokeColor = [UIColor colorWithWhite:1 alpha:0.95].CGColor;   // vong xoay trang sang
     arc.lineWidth = 2;
     arc.lineCap = kCALineCapRound;
     [spin.layer addSublayer:arc];
@@ -3519,10 +3518,10 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
         iv.userInteractionEnabled = NO;
         [b addSubview:iv];
         BOOL used = [inUse containsObject:app[@"id"]];
-        if (used) {   // da o 1 o khac: dau tich xanh, ca o mo di va khong cham duoc (khong chon trung app)
+        if (used) {   // da o 1 o khac: dau tich trang, ca o mo di va khong cham duoc (khong chon trung app)
             UIImageView *tick = [[UIImageView alloc] initWithImage:SCPCGlyph(@"check", 10, NO)];
-            tick.tintColor = [UIColor whiteColor];
-            tick.backgroundColor = SCPCAccent();
+            tick.tintColor = [UIColor colorWithWhite:0.12 alpha:1];
+            tick.backgroundColor = [UIColor whiteColor];   // dau tich trang sang, dau check toi
             tick.frame = CGRectMake(CGRectGetMaxX(iv.frame) - 10, CGRectGetMinY(iv.frame) - 4, 14, 14);
             tick.contentMode = UIViewContentModeCenter;
             tick.layer.cornerRadius = 7;
@@ -3881,7 +3880,11 @@ static void SCPCMakePassThrough(UIWindow *w)
             [choices addObject:c];
             [b addTarget:self action:@selector(panelChoiceTapped:) forControlEvents:UIControlEventTouchUpInside];
             if (si == 0 && layoutID == current) {   // bo cuc dang dung
-                b.backgroundColor = [SCPCAccent() colorWithAlphaComponent:0.22];
+                b.backgroundColor = [UIColor colorWithWhite:1 alpha:0.16];   // trang sang: vien trang + quang sang, nen trang mo de hinh bo cuc van ro
+                b.layer.borderWidth = 1.5;
+                b.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.95].CGColor;
+                b.layer.shadowColor = [UIColor whiteColor].CGColor;
+                b.layer.shadowOpacity = 0.7; b.layer.shadowRadius = 6; b.layer.shadowOffset = CGSizeZero;
                 b.layer.cornerRadius = 12;
             }
             NSArray *picApps = c[@"apps"] ?: slotApps;
