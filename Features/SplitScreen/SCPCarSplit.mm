@@ -2394,12 +2394,18 @@ static UIView *SCPCDotsHandle(void)
     return nil;
 }
 
+// O nam ngay duoi vach ngang co cham tron o giua mep tren -> thanh "•••" lech sang phai cho khoi trung.
+// Bo cuc 1 lon + 2: tay nam duy nhat nam o cho giao 2 vach (mep o), khong trung "•••" -> de giua.
+- (CGFloat)handleShiftForPane:(SCPCarPane *)p
+{
+    if (p == self.floatPane || [self mainStack]) return 0;
+    return CGRectGetMinY(p.view.frame) > SCPC_INSET + 1 ? SCPC_KNOB_DOT + 24 : 0;
+}
+
 - (void)layoutBarForPane:(SCPCarPane *)p
 {
     CGSize s = p.view.bounds.size;
-    // O nam duoi mot vach ngang: cham tron cua vach o ngay giua mep tren -> thanh "•••" lech sang phai cho khoi trung
-    BOOL underDivider = (p != self.floatPane) && CGRectGetMinY(p.view.frame) > SCPC_INSET + 1;
-    p.handle.center = CGPointMake(s.width / 2 + (underDivider ? SCPC_KNOB_DOT + 24 : 0), SCPC_HANDLE_Y + SCPC_HANDLE_H / 2);
+    p.handle.center = CGPointMake(s.width / 2 + [self handleShiftForPane:p], SCPC_HANDLE_Y + SCPC_HANDLE_H / 2);
     p.handle.hidden = (p.vc == nil);   // dang chon app thi khong can
     p.bar.center = CGPointMake(s.width / 2, SCPC_HANDLE_Y + SCPC_HANDLE_H + 6 + SCPC_PILL / 2);
     // O hep (3 o, ~150pt): thu nho ca thanh nut cho vua o thay vi bi cat mep
@@ -3958,7 +3964,7 @@ static NSArray<NSDictionary *> *SCPCPhoneApps(void)
     // Bo goc nhu o CarPlay (SCPC_RADIUS o goc giap o khac, cua so noi 4 goc): cua so host ve cung goc
     if (p) { d[@"r"] = @(p.view.layer.cornerRadius); d[@"corners"] = @((unsigned long long)p.view.layer.maskedCorners); }
     // Thanh "•••" lech sang phai nhu thanh cua o CarPlay khi o nam duoi vach ngang (cham tron cua vach o giua)
-    if (p) d[@"hx"] = @((p != self.floatPane && CGRectGetMinY(p.view.frame) > SCPC_INSET + 1) ? SCPC_KNOB_DOT + 24 : 0);
+    if (p) d[@"hx"] = @([self handleShiftForPane:p]);
     return d;
 }
 
