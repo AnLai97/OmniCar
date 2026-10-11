@@ -3438,8 +3438,8 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
     BOOL inFloat = (target == self.floatPane);
     for (NSDictionary *app in [SCPCCarPlayApps() arrayByAddingObjectsFromArray:SCPCPhoneApps()])
         if (!inFloat || !SCPCIsBridgedApp(app[@"id"])) [apps addObject:app];   // cua so noi khong nhan YouTube / TikTok
-    // Popup 2 phan: cot trai (goc tren trai) la so do bo cuc lon de cham chon o + chu "Chon app cho o N", nut dong o
-    // goc duoi trai; ben phai la luoi app dung het chieu cao (man xe thap van duoc nhieu hang). App van cach nhau de
+    // Popup 2 phan: ben trai la luoi app dung het chieu cao (man xe thap van duoc nhieu hang); cot phai: "Ô N" + nut
+    // dong o goc tren phai, so do bo cuc lon de cham chon o, "Còn N ô". App van cach nhau de
     // cham khi xe chay (o 78 x 68pt, icon 36pt); het cho thi chia trang vuot ngang co cham trang
     CGFloat cellW = 78, cellH = 68, icon = 36, gridPad = 10, sideW = 150, pad = 14;
     CGSize cs = self.container.bounds.size;
@@ -3449,9 +3449,9 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
     NSInteger rows = MAX(1, MIN(maxRows, ((NSInteger)apps.count + cols - 1) / cols));
     NSInteger perPage = rows * cols, pages = MAX(1, ((NSInteger)apps.count + perPage - 1) / perPage);
     CGFloat gridW = cols * cellW + gridPad * 2, gridH = rows * cellH + 4, dotsH = pages > 1 ? 16 : 0;
-    CGFloat sideMinH = pad + mapH + 10 + 26 + 17 + 12 + 32 + pad;   // so do + 2 dong chu + nut dong
+    CGFloat sideMinH = pad + 32 + 8 + mapH + 6 + 17 + pad;   // dong "Ô 1" + nut X, so do, "Còn N ô"
     CGFloat h = MIN(area.size.height - 16, MAX(sideMinH, 8 + gridH + dotsH + 6)), w = sideW + gridW;
-    CGFloat gridX = sideW, gridY = MAX(8, (h - gridH - dotsH) / 2);
+    CGFloat gridX = 0, gridY = MAX(8, (h - gridH - dotsH) / 2);   // luoi app ben trai, cot thong tin ben phai
     CGRect pf = CGRectMake(CGRectGetMidX(area) - w / 2, CGRectGetMidY(area) - h / 2, w, h);
 
     UIView *card = [[UIView alloc] initWithFrame:pf];
@@ -3470,18 +3470,18 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
     [card addSubview:glass];
     UIView *sheet = glass.contentView;   // noi dung nam tren kinh; card la khung hien / an
 
-    UIView *side = [[UIView alloc] initWithFrame:CGRectMake(0, 0, sideW, h)];   // cot trai, nen sang hon chut
+    UIView *side = [[UIView alloc] initWithFrame:CGRectMake(gridW, 0, sideW, h)];   // cot phai, nen sang hon chut
     side.backgroundColor = [UIColor colorWithWhite:1 alpha:0.05];
     [sheet addSubview:side];
     UIView *map = [self pickerMapForPane:target height:mapH];
-    if (map) { map.frame = CGRectMake(pad, pad, map.bounds.size.width, mapH); [side addSubview:map]; }
+    if (map) { map.frame = CGRectMake(pad, pad + 32 + 8, map.bounds.size.width, mapH); [side addSubview:map]; }
 
     int waiting = 0;
     for (SCPCarPane *p in [self allPanes]) if (p.picker && p != target) waiting++;
     // Chu ngan gon: "Ô 1" (hoac "Cửa sổ nổi") + "Còn N ô"; luoi app ben canh da noi la dang chon app
     NSString *where = (target == self.floatPane) ? SCPCT(@"Cửa sổ nổi", @"Floating")
                     : [NSString stringWithFormat:SCPCT(@"Ô %d", @"Pane %d"), (int)[[self panesInReadingOrder] indexOfObject:target] + 1];
-    UILabel *title = [[UILabel alloc] initWithFrame:CGRectMake(pad, pad + mapH + 10, sideW - pad * 2, 26)];
+    UILabel *title = [[UILabel alloc] initWithFrame:CGRectMake(pad, pad + 3, sideW - pad * 2 - 36, 26)];   // canh nut X
     title.text = where;
     title.numberOfLines = 1;
     title.textColor = [UIColor whiteColor];
@@ -3490,7 +3490,7 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
     title.minimumScaleFactor = 0.75;
     [side addSubview:title];
     if (waiting) {
-        UILabel *sub = [[UILabel alloc] initWithFrame:CGRectMake(pad, CGRectGetMaxY(title.frame) + 2, sideW - pad * 2, 15)];
+        UILabel *sub = [[UILabel alloc] initWithFrame:CGRectMake(pad, pad + 32 + 8 + mapH + 6, sideW - pad * 2, 15)];
         sub.text = [NSString stringWithFormat:SCPCT(@"Còn %d ô", @"%d more"), waiting];
         sub.textColor = [UIColor colorWithWhite:1 alpha:0.5];
         sub.font = [UIFont systemFontOfSize:12 weight:UIFontWeightRegular];
@@ -3502,7 +3502,7 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
     cancel.layer.cornerRadius = 16;
     cancel.backgroundColor = [UIColor colorWithWhite:1 alpha:0.12];
     cancel.tintColor = [UIColor colorWithWhite:1 alpha:0.9];
-    cancel.center = CGPointMake(pad + 16, h - pad - 16);   // goc duoi trai
+    cancel.center = CGPointMake(sideW - pad - 16, pad + 16);   // goc tren phai cua popup
     [side addSubview:cancel];
 
     UIScrollView *scroll = [[UIScrollView alloc] initWithFrame:CGRectMake(gridX, gridY, gridW, gridH)];
