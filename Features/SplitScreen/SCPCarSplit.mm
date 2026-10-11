@@ -3188,13 +3188,14 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
     for (NSUInteger k = 0; k < presets.count; k++) {
         UIButton *b = SCPCRoundButton(SCPCRatioGlyph(presets[k], [self mainStack], [self mainRight], v, 22), self, @selector(ratioPresetTapped:));
         b.tag = (NSInteger)k;
-        if ([self fractionsMatch:presets[k]]) {   // ti le dang dung
-            b.tintColor = SCPCAccent();
-            b.backgroundColor = [SCPCAccent() colorWithAlphaComponent:0.22];
-        }
         [btns addObject:b];
     }
     UIView *m = SCPCPill(btns, NO);
+    SCPCGlowPill(m);   // trang phat sang nhu thanh nut cua o
+    for (UIButton *b in btns) if ([self fractionsMatch:presets[b.tag]]) {   // ti le dang dung: nut tron toi, hinh trang
+        b.tintColor = [UIColor whiteColor];
+        b.backgroundColor = [UIColor colorWithWhite:0.12 alpha:0.9];
+    }
     // Ngay tren tay nam (khong du cho thi ngay duoi), luon nam gon trong vung app
     CGRect kf = [self.container convertRect:d.knob.frame fromView:d];
     CGSize ms = m.bounds.size, cs = self.container.bounds.size;
