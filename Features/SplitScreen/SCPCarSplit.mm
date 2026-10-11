@@ -3515,6 +3515,7 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
 
     NSMutableSet *inUse = [NSMutableSet set];
     for (SCPCarPane *o in [self allPanes]) if (o.bundleID) [inUse addObject:o.bundleID];
+    [inUse addObjectsFromArray:self.pending.allKeys];   // app dang mo vao 1 o (cho DashBoard) cung tinh la da chon
     NSInteger i = 0;
     NSMutableArray *cells = [NSMutableArray array];
     for (NSDictionary *app in apps) {
@@ -3528,7 +3529,8 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
         SCPCStyleIcon(iv);
         iv.userInteractionEnabled = NO;
         [b addSubview:iv];
-        if ([inUse containsObject:app[@"id"]]) {   // dang mo o 1 o khac: dau tich xanh (cham van chuyen app sang o nay)
+        BOOL used = [inUse containsObject:app[@"id"]];
+        if (used) {   // da o 1 o khac: dau tich xanh, ca o mo di va khong cham duoc (khong chon trung app)
             UIImageView *tick = [[UIImageView alloc] initWithImage:SCPCGlyph(@"check", 10, NO)];
             tick.tintColor = [UIColor whiteColor];
             tick.backgroundColor = SCPCAccent();
@@ -3549,6 +3551,11 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
         l.numberOfLines = 1;
         l.userInteractionEnabled = NO;
         [b addSubview:l];
+        if (used) {   // mo noi dung (khong mo ca nut: hieu ung hien len dat alpha nut ve 1); cham xuyen xuong scroll de van vuot trang
+            for (UIView *sv in b.subviews) sv.alpha = 0.3;
+            b.userInteractionEnabled = NO;
+            b.accessibilityTraits |= UIAccessibilityTraitNotEnabled;
+        }
         [scroll addSubview:b];
         if (i < perPage) [cells addObject:b];   // trang dau: hien lan luot
         i++;
