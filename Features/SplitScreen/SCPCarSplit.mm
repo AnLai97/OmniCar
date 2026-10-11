@@ -1059,11 +1059,11 @@ static BOOL SCPCIsBridgedApp(NSString *bid);
     return p;
 }
 
-// O vua thanh "o dang chon" (app tu dock / nut thoat dung o nay): vien xanh loe len 1 giay
+// O vua thanh "o dang chon" (app tu dock / nut thoat dung o nay): vien trang sang loe len 1 giay
 - (void)flashFocusOnPane:(SCPCarPane *)p
 {
     if (!p.view || self.dragGhost) return;
-    p.view.layer.borderColor = [SCPCAccent() colorWithAlphaComponent:0.9].CGColor;
+    p.view.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.95].CGColor;   // trang sang (truoc la xanh)
     p.view.layer.borderWidth = 2.5;
     __weak SCPCarPane *weakPane = p;
     __weak SCPCarSplit *weakSelf = self;
@@ -2507,7 +2507,7 @@ static UIView *SCPCDotsHandle(void)
     UIView *ghost = [[UIView alloc] initWithFrame:CGRectMake(0, 0, w, h)];
     SCPCChrome(ghost, 16);
     ghost.backgroundColor = [UIColor colorWithWhite:0.18 alpha:0.96];
-    ghost.layer.borderColor = [SCPCAccent() colorWithAlphaComponent:0.9].CGColor;
+    ghost.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.95].CGColor;
     ghost.layer.borderWidth = 1.5;
     ghost.userInteractionEnabled = NO;
     UIImageView *iv = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 44, 44)];
@@ -2538,7 +2538,7 @@ static UIView *SCPCDotsHandle(void)
     for (SCPCarPane *o in self.slots) {
         if (o.slot != target) { SCPCFrame(o.view); continue; }
         o.view.layer.borderWidth = 3;
-        o.view.layer.borderColor = SCPCAccent().CGColor;
+        o.view.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.95].CGColor;
     }
 }
 
@@ -2798,8 +2798,8 @@ static UIView *SCPCDotsHandle(void)
 //  Vach chia + tay nam (HyperOS): keo doi ti le (tha tay hit 1/3 · 1/2 · 2/3), keo sat mep -> dong o bi ep,
 //  cham 2 lan -> doi cho 2 o hai ben.
 // ---------------------------------------------------------------------
-// Mau cua cham tron: nen toi trong, vien trang, cham trang o giua (kieu nut joystick); dang cham / keo: nen xanh HyperOS
-static UIColor *SCPCKnobFill(BOOL on) { return on ? SCPCAccent() : [UIColor colorWithWhite:0.12 alpha:0.88]; }
+// Mau cua cham tron: nen toi trong, vien trang, cham trang o giua (kieu nut joystick); dang cham / keo: nen trang sang, cham giua toi
+static UIColor *SCPCKnobFill(BOOL on) { return on ? [UIColor whiteColor] : [UIColor colorWithWhite:0.12 alpha:0.88]; }
 
 static void SCPCKnobActive(UIView *knob, BOOL on)
 {
@@ -2808,6 +2808,8 @@ static void SCPCKnobActive(UIView *knob, BOOL on)
                      animations:^{
         knob.transform = on ? CGAffineTransformMakeScale(SCPC_KNOB_GROW, SCPC_KNOB_GROW) : CGAffineTransformIdentity;
         knob.backgroundColor = SCPCKnobFill(on);
+        for (CALayer *l in knob.layer.sublayers) l.backgroundColor = (on ? [UIColor colorWithWhite:0.12 alpha:1] : [UIColor whiteColor]).CGColor;   // cham giua
+        knob.layer.shadowColor = (on ? [UIColor whiteColor] : [UIColor blackColor]).CGColor;   // dang cham: quang sang trang
     } completion:nil];
     [[SCPCarSplit shared] publishKnobsSoon];   // o app iPhone (App Bridge) ve de len cham tron -> SpringBoard ve lai cham tron len tren
 }
@@ -3171,8 +3173,10 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
         UIButton *b = SCPCRoundButton(SCPCRatioGlyph(presets[k], [self mainStack], [self mainRight], v, 22), self, @selector(ratioPresetTapped:));
         b.tag = (NSInteger)k;
         if ([self fractionsMatch:presets[k]]) {   // ti le dang dung
-            b.tintColor = SCPCAccent();
-            b.backgroundColor = [SCPCAccent() colorWithAlphaComponent:0.22];
+            b.tintColor = [UIColor colorWithWhite:0.12 alpha:1];   // ti le dang dung: nut trang sang, hinh toi
+            b.backgroundColor = [UIColor colorWithWhite:1 alpha:0.95];
+            b.layer.shadowColor = [UIColor whiteColor].CGColor;
+            b.layer.shadowOpacity = 0.8; b.layer.shadowRadius = 6; b.layer.shadowOffset = CGSizeZero;
         }
         [btns addObject:b];
     }

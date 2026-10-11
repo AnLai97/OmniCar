@@ -805,7 +805,9 @@ static ABKnobView *ABMakeKnob(void)
         [UIView animateWithDuration:on ? 0.15 : 0.3 delay:0 usingSpringWithDamping:0.7 initialSpringVelocity:0
                             options:UIViewAnimationOptionBeginFromCurrentState animations:^{
             v.dot.transform = on ? CGAffineTransformMakeScale(AB_KNOB_GROW, AB_KNOB_GROW) : CGAffineTransformIdentity;
-            v.dot.backgroundColor = on ? [UIColor colorWithRed:0.20 green:0.51 blue:1.0 alpha:1] : [UIColor colorWithWhite:0.12 alpha:0.88];
+            v.dot.backgroundColor = on ? [UIColor whiteColor] : [UIColor colorWithWhite:0.12 alpha:0.88];   // dang cham: trang sang nhu ben CarPlay
+            for (CALayer *l in v.dot.layer.sublayers) l.backgroundColor = (on ? [UIColor colorWithWhite:0.12 alpha:1] : [UIColor whiteColor]).CGColor;
+            v.dot.layer.shadowColor = (on ? [UIColor whiteColor] : [UIColor blackColor]).CGColor;
         } completion:nil];
     }
 }
