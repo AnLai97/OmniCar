@@ -640,6 +640,12 @@ static BOOL SCPCIsBridgedApp(NSString *bid);
 @property (nonatomic, strong) UIView *trayCover;      // the icon app che vung app toan man (App Bridge) khi bang bo cuc mo (cua so host an)
 @property (nonatomic, strong) UIWindow *trayWindow;    // cua so rieng cua bang bo cuc (tren cua so App Bridge), giu lai giua cac lan mo
 @property (nonatomic) BOOL trayOverlay;                // bang dang nam trong trayWindow (de len o app iPhone, khong can an o)
+@property (nonatomic, strong) UIView *pickerSheet;     // bang chon app toan man (trong trayWindow, hoac container neu khong tao duoc)
+@property (nonatomic, strong) UIView *pickerShield;    // lop phu duoi bang chon app
+@property (nonatomic, weak) SCPCarPane *pickerSheetPane;   // o dang chon app trong bang
+@property (nonatomic, copy) NSString *pickerSheetKey;  // o / bo cuc bang dang ve (khac -> ve lai)
+@property (nonatomic) BOOL pickerSheetOverlay;         // bang nam trong trayWindow
+@property (nonatomic) BOOL pickerSheetQueued;
 @property (nonatomic, strong) SCPCarSplitView *container;
 @property (nonatomic, strong) NSMutableArray<SCPCarPane *> *slots;        // cac o theo thu tu (1..3)
 @property (nonatomic, strong) NSMutableArray<NSNumber *> *fractions;      // ti le tung o, tong = 1
@@ -1738,6 +1744,7 @@ static NSString *SCPCSceneID(id scene)
 - (void)relayoutAnimated:(BOOL)animated pushScenes:(BOOL)push
 {
     if (!self.container) return;
+    if (self.pickerSheet) [self refreshPickerSheetSoon];   // o doi cho / bi bo / vung app doi -> bang chon app ve lai neu can
     BOOL showDividers = [self dividersVisible];
     if (self.floatPane) [self fitFloatFrame];
     SCPCarPane *fp = self.floatPane;
@@ -2297,6 +2304,7 @@ static CGSize SCPCSceneSize(UIViewController *vc)
     self.active = NO;
     [self.pending removeAllObjects];
     [self publishBusy];
+    [self removePickerSheet];
     [self hideRatioMenu];
     [self cancelPaneDrag];
     for (SCPCarPane *p in self.slots) [self removeCoverFromPane:p];
@@ -2327,6 +2335,7 @@ static CGSize SCPCSceneSize(UIViewController *vc)
     [self removeHomeButton];
     self.autoLaunchDone = NO;
     self.soloHostedBundle = nil;   // App Bridge tu bo o khi xe ngat
+    [self removePickerSheet];
     self.trayWindow.hidden = YES; self.trayWindow = nil;   // cua so bang bo cuc gan voi man xe cu
     if (!self.active) return;
     SCPLog("CarSplit: DashBoard invalidate -> bo split");
@@ -3196,7 +3205,7 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
     __weak SCPCarSplit *weakSelf = self;
     [UIView animateWithDuration:0.15 animations:^{ m.alpha = 0; } completion:^(BOOL f) {
         [m removeFromSuperview];
-        if (tw && !weakSelf.tray && !weakSelf.ratioMenu) tw.hidden = YES;
+        if (tw && !weakSelf.tray && !weakSelf.ratioMenu && !weakSelf.pickerSheet) tw.hidden = YES;
     }];
     if (self.ratioHidesBridge) {
         self.ratioHidesBridge = NO;
@@ -3221,7 +3230,10 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
 }
 
 // ---------------------------------------------------------------------
-//  Bang chon app CarPlay (nam trong 1 ngan)
+//  Bang chon app CarPlay: moi o can chon app co 1 the "dang chon" trong o (p.picker, giu cho bo cuc tinh o do),
+//  con danh sach app hien toan man hinh va chon cho tung o mot (o nho 3 o / 1 lon + 2 qua hep, khong thay het app).
+//  Bang nam trong cua so rieng (trayWindowForParent, tren cac o App Bridge); so do nho tren dau bang cho biet dang
+//  chon cho o nao, cham o khac dang cho trong so do de chuyen sang chon cho o do.
 // ---------------------------------------------------------------------
 - (void)removePickerFromPane:(SCPCarPane *)p
 {
@@ -3229,6 +3241,7 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
     UIView *pv = p.picker;
     p.picker = nil;
     [UIView animateWithDuration:0.15 animations:^{ pv.alpha = 0; } completion:^(BOOL f) { [pv removeFromSuperview]; }];
+    [self refreshPickerSheetSoon];
 }
 
 - (void)showPickerForSlot:(int)slot
@@ -3240,98 +3253,256 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
     [self removePickerFromPane:p];
     [self removeLoaderFromPane:p animated:NO];
 
+    // The trong o: nen toi + dau "+" (o dang duoc chon trong bang toan man co vien xanh, xem markPickerPanes)
     UIView *pv = [[UIView alloc] init];
     p.picker = pv;                     // dat truoc de bo cuc tinh ca ngan nay
     CGSize size = [self frameForSlot:slot].size;
     pv.frame = CGRectMake(0, 0, size.width, size.height);
     pv.backgroundColor = [UIColor colorWithWhite:0.08 alpha:0.98];
     pv.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    pv.layer.borderColor = SCPCAccent().CGColor;
+    UILabel *plus = [[UILabel alloc] initWithFrame:pv.bounds];
+    plus.text = @"+";
+    plus.textColor = [UIColor colorWithWhite:1 alpha:0.35];
+    plus.font = [UIFont systemFontOfSize:40 weight:UIFontWeightLight];
+    plus.textAlignment = NSTextAlignmentCenter;
+    plus.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    [pv addSubview:plus];
+    [pv addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(pickerPaneTapped:)]];
 
-    UILabel *title = [[UILabel alloc] initWithFrame:CGRectMake(12, 6, size.width - 52, 22)];
-    title.text = SCPCT(@"Chọn app CarPlay", @"Choose a CarPlay app");
+    [p.view addSubview:pv];
+    [p.view bringSubviewToFront:p.handle];
+    self.pickerSheetPane = p;          // o vua yeu cau len bang truoc
+    [self relayoutAnimated:YES];
+    pv.alpha = 0;
+    [UIView animateWithDuration:0.25 animations:^{ pv.alpha = 1; }];
+    [self refreshPickerSheetSoon];
+}
+
+// The trong o (khi bang khong che duoc o, vd khong tao duoc cua so rieng): cham -> chon cho o nay
+- (void)pickerPaneTapped:(UITapGestureRecognizer *)g
+{
+    SCPCarPane *p = [self paneForView:g.view];
+    if (!p.picker) return;
+    self.pickerSheetPane = p;
+    [self refreshPickerSheetSoon];
+}
+
+- (void)refreshPickerSheetSoon
+{
+    if (self.pickerSheetQueued) return;
+    self.pickerSheetQueued = YES;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self.pickerSheetQueued = NO;
+        @try { [self refreshPickerSheet]; }
+        @catch (NSException *e) { SCPLog("CarSplit: loi bang chon app %@\n%@", e, e.callStackSymbols); [self removePickerSheet]; }
+    });
+}
+
+// Chon o cho bang: giu o dang chon neu con cho, khong thi o dau tien con the "dang chon"; het o cho -> dong bang
+- (void)refreshPickerSheet
+{
+    NSArray<SCPCarPane *> *panes = self.active ? [self allPanes] : @[];
+    SCPCarPane *target = self.pickerSheetPane;
+    if (!target.picker || ![panes containsObject:target]) target = nil;
+    for (SCPCarPane *p in panes) if (!target && p.picker) target = p;
+    self.pickerSheetPane = target;
+    if (!target || !self.container.window) { [self removePickerSheet]; return; }
+    NSString *key = [NSString stringWithFormat:@"%p/%d/%lu/%d/%@", target, target.slot, (unsigned long)panes.count, (int)[self mainStack],
+                     NSStringFromCGSize(self.container.bounds.size)];
+    if (self.pickerSheet && [key isEqualToString:self.pickerSheetKey]) { [self markPickerPanes]; return; }
+    [self buildPickerSheetForPane:target];
+    self.pickerSheetKey = key;
+    [self markPickerPanes];
+}
+
+- (void)markPickerPanes
+{
+    for (SCPCarPane *p in [self allPanes]) p.picker.layer.borderWidth = (p == self.pickerSheetPane) ? 3 : 0;
+}
+
+- (void)removePickerSheet
+{
+    UIView *sheet = self.pickerSheet, *shield = self.pickerShield;
+    BOOL overlay = self.pickerSheetOverlay;
+    self.pickerSheet = nil; self.pickerShield = nil; self.pickerSheetKey = nil; self.pickerSheetOverlay = NO;
+    if (!sheet && !shield) return;
+    __weak SCPCarSplit *weakSelf = self;
+    UIWindow *tw = self.trayWindow;
+    [UIView animateWithDuration:0.2 animations:^{ sheet.alpha = 0; shield.alpha = 0; } completion:^(BOOL f) {
+        [sheet removeFromSuperview]; [shield removeFromSuperview];
+        if (tw && !weakSelf.tray && !weakSelf.ratioMenu && !weakSelf.pickerSheet) tw.hidden = YES;
+    }];
+    if (!overlay && self.active) [self pushHostFramesLive:NO];   // bang nam trong CarPlay: tra lai o app iPhone
+}
+
+// So do bo cuc nho: o dang chon xanh, o con cho chon (cham de chuyen) sang, o da co app toi
+- (UIView *)pickerMapForPane:(SCPCarPane *)target height:(CGFloat)mh
+{
+    CGSize cs = self.container.bounds.size;
+    if (cs.width < 1 || cs.height < 1) return nil;
+    CGFloat k = mh / cs.height, mw = cs.width * k;
+    UIView *map = [[UIView alloc] initWithFrame:CGRectMake(0, 0, mw, mh)];
+    for (SCPCarPane *p in [self allPanes]) {
+        CGRect r = (p == self.floatPane) ? self.floatFrame : [self frameForSlot:p.slot];
+        if (r.size.width < 1 || r.size.height < 1) continue;
+        r = CGRectInset(CGRectMake(r.origin.x * k, r.origin.y * k, r.size.width * k, r.size.height * k), 1.5, 1.5);
+        UIButton *b = [SCPCButton buttonWithType:UIButtonTypeCustom];
+        b.frame = r;
+        b.tag = p.slot;
+        b.layer.cornerRadius = 4;
+        b.layer.cornerCurve = kCACornerCurveContinuous;
+        b.backgroundColor = (p == target) ? SCPCAccent() : p.picker ? [UIColor colorWithWhite:1 alpha:0.4] : [UIColor colorWithWhite:1 alpha:0.12];
+        if (p == self.floatPane) { b.layer.borderWidth = 1; b.layer.borderColor = [UIColor colorWithWhite:0.1 alpha:1].CGColor; }
+        b.userInteractionEnabled = (p.picker && p != target);
+        [b addTarget:self action:@selector(pickerMapTapped:) forControlEvents:UIControlEventTouchUpInside];
+        [map addSubview:b];
+    }
+    return map;
+}
+
+- (void)pickerMapTapped:(UIButton *)b
+{
+    SCPCarPane *p = [self paneAtSlot:(int)b.tag];
+    if (!p.picker) return;
+    self.pickerSheetPane = p;
+    [self refreshPickerSheetSoon];
+}
+
+- (void)buildPickerSheetForPane:(SCPCarPane *)target
+{
+    UIView *oldSheet = self.pickerSheet, *oldShield = self.pickerShield;
+    UIWindow *host = [self trayWindowForParent:self.container];   // nil -> bang trong container (o app iPhone phai nhuong)
+    BOOL overlay = (host != nil);
+    CGRect area = overlay ? [self.container convertRect:self.container.bounds toView:nil] : self.container.bounds;
+    UIView *parent = overlay ? host : self.container;
+
+    UIView *shield = oldShield;
+    if (!shield || shield.superview != parent) {
+        [oldShield removeFromSuperview];
+        shield = [[UIView alloc] initWithFrame:parent.bounds];   // chan cham xuong cac o / dock trong luc chon
+        shield.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+        shield.backgroundColor = [UIColor colorWithWhite:0 alpha:0.35];
+        [parent addSubview:shield];
+    }
+
+    CGRect pf = CGRectInset(area, 8, 8);
+    UIView *sheet = [[UIView alloc] initWithFrame:pf];
+    SCPCChrome(sheet, 20);
+    sheet.backgroundColor = [UIColor colorWithWhite:0.09 alpha:0.98];
+    CGFloat w = pf.size.width, h = pf.size.height, headH = 60;
+
+    UIView *map = [self pickerMapForPane:target height:40];
+    CGFloat textX = 16;
+    if (map) { map.frame = CGRectMake(16, (headH - 40) / 2, map.bounds.size.width, 40); [sheet addSubview:map]; textX = CGRectGetMaxX(map.frame) + 14; }
+
+    int waiting = 0;
+    for (SCPCarPane *p in [self allPanes]) if (p.picker && p != target) waiting++;
+    NSString *where = (target == self.floatPane) ? SCPCT(@"cửa sổ nổi", @"the floating window")
+                    : [NSString stringWithFormat:SCPCT(@"ô %d", @"pane %d"), target.slot + 1];
+    UILabel *title = [[UILabel alloc] initWithFrame:CGRectMake(textX, waiting ? 10 : 18, w - textX - 64, 24)];
+    title.text = [NSString stringWithFormat:SCPCT(@"Chọn app cho %@", @"Choose an app for %@"), where];
     title.textColor = [UIColor whiteColor];
-    title.font = [UIFont systemFontOfSize:14 weight:UIFontWeightBold];
+    title.font = [UIFont systemFontOfSize:18 weight:UIFontWeightBold];
     title.adjustsFontSizeToFitWidth = YES;
-    [pv addSubview:title];
+    [sheet addSubview:title];
+    if (waiting) {
+        UILabel *sub = [[UILabel alloc] initWithFrame:CGRectMake(textX, 34, w - textX - 64, 17)];
+        sub.text = waiting == 1 ? SCPCT(@"Còn 1 ô nữa", @"1 more pane to go")
+                                : [NSString stringWithFormat:SCPCT(@"Còn %d ô nữa", @"%d more panes to go"), waiting];
+        sub.textColor = [UIColor colorWithWhite:1 alpha:0.55];
+        sub.font = [UIFont systemFontOfSize:13 weight:UIFontWeightMedium];
+        [sheet addSubview:sub];
+    }
 
-    UIButton *cancel = SCPCCircleButton(SCPCGlyph(@"close", 16, NO), 32, self, @selector(pickerCancel:));
-    cancel.tag = slot;
-    cancel.center = CGPointMake(size.width - 22, 19);
-    cancel.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin;
-    [pv addSubview:cancel];
+    UIButton *cancel = SCPCCircleButton(SCPCGlyph(@"close", 18, NO), 40, self, @selector(pickerCancel:));
+    cancel.center = CGPointMake(w - 32, headH / 2);
+    [sheet addSubview:cancel];
 
-    UIScrollView *scroll = [[UIScrollView alloc] initWithFrame:CGRectMake(0, 38, size.width, size.height - 38)];
-    scroll.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    UIView *line = [[UIView alloc] initWithFrame:CGRectMake(16, headH, w - 32, 0.5)];
+    line.backgroundColor = [UIColor colorWithWhite:1 alpha:0.12];
+    [sheet addSubview:line];
+
+    UIScrollView *scroll = [[UIScrollView alloc] initWithFrame:CGRectMake(0, headH + 1, w, h - headH - 1)];
     scroll.alwaysBounceVertical = YES;
-    [pv addSubview:scroll];
+    [sheet addSubview:scroll];
 
     NSArray *apps = [SCPCCarPlayApps() arrayByAddingObjectsFromArray:SCPCPhoneApps()];   // app CarPlay roi app iPhone (App Bridge)
     NSMutableSet *inUse = [NSMutableSet set];
     for (SCPCarPane *o in [self allPanes]) if (o.bundleID) [inUse addObject:o.bundleID];
-    CGFloat cellW = 66, cellH = 64, icon = 40;   // vung cham >= 44pt, chu 11pt de doc khi lai xe
-    NSInteger cols = MAX(1, (NSInteger)(size.width / cellW));
-    CGFloat padX = (size.width - cols * cellW) / 2;
+    CGFloat cellW = 92, cellH = 92, icon = 56;   // ca man hinh: icon lon, chu 12pt de cham / doc khi lai xe
+    NSInteger cols = MAX(1, (NSInteger)((w - 16) / cellW));
+    CGFloat padX = (w - cols * cellW) / 2;
     NSInteger i = 0;
     NSMutableArray *cells = [NSMutableArray array];
-    BOOL inFloat = (slot == SCPC_FLOAT_SLOT);
+    BOOL inFloat = (target == self.floatPane);
     for (NSDictionary *app in apps) {
         if (inFloat && SCPCIsBridgedApp(app[@"id"])) continue;   // cua so noi khong nhan YouTube / TikTok
         NSInteger row = i / cols, col = i % cols;
         UIButton *b = [SCPCButton buttonWithType:UIButtonTypeCustom];
-        b.frame = CGRectMake(padX + col * cellW, 4 + row * cellH, cellW, cellH);
+        b.frame = CGRectMake(padX + col * cellW, 10 + row * cellH, cellW, cellH);
         b.accessibilityIdentifier = app[@"id"];
-        b.tag = slot;
         [b addTarget:self action:@selector(pickerAppTapped:) forControlEvents:UIControlEventTouchUpInside];
-        UIImageView *iv = [[UIImageView alloc] initWithFrame:CGRectMake((cellW - icon) / 2, 4, icon, icon)];
+        UIImageView *iv = [[UIImageView alloc] initWithFrame:CGRectMake((cellW - icon) / 2, 6, icon, icon)];
         iv.image = SCPCAppIcon(app[@"id"]);
         SCPCStyleIcon(iv);
         iv.userInteractionEnabled = NO;
         [b addSubview:iv];
         if ([inUse containsObject:app[@"id"]]) {   // dang mo o 1 o khac: dau tich xanh (cham van chuyen app sang o nay)
-            UIImageView *tick = [[UIImageView alloc] initWithImage:SCPCGlyph(@"check", 12, NO)];
+            UIImageView *tick = [[UIImageView alloc] initWithImage:SCPCGlyph(@"check", 13, NO)];
             tick.tintColor = [UIColor whiteColor];
             tick.backgroundColor = SCPCAccent();
-            tick.frame = CGRectMake(CGRectGetMaxX(iv.frame) - 12, CGRectGetMinY(iv.frame) - 4, 16, 16);
+            tick.frame = CGRectMake(CGRectGetMaxX(iv.frame) - 14, CGRectGetMinY(iv.frame) - 5, 20, 20);
             tick.contentMode = UIViewContentModeCenter;
-            tick.layer.cornerRadius = 8;
-            tick.layer.borderWidth = 1.5;
-            tick.layer.borderColor = [UIColor colorWithWhite:0.08 alpha:1].CGColor;
+            tick.layer.cornerRadius = 10;
+            tick.layer.borderWidth = 2;
+            tick.layer.borderColor = [UIColor colorWithWhite:0.09 alpha:1].CGColor;
             tick.clipsToBounds = YES;
             tick.userInteractionEnabled = NO;
             [b addSubview:tick];
         }
-        UILabel *l = [[UILabel alloc] initWithFrame:CGRectMake(1, icon + 7, cellW - 2, 15)];
+        UILabel *l = [[UILabel alloc] initWithFrame:CGRectMake(2, icon + 10, cellW - 4, 16)];
         l.text = app[@"name"];
         l.textColor = [UIColor colorWithWhite:1 alpha:0.85];
-        l.font = [UIFont systemFontOfSize:11 weight:UIFontWeightMedium];
+        l.font = [UIFont systemFontOfSize:12 weight:UIFontWeightMedium];
         l.textAlignment = NSTextAlignmentCenter;
         l.numberOfLines = 1;
         l.userInteractionEnabled = NO;
         [b addSubview:l];
         [scroll addSubview:b];
-        if (i < cols * 2) [cells addObject:b];
+        if (i < cols * 3) [cells addObject:b];
         i++;
     }
-    scroll.contentSize = CGSizeMake(size.width, 12 + ((i + cols - 1) / cols) * cellH);
+    scroll.contentSize = CGSizeMake(w, 20 + ((i + cols - 1) / cols) * cellH);
     if (i == 0) title.text = SCPCT(@"Không tìm thấy app CarPlay", @"No CarPlay apps found");
 
-    [p.view addSubview:pv];
-    [p.view bringSubviewToFront:p.handle];
-    [self relayoutAnimated:YES];
-    pv.alpha = 0;
-    [UIView animateWithDuration:0.25 animations:^{ pv.alpha = 1; }];
+    [parent addSubview:sheet];
+    if (self.tray && self.tray.superview == parent) {   // bang bo cuc dang mo cung cua so -> giu no o tren
+        [parent bringSubviewToFront:self.trayShield];
+        [parent bringSubviewToFront:self.tray];
+    }
+    self.pickerSheet = sheet; self.pickerShield = shield; self.pickerSheetOverlay = overlay;
+    if (oldSheet) {   // doi sang o khac: bang cu mo dan
+        [UIView animateWithDuration:0.15 animations:^{ oldSheet.alpha = 0; } completion:^(BOOL f) { [oldSheet removeFromSuperview]; }];
+    } else {
+        sheet.alpha = 0; sheet.transform = CGAffineTransformMakeScale(0.96, 0.96);
+        if (shield != oldShield) shield.alpha = 0;
+        [UIView animateWithDuration:0.25 animations:^{ sheet.alpha = 1; sheet.transform = CGAffineTransformIdentity; shield.alpha = 1; }];
+    }
     SCPCPopIn(cells);
-    SCPLog("CarSplit: bang chon %ld app CarPlay cho ngan %d", (long)i, slot);
+    if (!overlay) [self pushHostFramesLive:NO];   // bang nam trong CarPlay: o app iPhone nhuong cho (hostFrameForPane)
+    SCPLog("CarSplit: bang chon %ld app toan man cho o %d (%s, %d o cho)", (long)i, target.slot, overlay ? "cua so rieng" : "container", waiting);
 }
 
 - (void)pickerAppTapped:(UIButton *)b
 {
     @try {
-        SCPCarPane *p = [self paneForView:b];
+        SCPCarPane *p = self.pickerSheetPane ?: [self paneForView:b];
         if (!p) return;
         NSString *bid = b.accessibilityIdentifier;
         SCPLog("CarSplit: chon %@ cho o %d", bid, p.slot);
         [self openApp:bid slot:p.slot];
+        if (p.picker) [self refreshPickerSheetSoon];   // openApp tu choi (vd app iPhone vao cua so noi) -> bang van mo
     } @catch (NSException *e) { SCPLog("CarSplit: loi chon app %@\n%@", e, e.callStackSymbols); }
 }
 
@@ -3339,7 +3510,7 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
 - (void)pickerCancel:(UIButton *)b
 {
     @try {
-        SCPCarPane *p = [self paneForView:b];
+        SCPCarPane *p = self.pickerSheetPane ?: [self paneForView:b];
         if (!p) return;
         [self removePickerFromPane:p];
         if (p.vc || [self slotOccupied:p.slot]) { [self relayoutAnimated:YES]; return; }
@@ -3808,7 +3979,7 @@ static void SCPCMakePassThrough(UIWindow *w)
         tray.alpha = 0; tray.transform = CGAffineTransformMakeTranslation(0, -20); shield.alpha = 0;
     } completion:^(BOOL f) {
         [tray removeFromSuperview]; [shield removeFromSuperview];
-        if (tw && !weakSelf.tray && !weakSelf.ratioMenu) tw.hidden = YES;   // khong con gi tren cua so -> an (giu lai cho lan sau)
+        if (tw && !weakSelf.tray && !weakSelf.ratioMenu && !weakSelf.pickerSheet) tw.hidden = YES;   // khong con gi tren cua so -> an (giu lai cho lan sau)
     }];
 }
 
@@ -3931,6 +4102,7 @@ static NSArray<NSDictionary *> *SCPCPhoneApps(void)
 {
     if (!self.active || !p.vc || p.picker || p.view.alpha < 0.5 || p.view.bounds.size.width < 20 || !p.view.window) return CGRectZero;
     if (self.tray && !self.trayOverlay) return CGRectZero;   // bang bo cuc ve trong view goc CarPlay (khong co cua so rieng) -> nhuong cho
+    if (self.pickerSheet && !self.pickerSheetOverlay) return CGRectZero;   // bang chon app ve trong container (khong co cua so rieng) -> nhuong cho
     if (self.ratioMenu && !self.ratioOverlay && CGRectIntersectsRect(CGRectInset(self.ratioMenu.frame, -6, -6), p.view.frame)) return CGRectZero;
     // Khung day du ca khi thanh nut dang hien: thanh nut do SpringBoard ve de len app (bar trong hostBarInfoForPane), app
     // xuong, de noi dung app khong bi day / bo cuc lai moi lan mo thanh nut
