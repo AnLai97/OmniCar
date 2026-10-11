@@ -2579,6 +2579,7 @@ static UIView *SCPCDotsHandle(void)
         if (!p) return;
         [self setBarVisible:NO forPane:p];
         [self showPickerForSlot:p.slot];
+        if (p.picker) { self.pickerSheetPane = p; [self refreshPickerSheetSoon]; }   // chon lai app cho o nay: bang chon cho o nay ngay
     } @catch (NSException *e) { SCPLog("CarSplit: loi nut doi app %@", e); }
 }
 
@@ -3272,7 +3273,6 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
 
     [p.view addSubview:pv];
     [p.view bringSubviewToFront:p.handle];
-    self.pickerSheetPane = p;          // o vua yeu cau len bang truoc
     [self relayoutAnimated:YES];
     pv.alpha = 0;
     [UIView animateWithDuration:0.25 animations:^{ pv.alpha = 1; }];
@@ -3300,12 +3300,26 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
 }
 
 // Chon o cho bang: giu o dang chon neu con cho, khong thi o dau tien con the "dang chon"; het o cho -> dong bang
+// O theo thu tu doc: tu trai sang phai, cung cot thi tren truoc; cua so noi sau cung (so "o 1, 2, 3" trong bang chon)
+- (NSArray<SCPCarPane *> *)panesInReadingOrder
+{
+    return [[self allPanes] sortedArrayUsingComparator:^NSComparisonResult(SCPCarPane *a, SCPCarPane *b) {
+        if ((a == self.floatPane) != (b == self.floatPane)) return (a == self.floatPane) ? NSOrderedDescending : NSOrderedAscending;
+        CGRect fa = [self frameForSlot:a.slot], fb = [self frameForSlot:b.slot];
+        if (fabs(CGRectGetMinX(fa) - CGRectGetMinX(fb)) > 1) return CGRectGetMinX(fa) < CGRectGetMinX(fb) ? NSOrderedAscending : NSOrderedDescending;
+        if (fabs(CGRectGetMinY(fa) - CGRectGetMinY(fb)) > 1) return CGRectGetMinY(fa) < CGRectGetMinY(fb) ? NSOrderedAscending : NSOrderedDescending;
+        return a.slot < b.slot ? NSOrderedAscending : NSOrderedDescending;
+    }];
+}
+
 - (void)refreshPickerSheet
 {
     NSArray<SCPCarPane *> *panes = self.active ? [self allPanes] : @[];
     SCPCarPane *target = self.pickerSheetPane;
     if (!target.picker || ![panes containsObject:target]) target = nil;
-    for (SCPCarPane *p in panes) if (!target && p.picker) target = p;
+    // Mac dinh chon lan luot o 1, 2, 3 theo vi tri tu trai sang phai (cung cot: tren truoc), cua so noi sau cung
+    NSArray<SCPCarPane *> *ordered = self.active ? [self panesInReadingOrder] : @[];
+    for (SCPCarPane *p in ordered) if (!target && p.picker) target = p;
     self.pickerSheetPane = target;
     if (!target || !self.container.window) { [self removePickerSheet]; return; }
     NSString *key = [NSString stringWithFormat:@"%p/%d/%lu/%d/%@", target, target.slot, (unsigned long)panes.count, (int)[self mainStack],
@@ -3404,34 +3418,36 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
     CGRect area = overlay ? [self.container convertRect:self.container.bounds toView:nil] : self.container.bounds;
     UIView *parent = overlay ? host : self.container;
 
-    // Kieu HarmonyOS: nen sau mo (kinh mo toi), bang kinh mo bo goc lon lien tuc, nut dong tron xam, khong vach ke
-    UIView *shield = oldShield;
-    if (!shield || shield.superview != parent) {
-        [oldShield removeFromSuperview];
-        UIVisualEffectView *blur = [[UIVisualEffectView alloc] initWithEffect:[UIBlurEffect effectWithStyle:UIBlurEffectStyleDark]];
-        blur.frame = parent.bounds;   // chan cham xuong cac o / dock trong luc chon
-        blur.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-        blur.contentView.backgroundColor = [UIColor colorWithWhite:0 alpha:0.25];
-        shield = blur;
-        [parent addSubview:shield];
-    }
+    // Kieu HarmonyOS: popup kinh mo trong suot giua vung app, khong lop phu - dock va cac o van thay / cham duoc
+    // (cham the "+" cua o khac de chuyen sang o do). Cao vua so hang app, toi da gan het vung app.
+    [oldShield removeFromSuperview];
+    NSMutableArray *apps = [NSMutableArray array];   // app CarPlay roi app iPhone (App Bridge)
+    BOOL inFloat = (target == self.floatPane);
+    for (NSDictionary *app in [SCPCCarPlayApps() arrayByAddingObjectsFromArray:SCPCPhoneApps()])
+        if (!inFloat || !SCPCIsBridgedApp(app[@"id"])) [apps addObject:app];   // cua so noi khong nhan YouTube / TikTok
+    CGFloat cellW = 64, cellH = 62, icon = 36, headH = 64;   // icon nho, ca o (64pt) van la vung cham, chu 10pt
+    CGFloat w = MIN(area.size.width - 40, 560);
+    NSInteger cols = MAX(1, MIN((NSInteger)((w - 24) / cellW), MAX((NSInteger)5, (NSInteger)apps.count)));
+    w = MIN(w, cols * cellW + 40);   // it app -> popup hep lai cho gon
+    NSInteger rows = MAX(1, ((NSInteger)apps.count + cols - 1) / cols);
+    CGFloat h = MIN(area.size.height - 32, headH + rows * cellH + 18);
+    CGRect pf = CGRectMake(CGRectGetMidX(area) - w / 2, CGRectGetMidY(area) - h / 2, w, h);
 
-    CGRect pf = CGRectInset(area, 10, 10);
     UIView *card = [[UIView alloc] initWithFrame:pf];
     card.layer.cornerRadius = 24;
     card.layer.cornerCurve = kCACornerCurveContinuous;
     card.layer.shadowColor = [UIColor blackColor].CGColor;
-    card.layer.shadowOpacity = 0.4; card.layer.shadowRadius = 20; card.layer.shadowOffset = CGSizeMake(0, 6);
-    UIVisualEffectView *glass = [[UIVisualEffectView alloc] initWithEffect:[UIBlurEffect effectWithStyle:UIBlurEffectStyleSystemThickMaterialDark]];
+    card.layer.shadowOpacity = 0.35; card.layer.shadowRadius = 24; card.layer.shadowOffset = CGSizeMake(0, 8);
+    UIVisualEffectView *glass = [[UIVisualEffectView alloc] initWithEffect:[UIBlurEffect effectWithStyle:UIBlurEffectStyleSystemUltraThinMaterialDark]];
     glass.frame = card.bounds;
+    glass.contentView.backgroundColor = [UIColor colorWithWhite:0.1 alpha:0.18];
     glass.layer.cornerRadius = 24;
     glass.layer.cornerCurve = kCACornerCurveContinuous;
     glass.layer.borderWidth = 0.5;
-    glass.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.14].CGColor;
+    glass.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.22].CGColor;
     glass.clipsToBounds = YES;
     [card addSubview:glass];
     UIView *sheet = glass.contentView;   // noi dung nam tren kinh; card la khung hien / an
-    CGFloat w = pf.size.width, h = pf.size.height, headH = 64;
 
     UIView *map = [self pickerMapForPane:target height:44];
     CGFloat textX = 20;
@@ -3440,7 +3456,7 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
     int waiting = 0;
     for (SCPCarPane *p in [self allPanes]) if (p.picker && p != target) waiting++;
     NSString *where = (target == self.floatPane) ? SCPCT(@"cửa sổ nổi", @"the floating window")
-                    : [NSString stringWithFormat:SCPCT(@"ô %d", @"pane %d"), target.slot + 1];
+                    : [NSString stringWithFormat:SCPCT(@"ô %d", @"pane %d"), (int)[[self panesInReadingOrder] indexOfObject:target] + 1];
     UILabel *title = [[UILabel alloc] initWithFrame:CGRectMake(textX, waiting ? 12 : 20, w - textX - 64, 24)];
     title.text = [NSString stringWithFormat:SCPCT(@"Chọn app cho %@", @"Choose an app for %@"), where];
     title.textColor = [UIColor whiteColor];
@@ -3469,17 +3485,12 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
     scroll.showsVerticalScrollIndicator = NO;
     [sheet addSubview:scroll];
 
-    NSArray *apps = [SCPCCarPlayApps() arrayByAddingObjectsFromArray:SCPCPhoneApps()];   // app CarPlay roi app iPhone (App Bridge)
     NSMutableSet *inUse = [NSMutableSet set];
     for (SCPCarPane *o in [self allPanes]) if (o.bundleID) [inUse addObject:o.bundleID];
-    CGFloat cellW = 64, cellH = 62, icon = 36;   // icon nho, ca o (64pt) van la vung cham, chu 10pt
-    NSInteger cols = MAX(1, (NSInteger)((w - 16) / cellW));
     CGFloat padX = (w - cols * cellW) / 2;
     NSInteger i = 0;
     NSMutableArray *cells = [NSMutableArray array];
-    BOOL inFloat = (target == self.floatPane);
     for (NSDictionary *app in apps) {
-        if (inFloat && SCPCIsBridgedApp(app[@"id"])) continue;   // cua so noi khong nhan YouTube / TikTok
         NSInteger row = i / cols, col = i % cols;
         UIButton *b = [SCPCButton buttonWithType:UIButtonTypeCustom];
         b.frame = CGRectMake(padX + col * cellW, 6 + row * cellH, cellW, cellH);
@@ -3523,19 +3534,15 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
         [parent bringSubviewToFront:self.trayShield];
         [parent bringSubviewToFront:self.tray];
     }
-    self.pickerSheet = card; self.pickerShield = shield; self.pickerSheetOverlay = overlay;
-    // Hien kieu HarmonyOS: bang troi len tu duoi + phong nhe theo lo xo, nen mo dan; doi o: bang cu mo, bang moi troi len it
+    self.pickerSheet = card; self.pickerShield = nil; self.pickerSheetOverlay = overlay;
+    // Hien kieu HarmonyOS: popup troi len + phong nhe theo lo xo; doi o: popup cu mo, popup moi troi len it
     BOOL fresh = !oldSheet;
     if (oldSheet) [UIView animateWithDuration:0.15 animations:^{ oldSheet.alpha = 0; } completion:^(BOOL f) { [oldSheet removeFromSuperview]; }];
-    UIVisualEffectView *fx = (shield != oldShield && [shield isKindOfClass:[UIVisualEffectView class]]) ? (UIVisualEffectView *)shield : nil;
-    UIVisualEffect *fxTo = fx.effect;
-    if (fx) { fx.effect = nil; fx.contentView.alpha = 0; }   // mo dan bang effect (doi alpha cua view mo bi loi ve)
     card.alpha = 0;
     card.transform = fresh ? CGAffineTransformScale(CGAffineTransformMakeTranslation(0, 48), 0.92, 0.92) : CGAffineTransformMakeTranslation(0, 14);
     [UIView animateWithDuration:fresh ? 0.5 : 0.35 delay:0 usingSpringWithDamping:0.86 initialSpringVelocity:0.4
                         options:UIViewAnimationOptionAllowUserInteraction | UIViewAnimationOptionBeginFromCurrentState
                      animations:^{ card.alpha = 1; card.transform = CGAffineTransformIdentity; } completion:nil];
-    if (fx) [UIView animateWithDuration:0.35 animations:^{ fx.effect = fxTo; fx.contentView.alpha = 1; }];
     // Icon hien lan luot theo hang: mo + troi len nhe (khong bung tu nho nhu SCPCPopIn)
     for (UIView *c in cells) {
         NSInteger row = (NSInteger)((c.frame.origin.y - 6) / cellH), col = (NSInteger)((c.frame.origin.x - padX) / cellW);
@@ -3545,7 +3552,7 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
                          animations:^{ c.alpha = 1; c.transform = CGAffineTransformIdentity; } completion:nil];
     }
     if (!overlay) [self pushHostFramesLive:NO];   // bang nam trong CarPlay: o app iPhone nhuong cho (hostFrameForPane)
-    SCPLog("CarSplit: bang chon %ld app toan man cho o %d (%s, %d o cho)", (long)i, target.slot, overlay ? "cua so rieng" : "container", waiting);
+    SCPLog("CarSplit: popup chon %ld app cho o %d (%s, %d o cho)", (long)i, target.slot, overlay ? "cua so rieng" : "container", waiting);
 }
 
 - (void)pickerAppTapped:(UIButton *)b
@@ -3975,6 +3982,8 @@ static void SCPCMakePassThrough(UIWindow *w)
     if (!self.active) { [self showPickerForSlot:-1]; return; }
     int s = (self.focusedSlot >= 0 && self.focusedSlot < [self paneCount]) ? self.focusedSlot : [self autoSlot];
     [self showPickerForSlot:s];
+    SCPCarPane *p = [self paneAtSlot:s];
+    if (p.picker) { self.pickerSheetPane = p; [self refreshPickerSheetSoon]; }
 }
 
 - (void)exitTapped
