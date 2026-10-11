@@ -2451,7 +2451,7 @@ static UIView *SCPCDotsHandle(void)
         if (wasHidden) SCPCDropIn(p.bar);
         __weak SCPCarSplit *weakSelf = self;
         __weak SCPCarPane *weakPane = p;
-        p.barTimer = [NSTimer scheduledTimerWithTimeInterval:6 repeats:NO block:^(NSTimer *t) {
+        p.barTimer = [NSTimer scheduledTimerWithTimeInterval:4 repeats:NO block:^(NSTimer *t) {
             if (weakPane) [weakSelf setBarVisible:NO forPane:weakPane];
         }];
         if (wasHidden) [self sendHostFrameForPane:p live:NO];   // o app iPhone: cua so host nhuong cho thanh nut
@@ -3618,7 +3618,7 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
 //  Bang cua nut Split Screen tren dock: Mac dinh (2 o / 3 o / 1 lon + 2), Gan day, Yeu thich.
 //  Dang mo app toan man: chon bo cuc mac dinh -> app do vao o 1, cac o con lai hien bang chon app.
 // ---------------------------------------------------------------------
-#define SCPC_TRAY_IDLE  8.0     // giay khong cham -> thu bang bo cuc
+#define SCPC_TRAY_IDLE  4.0     // giay khong cham -> thu bang bo cuc (cung 4s nhu thanh nut cua o / thanh ti le)
 
 - (UIView *)tabParent
 {
