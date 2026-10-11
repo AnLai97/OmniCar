@@ -15,6 +15,9 @@
 #define SB_KEY_SIZE_PHONE    @"speedBubbleSizePhone"     // 60..220 %, default 100
 #define SB_KEY_SIZE_CAR      @"speedBubbleSizeCar"       // 60..220 %, default 100
 #define SB_KEY_SOURCE        @"speedBubbleSource"        // nguon toc do duy nhat: 0 Vietmap Live, 1 GOFA (chi so SPP_NAV_APPS)
+// Ten cac nguon cho danh sach "Nguon" trong Cai dat, cung thu tu SPP_NAV_APPS (common.h): them app dan duong moi
+// thi them ten vao CUOI ca hai
+#define SB_SOURCE_NAMES      (@[@"Vietmap Live", @"GOFA"])
 // Truoc day moi app 1 cong tac (bat ca hai duoc); chi con doc de chuyen sang SB_KEY_SOURCE khi chua co
 #define SB_KEY_APP_VIETMAP   @"speedBubbleAppVietmap"    // BOOL, default YES
 #define SB_KEY_APP_GOFA      @"speedBubbleAppGOFA"       // BOOL, default YES

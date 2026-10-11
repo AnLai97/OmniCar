@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<!-- Speed Bubble page. Labels and footers are keys into <lang>.lproj/SpeedBubble.strings;
-     "symbol"/"symbolColor" draw the row icon. Keys are the SB_KEY_* of ../../SpeedBubble.h. -->
+<!-- Speed Bubble page. Labels and footers are keys into <lang>.lproj/SpeedBubble.strings. Keys are the
+     SB_KEY_* of ../../SpeedBubble.h. The source list is filled by OMCSpeedBubbleController from
+     SB_SOURCE_NAMES, so a new navigation app only needs adding there. -->
 <plist version="1.0">
 <dict>
 	<key>featureLabel</key>
@@ -10,8 +11,8 @@
 	<integer>20</integer>
 	<key>featureController</key>
 	<string>OMCSpeedBubbleController</string>
-	<key>featureIcon</key>
-	<string>SpeedBubbleIcon.png</string>
+	<key>featureSymbol</key>
+	<string>speedometer</string>
 	<key>title</key>
 	<string>Speed Bubble</string>
 	<key>items</key>
@@ -19,18 +20,12 @@
 		<dict>
 			<key>cell</key>
 			<string>PSGroupCell</string>
-			<key>footerText</key>
-			<string>SPEEDBUBBLE_FOOTER</string>
 		</dict>
 		<dict>
 			<key>cell</key>
 			<string>PSSwitchCell</string>
 			<key>label</key>
 			<string>SPEEDBUBBLE_ENABLE</string>
-			<key>symbol</key>
-			<string>power</string>
-			<key>symbolColor</key>
-			<string>#0A59F7</string>
 			<key>key</key>
 			<string>speedBubbleEnabled</string>
 			<key>default</key>
@@ -43,10 +38,32 @@
 		<dict>
 			<key>cell</key>
 			<string>PSGroupCell</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSLinkListCell</string>
+			<key>detail</key>
+			<string>PSListItemsController</string>
 			<key>label</key>
-			<string>SPEEDBUBBLE_APPEARANCE</string>
-			<key>footerText</key>
-			<string>SPEEDBUBBLE_APPEARANCE_FOOTER</string>
+			<string>SPEEDBUBBLE_SOURCE</string>
+			<key>dynamicTitles</key>
+			<true/>
+			<key>key</key>
+			<string>speedBubbleSource</string>
+			<key>default</key>
+			<integer>0</integer>
+			<key>validValues</key>
+			<array>
+				<integer>0</integer>
+			</array>
+			<key>validTitles</key>
+			<array>
+				<string>Vietmap Live</string>
+			</array>
+			<key>defaults</key>
+			<string>com.anlai.omnicar</string>
+			<key>PostNotification</key>
+			<string>com.anlai.omnicar/prefschanged</string>
 		</dict>
 		<dict>
 			<key>cell</key>
@@ -55,10 +72,6 @@
 			<string>PSListItemsController</string>
 			<key>label</key>
 			<string>SPEEDBUBBLE_STYLE</string>
-			<key>symbol</key>
-			<string>paintpalette.fill</string>
-			<key>symbolColor</key>
-			<string>#8A47E8</string>
 			<key>key</key>
 			<string>speedBubbleStyle</string>
 			<key>default</key>
@@ -115,10 +128,6 @@
 			<string>PSSwitchCell</string>
 			<key>label</key>
 			<string>SPEEDBUBBLE_SHOW_APP_ICON</string>
-			<key>symbol</key>
-			<string>app.badge.fill</string>
-			<key>symbolColor</key>
-			<string>#F97A1F</string>
 			<key>key</key>
 			<string>speedBubbleShowAppIcon</string>
 			<key>default</key>
@@ -127,18 +136,6 @@
 			<string>com.anlai.omnicar</string>
 			<key>PostNotification</key>
 			<string>com.anlai.omnicar/prefschanged</string>
-		</dict>
-		<dict>
-			<key>cell</key>
-			<string>PSButtonCell</string>
-			<key>label</key>
-			<string>SPEEDBUBBLE_PREVIEW</string>
-			<key>symbol</key>
-			<string>play.rectangle.fill</string>
-			<key>symbolColor</key>
-			<string>#0A59F7</string>
-			<key>action</key>
-			<string>bubbleDemo</string>
 		</dict>
 		<dict>
 			<key>cell</key>
@@ -173,8 +170,6 @@
 			<string>PSGroupCell</string>
 			<key>label</key>
 			<string>SPEEDBUBBLE_SIZE_CAR</string>
-			<key>footerText</key>
-			<string>SPEEDBUBBLE_SIZE_FOOTER</string>
 		</dict>
 		<dict>
 			<key>cell</key>
@@ -202,57 +197,23 @@
 			<key>cell</key>
 			<string>PSGroupCell</string>
 			<key>footerText</key>
-			<string>SPEEDBUBBLE_RESET_FOOTER</string>
+			<string>SPEEDBUBBLE_GESTURES_FOOTER</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSButtonCell</string>
+			<key>label</key>
+			<string>SPEEDBUBBLE_PREVIEW</string>
+			<key>action</key>
+			<string>bubbleDemo</string>
 		</dict>
 		<dict>
 			<key>cell</key>
 			<string>PSButtonCell</string>
 			<key>label</key>
 			<string>SPEEDBUBBLE_RESET_LAYOUT</string>
-			<key>symbol</key>
-			<string>arrow.counterclockwise</string>
-			<key>symbolColor</key>
-			<string>#E84026</string>
 			<key>action</key>
 			<string>resetLayout</string>
-		</dict>
-		<dict>
-			<key>cell</key>
-			<string>PSGroupCell</string>
-			<key>label</key>
-			<string>SPEEDBUBBLE_SOURCES</string>
-			<key>footerText</key>
-			<string>SPEEDBUBBLE_SOURCES_FOOTER</string>
-		</dict>
-		<dict>
-			<key>cell</key>
-			<string>PSLinkListCell</string>
-			<key>detail</key>
-			<string>PSListItemsController</string>
-			<key>label</key>
-			<string>SPEEDBUBBLE_SOURCE</string>
-			<key>symbol</key>
-			<string>location.fill</string>
-			<key>symbolColor</key>
-			<string>#1E9BF0</string>
-			<key>key</key>
-			<string>speedBubbleSource</string>
-			<key>default</key>
-			<integer>0</integer>
-			<key>validValues</key>
-			<array>
-				<integer>0</integer>
-				<integer>1</integer>
-			</array>
-			<key>validTitles</key>
-			<array>
-				<string>SPEEDBUBBLE_APP_VIETMAP</string>
-				<string>SPEEDBUBBLE_APP_GOFA</string>
-			</array>
-			<key>defaults</key>
-			<string>com.anlai.omnicar</string>
-			<key>PostNotification</key>
-			<string>com.anlai.omnicar/prefschanged</string>
 		</dict>
 	</array>
 </dict>

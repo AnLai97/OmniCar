@@ -49,7 +49,8 @@ static UIColor *OMCDynamicColor(UInt32 light, UInt32 dark) {
 	}];
 }
 
-UIColor *OMCAccentColor(void)     { return OMCDynamicColor(0x0A59F7, 0x317AF7); }
+// Kieu OmniCar (DESIGN.md): khong mau xanh - cong tac / thanh truot mau than chi (sang) / xam bac (toi)
+UIColor *OMCAccentColor(void)     { return OMCDynamicColor(0x1F2329, 0xA9AFB8); }
 UIColor *OMCBackgroundColor(void) { return OMCDynamicColor(0xF1F3F5, 0x000000); }
 UIColor *OMCCardColor(void)       { return OMCDynamicColor(0xFFFFFF, 0x202224); }
 
@@ -59,6 +60,8 @@ UIColor *OMCColorFromHex(NSString *hex) {
 	return [UIColor colorWithRed:((v >> 16) & 0xFF) / 255.0 green:((v >> 8) & 0xFF) / 255.0 blue:(v & 0xFF) / 255.0 alpha:1];
 }
 
+// Row icon: white SF Symbol on a dark glass tile like the OmniCar logo (gradient #3A3F48 -> #121418, top sheen,
+// hairline white rim). The color argument is ignored now that rows no longer use colored tiles.
 UIImage *OMCIcon(NSString *symbol, UIColor *color) {
 	UIImageSymbolConfiguration *config = [UIImageSymbolConfiguration configurationWithPointSize:14 weight:UIImageSymbolWeightSemibold];
 	UIImage *glyph = [[UIImage systemImageNamed:symbol withConfiguration:config] imageWithTintColor:UIColor.whiteColor renderingMode:UIImageRenderingModeAlwaysOriginal];
@@ -69,16 +72,24 @@ UIImage *OMCIcon(NSString *symbol, UIColor *color) {
 	return [renderer imageWithActions:^(UIGraphicsImageRendererContext *ctx) {
 		CGRect rect = CGRectMake(0, 0, side, side);
 		UIBezierPath *tile = [UIBezierPath bezierPathWithRoundedRect:rect cornerRadius:8.5];
-		[color setFill];
-		[tile fill];
-
+		CGContextSaveGState(ctx.CGContext);
 		[tile addClip];
 		CGColorSpaceRef space = CGColorSpaceCreateDeviceRGB();
-		NSArray *colors = @[(id)[UIColor colorWithWhite:1 alpha:0.22].CGColor, (id)[UIColor colorWithWhite:1 alpha:0].CGColor];
-		CGGradientRef gradient = CGGradientCreateWithColors(space, (__bridge CFArrayRef)colors, NULL);
+		NSArray *bg = @[(id)OMCColorFromHex(@"#3A3F48").CGColor, (id)OMCColorFromHex(@"#121418").CGColor];
+		CGGradientRef gradient = CGGradientCreateWithColors(space, (__bridge CFArrayRef)bg, NULL);
 		CGContextDrawLinearGradient(ctx.CGContext, gradient, CGPointZero, CGPointMake(0, side), 0);
 		CGGradientRelease(gradient);
+		NSArray *sheen = @[(id)[UIColor colorWithWhite:1 alpha:0.12].CGColor, (id)[UIColor colorWithWhite:1 alpha:0].CGColor];
+		gradient = CGGradientCreateWithColors(space, (__bridge CFArrayRef)sheen, NULL);
+		CGContextDrawLinearGradient(ctx.CGContext, gradient, CGPointZero, CGPointMake(0, side / 2), 0);
+		CGGradientRelease(gradient);
 		CGColorSpaceRelease(space);
+		CGContextRestoreGState(ctx.CGContext);
+
+		UIBezierPath *rim = [UIBezierPath bezierPathWithRoundedRect:CGRectInset(rect, 0.25, 0.25) cornerRadius:8.25];
+		rim.lineWidth = 0.5;
+		[[UIColor colorWithWhite:1 alpha:0.25] setStroke];
+		[rim stroke];
 
 		CGSize s = glyph.size;
 		[glyph drawInRect:CGRectMake((side - s.width) / 2, (side - s.height) / 2, s.width, s.height)];

@@ -1,60 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<!-- Labels and footers are keys into <lang>.lproj/Localizable.strings; "symbol"/"symbolColor" draw the row icon (or "icon" = a 29pt image in the bundle). -->
+<!-- Labels and footers are keys into <lang>.lproj/Localizable.strings; "symbol" draws the row icon (or "icon" =
+     a 29pt image in the bundle). The master switch lives in the header card and Respring / Language in the nav
+     bar (OMCRootListController), so this page is just the apps row and the feature rows. -->
 <plist version="1.0">
 <dict>
 	<key>title</key>
 	<string>OmniCar</string>
 	<key>items</key>
 	<array>
-		<dict>
-			<key>cell</key>
-			<string>PSGroupCell</string>
-			<key>footerText</key>
-			<string>GENERAL_FOOTER</string>
-		</dict>
-		<dict>
-			<key>cell</key>
-			<string>PSSwitchCell</string>
-			<key>label</key>
-			<string>ENABLE</string>
-			<key>symbol</key>
-			<string>power</string>
-			<key>symbolColor</key>
-			<string>#0A59F7</string>
-			<key>key</key>
-			<string>enabled</string>
-			<key>default</key>
-			<true/>
-			<key>defaults</key>
-			<string>com.anlai.omnicar</string>
-			<key>PostNotification</key>
-			<string>com.anlai.omnicar/prefschanged</string>
-		</dict>
-		<dict>
-			<key>cell</key>
-			<string>PSButtonCell</string>
-			<key>label</key>
-			<string>RESPRING</string>
-			<key>action</key>
-			<string>respring</string>
-			<key>isDestructive</key>
-			<true/>
-			<key>symbol</key>
-			<string>arrow.clockwise.circle.fill</string>
-			<key>symbolColor</key>
-			<string>#E84026</string>
-		</dict>
-
-		<!-- APPS: the iPhone apps shown on the car screen through App Bridge (not a feature page: the switch,
-		     the zoom and the app list all live in OMCAppBridgeAppsController, Features/AppBridge/Prefs). -->
+		<!-- APPS: the iPhone apps shown on the car screen through App Bridge (its own page,
+		     OMCAppBridgeAppsController in Features/AppBridge/Prefs). -->
 		<dict>
 			<key>cell</key>
 			<string>PSGroupCell</string>
 			<key>label</key>
 			<string>APPS_GROUP</string>
-			<key>footerText</key>
-			<string>APPS_FOOTER</string>
 		</dict>
 		<dict>
 			<key>cell</key>
@@ -67,13 +28,11 @@
 			<string>APPS</string>
 			<key>symbol</key>
 			<string>square.grid.2x2.fill</string>
-			<key>symbolColor</key>
-			<string>#8A47E8</string>
 		</dict>
 
 		<!-- FEATURES: the rows are built at runtime from every Feature*.plist in the bundle
-		     (featureLabel / featureIcon or featureSymbol+featureSymbolColor / featureController /
-		     featureOrder keys at the top of each one) and inserted after this group cell. -->
+		     (featureLabel / featureIcon or featureSymbol / featureController / featureOrder keys at the top of
+		     each one) and inserted after this group cell; each row shows its feature's On / Off. -->
 		<dict>
 			<key>cell</key>
 			<string>PSGroupCell</string>

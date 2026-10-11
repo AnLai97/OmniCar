@@ -18,6 +18,13 @@ static id OMCSplitPref(NSString *key) {
 			NSString *placeholder = [spec propertyForKey:@"placeholder"];
 			if (placeholder) [spec setProperty:L(placeholder) forKey:@"placeholder"];
 
+			// Favorite rows (OMCSplitFavCell): the saved name, else the suggestion ("Đi làm"...) already in the label.
+			id favIndex = [spec propertyForKey:@"favIndex"];
+			if (favIndex) {
+				NSString *name = OMCSplitPref([NSString stringWithFormat:@"splitScreenFav%ldName", (long)[favIndex integerValue]]);
+				if ([name isKindOfClass:[NSString class]] && name.length) spec.name = name;
+			}
+
 			// Favorite layouts: the "Box 3" row only shows for 3-box layouts (3 boxes / 1 large + 2 / 2 + 1 large).
 			NSString *key = [spec propertyForKey:@"key"];
 			if (![key hasPrefix:@"splitScreenFav"] || ![key hasSuffix:@"Third"]) continue;
@@ -27,6 +34,12 @@ static id OMCSplitPref(NSString *key) {
 		}
 	}
 	return _specifiers;
+}
+
+// Back from a favorite's page: rebuild so its row shows the new name / apps / layout.
+- (void)viewWillAppear:(BOOL)animated {
+	_specifiers = nil;
+	[super viewWillAppear:animated];
 }
 
 // Changing a favorite's layout shows / hides its "Box 3" row right away.

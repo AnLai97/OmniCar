@@ -281,6 +281,18 @@ static CGImagePropertyOrientation SSOrientationForTransform(CGAffineTransform t)
 	[self extractFramesForVideos:@[dest.lastPathComponent] completion:nil];
 }
 
+// "Add video": one row, then Photos or Files.
+- (void)addVideo {
+	UIAlertController *sheet = [UIAlertController alertControllerWithTitle:nil message:nil preferredStyle:UIAlertControllerStyleActionSheet];
+	__weak typeof(self) weakSelf = self;
+	[sheet addAction:[UIAlertAction actionWithTitle:L(@"STARTUPSCREEN_FROM_PHOTOS") style:UIAlertActionStyleDefault handler:^(UIAlertAction *a) { [weakSelf importFromPhotos]; }]];
+	[sheet addAction:[UIAlertAction actionWithTitle:L(@"STARTUPSCREEN_FROM_FILES") style:UIAlertActionStyleDefault handler:^(UIAlertAction *a) { [weakSelf importFromFiles]; }]];
+	[sheet addAction:[UIAlertAction actionWithTitle:L(@"CANCEL") style:UIAlertActionStyleCancel handler:nil]];
+	sheet.popoverPresentationController.sourceView = self.view;   // iPad
+	sheet.popoverPresentationController.sourceRect = CGRectMake(CGRectGetMidX(self.view.bounds), CGRectGetMidY(self.view.bounds), 1, 1);
+	[self presentViewController:sheet animated:YES completion:nil];
+}
+
 - (void)previewVideo {
 	NSString *name = [self selectedVideo];
 	if (!name) { [self showMessage:L(@"STARTUPSCREEN_NO_VIDEO_PREVIEW")]; return; }

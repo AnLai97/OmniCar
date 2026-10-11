@@ -12,7 +12,8 @@
 #define SPPLogWrite(...) OMCLogWrite(@"SpeedBubble", __VA_ARGS__)
 #define SPPLog(fmt, ...) SPPLogWrite([NSString stringWithFormat:@fmt, ##__VA_ARGS__])
 
-// App dan duong ho tro (thu tu = chi so app gui trong Darwin state; them app moi thi them CUOI danh sach + CarSpeed.plist)
+// App dan duong ho tro (thu tu = chi so app gui trong Darwin state; them app moi thi them CUOI danh sach + CarSpeed.plist
+// + ten vao SB_SOURCE_NAMES trong SpeedBubble.h)
 #define SPP_APP_VIETMAP         @"vn.vietmap.live"
 #define SPP_APP_GOFA            @"com.lumi.GOFA"
 #define SPP_NAV_APPS            (@[SPP_APP_VIETMAP, SPP_APP_GOFA])

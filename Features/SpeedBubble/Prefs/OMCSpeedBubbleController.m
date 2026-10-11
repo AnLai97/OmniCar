@@ -3,6 +3,10 @@
 #import "../SpeedBubble.h"
 #import <notify.h>
 
+@interface PSSpecifier (SpeedBubble)
+- (void)setValues:(NSArray *)values titles:(NSArray *)titles;
+@end
+
 @implementation OMCSpeedBubbleController
 
 // Only one speed source now (SB_KEY_SOURCE). First visit after the update: carry over the old
@@ -19,6 +23,21 @@
 		CFPreferencesAppSynchronize(kPrefsDomain);
 	}
 	[super viewDidLoad];
+}
+
+// "Source" list from SB_SOURCE_NAMES (index = SPP_NAV_APPS index), so new navigation apps show up here.
+- (NSArray *)specifiers {
+	if (!_specifiers) {
+		[super specifiers];
+		for (PSSpecifier *spec in _specifiers) {
+			if (![[spec propertyForKey:@"key"] isEqualToString:SB_KEY_SOURCE]) continue;
+			NSArray *names = SB_SOURCE_NAMES;
+			NSMutableArray *values = [NSMutableArray array];
+			for (NSUInteger i = 0; i < names.count; i++) [values addObject:@(i)];
+			[spec setValues:values titles:names];
+		}
+	}
+	return _specifiers;
 }
 
 #pragma mark - Actions
