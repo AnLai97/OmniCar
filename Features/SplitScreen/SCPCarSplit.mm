@@ -654,6 +654,7 @@ static BOOL SCPCIsBridgedApp(NSString *bid);
 @property (nonatomic, copy) NSString *pickerSheetKey;  // o / bo cuc bang dang ve (khac -> ve lai)
 @property (nonatomic) BOOL pickerSheetOverlay;         // bang nam trong trayWindow
 @property (nonatomic) BOOL pickerSheetQueued;
+@property (nonatomic, weak) UIView *pickerDots;        // cham trang cua popup chon app (nhieu trang)
 @property (nonatomic, strong) SCPCarSplitView *container;
 @property (nonatomic, strong) NSMutableArray<SCPCarPane *> *slots;        // cac o theo thu tu (1..3)
 @property (nonatomic, strong) NSMutableArray<NSNumber *> *fractions;      // ti le tung o, tong = 1
@@ -3436,12 +3437,16 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
     BOOL inFloat = (target == self.floatPane);
     for (NSDictionary *app in [SCPCCarPlayApps() arrayByAddingObjectsFromArray:SCPCPhoneApps()])
         if (!inFloat || !SCPCIsBridgedApp(app[@"id"])) [apps addObject:app];   // cua so noi khong nhan YouTube / TikTok
-    CGFloat cellW = 64, cellH = 62, icon = 36, headH = 64;   // icon nho, ca o (64pt) van la vung cham, chu 10pt
-    CGFloat w = MIN(area.size.width - 40, 560);
-    NSInteger cols = MAX(1, MIN((NSInteger)((w - 24) / cellW), MAX((NSInteger)5, (NSInteger)apps.count)));
-    w = MIN(w, cols * cellW + 40);   // it app -> popup hep lai cho gon
-    NSInteger rows = MAX(1, ((NSInteger)apps.count + cols - 1) / cols);
-    CGFloat h = MIN(area.size.height - 32, headH + rows * cellH + 18);
+    // De cham khi xe chay: app cach xa nhau (moi app 1 o 88 x 78pt), khong cuon len xuong - nhieu app thi chia trang
+    // vuot ngang co cham trang kieu HarmonyOS; so hang vua chieu cao vung app
+    CGFloat cellW = 88, cellH = 78, icon = 38, headH = 64, gridPad = 16;
+    CGFloat maxW = MIN(area.size.width - 40, 760);
+    NSInteger cols = MAX(1, MIN((NSInteger)((maxW - gridPad * 2) / cellW), MAX((NSInteger)4, (NSInteger)apps.count)));
+    NSInteger maxRows = MAX(1, (NSInteger)((area.size.height - 32 - headH - 32) / cellH));
+    NSInteger rows = MAX(1, MIN(maxRows, ((NSInteger)apps.count + cols - 1) / cols));
+    NSInteger perPage = rows * cols, pages = MAX(1, ((NSInteger)apps.count + perPage - 1) / perPage);
+    CGFloat w = cols * cellW + gridPad * 2, gridH = rows * cellH + 8, dotsH = pages > 1 ? 24 : 8;
+    CGFloat h = headH + gridH + dotsH;
     CGRect pf = CGRectMake(CGRectGetMidX(area) - w / 2, CGRectGetMidY(area) - h / 2, w, h);
 
     UIView *card = [[UIView alloc] initWithFrame:pf];
@@ -3491,23 +3496,25 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
     cancel.center = CGPointMake(w - 36, headH / 2);
     [sheet addSubview:cancel];
 
-    UIScrollView *scroll = [[UIScrollView alloc] initWithFrame:CGRectMake(0, headH, w, h - headH)];
-    scroll.alwaysBounceVertical = YES;
+    UIScrollView *scroll = [[UIScrollView alloc] initWithFrame:CGRectMake(0, headH, w, gridH)];
+    scroll.pagingEnabled = YES;   // vuot ngang theo trang, khong co thanh cuon
+    scroll.showsHorizontalScrollIndicator = NO;
     scroll.showsVerticalScrollIndicator = NO;
+    scroll.alwaysBounceHorizontal = pages > 1;
+    scroll.delegate = self;       // cap nhat cham trang (scrollViewDidScroll)
     [sheet addSubview:scroll];
 
     NSMutableSet *inUse = [NSMutableSet set];
     for (SCPCarPane *o in [self allPanes]) if (o.bundleID) [inUse addObject:o.bundleID];
-    CGFloat padX = (w - cols * cellW) / 2;
     NSInteger i = 0;
     NSMutableArray *cells = [NSMutableArray array];
     for (NSDictionary *app in apps) {
-        NSInteger row = i / cols, col = i % cols;
+        NSInteger page = i / perPage, row = (i % perPage) / cols, col = i % cols;
         UIButton *b = [SCPCButton buttonWithType:UIButtonTypeCustom];
-        b.frame = CGRectMake(padX + col * cellW, 6 + row * cellH, cellW, cellH);
+        b.frame = CGRectMake(page * w + gridPad + col * cellW, 4 + row * cellH, cellW, cellH);
         b.accessibilityIdentifier = app[@"id"];
         [b addTarget:self action:@selector(pickerAppTapped:) forControlEvents:UIControlEventTouchUpInside];
-        UIImageView *iv = [[UIImageView alloc] initWithFrame:CGRectMake((cellW - icon) / 2, 5, icon, icon)];
+        UIImageView *iv = [[UIImageView alloc] initWithFrame:CGRectMake((cellW - icon) / 2, 8, icon, icon)];
         iv.image = SCPCAppIcon(app[@"id"]);
         SCPCStyleIcon(iv);
         iv.userInteractionEnabled = NO;
@@ -3525,19 +3532,33 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
             tick.userInteractionEnabled = NO;
             [b addSubview:tick];
         }
-        UILabel *l = [[UILabel alloc] initWithFrame:CGRectMake(1, icon + 9, cellW - 2, 13)];
+        UILabel *l = [[UILabel alloc] initWithFrame:CGRectMake(4, 8 + icon + 7, cellW - 8, 14)];
         l.text = app[@"name"];
         l.textColor = [UIColor colorWithWhite:1 alpha:0.85];
-        l.font = [UIFont systemFontOfSize:10 weight:UIFontWeightRegular];
+        l.font = [UIFont systemFontOfSize:11 weight:UIFontWeightMedium];
         l.textAlignment = NSTextAlignmentCenter;
         l.numberOfLines = 1;
         l.userInteractionEnabled = NO;
         [b addSubview:l];
         [scroll addSubview:b];
-        if (i < cols * 4) [cells addObject:b];
+        if (i < perPage) [cells addObject:b];   // trang dau: hien lan luot
         i++;
     }
-    scroll.contentSize = CGSizeMake(w, 16 + ((i + cols - 1) / cols) * cellH);
+    scroll.contentSize = CGSizeMake(pages * w, gridH);
+    UIView *dots = nil;
+    if (pages > 1) {   // cham trang HarmonyOS: trang dang xem la vien dai, trang khac cham tron mo
+        dots = [[UIView alloc] initWithFrame:CGRectMake(0, headH + gridH, w, dotsH - 6)];
+        dots.userInteractionEnabled = NO;
+        for (NSInteger k = 0; k < pages; k++) {
+            UIView *d = [[UIView alloc] init];
+            d.layer.cornerRadius = 3;
+            [dots addSubview:d];
+        }
+        [sheet addSubview:dots];
+    }
+    self.pickerDots = dots;
+    dots.tag = 1;   // trang 1 (scrollViewDidScroll chi ve lai khi doi trang)
+    [self layoutPickerDotsForPage:0];
     if (i == 0) title.text = SCPCT(@"Không tìm thấy app CarPlay", @"No CarPlay apps found");
 
     [parent addSubview:card];
@@ -3556,7 +3577,7 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
                      animations:^{ card.alpha = 1; card.transform = CGAffineTransformIdentity; } completion:nil];
     // Icon hien lan luot theo hang: mo + troi len nhe
     for (UIView *c in cells) {
-        NSInteger row = (NSInteger)((c.frame.origin.y - 6) / cellH), col = (NSInteger)((c.frame.origin.x - padX) / cellW);
+        NSInteger row = (NSInteger)((c.frame.origin.y - 4) / cellH), col = (NSInteger)((c.frame.origin.x - gridPad) / cellW);
         c.alpha = 0; c.transform = CGAffineTransformMakeTranslation(0, 16);
         [UIView animateWithDuration:0.45 delay:(fresh ? 0.08 : 0.03) + row * 0.05 + col * 0.012 usingSpringWithDamping:0.85 initialSpringVelocity:0.3
                             options:UIViewAnimationOptionAllowUserInteraction
@@ -4037,6 +4058,33 @@ static void SCPCMakePassThrough(UIWindow *w)
     [SCPPrefs setTipCount:n + 1];
     __weak SCPCarSplit *weakSelf = self;
     SCPCAfter(3.0, ^{ if (weakSelf.active) [weakSelf toast:tips[n] duration:4.5]; });
+}
+
+// Cham trang popup chon app: trang dang xem la vien dai 16pt trang, cac trang khac cham 6pt mo, can giua
+- (void)layoutPickerDotsForPage:(NSInteger)page
+{
+    UIView *dots = self.pickerDots;
+    if (!dots) return;
+    NSArray<UIView *> *ds = dots.subviews;
+    CGFloat gap = 6, total = gap * (ds.count - 1);
+    for (NSUInteger k = 0; k < ds.count; k++) total += (k == (NSUInteger)page) ? 16 : 6;
+    CGFloat x = (dots.bounds.size.width - total) / 2, cy = dots.bounds.size.height / 2;
+    for (NSUInteger k = 0; k < ds.count; k++) {
+        CGFloat dw = (k == (NSUInteger)page) ? 16 : 6;
+        ds[k].frame = CGRectMake(x, cy - 3, dw, 6);
+        ds[k].backgroundColor = [UIColor colorWithWhite:1 alpha:(k == (NSUInteger)page) ? 0.95 : 0.35];
+        x += dw + gap;
+    }
+}
+
+- (void)scrollViewDidScroll:(UIScrollView *)sv
+{
+    if (!self.pickerDots || ![sv isDescendantOfView:self.pickerSheet] || sv.bounds.size.width < 1) return;
+    NSInteger page = (NSInteger)lround(sv.contentOffset.x / sv.bounds.size.width);
+    page = MAX(0, MIN(page, (NSInteger)self.pickerDots.subviews.count - 1));
+    if (self.pickerDots.tag == page + 1) return;
+    self.pickerDots.tag = page + 1;
+    [UIView animateWithDuration:0.25 animations:^{ [self layoutPickerDotsForPage:page]; }];
 }
 
 // Bang nut Split Screen: dang cuon thi khong tu thu lai
