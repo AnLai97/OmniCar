@@ -317,12 +317,16 @@ static void ABPostOrientation(NSString *bid, long long orientation)
 
     id sceneManager = objcInvoke(objc_getClass("SBSceneManagerCoordinator"), @"mainDisplaySceneManager");
     expectClass(sceneManager, "SBMainDisplaySceneManager");
-    id layoutStateManager = objcInvoke(sceneManager, @"layoutStateManager");
+    // iOS 16: layoutStateManager / sceneIdentityForApplication:...sceneSessionRole:; iOS 14-15 (carplay-cast): _layoutStateManager /
+    // _sceneIdentityForApplication:createPrimaryIfRequired: (log 12/10 21:23, iOS 15.8.4: "expected FBSSceneIdentity got (null)")
+    BOOL ios16 = [sceneManager respondsToSelector:NSSelectorFromString(@"sceneIdentityForApplication:createPrimaryIfRequired:sceneSessionRole:")];
+    id layoutStateManager = objcInvoke(sceneManager, ios16 ? @"layoutStateManager" : @"_layoutStateManager");
     id displayIdentity    = objcInvoke(sceneManager, @"displayIdentity");
     expectClass(displayIdentity, "FBSDisplayIdentity");
 
-    id sceneIdentity = objcInvoke_3(sceneManager, @"sceneIdentityForApplication:createPrimaryIfRequired:sceneSessionRole:",
-                                    pane.application, 1, UIWindowSceneSessionRoleApplication);
+    id sceneIdentity = ios16
+        ? objcInvoke_3(sceneManager, @"sceneIdentityForApplication:createPrimaryIfRequired:sceneSessionRole:", pane.application, YES, UIWindowSceneSessionRoleApplication)
+        : objcInvoke_2(sceneManager, @"_sceneIdentityForApplication:createPrimaryIfRequired:", pane.application, YES);
     expectClass(sceneIdentity, "FBSSceneIdentity");
     id request = objcInvoke_3(objc_getClass("SBApplicationSceneHandleRequest"),
                               @"defaultRequestForApplication:sceneIdentity:displayIdentity:",
@@ -377,8 +381,9 @@ static void ABPostOrientation(NSString *bid, long long orientation)
     v.backgroundColor = [UIColor clearColor];
     [pane.box insertSubview:v atIndex:0];
 
-    NSString *sceneID = objcInvoke_3(layoutStateManager, @"primarySceneIdentifierForBundleIdentifier:sceneSessionRole:displayIdentity:",
-                                     appID, UIWindowSceneSessionRoleApplication, displayIdentity);
+    NSString *sceneID = ios16
+        ? objcInvoke_3(layoutStateManager, @"primarySceneIdentifierForBundleIdentifier:sceneSessionRole:displayIdentity:", appID, UIWindowSceneSessionRoleApplication, displayIdentity)
+        : objcInvoke_1(layoutStateManager, @"primarySceneIdentifierForBundleIdentifier:", appID);
     if (sceneID) {
         pane.sceneMonitor = objcInvoke_1([objc_getClass("FBSceneMonitor") alloc], @"initWithSceneID:", sceneID);
         objcCall_1(pane.sceneMonitor, @"setDelegate:", self);

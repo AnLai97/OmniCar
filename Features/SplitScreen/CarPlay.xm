@@ -208,6 +208,78 @@ static void SCPHookError(const char *where, NSException *e)
 
 %end // CARPLAY
 
+// ---- iOS 15: moi app tren man xe chi duoc khai bao 1 lan voi FBSDisplayLayoutPublisher ----
+// Split dua lai app con lai len (dong 1 o, keo o ra) -> CarPlay khai bao app do lan nua -> iOS 15 assert
+// "already have an element with identifier=Car[2-3]:com.apple.mobilephone" (SIGTRAP, log 12/10 21:21). iOS 16 bo qua.
+// Phan tu da co thi giu nguyen, tra 1 token rong cho CarPlay (no se goi invalidate khi app roi man).
+@interface SCPNoopLayoutAssertion : NSObject
+- (void)invalidate;
+@end
+@implementation SCPNoopLayoutAssertion
+- (void)invalidate {}
+@end
+
+static BOOL SCPLayoutIs(id obj, NSString *identifier)
+{
+    SEL s = @selector(identifier);
+    if (![obj respondsToSelector:s]) return NO;
+    id v = ((id (*)(id, SEL))objc_msgSend)(obj, s);
+    return [v isKindOfClass:[NSString class]] && [v isEqualToString:identifier];
+}
+
+static BOOL SCPLayoutContains(id container, NSString *identifier)
+{
+    if ([container isKindOfClass:[NSDictionary class]] || [container isKindOfClass:[NSMapTable class]]) {
+        if ([container objectForKey:identifier]) return YES;
+        for (id key in [container keyEnumerator]) {
+            if ([key isKindOfClass:[NSString class]] && [key hasSuffix:[@":" stringByAppendingString:identifier]]) return YES;   // "Car[2-3]:<id>"
+            if (SCPLayoutIs(key, identifier) || SCPLayoutIs([container objectForKey:key], identifier)) return YES;
+        }
+    } else if ([container conformsToProtocol:@protocol(NSFastEnumeration)] && ![container isKindOfClass:[NSString class]]) {
+        for (id item in container)
+            if (SCPLayoutIs(item, identifier)) return YES;
+    }
+    return NO;
+}
+
+static BOOL SCPLayoutHasElement(id publisher, NSString *identifier)
+{
+    for (Class c = [publisher class]; c && c != [NSObject class]; c = class_getSuperclass(c)) {
+        unsigned int n = 0;
+        Ivar *ivars = class_copyIvarList(c, &n);
+        BOOL found = NO;
+        for (unsigned int i = 0; i < n && !found; i++) {
+            const char *type = ivar_getTypeEncoding(ivars[i]);
+            if (!type || type[0] != '@') continue;
+            found = SCPLayoutContains(object_getIvar(publisher, ivars[i]), identifier);
+        }
+        free(ivars);
+        if (found) return YES;
+    }
+    return NO;
+}
+
+%group LAYOUT
+
+%hook FBSDisplayLayoutPublisher
+
+- (id)addElement:(id)element
+{
+    @try {
+        SEL s = @selector(identifier);
+        id identifier = [element respondsToSelector:s] ? ((id (*)(id, SEL))objc_msgSend)(element, s) : nil;
+        if ([identifier isKindOfClass:[NSString class]] && SCPLayoutHasElement(self, identifier)) {
+            SCPLog("CarSplit: bo khai bao trung %@ (tranh assert cua iOS 15)", identifier);
+            return [SCPNoopLayoutAssertion new];
+        }
+    } @catch (NSException *e) { SCPHookError("addElement", e); }
+    return %orig;
+}
+
+%end
+
+%end // LAYOUT
+
 // CarPlay sap (exception ObjC khong ai bat, hoac signal SIGSEGV / SIGABRT...): ghi ly do + backtrace vao mot file trong
 // tmp cua process NGAY LUC DO (OMCLog la async, process chet truoc khi kip ghi), lan khoi dong sau doc file do ra OmniCar.log
 // ("CARPLAY SAP LAN TRUOC"). Crash log he thong cua CarPlay kho lay, cai nay du de biet sap o dau.
@@ -285,12 +357,13 @@ static void SCPInstallCrashLogger(void)
     if (![[[NSBundle mainBundle] bundleIdentifier] isEqualToString:@"com.apple.CarPlayApp"]) return;
     SCPLog("loaded into CarPlay");
     %init(CARPLAY, DBDashboard = OMCCarClass("DBDashboard"), DBDashboardRootViewController = OMCCarClass("DBDashboardRootViewController"), DBApplicationSceneViewController = OMCCarClass("DBApplicationSceneViewController"));
+    %init(LAYOUT);
     OMCCheckHooks(@"SplitScreen", @[@"DBDashboard -sceneFrameForAppInfo:proxyAppInfo:", @"DBDashboard -safeAreaInsetsForAppInfo:proxyAppInfo:",
         @"DBDashboard -_handleHomeEvent:", @"DBDashboard -invalidate", @"DBDashboard -_launchAppWithInfo:forURL:",
         @"DBDashboardRootViewController -presentBaseViewController:animated:launchSource:completion:",
         @"DBDashboardRootViewController -dismissBaseViewControllerAnimated:completion:",
         @"DBApplicationSceneViewController -backgroundSceneWithCompletion:", @"DBApplicationSceneViewController -deactivateSceneWithReasonMask:",
-        @"DBApplicationSceneViewController -sceneManager:didDestroyScene:"]);
+        @"DBApplicationSceneViewController -sceneManager:didDestroyScene:", @"FBSDisplayLayoutPublisher -addElement:"]);
     SCPInstallCrashLogger();
 
     NSNotificationCenter *dnc = [objc_getClass("NSDistributedNotificationCenter") defaultCenter];
