@@ -357,13 +357,13 @@ static void SCPInstallCrashLogger(void)
     if (![[[NSBundle mainBundle] bundleIdentifier] isEqualToString:@"com.apple.CarPlayApp"]) return;
     SCPLog("loaded into CarPlay");
     %init(CARPLAY, DBDashboard = OMCCarClass("DBDashboard"), DBDashboardRootViewController = OMCCarClass("DBDashboardRootViewController"), DBApplicationSceneViewController = OMCCarClass("DBApplicationSceneViewController"));
-    %init(LAYOUT);
+    if (!objc_getClass("DBDashboard")) %init(LAYOUT);   // chi iOS 14-15 (CarPlay.app, lop CAR*); iOS 16+ giu nguyen
     OMCCheckHooks(@"SplitScreen", @[@"DBDashboard -sceneFrameForAppInfo:proxyAppInfo:", @"DBDashboard -safeAreaInsetsForAppInfo:proxyAppInfo:",
         @"DBDashboard -_handleHomeEvent:", @"DBDashboard -invalidate", @"DBDashboard -_launchAppWithInfo:forURL:",
         @"DBDashboardRootViewController -presentBaseViewController:animated:launchSource:completion:",
         @"DBDashboardRootViewController -dismissBaseViewControllerAnimated:completion:",
         @"DBApplicationSceneViewController -backgroundSceneWithCompletion:", @"DBApplicationSceneViewController -deactivateSceneWithReasonMask:",
-        @"DBApplicationSceneViewController -sceneManager:didDestroyScene:", @"FBSDisplayLayoutPublisher -addElement:"]);
+        @"DBApplicationSceneViewController -sceneManager:didDestroyScene:"]);
     SCPInstallCrashLogger();
 
     NSNotificationCenter *dnc = [objc_getClass("NSDistributedNotificationCenter") defaultCenter];
