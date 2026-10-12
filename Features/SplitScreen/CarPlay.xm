@@ -6,6 +6,8 @@
 #import <execinfo.h>
 #import <unistd.h>
 #import <fcntl.h>
+#import <mach-o/dyld.h>
+#import <mach-o/getsect.h>
 
 // Inject vao process CarPlay (com.apple.CarPlayApp, code trong DashBoard.framework, prefix DB).
 // Split hien GIAO DIEN CARPLAY cua app: DashBoard tu mo scene CarPlay cua app (giong cham icon),
@@ -52,8 +54,9 @@ static void SCPHookError(const char *where, NSException *e)
 {
     @try {
         SCPCarSplit *sp = [SCPCarSplit shared];
-        if (sp.active) [sp closeGoingHome:NO];
-        [sp homePressed];
+        BOOL split = sp.active;
+        if (split) [sp closeGoingHome:NO];
+        [sp homePressedDuringSplit:split];
     } @catch (NSException *e) { SCPHookError("_handleHomeEvent", e); }
     %orig;
 }
@@ -219,6 +222,28 @@ static void SCPUncaughtException(NSException *e)
     if (sPrevHandler) sPrevHandler(e);
 }
 
+// Framework Apple ghi ly do truoc khi tu dung (assert -> SIGTRAP) vao section __crash_info cua image do
+// (CRSetCrashLogMessage). Doc het cac image: day la dong "Application Specific Information" cua crash log he thong.
+struct SCPCrashAnnotations { uint64_t version, message, signature, backtrace, message2, thread, dialogMode, abortCause; };
+static void SCPWriteCrashMessages(int fd)
+{
+    for (uint32_t i = 0; i < _dyld_image_count(); i++) {
+        const struct mach_header_64 *mh = (const struct mach_header_64 *)_dyld_get_image_header(i);
+        if (!mh) continue;
+        unsigned long size = 0;
+        struct SCPCrashAnnotations *a = (struct SCPCrashAnnotations *)getsectiondata(mh, "__DATA", "__crash_info", &size);
+        if (!a) a = (struct SCPCrashAnnotations *)getsectiondata(mh, "__DATA_DIRTY", "__crash_info", &size);
+        if (!a || size < sizeof(uint64_t) * 5) continue;
+        const char *msgs[2] = { (const char *)a->message, (const char *)a->message2 };
+        for (int k = 0; k < 2; k++) {
+            if (!msgs[k] || !msgs[k][0]) continue;
+            const char *name = _dyld_get_image_name(i);
+            const char *slash = name ? strrchr(name, '/') : NULL;
+            dprintf(fd, "crash_info [%s]: %s\n", slash ? slash + 1 : (name ?: "?"), msgs[k]);
+        }
+    }
+}
+
 static void SCPSignalHandler(int sig, siginfo_t *si, void *ctx)
 {
     int fd = open(sCrashPath, O_WRONLY | O_CREAT | O_TRUNC, 0644);
@@ -229,6 +254,7 @@ static void SCPSignalHandler(int sig, siginfo_t *si, void *ctx)
         void *frames[64];
         int count = backtrace(frames, 64);
         backtrace_symbols_fd(frames, count, fd);
+        SCPWriteCrashMessages(fd);
         close(fd);
     }
     signal(sig, SIG_DFL);   // de he thong van tao crash log nhu thuong

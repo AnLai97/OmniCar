@@ -668,6 +668,7 @@ static BOOL SCPCIsBridgedApp(NSString *bid);
 @property (nonatomic, copy) NSString *soloHostedBundle;   // app iPhone dang hien toan man qua App Bridge (khong chia)
 @property (nonatomic) CGRect soloHostedFrame;
 @property (nonatomic) BOOL ignoreHomeOnce;                // su kien Home do chinh split gui (tat split) -> khong dong app toan man
+@property (nonatomic, weak) UIViewController *soloReturnedVC;   // VC split vua tra DashBoard trinh bay toan man (Home sau do co the ket)
 @property (nonatomic) BOOL resizing;                 // dang keo vach / keo doi cho: moi o phu the icon, CBWindow an
 @property (nonatomic, strong) UIView *dragGhost;     // the icon theo tay khi keo "•••" de doi cho
 @property (nonatomic) int dragTarget;                // o dang duoc tha vao (-1 = khong)
@@ -1984,6 +1985,7 @@ static CGSize SCPCSceneSize(UIViewController *vc)
         [self detachVC:keepVC background:NO];
         [self closeGoingHome:NO];
         ((void (*)(id, SEL, id, BOOL, unsigned long long, id))objc_msgSend)(root, present, keepVC, YES, 0, nil);
+        self.soloReturnedVC = keepVC;
         SCPLog("CarSplit: tra %@ cho DashBoard trinh bay toan man", bid);
         // Scene van giu co o (DashBoard khong hoi lai kich thuoc cho scene da co): bao lai nhu luc doi co o
         // (foregroundSceneWithSettings: -> DashBoard lay frame qua hook sceneFrameForAppInfo, gio la ca man)
@@ -4489,9 +4491,13 @@ static NSArray<NSDictionary *> *SCPCPhoneApps(void)
     });
 }
 
-- (void)homePressed
+- (void)homePressedDuringSplit:(BOOL)split
 {
-    [self dismissStuckBaseSoon];
+    // Chi sau Home luc dang chia: 1 app toan man thuong thi DashBoard tu dong; iOS 15 thu app ve icon lau hon 0.35s,
+    // dismiss them lan nua lam logo app giat 1 lan (log 12/10 21:12)
+    UIViewController *cur = objcInvoke(SCPCRootVC(), @"currentBaseViewController");
+    if (split || (cur && cur == self.soloReturnedVC)) [self dismissStuckBaseSoon];
+    self.soloReturnedVC = nil;
     // Home do chinh split gui khi tat split (soloBundle app iPhone): man chinh ve ben duoi, app toan man giu nguyen
     if (self.ignoreHomeOnce) { self.ignoreHomeOnce = NO; return; }
     if (self.soloHostedBundle) [self endHostedSolo];
