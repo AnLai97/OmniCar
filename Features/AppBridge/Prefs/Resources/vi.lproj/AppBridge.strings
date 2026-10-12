@@ -3,8 +3,6 @@
 "APPBRIDGE" = "App Bridge";
 "APPBRIDGE_FOOTER" = "App iPhone không có CarPlay (YouTube, TikTok…) hiện trên màn xe.";
 "APPBRIDGE_ENABLE" = "Hiện app iPhone trên xe";
-"APPBRIDGE_ZOOM" = "Cỡ app";
-"APPBRIDGE_ZOOM_FOOTER" = "100 = không thu nhỏ. Áp dụng từ lần mở app tiếp theo.";
 "APPBRIDGE_APPS" = "App trên màn xe";
 "APPBRIDGE_APPS_FOOTER" = "Bật app để icon hiện trên màn chính CarPlay.";
 "APPBRIDGE_APPS_NONE" = "Chưa chọn";

@@ -76,12 +76,19 @@ body { display: flex; flex-wrap: wrap; justify-content: center; gap: 22px; paddi
 .hero img { width: 58px; height: 58px; border-radius: 14px; flex: none; }
 .hero .t { flex: 1; }
 .hero .n { font-size: 21px; font-weight: 700; }
-.hero .s { font-size: 12.5px; color: rgba(255,255,255,.7); margin-top: 2px; display: flex; align-items: center; gap: 6px; }
+.hero .tag { font-size: 13px; color: rgba(255,255,255,.85); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hero .s { font-size: 12.5px; color: rgba(255,255,255,.7); margin-top: 3px; display: flex; align-items: center; gap: 6px; }
 .hero .dot { width: 7px; height: 7px; border-radius: 4px; background: #fff; box-shadow: 0 0 6px rgba(255,255,255,.9); }
 .hero .s.off .dot { background: rgba(255,255,255,.35); box-shadow: none; }
 .hero .sw { background: rgba(255,255,255,.18); }
 .hero .sw.on { background: #fff; }
 .hero .sw.on::after { background: #1b1d22; }
+
+/* The cuoi trang: logo tac gia (AL), ten, phien ban, ban quyen */
+.about { margin: -6px 16px 32px; background: var(--card); border-radius: 20px; padding: 20px 16px; display: flex; align-items: center; gap: 14px; }
+.about img { width: 56px; height: 56px; border-radius: 12px; flex: none; }
+.about .n { font-size: 16px; font-weight: 600; }
+.about .s { font-size: 13px; color: var(--sub); margin-top: 3px; }
 
 /* Bo cuc yeu thich */
 .lay { width: 46px; height: 28px; position: relative; flex: none; }
@@ -109,6 +116,7 @@ body { display: flex; flex-wrap: wrap; justify-content: center; gap: 22px; paddi
 .pair div { flex: 1; text-align: center; padding: 11px 0; border-radius: 11px; background: rgba(127,127,127,.12); font-weight: 600; cursor: pointer; }
 .pair div:active { transform: scale(.97); }
 .search { margin: 0 16px 14px; background: rgba(120,120,128,.14); border-radius: 10px; padding: 8px 12px; color: var(--sub); display: flex; gap: 8px; align-items: center; }
+.search svg { width: 18px; height: 18px; flex: none; }
 .tip { padding: 12px 16px; display: flex; gap: 12px; align-items: flex-start; }
 .tip + .tip { border-top: .5px solid var(--sep); }
 .tip .k { font-weight: 600; min-width: 92px; }
@@ -129,6 +137,8 @@ body { display: flex; flex-wrap: wrap; justify-content: center; gap: 22px; paddi
     <li><b>Chia màn hình</b>: 3 bố cục yêu thích gom thành 3 dòng (hình bố cục + app) thay vì ~15 dòng; đoạn hướng dẫn dài chuyển vào trang <b>Hướng dẫn</b>.</li>
     <li><b>Bong bóng tốc độ</b>: Nguồn là 1 dòng mở danh sách (thêm app dẫn đường mới sau này chỉ thêm 1 dòng), 2 thanh cỡ chung 1 nhóm, Xem thử / Đặt lại cạnh nhau.</li>
     <li><b>Màn hình khởi động</b>: Thêm video từ Ảnh / Tệp gộp 1 dòng.</li>
+    <li>Nút quả địa cầu đổi Tiếng Việt / English ngay trên mock (chữ tiếng Anh lấy theo en.lproj của tweak).</li>
+    <li>Thẻ cuối trang giữ như cũ: logo AL, tên, phiên bản, bản quyền. Thẻ công tắc phía trên bỏ số phiên bản, thêm slogan dưới tên.</li>
     <li>Chú thích dưới mỗi nhóm tối đa 1 dòng hoặc bỏ hẳn. Không dùng màu xanh: icon ô kính tối như logo, công tắc màu than chì (sáng) / trắng (tối).</li>
   </ul>
   <div class="btns">
@@ -163,11 +173,57 @@ const appIcon = (id, s = 29) => { const a = APPS[id]; return a ? `<div class="ap
 
 const S = {
   enabled: true, split: true, autoLaunch: true, recent: true, favs: true, bridge: true, bubble: true, startup: false,
-  zoom: 85, showIcon: true, sizePhone: 100, sizeCar: 120, source: 0, style: 14, duration: 5, playFull: false, scale: 0, sound: true, tapSkip: true,
+  showIcon: true, sizePhone: 100, sizeCar: 120, source: 0, style: 14, duration: 5, playFull: false, scale: 0, sound: true, tapSkip: true,
   video: 'Logo xe.mp4', lang: 'vi',
   fav: [{ name: 'Đi làm', layout: 2, apps: ['maps', 'music'] }, { name: 'Đi chơi', layout: 13, apps: ['gofa', 'spotify', 'phone'] }, { name: '', layout: 2, apps: [null, null] }],
   bridgeApps: ['youtube', 'tiktok'],
 };
+// Tieng Anh: chuoi tieng Viet -> tieng Anh (cung chu voi Features/*/Prefs/Resources/en.lproj). Ap dung len
+// moi text node sau khi ve trang (translate), va qua t() cho toast / menu.
+const EN = {
+  'Sức mạnh của CarPlay': 'The power of CarPlay', 'Đang bật': 'On', 'Đang tắt': 'Off', 'Bật': 'On', 'Tắt': 'Off',
+  'Ngôn ngữ': 'Language', 'Huỷ': 'Cancel', 'Đang respring…': 'Respringing…',
+  'Ứng dụng': 'Apps', 'App trên màn xe': 'Apps on the car screen', 'App iPhone hiện trên CarPlay': 'iPhone apps on CarPlay',
+  'Tính năng': 'Features', 'Chia màn hình': 'Split Screen', 'Bong bóng tốc độ': 'Speed Bubble', 'Màn hình khởi động': 'Startup Screen', 'Khởi động': 'Startup',
+  'Thay đổi áp dụng ngay. Respring sau khi cài hoặc cập nhật.': 'Changes apply right away. Respring after installing or updating.',
+  'Phiên bản: 2.0': 'Version: 2.0', 'Bản quyền © 2026 AnLai': 'Copyright © 2026 AnLai',
+  'Tự mở khi cắm xe': 'Open on connect', 'Bảng OmniCar trên xe': 'OmniCar panel in the car', 'Gần đây': 'Recent', 'Yêu thích': 'Favorites',
+  'Bố cục yêu thích': 'Favorite layouts', 'Chưa chọn app': 'No apps yet', 'Hướng dẫn': 'Guide',
+  'Đi làm': 'Commute', 'Đi chơi': 'Weekend', 'Đi xa': 'Road trip', 'Tên': 'Name', 'Bố cục': 'Layout', 'App': 'Apps', 'Chưa chọn': 'None', 'Không chọn': 'None',
+  'App CarPlay': 'CarPlay apps', 'App iPhone (App Bridge)': 'iPhone apps (App Bridge)', 'Bản đồ': 'Maps', 'Nhạc': 'Music', 'Điện thoại': 'Phone',
+  'Trên xe': 'In the car', 'Nút OmniCar': 'OmniCar button', 'Trên dock xe: chọn bố cục, Gần đây, Yêu thích, thoát chia màn.': 'On the dock: layouts, Recent, Favorites, exit split.',
+  'Chấm tròn': 'Round knob', 'Chạm: chọn tỉ lệ · kéo: đổi tỉ lệ · kéo sát mép: đóng ô.': 'Tap for ratios · drag to resize · drag to the edge to close a pane.',
+  'Thanh •••': '••• bar', 'Chạm: Đổi app / Cửa sổ nổi / Toàn màn / Đóng · kéo thả lên ô khác: đổi chỗ.': 'Tap for Replace / Float / Full screen / Close · drag onto another pane to swap.',
+  'Vạch chia': 'Divider', 'Chạm 2 lần: đổi chỗ 2 ô.': 'Double-tap: swap the two panes.', 'Nút Home': 'Home button', 'Thoát chia màn.': 'Exit split.',
+  'Siri / Shortcuts (Mở URL)': 'Siri / Shortcuts (Open URL)', 'Trước đây là CarDuo. Host app dựa trên carplay-cast (Ethan Arbuckle).': 'Formerly CarDuo. App hosting is based on carplay-cast (Ethan Arbuckle).',
+  'Hiện app iPhone trên xe': 'Show iPhone apps on the car', 'Tìm app': 'Search apps', 'App của bạn': 'Your apps',
+  'App đã có CarPlay riêng không nằm ở đây.': 'Apps with their own CarPlay interface are not listed.',
+  'Nguồn': 'Source', 'Kiểu': 'Style', 'Hiện icon app': 'Show app icon', 'Cỡ': 'Size', 'Xem thử': 'Preview', 'Đặt lại': 'Reset',
+  'Kéo để dời · chụm 2 ngón để đổi cỡ · giữ 2 giây để thoát app.': 'Drag to move · pinch to resize · hold 2 s to quit the app.',
+  'Bong bóng hiện 10 giây': 'Bubble shows for 10 seconds', 'Đã đặt lại vị trí và cỡ': 'Position and size reset',
+  'Bong bóng chỉ lấy tốc độ từ app được chọn.': 'The bubble reads speed only from the chosen app.',
+  'Thẻ ngang': 'Card', 'Đĩa nhỏ': 'Mini disc', 'Biển báo lớn': 'Big sign', 'Đồng hồ': 'Gauge', 'Thanh HUD': 'HUD bar', 'Màu theo tốc độ': 'Speed color',
+  'Cột dọc': 'Tower', 'Viên thuốc đôi': 'Split pill', 'Thanh đo': 'Meter bar', 'Chữ nổi': 'Floating text', 'Thẻ sáng': 'Light card', 'Vô lăng': 'Steering wheel',
+  'Bánh xe': 'Wheel (spinning rim)', 'Thẻ HarmonyOS': 'HarmonyOS card', 'Đồng hồ kim': 'Analog speedometer', 'Vòng kép HarmonyOS': 'HarmonyOS rings', 'Live View': 'Live View capsule',
+  'Chưa có': 'None', 'Thêm video': 'Add video', 'Đang phát video': 'Playing video', 'Xoá video': 'Delete video', 'MP4, MOV, M4V · tối đa 60 giây.': 'MP4, MOV, M4V · up to 60 seconds.',
+  'Thời lượng': 'Duration', 'Phát hết video': 'Play full video', 'Khung hình': 'Display', 'Lấp đầy': 'Fill', 'Vừa khung': 'Fit', 'Âm thanh': 'Sound', 'Chạm để bỏ qua': 'Tap to skip',
+  'Từ Ảnh': 'From Photos', 'Từ Tệp': 'From Files', 'Mở thư viện Ảnh': 'Opening Photos', 'Mở Tệp': 'Opening Files',
+};
+function t(v) {
+  if (S.lang !== 'en') return v;
+  if (EN[v] != null) return EN[v];
+  let m;
+  if ((m = /^Ô (\d)$/.exec(v))) return 'Pane ' + m[1];
+  if ((m = /^(\d+) app$/.exec(v))) return m[1] + ' apps';
+  if ((m = /^Xoá "(.*)"$/.exec(v))) return 'Delete "' + m[1] + '"';
+  return v;
+}
+function translate(root) {
+  if (S.lang !== 'en') return;
+  const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+  for (let n; (n = w.nextNode());) { const v = n.nodeValue.trim(); if (v) { const e = t(v); if (e !== v) n.nodeValue = n.nodeValue.replace(v, e); } }
+  root.querySelectorAll('[title], [placeholder]').forEach(el => ['title', 'placeholder'].forEach(a => el.hasAttribute(a) && el.setAttribute(a, t(el.getAttribute(a)))));
+}
 const STYLES = ['Thẻ ngang', 'Đĩa nhỏ', 'Biển báo lớn', 'Đồng hồ', 'Thanh HUD', 'Màu theo tốc độ', 'Cột dọc', 'Viên thuốc đôi', 'Neon', 'Thanh đo', 'Chữ nổi', 'Thẻ sáng', 'Vô lăng', 'Bánh xe', 'Thẻ HarmonyOS', 'Đồng hồ kim', 'Vòng kép HarmonyOS', 'Live View'];
 const LAYOUTS = [2, 3, 13, 31];
 const PH = ['Đi làm', 'Đi chơi', 'Đi xa'];
@@ -197,6 +253,7 @@ function draw(pg) {
     ? `<div class="nav"><div class="icons"><span title="Ngôn ngữ" data-act="lang">${ic('globe')}</span><span title="Respring" data-act="respring">${ic('respring')}</span></div></div><div class="large">OmniCar</div>`
     : `<div class="nav"><div class="back" data-act="back"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">${ICON.back}</svg>${prev?.ptitle || 'OmniCar'}</div><div class="title">${pg.ptitle}</div></div>`)
     + pg.builder();
+  translate(pg);
   bind(pg);
 }
 function redraw() { stack.forEach(draw); }
@@ -219,8 +276,8 @@ function layMini(layout, apps, w = 46, h = 28, iconS = 15) {
 
 // --- cac trang
 function rootPage() {
-  return `<div class="hero"><img src="../../assets/icon-1024.png" alt=""><div class="t"><div class="n">OmniCar</div>
-      <div class="s ${S.enabled ? '' : 'off'}"><span class="dot"></span>${S.enabled ? 'Đang bật' : 'Đang tắt'} · 2.0</div></div>${sw('enabled')}</div>`
+  return `<div class="hero"><img src="../../assets/icon-1024.png" alt=""><div class="t"><div class="n">OmniCar</div><div class="tag">Sức mạnh của CarPlay</div>
+      <div class="s ${S.enabled ? '' : 'off'}"><span class="dot"></span>${S.enabled ? 'Đang bật' : 'Đang tắt'}</div></div>${sw('enabled')}</div>`
     + group([
       row({ icon: 'apps', lab: 'App trên màn xe', sub: 'App iPhone hiện trên CarPlay', right: `<span class="val">${S.bridge ? S.bridgeApps.length + ' app' : 'Tắt'}</span>`, link: 'bridge' }),
     ], 'Ứng dụng')
@@ -229,12 +286,13 @@ function rootPage() {
       row({ icon: 'speed', lab: 'Bong bóng tốc độ', right: onoff(S.bubble), link: 'bubble' }),
       row({ icon: 'play', lab: 'Màn hình khởi động', right: onoff(S.startup), link: 'startup' }),
     ], 'Tính năng', 'Thay đổi áp dụng ngay. Respring sau khi cài hoặc cập nhật.')
-    + `<div class="gfoot" style="text-align:center;padding:4px 0 30px">OmniCar 2.0 · © 2026 AnLai</div>`;
+    + `<div class="about"><img src="../../Prefs/Resources/avatar@3x.png" alt="AL"><div><div class="n">OmniCar</div><div class="s">Phiên bản: 2.0</div><div class="s">Bản quyền © 2026 AnLai</div></div></div>`;
 }
 function splitPage() {
-  return group([row({ lab: 'Chia màn hình', right: sw('split') }), row({ lab: 'Tự mở khi cắm xe', right: sw('autoLaunch') })])
+  return group([row({ lab: 'Chia màn hình', right: sw('split') })])
+    + group([row({ lab: 'Tự mở khi cắm xe', right: sw('autoLaunch') })])
     + group([row({ lab: 'Gần đây', right: sw('recent') }), row({ lab: 'Yêu thích', right: sw('favs') })], 'Bảng OmniCar trên xe')
-    + group(S.fav.map((f, i) => row({ lab: f.name || PH[i], sub: f.apps.some(Boolean) ? f.apps.filter(Boolean).map(a => APPS[a][0]).join(' + ') : 'Chưa chọn app', right: layMini(f.layout, f.apps), link: 'fav' + i })),
+    + group(S.fav.map((f, i) => row({ lab: f.name || PH[i], sub: f.apps.some(Boolean) ? f.apps.filter(Boolean).map(a => t(APPS[a][0])).join(' + ') : 'Chưa chọn app', right: layMini(f.layout, f.apps), link: 'fav' + i })),
       'Bố cục yêu thích', 'Siri: omnicar://splitscreen/fav?n=1')
     + group([row({ icon: 'book', lab: 'Hướng dẫn', link: 'guide' })]);
 }
@@ -259,8 +317,7 @@ function guidePage() {
 }
 function bridgePage() {
   const all = ['youtube', 'tiktok', 'zing', 'phone'];
-  return group([row({ lab: 'Hiện app iPhone trên xe', right: sw('bridge') }),
-      `<div class="row noicon"><div class="lab" style="flex:none">Cỡ app</div><input type="range" class="slider" min="60" max="100" value="${S.zoom}" data-range="zoom"><span class="num">${S.zoom}%</span></div>`])
+  return group([row({ lab: 'Hiện app iPhone trên xe', right: sw('bridge') })])
     + `<div class="search">${ic('search')}<span>Tìm app</span></div>`
     + group(all.map(a => `<div class="row">${appIcon(a)}<div class="lab">${APPS[a][0]}</div><div class="sw ${S.bridgeApps.includes(a) ? 'on' : ''}" data-app="${a}"></div></div>`), 'App của bạn', 'App đã có CarPlay riêng không nằm ở đây.');
 }
@@ -297,10 +354,11 @@ function videosPage() { return group(['Logo xe.mp4', 'Intro VinFast.mov'].map(v 
 const PAGES = { split: [splitPage, 'Chia màn hình'], bridge: [bridgePage, 'App trên màn xe'], bubble: [bubblePage, 'Bong bóng tốc độ'], startup: [startupPage, 'Khởi động'],
   guide: [guidePage, 'Hướng dẫn'], styles: [stylesPage, 'Kiểu'], videos: [videosPage, 'Video'], sources: [sourcesPage, 'Nguồn'] };
 
-function toast(msg) { const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; scr.appendChild(t); setTimeout(() => t.remove(), 1800); }
+function setLang(l) { S.lang = l; document.documentElement.lang = l; redraw(); }
+function toast(msg) { const el = document.createElement('div'); el.className = 'toast'; el.textContent = t(msg); scr.appendChild(el); setTimeout(() => el.remove(), 1800); }
 function menu(items, top) {
   const m = document.createElement('div'); m.className = 'menu'; m.style.top = top + 'px';
-  items.forEach(([lab, fn]) => { const d = document.createElement('div'); d.innerHTML = lab; d.onclick = e => { e.stopPropagation(); m.remove(); fn && fn(); }; m.appendChild(d); });
+  items.forEach(([lab, fn]) => { const d = document.createElement('div'); d.innerHTML = t(lab); d.onclick = e => { e.stopPropagation(); m.remove(); fn && fn(); }; m.appendChild(d); });
   scr.appendChild(m); setTimeout(() => document.addEventListener('click', () => m.remove(), { once: true }), 0);
 }
 
@@ -315,9 +373,9 @@ function bind(pg) {
     const a = e.dataset.act; ev.stopPropagation();
     if (a === 'back') return pop();
     if (a === 'respring') return menu([['<b>Respring</b>', () => toast('Đang respring…')], ['Huỷ']], 92);
-    if (a === 'lang') return menu([['Tiếng Việt', null], ['English', () => toast('Bản xem trước chỉ có tiếng Việt')]], 92);
+    if (a === 'lang') return menu([['Tiếng Việt' + (S.lang === 'vi' ? ' <span>✓</span>' : ''), () => setLang('vi')], ['English' + (S.lang === 'en' ? ' <span>✓</span>' : ''), () => setLang('en')]], 92);
     if (a === 'addvideo') return menu([['Từ Ảnh', () => toast('Mở thư viện Ảnh')], ['Từ Tệp', () => toast('Mở Tệp')]], 260);
-    if (a === 'delvideo') return menu([['<span style="color:var(--danger)">Xoá "' + S.video + '"</span>', () => { S.video = ''; redraw(); }], ['Huỷ']], 330);
+    if (a === 'delvideo') return menu([['<span style="color:var(--danger)">' + t('Xoá "' + S.video + '"') + '</span>', () => { S.video = ''; redraw(); }], ['Huỷ']], 330);
     if (a === 'reset') { S.sizePhone = S.sizeCar = 100; redraw(); return toast('Đã đặt lại vị trí và cỡ'); }
     if (a.startsWith('toast:')) return toast(a.slice(6));
   });
@@ -335,7 +393,10 @@ function bind(pg) {
 
 document.getElementById('theme').onclick = e => { document.documentElement.classList.toggle('dark'); e.target.classList.toggle('on'); };
 document.getElementById('home').onclick = () => { while (stack.length > 1) { stack.pop().remove(); } stack[0].classList.remove('left'); draw(stack[0]); };
+// ?lang=en mo bang tieng Anh, #split / #bubble / #startup / #bridge mo thang trang do (tien chup anh)
+if (new URLSearchParams(location.search).get('lang') === 'en') { S.lang = 'en'; document.documentElement.lang = 'en'; }
 push(rootPage, 'OmniCar', false);
+if (PAGES[location.hash.slice(1)]) push(PAGES[location.hash.slice(1)][0], PAGES[location.hash.slice(1)][1], false);
 </script>
 </body>
 </html>

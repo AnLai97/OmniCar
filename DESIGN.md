@@ -26,4 +26,7 @@ Xem và thử trước mọi thay đổi bằng `tools/preview/splitscreen.html`
 
 ## Logo
 `tools/icons/omnicar_logo_glass.ps1`: ô kính tối, vòng + nút play CarPlay trắng có quầng sáng trắng toả ra
-ngoài vòng. Nút OmniCar trên dock (`SCPCLogoImage`) vẽ cùng hình.
+ngoài vòng. Logo chỉ dùng cho icon tweak / trang cài đặt.
+
+Nút Split Screen trên dock CarPlay (`SCPCSplitImage`) là hình 2 ô cạnh nhau (chia đôi màn hình), không ô nền,
+cùng màu với lưới app của nút Home ngay dưới nó, để đồng bộ với dock chứ không lặp lại logo.

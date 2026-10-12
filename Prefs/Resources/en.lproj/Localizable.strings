@@ -1,9 +1,11 @@
 /* OmniCar – English */
 
 "LANGUAGE" = "Language";
+"HEADER_TAGLINE" = "The power of CarPlay";
 "STATUS_ON" = "On";
 "STATUS_OFF" = "Off";
-"FOOTER_FORMAT" = "OmniCar %@ · © 2026 AnLai";
+"VERSION_FORMAT" = "Version: %@";
+"COPYRIGHT" = "Copyright © 2026 AnLai";
 "OK" = "OK";
 "CANCEL" = "Cancel";
 

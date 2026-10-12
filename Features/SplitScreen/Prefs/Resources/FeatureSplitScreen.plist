@@ -35,6 +35,11 @@
 			<key>PostNotification</key>
 			<string>com.anlai.omnicar/prefschanged</string>
 		</dict>
+		<!-- Options below the on/off switch, in their own group -->
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+		</dict>
 		<dict>
 			<key>cell</key>
 			<string>PSSwitchCell</string>

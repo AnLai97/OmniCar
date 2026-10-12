@@ -698,6 +698,8 @@ static BOOL SCPCIsBridgedApp(NSString *bid);
 @property (nonatomic, weak) UIView *launcherHost;      // view dang chua nut Split Screen (view dai dock hoac tabParent)
 @property (nonatomic) BOOL dockTreeLogged;             // da ghi cay view dai dock (1 lan / tien trinh)
 @property (nonatomic, copy) NSString *launcherWhere;  // vi tri nut Split Screen lan truoc (chi de ghi log khi doi)
+@property (nonatomic, strong) UIColor *homeInk;       // mau luoi app cua nut Home dock (nut Split Screen ve cung mau)
+@property (nonatomic) BOOL launcherBare;              // nut Split Screen dang la hinh tran (tren dock) hay nut tron kinh (goc vung app)
 @property (nonatomic) CFAbsoluteTime lastLauncherCalc;  // lan do dock gan nhat (do lai toi da 1 lan / giay)
 @property (nonatomic) CFAbsoluteTime lastIconScan;
 @property (nonatomic) BOOL autoLaunchDone;           // da tu mo split cho lan cam xe nay
@@ -4518,77 +4520,34 @@ static NSArray<NSDictionary *> *SCPCPhoneApps(void)
 #define SCPC_DOCK_MIN 22.0    // nut Split Screen tren dock nho nhat (khe tren nut Home hep)
 static char kSCPCLongPressKey;
 
-// Icon OmniCar (tools/icons/omnicar_logo.py, khung 1024) ban nen trang: o vuong trang bo tron nhu icon app, vong tron
-// va nut play CarPlay to gradient xanh (3 goc nut play xuyen qua vong, vien cat mau trang). Ve bang CoreGraphics.
-static UIBezierPath *SCPCRoundedTriangle(CGFloat cx, CGFloat cy, CGFloat h, CGFloat r)
-{
-    CGFloat w = h * 0.9;
-    CGPoint p[3] = { CGPointMake(cx - w / 2 + w / 6, cy - h / 2), CGPointMake(cx - w / 2 + w / 6, cy + h / 2), CGPointMake(cx + w / 2 + w / 6, cy) };
-    UIBezierPath *path = [UIBezierPath bezierPath];
-    for (int i = 0; i < 3; i++) {
-        CGPoint prev = p[(i + 2) % 3], cur = p[i], next = p[(i + 1) % 3];
-        CGFloat ax = prev.x - cur.x, ay = prev.y - cur.y, bx = next.x - cur.x, by = next.y - cur.y;
-        CGFloat la = hypot(ax, ay), lb = hypot(bx, by);
-        ax /= la; ay /= la; bx /= lb; by /= lb;
-        CGFloat theta = acos(MAX(-1, MIN(1, ax * bx + ay * by)));   // goc tai dinh
-        CGFloat d = r / tan(theta / 2);                               // lui tu dinh theo 2 canh de bo goc ban kinh r
-        CGPoint a = CGPointMake(cur.x + ax * d, cur.y + ay * d), b = CGPointMake(cur.x + bx * d, cur.y + by * d);
-        if (i == 0) [path moveToPoint:a]; else [path addLineToPoint:a];
-        [path addQuadCurveToPoint:b controlPoint:cur];
-    }
-    [path closePath];
-    return path;
-}
-
-// Logo OmniCar kieu kinh (cung hinh tools/icons/omnicar_logo_glass.ps1): o toi gradient + vet sang tren + vien
-// sang manh, vong tron + nut play trang co quang sang trang toa ra ngoai vong
-static UIImage *SCPCLogoImage(CGFloat side)
+// Nut Split Screen tren dock CarPlay: chi la hinh 2 o canh nhau (chia doi man hinh), khong o nen, cung mau voi luoi
+// app cua nut Home ngay duoi (anh template, tintColor = mau nut Home). Khung 1024, le 60.
+static UIImage *SCPCSplitImage(CGFloat side)
 {
     UIGraphicsImageRenderer *r = [[UIGraphicsImageRenderer alloc] initWithSize:CGSizeMake(side, side)];
     UIImage *img = [r imageWithActions:^(UIGraphicsImageRendererContext *rc) {
-        CGContextRef ctx = rc.CGContext;
-        CGContextScaleCTM(ctx, side / 1024.0, side / 1024.0);
-        CGColorSpaceRef cs = CGColorSpaceCreateDeviceRGB();
-        NSArray *cols = @[(id)[UIColor colorWithRed:0x33 / 255.0 green:0x37 / 255.0 blue:0x3F / 255.0 alpha:1].CGColor,
-                          (id)[UIColor colorWithRed:0x0C / 255.0 green:0x0D / 255.0 blue:0x10 / 255.0 alpha:1].CGColor];
-        CGGradientRef g = CGGradientCreateWithColors(cs, (__bridge CFArrayRef)cols, NULL);
-        NSArray *sheenCols = @[(id)[UIColor colorWithWhite:1 alpha:24 / 255.0].CGColor, (id)[UIColor colorWithWhite:1 alpha:0].CGColor];
-        CGGradientRef sheen = CGGradientCreateWithColors(cs, (__bridge CFArrayRef)sheenCols, NULL);
-        void (^glass)(UIBezierPath *) = ^(UIBezierPath *clip) {   // nen kinh toi + vet sang nua tren, trong hinh clip
-            CGContextSaveGState(ctx);
-            [clip addClip];
-            CGContextDrawLinearGradient(ctx, g, CGPointZero, CGPointMake(0, 1024), 0);
-            CGContextDrawLinearGradient(ctx, sheen, CGPointZero, CGPointMake(0, 512), 0);
-            CGContextRestoreGState(ctx);
-        };
-        // O bo tron ban kinh ~22% nhu icon app tren dock, vien trang 27% mong
-        UIBezierPath *tile = [UIBezierPath bezierPathWithRoundedRect:CGRectMake(0, 0, 1024, 1024) cornerRadius:1024 * 0.2237];
-        [[UIColor colorWithWhite:1 alpha:70 / 255.0] setFill];
-        [tile fill];
-        glass([UIBezierPath bezierPathWithRoundedRect:CGRectMake(4, 4, 1016, 1016) cornerRadius:1016 * 0.2237]);
-        // Quang sang trang toa ra ngoai vong: vong mong tu ban kinh 361 ra 408, nhat dan
-        for (int k = 0; k < 16; k++) {
-            CGFloat rr = 361.5 + k * 3, a = 56 / 255.0 * pow(1 - k / 16.0, 2);
-            UIBezierPath *o = [UIBezierPath bezierPathWithOvalInRect:CGRectMake(512 - rr, 512 - rr, 2 * rr, 2 * rr)];
-            o.lineWidth = 3.2;
-            [[UIColor colorWithWhite:1 alpha:a] setStroke];
-            [o stroke];
-        }
-        // Vong tron trang (ban kinh ngoai 360, day 120)
-        UIBezierPath *ring = [UIBezierPath bezierPathWithOvalInRect:CGRectMake(152, 152, 720, 720)];
-        [ring appendPath:[UIBezierPath bezierPathWithOvalInRect:CGRectMake(272, 272, 480, 480)]];
-        ring.usesEvenOddFillRule = YES;
+        CGContextScaleCTM(rc.CGContext, side / 1024.0, side / 1024.0);
+        UIBezierPath *panes = [UIBezierPath bezierPathWithRoundedRect:CGRectMake(60, 212, 422, 600) cornerRadius:90];
+        [panes appendPath:[UIBezierPath bezierPathWithRoundedRect:CGRectMake(542, 212, 422, 600) cornerRadius:90]];
         [[UIColor whiteColor] setFill];
-        [ring fill];
-        // Nut play: vien cat bang nen kinh roi tam giac trang
-        glass(SCPCRoundedTriangle(512, 512, 700, 60));
-        [[UIColor whiteColor] setFill];
-        [SCPCRoundedTriangle(512, 512, 610, 48) fill];
-        CGGradientRelease(sheen);
-        CGGradientRelease(g);
-        CGColorSpaceRelease(cs);
+        [panes fill];
     }];
-    return [img imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
+    return [img imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+}
+
+// Mau luoi app cua nut Home (o vuong nho co backgroundColor, hoac anh template co tint) de nut Split Screen cung mau
+static UIColor *SCPCViewInk(UIView *v, int depth)
+{
+    if (!v || depth > 6) return nil;
+    for (UIView *c in v.subviews) {
+        if (c.hidden || c.alpha < 0.05) continue;
+        UIColor *bg = c.backgroundColor;
+        if (bg && CGColorGetAlpha(bg.CGColor) > 0.3 && c.bounds.size.width <= 20 && c.bounds.size.height <= 20) return bg;
+        if ([c isKindOfClass:[UIImageView class]] && ((UIImageView *)c).image.renderingMode == UIImageRenderingModeAlwaysTemplate) return c.tintColor;
+        UIColor *ink = SCPCViewInk(c, depth + 1);
+        if (ink) return ink;
+    }
+    return nil;
 }
 
 - (BOOL)atHomeScreen
@@ -4612,7 +4571,7 @@ static UIImage *SCPCLogoImage(CGFloat side)
 
 // Tim nut Home cua dock (DBStatusBarHomeButton): view co ten lop chua "Home", nho (20..70pt), nam trong dai dock.
 // Tra ve khung phan hinh dang hien (luoi app, nho hon khung cham cua nut) de nut Split Screen nam sat ngay tren no.
-static void SCPCFindHomeButton(UIView *v, UIView *parent, CGRect strip, int depth, UIView *skip, CGRect *best)
+static void SCPCFindHomeButton(UIView *v, UIView *parent, CGRect strip, int depth, UIView *skip, CGRect *best, UIView **bestView)
 {
     if (!v || depth > 20 || v == skip || v.hidden || v.alpha < 0.05) return;
     NSString *cls = NSStringFromClass([v class]);
@@ -4624,11 +4583,11 @@ static void SCPCFindHomeButton(UIView *v, UIView *parent, CGRect strip, int dept
             for (UIView *c in v.subviews)
                 if (!c.hidden && c.alpha >= 0.05 && c.bounds.size.height > 2) glyph = CGRectUnion(glyph, [parent convertRect:c.bounds fromView:c]);
             if (!CGRectIsNull(glyph) && CGRectContainsRect(CGRectInset(r, -1, -1), glyph)) r = glyph;
-            if (CGRectIsNull(*best) || CGRectGetMinY(r) > CGRectGetMinY(*best)) *best = r;   // lay nut thap nhat
+            if (CGRectIsNull(*best) || CGRectGetMinY(r) > CGRectGetMinY(*best)) { *best = r; if (bestView) *bestView = v; }   // lay nut thap nhat
             return;
         }
     }
-    for (UIView *c in v.subviews) SCPCFindHomeButton(c, parent, strip, depth + 1, skip, best);
+    for (UIView *c in v.subviews) SCPCFindHomeButton(c, parent, strip, depth + 1, skip, best, bestView);
 }
 
 // Day cua dong ho / song / pin (_UIStatusBar*, _UIBattery*) o dau dai dock: cum icon dock khong duoc day len qua
@@ -4671,7 +4630,9 @@ static void SCPCStatusBottom(UIView *v, UIView *parent, CGRect strip, int depth,
         UIView *dock = nil;
         @try { id dockVC = objcInvoke(root, @"appDockViewController"); dock = dockVC ? objcInvoke(dockVC, @"view") : nil; } @catch (NSException *e) {}
         UIView *scan = dock.window ?: root.view;
-        SCPCFindHomeButton(scan, parent, strip, 0, self.homeButton, &home);
+        UIView *homeView = nil;
+        SCPCFindHomeButton(scan, parent, strip, 0, self.homeButton, &home, &homeView);
+        self.homeInk = SCPCViewInk(homeView, 0) ?: self.homeInk;   // cung mau luoi app cua nut Home
         CGFloat statusBottom = CGRectGetMinY(strip) + SCPC_DOCK_TOP;
         SCPCStatusBottom(scan, parent, strip, 0, &statusBottom);
         CGFloat clusterBottom = CGRectIsNull(cluster) ? statusBottom : CGRectGetMaxY(cluster);
@@ -4721,14 +4682,18 @@ static void SCPCStatusBottom(UIView *v, UIView *parent, CGRect strip, int depth,
     CGFloat size = SCPC_HOME_BTN, shift = 0;
     CGPoint c = [self launcherCenterInParent:parent size:&size shift:&shift];
     [self setDockShift:shift];
-    if (!self.homeButton || fabs(self.homeButton.bounds.size.width - size) > 0.5) {
+    // Tren dock: hinh tran cung mau nut Home ngay duoi. Goc vung app (khong co dock doc): nut tron kinh toi cho noi tren app.
+    BOOL bare = ![self.launcherWhere hasPrefix:@"goc"];
+    if (!self.homeButton || fabs(self.homeButton.bounds.size.width - size) > 0.5 || self.launcherBare != bare) {
         [self.homeButton removeFromSuperview];
-        UIButton *b = SCPCRoundButton(SCPCLogoImage(size), self, @selector(homeButtonTapped));
+        UIButton *b = bare ? SCPCRoundButton(SCPCSplitImage(size), self, @selector(homeButtonTapped))
+                           : SCPCCircleButton(SCPCSplitImage(size * 0.62), size, self, @selector(homeButtonTapped));
         b.bounds = CGRectMake(0, 0, size, size);
-        b.layer.cornerRadius = 0;
-        b.backgroundColor = nil;
+        if (bare) { b.layer.cornerRadius = 0; b.backgroundColor = nil; }
         self.homeButton = b;
+        self.launcherBare = bare;
     }
+    self.homeButton.tintColor = bare && self.homeInk ? self.homeInk : SCPCInk();
     // Nut nam tren dai dock: gan vao chinh view ve dai dock (status bar CarPlay nam tren baseContainerView,
     // gan vao tabParent thi nut bi dai dock che mat). Ngoai dock (goc vung app) thi van gan vao tabParent.
     CGRect r = CGRectMake(c.x - size / 2, c.y - size / 2, size, size);

@@ -8,15 +8,16 @@
 
 #pragma mark - Header card
 
-// Dark glass card in the OmniCar look (DESIGN.md, same colors as the logo): logo, name, status line
-// ("● On · 2.0", the dot glows white when on) and the master switch, so the enable row is gone.
+// Dark glass card in the OmniCar look (DESIGN.md, same colors as the logo): logo, name, slogan, status line
+// ("● On", the dot glows white when on) and the master switch, so the enable row is gone. The version
+// lives in the footer card, not here.
 @interface OMCHeaderCard : UIView
 @property (nonatomic, strong) UIView *card, *clip, *dot;
 @property (nonatomic, strong) CAGradientLayer *gradient, *sheen;
 @property (nonatomic, strong) UIImageView *logo;
-@property (nonatomic, strong) UILabel *nameLabel, *statusLabel;
+@property (nonatomic, strong) UILabel *nameLabel, *taglineLabel, *statusLabel;
 @property (nonatomic, strong) UISwitch *toggle;
-- (void)updateWithStatus:(NSString *)status enabled:(BOOL)enabled;
+- (void)updateWithTagline:(NSString *)tagline status:(NSString *)status enabled:(BOOL)enabled;
 @end
 
 @implementation OMCHeaderCard
@@ -60,6 +61,13 @@
 	_nameLabel.textColor = UIColor.whiteColor;
 	[_clip addSubview:_nameLabel];
 
+	_taglineLabel = [UILabel new];
+	_taglineLabel.font = [UIFont systemFontOfSize:13 weight:UIFontWeightRegular];
+	_taglineLabel.textColor = [UIColor colorWithWhite:1 alpha:0.85];
+	_taglineLabel.adjustsFontSizeToFitWidth = YES;
+	_taglineLabel.minimumScaleFactor = 0.8;
+	[_clip addSubview:_taglineLabel];
+
 	_dot = [UIView new];
 	_dot.layer.cornerRadius = 3.5;
 	_dot.layer.shadowColor = UIColor.whiteColor.CGColor;
@@ -80,8 +88,9 @@
 	return self;
 }
 
-- (void)updateWithStatus:(NSString *)status enabled:(BOOL)enabled {
-	_statusLabel.text = [NSString stringWithFormat:@"%@ · %@", status, @TWEAK_VERSION];
+- (void)updateWithTagline:(NSString *)tagline status:(NSString *)status enabled:(BOOL)enabled {
+	_taglineLabel.text = tagline;
+	_statusLabel.text = status;
 	_dot.backgroundColor = [UIColor colorWithWhite:1 alpha:enabled ? 1 : 0.35];
 	_dot.layer.shadowOpacity = enabled ? 0.9 : 0;
 	_toggle.on = enabled;
@@ -110,9 +119,12 @@
 	CGSize ts = [_toggle sizeThatFits:CGSizeZero];
 	_toggle.frame = CGRectMake(W - 16 - ts.width, (H - ts.height) / 2, ts.width, ts.height);
 	CGFloat x = CGRectGetMaxX(_logo.frame) + 14, w = CGRectGetMinX(_toggle.frame) - 10 - x;
-	_nameLabel.frame = CGRectMake(x, H / 2 - 26, w, 28);
-	_dot.frame = CGRectMake(x, H / 2 + 8.5, 7, 7);
-	_statusLabel.frame = CGRectMake(x + 13, H / 2 + 2, w - 13, 20);
+	// Name, slogan and status as one block (28 + 18 + 18), centered vertically
+	CGFloat top = (H - 64) / 2;
+	_nameLabel.frame = CGRectMake(x, top, w, 28);
+	_taglineLabel.frame = CGRectMake(x, top + 28, w, 18);
+	_statusLabel.frame = CGRectMake(x + 13, top + 46, w - 13, 18);
+	_dot.frame = CGRectMake(x, top + 46 + 5.5, 7, 7);
 }
 
 @end
@@ -267,7 +279,7 @@
 // Top card with the master switch (see OMCHeaderCard).
 - (UIView *)headerView {
 	if (!self.headerCard) {
-		self.headerCard = [[OMCHeaderCard alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, 114)];
+		self.headerCard = [[OMCHeaderCard alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, 132)];
 		self.headerCard.autoresizingMask = UIViewAutoresizingFlexibleWidth;
 		[self.headerCard.toggle addTarget:self action:@selector(masterToggled:) forControlEvents:UIControlEventValueChanged];
 	}
@@ -280,7 +292,7 @@
 }
 
 - (void)updateHeaderStatusEnabled:(BOOL)enabled {
-	[self.headerCard updateWithStatus:L(enabled ? @"STATUS_ON" : @"STATUS_OFF") enabled:enabled];
+	[self.headerCard updateWithTagline:L(@"HEADER_TAGLINE") status:L(enabled ? @"STATUS_ON" : @"STATUS_OFF") enabled:enabled];
 }
 
 // Master switch: same key and notification as the old "Enable OmniCar" row.
@@ -291,18 +303,69 @@
 	[self updateHeaderStatusEnabled:sw.on];
 }
 
-// One small centered line under the list: name, version, copyright.
-- (UIView *)footerView {
-	UIView *container = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, 56)];
+// A full-width table footer holding one rounded card: an image beside a column of text lines.
+// The card follows the table's layout margins so it lines up with the inset-grouped rows.
+- (UIView *)cardContainerWithHeight:(CGFloat)height insets:(UIEdgeInsets)insets image:(UIImage *)image side:(CGFloat)side lines:(NSArray<UILabel *> *)lines {
+	UIView *container = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, height)];
 	container.autoresizingMask = UIViewAutoresizingFlexibleWidth;
-	UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(0, 4, container.bounds.size.width, 20)];
-	label.autoresizingMask = UIViewAutoresizingFlexibleWidth;
-	label.text = [NSString stringWithFormat:L(@"FOOTER_FORMAT"), @TWEAK_VERSION];
-	label.font = [UIFont systemFontOfSize:12];
-	label.textColor = [UIColor secondaryLabelColor];
-	label.textAlignment = NSTextAlignmentCenter;
-	[container addSubview:label];
+	container.preservesSuperviewLayoutMargins = YES;
+
+	UIView *card = [UIView new];
+	card.backgroundColor = OMCCardColor();
+	card.layer.cornerRadius = 20;
+	card.layer.cornerCurve = kCACornerCurveContinuous;
+	card.translatesAutoresizingMaskIntoConstraints = NO;
+	[container addSubview:card];
+
+	UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
+	imageView.layer.cornerRadius = side * 0.22;
+	imageView.layer.cornerCurve = kCACornerCurveContinuous;
+	imageView.clipsToBounds = YES;
+	imageView.translatesAutoresizingMaskIntoConstraints = NO;
+
+	UIStackView *text = [[UIStackView alloc] initWithArrangedSubviews:lines];
+	text.axis = UILayoutConstraintAxisVertical;
+	text.spacing = 3;
+
+	UIStackView *row = [[UIStackView alloc] initWithArrangedSubviews:@[imageView, text]];
+	row.alignment = UIStackViewAlignmentCenter;
+	row.spacing = 14;
+	row.translatesAutoresizingMaskIntoConstraints = NO;
+	[card addSubview:row];
+
+	UILayoutGuide *margins = container.layoutMarginsGuide;
+	[NSLayoutConstraint activateConstraints:@[
+		[card.leadingAnchor constraintEqualToAnchor:margins.leadingAnchor],
+		[card.trailingAnchor constraintEqualToAnchor:margins.trailingAnchor],
+		[card.topAnchor constraintEqualToAnchor:container.topAnchor constant:insets.top],
+		[card.bottomAnchor constraintEqualToAnchor:container.bottomAnchor constant:-insets.bottom],
+		[imageView.widthAnchor constraintEqualToConstant:side],
+		[imageView.heightAnchor constraintEqualToConstant:side],
+		[row.leadingAnchor constraintEqualToAnchor:card.leadingAnchor constant:16],
+		[row.trailingAnchor constraintLessThanOrEqualToAnchor:card.trailingAnchor constant:-16],
+		[row.centerYAnchor constraintEqualToAnchor:card.centerYAnchor],
+	]];
 	return container;
+}
+
+- (UILabel *)labelWithText:(NSString *)text size:(CGFloat)size weight:(UIFontWeight)weight color:(UIColor *)color {
+	UILabel *label = [UILabel new];
+	label.text = text;
+	label.font = [UIFont systemFontOfSize:size weight:weight];
+	label.textColor = color;
+	label.numberOfLines = 0;
+	return label;
+}
+
+// Bottom card: author logo (AL), app name, version and copyright.
+- (UIView *)footerView {
+	NSBundle *bundle = [NSBundle bundleForClass:[self class]];
+	UIImage *avatar = [UIImage imageNamed:@"avatar" inBundle:bundle compatibleWithTraitCollection:nil];
+	return [self cardContainerWithHeight:136 insets:UIEdgeInsetsMake(8, 0, 32, 0) image:avatar side:56 lines:@[
+		[self labelWithText:@"OmniCar" size:16 weight:UIFontWeightSemibold color:[UIColor labelColor]],
+		[self labelWithText:[NSString stringWithFormat:L(@"VERSION_FORMAT"), @TWEAK_VERSION] size:13 weight:UIFontWeightRegular color:[UIColor secondaryLabelColor]],
+		[self labelWithText:L(@"COPYRIGHT") size:13 weight:UIFontWeightRegular color:[UIColor secondaryLabelColor]],
+	]];
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {

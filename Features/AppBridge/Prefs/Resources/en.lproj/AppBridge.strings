@@ -3,8 +3,6 @@
 "APPBRIDGE" = "App Bridge";
 "APPBRIDGE_FOOTER" = "iPhone apps without CarPlay (YouTube, TikTok…) on the car screen.";
 "APPBRIDGE_ENABLE" = "Show iPhone apps on the car";
-"APPBRIDGE_ZOOM" = "App size";
-"APPBRIDGE_ZOOM_FOOTER" = "100 = no scaling. Applies the next time an app opens.";
 "APPBRIDGE_APPS" = "Apps on the car screen";
 "APPBRIDGE_APPS_FOOTER" = "Turn an app on to put its icon on the CarPlay home screen.";
 "APPBRIDGE_APPS_NONE" = "None";

@@ -1,9 +1,11 @@
 /* OmniCar – Tiếng Việt */
 
 "LANGUAGE" = "Ngôn ngữ";
+"HEADER_TAGLINE" = "Sức mạnh của CarPlay";
 "STATUS_ON" = "Đang bật";
 "STATUS_OFF" = "Đang tắt";
-"FOOTER_FORMAT" = "OmniCar %@ · © 2026 AnLai";
+"VERSION_FORMAT" = "Phiên bản: %@";
+"COPYRIGHT" = "Bản quyền © 2026 AnLai";
 "OK" = "OK";
 "CANCEL" = "Huỷ";
 

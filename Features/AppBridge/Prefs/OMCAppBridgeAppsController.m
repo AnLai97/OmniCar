@@ -128,7 +128,7 @@ static UIImage *OMCABIconImage(NSString *bid)
 
 // ---------------------------------------------------------------------
 //  OMCAppBridgeAppsController
-//    muc 0: cong tac App Bridge, co app (slider)
+//    muc 0: cong tac App Bridge (chi bat / tat, khong chon co app)
 //    muc 1: Tren man xe (da chon)   muc 2: App cua ban   muc 3: App he thong
 // ---------------------------------------------------------------------
 static char kOMCABBundleKey;
@@ -141,7 +141,6 @@ enum { OMCABSectionSettings = 0, OMCABSectionChosen, OMCABSectionUser, OMCABSect
 @property (nonatomic, strong) NSArray<NSDictionary *> *chosenRows, *userRows, *systemRows;   // sau khi loc theo o tim
 @property (nonatomic, copy) NSString *filter;
 @property (nonatomic, strong) NSCache<NSString *, UIImage *> *icons;
-@property (nonatomic, strong) UILabel *zoomValue;
 @end
 
 @implementation OMCAppBridgeAppsController
@@ -228,26 +227,6 @@ enum { OMCABSectionSettings = 0, OMCABSectionChosen, OMCABSectionUser, OMCABSect
     OMCABStore(AB_KEY_ENABLED, @(sw.on));
 }
 
-- (NSInteger)zoomPercent
-{
-    id v = OMCABPref(AB_KEY_ZOOM);
-    NSInteger z = v ? [v integerValue] : 80;
-    return MIN(100, MAX(60, z));
-}
-
-- (void)zoomMoved:(UISlider *)slider
-{
-    NSInteger z = (NSInteger)lround(slider.value / 5.0) * 5;   // buoc 5 %
-    slider.value = z;
-    _zoomValue.text = [NSString stringWithFormat:@"%ld%%", (long)z];
-}
-
-- (void)zoomDone:(UISlider *)slider
-{
-    [self zoomMoved:slider];
-    OMCABStore(AB_KEY_ZOOM, @((NSInteger)slider.value));
-}
-
 #pragma mark - Table
 
 - (NSArray<NSDictionary *> *)rowsInSection:(NSInteger)s
@@ -262,13 +241,8 @@ enum { OMCABSectionSettings = 0, OMCABSectionChosen, OMCABSectionUser, OMCABSect
 
 - (NSInteger)tableView:(UITableView *)tv numberOfRowsInSection:(NSInteger)section
 {
-    if (section == OMCABSectionSettings) return [self searching] ? 0 : 2;
+    if (section == OMCABSectionSettings) return [self searching] ? 0 : 1;
     return [self rowsInSection:section].count;
-}
-
-- (CGFloat)tableView:(UITableView *)tv heightForRowAtIndexPath:(NSIndexPath *)ip
-{
-    return (ip.section == OMCABSectionSettings && ip.row == 1) ? 72 : 56;
 }
 
 - (NSString *)tableView:(UITableView *)tv titleForHeaderInSection:(NSInteger)section
@@ -282,7 +256,7 @@ enum { OMCABSectionSettings = 0, OMCABSectionChosen, OMCABSectionUser, OMCABSect
 
 - (NSString *)tableView:(UITableView *)tv titleForFooterInSection:(NSInteger)section
 {
-    if (section == OMCABSectionSettings) return [self searching] ? nil : [NSString stringWithFormat:@"%@\n\n%@", L(@"APPBRIDGE_FOOTER"), L(@"APPBRIDGE_ZOOM_FOOTER")];
+    if (section == OMCABSectionSettings) return [self searching] ? nil : L(@"APPBRIDGE_FOOTER");
     if (section == OMCABSectionChosen) return (_chosenRows.count || [self searching]) ? nil : L(@"APPBRIDGE_APPS_FOOTER");
     if (section != OMCABSectionSystem) return nil;
     if (!_apps.count) return L(@"APPBRIDGE_APPS_EMPTY");
@@ -295,54 +269,20 @@ enum { OMCABSectionSettings = 0, OMCABSectionChosen, OMCABSectionUser, OMCABSect
 
 - (UITableViewCell *)settingsCellForRow:(NSInteger)row inTable:(UITableView *)tv
 {
-    if (row == 0) {
-        UITableViewCell *c = [tv dequeueReusableCellWithIdentifier:@"enable"];
-        if (!c) {
-            c = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"enable"];
-            UISwitch *sw = [UISwitch new];
-            sw.onTintColor = OMCAccentColor();
-            [sw addTarget:self action:@selector(enabledChanged:) forControlEvents:UIControlEventValueChanged];
-            c.accessoryView = sw;
-            c.selectionStyle = UITableViewCellSelectionStyleNone;
-        }
-        OMCStyleCell(c);
-        c.textLabel.text = L(@"APPBRIDGE_ENABLE");
-        c.imageView.image = OMCIcon(@"power", OMCColorFromHex(@"#0A59F7"));
-        id v = OMCABPref(AB_KEY_ENABLED);
-        [(UISwitch *)c.accessoryView setOn:(v ? [v boolValue] : YES) animated:NO];
-        return c;
-    }
-    UITableViewCell *c = [tv dequeueReusableCellWithIdentifier:@"zoom"];
+    UITableViewCell *c = [tv dequeueReusableCellWithIdentifier:@"enable"];
     if (!c) {
-        c = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"zoom"];
+        c = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"enable"];
+        UISwitch *sw = [UISwitch new];
+        sw.onTintColor = OMCAccentColor();
+        [sw addTarget:self action:@selector(enabledChanged:) forControlEvents:UIControlEventValueChanged];
+        c.accessoryView = sw;
         c.selectionStyle = UITableViewCellSelectionStyleNone;
-        UILabel *value = [UILabel new];
-        value.font = [UIFont monospacedDigitSystemFontOfSize:15 weight:UIFontWeightRegular];
-        value.textColor = [UIColor secondaryLabelColor];
-        value.textAlignment = NSTextAlignmentRight;
-        value.tag = 1;
-        [c.contentView addSubview:value];
-        UISlider *slider = [UISlider new];
-        slider.minimumValue = 60;
-        slider.maximumValue = 100;
-        slider.minimumTrackTintColor = OMCAccentColor();
-        slider.tag = 2;
-        [slider addTarget:self action:@selector(zoomMoved:) forControlEvents:UIControlEventValueChanged];
-        [slider addTarget:self action:@selector(zoomDone:) forControlEvents:UIControlEventTouchUpInside | UIControlEventTouchUpOutside | UIControlEventTouchCancel];
-        [c.contentView addSubview:slider];
     }
     OMCStyleCell(c);
-    c.textLabel.text = L(@"APPBRIDGE_ZOOM");
-    c.imageView.image = OMCIcon(@"textformat.size", OMCColorFromHex(@"#8A47E8"));
-    UILabel *value = [c.contentView viewWithTag:1];
-    UISlider *slider = [c.contentView viewWithTag:2];
-    _zoomValue = value;
-    NSInteger z = [self zoomPercent];
-    slider.value = z;
-    value.text = [NSString stringWithFormat:@"%ld%%", (long)z];
-    CGFloat w = tv.bounds.size.width - 2 * tv.layoutMargins.left;   // be rong cell inset-grouped
-    value.frame = CGRectMake(w - 16 - 56, 10, 56, 24);
-    slider.frame = CGRectMake(60, 34, w - 60 - 16, 30);
+    c.textLabel.text = L(@"APPBRIDGE_ENABLE");
+    c.imageView.image = OMCIcon(@"power", OMCColorFromHex(@"#0A59F7"));
+    id v = OMCABPref(AB_KEY_ENABLED);
+    [(UISwitch *)c.accessoryView setOn:(v ? [v boolValue] : YES) animated:NO];
     return c;
 }
 
@@ -379,7 +319,6 @@ enum { OMCABSectionSettings = 0, OMCABSectionChosen, OMCABSectionUser, OMCABSect
 - (void)tableView:(UITableView *)tv didSelectRowAtIndexPath:(NSIndexPath *)ip
 {
     [tv deselectRowAtIndexPath:ip animated:YES];
-    if (ip.section == OMCABSectionSettings && ip.row == 1) return;
     UISwitch *sw = (UISwitch *)[tv cellForRowAtIndexPath:ip].accessoryView;
     if (![sw isKindOfClass:[UISwitch class]]) return;
     [sw setOn:!sw.on animated:YES];
