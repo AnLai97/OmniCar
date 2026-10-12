@@ -48,6 +48,15 @@ BOOL OMCHasMethod(const char *className, NSString *selector);
 // A runtime call found the object (non-nil) without the method: log once per class + selector.
 void OMCMissingSelector(NSString *feature, id obj, NSString *selector);
 
+// CarPlay process classes by their iOS 16+ name (DashBoard.framework: DashBoard, DBDashboard, DBEvent ...).
+// iOS 14 / 15 have the same classes in CarPlay.app under a CAR prefix (CARApplication, CARDashboard,
+// CAREvent, _CARDashboardHomeViewController ...), which this falls back to. Nil when neither exists.
+// Hooks: %init(GROUP, DBDashboard = OMCCarClass("DBDashboard"), ...).
+Class OMCCarClass(const char *name);
+// [DBApplicationLaunchInfo launchInfoForApplication:] (iOS 16) or
+// [CARApplicationLaunchInfo launchInfoForApplication:withActivationSettings:nil] (iOS 14 / 15).
+id OMCCarLaunchInfo(id appInfo);
+
 #ifdef __cplusplus
 }
 #endif

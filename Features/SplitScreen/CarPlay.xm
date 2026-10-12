@@ -258,7 +258,7 @@ static void SCPInstallCrashLogger(void)
 {
     if (![[[NSBundle mainBundle] bundleIdentifier] isEqualToString:@"com.apple.CarPlayApp"]) return;
     SCPLog("loaded into CarPlay");
-    %init(CARPLAY);
+    %init(CARPLAY, DBDashboard = OMCCarClass("DBDashboard"), DBDashboardRootViewController = OMCCarClass("DBDashboardRootViewController"), DBApplicationSceneViewController = OMCCarClass("DBApplicationSceneViewController"));
     OMCCheckHooks(@"SplitScreen", @[@"DBDashboard -sceneFrameForAppInfo:proxyAppInfo:", @"DBDashboard -safeAreaInsetsForAppInfo:proxyAppInfo:",
         @"DBDashboard -_handleHomeEvent:", @"DBDashboard -invalidate", @"DBDashboard -_launchAppWithInfo:forURL:",
         @"DBDashboardRootViewController -presentBaseViewController:animated:launchSource:completion:",

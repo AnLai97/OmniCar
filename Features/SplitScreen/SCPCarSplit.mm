@@ -156,7 +156,7 @@ static void SCPCSendEvent(unsigned long long type, id context)
 {
     id d = SCPCDashboard();
     if (!d) return;
-    id ev = objcInvoke_2(objc_getClass("DBEvent"), @"eventWithType:context:", type, context);
+    id ev = objcInvoke_2(OMCCarClass("DBEvent"), @"eventWithType:context:", type, context);
     if (ev) objcCall_1(d, @"handleEvent:", ev);
 }
 
@@ -1412,7 +1412,7 @@ static BOOL SCPCIsBridgedApp(NSString *bid);
     [self relayoutAnimated:YES];
 
     id info = SCPCAppInfo(bid);
-    id launchInfo = objcInvoke_1(objc_getClass("DBApplicationLaunchInfo"), @"launchInfoForApplication:", info);
+    id launchInfo = OMCCarLaunchInfo(info);
     // Gian cach cac lan mo: DashBoard phai xong phien doi workspace cua lan truoc (va lan ve Home)
     CFAbsoluteTime now = CFAbsoluteTimeGetCurrent();
     double delay = MAX(0, self.nextLaunchAt - now);
@@ -1542,7 +1542,7 @@ static BOOL SCPCIsBridgedApp(NSString *bid);
 
 - (BOOL)isAdoptableViewController:(UIViewController *)vc
 {
-    Class cls = objc_getClass("DBApplicationSceneViewController");
+    Class cls = OMCCarClass("DBApplicationSceneViewController");
     if (!cls || ![vc isKindOfClass:cls]) return NO;
     id info = objcInvoke(vc, @"applicationInfo");
     if (SCPCBool(info, @"presentsFullScreen")) return NO;
@@ -1947,7 +1947,7 @@ static CGSize SCPCSceneSize(UIViewController *vc)
     if (closedBid && other && [activeBase isEqualToString:closedBid] && !SCPCIsBridgedApp(other.bundleID)) {
         NSString *ob = other.bundleID;
         self.pending[ob] = @[@(other.slot), [NSDate date]];
-        id launchInfo = objcInvoke_1(objc_getClass("DBApplicationLaunchInfo"), @"launchInfoForApplication:", SCPCAppInfo(ob));
+        id launchInfo = OMCCarLaunchInfo(SCPCAppInfo(ob));
         if (launchInfo) SCPCSendEvent(4, launchInfo);
         SCPCAfter(2.0, ^{
             [self.pending removeObjectForKey:ob];
@@ -2003,7 +2003,7 @@ static CGSize SCPCSceneSize(UIViewController *vc)
         });
         return;
     }
-    id launchInfo = objcInvoke_1(objc_getClass("DBApplicationLaunchInfo"), @"launchInfoForApplication:", SCPCAppInfo(bid));
+    id launchInfo = OMCCarLaunchInfo(SCPCAppInfo(bid));
     if (launchInfo) [self showSoloCoverForBundle:bid];   // che man chinh nhay qua + app ve lai tu dau
     [self closeGoingHome:YES];
     if (!launchInfo) {

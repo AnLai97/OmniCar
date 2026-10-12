@@ -14,9 +14,9 @@ static void SPPOpenAppOnCar(NSString *bid)
     }
     id dashboard = objcInvoke(app, @"_currentDashboard");
     id info = objcInvoke_1(objcInvoke(app, @"sharedApplicationLibrary"), @"applicationInfoForBundleIdentifier:", bid);
-    id launchInfo = info ? objcInvoke_1(objc_getClass("DBApplicationLaunchInfo"), @"launchInfoForApplication:", info) : nil;
+    id launchInfo = OMCCarLaunchInfo(info);
     if (!dashboard || !launchInfo) { SPPLog("CarPlay: khong mo duoc %@ (dashboard=%@ info=%@)", bid, dashboard, info); return; }
-    id ev = objcInvoke_2(objc_getClass("DBEvent"), @"eventWithType:context:", (unsigned long long)4, launchInfo);
+    id ev = objcInvoke_2(OMCCarClass("DBEvent"), @"eventWithType:context:", (unsigned long long)4, launchInfo);
     if (ev) objcCall_1(dashboard, @"handleEvent:", ev);
     SPPLog("CarPlay: mo %@", bid);
 }

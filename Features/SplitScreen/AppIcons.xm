@@ -81,11 +81,11 @@ static void SCPIconsHookError(const char *where, NSException *e)
 %ctor
 {
     if (![[[NSBundle mainBundle] bundleIdentifier] isEqualToString:@"com.apple.CarPlayApp"]) return;
-    %init(APPICONS);
+    %init(APPICONS, DashBoard = OMCCarClass("DashBoard"), DBApplicationInfo = OMCCarClass("DBApplicationInfo"), DBDashboardHomeViewController = OMCCarClass("DBDashboardHomeViewController"), DBApplicationLaunchInfo = OMCCarClass("DBApplicationLaunchInfo"));
     OMCCheckHooks(@"SplitScreen", @[@"DashBoard +_newApplicationLibrary", @"DBApplicationInfo -_loadFromProxy:",
         @"DBDashboardHomeViewController -initWithEnvironment:", @"DBApplicationLaunchInfo +launchInfoForApplication:",
         @"DBApplicationLaunchInfo +launchInfoForApplication:withActivationSettings:"]);
-    if (!objc_getClass("DashBoard")) SCPLog("AppIcons: khong co lop DashBoard, icon app iPhone khong chen duoc");
+    if (!OMCCarClass("DashBoard")) SCPLog("AppIcons: khong co lop DashBoard, icon app iPhone khong chen duoc");
     // Settings doi danh sach app (hoac bat / tat App Bridge) -> cap nhat thu vien, ve lai man chinh
     static int token;
     notify_register_dispatch("com.anlai.omnicar/prefschanged", &token, dispatch_get_main_queue(), ^(int t) { SCPRefreshAppIconsSoon(); });

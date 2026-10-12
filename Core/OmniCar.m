@@ -1,6 +1,7 @@
 #import "OmniCar.h"
 #import <UIKit/UIKit.h>
 #import <objc/runtime.h>
+#import <objc/message.h>
 #import <unistd.h>
 
 #pragma mark - Preferences
@@ -101,7 +102,7 @@ void OMCLogRelayStart(void) {
 #pragma mark - Hook check
 
 BOOL OMCHasMethod(const char *className, NSString *selector) {
-	Class cls = objc_getClass(className);
+	Class cls = OMCCarClass(className);
 	if (!cls) return NO;
 	BOOL classMethod = [selector hasPrefix:@"+"];
 	SEL sel = NSSelectorFromString(classMethod ? [selector substringFromIndex:1] : selector);
@@ -110,14 +111,19 @@ BOOL OMCHasMethod(const char *className, NSString *selector) {
 
 void OMCCheckHooks(NSString *feature, NSArray<NSString *> *hooks) {
 	NSMutableArray<NSString *> *missing = [NSMutableArray array];
+	NSMutableOrderedSet<NSString *> *renamed = [NSMutableOrderedSet orderedSet];
 	for (NSString *hook in hooks) {
 		NSArray<NSString *> *parts = [hook componentsSeparatedByString:@" "];
 		if (parts.count != 2) continue;
+		Class cls = OMCCarClass(parts[0].UTF8String);
+		if (cls && ![NSStringFromClass(cls) isEqualToString:parts[0]])
+			[renamed addObject:[NSString stringWithFormat:@"%@=%@", parts[0], NSStringFromClass(cls)]];
 		NSString *sel = parts[1];
 		if ([sel hasPrefix:@"-"]) sel = [sel substringFromIndex:1];
 		if (!OMCHasMethod(parts[0].UTF8String, sel)) [missing addObject:hook];
 	}
 	NSString *ios = [UIDevice currentDevice].systemVersion;
+	if (renamed.count) OMCLog(feature, @"iOS %@: lop CarPlay %@", ios, [renamed.array componentsJoinedByString:@", "]);
 	if (missing.count) OMCLog(feature, @"iOS %@: %lu/%lu hook KHONG co tren iOS nay (tinh nang lien quan se khong chay): %@",
 		ios, (unsigned long)missing.count, (unsigned long)hooks.count, [missing componentsJoinedByString:@", "]);
 	else OMCLog(feature, @"iOS %@: du %lu hook", ios, (unsigned long)hooks.count);
@@ -134,4 +140,29 @@ void OMCMissingSelector(NSString *feature, id obj, NSString *selector) {
 		[seen addObject:key];
 	}
 	OMCLog(feature, @"THIEU METHOD (iOS %@): %@ -> bo qua", [UIDevice currentDevice].systemVersion, key);
+}
+
+#pragma mark - CarPlay classes (iOS 16 DashBoard / iOS 14-15 CarPlay.app)
+
+Class OMCCarClass(const char *name) {
+	Class cls = objc_getClass(name);
+	if (cls) return cls;
+	NSString *n = @(name);
+	NSString *rest = nil;
+	if ([n isEqualToString:@"DashBoard"]) return objc_getClass("CARApplication");
+	if ([n hasPrefix:@"DB"]) rest = [n substringFromIndex:2];
+	if (!rest) return nil;
+	cls = objc_getClass([@"CAR" stringByAppendingString:rest].UTF8String);
+	return cls ?: objc_getClass([@"_CAR" stringByAppendingString:rest].UTF8String);
+}
+
+id OMCCarLaunchInfo(id appInfo) {
+	if (!appInfo) return nil;
+	Class cls = OMCCarClass("DBApplicationLaunchInfo");
+	SEL one = NSSelectorFromString(@"launchInfoForApplication:");
+	SEL two = NSSelectorFromString(@"launchInfoForApplication:withActivationSettings:");
+	if ([cls respondsToSelector:one]) return ((id (*)(id, SEL, id))objc_msgSend)(cls, one, appInfo);
+	if ([cls respondsToSelector:two]) return ((id (*)(id, SEL, id, id))objc_msgSend)(cls, two, appInfo, nil);
+	OMCLog(@"Core", @"THIEU METHOD: %@ khong tao duoc launchInfo", cls);
+	return nil;
 }
