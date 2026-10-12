@@ -369,7 +369,9 @@ static void ABPostOrientation(NSString *bid, long long orientation)
 
     id animFactory = objcInvoke(objc_getClass("SBApplicationSceneView"), @"defaultDisplayModeAnimationFactory");
     id appView = objcInvoke(appVC, @"appView");
-    ((void (*)(id, SEL, long long, id, id))objc_msgSend)(appView, NSSelectorFromString(@"setDisplayMode:animationFactory:completion:"), 4, animFactory, nil);
+    SEL setMode = NSSelectorFromString(@"setDisplayMode:animationFactory:completion:");
+    if ([appView respondsToSelector:setMode]) ((void (*)(id, SEL, long long, id, id))objc_msgSend)(appView, setMode, 4, animFactory, nil);
+    else ABMissingSelector(appView, @"setDisplayMode:animationFactory:completion:");
 
     UIView *v = [appVC view];
     v.backgroundColor = [UIColor clearColor];

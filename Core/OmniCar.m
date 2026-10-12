@@ -1,4 +1,6 @@
 #import "OmniCar.h"
+#import <UIKit/UIKit.h>
+#import <objc/runtime.h>
 #import <unistd.h>
 
 #pragma mark - Preferences
@@ -94,4 +96,42 @@ void OMCLogRelayStart(void) {
 			OMCLogAppend(line);
 		});
 	}];
+}
+
+#pragma mark - Hook check
+
+BOOL OMCHasMethod(const char *className, NSString *selector) {
+	Class cls = objc_getClass(className);
+	if (!cls) return NO;
+	BOOL classMethod = [selector hasPrefix:@"+"];
+	SEL sel = NSSelectorFromString(classMethod ? [selector substringFromIndex:1] : selector);
+	return classMethod ? class_getClassMethod(cls, sel) != NULL : class_getInstanceMethod(cls, sel) != NULL;
+}
+
+void OMCCheckHooks(NSString *feature, NSArray<NSString *> *hooks) {
+	NSMutableArray<NSString *> *missing = [NSMutableArray array];
+	for (NSString *hook in hooks) {
+		NSArray<NSString *> *parts = [hook componentsSeparatedByString:@" "];
+		if (parts.count != 2) continue;
+		NSString *sel = parts[1];
+		if ([sel hasPrefix:@"-"]) sel = [sel substringFromIndex:1];
+		if (!OMCHasMethod(parts[0].UTF8String, sel)) [missing addObject:hook];
+	}
+	NSString *ios = [UIDevice currentDevice].systemVersion;
+	if (missing.count) OMCLog(feature, @"iOS %@: %lu/%lu hook KHONG co tren iOS nay (tinh nang lien quan se khong chay): %@",
+		ios, (unsigned long)missing.count, (unsigned long)hooks.count, [missing componentsJoinedByString:@", "]);
+	else OMCLog(feature, @"iOS %@: du %lu hook", ios, (unsigned long)hooks.count);
+}
+
+void OMCMissingSelector(NSString *feature, id obj, NSString *selector) {
+	if (!obj) return;
+	static NSMutableSet<NSString *> *seen;
+	static dispatch_once_t once;
+	dispatch_once(&once, ^{ seen = [NSMutableSet set]; });
+	NSString *key = [NSString stringWithFormat:@"%@ %@", NSStringFromClass([obj class]), selector];
+	@synchronized (seen) {
+		if ([seen containsObject:key]) return;
+		[seen addObject:key];
+	}
+	OMCLog(feature, @"THIEU METHOD (iOS %@): %@ -> bo qua", [UIDevice currentDevice].systemVersion, key);
 }

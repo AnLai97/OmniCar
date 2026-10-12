@@ -38,8 +38,12 @@ static inline NSString *SPPNavAppName(int i)   { return (i >= 0 && i < SPP_NAV_A
 // SpringBoard -> process CarPlay: mo app dan duong tren man xe (cham bong bong); state = chi so app
 #define SPP_DARWIN_OPEN_CAR     SB_DARWIN_OPEN_CAR
 
-#define objcInvokeT(a, b, t)            ((t (*)(id, SEL))objc_msgSend)(a, NSSelectorFromString(b))
-#define objcInvoke(a, b)                objcInvokeT(a, b, id)
-#define objcInvoke_1(a, b, c)           ((id (*)(id, SEL, __typeof__(c)))objc_msgSend)(a, NSSelectorFromString(b), c)
-#define objcInvoke_2(a, b, c, d)        ((id (*)(id, SEL, __typeof__(c), __typeof__(d)))objc_msgSend)(a, NSSelectorFromString(b), c, d)
+// Private API calls, checked like Split Screen / App Bridge: a missing method (other iOS) is logged once and
+// gives nil / 0 instead of "unrecognized selector". objcCall_1 is for void methods (objcInvoke on a void
+// method makes ARC release garbage).
+#define objcInvokeT(a, b, t) ({ id _o = (a); SEL _s = NSSelectorFromString(b); t _r = {}; if ([_o respondsToSelector:_s]) _r = ((t (*)(id, SEL))objc_msgSend)(_o, _s); else OMCMissingSelector(@"SpeedBubble", _o, b); _r; })
+#define objcInvoke(a, b) objcInvokeT(a, b, id)
+#define objcInvoke_1(a, b, c) ({ id _o = (a); SEL _s = NSSelectorFromString(b); id _r = nil; if ([_o respondsToSelector:_s]) _r = ((id (*)(id, SEL, __typeof__(c)))objc_msgSend)(_o, _s, c); else OMCMissingSelector(@"SpeedBubble", _o, b); _r; })
+#define objcInvoke_2(a, b, c, d) ({ id _o = (a); SEL _s = NSSelectorFromString(b); id _r = nil; if ([_o respondsToSelector:_s]) _r = ((id (*)(id, SEL, __typeof__(c), __typeof__(d)))objc_msgSend)(_o, _s, c, d); else OMCMissingSelector(@"SpeedBubble", _o, b); _r; })
+#define objcCall_1(a, b, c) ({ id _o = (a); SEL _s = NSSelectorFromString(b); if ([_o respondsToSelector:_s]) ((void (*)(id, SEL, __typeof__(c)))objc_msgSend)(_o, _s, c); else OMCMissingSelector(@"SpeedBubble", _o, b); })
 

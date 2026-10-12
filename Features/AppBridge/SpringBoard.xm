@@ -130,6 +130,8 @@ static int hook_BKSDisplayServicesSetScreenBlanked(int blanked)
     if (![[[NSBundle mainBundle] bundleIdentifier] isEqualToString:@"com.apple.springboard"]) return;
     ABLog("loaded into SpringBoard");
     %init(SPRINGBOARD);
+    OMCCheckHooks(@"AppBridge", @[@"SBSuspendedUnderLockManager -_shouldBeBackgroundUnderLockForScene:withSettings:",
+        @"FBScene -updateSettings:withTransitionContext:completion:", @"SBSceneView -_updateReferenceSize:andOrientation:"]);
     void *fn = dlsym(RTLD_DEFAULT, "BKSDisplayServicesSetScreenBlanked");
     if (fn) MSHookFunction(fn, (void *)hook_BKSDisplayServicesSetScreenBlanked, (void **)&orig_BKSDisplayServicesSetScreenBlanked);
     else ABLog("khong tim thay BKSDisplayServicesSetScreenBlanked");

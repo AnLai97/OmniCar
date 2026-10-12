@@ -38,6 +38,16 @@ void OMCLogWrite(NSString *feature, NSString *message);
 // SpringBoard only (called by the OmniCarCore dylib): append relayed lines to the log file.
 void OMCLogRelayStart(void);
 
+// Logos hooks on a class / method this iOS lacks are skipped without a word. A feature lists what its
+// %hooks need ("DBDashboard -_handleHomeEvent:", "DashBoard +_newApplicationLibrary") right after %init;
+// what is missing on this iOS goes to the log with the iOS version (iOS 15 / 17 / 18 field reports).
+void OMCCheckHooks(NSString *feature, NSArray<NSString *> *hooks);
+// Selector exists on the class (instance method; "+" prefix for class methods). For %hooks that only
+// exist on newer iOS: install that %group only when it is there.
+BOOL OMCHasMethod(const char *className, NSString *selector);
+// A runtime call found the object (non-nil) without the method: log once per class + selector.
+void OMCMissingSelector(NSString *feature, id obj, NSString *selector);
+
 #ifdef __cplusplus
 }
 #endif

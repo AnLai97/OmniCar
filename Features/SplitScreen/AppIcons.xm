@@ -82,6 +82,9 @@ static void SCPIconsHookError(const char *where, NSException *e)
 {
     if (![[[NSBundle mainBundle] bundleIdentifier] isEqualToString:@"com.apple.CarPlayApp"]) return;
     %init(APPICONS);
+    OMCCheckHooks(@"SplitScreen", @[@"DashBoard +_newApplicationLibrary", @"DBApplicationInfo -_loadFromProxy:",
+        @"DBDashboardHomeViewController -initWithEnvironment:", @"DBApplicationLaunchInfo +launchInfoForApplication:",
+        @"DBApplicationLaunchInfo +launchInfoForApplication:withActivationSettings:"]);
     if (!objc_getClass("DashBoard")) SCPLog("AppIcons: khong co lop DashBoard, icon app iPhone khong chen duoc");
     // Settings doi danh sach app (hoac bat / tat App Bridge) -> cap nhat thu vien, ve lai man chinh
     static int token;

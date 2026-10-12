@@ -161,33 +161,6 @@ static void ABHandleOrientationRequest(NSDictionary *info)
 
 %end
 
-// iOS 16: app xin xoay bang requestGeometryUpdateWithPreferences: (YouTube fullscreen)
-%hook UIWindowScene
-
-- (void)requestGeometryUpdateWithPreferences:(id)prefs errorHandler:(id)handler
-{
-    if (orientationOverride > 0 && [prefs respondsToSelector:@selector(interfaceOrientations)]) {
-        NSUInteger mask = ((NSUInteger (*)(id, SEL))objc_msgSend)(prefs, @selector(interfaceOrientations));
-        appWantsOrientation = ABOrientationFromMask(mask);
-        ABLog("app xin huong mask=%lu -> %lld", (unsigned long)mask, appWantsOrientation);
-        ABTellSpringBoard(appWantsOrientation);
-    }
-    %orig;
-}
-
-%end
-
-// App doi danh sach huong ho tro (iOS 16) -> SpringBoard lay lai scene
-%hook UIViewController
-
-- (void)setNeedsUpdateOfSupportedInterfaceOrientations
-{
-    %orig;
-    if (orientationOverride > 0) ABTellSpringBoard(0xFF);
-}
-
-%end
-
 // App cu: ep xoay bang [UIDevice setOrientation:]; app hoi huong thiet bi -> tra loi theo huong dang ap
 %hook UIDevice
 
@@ -218,6 +191,54 @@ static void ABHandleOrientationRequest(NSDictionary *info)
 
 %end // APPS
 
+// iOS 16+ only (iOS 15 has neither method; YouTube there rotates through [UIDevice setOrientation:]),
+// installed only when the method exists.
+%group APPS16
+
+// iOS 16: app xin xoay bang requestGeometryUpdateWithPreferences: (YouTube fullscreen)
+%hook UIWindowScene
+
+- (void)requestGeometryUpdateWithPreferences:(id)prefs errorHandler:(id)handler
+{
+    if (orientationOverride > 0 && [prefs respondsToSelector:@selector(interfaceOrientations)]) {
+        NSUInteger mask = ((NSUInteger (*)(id, SEL))objc_msgSend)(prefs, @selector(interfaceOrientations));
+        appWantsOrientation = ABOrientationFromMask(mask);
+        ABLog("app xin huong mask=%lu -> %lld", (unsigned long)mask, appWantsOrientation);
+        ABTellSpringBoard(appWantsOrientation);
+    }
+    %orig;
+}
+
+%end
+
+// App doi danh sach huong ho tro (iOS 16) -> SpringBoard lay lai scene
+%hook UIViewController
+
+- (void)setNeedsUpdateOfSupportedInterfaceOrientations
+{
+    %orig;
+    if (orientationOverride > 0) ABTellSpringBoard(0xFF);
+}
+
+%end
+
+%end // APPS16
+
+// iOS 15: the same signal before setNeedsUpdateOfSupportedInterfaceOrientations existed
+%group APPS15
+
+%hook UIViewController
+
++ (void)attemptRotationToDeviceOrientation
+{
+    %orig;
+    if (orientationOverride > 0) ABTellSpringBoard(0xFF);
+}
+
+%end
+
+%end // APPS15
+
 %ctor
 {
     NSBundle *mb = [NSBundle mainBundle];
@@ -227,6 +248,8 @@ static void ABHandleOrientationRequest(NSDictionary *info)
     if ([@[@"com.apple.springboard", @"com.apple.CarPlayApp", @"com.apple.CarPlayTemplateUIHost", @"com.apple.CarPlaySettings",
            @"com.apple.InCallService", @"com.apple.Preferences"] containsObject:bid]) return;
     %init(APPS);
+    if (OMCHasMethod("UIWindowScene", @"requestGeometryUpdateWithPreferences:errorHandler:")) %init(APPS16);
+    else %init(APPS15);
     [[objc_getClass("NSDistributedNotificationCenter") defaultCenter]
         addObserverForName:AB_NOTIF_ORIENTATION object:bid queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *note) {
         @try { ABHandleOrientationRequest(note.userInfo); } @catch (NSException *e) { ABLog("%@: xoay loi %@", bid, e); }
