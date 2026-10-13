@@ -1,4 +1,5 @@
 #import "OMCTheme.h"
+#import "OmniCar.h"
 #import <Preferences/PSTableCell.h>
 
 #pragma mark - Localization
