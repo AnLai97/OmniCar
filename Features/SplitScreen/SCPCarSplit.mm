@@ -3827,7 +3827,6 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
 {
     NSMutableArray *sections = [NSMutableArray array], *names = [NSMutableArray array];
     [sections addObject:@[@{@"layout": @2, @"name": SCPCT(@"2 ô", @"2 panes")},
-                          @{@"layout": @(SCPC_LAYOUT_70), @"name": @"70 / 30"}, @{@"layout": @(SCPC_LAYOUT_30), @"name": @"30 / 70"},
                           @{@"layout": @3, @"name": SCPCT(@"3 ô", @"3 panes")},
                           @{@"layout": @(SCPC_LAYOUT_MAIN_STACK), @"name": SCPCT(@"1 lớn + 2", @"1 large + 2")},
                           @{@"layout": @(SCPC_LAYOUT_MAIN_RIGHT), @"name": SCPCT(@"2 + 1 lớn", @"2 + 1 large")}]];
