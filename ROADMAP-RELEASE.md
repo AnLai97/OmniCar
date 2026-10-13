@@ -47,6 +47,10 @@ Mục tiêu: có người chờ trước khi mở repo. Chưa phát hành gì, c
   Video + danh sách tính năng + ngày mở repo + link đăng ký nhận tin.
 - [ ] **Đăng ký nhận tin** · Thấp
   Form: iOS, máy, jailbreak, hãng / đời xe, dây hay không dây. Dùng để biết thị trường gồm những ai, xe gì.
+- [ ] **Bộ tài liệu bán hàng** · Thấp
+  Video 60 giây, 6 ảnh chụp màn xe, mô tả ngắn / dài cho repo riêng và Chariz, FAQ, chính sách riêng tư.
+  Code: docs/sales/ (mô tả ngắn / dài, FAQ, riêng tư, kịch bản quay shotlist.md). Còn thiếu: quay video, chụp ảnh,
+  giá / chính sách hoàn tiền (TODO trong file).
 - [ ] **Bộ tài liệu báo chí** · Thấp
   Ảnh, video, mô tả ngắn, thông tin liên hệ; gửi iDownloadBlog, iDeviceCentral, các kênh YouTube về jailbreak.
   Xong khi: có ít nhất 300 người đăng ký.
@@ -90,6 +94,9 @@ Cuối thời kỳ miễn phí, xem số liệu rồi mới quyết định. Ch�
 Mục tiêu: người dùng thấy **hết** OmniCar làm được gì trên chính xe của họ, rồi mới quyết định mua.
 Một gói OmniCar miễn phí chứa toàn bộ mã; mới cài là chạy đủ Pro trong thời gian thử, hết hạn thì về Lite.
 
+- [ ] **Bản quyền, Lite / Pro và dùng thử** · Vừa
+  Nền tảng kỹ thuật cho Phát hành 3 và 4: cờ Pro dùng chung cho mọi tính năng, đếm ngày dùng thử, đọc khoá của gói Pro.
+  Làm trước các mục bên dưới (dùng thử, đếm ngược, hết hạn mềm, giới hạn Lite / Pro dựa vào nó).
 - [ ] **Dùng thử đủ Pro 7 ngày lái xe** · Vừa
   Đếm theo **ngày có cắm CarPlay**, không phải ngày lịch: cài xong để đó không mất lượt thử. Đủ mọi tính năng Pro.
   Xong khi: cài mới, cắm xe 7 ngày khác nhau → ngày thứ 8 về Lite; không cắm xe thì không bị trừ ngày.

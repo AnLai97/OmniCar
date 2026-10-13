@@ -99,13 +99,6 @@ Thiếu một trong các mục này thì khách quốc tế không mua, hoặc m
 - [x] **Trang tương thích công khai** · Thấp
   iOS, kiểu jailbreak (rootless / roothide), chip, đầu xe đã thử, app đã thử, giới hạn đã biết (DRM).
   Code: docs/compatibility.html (trang tĩnh, EN / VI), đồng bộ với COMPATIBILITY.md. Chưa có kết quả thử nào.
-- [ ] **Bộ tài liệu bán hàng** · Thấp
-  Video 60 giây, 6 ảnh chụp màn xe, mô tả ngắn / dài cho repo riêng và Chariz, FAQ, chính sách riêng tư.
-  Code: docs/sales/ (mô tả ngắn / dài, FAQ, riêng tư, kịch bản quay shotlist.md). Còn thiếu: quay video, chụp ảnh,
-  giá / chính sách hoàn tiền (TODO trong file).
-- [ ] **Bản quyền, Lite / Pro và dùng thử** · Vừa
-  Nền tảng kỹ thuật cho Phát hành 3 và 4: cờ Pro dùng chung cho mọi tính năng, đếm ngày dùng thử, đọc khoá của gói Pro.
-  Đã bỏ khỏi Mức 1 (chưa làm): để tới lúc chốt Lite / Pro.
 
 ### Dùng hằng ngày
 
