@@ -906,6 +906,9 @@ static void OMCPerfEnd(void) {
 #ifndef TWEAK_VERSION
 #define TWEAK_VERSION "dev"
 #endif
+#ifndef OMC_BUILD
+#define OMC_BUILD "dev"
+#endif
 
 // Every dylib records that it loaded into SpringBoard / CarPlay and which build it is. Other processes (App Bridge
 // loads into every app, many sandboxed) are skipped: they cannot write the prefs domain and are not what Settings checks.
@@ -913,8 +916,9 @@ __attribute__((constructor)) static void OMCDiagLoaded(void) {
 	NSString *process = [NSProcessInfo processInfo].processName;
 	if (![process isEqualToString:@"SpringBoard"] && ![process isEqualToString:@"CarPlay"]) return;
 	dispatch_async(dispatch_get_main_queue(), ^{
+		OMCLog(@OMC_FEATURE, @"build %s (%s) loaded into %@", OMC_BUILD, TWEAK_VERSION, process);
 		NSString *key = [NSString stringWithFormat:@"%@%s@%@", OMC_KEY_DIAG_LOADED, OMC_FEATURE, process];
-		NSDictionary *value = @{@"version": @TWEAK_VERSION, @"date": [NSDate date]};
+		NSDictionary *value = @{@"version": @TWEAK_VERSION, @"build": @OMC_BUILD, @"date": [NSDate date]};
 		CFPreferencesSetAppValue((__bridge CFStringRef)key, (__bridge CFPropertyListRef)value, OMC_PREFS_DOMAIN);
 		CFPreferencesAppSynchronize(OMC_PREFS_DOMAIN);
 	});

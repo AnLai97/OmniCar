@@ -221,7 +221,7 @@
 "ACT_CLEAR" = "清除";
 "OPT_BUTTON" = "优化";
 "OPT_GROUP" = "优化性能";
-"OPT_FOOTER" = "轻量模式：分屏取消毛玻璃效果，速度气泡降低刷新频率并去除阴影，跳过启动视频。自动 = 仅在手机发热或 CarPlay 卡顿时开启，恢复正常后再次关闭。\n释放内存：退出后台运行的 App，但保留音乐、地图、CarPlay App、为汽车选择的 App 以及速度来源 App。";
+"OPT_FOOTER" = "轻量模式：分屏取消毛玻璃效果，速度气泡降低刷新频率并去除阴影。自动 = 仅在手机发热或 CarPlay 卡顿时开启，恢复正常后再次关闭。\n释放内存：退出后台运行的 App，但保留音乐、地图、CarPlay App、为汽车选择的 App 以及速度来源 App。";
 "OPT_WILL" = "OmniCar 将会：";
 "OPT_MANUAL" = "你还可以：";
 "OPT_NOTHING" = "无需优化。如果 CarPlay 仍然卡顿，请驾驶一次后再打开此页面查看数据。";

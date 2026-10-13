@@ -221,7 +221,7 @@
 "ACT_CLEAR" = "Borrar";
 "OPT_BUTTON" = "Optimizar";
 "OPT_GROUP" = "Optimizar rendimiento";
-"OPT_FOOTER" = "Modo ligero: Pantalla dividida quita el efecto de cristal esmerilado, Burbuja de velocidad se redibuja menos y sin sombras, y se omite el vídeo de inicio. Auto = solo mientras el teléfono está caliente o CarPlay va a tirones; se desactiva cuando todo va bien.\nLiberar memoria: cierra las apps en segundo plano, salvo música, mapas, apps de CarPlay, las apps elegidas para el coche y la app de origen de la velocidad.";
+"OPT_FOOTER" = "Modo ligero: Pantalla dividida quita el efecto de cristal esmerilado, Burbuja de velocidad se redibuja menos y sin sombras. Auto = solo mientras el teléfono está caliente o CarPlay va a tirones; se desactiva cuando todo va bien.\nLiberar memoria: cierra las apps en segundo plano, salvo música, mapas, apps de CarPlay, las apps elegidas para el coche y la app de origen de la velocidad.";
 "OPT_WILL" = "OmniCar hará lo siguiente:";
 "OPT_MANUAL" = "También puedes:";
 "OPT_NOTHING" = "No hay nada que optimizar. Si CarPlay sigue yendo a tirones, conduce una vez y vuelve a abrir esta página para ver los datos.";

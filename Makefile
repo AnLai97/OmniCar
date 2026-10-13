@@ -7,6 +7,8 @@ INSTALL_TARGET_PROCESSES = CarPlay SpringBoard Runner GOFA
 include $(THEOS)/makefiles/common.mk
 
 TWEAK_VERSION := $(shell sed -n 's/^Version: *//p' control | tr -d '\r')
+# OMC_BUILD: the commit this build comes from (log, Diagnostics, "older build" check); "dev" outside git
+OMC_BUILD := $(shell git rev-parse --short HEAD 2>/dev/null || echo dev)
 
 # Layout: Core/ (prefs + logging, compiled into every feature), Prefs/ (settings bundle: root page,
 # theme, feature-page base class) and one folder per feature under Features/<Name>/:
@@ -31,7 +33,7 @@ TWEAK_NAME = OmniCarCore $(foreach f,$(FEATURES),OmniCar$(f))
 
 OmniCarCore_FILES = Core/Core.x Core/OmniCar.m Core/OMCCommon.m
 OmniCarCore_FRAMEWORKS = UIKit
-OmniCarCore_CFLAGS = -fobjc-arc -ICore -DOMC_FEATURE=\"Core\" -DTWEAK_VERSION=\"$(TWEAK_VERSION)\" $(OMC_TEST_CFLAGS)
+OmniCarCore_CFLAGS = -fobjc-arc -ICore -DOMC_FEATURE=\"Core\" -DTWEAK_VERSION=\"$(TWEAK_VERSION)\" -DOMC_BUILD=\"$(OMC_BUILD)\" $(OMC_TEST_CFLAGS)
 $(shell cp "Core/Filter.plist" "OmniCarCore.plist" && chmod 644 "OmniCarCore.plist")
 
 define OMC_FEATURE
@@ -39,7 +41,7 @@ OmniCar$(1)_FILES = $(wildcard Features/$(1)/*.x) $(wildcard Features/$(1)/*.xm)
 OmniCar$(1)_FRAMEWORKS = UIKit
 # -DOMC_FEATURE keeps each dylib's objects apart (Theos hashes the flags into the object path).
 # TWEAK_VERSION: features that remember "this build crashed" (Split Screen app icons) retry on a new build.
-OmniCar$(1)_CFLAGS = -fobjc-arc -ICore -DOMC_FEATURE=\"$(1)\" -DTWEAK_VERSION=\"$(TWEAK_VERSION)\" $(OMC_TEST_CFLAGS)
+OmniCar$(1)_CFLAGS = -fobjc-arc -ICore -DOMC_FEATURE=\"$(1)\" -DTWEAK_VERSION=\"$(TWEAK_VERSION)\" -DOMC_BUILD=\"$(OMC_BUILD)\" $(OMC_TEST_CFLAGS)
 $$(shell cp "Features/$(1)/Filter.plist" "OmniCar$(1).plist" && chmod 644 "OmniCar$(1).plist")
 endef
 $(foreach f,$(FEATURES),$(eval $(call OMC_FEATURE,$(f))))
@@ -56,7 +58,7 @@ OmniCarPrefs_INSTALL_PATH = /Library/PreferenceBundles
 # <lang>.lproj/<Feature>.strings land next to the core ones.
 OmniCarPrefs_RESOURCE_DIRS = Prefs/Resources $(wildcard Features/*/Prefs/Resources)
 # TWEAK_VERSION is shown in the footer card, read from control.
-OmniCarPrefs_CFLAGS = -fobjc-arc -ICore -IPrefs -DTWEAK_VERSION=\"$(TWEAK_VERSION)\" $(OMC_TEST_CFLAGS)
+OmniCarPrefs_CFLAGS = -fobjc-arc -ICore -IPrefs -DTWEAK_VERSION=\"$(TWEAK_VERSION)\" -DOMC_BUILD=\"$(OMC_BUILD)\" $(OMC_TEST_CFLAGS)
 
 # --- Companion app: the omnicar:// URL scheme for Shortcuts / Siri (App/main.m) -------------------
 # It only forwards the URL to SpringBoard; a feature's SpringBoard hook handles its own host

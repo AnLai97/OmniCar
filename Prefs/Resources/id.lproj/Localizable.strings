@@ -221,7 +221,7 @@
 "ACT_CLEAR" = "Hapus";
 "OPT_BUTTON" = "Optimalkan";
 "OPT_GROUP" = "Optimalkan performa";
-"OPT_FOOTER" = "Mode Ringan: Layar Terpisah menghilangkan efek kaca buram, Gelembung Kecepatan lebih jarang digambar ulang tanpa bayangan, video pembuka dilewati. Otomatis = hanya saat ponsel panas atau CarPlay tersendat, mati lagi setelah normal.\nKosongkan memori: menutup app yang berjalan di latar belakang, kecuali musik, peta, app CarPlay, app yang dipilih untuk mobil, dan app sumber kecepatan.";
+"OPT_FOOTER" = "Mode Ringan: Layar Terpisah menghilangkan efek kaca buram, Gelembung Kecepatan lebih jarang digambar ulang tanpa bayangan. Otomatis = hanya saat ponsel panas atau CarPlay tersendat, mati lagi setelah normal.\nKosongkan memori: menutup app yang berjalan di latar belakang, kecuali musik, peta, app CarPlay, app yang dipilih untuk mobil, dan app sumber kecepatan.";
 "OPT_WILL" = "OmniCar akan:";
 "OPT_MANUAL" = "Anda juga bisa:";
 "OPT_NOTHING" = "Tidak ada yang perlu dioptimalkan. Jika CarPlay masih tersendat, berkendaralah sekali lalu buka lagi halaman ini untuk melihat angkanya.";

@@ -4093,8 +4093,10 @@ static void SCPCMakePassThrough(UIWindow *w)
                          animations:^{ c.alpha = 1; c.transform = CGAffineTransformIdentity; } completion:nil];
     }
     [self restartTrayTimer];
-    SCPLog("CarSplit: bang bo cuc cho %@ (%@, %lu lua chon)", app ?: (self.active ? @"doi bo cuc" : @"cap lan truoc"),
-           [titles componentsJoinedByString:@" / "], (unsigned long)choices.count);
+    NSMutableArray *shown = [NSMutableArray array];   // tung hang: ma bo cuc cua moi o (2 / 3 / 13 / 31 ...)
+    for (NSArray<NSDictionary *> *sec in sections) [shown addObject:[[sec valueForKey:@"layout"] componentsJoinedByString:@","]];
+    SCPLog("CarSplit: bang bo cuc cho %@ (%@, %lu lua chon: %@)", app ?: (self.active ? @"doi bo cuc" : @"cap lan truoc"),
+           [titles componentsJoinedByString:@" / "], (unsigned long)choices.count, [shown componentsJoinedByString:@" | "]);
 }
 
 - (void)panelChoiceTapped:(UIButton *)b

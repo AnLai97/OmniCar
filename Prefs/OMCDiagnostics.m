@@ -8,6 +8,9 @@
 #ifndef TWEAK_VERSION
 #define TWEAK_VERSION "dev"
 #endif
+#ifndef OMC_BUILD
+#define OMC_BUILD "dev"
+#endif
 
 static NSString *const kLogPath = @"/var/mobile/Documents/OmniCar.log";
 
@@ -285,7 +288,7 @@ NSArray<NSDictionary *> *OMCDiagSections(void) {
 	NSString *build = OMCSysctlString("kern.osversion");
 	NSString *ios = [UIDevice currentDevice].systemVersion;
 	[sections addObject:@{@"title": L(@"DIAG_DEVICE"), @"rows": @[
-		OMCRow(@"OmniCar", @TWEAK_VERSION),
+		OMCRow(@"OmniCar", @TWEAK_VERSION " (" OMC_BUILD ")"),
 		OMCRow(@"iOS", build ? [NSString stringWithFormat:@"%@ (%@)", ios, build] : ios),
 		OMCRow(L(@"DIAG_MODEL"), OMCDeviceModel()),
 		OMCRow(L(@"DIAG_JAILBREAK"), OMCJailbreak()),
@@ -421,13 +424,24 @@ static NSDictionary *OMCLoaded(NSString *dylib, NSString *process) {
 }
 
 // Was this dylib loaded into `process` with the installed build? @"ok" / @"old" / @"none"; latest load date out.
+// Does the dylib's filter plist name this process (CarProbe is CarPlay only, so it is never "missing" from SpringBoard)?
+static BOOL OMCDylibTargets(NSString *dylib, NSString *process) {
+	NSString *path = [NSString stringWithFormat:@"%@/OmniCar%@.plist", ROOT_PATH_NS(@"/Library/MobileSubstrate/DynamicLibraries"), dylib];
+	NSData *data = [NSData dataWithContentsOfFile:path];
+	NSDictionary *plist = data ? [NSPropertyListSerialization propertyListWithData:data options:0 format:NULL error:nil] : nil;
+	NSArray *bundles = [plist isKindOfClass:[NSDictionary class]] ? plist[@"Filter"][@"Bundles"] : nil;
+	if (![bundles isKindOfClass:[NSArray class]]) return YES;
+	return [bundles containsObject:[process isEqualToString:@"SpringBoard"] ? @"com.apple.springboard" : @"com.apple.CarPlayApp"];
+}
+
 static NSString *OMCLoadState(NSArray<NSString *> *dylibs, NSString *process, NSDate **latest) {
 	BOOL any = NO, old = NO, missing = NO;
 	for (NSString *d in dylibs) {
+		if (!OMCDylibTargets(d, process)) continue;
 		NSDictionary *l = OMCLoaded(d, process);
 		if (!l) { missing = YES; continue; }
 		any = YES;
-		if (![l[@"version"] isEqual:@TWEAK_VERSION]) old = YES;
+		if (![l[@"version"] isEqual:@TWEAK_VERSION] || ![l[@"build"] isEqual:@OMC_BUILD]) old = YES;
 		if (latest && (!*latest || [l[@"date"] compare:*latest] == NSOrderedDescending)) *latest = l[@"date"];
 	}
 	if (!any) return @"none";
@@ -681,7 +695,7 @@ NSArray<NSDictionary *> *OMCDiagChecks(void) {
 	}
 	if (!dylibs.count) [phone addObject:OMCCheck(L(@"CHK_PACKAGE"), @"bad", L(@"CHK_PACKAGE_NONE"), L(@"CHK_PACKAGE_FIX"), nil)];
 	else if (broken.count) [phone addObject:OMCCheck(L(@"CHK_PACKAGE"), @"bad", [NSString stringWithFormat:L(@"CHK_PACKAGE_BROKEN"), [broken componentsJoinedByString:@", "]], L(@"CHK_PACKAGE_FIX"), nil)];
-	else [phone addObject:OMCCheck(L(@"CHK_PACKAGE"), @"ok", [NSString stringWithFormat:L(@"CHK_PACKAGE_OK"), @TWEAK_VERSION, (unsigned long)dylibs.count], nil, nil)];
+	else [phone addObject:OMCCheck(L(@"CHK_PACKAGE"), @"ok", [NSString stringWithFormat:L(@"CHK_PACKAGE_OK"), @TWEAK_VERSION " (" OMC_BUILD ")", (unsigned long)dylibs.count], nil, nil)];
 
 	NSDate *sbDate = nil;
 	NSString *sb = OMCLoadState(dylibs, @"SpringBoard", &sbDate);
