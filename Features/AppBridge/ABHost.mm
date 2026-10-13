@@ -146,6 +146,7 @@ static void ABPostOrientation(NSString *bid, long long orientation)
 @property (nonatomic, strong) UIView *handleHit;       // vung cham cua thanh
 @property (nonatomic, strong) UIView *bar;             // thanh nut cua o (doi app / noi / toan man / dong) ve de len app
 @property (nonatomic, strong) UIButton *popButton;     // nut noi / ghim tren thanh (glyph doi theo "pop")
+@property (nonatomic, strong) UIButton *soloButton;    // nut "Chay 1 man hinh" / "Chia man hinh" (glyph doi theo "single")
 @property (nonatomic) CGFloat handleOffset;            // thanh "•••" lech ngang (hx tu CarPlay)
 @end
 @implementation ABPane
@@ -661,6 +662,33 @@ static const NSInteger kABDriveOverlayTag = 0xD71E;
 #define AB_BAR_BTN   34.0
 #define AB_BAR_Y     (6 + 12 + 6 + AB_BAR_H / 2)   // duoi thanh "•••" nhu thanh nut cua CarPlay
 
+// Giao dien moi (DESIGN.md, = SCPCInk / SCPCShadow / SCPCAccentFill ben CarPlay): chu mau muc, bong tim nhat,
+// dang chon = gradient tim -> xanh troi
+static UIColor *ABInk(void) { return [UIColor colorWithRed:0x1F / 255.0 green:0x22 / 255.0 blue:0x33 / 255.0 alpha:1]; }
+static UIColor *ABShadow(void) { return [UIColor colorWithRed:70 / 255.0 green:60 / 255.0 blue:140 / 255.0 alpha:1]; }
+
+// Tay cam "•••" dang mo thanh nut: gradient + cham trang; dong: kinh trang + cham muc
+static void ABHandleOpen(UIView *pill, BOOL open)
+{
+    if (!pill) return;
+    CAGradientLayer *g = nil;
+    for (CALayer *l in pill.layer.sublayers) if ([l.name isEqualToString:@"omcAccent"]) g = (CAGradientLayer *)l;
+    if (open && !g) {
+        g = [CAGradientLayer layer];
+        g.name = @"omcAccent";
+        g.colors = @[(id)[UIColor colorWithRed:0x8B / 255.0 green:0x7C / 255.0 blue:1 alpha:1].CGColor,
+                     (id)[UIColor colorWithRed:0x5A / 255.0 green:0xB8 / 255.0 blue:1 alpha:1].CGColor];
+        g.startPoint = CGPointZero; g.endPoint = CGPointMake(1, 1);
+        g.frame = pill.bounds;
+        g.cornerRadius = pill.layer.cornerRadius;
+        [pill.layer insertSublayer:g atIndex:0];
+    } else if (!open) {
+        [g removeFromSuperlayer];
+    }
+    pill.backgroundColor = open ? [UIColor clearColor] : [UIColor colorWithWhite:1 alpha:0.82];
+    for (UIView *d in pill.subviews) d.backgroundColor = open ? [UIColor whiteColor] : [ABInk() colorWithAlphaComponent:0.75];
+}
+
 #define AB_M(x, y) [p moveToPoint:CGPointMake(x, y)]
 #define AB_L(x, y) [p addLineToPoint:CGPointMake(x, y)]
 #define AB_RR(x, y, w, h, r) [p appendPath:[UIBezierPath bezierPathWithRoundedRect:CGRectMake(x, y, w, h) cornerRadius:r]]
@@ -670,7 +698,7 @@ static UIImage *ABGlyph(NSString *name)
     static NSMutableDictionary<NSString *, UIImage *> *cache;
     if (!cache) cache = [NSMutableDictionary dictionary];
     if (cache[name]) return cache[name];
-    CGFloat pt = 20;
+    CGFloat pt = [name hasPrefix:@"hm_"] ? 22 : 20;
     UIGraphicsImageRenderer *r = [[UIGraphicsImageRenderer alloc] initWithSize:CGSizeMake(pt, pt)];
     UIImage *img = [r imageWithActions:^(UIGraphicsImageRendererContext *rc) {
         CGContextScaleCTM(rc.CGContext, pt / 24.0, pt / 24.0);
@@ -695,6 +723,25 @@ static UIImage *ABGlyph(NSString *name)
             AB_RR(3.5, 4.5, 17, 15, 3);
             AB_M(12, 4.5); AB_L(12, 19.5);
             [f appendPath:[UIBezierPath bezierPathWithRoundedRect:CGRectMake(5.6, 6.6, 4.6, 10.8) cornerRadius:1.4]];
+        } else if ([name hasPrefix:@"hm_"]) {             // thanh ••• kieu HarmonyOS Symbol: net 1.5 (= SCPCGlyph hm_* ben CarPlay)
+            p.lineWidth = 1.5;
+            if ([name isEqualToString:@"hm_apps"]) {
+                AB_RR(4, 4, 7, 7, 2.2); AB_RR(13, 4, 7, 7, 2.2); AB_RR(4, 13, 7, 7, 2.2); AB_RR(13, 13, 7, 7, 2.2);
+            } else if ([name isEqualToString:@"hm_full"]) {
+                AB_M(4, 9.5); AB_L(4, 7.5); [p addArcWithCenter:CGPointMake(7.5, 7.5) radius:3.5 startAngle:M_PI endAngle:-M_PI_2 clockwise:YES]; AB_L(9.5, 4);
+                AB_M(14.5, 4); AB_L(16.5, 4); [p addArcWithCenter:CGPointMake(16.5, 7.5) radius:3.5 startAngle:-M_PI_2 endAngle:0 clockwise:YES]; AB_L(20, 9.5);
+                AB_M(20, 14.5); AB_L(20, 16.5); [p addArcWithCenter:CGPointMake(16.5, 16.5) radius:3.5 startAngle:0 endAngle:M_PI_2 clockwise:YES]; AB_L(14.5, 20);
+                AB_M(9.5, 20); AB_L(7.5, 20); [p addArcWithCenter:CGPointMake(7.5, 16.5) radius:3.5 startAngle:M_PI_2 endAngle:M_PI clockwise:YES]; AB_L(4, 14.5);
+            } else if ([name isEqualToString:@"hm_split"]) {
+                AB_RR(3.5, 4.5, 7.5, 15, 2.5); AB_RR(13, 4.5, 7.5, 15, 2.5);
+            } else if ([name isEqualToString:@"hm_float"]) {
+                AB_RR(3.5, 4.5, 17, 15, 3);
+                [f appendPath:[UIBezierPath bezierPathWithRoundedRect:CGRectMake(11.5, 11.5, 6.5, 5.5) cornerRadius:1.6]];
+            } else if ([name isEqualToString:@"hm_min"]) {
+                AB_M(5.5, 12); AB_L(18.5, 12);
+            } else if ([name isEqualToString:@"hm_close"]) {
+                AB_M(6.5, 6.5); AB_L(17.5, 17.5); AB_M(17.5, 6.5); AB_L(6.5, 17.5);
+            }
         }
         [p stroke];
         [f fill];
@@ -709,53 +756,49 @@ static UIButton *ABRoundButton(NSString *glyph, id target, SEL action)
     UIButton *b = [ABBarButton buttonWithType:UIButtonTypeCustom];
     b.bounds = CGRectMake(0, 0, AB_BAR_BTN, AB_BAR_BTN);
     b.layer.cornerRadius = AB_BAR_BTN / 2;
-    b.tintColor = [UIColor colorWithWhite:1 alpha:0.94];
+    b.tintColor = ABInk();
     [b setImage:ABGlyph(glyph) forState:UIControlStateNormal];
     [b addTarget:target action:action forControlEvents:UIControlEventTouchUpInside];
     return b;
 }
 
+// Thanh ••• kieu HarmonyOS (= setupBarForPane ben CarPlay, DESIGN.md): kinh trang, chi icon - Chon app moi ·
+// Chay 1 man hinh / Chia man hinh · Anh trong anh · Chay nen · Tat han app (X do)
 - (UIView *)buildBarForPane:(ABPane *)pane
 {
-    UIButton *replace = ABRoundButton(@"replace", self, @selector(barReplace:));
-    UIButton *pop = ABRoundButton(@"float", self, @selector(barPop:));
-    UIButton *full = ABRoundButton(@"fullscreen", self, @selector(barFull:));
-    UIButton *close = ABRoundButton(@"close", self, @selector(barClose:));
-    close.tintColor = [UIColor colorWithRed:1.0 green:0.36 blue:0.33 alpha:1];
+    UIButton *replace = ABRoundButton(@"hm_apps", self, @selector(barReplace:));
+    UIButton *full = ABRoundButton(@"hm_full", self, @selector(barFull:));
+    UIButton *pop = ABRoundButton(@"hm_float", self, @selector(barPop:));
+    UIButton *bg = ABRoundButton(@"hm_min", self, @selector(barBackground:));
+    UIButton *close = ABRoundButton(@"hm_close", self, @selector(barClose:));
+    close.tintColor = [UIColor colorWithRed:1.0 green:0x5A / 255.0 blue:0x5F / 255.0 alpha:1];
     pane.popButton = pop;
-    // SCPCPill: pad 4, buoc 36, khe 9 truoc nut dong (co vach mo)
-    CGFloat pad = (AB_BAR_H - AB_BAR_BTN) / 2, step = AB_BAR_BTN + 2, sep = 9;
-    CGFloat len = pad * 2 - 2 + 3 * step + sep + step;
-    // Kinh mo kieu HarmonyOS nhu SCPCGlass ben CarPlay: nhin xuyen, vien sang manh, bong mem
+    pane.soloButton = full;
+    NSArray<UIButton *> *buttons = @[replace, full, pop, bg, close];
+    CGFloat pad = (AB_BAR_H - AB_BAR_BTN) / 2, step = AB_BAR_BTN + 2;
+    CGFloat len = pad * 2 - 2 + buttons.count * step;
     UIView *bar = [[UIView alloc] initWithFrame:CGRectMake(0, 0, len, AB_BAR_H)];
     bar.backgroundColor = [UIColor clearColor];
     bar.layer.cornerRadius = AB_BAR_H / 2;
     bar.layer.cornerCurve = kCACornerCurveContinuous;
-    bar.layer.shadowColor = [UIColor blackColor].CGColor;
-    bar.layer.shadowOpacity = 0.3; bar.layer.shadowRadius = 12; bar.layer.shadowOffset = CGSizeMake(0, 4);
-    UIVisualEffectView *glass = [[UIVisualEffectView alloc] initWithEffect:[UIBlurEffect effectWithStyle:UIBlurEffectStyleSystemUltraThinMaterialDark]];
+    bar.layer.shadowColor = ABShadow().CGColor;
+    bar.layer.shadowOpacity = 0.28; bar.layer.shadowRadius = 14; bar.layer.shadowOffset = CGSizeMake(0, 6);
+    UIVisualEffectView *glass = [[UIVisualEffectView alloc] initWithEffect:[UIBlurEffect effectWithStyle:UIBlurEffectStyleSystemUltraThinMaterialLight]];
     glass.frame = bar.bounds;
-    glass.contentView.backgroundColor = [UIColor colorWithWhite:0.1 alpha:0.2];
+    glass.contentView.backgroundColor = [UIColor colorWithWhite:1 alpha:0.45];
     glass.layer.cornerRadius = AB_BAR_H / 2;
     glass.layer.cornerCurve = kCACornerCurveContinuous;
     glass.layer.borderWidth = 0.5;
-    glass.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.22].CGColor;
+    glass.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.85].CGColor;
     glass.clipsToBounds = YES;
     glass.userInteractionEnabled = NO;
     [bar addSubview:glass];
     CGFloat o = pad;
-    for (UIButton *b in @[replace, pop, full]) {
+    for (UIButton *b in buttons) {
         b.center = CGPointMake(o + AB_BAR_BTN / 2, AB_BAR_H / 2);
         [bar addSubview:b];
         o += step;
     }
-    UIView *line = [[UIView alloc] initWithFrame:CGRectMake(o - 1 + sep / 2, (AB_BAR_H - 18) / 2, 1, 18)];
-    line.backgroundColor = [UIColor colorWithWhite:1 alpha:0.18];
-    line.userInteractionEnabled = NO;
-    [bar addSubview:line];
-    o += sep;
-    close.center = CGPointMake(o + AB_BAR_BTN / 2, AB_BAR_H / 2);
-    [bar addSubview:close];
     bar.hidden = YES;
     bar.alpha = 0;
     pane.bar = bar;
@@ -778,15 +821,17 @@ static UIButton *ABRoundButton(NSString *glyph, id target, SEL action)
     [pane.box bringSubviewToFront:pane.handleHit];
 }
 
-- (void)setBarVisible:(BOOL)visible pop:(int)pop dim:(BOOL)dim forApp:(NSString *)bid
+- (void)setBarVisible:(BOOL)visible pop:(int)pop dim:(BOOL)dim single:(BOOL)single forApp:(NSString *)bid
 {
     ABPane *p = [self paneFor:bid];
     if (!p) return;
     if (!p.bar && !visible) return;
     UIView *bar = p.bar ?: [self buildBarForPane:p];
-    [p.popButton setImage:ABGlyph(pop == 2 ? @"dock" : @"float") forState:UIControlStateNormal];
+    [p.popButton setImage:ABGlyph(pop == 2 ? @"hm_split" : @"hm_float") forState:UIControlStateNormal];
     p.popButton.alpha = dim ? 0.35 : 1;
+    [p.soloButton setImage:ABGlyph(single ? @"hm_split" : @"hm_full") forState:UIControlStateNormal];
     [self layoutBarForPane:p];
+    ABHandleOpen(p.handle, visible);   // tay cam "•••": gradient khi thanh dang mo
     if (visible == !bar.hidden) return;
     if (visible) {
         // Kieu HarmonyOS nhu SCPCDropIn: troi xuong nhe + phong tu 0.9, lo xo em
@@ -824,6 +869,7 @@ static UIButton *ABRoundButton(NSString *glyph, id target, SEL action)
 - (void)barReplace:(UIButton *)b { [self postBarAction:@"replace" from:b]; }
 - (void)barPop:(UIButton *)b     { [self postBarAction:@"pop" from:b]; }
 - (void)barFull:(UIButton *)b    { [self postBarAction:@"full" from:b]; }
+- (void)barBackground:(UIButton *)b { [self postBarAction:@"bg" from:b]; }
 - (void)barClose:(UIButton *)b   { [self postBarAction:@"close" from:b]; }
 
 #pragma mark - Thanh "•••" tren app
@@ -832,12 +878,14 @@ static UIButton *ABRoundButton(NSString *glyph, id target, SEL action)
 {
     UIView *hit = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 44, 24)];
     UIView *pill = [[UIView alloc] initWithFrame:CGRectMake(5, 6, 34, 12)];
-    pill.backgroundColor = [UIColor colorWithWhite:0 alpha:0.38];
+    pill.backgroundColor = [UIColor colorWithWhite:1 alpha:0.82];   // kinh trang, 3 cham mau muc (= SCPCDotsHandle)
     pill.layer.cornerRadius = 6;
+    pill.layer.borderWidth = 0.5;
+    pill.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.9].CGColor;
     pill.userInteractionEnabled = NO;
     for (int i = 0; i < 3; i++) {
         UIView *d = [[UIView alloc] initWithFrame:CGRectMake(9 + i * 7, 4, 4, 4)];
-        d.backgroundColor = [UIColor colorWithWhite:1 alpha:0.9];
+        d.backgroundColor = [ABInk() colorWithAlphaComponent:0.75];
         d.layer.cornerRadius = 2;
         [pill addSubview:d];
     }
@@ -872,17 +920,17 @@ static ABKnobView *ABMakeKnob(void)
     v.layer.cornerRadius = pad / 2;
     UIView *k = [[UIView alloc] initWithFrame:CGRectMake(AB_KNOB_HIT, AB_KNOB_HIT, AB_KNOB, AB_KNOB)];
     k.userInteractionEnabled = NO;
-    k.backgroundColor = [UIColor colorWithWhite:0.12 alpha:0.88];
+    k.backgroundColor = [UIColor colorWithWhite:1 alpha:0.92];   // kinh trang, cham mau muc (= SCPCKnobStyle)
     k.layer.cornerRadius = AB_KNOB / 2;
     k.layer.borderWidth = 1.5;
     k.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.95].CGColor;
-    k.layer.shadowColor = [UIColor blackColor].CGColor;
+    k.layer.shadowColor = ABShadow().CGColor;
     k.layer.shadowOpacity = 0.45; k.layer.shadowRadius = 3; k.layer.shadowOffset = CGSizeMake(0, 1);
     CALayer *dot = [CALayer layer];
     CGFloat ds = 4;
     dot.frame = CGRectMake((AB_KNOB - ds) / 2, (AB_KNOB - ds) / 2, ds, ds);
     dot.cornerRadius = ds / 2;
-    dot.backgroundColor = [UIColor whiteColor].CGColor;
+    dot.backgroundColor = ABInk().CGColor;
     [k.layer addSublayer:dot];
     [v addSubview:k];
     v.dot = k;
@@ -914,9 +962,9 @@ static ABKnobView *ABMakeKnob(void)
         [UIView animateWithDuration:on ? 0.15 : 0.3 delay:0 usingSpringWithDamping:0.7 initialSpringVelocity:0
                             options:UIViewAnimationOptionBeginFromCurrentState animations:^{
             v.dot.transform = on ? CGAffineTransformMakeScale(AB_KNOB_GROW, AB_KNOB_GROW) : CGAffineTransformIdentity;
-            v.dot.backgroundColor = on ? [UIColor whiteColor] : [UIColor colorWithWhite:0.12 alpha:0.88];   // dang cham: trang sang nhu ben CarPlay
-            for (CALayer *l in v.dot.layer.sublayers) l.backgroundColor = (on ? [UIColor colorWithWhite:0.12 alpha:1] : [UIColor whiteColor]).CGColor;
-            v.dot.layer.shadowColor = (on ? [UIColor whiteColor] : [UIColor blackColor]).CGColor;
+            v.dot.backgroundColor = on ? [UIColor colorWithRed:0x8B / 255.0 green:0x7C / 255.0 blue:1 alpha:1] : [UIColor colorWithWhite:1 alpha:0.92];   // dang cham: mau nhan tim nhu ben CarPlay
+            for (CALayer *l in v.dot.layer.sublayers) l.backgroundColor = (on ? [UIColor whiteColor] : ABInk()).CGColor;
+            v.dot.layer.shadowColor = (on ? [UIColor colorWithRed:0x8B / 255.0 green:0x7C / 255.0 blue:1 alpha:1] : ABShadow()).CGColor;
         } completion:nil];
     }
 }
