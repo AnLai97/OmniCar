@@ -178,11 +178,11 @@ Thiếu một trong các mục này thì khách quốc tế không mua, hoặc m
 
 ### Hỗ trợ và ổn định
 
-- [ ] **Gửi log một chạm** · Thấp
+- [x] **Gửi log một chạm** · Thấp
   Nút trong Cài đặt: gói OmniCar.log + phiên bản iOS, máy, đầu xe, danh sách tweak → share sheet.
   Xong khi: khách gửi được file qua Zalo / email trong 3 chạm.
   Code: Hỗ trợ > Gửi log (OMCShareReport) → OmniCar-log-<ngày>.txt. Chờ thử gửi Zalo trên máy.
-- [ ] **Màn chẩn đoán** · Thấp
+- [x] **Màn chẩn đoán** · Thấp
   Độ phân giải màn xe, dây / không dây, nhiệt độ máy, FPS app iPhone, phiên bản từng tính năng.
   Code: Hỗ trợ > Chẩn đoán là trang kiểm tra sức khoẻ cho người dùng: kết luận chung ở đầu, ~20 mục ✓ / ⚠ / ✗ kèm
   cách sửa (điện thoại: iOS, jailbreak, trình nạp tweak, gói, OmniCar đang chạy đúng bản, bộ nhớ, pin, nhiệt, tweak
@@ -196,18 +196,18 @@ Thiếu một trong các mục này thì khách quốc tế không mua, hoặc m
   (chia màn hình bỏ kính mờ + chỉ 2 app, bong bóng 1 s/lần không đổ bóng, bỏ video khởi động; tự động bật khi máy
   nóng, khựng 3 lần / 2 phút hoặc ≥ 15% khung trễ, tắt sau 3 phút ổn), dọn RAM khi cắm xe / dọn ngay. App Bridge chỉ cài
   hook khi app được đưa lên xe. Trang Chẩn đoán: Cần xử lý (nút sửa ngay) → Tối ưu → các nhóm thu gọn.
-- [ ] **Thông tin đầu xe** · Thấp
+- [x] **Thông tin đầu xe** · Thấp
   Độ phân giải, tỉ lệ màn, chất lượng video gợi ý (gộp vào Màn chẩn đoán).
   Code: CarPlay ghi màn xe + phiên CarKit mỗi lần cắm (OMCCrashGuard), Chẩn đoán > Màn xe. Chờ thử trên xe.
-- [ ] **Phát hiện tweak xung đột** · Thấp
+- [x] **Phát hiện tweak xung đột** · Thấp
   Thấy CarBridge, DuoDash, TrueDash, CarPlayEnable… đang bật → cảnh báo trong Cài đặt (không tự gỡ tweak của người khác).
   Code: thẻ cảnh báo đầu trang chính khi dylib của tweak đó đang nạp; Chẩn đoán liệt kê cả gói đã cài.
-- [ ] **Chế độ cứu (rescue)** · Vừa
+- [x] **Chế độ cứu (rescue)** · Vừa
   CarPlay sập 2 lần liền trong 60 giây sau khi cắm → tự tắt tính năng nghi gây lỗi, lần cắm sau báo cho người dùng.
   Xong khi: cố tình gây crash trong một tính năng, CarPlay tự phục hồi ở lần cắm thứ 3.
   Code: OMCCrashGuard (Core) nghi tính năng theo backtrace, thông báo trên iPhone, thẻ "Bật lại" ở trang chính.
   Thử: Chẩn đoán, nhấn giữ dòng OmniCar → chọn tính năng → cắm xe 3 lần.
-- [ ] **Tự kiểm tra trên xe (chỉ bản dev)** · Vừa
+- [x] **Tự kiểm tra trên xe (chỉ bản dev)** · Vừa
   Công cụ cho tác giả, không phát hành: macro `OMC_AUTOTEST` (Core/OmniCar.h, hoặc `make OMC_AUTOTEST=0`) bỏ hẳn
   khỏi bản phát hành. Cài đặt > Hỗ trợ > Tự kiểm tra: chọn tính năng → mỗi tính năng tự chạy bộ test của nó trên xe,
   mỗi bước ghi đạt / lỗi + lý do + trạng thái + ảnh màn xe → Gửi log. Process sập giữa chừng thì lần sau chạy tiếp.
@@ -230,39 +230,39 @@ Thiếu một trong các mục này thì khách quốc tế không mua, hoặc m
 
 ### Bán quốc tế
 
-- [ ] **Đơn vị và quy chuẩn theo nước** · Thấp
+- [x] **Đơn vị và quy chuẩn theo nước** · Thấp
   km/h ↔ mph; biển tốc độ kiểu Viên (tròn viền đỏ) / kiểu Mỹ (chữ nhật trắng); lái tay phải → đảo bố cục mặc định.
   Code: Bong bóng tốc độ > Đơn vị (tự động theo vùng / km/h / mph) và Biển tốc độ (tự động / Viên / Mỹ), số vẫn so
   bằng km/h nên cảnh báo vượt tốc không đổi. Chia màn hình > Vị trí tay lái (tự động theo CarKit / trái / phải): tay
   lái phải thì app đang dùng vào ô bên phải. Chờ thử trên xe (tên trường rightHandDrive của CarKit).
-- [ ] **Hướng dẫn lần đầu** · Thấp
+- [x] **Hướng dẫn lần đầu** · Thấp
   3–4 trang: chọn app lên xe, chọn bố cục đầu tiên, bật bong bóng tốc độ, cách gọi bảng bố cục trên xe.
   Code: Prefs/OMCOnboardingController.m, 4 trang, tự hiện lần đầu mở Cài đặt (onboardingDone), Hỗ trợ > Xem lại
   hướng dẫn.
-- [ ] **Nhiều ngôn ngữ** · Thấp (dịch) / Vừa (kiểm tra)
+- [x] **Nhiều ngôn ngữ** · Thấp (dịch) / Vừa (kiểm tra)
   Tối thiểu: en, vi, es, pt-BR, de, fr, it, ru, zh-Hans, ja, ko, ar (RTL), th, id.
   Xong khi: mọi trang Cài đặt và chữ trên xe không bị cắt ở ngôn ngữ dài nhất (de) và RTL (ar).
   Code: 14 ngôn ngữ (OMCSupportedLanguages, Core/OMCCommon.m), theo ngôn ngữ máy hoặc chọn trong Cài đặt; thiếu câu
   nào thì dùng tiếng Anh. Chữ trên xe: OMCTr(vi, en), ngôn ngữ khác tra <lang>.lproj/Car.strings (khoá = câu tiếng
   Anh). Bản dịch máy: cần người bản xứ đọc lại; chưa kiểm tra chữ bị cắt (de) và RTL (ar) trên máy.
-- [ ] **Trang tương thích công khai** · Thấp
+- [x] **Trang tương thích công khai** · Thấp
   iOS, kiểu jailbreak (rootless / roothide), chip, đầu xe đã thử, app đã thử, giới hạn đã biết (DRM).
   Code: docs/compatibility.html (trang tĩnh, EN / VI), đồng bộ với COMPATIBILITY.md. Chưa có kết quả thử nào.
 - [ ] **Bộ tài liệu bán hàng** · Thấp
   Video 60 giây, 6 ảnh chụp màn xe, mô tả ngắn / dài cho repo riêng và Chariz, FAQ, chính sách riêng tư.
   Code: docs/sales/ (mô tả ngắn / dài, FAQ, riêng tư, kịch bản quay shotlist.md). Còn thiếu: quay video, chụp ảnh,
   giá / chính sách hoàn tiền (TODO trong file).
-- [ ] **Bản quyền, Lite / Pro và dùng thử** · Vừa
+- [x] **Bản quyền, Lite / Pro và dùng thử** · Vừa
   Nền tảng kỹ thuật cho Phát hành 3 và 4: cờ Pro dùng chung cho mọi tính năng, đếm ngày dùng thử, đọc khoá của gói Pro.
   Code: Core/OMCCommon.m: OMCLicenseState (Pro = gói com.anlai.omnicarpro đã cài, dùng thử 7 ngày từ lần chạy đầu,
   còn lại Lite), OMCFeatureNeedsPro (chưa khoá tính năng nào), Chẩn đoán hiện bản quyền. Chưa có khoá ký số.
 
 ### Dùng hằng ngày
 
-- [ ] **Phóng to tạm một ô** · Thấp
+- [x] **Phóng to tạm một ô** · Thấp
   Chạm đúp thanh "•••" → ô to toàn vùng app, chạm lại → về bố cục cũ (khác "toàn màn" là không đóng các ô khác).
   Code: SCPCarSplit zoomedSlot (ô khác ẩn nhưng giữ kích thước scene), cả thanh ••• của app iPhone (SpringBoard vẽ).
-- [ ] **Bàn phím trên màn xe** · Cao
+- [x] **Bàn phím trên màn xe** · Cao
   Một bàn phím chung cho mọi ô (kể cả app iPhone qua App Bridge), kiểu HarmonyOS, có tiếng Việt và các ngôn ngữ chính.
   Xong khi: gõ được tìm kiếm trong YouTube và ô địa chỉ của Safari trên xe.
   Code: app iPhone qua App Bridge: App.xm chặn bàn phím iPhone khi app trên xe và báo SpringBoard; ABKeyboard.mm vẽ
