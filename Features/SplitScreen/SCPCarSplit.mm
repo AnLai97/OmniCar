@@ -4842,9 +4842,11 @@ static UIImage *SCPCSplitImage(CGFloat side)
 {
     UIGraphicsImageRenderer *r = [[UIGraphicsImageRenderer alloc] initWithSize:CGSizeMake(side, side)];
     UIImage *img = [r imageWithActions:^(UIGraphicsImageRendererContext *rc) {
+        // Nhu nut dock trong tools/preview/theme.html: 2 o 6 x 10 cach nhau 2 trong nut 26 (hinh 54% rong, 38% cao,
+        // khe 14%), de o cho nho (22..30 pt) van thay 2 o chu khong thanh 1 cham
         CGContextScaleCTM(rc.CGContext, side / 1024.0, side / 1024.0);
-        UIBezierPath *panes = [UIBezierPath bezierPathWithRoundedRect:CGRectMake(60, 212, 422, 600) cornerRadius:90];
-        [panes appendPath:[UIBezierPath bezierPathWithRoundedRect:CGRectMake(542, 212, 422, 600) cornerRadius:90]];
+        UIBezierPath *panes = [UIBezierPath bezierPathWithRoundedRect:CGRectMake(236, 315, 236, 394) cornerRadius:78];
+        [panes appendPath:[UIBezierPath bezierPathWithRoundedRect:CGRectMake(552, 315, 236, 394) cornerRadius:78]];
         [[UIColor whiteColor] setFill];
         [panes fill];
     }];
@@ -5002,7 +5004,7 @@ static void SCPCStatusBottom(UIView *v, UIView *parent, CGRect strip, int depth,
     BOOL bare = ![self.launcherWhere hasPrefix:@"goc"];
     if (!self.homeButton || fabs(self.homeButton.bounds.size.width - size) > 0.5 || self.launcherBare != bare) {
         [self.homeButton removeFromSuperview];
-        UIButton *b = SCPCRoundButton(SCPCSplitImage(floor(size * 0.6)), self, @selector(homeButtonTapped));
+        UIButton *b = SCPCRoundButton(SCPCSplitImage(size), self, @selector(homeButtonTapped));   // hinh da co le trong anh
         b.bounds = CGRectMake(0, 0, size, size);
         b.layer.cornerRadius = size / 2;
         SCPCAccentFill(b, YES);
