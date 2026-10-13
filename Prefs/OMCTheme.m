@@ -56,8 +56,9 @@ static UIColor *OMCDynamicColor(UInt32 light, UInt32 dark) {
 	}];
 }
 
-// Kieu OmniCar (DESIGN.md): khong mau xanh - cong tac / thanh truot mau than chi (sang) / xam bac (toi)
+// Kieu OmniCar (DESIGN.md): khong mau xanh duong - thanh truot / nut mau than chi (sang) / xam bac (toi); cong tac bat: xanh la
 UIColor *OMCAccentColor(void)     { return OMCDynamicColor(0x1F2329, 0xA9AFB8); }
+UIColor *OMCSwitchColor(void)     { return UIColor.systemGreenColor; }
 UIColor *OMCBackgroundColor(void) { return OMCDynamicColor(0xF1F3F5, 0x000000); }
 UIColor *OMCCardColor(void)       { return OMCDynamicColor(0xFFFFFF, 0x202224); }
 

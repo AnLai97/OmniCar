@@ -14,6 +14,7 @@ Xem và thử trước mọi thay đổi bằng `tools/preview/splitscreen.html`
   Nội dung nằm trên nền trắng thì chuyển sang màu tối.
 - **Mọi dấu X đóng / thoát / huỷ: đỏ** (`SCPCDanger` #FF5C54; trên nền trắng dùng #E0332E).
 - **Không dùng màu xanh** làm điểm nhấn. Biểu tượng: nét trắng (hoặc tối trên nền trắng).
+- **Ngoại lệ: công tắc trong Settings khi bật là xanh lá** (`OMCSwitchColor`, systemGreen như iOS). Thanh trượt, nút vẫn than chì / xám bạc.
 - Bản thân bảng / thanh vẫn là kính — đã thử làm cả thanh trắng và bỏ.
 
 ## Chuyển động

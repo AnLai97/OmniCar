@@ -221,7 +221,7 @@
 "ACT_CLEAR" = "Effacer";
 "OPT_BUTTON" = "Optimiser";
 "OPT_GROUP" = "Optimiser les performances";
-"OPT_FOOTER" = "Mode allégé : l’Écran partagé retire l’effet verre dépoli et ne partage que 2 apps, la Bulle de vitesse se redessine moins souvent et sans ombres, la vidéo de démarrage est ignorée. Auto = seulement quand le téléphone est chaud ou que CarPlay saccade, puis désactivé quand tout va bien.\nLibérer la mémoire : ferme les apps en arrière-plan, sauf la musique, les cartes, les apps CarPlay, les apps choisies pour la voiture et l’app source de la vitesse.";
+"OPT_FOOTER" = "Mode allégé : l’Écran partagé retire l’effet verre dépoli, la Bulle de vitesse se redessine moins souvent et sans ombres, la vidéo de démarrage est ignorée. Auto = seulement quand le téléphone est chaud ou que CarPlay saccade, puis désactivé quand tout va bien.\nLibérer la mémoire : ferme les apps en arrière-plan, sauf la musique, les cartes, les apps CarPlay, les apps choisies pour la voiture et l’app source de la vitesse.";
 "OPT_WILL" = "OmniCar va :";
 "OPT_MANUAL" = "Vous pouvez aussi :";
 "OPT_NOTHING" = "Rien à optimiser. Si CarPlay saccade encore, faites un trajet et rouvrez cette page pour voir les chiffres.";

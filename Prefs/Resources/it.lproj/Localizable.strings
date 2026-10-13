@@ -221,7 +221,7 @@
 "ACT_CLEAR" = "Svuota";
 "OPT_BUTTON" = "Ottimizza";
 "OPT_GROUP" = "Ottimizza prestazioni";
-"OPT_FOOTER" = "Modalità leggera: Schermo diviso rinuncia all'effetto vetro smerigliato e divide solo 2 app, Bolla velocità si aggiorna meno spesso e senza ombre, il video di avvio viene saltato. Auto = solo quando il telefono è caldo o CarPlay scatta, poi si disattiva quando tutto va bene.\nLibera memoria: chiude le app in background, tranne musica, mappe, app CarPlay, le app scelte per l'auto e l'app sorgente della velocità.";
+"OPT_FOOTER" = "Modalità leggera: Schermo diviso rinuncia all'effetto vetro smerigliato, Bolla velocità si aggiorna meno spesso e senza ombre, il video di avvio viene saltato. Auto = solo quando il telefono è caldo o CarPlay scatta, poi si disattiva quando tutto va bene.\nLibera memoria: chiude le app in background, tranne musica, mappe, app CarPlay, le app scelte per l'auto e l'app sorgente della velocità.";
 "OPT_WILL" = "OmniCar farà:";
 "OPT_MANUAL" = "Puoi anche:";
 "OPT_NOTHING" = "Niente da ottimizzare. Se CarPlay scatta ancora, fai un viaggio e riapri questa pagina per vedere i valori.";

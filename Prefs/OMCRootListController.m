@@ -85,7 +85,7 @@
 	[_clip addSubview:_statusLabel];
 
 	_toggle = [UISwitch new];
-	_toggle.onTintColor = UIColor.whiteColor;
+	_toggle.onTintColor = OMCSwitchColor();
 	_toggle.backgroundColor = [UIColor colorWithWhite:1 alpha:0.18];   // ray khi tat tren nen toi
 	_toggle.layer.cornerRadius = 15.5;
 	[_clip addSubview:_toggle];
@@ -277,7 +277,7 @@
 - (void)viewDidLoad {
 	[super viewDidLoad];
 	// Scoped to this controller so the rest of Settings keeps its own look.
-	[UISwitch appearanceWhenContainedInInstancesOfClasses:@[[self class]]].onTintColor = OMCAccentColor();
+	[UISwitch appearanceWhenContainedInInstancesOfClasses:@[[self class]]].onTintColor = OMCSwitchColor();
 	[UISlider appearanceWhenContainedInInstancesOfClasses:@[[self class]]].minimumTrackTintColor = OMCAccentColor();
 	[self applyLanguage];
 }

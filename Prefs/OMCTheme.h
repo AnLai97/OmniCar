@@ -21,6 +21,7 @@ NSString *L(NSString *key);
 #pragma mark - HarmonyOS theme
 
 UIColor *OMCAccentColor(void);
+UIColor *OMCSwitchColor(void);   // cong tac dang bat: xanh la iOS
 UIColor *OMCBackgroundColor(void);
 UIColor *OMCCardColor(void);
 UIColor *OMCColorFromHex(NSString *hex);

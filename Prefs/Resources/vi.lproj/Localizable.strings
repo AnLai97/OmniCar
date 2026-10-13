@@ -221,7 +221,7 @@
 "ACT_CLEAR" = "Xoá";
 "OPT_BUTTON" = "Tối ưu";
 "OPT_GROUP" = "Tối ưu hiệu năng";
-"OPT_FOOTER" = "Chế độ nhẹ: chia màn hình bỏ hiệu ứng kính mờ và chỉ chia 2 app, bong bóng tốc độ vẽ chậm hơn và bỏ đổ bóng, bỏ qua video khởi động. Tự động = chỉ bật khi máy nóng hoặc CarPlay bị khựng, tự tắt khi ổn lại.\nDọn RAM: đóng các app chạy nền, giữ lại nhạc, bản đồ, app CarPlay, app đã chọn đưa lên xe và app cấp tốc độ.";
+"OPT_FOOTER" = "Chế độ nhẹ: chia màn hình bỏ hiệu ứng kính mờ, bong bóng tốc độ vẽ chậm hơn và bỏ đổ bóng, bỏ qua video khởi động. Tự động = chỉ bật khi máy nóng hoặc CarPlay bị khựng, tự tắt khi ổn lại.\nDọn RAM: đóng các app chạy nền, giữ lại nhạc, bản đồ, app CarPlay, app đã chọn đưa lên xe và app cấp tốc độ.";
 "OPT_WILL" = "OmniCar sẽ:";
 "OPT_MANUAL" = "Bạn nên tự làm thêm:";
 "OPT_NOTHING" = "Không có gì cần tối ưu. Nếu CarPlay vẫn giật, lái một chuyến rồi mở lại trang này để xem số đo.";

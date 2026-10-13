@@ -284,7 +284,7 @@ static id OMCOnbPref(CFStringRef key) {
 
 	id value = OMCOnbPref(kSpeedBubbleKey);
 	UISwitch *toggle = [UISwitch new];
-	toggle.onTintColor = OMCAccentColor();
+	toggle.onTintColor = OMCSwitchColor();
 	toggle.on = value ? [value boolValue] : YES;
 	[toggle setContentHuggingPriority:UILayoutPriorityRequired forAxis:UILayoutConstraintAxisHorizontal];
 	[toggle setContentCompressionResistancePriority:UILayoutPriorityRequired forAxis:UILayoutConstraintAxisHorizontal];

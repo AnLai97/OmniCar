@@ -274,7 +274,7 @@ enum { OMCABSectionSettings = 0, OMCABSectionChosen, OMCABSectionUser, OMCABSect
         c = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:row ? @"drive" : @"enable"];
         UISwitch *sw = [UISwitch new];
         sw.tag = row;   // 0 App Bridge, 1 che do lai
-        sw.onTintColor = OMCAccentColor();
+        sw.onTintColor = OMCSwitchColor();
         [sw addTarget:self action:@selector(enabledChanged:) forControlEvents:UIControlEventValueChanged];
         c.accessoryView = sw;
         c.selectionStyle = UITableViewCellSelectionStyleNone;
@@ -294,7 +294,7 @@ enum { OMCABSectionSettings = 0, OMCABSectionChosen, OMCABSectionUser, OMCABSect
     if (!c) {
         c = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:@"app"];
         UISwitch *sw = [UISwitch new];
-        sw.onTintColor = OMCAccentColor();
+        sw.onTintColor = OMCSwitchColor();
         [sw addTarget:self action:@selector(switchChanged:) forControlEvents:UIControlEventValueChanged];
         c.accessoryView = sw;
         c.selectionStyle = UITableViewCellSelectionStyleNone;

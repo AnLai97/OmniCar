@@ -3832,8 +3832,6 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
                           @{@"layout": @(SCPC_LAYOUT_MAIN_STACK), @"name": SCPCT(@"1 lớn + 2", @"1 large + 2")},
                           @{@"layout": @(SCPC_LAYOUT_MAIN_RIGHT), @"name": SCPCT(@"2 + 1 lớn", @"2 + 1 large")}]];
     [names addObject:@"layouts"];
-    BOOL lite = OMCLiteActive();   // che do nhe: chi chia 2 o
-    if (lite) sections[0] = @[sections[0][0]];
 
     NSMutableArray *recent = [NSMutableArray array];
     for (NSDictionary *r in ([SCPPrefs showRecent] ? [SCPPrefs recentLayouts] : @[])) {
@@ -3844,7 +3842,6 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
             if (![bid isKindOfClass:[NSString class]] || ![self isCarPlayApp:bid]) { ok = NO; break; }
             [short_ addObject:[self displayNameFor:bid]];
         }
-        if (lite && [r[@"layout"] intValue] != 2) ok = NO;
         if (ok) [recent addObject:@{@"layout": r[@"layout"], @"apps": apps, @"name": [short_ componentsJoinedByString:@" + "]}];
     }
     if ([SCPPrefs showRecent]) {   // bat trong Cai dat -> luon hien (trong -> dong goi y)
@@ -3857,7 +3854,7 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
     for (NSInteger i = 1; i <= favCount; i++) {
         NSDictionary *f = [SCPPrefs favorite:i];
         NSArray *apps = [self favoriteApps:f];
-        if (!apps || (lite && [(f[@"layout"] ?: @2) intValue] != 2)) continue;
+        if (!apps) continue;
         [favs addObject:@{@"layout": f[@"layout"] ?: @2, @"apps": apps, @"name": f[@"name"] ?: @""}];
     }
     if (favs.count) { [sections addObject:favs]; [names addObject:@"favorite"]; }

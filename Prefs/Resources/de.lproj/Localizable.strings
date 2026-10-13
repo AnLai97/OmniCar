@@ -221,7 +221,7 @@
 "ACT_CLEAR" = "Löschen";
 "OPT_BUTTON" = "Optimieren";
 "OPT_GROUP" = "Leistung optimieren";
-"OPT_FOOTER" = "Lite-Modus: Geteilter Bildschirm verzichtet auf den Milchglaseffekt und teilt nur 2 Apps, die Tempo-Blase wird seltener und ohne Schatten gezeichnet, das Startvideo wird übersprungen. Auto = nur solange das Telefon heiß ist oder CarPlay ruckelt, danach wieder aus.\nSpeicher freigeben: beendet Apps im Hintergrund, außer Musik, Karten, CarPlay-Apps, den fürs Auto gewählten Apps und der Tempo-Quell-App.";
+"OPT_FOOTER" = "Lite-Modus: Geteilter Bildschirm verzichtet auf den Milchglaseffekt, die Tempo-Blase wird seltener und ohne Schatten gezeichnet, das Startvideo wird übersprungen. Auto = nur solange das Telefon heiß ist oder CarPlay ruckelt, danach wieder aus.\nSpeicher freigeben: beendet Apps im Hintergrund, außer Musik, Karten, CarPlay-Apps, den fürs Auto gewählten Apps und der Tempo-Quell-App.";
 "OPT_WILL" = "OmniCar wird:";
 "OPT_MANUAL" = "Du kannst außerdem:";
 "OPT_NOTHING" = "Nichts zu optimieren. Wenn CarPlay weiterhin ruckelt, fahre einmal und öffne diese Seite erneut, um die Werte zu sehen.";

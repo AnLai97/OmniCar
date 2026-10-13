@@ -90,7 +90,7 @@ static void OMCProfileStore(NSString *key, id value) {
 		if (!c) {
 			c = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"switch"];
 			UISwitch *sw = [UISwitch new];
-			sw.onTintColor = OMCAccentColor();
+			sw.onTintColor = OMCSwitchColor();
 			[sw addTarget:self action:@selector(enabledChanged:) forControlEvents:UIControlEventValueChanged];
 			c.accessoryView = sw;
 			c.selectionStyle = UITableViewCellSelectionStyleNone;

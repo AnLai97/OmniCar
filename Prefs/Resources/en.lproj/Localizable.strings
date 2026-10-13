@@ -221,7 +221,7 @@
 "ACT_CLEAR" = "Clear";
 "OPT_BUTTON" = "Optimize";
 "OPT_GROUP" = "Optimize performance";
-"OPT_FOOTER" = "Lite mode: Split Screen drops the frosted-glass effect and splits 2 apps only, Speed Bubble redraws less often without shadows, the startup video is skipped. Auto = only while the phone is hot or CarPlay stutters, off again once it is fine.\nFree memory: quits apps running in the background, keeping music, maps, CarPlay apps, the apps chosen for the car and the speed source app.";
+"OPT_FOOTER" = "Lite mode: Split Screen drops the frosted-glass effect, Speed Bubble redraws less often without shadows, the startup video is skipped. Auto = only while the phone is hot or CarPlay stutters, off again once it is fine.\nFree memory: quits apps running in the background, keeping music, maps, CarPlay apps, the apps chosen for the car and the speed source app.";
 "OPT_WILL" = "OmniCar will:";
 "OPT_MANUAL" = "You can also:";
 "OPT_NOTHING" = "Nothing to optimize. If CarPlay still stutters, drive once and open this page again to see the numbers.";

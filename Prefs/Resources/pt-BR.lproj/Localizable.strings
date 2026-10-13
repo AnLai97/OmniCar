@@ -221,7 +221,7 @@
 "ACT_CLEAR" = "Apagar";
 "OPT_BUTTON" = "Otimizar";
 "OPT_GROUP" = "Otimizar desempenho";
-"OPT_FOOTER" = "Modo leve: a Tela dividida tira o efeito de vidro fosco e divide só 2 apps, a Bolha de velocidade é redesenhada com menos frequência e sem sombras, e o vídeo de inicialização é pulado. Auto = só enquanto o telefone está quente ou o CarPlay trava; desativa de novo quando tudo estiver bem.\nLiberar memória: fecha os apps em segundo plano, mantendo música, mapas, apps de CarPlay, os apps escolhidos para o carro e o app de origem da velocidade.";
+"OPT_FOOTER" = "Modo leve: a Tela dividida tira o efeito de vidro fosco, a Bolha de velocidade é redesenhada com menos frequência e sem sombras, e o vídeo de inicialização é pulado. Auto = só enquanto o telefone está quente ou o CarPlay trava; desativa de novo quando tudo estiver bem.\nLiberar memória: fecha os apps em segundo plano, mantendo música, mapas, apps de CarPlay, os apps escolhidos para o carro e o app de origem da velocidade.";
 "OPT_WILL" = "O OmniCar vai:";
 "OPT_MANUAL" = "Você também pode:";
 "OPT_NOTHING" = "Nada para otimizar. Se o CarPlay ainda travar, dirija uma vez e abra esta página de novo para ver os números.";

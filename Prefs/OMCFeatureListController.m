@@ -21,7 +21,7 @@
 - (void)viewDidLoad {
 	[super viewDidLoad];
 	// Scoped to this controller so the rest of Settings keeps its own look.
-	[UISwitch appearanceWhenContainedInInstancesOfClasses:@[[self class]]].onTintColor = OMCAccentColor();
+	[UISwitch appearanceWhenContainedInInstancesOfClasses:@[[self class]]].onTintColor = OMCSwitchColor();
 	[UISlider appearanceWhenContainedInInstancesOfClasses:@[[self class]]].minimumTrackTintColor = OMCAccentColor();
 }
 

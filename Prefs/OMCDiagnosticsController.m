@@ -332,7 +332,7 @@ static void OMCSetAlertList(UIAlertController *alert, NSString *text) {
 		cell.imageView.image = OMCIcon(@"memorychip", nil);
 		UISwitch *sw = [UISwitch new];
 		sw.on = OMCCleanRamOn();
-		sw.onTintColor = OMCAccentColor();
+		sw.onTintColor = OMCSwitchColor();
 		[sw addTarget:self action:@selector(cleanChanged:) forControlEvents:UIControlEventValueChanged];
 		cell.accessoryView = sw;
 		cell.selectionStyle = UITableViewCellSelectionStyleNone;
