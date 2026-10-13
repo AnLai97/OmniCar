@@ -12,13 +12,14 @@
 
 #pragma mark - Header card
 
-// Dark glass card in the OmniCar look (DESIGN.md, same colors as the logo): logo, name, slogan, status line
-// ("● On", the dot glows white when on) and the master switch, so the enable row is gone. The version
-// lives in the footer card, not here.
+// Glass card in the OmniCar look (DESIGN.md, tools/preview/theme.html): frosted glass tinted with the pastel
+// liquid colors, logo, name, slogan, status line ("● On", the dot glows green when on) and the master switch,
+// so the enable row is gone. The version lives in the footer card, not here.
 @interface OMCHeaderCard : UIView
 @property (nonatomic, strong) UIView *card, *clip, *dot;
 @property (nonatomic, strong) CAGradientLayer *gradient, *sheen;
 @property (nonatomic, strong) UIImageView *logo;
+@property (nonatomic, strong) UIVisualEffectView *glass;
 @property (nonatomic, strong) UILabel *nameLabel, *taglineLabel, *statusLabel;
 @property (nonatomic, strong) UISwitch *toggle;
 - (void)updateWithTagline:(NSString *)tagline status:(NSString *)status enabled:(BOOL)enabled;
@@ -34,25 +35,31 @@
 	_card = [UIView new];
 	_card.layer.cornerRadius = 22;
 	_card.layer.cornerCurve = kCACornerCurveContinuous;
-	_card.layer.shadowColor = UIColor.blackColor.CGColor;
-	_card.layer.shadowOpacity = 0.18;
-	_card.layer.shadowRadius = 12;
-	_card.layer.shadowOffset = CGSizeMake(0, 5);
+	_card.layer.shadowColor = [UIColor colorWithRed:70 / 255.0 green:60 / 255.0 blue:140 / 255.0 alpha:1].CGColor;
+	_card.layer.shadowOpacity = 0.2;
+	_card.layer.shadowRadius = 16;
+	_card.layer.shadowOffset = CGSizeMake(0, 8);
 	[self addSubview:_card];
 
 	_clip = [UIView new];
 	_clip.layer.cornerRadius = 22;
 	_clip.layer.cornerCurve = kCACornerCurveContinuous;
 	_clip.layer.borderWidth = 0.5;
-	_clip.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.22].CGColor;
+	_clip.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.75].CGColor;
 	_clip.clipsToBounds = YES;
 	[_card addSubview:_clip];
+	_glass = [[UIVisualEffectView alloc] initWithEffect:[UIBlurEffect effectWithStyle:UIBlurEffectStyleSystemThinMaterial]];
+	[_clip addSubview:_glass];
 
 	_gradient = [CAGradientLayer layer];
-	_gradient.colors = @[(id)OMCColorFromHex(@"#353A43").CGColor, (id)OMCColorFromHex(@"#101216").CGColor];
+	// Pha mau chat long (oai huong -> xanh troi -> bac ha) len kinh
+	_gradient.colors = @[(id)[OMCColorFromHex(@"#B7A6FF") colorWithAlphaComponent:0.35].CGColor, (id)[OMCColorFromHex(@"#8FD3FF") colorWithAlphaComponent:0.28].CGColor,
+		(id)[OMCColorFromHex(@"#9DF2D8") colorWithAlphaComponent:0.25].CGColor];
+	_gradient.startPoint = CGPointZero;
+	_gradient.endPoint = CGPointMake(1, 1);
 	[_clip.layer addSublayer:_gradient];
 	_sheen = [CAGradientLayer layer];   // vet sang kinh nua tren
-	_sheen.colors = @[(id)[UIColor colorWithWhite:1 alpha:0.08].CGColor, (id)[UIColor colorWithWhite:1 alpha:0].CGColor];
+	_sheen.colors = @[(id)[UIColor colorWithWhite:1 alpha:0.35].CGColor, (id)[UIColor colorWithWhite:1 alpha:0].CGColor];
 	[_clip.layer addSublayer:_sheen];
 
 	NSBundle *bundle = [NSBundle bundleForClass:[self class]];
@@ -62,32 +69,30 @@
 	_nameLabel = [UILabel new];
 	_nameLabel.text = @"OmniCar";
 	_nameLabel.font = [UIFont systemFontOfSize:21 weight:UIFontWeightBold];
-	_nameLabel.textColor = UIColor.whiteColor;
+	_nameLabel.textColor = [UIColor labelColor];
 	[_clip addSubview:_nameLabel];
 
 	_taglineLabel = [UILabel new];
 	_taglineLabel.font = [UIFont systemFontOfSize:13 weight:UIFontWeightRegular];
-	_taglineLabel.textColor = [UIColor colorWithWhite:1 alpha:0.85];
+	_taglineLabel.textColor = [UIColor secondaryLabelColor];
 	_taglineLabel.adjustsFontSizeToFitWidth = YES;
 	_taglineLabel.minimumScaleFactor = 0.8;
 	[_clip addSubview:_taglineLabel];
 
 	_dot = [UIView new];
 	_dot.layer.cornerRadius = 3.5;
-	_dot.layer.shadowColor = UIColor.whiteColor.CGColor;
+	_dot.layer.shadowColor = UIColor.systemGreenColor.CGColor;
 	_dot.layer.shadowRadius = 4;
 	_dot.layer.shadowOffset = CGSizeZero;
 	[_clip addSubview:_dot];
 
 	_statusLabel = [UILabel new];
 	_statusLabel.font = [UIFont systemFontOfSize:12.5 weight:UIFontWeightMedium];
-	_statusLabel.textColor = [UIColor colorWithWhite:1 alpha:0.7];
+	_statusLabel.textColor = [UIColor secondaryLabelColor];
 	[_clip addSubview:_statusLabel];
 
 	_toggle = [UISwitch new];
 	_toggle.onTintColor = OMCSwitchColor();
-	_toggle.backgroundColor = [UIColor colorWithWhite:1 alpha:0.18];   // ray khi tat tren nen toi
-	_toggle.layer.cornerRadius = 15.5;
 	[_clip addSubview:_toggle];
 	return self;
 }
@@ -95,11 +100,9 @@
 - (void)updateWithTagline:(NSString *)tagline status:(NSString *)status enabled:(BOOL)enabled {
 	_taglineLabel.text = tagline;
 	_statusLabel.text = status;
-	_dot.backgroundColor = [UIColor colorWithWhite:1 alpha:enabled ? 1 : 0.35];
+	_dot.backgroundColor = enabled ? UIColor.systemGreenColor : UIColor.tertiaryLabelColor;
 	_dot.layer.shadowOpacity = enabled ? 0.9 : 0;
 	_toggle.on = enabled;
-	// Ray trang khi bat -> nut tron toi cho noi; tat -> nut trang nhu thuong
-	_toggle.thumbTintColor = enabled ? OMCColorFromHex(@"#1B1D22") : UIColor.whiteColor;
 	[self setNeedsLayout];
 }
 
@@ -110,6 +113,7 @@
 	CGRect r = CGRectMake(m.left, 8, self.bounds.size.width - m.left - m.right, self.bounds.size.height - 24);
 	_card.frame = r;
 	_clip.frame = _card.bounds;
+	_glass.frame = _clip.bounds;
 	[CATransaction begin];
 	[CATransaction setDisableActions:YES];
 	_gradient.frame = _clip.bounds;
@@ -290,13 +294,17 @@
 	if (![[self currentSupportState] isEqualToString:self.supportState ?: @""]) _specifiers = nil;   // rescue / conflict cards changed
 	[self reloadSpecifiers];
 	[self updateHeaderStatus];
-	self.table.backgroundColor = OMCBackgroundColor();
-	self.table.tintColor = OMCAccentColor();
+	OMCStyleTable(self.table);
 }
 
 // First open of Settings > OmniCar: the guide, once (Prefs/OMCOnboardingController.m, pref "onboardingDone").
 // After an update: What's new, once per version (Prefs/OMCWhatsNewController.m, pref "whatsNewSeen"). Never
 // both: when the guide is due, this version's What's new counts as seen.
+- (void)traitCollectionDidChange:(UITraitCollection *)previous {
+	[super traitCollectionDidChange:previous];
+	if (self.traitCollection.userInterfaceStyle != previous.userInterfaceStyle) OMCStyleTable(self.table);   // nen chat long sang / toi
+}
+
 - (void)viewDidAppear:(BOOL)animated {
 	[super viewDidAppear:animated];
 	static BOOL offered;
@@ -383,7 +391,7 @@
 	container.preservesSuperviewLayoutMargins = YES;
 
 	UIView *card = [UIView new];
-	card.backgroundColor = OMCCardColor();
+	OMCStyleGlassCard(card);
 	card.layer.cornerRadius = 20;
 	card.layer.cornerCurve = kCACornerCurveContinuous;
 	card.translatesAutoresizingMaskIntoConstraints = NO;

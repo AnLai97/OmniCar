@@ -25,8 +25,12 @@ UIColor *OMCSwitchColor(void);   // cong tac dang bat: xanh la iOS
 UIColor *OMCBackgroundColor(void);
 UIColor *OMCCardColor(void);
 UIColor *OMCColorFromHex(NSString *hex);
-// Row icon: a white SF Symbol on a rounded, softly lit color tile.
+// Row icon: a white SF Symbol on a pastel gradient tile (picked from the row's color).
 UIImage *OMCIcon(NSString *symbol, UIColor *color);
+// Page background: plain color plus the pastel liquid band at the top (call again on a light / dark change).
+void OMCStyleTable(UITableView *table);
+// Glass card: translucent white, bright hairline rim, soft violet shadow.
+void OMCStyleGlassCard(UIView *card);
 BOOL OMCEnabled(void);
 
 #pragma mark - Specifiers and cells

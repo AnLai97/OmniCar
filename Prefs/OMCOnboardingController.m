@@ -103,7 +103,7 @@ static id OMCOnbPref(CFStringRef key) {
 	next.title = L(@"ONB_NEXT");
 	next.cornerStyle = UIButtonConfigurationCornerStyleCapsule;
 	next.baseBackgroundColor = OMCAccentColor();
-	next.baseForegroundColor = OMCCardColor();
+	next.baseForegroundColor = UIColor.whiteColor;
 	next.contentInsets = NSDirectionalEdgeInsetsMake(10, 24, 10, 24);
 	_nextButton = [UIButton buttonWithType:UIButtonTypeSystem];
 	_nextButton.translatesAutoresizingMaskIntoConstraints = NO;
@@ -204,7 +204,7 @@ static id OMCOnbPref(CFStringRef key) {
 	UIImage *image = [UIImage systemImageNamed:symbol withConfiguration:config] ?: [UIImage systemImageNamed:@"car.fill" withConfiguration:config];
 	UIImageView *glyph = [[UIImageView alloc] initWithImage:image];
 	glyph.translatesAutoresizingMaskIntoConstraints = NO;
-	glyph.tintColor = OMCCardColor();
+	glyph.tintColor = UIColor.whiteColor;
 	glyph.contentMode = UIViewContentModeCenter;
 
 	UIView *tile = [UIView new];
@@ -263,7 +263,7 @@ static id OMCOnbPref(CFStringRef key) {
 	config.imagePadding = 8;
 	config.cornerStyle = UIButtonConfigurationCornerStyleLarge;
 	config.baseBackgroundColor = OMCAccentColor();
-	config.baseForegroundColor = OMCCardColor();
+	config.baseForegroundColor = UIColor.whiteColor;
 	config.contentInsets = NSDirectionalEdgeInsetsMake(14, 20, 14, 20);
 	UIButton *button = [UIButton buttonWithType:UIButtonTypeSystem];
 	button.configuration = config;

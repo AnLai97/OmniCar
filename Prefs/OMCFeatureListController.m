@@ -32,8 +32,7 @@
 	[self reloadSpecifiers];
 	// The root page already localized the row's label; it becomes this page's title.
 	if (self.specifier.name.length) self.title = self.specifier.name;
-	self.table.backgroundColor = OMCBackgroundColor();
-	self.table.tintColor = OMCAccentColor();
+	OMCStyleTable(self.table);
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -50,6 +49,11 @@
 - (void)tableView:(UITableView *)tableView willDisplayFooterView:(UIView *)view forSection:(NSInteger)section {
 	if ([PSListController instancesRespondToSelector:_cmd]) [super tableView:tableView willDisplayFooterView:view forSection:section];
 	OMCStyleHeaderFooter(view, NO);
+}
+
+- (void)traitCollectionDidChange:(UITraitCollection *)previous {
+	[super traitCollectionDidChange:previous];
+	if (self.traitCollection.userInterfaceStyle != previous.userInterfaceStyle) OMCStyleTable(self.table);   // nen chat long sang / toi
 }
 
 #pragma mark - Helpers for actions

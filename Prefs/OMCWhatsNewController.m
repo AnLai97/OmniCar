@@ -102,7 +102,7 @@ static NSString *OMCWhatsNewVersion(NSDictionary *plist, BOOL exactOnly) {
 	config.title = L(@"WN_CONTINUE");
 	config.cornerStyle = UIButtonConfigurationCornerStyleCapsule;
 	config.baseBackgroundColor = OMCAccentColor();
-	config.baseForegroundColor = OMCCardColor();
+	config.baseForegroundColor = UIColor.whiteColor;
 	config.contentInsets = NSDirectionalEdgeInsetsMake(12, 24, 12, 24);
 	UIButton *button = [UIButton buttonWithType:UIButtonTypeSystem];
 	button.translatesAutoresizingMaskIntoConstraints = NO;
@@ -150,7 +150,7 @@ static NSString *OMCWhatsNewVersion(NSDictionary *plist, BOOL exactOnly) {
 	UIImage *image = [UIImage systemImageNamed:symbol withConfiguration:config] ?: [UIImage systemImageNamed:@"sparkles" withConfiguration:config];
 	UIImageView *glyph = [[UIImageView alloc] initWithImage:image];
 	glyph.translatesAutoresizingMaskIntoConstraints = NO;
-	glyph.tintColor = OMCCardColor();
+	glyph.tintColor = UIColor.whiteColor;
 	glyph.contentMode = UIViewContentModeCenter;
 
 	UIView *tile = [UIView new];
