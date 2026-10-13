@@ -42,8 +42,33 @@ NSInteger SSPeriodForDate(NSDate *date);
 @property (nonatomic, copy) NSString *name;             // greeting name, nil / "" = none
 @property (nonatomic, copy) NSDictionary *weather;      // Weather style; nil = draw the greeting instead
 @property (nonatomic, strong) NSDate *date;             // clock shown (nil = now)
-// Rebuilds the content for the properties above (call after changing them).
+@property (nonatomic, copy) NSString *carName;          // Engine start / HUD title (nil = "OmniCar")
+@property (nonatomic, assign) NSInteger tempo;          // Welcome light: 0 slow, 1 normal, 2 fast
+@property (nonatomic, assign) NSInteger occasion;       // SS_OCCASION_* for SS_STYLE_FESTIVE
+// HUD lines, in order: @[@{@"text": @"CarPlay connected", @"ok": @YES}] (built by StartupScreen.x from real state;
+// nil = sample lines in the settings preview)
+@property (nonatomic, copy) NSArray<NSDictionary *> *hud;
+// Briefing: next calendar event @{@"title", @"date"} (nil = card left out)
+@property (nonatomic, copy) NSDictionary *nextEvent;
+@property (nonatomic, assign) NSInteger batteryPercent; // Briefing / HUD (-1 = unknown)
+// How long the screen stays up (SS_KEY_DURATION); Particles scatter in its last second. 0 = unknown (no scatter).
+@property (nonatomic, assign) NSTimeInterval duration;
+// Rebuilds the content for the properties above (call after changing them). Before -playIntro an animated
+// style shows a still of its finished scene.
 - (void)reload;
-// Entrance animation: the logo effect, or the text rising in.
+// Entrance animation: the logo effect, or the text rising in; animated styles (re)start their timeline from 0.
+// Animations only run while the view is in a window.
 - (void)playIntro;
 @end
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+// Settings preview: fills hud, nextEvent, batteryPercent (when < 0) and weather with sample values where they are
+// nil, so every style has something to show. Call before -reload.
+void SSApplySampleData(SSStartupView *v);
+
+#ifdef __cplusplus
+}
+#endif

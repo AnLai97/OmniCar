@@ -5,9 +5,13 @@
 // high-level window on top of it, show the chosen style for the configured time, then fade it
 // out to reveal the CarPlay home screen underneath.
 //
-// Styles (SS_KEY_STYLE): Video plays the chosen video; Logo, Greeting and Weather are drawn by
-// SSStartupView (the same code draws the preview in Settings). Weather asks Open-Meteo for the
-// current weather at the last known location (rounded to 2 decimals), only while that style is on.
+// Styles (SS_KEY_STYLE): Video plays the chosen video; every other style is drawn by SSStartupView (the
+// same code draws the preview in Settings). The style is resolved once per connection (SSResolveStyle):
+// on a special day (Tet, Mid-Autumn, Christmas, New Year, the user's birthday) the festive screen plays
+// instead, at most SS_OCCASION_TIMES times that day; Random picks one of SS_KEY_RANDOM_SET. Weather and
+// Briefing ask Open-Meteo for the current weather at the last known location (rounded to 2 decimals),
+// only when the resolved style shows it. HUD shows real checks of this process (battery, heat, Lite
+// mode, car profile); Briefing the next calendar event, only when iOS already allows calendar access.
 //
 // AVFoundation never finishes loading media inside CarPlay.app, so the settings page extracts
 // each video into JPEG frames (Videos/.frames/<video>/) and we play those as a flipbook. The
@@ -22,7 +26,9 @@
 #import <QuartzCore/QuartzCore.h>
 #import <CoreLocation/CoreLocation.h>
 #import <CallKit/CallKit.h>
+#import <EventKit/EventKit.h>
 #import <objc/runtime.h>
+#import <notify.h>
 #import "OmniCar.h"
 #import "StartupScreen.h"
 #import "SSStartupView.h"
@@ -36,14 +42,26 @@ static const NSUInteger kFrameBufferSize  = 4;
 // Weather: request timeout, and how old a cached result may be to still be shown (with "updated at").
 static const NSTimeInterval kWeatherTimeout = 3.0;
 static const NSTimeInterval kWeatherMaxAge  = 12 * 3600;
+static const NSTimeInterval kEventWindow   = 12 * 3600;   // Briefing: next calendar event within 12 h
 static char kSplashKey;
 static char kShownKey;
+// CarPlay -> SpringBoard: the style actually shown this time (state = style + 1), so the audio side knows
+// whether a Random / festive connection plays the video's soundtrack.
+#define SS_NOTIFY_STYLE "com.anlai.omnicar/startupscreen.style"
+#if OMC_AUTOTEST
+static BOOL gSSTestNoOccasion;   // auto test replays never use up (or show) the festive screen
+#endif
 
 #pragma mark - Preferences
 
+// The stored style: 0 ... SS_STYLE_RANDOM.
 static NSInteger SSCurrentStyle(void) {
 	NSInteger style = [OMCPref(SS_KEY_STYLE, @(SS_STYLE_VIDEO)) integerValue];
-	return (style >= SS_STYLE_VIDEO && style <= SS_STYLE_WEATHER) ? style : SS_STYLE_VIDEO;
+	return (style >= SS_STYLE_VIDEO && style < SS_STYLE_COUNT) ? style : SS_STYLE_VIDEO;
+}
+
+static NSTimeInterval SSDuration(void) {
+	return MAX(1.0, [OMCPref(SS_KEY_DURATION, @5) doubleValue]);
 }
 
 static NSString *SSVideoName(void) {
@@ -56,6 +74,203 @@ static NSString *SSVideoName(void) {
 	if (error) SSLog(@"cannot list %@: %@", SS_VIDEOS_DIR, error);
 	for (NSString *file in files) {
 		if (![file hasPrefix:@"."]) return file;
+	}
+	return nil;
+}
+
+// The chosen video has been converted to frames (Video style can play).
+static BOOL SSVideoReady(void) {
+	NSString *name = SSVideoName();
+	if (!name) return NO;
+	NSDictionary *info = [NSDictionary dictionaryWithContentsOfFile:[SS_FRAMES_DIR(name) stringByAppendingPathComponent:@"info.plist"]];
+	return [info[@"count"] unsignedIntegerValue] > 0 && [info[@"fps"] doubleValue] > 0;
+}
+
+#pragma mark - Style for this connection
+
+static NSString *SSDayKey(NSDate *date) {
+	NSDateFormatter *df = [NSDateFormatter new];
+	df.locale = [NSLocale localeWithLocaleIdentifier:@"en_US_POSIX"];
+	df.calendar = [NSCalendar calendarWithIdentifier:NSCalendarIdentifierGregorian];
+	df.dateFormat = @"yyyy-MM-dd";
+	return [df stringFromDate:date];
+}
+
+// Today's occasion (SS_OCCASION_*): the birthday wins; Tet and Mid-Autumn by the lunar calendar.
+static NSInteger SSOccasionForDate(NSDate *date) {
+	NSCalendar *gregorian = [NSCalendar calendarWithIdentifier:NSCalendarIdentifierGregorian];
+	NSDateComponents *g = [gregorian components:NSCalendarUnitMonth | NSCalendarUnitDay fromDate:date];
+	id birthday = OMCPref(SS_KEY_BIRTHDAY, nil);
+	if ([birthday isKindOfClass:[NSString class]]) {
+		NSArray<NSString *> *parts = [(NSString *)birthday componentsSeparatedByString:@"-"];
+		if (parts.count == 2 && parts[0].integerValue == g.month && parts[1].integerValue == g.day) return SS_OCCASION_BIRTHDAY;
+	}
+	NSCalendar *lunar = [NSCalendar calendarWithIdentifier:NSCalendarIdentifierChinese];
+	NSDateComponents *l = [lunar components:NSCalendarUnitMonth | NSCalendarUnitDay fromDate:date];
+	if (!l.leapMonth && l.month == 1 && l.day >= 1 && l.day <= 3) return SS_OCCASION_TET;
+	if (!l.leapMonth && l.month == 8 && l.day == 15) return SS_OCCASION_MIDAUTUMN;
+	if (g.month == 1 && g.day == 1) return SS_OCCASION_NEWYEAR;
+	if (g.month == 12 && (g.day == 24 || g.day == 25)) return SS_OCCASION_XMAS;
+	return SS_OCCASION_NONE;
+}
+
+// Today's occasion if it may still play today (counted in SS_KEY_OCCASION_LOG, last 7 days kept), else none.
+static NSInteger SSTakeOccasion(void) {
+#if OMC_AUTOTEST
+	if (gSSTestNoOccasion) return SS_OCCASION_NONE;
+#endif
+	if (![OMCPref(SS_KEY_OCCASIONS, @YES) boolValue]) return SS_OCCASION_NONE;
+	NSDate *now = [NSDate date];
+	NSInteger occasion = SSOccasionForDate(now);
+	if (occasion == SS_OCCASION_NONE) return SS_OCCASION_NONE;
+
+	NSString *today = SSDayKey(now);
+	id stored = OMCPref(SS_KEY_OCCASION_LOG, nil);
+	NSDictionary *log = [stored isKindOfClass:[NSDictionary class]] ? stored : @{};
+	NSInteger shown = [log[today] isKindOfClass:[NSNumber class]] ? [log[today] integerValue] : 0;
+	if (shown >= SS_OCCASION_TIMES) {
+		SSLog(@"occasion %ld already shown %ld times today", (long)occasion, (long)shown);
+		return SS_OCCASION_NONE;
+	}
+	NSCalendar *gregorian = [NSCalendar calendarWithIdentifier:NSCalendarIdentifierGregorian];
+	NSMutableDictionary *next = [NSMutableDictionary dictionary];
+	for (NSInteger back = 1; back < 7; back++) {
+		NSString *key = SSDayKey([gregorian dateByAddingUnit:NSCalendarUnitDay value:-back toDate:now options:0]);
+		if (log[key]) next[key] = log[key];
+	}
+	next[today] = @(shown + 1);
+	CFPreferencesSetAppValue((__bridge CFStringRef)SS_KEY_OCCASION_LOG, (__bridge CFPropertyListRef)next, OMC_PREFS_DOMAIN);
+	CFPreferencesAppSynchronize(OMC_PREFS_DOMAIN);
+	return occasion;
+}
+
+// Random: one of SS_KEY_RANDOM_SET (missing / empty = every drawn style), never Video without frames
+// or Logo without a logo.
+static NSInteger SSPickRandomStyle(void) {
+	NSMutableArray<NSNumber *> *pool = [NSMutableArray array];
+	id set = OMCPref(SS_KEY_RANDOM_SET, nil);
+	if ([set isKindOfClass:[NSArray class]]) {
+		for (id item in (NSArray *)set) {
+			if (![item isKindOfClass:[NSNumber class]]) continue;
+			NSInteger s = [item integerValue];
+			if (s >= SS_STYLE_VIDEO && s < SS_STYLE_RANDOM && ![pool containsObject:@(s)]) [pool addObject:@(s)];
+		}
+	}
+	if (!pool.count) for (NSInteger s = SS_STYLE_VIDEO; s < SS_STYLE_RANDOM; s++) [pool addObject:@(s)];
+	if ([pool containsObject:@(SS_STYLE_VIDEO)] && !SSVideoReady()) [pool removeObject:@(SS_STYLE_VIDEO)];
+	if ([pool containsObject:@(SS_STYLE_LOGO)] && ![[NSFileManager defaultManager] fileExistsAtPath:SS_LOGO_PATH]) [pool removeObject:@(SS_STYLE_LOGO)];
+	if (!pool.count) return SS_STYLE_GREETING;
+	return pool[arc4random_uniform((uint32_t)pool.count)].integerValue;
+}
+
+// The style shown for this connection; *occasion is set for SS_STYLE_FESTIVE. Uses up one festive showing.
+static NSInteger SSResolveStyle(NSInteger *occasion) {
+	if (occasion) *occasion = SS_OCCASION_NONE;
+	NSInteger festive = SSTakeOccasion();
+	if (festive != SS_OCCASION_NONE) {
+		if (occasion) *occasion = festive;
+		return SS_STYLE_FESTIVE;
+	}
+	NSInteger style = SSCurrentStyle();
+	return style == SS_STYLE_RANDOM ? SSPickRandomStyle() : style;
+}
+
+#pragma mark - Live data (CarPlay)
+
+// SS_KEY_CAR_NAME, else the car's own name from the last recorded CarPlay session (Core, OMC_KEY_DIAG_CAR).
+static NSString *SSCarName(void) {
+	NSCharacterSet *space = [NSCharacterSet whitespaceAndNewlineCharacterSet];
+	id custom = OMCPref(SS_KEY_CAR_NAME, nil);
+	if ([custom isKindOfClass:[NSString class]] && [(NSString *)custom stringByTrimmingCharactersInSet:space].length)
+		return [(NSString *)custom stringByTrimmingCharactersInSet:space];
+	id car = OMCPref(OMC_KEY_DIAG_CAR, nil);
+	if (![car isKindOfClass:[NSDictionary class]]) return nil;
+	for (NSString *group in @[@"configuration", @"session"]) {
+		NSDictionary *props = ((NSDictionary *)car)[group];
+		if (![props isKindOfClass:[NSDictionary class]]) continue;
+		for (NSString *key in @[@"modelName", @"name", @"vehicleName", @"accessoryName"]) {
+			NSString *v = props[key];
+			if (![v isKindOfClass:[NSString class]]) continue;
+			v = [v stringByTrimmingCharactersInSet:space];
+			if (v.length && ![v isEqualToString:@"nil"] && ![v isEqualToString:@"(null)"]) return v;
+		}
+	}
+	return nil;
+}
+
+// iPhone battery 0-100 (-1 unknown); monitoring is switched back off if nobody had it on.
+static NSInteger SSBatteryPercent(BOOL *charging) {
+	UIDevice *device = [UIDevice currentDevice];
+	BOOL wasOn = device.batteryMonitoringEnabled;
+	if (!wasOn) device.batteryMonitoringEnabled = YES;
+	float level = device.batteryLevel;
+	UIDeviceBatteryState state = device.batteryState;
+	if (!wasOn) device.batteryMonitoringEnabled = NO;
+	if (charging) *charging = state == UIDeviceBatteryStateCharging || state == UIDeviceBatteryStateFull;
+	return level < 0 ? -1 : (NSInteger)lroundf(level * 100);
+}
+
+// HUD check lines from this process's real state.
+static NSArray<NSDictionary *> *SSHudLines(void) {
+	NSMutableArray<NSDictionary *> *lines = [NSMutableArray array];
+	[lines addObject:@{@"text": OMCTr(@"Kết nối CarPlay", @"CarPlay connected"), @"ok": @YES}];
+
+	BOOL charging = NO;
+	NSInteger battery = SSBatteryPercent(&charging);
+	if (battery >= 0) {
+		NSString *text = charging
+			? [NSString stringWithFormat:OMCTr(@"Pin iPhone %ld%% · đang sạc", @"iPhone battery %ld%% · charging"), (long)battery]
+			: [NSString stringWithFormat:OMCTr(@"Pin iPhone %ld%%", @"iPhone battery %ld%%"), (long)battery];
+		[lines addObject:@{@"text": text, @"ok": @(charging || battery >= 20)}];
+	}
+
+	NSProcessInfoThermalState thermal = [NSProcessInfo processInfo].thermalState;
+	NSString *heat = thermal <= NSProcessInfoThermalStateFair ? OMCTr(@"Nhiệt độ máy: ổn", @"Phone temperature: OK")
+		: thermal == NSProcessInfoThermalStateSerious ? OMCTr(@"Nhiệt độ máy: nóng", @"Phone temperature: hot")
+		: OMCTr(@"Nhiệt độ máy: rất nóng", @"Phone temperature: very hot");
+	[lines addObject:@{@"text": heat, @"ok": @(thermal <= NSProcessInfoThermalStateFair)}];
+
+	NSInteger lite = [OMCPref(OMC_KEY_LITE_MODE, @2) integerValue];
+	NSString *liteText = lite == 1 ? OMCTr(@"Chế độ nhẹ: bật", @"Lite mode: on")
+		: lite == 0 ? OMCTr(@"Chế độ nhẹ: tắt", @"Lite mode: off") : OMCTr(@"Chế độ nhẹ: tự động", @"Lite mode: auto");
+	[lines addObject:@{@"text": liteText, @"ok": @YES}];
+
+	if ([OMCPref(OMC_KEY_PROFILES_ON, @NO) boolValue]) {
+		id profiles = OMCPref(OMC_KEY_PROFILES, nil);
+		id current = OMCPref(OMC_KEY_PROFILE_CURRENT, nil);
+		NSDictionary *profile = [profiles isKindOfClass:[NSDictionary class]] && [current isKindOfClass:[NSString class]] ? ((NSDictionary *)profiles)[current] : nil;
+		NSString *name = [profile isKindOfClass:[NSDictionary class]] ? profile[@"name"] : nil;
+		if ([name isKindOfClass:[NSString class]] && name.length)
+			[lines addObject:@{@"text": [NSString stringWithFormat:OMCTr(@"Hồ sơ xe: %@", @"Car profile: %@"), name], @"ok": @YES}];
+	}
+	return lines;
+}
+
+// Next timed calendar event starting within kEventWindow - only when iOS already lets this process read the
+// calendar (never asks). nil otherwise.
+static NSDictionary *SSNextEvent(void) {
+	// 3 = EKAuthorizationStatusAuthorized before iOS 17 = EKAuthorizationStatusFullAccess from iOS 17
+	// (written as a number so neither SDK warns about the other name).
+	EKAuthorizationStatus status = [EKEventStore authorizationStatusForEntityType:EKEntityTypeEvent];
+	if ((NSInteger)status != 3) {
+		SSLog(@"calendar: no access (status %ld), no event card", (long)status);
+		return nil;
+	}
+	@try {
+		EKEventStore *store = [EKEventStore new];
+		NSDate *now = [NSDate date];
+		NSPredicate *predicate = [store predicateForEventsWithStartDate:now endDate:[now dateByAddingTimeInterval:kEventWindow] calendars:nil];
+		NSArray<EKEvent *> *events = [[store eventsMatchingPredicate:predicate] sortedArrayUsingSelector:@selector(compareStartDateWithEvent:)];
+		for (EKEvent *event in events) {
+			if (event.allDay || !event.startDate || [event.startDate compare:now] == NSOrderedAscending) continue;
+			NSMutableDictionary *info = [NSMutableDictionary dictionary];
+			info[@"title"] = event.title.length ? event.title : OMCTr(@"Lịch hẹn", @"Event");
+			info[@"date"] = event.startDate;
+			if (event.location.length) info[@"location"] = event.location;
+			return info;
+		}
+	} @catch (NSException *e) {
+		SSLog(@"calendar: %@", e);
 	}
 	return nil;
 }
@@ -113,12 +328,31 @@ static NSString *SSStartupSoundPath(void) {
 	return nil;
 }
 
+// CarPlay: publish the style it is showing (before SS_NOTIFY_AUDIO_PLAY). The token stays registered so the state lasts.
+static void SSPublishStyle(NSInteger style) {
+	static int token = -1;
+	if (token == -1 && notify_register_check(SS_NOTIFY_STYLE, &token) != NOTIFY_STATUS_OK) {
+		token = -1;
+		return;
+	}
+	notify_set_state(token, (uint64_t)(style + 1));
+}
+
+// SpringBoard: the style CarPlay is showing (Random / festive may differ from the setting).
+static NSInteger SSShownStyle(void) {
+	static int token = -1;
+	if (token == -1 && notify_register_check(SS_NOTIFY_STYLE, &token) != NOTIFY_STATUS_OK) token = -1;
+	uint64_t state = 0;
+	if (token != -1) notify_get_state(token, &state);
+	return state > 0 ? (NSInteger)state - 1 : SSCurrentStyle();
+}
+
 static void SSAudioPlay(void) {
 	OMCPrefsSync();
 	// Video style with "Video sound" on: the video's own soundtrack. Otherwise the startup sound, if any.
 	NSString *path = nil;
 	BOOL loop = NO;
-	if (SSCurrentStyle() == SS_STYLE_VIDEO && [OMCPref(SS_KEY_SOUND, @NO) boolValue]) {
+	if (SSShownStyle() == SS_STYLE_VIDEO && [OMCPref(SS_KEY_SOUND, @NO) boolValue]) {
 		NSString *name = SSVideoName();
 		NSString *soundtrack = name ? [SS_FRAMES_DIR(name) stringByAppendingPathComponent:@"audio.m4a"] : nil;
 		if (soundtrack && [[NSFileManager defaultManager] fileExistsAtPath:soundtrack]) {
@@ -271,8 +505,8 @@ static void SSWeatherFetch(void (^done)(NSDictionary *weather)) {
 @implementation SSSplash
 
 // style: SS_STYLE_*. framesDir / frameCount / fps are for the Video style only (nil / 0 otherwise).
-- (instancetype)initWithScreen:(UIScreen *)screen scene:(UIWindowScene *)scene style:(NSInteger)style framesDir:(NSString *)framesDir
-                    frameCount:(NSUInteger)frameCount fps:(double)fps {
+- (instancetype)initWithScreen:(UIScreen *)screen scene:(UIWindowScene *)scene style:(NSInteger)style occasion:(NSInteger)occasion
+                     framesDir:(NSString *)framesDir frameCount:(NSUInteger)frameCount fps:(double)fps {
 	if ((self = [super init])) {
 		_screen = screen;
 		_style = style;
@@ -297,15 +531,23 @@ static void SSWeatherFetch(void (^done)(NSDictionary *weather)) {
 		} else {
 			_startView = [[SSStartupView alloc] initWithFrame:screen.bounds];
 			_startView.style = style;
+			_startView.occasion = occasion;
 			id name = OMCPref(SS_KEY_GREET_NAME, nil);
 			_startView.name = [name isKindOfClass:[NSString class]] ? name : nil;
 			_startView.logoEffect = [OMCPref(SS_KEY_LOGO_EFFECT, @(SS_EFFECT_FADE)) integerValue];
+			_startView.carName = SSCarName();
+			_startView.tempo = [OMCPref(SS_KEY_TEMPO, @1) integerValue];
+			_startView.duration = SSDuration();
 			if (style == SS_STYLE_LOGO) {
 				_startView.image = SSDecodeFrame(SS_LOGO_PATH);
 				if (!_startView.image) SSLog(@"no logo at %@, showing the car glyph", SS_LOGO_PATH);
 			}
-			// Weather: the cached result right away (or the greeting), refreshed by -start when the network answers.
-			if (style == SS_STYLE_WEATHER) _startView.weather = SSWeatherLoadCache(kWeatherMaxAge);
+			if (style == SS_STYLE_HUD) _startView.hud = SSHudLines();
+			if (style == SS_STYLE_HUD || style == SS_STYLE_BRIEFING) _startView.batteryPercent = SSBatteryPercent(NULL);
+			if (style == SS_STYLE_BRIEFING) _startView.nextEvent = SSNextEvent();
+			// Weather / Briefing: the cached result right away (or the greeting / no weather card), refreshed by
+			// -start when the network answers.
+			if (style == SS_STYLE_WEATHER || style == SS_STYLE_BRIEFING) _startView.weather = SSWeatherLoadCache(kWeatherMaxAge);
 			[_startView reload];
 			root = _startView;
 		}
@@ -347,7 +589,7 @@ static void SSWeatherFetch(void (^done)(NSDictionary *weather)) {
 	self.displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(tick)];
 	[self.displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSRunLoopCommonModes];
 	if (self.style == SS_STYLE_VIDEO) [self decodeMore];
-	else if (self.style == SS_STYLE_WEATHER) [self refreshWeather];
+	else if (self.style == SS_STYLE_WEATHER || self.style == SS_STYLE_BRIEFING) [self refreshWeather];
 
 	// Safety net in case no frame ever decodes: never block CarPlay for long.
 	__weak __typeof(self) weakSelf = self;
@@ -385,7 +627,8 @@ static void SSWeatherFetch(void (^done)(NSDictionary *weather)) {
 	});
 }
 
-// Weather style: swap in fresh numbers if Open-Meteo answers while the splash is still up.
+// Weather / Briefing: swap in fresh numbers if Open-Meteo answers while the splash is still up
+// (an animated scene carries on from the same moment of its timeline).
 - (void)refreshWeather {
 	__weak __typeof(self) weakSelf = self;
 	SSWeatherFetch(^(NSDictionary *weather) {
@@ -395,6 +638,7 @@ static void SSWeatherFetch(void (^done)(NSDictionary *weather)) {
 		view.weather = weather;
 		[UIView transitionWithView:view duration:0.35 options:UIViewAnimationOptionTransitionCrossDissolve animations:^{
 			[view reload];
+			[view layoutIfNeeded];
 		} completion:nil];
 	});
 }
@@ -440,8 +684,9 @@ static void SSWeatherFetch(void (^done)(NSDictionary *weather)) {
 // begins once the first frame is on screen.
 - (void)startCountdown {
 	BOOL timed = self.style != SS_STYLE_VIDEO || self.loop;
-	NSTimeInterval limit = timed ? MAX(1.0, [OMCPref(SS_KEY_DURATION, @5) doubleValue]) : kMaxFullPlay;
+	NSTimeInterval limit = timed ? SSDuration() : kMaxFullPlay;
 	SSLog(@"first frame shown, playing for up to %.0fs", limit);
+	SSPublishStyle(self.style);
 	SSPostNotification(SS_NOTIFY_AUDIO_PLAY);
 
 	__weak __typeof(self) weakSelf = self;
@@ -499,7 +744,9 @@ static void SSShowSplash(UIScreen *screen, UIWindowScene *scene, NSString *sourc
 	// Lite mode: decoding the frames competes with CarPlay launching its apps (phone hot / set to always)
 	if (OMCLiteActive()) { SSLog(@"skipped: lite mode"); return; }
 
-	NSInteger style = SSCurrentStyle();
+	NSInteger occasion = SS_OCCASION_NONE;
+	NSInteger style = SSResolveStyle(&occasion);
+	if (style != SSCurrentStyle()) SSLog(@"style %ld this time (setting %ld, occasion %ld)", (long)style, (long)SSCurrentStyle(), (long)occasion);
 	SSSplash *splash = nil;
 	if (style == SS_STYLE_VIDEO) {
 		NSString *name = SSVideoName();
@@ -514,10 +761,10 @@ static void SSShowSplash(UIScreen *screen, UIWindowScene *scene, NSString *sourc
 			return;
 		}
 		SSLog(@"playing %@ (%lu frames @ %.0ffps)", name, (unsigned long)count, fps);
-		splash = [[SSSplash alloc] initWithScreen:screen scene:scene style:style framesDir:framesDir frameCount:count fps:fps];
+		splash = [[SSSplash alloc] initWithScreen:screen scene:scene style:style occasion:SS_OCCASION_NONE framesDir:framesDir frameCount:count fps:fps];
 	} else {
 		SSLog(@"showing style %ld", (long)style);
-		splash = [[SSSplash alloc] initWithScreen:screen scene:scene style:style framesDir:nil frameCount:0 fps:0];
+		splash = [[SSSplash alloc] initWithScreen:screen scene:scene style:style occasion:occasion framesDir:nil frameCount:0 fps:0];
 	}
 	objc_setAssociatedObject(screen, &kSplashKey, splash, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 	[splash start];
@@ -573,7 +820,10 @@ static NSString *SSTestReplay(void) {
 	if (!screen) return @"khong thay man xe";
 	[SSTestSplash() tearDown];
 	objc_setAssociatedObject(screen, &kShownKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+	// Le / sinh nhat: bo qua man hinh dip dac biet de kiem dung kieu da chon (va khong tieu luot hien trong ngay)
+	gSSTestNoOccasion = YES;
 	SSShowSplash(screen, scene, @"autotest");
+	gSSTestNoOccasion = NO;
 	return nil;
 }
 
@@ -594,16 +844,20 @@ static NSArray<NSDictionary *> *SSTestSteps(void) {
 	NSMutableArray *steps = [NSMutableArray array];
 	NSInteger style = SSCurrentStyle();
 	BOOL video = style == SS_STYLE_VIDEO;
-	NSDictionary *info = video ? SSTestFramesInfo() : nil;
+	BOOL randomStyle = style == SS_STYLE_RANDOM;   // moi lan phat mot kieu, co the la video
+	NSDictionary *info = (video || randomStyle) ? SSTestFramesInfo() : nil;
 	double fps = [info[@"fps"] doubleValue];
 	NSUInteger count = [info[@"count"] unsignedIntegerValue];
-	BOOL loop = !video || ![OMCPref(SS_KEY_PLAY_FULL, @NO) boolValue];
-	double length = loop ? MAX(1.0, [OMCPref(SS_KEY_DURATION, @5) doubleValue]) : MIN(kMaxFullPlay, fps > 0 ? count / fps : kMaxFullPlay);
+	BOOL playFull = [OMCPref(SS_KEY_PLAY_FULL, @NO) boolValue];
+	BOOL loop = !video || !playFull;
+	double fullLength = MIN(kMaxFullPlay, fps > 0 ? count / fps : kMaxFullPlay);
+	double length = loop ? SSDuration() : fullLength;
+	if (randomStyle && playFull && count && fps > 0) length = MAX(length, fullLength);   // Random co the boc trung video phat het
 
 	[steps addObject:OMCTestStep(@"Moi truong: video va khung hinh", 0, 0, nil, ^NSString *{
 		if (!OMCFeatureEnabled(SS_FEATURE)) return @"Man hinh khoi dong dang tat";
 		if (!video) {
-			OMCTestLog(@"kieu %ld (ve, khong phai video), phat %.1fs", (long)style, length);
+			OMCTestLog(@"kieu %ld (%@), phat toi da %.1fs", (long)style, randomStyle ? @"ngau nhien" : @"ve, khong phai video", length);
 			return nil;
 		}
 		NSString *name = SSVideoName();

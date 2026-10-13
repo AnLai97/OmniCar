@@ -8,7 +8,8 @@
 NSArray<NSString *> *OMCProfileKeys(void) {
 	return @[@"splitScreenLastLeft", @"splitScreenLastRight", @"splitScreenSplitRatio", @"splitScreenSplitDirection",
 		@"splitScreenPaneOrientation", @"splitScreenDriverSide", @"splitScreenAutoLaunch", @"splitScreenPinnedApp",
-		@"speedBubbleSizeCar", @"speedBubbleStyle", @"startupScreenVideoName", @"startupScreenStyle", @"appBridgeZoom"];
+		@"speedBubbleSizeCar", @"speedBubbleStyle", @"startupScreenVideoName", @"startupScreenStyle", @"startupScreenCarName",
+		@"startupScreenTempo", @"appBridgeZoom"];
 }
 
 #pragma mark - Languages

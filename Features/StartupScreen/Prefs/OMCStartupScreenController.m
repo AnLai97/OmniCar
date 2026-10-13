@@ -2,6 +2,7 @@
 #import "OMCTheme.h"
 #import "../StartupScreen.h"
 #import "../SSStartupView.h"
+#import <Preferences/PSTableCell.h>
 #import <AVKit/AVKit.h>
 #import <AVFoundation/AVFoundation.h>
 #import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
@@ -20,6 +21,15 @@ static const CGFloat kMaxLogoSide    = 1024.0;
 // Preview card: the car screen shape (wide CarPlay displays are about 16:6), at most this wide on iPad.
 static const CGFloat kPreviewAspect  = 6.0 / 16.0;
 static const CGFloat kPreviewMaxWidth = 560.0;
+// Style gallery under the preview: one tile = a rounded symbol card + the name below.
+static const CGFloat kTileWidth      = 78.0;
+static const CGFloat kTileHeight     = 108.0;
+static const CGFloat kTileCard       = 62.0;
+static const CGFloat kTileCardTop    = 10.0;
+
+// Same declaration as SSStartupView.h (the renderer fills the HUD lines / next event / battery with sample
+// values for the preview); repeated here so this file builds against either version of the header.
+void SSApplySampleData(SSStartupView *v);
 
 // What the shared photo / file pickers are choosing.
 typedef NS_ENUM(NSInteger, SSPickKind) {
@@ -32,17 +42,7 @@ typedef NS_ENUM(NSInteger, SSPickKind) {
 - (void)setValues:(NSArray *)values titles:(NSArray *)titles;
 @end
 
-@interface OMCStartupScreenController () <UIImagePickerControllerDelegate, UINavigationControllerDelegate, UIDocumentPickerDelegate>
-@property (nonatomic, assign) BOOL extracting;
-@property (nonatomic, assign) SSPickKind pickKind;
-@property (nonatomic, strong) UIView *previewHeader;
-@property (nonatomic, strong) UIView *previewShadow;
-@property (nonatomic, strong) SSStartupView *preview;
-@property (nonatomic, assign) CGFloat previewWidth;
-@property (nonatomic, strong) AVAudioPlayer *soundPlayer;
-@end
-
-@implementation OMCStartupScreenController
+#pragma mark - Pref helpers
 
 static id SSPrefValue(NSString *key) {
 	return key ? (__bridge_transfer id)CFPreferencesCopyAppValue((__bridge CFStringRef)key, kPrefsDomain) : nil;
@@ -59,10 +59,208 @@ static NSString *SSPrefString(NSString *key) {
 	return [value isKindOfClass:[NSString class]] ? value : nil;
 }
 
+// The car's own name from the last CarPlay connection (OMC_KEY_DIAG_CAR, written by CarPlay), nil when unknown.
+static NSString *SSPDetectedCarName(void) {
+	NSDictionary *car = SSPrefValue(@"diagCar");
+	if (![car isKindOfClass:[NSDictionary class]]) return nil;
+	for (NSString *group in @[@"configuration", @"session"]) {
+		NSDictionary *props = car[group];
+		if (![props isKindOfClass:[NSDictionary class]]) continue;
+		for (NSString *field in @[@"modelName", @"name", @"vehicleName", @"accessoryName", @"model"]) {
+			NSString *v = props[field];
+			if ([v isKindOfClass:[NSString class]] && v.length && ![v isEqualToString:@"nil"] && ![v isEqualToString:@"(null)"]) return v;
+		}
+	}
+	return nil;
+}
+
+#pragma mark - Styles and occasions
+
+// String key of a style's name (SS_STYLE_* order, also the gallery order).
+static NSString *SSPStyleTitleKey(NSInteger style) {
+	NSArray *keys = @[@"STARTUPSCREEN_STYLE_VIDEO", @"STARTUPSCREEN_STYLE_LOGO", @"STARTUPSCREEN_STYLE_GREETING",
+		@"STARTUPSCREEN_STYLE_WEATHER", @"STARTUPSCREEN_STYLE_ENGINE", @"STARTUPSCREEN_STYLE_WELCOME",
+		@"STARTUPSCREEN_STYLE_PARTICLES", @"STARTUPSCREEN_STYLE_HUD", @"STARTUPSCREEN_STYLE_BRIEFING", @"STARTUPSCREEN_STYLE_RANDOM"];
+	return (style >= 0 && style < (NSInteger)keys.count) ? keys[style] : keys[0];
+}
+
+// Gallery symbol: the first name this iOS has (some are iOS 16+, the last one of each list is iOS 15).
+static UIImage *SSPStyleSymbol(NSInteger style, CGFloat pointSize) {
+	NSArray *names = @[@[@"film"], @[@"seal.fill", @"seal"], @[@"hand.wave.fill", @"hand.wave"], @[@"cloud.sun.rain.fill"],
+		@[@"gauge.with.dots.needle.67percent", @"speedometer"], @[@"car.side.fill", @"car.fill"], @[@"sparkles"],
+		@[@"scope"], @[@"rectangle.grid.2x2.fill"], @[@"shuffle"]];
+	if (style < 0 || style >= (NSInteger)names.count) return nil;
+	UIImageSymbolConfiguration *config = [UIImageSymbolConfiguration configurationWithPointSize:pointSize weight:UIImageSymbolWeightSemibold];
+	for (NSString *name in names[style]) {
+		UIImage *image = [UIImage systemImageNamed:name withConfiguration:config];
+		if (image) return [image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+	}
+	return nil;
+}
+
+// Gallery card color per style (no blue accents: DESIGN.md).
+static UIColor *SSPStyleColor(NSInteger style) {
+	NSArray *hex = @[@"#E11D48", @"#7C3AED", @"#F59E0B", @"#0EA5E9", @"#EA580C", @"#0D9488", @"#C026D3", @"#16A34A", @"#4F46E5", @"#475569"];
+	return OMCColorFromHex((style >= 0 && style < (NSInteger)hex.count) ? hex[style] : hex[0]);
+}
+
+static NSString *SSPOccasionTitleKey(NSInteger occasion) {
+	switch (occasion) {
+		case SS_OCCASION_BIRTHDAY:  return @"STARTUPSCREEN_OCC_BIRTHDAY";
+		case SS_OCCASION_XMAS:      return @"STARTUPSCREEN_OCC_XMAS";
+		case SS_OCCASION_MIDAUTUMN: return @"STARTUPSCREEN_OCC_MIDAUTUMN";
+		case SS_OCCASION_NEWYEAR:   return @"STARTUPSCREEN_OCC_NEWYEAR";
+		default:                    return @"STARTUPSCREEN_OCC_TET";
+	}
+}
+
+static NSDateFormatter *SSPPosixFormatter(NSString *format) {
+	NSDateFormatter *df = [NSDateFormatter new];
+	df.locale = [NSLocale localeWithLocaleIdentifier:@"en_US_POSIX"];
+	df.calendar = [NSCalendar calendarWithIdentifier:NSCalendarIdentifierGregorian];
+	df.timeZone = [NSTimeZone localTimeZone];
+	df.dateFormat = format;
+	return df;
+}
+
+// SS_KEY_BIRTHDAY ("MM-dd") as a date in the year 2000 (a leap year, so 02-29 works), nil when not set.
+static NSDate *SSPBirthdayDate(NSString *monthDay) {
+	if (![monthDay isKindOfClass:[NSString class]] || monthDay.length != 5) return nil;
+	return [SSPPosixFormatter(@"yyyy-MM-dd") dateFromString:[@"2000-" stringByAppendingString:monthDay]];
+}
+
+// The next special day from today (today included), as SS_OCCASION_*; Tet when none is found within a year.
+// Lunar dates use the Vietnamese calendar (the Chinese one at UTC+7).
+static NSInteger SSPNextOccasion(NSString *birthday) {
+	NSCalendar *gregorian = [NSCalendar calendarWithIdentifier:NSCalendarIdentifierGregorian];
+	NSCalendar *lunar = [NSCalendar calendarWithIdentifier:NSCalendarIdentifierChinese];
+	lunar.timeZone = [NSTimeZone timeZoneForSecondsFromGMT:7 * 3600];
+	NSDate *noon = [gregorian dateBySettingHour:12 minute:0 second:0 ofDate:[NSDate date] options:0] ?: [NSDate date];
+	NSString *birthdayKey = [birthday isKindOfClass:[NSString class]] && birthday.length == 5 ? birthday : nil;
+	for (NSInteger i = 0; i < 400; i++) {
+		NSDate *day = [gregorian dateByAddingUnit:NSCalendarUnitDay value:i toDate:noon options:0];
+		if (!day) break;
+		NSDateComponents *g = [gregorian components:NSCalendarUnitMonth | NSCalendarUnitDay fromDate:day];
+		NSDateComponents *l = [lunar components:NSCalendarUnitMonth | NSCalendarUnitDay fromDate:day];
+		if (!l.leapMonth && l.month == 1 && l.day <= 3) return SS_OCCASION_TET;
+		if (birthdayKey && [birthdayKey isEqualToString:[NSString stringWithFormat:@"%02ld-%02ld", (long)g.month, (long)g.day]]) return SS_OCCASION_BIRTHDAY;
+		if (g.month == 1 && g.day == 1) return SS_OCCASION_NEWYEAR;
+		if (g.month == 12 && (g.day == 24 || g.day == 25)) return SS_OCCASION_XMAS;
+		if (!l.leapMonth && l.month == 8 && l.day == 15) return SS_OCCASION_MIDAUTUMN;
+	}
+	return SS_OCCASION_TET;
+}
+
+#pragma mark - Gallery tile
+
+// One style in the gallery: colored rounded card with a white symbol, name below. The chosen one turns
+// bright white with a white glow and a dark symbol (DESIGN.md).
+@interface OMCSSStyleTileCell : UICollectionViewCell
+@property (nonatomic, strong) UIView *card;
+@property (nonatomic, strong) CAGradientLayer *fill;
+@property (nonatomic, strong) UIImageView *glyph;
+@property (nonatomic, strong) UILabel *title;
+- (void)showStyle:(NSInteger)style chosen:(BOOL)chosen dark:(BOOL)dark;
+- (void)setChosen:(BOOL)chosen dark:(BOOL)dark;
+@end
+
+@implementation OMCSSStyleTileCell
+
+- (instancetype)initWithFrame:(CGRect)frame {
+	self = [super initWithFrame:frame];
+	if (self) {
+		CGFloat width = frame.size.width;
+		self.card = [[UIView alloc] initWithFrame:CGRectMake(round((width - kTileCard) / 2), kTileCardTop, kTileCard, kTileCard)];
+		self.card.layer.cornerRadius = 18;
+		self.card.layer.cornerCurve = kCACornerCurveContinuous;
+		self.card.layer.shadowPath = [UIBezierPath bezierPathWithRoundedRect:self.card.bounds cornerRadius:18].CGPath;
+		[self.contentView addSubview:self.card];
+
+		self.fill = [CAGradientLayer layer];
+		self.fill.frame = self.card.bounds;
+		self.fill.cornerRadius = 18;
+		self.fill.cornerCurve = kCACornerCurveContinuous;
+		self.fill.masksToBounds = YES;
+		self.fill.startPoint = CGPointMake(0, 0);
+		self.fill.endPoint = CGPointMake(1, 1);
+		[self.card.layer addSublayer:self.fill];
+
+		self.glyph = [[UIImageView alloc] initWithFrame:self.card.bounds];
+		self.glyph.contentMode = UIViewContentModeCenter;
+		[self.card addSubview:self.glyph];
+
+		self.title = [[UILabel alloc] initWithFrame:CGRectMake(0, kTileCardTop + kTileCard + 6, width, kTileHeight - kTileCardTop - kTileCard - 6)];
+		self.title.textAlignment = NSTextAlignmentCenter;
+		self.title.numberOfLines = 2;
+		self.title.adjustsFontSizeToFitWidth = YES;
+		self.title.minimumScaleFactor = 0.8;
+		self.title.lineBreakMode = NSLineBreakByWordWrapping;
+		[self.contentView addSubview:self.title];
+
+		self.isAccessibilityElement = YES;
+	}
+	return self;
+}
+
+- (void)showStyle:(NSInteger)style chosen:(BOOL)chosen dark:(BOOL)dark {
+	UIColor *color = SSPStyleColor(style);
+	CGFloat h = 0, s = 0, b = 0, a = 1;
+	[color getHue:&h saturation:&s brightness:&b alpha:&a];
+	UIColor *light = [UIColor colorWithHue:h saturation:s * 0.75 brightness:MIN(1.0, b * 1.15) alpha:1];
+	self.fill.colors = @[(id)light.CGColor, (id)color.CGColor];
+	self.glyph.image = SSPStyleSymbol(style, 28);
+	self.title.text = L(SSPStyleTitleKey(style));
+	self.accessibilityLabel = self.title.text;
+	[self setChosen:chosen dark:dark];
+}
+
+- (void)setChosen:(BOOL)chosen dark:(BOOL)dark {
+	[CATransaction begin];
+	[CATransaction setDisableActions:YES];
+	self.fill.hidden = chosen;
+	[CATransaction commit];
+	self.card.backgroundColor = chosen ? [UIColor whiteColor] : [UIColor clearColor];
+	self.glyph.tintColor = chosen ? OMCColorFromHex(@"#1C1C1E") : [UIColor whiteColor];
+	// White glow on the dark page; on the light page a hairline and a soft shadow keep the white card visible.
+	self.card.layer.shadowColor = (chosen && dark) ? [UIColor whiteColor].CGColor : [UIColor blackColor].CGColor;
+	self.card.layer.shadowOpacity = chosen ? (dark ? 0.85 : 0.22) : 0.12;
+	self.card.layer.shadowRadius = chosen ? 12 : 4;
+	self.card.layer.shadowOffset = (chosen && dark) ? CGSizeZero : CGSizeMake(0, 2);
+	self.card.layer.borderWidth = chosen ? (dark ? 0 : 1) : 0.5;
+	self.card.layer.borderColor = chosen ? [UIColor colorWithWhite:0 alpha:0.12].CGColor : [UIColor colorWithWhite:1 alpha:0.22].CGColor;
+	self.card.transform = chosen ? CGAffineTransformMakeScale(1.06, 1.06) : CGAffineTransformIdentity;
+	self.title.font = [UIFont systemFontOfSize:11 weight:chosen ? UIFontWeightSemibold : UIFontWeightMedium];
+	self.title.textColor = chosen ? [UIColor labelColor] : [UIColor secondaryLabelColor];
+	self.accessibilityTraits = chosen ? (UIAccessibilityTraitButton | UIAccessibilityTraitSelected) : UIAccessibilityTraitButton;
+}
+
+@end
+
+#pragma mark - Controller
+
+@interface OMCStartupScreenController () <UIImagePickerControllerDelegate, UINavigationControllerDelegate, UIDocumentPickerDelegate,
+	UICollectionViewDataSource, UICollectionViewDelegate>
+@property (nonatomic, assign) BOOL extracting;
+@property (nonatomic, assign) SSPickKind pickKind;
+@property (nonatomic, strong) UIView *previewHeader;
+@property (nonatomic, strong) UIView *previewShadow;
+@property (nonatomic, strong) SSStartupView *preview;
+@property (nonatomic, assign) CGFloat previewWidth;
+@property (nonatomic, strong) UILabel *galleryTitle;
+@property (nonatomic, strong) UILabel *galleryHint;
+@property (nonatomic, strong) UICollectionView *gallery;
+@property (nonatomic, strong) UIStackView *birthdayView;
+@property (nonatomic, strong) UIDatePicker *birthdayPicker;
+@property (nonatomic, strong) UIButton *birthdayClear;
+@property (nonatomic, strong) AVAudioPlayer *soundPlayer;
+@end
+
+@implementation OMCStartupScreenController
+
 - (NSInteger)currentStyle {
 	id value = SSPrefValue(SS_KEY_STYLE);
 	NSInteger style = value ? [value integerValue] : SS_STYLE_VIDEO;
-	return (style >= SS_STYLE_VIDEO && style <= SS_STYLE_WEATHER) ? style : SS_STYLE_VIDEO;
+	return (style >= SS_STYLE_VIDEO && style < SS_STYLE_COUNT) ? style : SS_STYLE_VIDEO;
 }
 
 // The startup sound file name, when the file is still there.
@@ -70,6 +268,25 @@ static NSString *SSPrefString(NSString *key) {
 	NSString *name = SSPrefString(SS_KEY_SOUND_FILE);
 	if (!name.length) return nil;
 	return [[NSFileManager defaultManager] fileExistsAtPath:[SS_SOUNDS_DIR stringByAppendingPathComponent:name]] ? name : nil;
+}
+
+// SS_KEY_RANDOM_SET as the styles the Random style picks from (missing / empty = all of them).
+- (NSArray<NSNumber *> *)randomSet {
+	NSMutableArray<NSNumber *> *set = [NSMutableArray array];
+	id stored = SSPrefValue(SS_KEY_RANDOM_SET);
+	if ([stored isKindOfClass:[NSArray class]]) {
+		for (id value in (NSArray *)stored) {
+			if (![value isKindOfClass:[NSNumber class]]) continue;
+			NSInteger style = [value integerValue];
+			if (style >= SS_STYLE_VIDEO && style < SS_STYLE_RANDOM && ![set containsObject:@(style)]) [set addObject:@(style)];
+		}
+	}
+	if (!set.count) for (NSInteger style = SS_STYLE_VIDEO; style < SS_STYLE_RANDOM; style++) [set addObject:@(style)];
+	return set;
+}
+
+- (NSString *)occasionPreviewTitle {
+	return [NSString stringWithFormat:L(@"STARTUPSCREEN_OCCASION_PREVIEW"), L(SSPOccasionTitleKey(SSPNextOccasion(SSPrefString(SS_KEY_BIRTHDAY))))];
 }
 
 #pragma mark - Specifiers
@@ -89,21 +306,22 @@ static NSString *SSPrefString(NSString *key) {
 			NSString *placeholder = [spec propertyForKey:@"placeholder"];
 			if (placeholder) [spec setProperty:L(placeholder) forKey:@"placeholder"];
 
-			if ([spec.identifier isEqualToString:@"soundGroup"]) {
+			NSString *ident = spec.identifier;
+			if ([ident isEqualToString:@"soundGroup"]) {
 				NSString *sound = [self currentSound];
 				NSString *status = sound ? [NSString stringWithFormat:L(@"STARTUPSCREEN_SOUND_CURRENT"), sound] : L(@"STARTUPSCREEN_SOUND_NONE");
 				[spec setProperty:[NSString stringWithFormat:@"%@\n%@", status, L(@"STARTUPSCREEN_STARTUP_SOUND_FOOTER")] forKey:@"footerText"];
-			} else if ([spec.identifier isEqualToString:@"greetingGroup"] && style == SS_STYLE_WEATHER) {
-				// Weather: say plainly that it uses the network, and when the last numbers came in.
-				NSDictionary *cached = SSWeatherLoadCache(0);
-				NSString *last = L(@"STARTUPSCREEN_WEATHER_NONE");
-				NSDate *date = cached[SS_WX_DATE];
-				if ([date isKindOfClass:[NSDate class]]) {
-					last = [NSString stringWithFormat:L(@"STARTUPSCREEN_WEATHER_LAST"),
-						[NSDateFormatter localizedStringFromDate:date dateStyle:NSDateFormatterShortStyle timeStyle:NSDateFormatterShortStyle]];
-				}
-				[spec setProperty:[NSString stringWithFormat:@"%@\n\n%@\n%@", L(@"STARTUPSCREEN_GREETING_FOOTER"), L(@"STARTUPSCREEN_WEATHER_FOOTER"), last]
-				           forKey:@"footerText"];
+			} else if ([ident isEqualToString:@"nameGroup"]) {
+				// One group for every style that shows the name: titled with the style, one footer each.
+				spec.name = L(SSPStyleTitleKey(style));
+				[spec setProperty:[self nameFooterForStyle:style] forKey:@"footerText"];
+			} else if ([ident isEqualToString:@"carGroup"] || [ident isEqualToString:@"tempoGroup"]) {
+				spec.name = L(SSPStyleTitleKey(style));
+			} else if ([ident isEqualToString:@"carName"]) {
+				// Empty field = the car's own name, so that is what the placeholder shows.
+				[spec setProperty:SSPDetectedCarName() ?: @"OmniCar" forKey:@"placeholder"];
+			} else if ([ident isEqualToString:@"occasionPreview"]) {
+				spec.name = [self occasionPreviewTitle];
 			}
 		}
 		[self refreshVideoList];
@@ -111,28 +329,75 @@ static NSString *SSPrefString(NSString *key) {
 	return _specifiers;
 }
 
-// Picking a style shows its rows right away; the preview follows every setting it draws.
+- (NSString *)nameFooterForStyle:(NSInteger)style {
+	switch (style) {
+		case SS_STYLE_WEATHER: {
+			// Weather: say plainly that it uses the network, and when the last numbers came in.
+			NSDictionary *cached = SSWeatherLoadCache(0);
+			NSString *last = L(@"STARTUPSCREEN_WEATHER_NONE");
+			NSDate *date = cached[SS_WX_DATE];
+			if ([date isKindOfClass:[NSDate class]]) {
+				last = [NSString stringWithFormat:L(@"STARTUPSCREEN_WEATHER_LAST"),
+					[NSDateFormatter localizedStringFromDate:date dateStyle:NSDateFormatterShortStyle timeStyle:NSDateFormatterShortStyle]];
+			}
+			return [NSString stringWithFormat:@"%@\n%@", L(@"STARTUPSCREEN_WEATHER_FOOTER"), last];
+		}
+		case SS_STYLE_PARTICLES: return L(@"STARTUPSCREEN_PARTICLES_FOOTER");
+		case SS_STYLE_BRIEFING:  return L(@"STARTUPSCREEN_BRIEFING_FOOTER");
+		default:                 return L(@"STARTUPSCREEN_GREETING_FOOTER");
+	}
+}
+
+// The preview follows every setting it draws.
 - (void)setPreferenceValue:(id)value specifier:(PSSpecifier *)specifier {
 	[super setPreferenceValue:value specifier:specifier];
 	NSString *key = [specifier propertyForKey:@"key"];
 	if (!key) return;
-	NSArray *previewKeys = @[SS_KEY_STYLE, SS_KEY_GREET_NAME, SS_KEY_LOGO_EFFECT, SS_KEY_VIDEO_NAME, SS_KEY_SCALE_MODE];
+	NSArray *previewKeys = @[SS_KEY_GREET_NAME, SS_KEY_CAR_NAME, SS_KEY_TEMPO, SS_KEY_LOGO_EFFECT, SS_KEY_VIDEO_NAME, SS_KEY_SCALE_MODE];
 	if (![previewKeys containsObject:key]) return;
-	// Write synchronously so the row filter and the preview read the new value.
+	// Write synchronously so the preview reads the new value.
 	CFPreferencesSetAppValue((__bridge CFStringRef)key, (__bridge CFPropertyListRef)value, kPrefsDomain);
 	CFPreferencesAppSynchronize(kPrefsDomain);
-	if ([key isEqualToString:SS_KEY_STYLE]) {
-		_specifiers = nil;
-		[self reloadSpecifiers];
-	}
 	[self updatePreview];
 }
 
-#pragma mark - Preview
+#pragma mark - Cells
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+	UITableViewCell *cell = [super tableView:tableView cellForRowAtIndexPath:indexPath];
+	[self decorateCell:cell];
+	return cell;
+}
+
+// Random checklist ticks and the birthday date picker (done after OMCStyleCell, which gives button rows a chevron).
+- (void)decorateCell:(UITableViewCell *)cell {
+	PSSpecifier *spec = [cell isKindOfClass:[PSTableCell class]] ? ((PSTableCell *)cell).specifier : nil;
+	BOOL isBirthday = [spec.identifier isEqualToString:@"birthday"];
+	if (!isBirthday && self.birthdayView && cell.accessoryView == self.birthdayView) cell.accessoryView = nil;
+
+	id random = [spec propertyForKey:@"ssRandomStyle"];
+	if ([random isKindOfClass:[NSNumber class]]) {
+		BOOL on = [[self randomSet] containsObject:@([random integerValue])];
+		cell.tintColor = [UIColor labelColor];
+		cell.accessoryType = on ? UITableViewCellAccessoryCheckmark : UITableViewCellAccessoryNone;
+		cell.textLabel.textColor = on ? [UIColor labelColor] : [UIColor secondaryLabelColor];
+	} else if (isBirthday) {
+		cell.selectionStyle = UITableViewCellSelectionStyleNone;
+		cell.accessoryView = [self birthdayAccessory];
+	} else if ([spec.identifier isEqualToString:@"occasionPreview"]) {
+		cell.textLabel.text = spec.name;
+	}
+}
+
+- (void)redecorateVisibleCells {
+	for (UITableViewCell *cell in self.table.visibleCells) [self decorateCell:cell];
+}
+
+#pragma mark - Preview and style gallery
 
 - (void)viewDidLoad {
 	[super viewDidLoad];
-	self.previewHeader = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 320, 140)];
+	self.previewHeader = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 320, 280)];
 
 	// Soft shadow on a wrapper, rounded clipped card inside (DESIGN.md: large continuous corners).
 	self.previewShadow = [UIView new];
@@ -150,10 +415,43 @@ static NSString *SSPrefString(NSString *key) {
 	self.preview.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 	[self.preview addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self.preview action:@selector(playIntro)]];
 	[self.previewShadow addSubview:self.preview];
+
+	// "Startup style" on the left, the replay hint on the right, then the tiles.
+	self.galleryTitle = [UILabel new];
+	self.galleryTitle.font = [UIFont systemFontOfSize:14 weight:UIFontWeightMedium];
+	self.galleryTitle.textColor = [UIColor secondaryLabelColor];
+	[self.previewHeader addSubview:self.galleryTitle];
+
+	self.galleryHint = [UILabel new];
+	self.galleryHint.font = [UIFont systemFontOfSize:12];
+	self.galleryHint.textColor = [UIColor tertiaryLabelColor];
+	self.galleryHint.textAlignment = NSTextAlignmentRight;
+	self.galleryHint.adjustsFontSizeToFitWidth = YES;
+	self.galleryHint.minimumScaleFactor = 0.8;
+	[self.previewHeader addSubview:self.galleryHint];
+
+	UICollectionViewFlowLayout *layout = [UICollectionViewFlowLayout new];
+	layout.scrollDirection = UICollectionViewScrollDirectionHorizontal;
+	layout.itemSize = CGSizeMake(kTileWidth, kTileHeight);
+	layout.minimumLineSpacing = 4;
+	layout.minimumInteritemSpacing = 0;
+	layout.sectionInset = UIEdgeInsetsMake(0, 14, 0, 14);
+	self.gallery = [[UICollectionView alloc] initWithFrame:CGRectMake(0, 0, 320, kTileHeight) collectionViewLayout:layout];
+	self.gallery.backgroundColor = [UIColor clearColor];
+	self.gallery.showsHorizontalScrollIndicator = NO;
+	self.gallery.alwaysBounceHorizontal = YES;
+	self.gallery.clipsToBounds = NO;   // room for the chosen tile's glow
+	self.gallery.dataSource = self;
+	self.gallery.delegate = self;
+	[self.gallery registerClass:[OMCSSStyleTileCell class] forCellWithReuseIdentifier:@"tile"];
+	[self.previewHeader addSubview:self.gallery];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
 	[super viewWillAppear:animated];
+	self.galleryTitle.text = L(@"STARTUPSCREEN_STYLE_GROUP");
+	self.galleryHint.text = L(@"STARTUPSCREEN_REPLAY_HINT");
+	[self.gallery reloadData];
 	[self updatePreview];
 }
 
@@ -172,36 +470,200 @@ static NSString *SSPrefString(NSString *key) {
 
 	CGFloat cardWidth = MIN(kPreviewMaxWidth, width - 40);
 	CGFloat cardHeight = round(cardWidth * kPreviewAspect);
-	self.previewHeader.frame = CGRectMake(0, 0, width, cardHeight + 28);
 	self.previewShadow.frame = CGRectMake(round((width - cardWidth) / 2), 18, cardWidth, cardHeight);
 	self.preview.frame = self.previewShadow.bounds;
 	self.previewShadow.layer.shadowPath = [UIBezierPath bezierPathWithRoundedRect:self.previewShadow.bounds cornerRadius:20].CGPath;
+
+	CGFloat y = CGRectGetMaxY(self.previewShadow.frame) + 20;
+	CGFloat half = floor((width - 40) / 2);
+	self.galleryTitle.frame = CGRectMake(20, y, half, 18);
+	self.galleryHint.frame = CGRectMake(20 + half, y, width - 40 - half, 18);
+	y += 20;
+	self.gallery.frame = CGRectMake(0, y, width, kTileHeight);
+	self.previewHeader.frame = CGRectMake(0, 0, width, y + kTileHeight + 2);
 	self.table.tableHeaderView = self.previewHeader;
+	[self scrollGalleryToStyle:[self currentStyle] animated:NO];
 }
 
-// Draws the current settings with the car's renderer (the Weather style uses the last cached numbers,
-// else a sample, since the settings page never goes online).
+- (void)scrollGalleryToStyle:(NSInteger)style animated:(BOOL)animated {
+	if (self.gallery.bounds.size.width <= 0) return;
+	[self.gallery layoutIfNeeded];
+	[self.gallery scrollToItemAtIndexPath:[NSIndexPath indexPathForItem:style inSection:0]
+	                     atScrollPosition:UICollectionViewScrollPositionCenteredHorizontally animated:animated];
+}
+
+- (BOOL)pageIsDark {
+	return self.traitCollection.userInterfaceStyle == UIUserInterfaceStyleDark;
+}
+
+- (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
+	return SS_STYLE_COUNT;
+}
+
+- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
+	OMCSSStyleTileCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"tile" forIndexPath:indexPath];
+	[cell showStyle:indexPath.item chosen:indexPath.item == [self currentStyle] dark:[self pageIsDark]];
+	return cell;
+}
+
+// Picking a tile saves the style, shows only its rows and draws it in the preview (tapping the chosen one replays it).
+- (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
+	NSInteger style = indexPath.item;
+	if (style == [self currentStyle]) {
+		[self updatePreview];
+		return;
+	}
+	SSSetPrefValue(SS_KEY_STYLE, @(style));
+	[[UISelectionFeedbackGenerator new] selectionChanged];
+	BOOL dark = [self pageIsDark];
+	[UIView animateWithDuration:0.35 delay:0 usingSpringWithDamping:0.86 initialSpringVelocity:0 options:UIViewAnimationOptionAllowUserInteraction animations:^{
+		for (NSIndexPath *path in collectionView.indexPathsForVisibleItems) {
+			OMCSSStyleTileCell *tile = (OMCSSStyleTileCell *)[collectionView cellForItemAtIndexPath:path];
+			if ([tile isKindOfClass:[OMCSSStyleTileCell class]]) [tile setChosen:path.item == style dark:dark];
+		}
+	} completion:nil];
+	[self scrollGalleryToStyle:style animated:YES];
+	_specifiers = nil;
+	[self reloadSpecifiers];
+	[self updatePreview];
+}
+
+// Random: a style from its set for the preview (Video only when there is a video).
+- (NSInteger)randomPreviewStyle {
+	NSMutableArray<NSNumber *> *set = [[self randomSet] mutableCopy];
+	if (![self selectedVideo]) [set removeObject:@(SS_STYLE_VIDEO)];
+	if (!set.count) return SS_STYLE_GREETING;
+	return [set[arc4random_uniform((uint32_t)set.count)] integerValue];
+}
+
 - (void)updatePreview {
+	[self showPreviewStyle:[self currentStyle] occasion:SS_OCCASION_NONE];
+}
+
+// Draws the settings with the car's renderer: the user's name, car name, tempo, logo, video poster and the
+// last cached weather (else a sample, since the settings page never goes online); SSApplySampleData fills the
+// HUD lines, next event and battery.
+- (void)showPreviewStyle:(NSInteger)style occasion:(NSInteger)occasion {
 	SSStartupView *preview = self.preview;
 	if (!preview) return;
-	NSInteger style = [self currentStyle];
-	preview.style = style;
-	preview.name = SSPrefString(SS_KEY_GREET_NAME);
-	preview.logoEffect = [SSPrefValue(SS_KEY_LOGO_EFFECT) integerValue];
-	preview.date = [NSDate date];
+	NSInteger shown = style == SS_STYLE_RANDOM ? [self randomPreviewStyle] : style;
 	preview.image = nil;
 	preview.weather = nil;
-	if (style == SS_STYLE_LOGO) {
+	preview.hud = nil;
+	preview.nextEvent = nil;
+	preview.style = shown;
+	preview.occasion = occasion;
+	SSApplySampleData(preview);
+
+	// The user's own values win over the samples.
+	preview.occasion = occasion;
+	preview.name = SSPrefString(SS_KEY_GREET_NAME);
+	NSString *carName = SSPrefString(SS_KEY_CAR_NAME);
+	preview.carName = carName.length ? carName : SSPDetectedCarName();
+	id tempo = SSPrefValue(SS_KEY_TEMPO);
+	preview.tempo = tempo ? MAX(0, MIN(2, [tempo integerValue])) : 1;
+	preview.logoEffect = [SSPrefValue(SS_KEY_LOGO_EFFECT) integerValue];
+	id duration = SSPrefValue(SS_KEY_DURATION);   // Particles scatter at the end of it, as on the car
+	preview.duration = duration ? MAX(1.0, MIN(30.0, [duration doubleValue])) : 5.0;
+	preview.date = [NSDate date];
+	if (shown == SS_STYLE_LOGO) {
 		preview.image = [UIImage imageWithContentsOfFile:SS_LOGO_PATH];
-	} else if (style == SS_STYLE_VIDEO) {
+	} else if (shown == SS_STYLE_VIDEO) {
 		NSString *video = [self selectedVideo];
 		if (video) preview.image = [UIImage imageWithContentsOfFile:[SS_FRAMES_DIR(video) stringByAppendingPathComponent:@"00000.jpg"]];
 		preview.imageFits = [SSPrefValue(SS_KEY_SCALE_MODE) integerValue] == 1;
-	} else if (style == SS_STYLE_WEATHER) {
-		preview.weather = SSWeatherLoadCache(0) ?: @{SS_WX_TEMP: @28, SS_WX_HIGH: @31, SS_WX_LOW: @24, SS_WX_RAIN: @40, SS_WX_CODE: @2, SS_WX_DAY: @YES};
+	} else if (shown == SS_STYLE_WEATHER || shown == SS_STYLE_BRIEFING) {
+		preview.weather = SSWeatherLoadCache(0) ?: preview.weather
+			?: @{SS_WX_TEMP: @28, SS_WX_HIGH: @31, SS_WX_LOW: @24, SS_WX_RAIN: @40, SS_WX_CODE: @2, SS_WX_DAY: @YES};
 	}
 	[preview reload];
 	[preview playIntro];
+}
+
+#pragma mark - Random set
+
+- (void)toggleRandomStyle:(PSSpecifier *)specifier {
+	id value = [specifier propertyForKey:@"ssRandomStyle"];
+	if (![value isKindOfClass:[NSNumber class]]) return;
+	NSNumber *style = @([value integerValue]);
+	NSMutableArray<NSNumber *> *set = [[self randomSet] mutableCopy];
+	if ([set containsObject:style]) {
+		if (set.count <= 1) { [self showMessage:L(@"STARTUPSCREEN_RANDOM_KEEP_ONE")]; return; }
+		[set removeObject:style];
+	} else {
+		[set addObject:style];
+	}
+	[set sortUsingSelector:@selector(compare:)];
+	SSSetPrefValue(SS_KEY_RANDOM_SET, set);
+	[[UISelectionFeedbackGenerator new] selectionChanged];
+	[self redecorateVisibleCells];
+}
+
+#pragma mark - Special days
+
+// Birthday row accessory: a compact date picker (date only, the year is ignored) and a red clear button.
+- (UIView *)birthdayAccessory {
+	if (!self.birthdayView) {
+		UIDatePicker *picker = [UIDatePicker new];
+		picker.datePickerMode = UIDatePickerModeDate;
+		picker.preferredDatePickerStyle = UIDatePickerStyleCompact;
+		picker.locale = [NSLocale localeWithLocaleIdentifier:OMCLanguage()];
+		picker.tintColor = [UIColor labelColor];
+		[picker addTarget:self action:@selector(birthdayChanged:) forControlEvents:UIControlEventValueChanged];
+
+		UIButton *clear = [UIButton buttonWithType:UIButtonTypeSystem];
+		[clear setImage:[UIImage systemImageNamed:@"xmark.circle.fill"] forState:UIControlStateNormal];
+		clear.tintColor = OMCColorFromHex(@"#FF5C54");
+		clear.accessibilityLabel = L(@"STARTUPSCREEN_BIRTHDAY_CLEAR");
+		[clear addTarget:self action:@selector(clearBirthday) forControlEvents:UIControlEventTouchUpInside];
+		[clear.widthAnchor constraintEqualToConstant:28].active = YES;
+
+		UIStackView *stack = [[UIStackView alloc] initWithArrangedSubviews:@[picker, clear]];
+		stack.axis = UILayoutConstraintAxisHorizontal;
+		stack.alignment = UIStackViewAlignmentCenter;
+		stack.spacing = 4;
+		self.birthdayPicker = picker;
+		self.birthdayClear = clear;
+		self.birthdayView = stack;
+	}
+	[self updateBirthdayAccessory];
+	return self.birthdayView;
+}
+
+// Not set: the picker shows 1 January dimmed and the clear button is hidden.
+- (void)updateBirthdayAccessory {
+	NSDate *date = SSPBirthdayDate(SSPrefString(SS_KEY_BIRTHDAY));
+	self.birthdayPicker.date = date ?: (SSPBirthdayDate(@"01-01") ?: [NSDate date]);
+	self.birthdayPicker.alpha = date ? 1 : 0.4;
+	self.birthdayClear.alpha = date ? 1 : 0;
+	self.birthdayClear.enabled = date != nil;
+	CGSize size = [self.birthdayView systemLayoutSizeFittingSize:UILayoutFittingCompressedSize];
+	self.birthdayView.frame = CGRectMake(0, 0, ceil(size.width), MAX(36.0, ceil(size.height)));
+}
+
+- (void)birthdayChanged:(UIDatePicker *)picker {
+	SSSetPrefValue(SS_KEY_BIRTHDAY, [SSPPosixFormatter(@"MM-dd") stringFromDate:picker.date]);
+	[self birthdayDidChange];
+}
+
+- (void)clearBirthday {
+	SSSetPrefValue(SS_KEY_BIRTHDAY, @"");
+	[self birthdayDidChange];
+}
+
+// The next occasion may now be the birthday: relabel the preview row too.
+- (void)birthdayDidChange {
+	[self updateBirthdayAccessory];
+	for (PSSpecifier *spec in _specifiers) {
+		if ([spec.identifier isEqualToString:@"occasionPreview"]) spec.name = [self occasionPreviewTitle];
+	}
+	[self redecorateVisibleCells];
+}
+
+// Plays the festive screen of the next special day in the preview card (scrolled into view).
+- (void)previewOccasion {
+	[self.table setContentOffset:CGPointMake(0, -self.table.adjustedContentInset.top) animated:YES];
+	[self showPreviewStyle:SS_STYLE_FESTIVE occasion:SSPNextOccasion(SSPrefString(SS_KEY_BIRTHDAY))];
 }
 
 - (void)viewDidAppear:(BOOL)animated {

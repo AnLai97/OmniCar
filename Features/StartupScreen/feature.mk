@@ -1,1 +1,1 @@
-OmniCarStartupScreen_FRAMEWORKS += AVFoundation ImageIO QuartzCore CoreLocation CallKit
+OmniCarStartupScreen_FRAMEWORKS += AVFoundation ImageIO QuartzCore CoreLocation CallKit EventKit
