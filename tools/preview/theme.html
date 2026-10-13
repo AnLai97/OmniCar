@@ -93,7 +93,7 @@ section > p { margin: -6px 0 0; color: var(--ink2); font-size: 13px; }
 .dock .t { font-size: 10px; font-weight: 700; }
 .dock .d { width: 30px; height: 30px; border-radius: 8px; }
 .dock .sp { flex: 1; }
-.dock .split { width: 26px; height: 26px; display: grid; place-items: center; }   /* icon chia man hinh tran, cung mau luoi Home */
+.dock .split { width: 26px; height: 26px; border-radius: 7px; display: grid; place-items: center; background: rgba(255,255,255,.35); box-shadow: inset 0 0 0 .5px rgba(255,255,255,.85); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }   /* icon 2 o trong o kinh mo */
 .dock .split i { width: 14px; height: 10px; display: flex; gap: 2px; } .dock .split i b { flex: 1; background: #c9cdd4; border-radius: 2px; }
 .dock .g { width: 18px; height: 12px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; } .dock .g i { background: #c9cdd4; border-radius: 1px; }
 .area { position: absolute; left: 45px; top: 0; right: 0; bottom: 0; }
@@ -106,7 +106,9 @@ section > p { margin: -6px 0 0; color: var(--ink2); font-size: 13px; }
 .yt { background: #121212; }
 .yt::before { content: ""; position: absolute; inset: 28px 10px 50px; border-radius: 8px; background: linear-gradient(135deg, #5b3c88, #c0396b); }
 .divider { position: absolute; top: 0; bottom: 0; width: 6px; display: grid; place-items: center; z-index: 3; }
-.divider i { width: 5px; height: 44px; border-radius: 3px; background: rgba(255,255,255,.9); box-shadow: 0 0 0 1px rgba(31,34,51,.08), 0 2px 8px rgba(70,60,140,.3); }
+.divider i { width: 14px; height: 14px; border-radius: 7px; background: rgba(255,255,255,.35); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.95), 0 2px 8px rgba(70,60,140,.3); position: relative; }
+.divider i::after { content: ""; position: absolute; left: 5px; top: 5px; width: 4px; height: 4px; border-radius: 2px; background: var(--ink); }   /* cham tron kinh mo, cham giua mau muc */
+.divider i::after { content: ""; position: absolute; left: 5px; top: 5px; width: 4px; height: 4px; border-radius: 2px; background: var(--ink); }   /* cham tron kinh mo, cham giua mau muc */
 /* thanh nut cua o */
 /* tay cam ••• cua o + thanh hanh dong */
 .handle { position: absolute; top: 5px; width: 40px; height: 16px; border-radius: 8px; display: flex; align-items: center; justify-content: center; gap: 3px; z-index: 5; }

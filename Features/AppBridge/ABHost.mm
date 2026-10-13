@@ -923,8 +923,16 @@ static ABKnobView *ABMakeKnob(void)
     v.layer.cornerRadius = pad / 2;
     UIView *k = [[UIView alloc] initWithFrame:CGRectMake(AB_KNOB_HIT, AB_KNOB_HIT, AB_KNOB, AB_KNOB)];
     k.userInteractionEnabled = NO;
-    k.backgroundColor = [UIColor colorWithWhite:1 alpha:0.92];   // kinh trang, cham mau muc (= SCPCKnobStyle)
+    k.backgroundColor = [UIColor clearColor];   // kinh mo, cham mau muc (= SCPCKnobStyle / SCPCGlassFill)
     k.layer.cornerRadius = AB_KNOB / 2;
+    UIVisualEffectView *glass = [[UIVisualEffectView alloc] initWithEffect:[UIBlurEffect effectWithStyle:UIBlurEffectStyleSystemUltraThinMaterialLight]];
+    glass.frame = k.bounds;
+    glass.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    glass.contentView.backgroundColor = [UIColor colorWithWhite:1 alpha:0.35];
+    glass.layer.cornerRadius = AB_KNOB / 2;
+    glass.clipsToBounds = YES;
+    glass.userInteractionEnabled = NO;
+    [k addSubview:glass];
     k.layer.borderWidth = 1.5;
     k.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.95].CGColor;
     k.layer.shadowColor = ABShadow().CGColor;
@@ -965,7 +973,7 @@ static ABKnobView *ABMakeKnob(void)
         [UIView animateWithDuration:on ? 0.15 : 0.3 delay:0 usingSpringWithDamping:0.7 initialSpringVelocity:0
                             options:UIViewAnimationOptionBeginFromCurrentState animations:^{
             v.dot.transform = on ? CGAffineTransformMakeScale(AB_KNOB_GROW, AB_KNOB_GROW) : CGAffineTransformIdentity;
-            v.dot.backgroundColor = on ? [UIColor colorWithRed:0x8B / 255.0 green:0x7C / 255.0 blue:1 alpha:1] : [UIColor colorWithWhite:1 alpha:0.92];   // dang cham: mau nhan tim nhu ben CarPlay
+            v.dot.backgroundColor = on ? [UIColor colorWithRed:0x8B / 255.0 green:0x7C / 255.0 blue:1 alpha:1] : [UIColor clearColor];   // dang cham: mau nhan tim nhu ben CarPlay; khong: lo kinh mo
             for (CALayer *l in v.dot.layer.sublayers) l.backgroundColor = (on ? [UIColor whiteColor] : ABInk()).CGColor;
             v.dot.layer.shadowColor = (on ? [UIColor colorWithRed:0x8B / 255.0 green:0x7C / 255.0 blue:1 alpha:1] : ABShadow()).CGColor;
         } completion:nil];

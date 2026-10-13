@@ -602,6 +602,26 @@ static void SCPCGlass(UIView *v, CGFloat radius)
     [v insertSubview:glass atIndex:0];
 }
 
+// O kinh mo nho (nut dock, cham tron keo vach): chi lop mo + trang 35% + vien sang, khong bong; lop nam duoi moi thu
+// da co trong view (nut dock: duoi hinh; cham tron: duoi cham giua)
+static void SCPCGlassFill(UIView *v, CGFloat radius)
+{
+    v.backgroundColor = [UIColor clearColor];
+    v.layer.cornerRadius = radius;
+    v.layer.cornerCurve = kCACornerCurveContinuous;
+    UIVisualEffectView *glass = SCPCGlassView();
+    glass.frame = v.bounds;
+    glass.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    glass.contentView.backgroundColor = [UIColor colorWithWhite:1 alpha:0.35];
+    glass.layer.cornerRadius = radius;
+    glass.layer.cornerCurve = kCACornerCurveContinuous;
+    glass.layer.borderWidth = 0.5;
+    glass.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.85].CGColor;
+    glass.clipsToBounds = YES;
+    glass.userInteractionEnabled = NO;
+    [v insertSubview:glass atIndex:0];
+}
+
 // Thanh vien thuoc chua cac nut (ngang hoac doc). [NSNull null] = vach ngan cach (truoc nut tat / dong)
 static UIView *SCPCPill(NSArray *items, BOOL vertical)
 {
@@ -3145,7 +3165,7 @@ static void SCPCHandleOpen(UIView *h, BOOL open)
 //  cham 2 lan -> doi cho 2 o hai ben.
 // ---------------------------------------------------------------------
 // Mau cua cham tron: kinh trang, vien sang, cham mau muc o giua (kieu nut joystick); dang cham / keo: mau nhan tim, cham trang, quang tim
-static UIColor *SCPCKnobFill(BOOL on) { return on ? SCPCAccent() : [UIColor colorWithWhite:1 alpha:0.92]; }
+static UIColor *SCPCKnobFill(BOOL on) { return on ? SCPCAccent() : [UIColor clearColor]; }   // khong cham: lo kinh mo ben duoi
 
 static void SCPCKnobActive(UIView *knob, BOOL on)
 {
@@ -3167,7 +3187,7 @@ static void SCPCKnobStyle(UIView *knob, NSInteger style)
     if (knob.tag == 3) return;
     knob.tag = 3;
     knob.bounds = CGRectMake(0, 0, SCPC_KNOB_DOT, SCPC_KNOB_DOT);
-    knob.layer.cornerRadius = SCPC_KNOB_DOT / 2;
+    SCPCGlassFill(knob, SCPC_KNOB_DOT / 2);   // cham tron kinh mo (nhu nut dock), cham giua mau muc; dang cham: mau nhan
     knob.backgroundColor = SCPCKnobFill(NO);
     knob.layer.borderWidth = 1.5;
     knob.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.95].CGColor;
@@ -3187,7 +3207,7 @@ static void SCPCKnobStyle(UIView *knob, NSInteger style)
     d.index = i;
     d.backgroundColor = [UIColor clearColor];
     UIView *knob = [[UIView alloc] initWithFrame:CGRectZero];
-    knob.backgroundColor = [UIColor whiteColor];
+    knob.backgroundColor = [UIColor clearColor];   // SCPCKnobStyle them kinh mo
     knob.layer.cornerCurve = kCACornerCurveContinuous;
     knob.layer.shadowColor = SCPCShadow().CGColor;
     knob.layer.shadowOpacity = 0.4; knob.layer.shadowRadius = 3; knob.layer.shadowOffset = CGSizeZero;
@@ -5067,7 +5087,7 @@ static void SCPCStatusBottom(UIView *v, UIView *parent, CGRect strip, int depth,
         UIButton *b = bare ? SCPCRoundButton(SCPCSplitImage(size), self, @selector(homeButtonTapped))
                            : SCPCCircleButton(SCPCSplitImage(size * 0.9), size, self, @selector(homeButtonTapped));
         b.bounds = CGRectMake(0, 0, size, size);
-        if (bare) { b.layer.cornerRadius = 0; b.backgroundColor = nil; }
+        if (bare) SCPCGlassFill(b, size * 0.28);   // hinh 2 o trong o kinh mo bo goc nhu icon app tren dock
         self.homeButton = b;
         self.launcherBare = bare;
     }
