@@ -1,6 +1,6 @@
 # OmniCar – Kết quả thử
 
-Bảng ghi kết quả thử trên xe thật cho hai mục của ROADMAP (Mức 1 – Hỗ trợ và ổn định):
+Bảng ghi kết quả thử trên xe thật cho hai mục của ROADMAP-DEV.md (Mức 1 – Hỗ trợ và ổn định):
 **Chạy thật trên iOS 15 16 17 và 18** và **Thử với nhiều app hơn**. Sau này là nguồn cho trang tương thích công khai.
 
 Trang công khai: `docs/compatibility.html` (en + vi). Sửa file này trước, rồi chép sang trang đó: hai nơi phải khớp.
@@ -17,7 +17,7 @@ Trên trang công khai: ✅ = Works · 🟡 = Partly · ❌ = Doesn't · ⬜ = U
 | iOS 17, 18 | ⬜ chưa thử | Gói cài được (`firmware (>= 15.0)`); Chẩn đoán hiện hook thiếu |
 | iOS 14 trở xuống | ❌ | Gói yêu cầu iOS 15.0+ |
 | Rootless: Dopamine (A12+, arm64e), palera1n rootless (A9–A11, arm64) | Hỗ trợ | Gói `iphoneos-arm64`, build arm64 + arm64e |
-| roothide | ❌ chưa hỗ trợ | Có trong kế hoạch (ROADMAP Phát hành 0) |
+| roothide | ❌ chưa hỗ trợ | Có trong kế hoạch (ROADMAP-RELEASE.md, Phát hành 0) |
 | Rootful | ❌ | Chỉ rootless |
 | Tweak xung đột | CarBridge, DuoDash, TrueDash, CarPlayEnable | Cảnh báo trong Cài đặt (`OMCConflictingTweaks`), không tự gỡ |
 

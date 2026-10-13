@@ -1,7 +1,19 @@
-# OmniCar – Ghi chú phát triển
+# OmniCar – Lộ trình tính năng (dev)
 
-Dành cho người viết code: trạng thái code, file liên quan và cách thử của từng mục trong ROADMAP.md (cùng tên
-mục, cùng thứ tự). ROADMAP.md chỉ giữ lộ trình: mục, mô tả, "Xong khi". Viết code cho một mục thì ghi vào đây.
+Các mức tính năng và trạng thái code của từng mục. Kế hoạch phát hành, giá, Lite / Pro: **ROADMAP-RELEASE.md**.
+
+Cách dùng file này
+- Mức tính năng xếp theo **ưu tiên**: Mức 1 là thứ phải có ngay, mức sau làm khi mức trước đã xong.
+- Mỗi mức chia thành **nhóm** theo tính năng. Trong mỗi nhóm, mục xếp **từ dễ đến khó** (Thấp → Vừa → Cao);
+  mục nào phụ thuộc mục khác thì đứng sau nó.
+- Mỗi mục là một ô `[ ]`. Làm xong thì đánh `[x]` và ghi phiên bản phát hành bên cạnh.
+- **Độ khó**: Thấp (vài ngày) · Vừa (1–2 tuần) · Cao (vài tuần, cần thử nghiệm nhiều trên xe).
+- **Xong khi**: tiêu chí kiểm tra được trên xe thật, không phải "code đã viết".
+- **Code** / **Thử**: đã viết gì, ở file nào, thử thế nào (ghi khi bắt đầu code một mục).
+
+Đã có (1.0.0): Chia màn hình 2–3 ô (4 bố cục, chia dọc, kéo tỉ lệ, yêu thích, gần đây, Siri URL), App Bridge
+(app iPhone lên xe, icon trên màn chính CarPlay), Bong bóng tốc độ (18 kiểu, Vietmap Live / GOFA), Màn hình
+khởi động (một video MP4), Cài đặt vi / en.
 
 ## Trước khi phát hành
 
@@ -9,14 +21,20 @@ mục, cùng thứ tự). ROADMAP.md chỉ giữ lộ trình: mục, mô tả, "
 - Bản dịch 12 ngôn ngữ (ngoài vi / en) là dịch máy: cần người bản xứ đọc lại.
 - Xem lại các TODO trong docs/sales/ (giá, hoàn tiền, liên hệ).
 
+---
+
 ## Mức 1 – Cần ngay (trước khi mở repo miễn phí)
+
+Thiếu một trong các mục này thì khách quốc tế không mua, hoặc mua rồi đòi hoàn tiền.
 
 ### Hỗ trợ và ổn định
 
-- **Gửi log một chạm**
+- [x] **Gửi log một chạm** · Thấp
+  Nút trong Cài đặt: gói OmniCar.log + phiên bản iOS, máy, đầu xe, danh sách tweak → share sheet.
+  Xong khi: khách gửi được file qua Zalo / email trong 3 chạm.
   Code: Hỗ trợ > Gửi log (OMCShareReport) → `OmniCar-log-<ngày>.txt`. Chờ thử gửi Zalo trên máy.
-
-- **Màn chẩn đoán**
+- [x] **Màn chẩn đoán** · Thấp
+  Độ phân giải màn xe, dây / không dây, nhiệt độ máy, FPS app iPhone, phiên bản từng tính năng.
   Code: Hỗ trợ > Chẩn đoán là trang kiểm tra sức khoẻ cho người dùng: kết luận chung ở đầu, ~20 mục ✓ / ⚠ / ✗ kèm
   cách sửa (điện thoại: iOS, jailbreak, trình nạp tweak, gói, OmniCar đang chạy đúng bản, bộ nhớ, pin, nhiệt, tweak
   xung đột; CarPlay: kết nối, OmniCar trong CarPlay, tương thích iOS, lần sập gần nhất, chế độ cứu, màn xe; từng tính
@@ -29,56 +47,320 @@ mục, cùng thứ tự). ROADMAP.md chỉ giữ lộ trình: mục, mô tả, "
   (chia màn hình bỏ kính mờ + chỉ 2 app, bong bóng 1 s/lần không đổ bóng, bỏ video khởi động; tự động bật khi máy
   nóng, khựng 3 lần / 2 phút hoặc ≥ 15% khung trễ, tắt sau 3 phút ổn), dọn RAM khi cắm xe / dọn ngay. App Bridge chỉ cài
   hook khi app được đưa lên xe. Trang Chẩn đoán: Cần xử lý (nút sửa ngay) → Tối ưu → các nhóm thu gọn.
-
-- **Thông tin đầu xe**
+- [x] **Thông tin đầu xe** · Thấp
+  Độ phân giải, tỉ lệ màn, chất lượng video gợi ý (gộp vào Màn chẩn đoán).
   Code: CarPlay ghi màn xe + phiên CarKit mỗi lần cắm (OMCCrashGuard), Chẩn đoán > Màn xe. Chờ thử trên xe.
-
-- **Phát hiện tweak xung đột**
+- [x] **Phát hiện tweak xung đột** · Thấp
+  Thấy CarBridge, DuoDash, TrueDash, CarPlayEnable… đang bật → cảnh báo trong Cài đặt (không tự gỡ tweak của người khác).
   Code: thẻ cảnh báo đầu trang chính khi dylib của tweak đó đang nạp; Chẩn đoán liệt kê cả gói đã cài.
-
-- **Chế độ cứu (rescue)**
+- [x] **Chế độ cứu (rescue)** · Vừa
+  CarPlay sập 2 lần liền trong 60 giây sau khi cắm → tự tắt tính năng nghi gây lỗi, lần cắm sau báo cho người dùng.
+  Xong khi: cố tình gây crash trong một tính năng, CarPlay tự phục hồi ở lần cắm thứ 3.
   Code: OMCCrashGuard (Core) nghi tính năng theo backtrace, thông báo trên iPhone, thẻ "Bật lại" ở trang chính.
   Thử: Chẩn đoán, nhấn giữ dòng OmniCar → chọn tính năng → cắm xe 3 lần.
-
-- **Tự kiểm tra trên xe (chỉ bản dev)**
+- [x] **Tự kiểm tra trên xe (chỉ bản dev)** · Vừa
+  Công cụ cho tác giả, không phát hành: macro `OMC_AUTOTEST` (Core/OmniCar.h, hoặc `make OMC_AUTOTEST=0`) bỏ hẳn
+  khỏi bản phát hành. Cài đặt > Hỗ trợ > Tự kiểm tra: chọn tính năng → mỗi tính năng tự chạy bộ test của nó trên xe,
+  mỗi bước ghi đạt / lỗi + lý do + trạng thái + ảnh màn xe → Gửi log. Process sập giữa chừng thì lần sau chạy tiếp.
+  Bộ test: Chia màn hình (bố cục, tỉ lệ, đổi chỗ, cửa sổ nổi, bảng chọn / bảng bố cục, toàn màn, lệnh URL, yêu thích,
+  gần đây, bấm nhanh), App Bridge (trong ô, tỉ lệ, đổi chỗ, 3 ô, chặn cửa sổ nổi, toàn màn, đóng, icon, 2 app cùng
+  lúc), Màn hình khởi động (phát, khung chạy, tự tắt, chạm bỏ qua, tắt tính năng), Bong bóng tốc độ (hiện trên xe,
+  số, gần / vượt giới hạn, ẩn khi Split Screen chiếm màn, 18 kiểu, cỡ, mất nguồn).
+  Xong khi: một lần chạy trên xe ra đủ kết quả từng bước, gửi log có ảnh, sửa lỗi không cần thử tay lại từng ca.
   Code: Core/OMCTest.h (khung), Features/SplitScreen/SCPAutoTest.mm, cuối StartupScreen.x, cuối SPPBubble.mm,
   Prefs/OMCAutoTestController.m. Chờ chạy thử trên xe.
-
-- **Thử với nhiều app hơn**
+- [ ] **Thử với nhiều app hơn** · Vừa
+  Danh sách tối thiểu: YouTube, TikTok, Facebook, Instagram, Chrome, Safari, Zalo, Grab, Shopee, X, Twitch, Plex.
+  Xong khi: có bảng app chạy tốt / chạy được / không chạy kèm lý do, đưa lên trang tương thích.
   Bảng ghi kết quả: COMPATIBILITY.md.
+- [ ] **Chạy thật trên iOS 15 16 17 và 18** · Cao
+  App Bridge và Chia màn hình đang dựa selector iOS 16. Kiểm tra từng selector, có đường dự phòng khi thiếu.
+  Kiểm tra lại luôn app có giao diện CarPlay riêng chạy trong ô.
+  Xong khi: thử đủ 4 bố cục + YouTube / TikTok qua App Bridge trên iOS 15, 16, 17, 18 (rootless), ghi kết quả.
+  Chẩn đoán hiện hook thiếu trên từng iOS; ghi kết quả vào COMPATIBILITY.md.
 
 ### Bán quốc tế
 
-- **Đơn vị và quy chuẩn theo nước**
+- [x] **Đơn vị và quy chuẩn theo nước** · Thấp
+  km/h ↔ mph; biển tốc độ kiểu Viên (tròn viền đỏ) / kiểu Mỹ (chữ nhật trắng); lái tay phải → đảo bố cục mặc định.
   Code: Bong bóng tốc độ > Đơn vị (tự động theo vùng / km/h / mph) và Biển tốc độ (tự động / Viên / Mỹ), số vẫn so
   bằng km/h nên cảnh báo vượt tốc không đổi. Chia màn hình > Vị trí tay lái (tự động theo CarKit / trái / phải): tay
   lái phải thì app đang dùng vào ô bên phải. Chờ thử trên xe (tên trường rightHandDrive của CarKit).
-
-- **Hướng dẫn lần đầu**
+- [x] **Hướng dẫn lần đầu** · Thấp
+  3–4 trang: chọn app lên xe, chọn bố cục đầu tiên, bật bong bóng tốc độ, cách gọi bảng bố cục trên xe.
   Code: Prefs/OMCOnboardingController.m, 4 trang, tự hiện lần đầu mở Cài đặt (onboardingDone), Hỗ trợ > Xem lại
   hướng dẫn.
-
-- **Nhiều ngôn ngữ**
+- [x] **Nhiều ngôn ngữ** · Thấp (dịch) / Vừa (kiểm tra)
+  Tối thiểu: en, vi, es, pt-BR, de, fr, it, ru, zh-Hans, ja, ko, ar (RTL), th, id.
+  Xong khi: mọi trang Cài đặt và chữ trên xe không bị cắt ở ngôn ngữ dài nhất (de) và RTL (ar).
   Code: 14 ngôn ngữ (OMCSupportedLanguages, Core/OMCCommon.m), theo ngôn ngữ máy hoặc chọn trong Cài đặt; thiếu câu
   nào thì dùng tiếng Anh. Chữ trên xe: OMCTr(vi, en), ngôn ngữ khác tra `<lang>.lproj/Car.strings` (khoá = câu tiếng
   Anh). Bản dịch máy: cần người bản xứ đọc lại; chưa kiểm tra chữ bị cắt (de) và RTL (ar) trên máy.
-
-- **Trang tương thích công khai**
+- [x] **Trang tương thích công khai** · Thấp
+  iOS, kiểu jailbreak (rootless / roothide), chip, đầu xe đã thử, app đã thử, giới hạn đã biết (DRM).
   Code: docs/compatibility.html (trang tĩnh, EN / VI), đồng bộ với COMPATIBILITY.md. Chưa có kết quả thử nào.
-
-- **Bộ tài liệu bán hàng**
+- [ ] **Bộ tài liệu bán hàng** · Thấp
+  Video 60 giây, 6 ảnh chụp màn xe, mô tả ngắn / dài cho repo riêng và Chariz, FAQ, chính sách riêng tư.
   Code: docs/sales/ (mô tả ngắn / dài, FAQ, riêng tư, kịch bản quay shotlist.md). Còn thiếu: quay video, chụp ảnh,
   giá / chính sách hoàn tiền (TODO trong file).
+- [ ] **Bản quyền, Lite / Pro và dùng thử** · Vừa
+  Nền tảng kỹ thuật cho Phát hành 3 và 4: cờ Pro dùng chung cho mọi tính năng, đếm ngày dùng thử, đọc khoá của gói Pro.
+  Đã bỏ khỏi Mức 1 (chưa làm): để tới lúc chốt Lite / Pro.
 
 ### Dùng hằng ngày
 
-- **Phóng to tạm một ô**
+- [x] **Phóng to tạm một ô** · Thấp
+  Chạm đúp thanh "•••" → ô to toàn vùng app, chạm lại → về bố cục cũ (khác "toàn màn" là không đóng các ô khác).
   Code: SCPCarSplit zoomedSlot (ô khác ẩn nhưng giữ kích thước scene), cả thanh ••• của app iPhone (SpringBoard vẽ).
-
-- **Bàn phím trên màn xe**
+- [x] **Bàn phím trên màn xe** · Cao
+  Một bàn phím chung cho mọi ô (kể cả app iPhone qua App Bridge), kiểu HarmonyOS, có tiếng Việt và các ngôn ngữ chính.
+  Xong khi: gõ được tìm kiếm trong YouTube và ô địa chỉ của Safari trên xe.
   Code: app iPhone qua App Bridge: App.xm chặn bàn phím iPhone khi app trên xe và báo SpringBoard; ABKeyboard.mm vẽ
   bàn phím trên màn xe (chữ / số, EN / VI Telex), gửi phím về app. App CarPlay gốc dùng bàn phím của CarPlay.
   Chờ thử YouTube / Safari trên xe.
+
+## Mức 2 – Quan trọng (bằng DuoDash, làm ngay sau bản bán đầu tiên)
+
+Khách so sánh trực tiếp với DuoDash / CarBridge ở các mục này, và đây là những thứ khách nhìn thấy mỗi lần cắm xe.
+
+### Màn chính CarPlay (nâng cấp từ App Bridge)
+
+Trang Cài đặt "App trên màn xe" mở rộng thành "Màn chính CarPlay": app, bố cục, hình nền, dock.
+Mỗi thay đổi có xem trước trong Cài đặt (mô phỏng màn xe) trước khi áp lên xe.
+
+- [ ] **Ẩn và sắp xếp app** · Vừa
+  Ẩn cả app CarPlay gốc không dùng (CarBridge có), kéo đổi thứ tự app iPhone và app CarPlay trong một danh sách.
+  Xong khi: thứ tự và app ẩn giữ nguyên sau khi rút / cắm lại và sau respring.
+- [ ] **Cỡ icon** · Vừa
+  Thanh trượt cỡ icon trên màn chính (ví dụ 80–130 %), lưới tự tính lại để không tràn màn.
+- [ ] **Số cột / hàng và tên app** · Vừa
+  Chọn số cột × hàng mỗi trang, ẩn / hiện tên dưới icon, khoảng cách icon.
+- [ ] **Hình nền màn chính** · Vừa
+  Chọn ảnh từ Ảnh / Tệp, cắt theo tỉ lệ màn xe, chỉnh độ mờ và độ tối để icon vẫn dễ nhìn.
+- [ ] **Dock tuỳ chỉnh** · Vừa
+  Chọn app nào nằm cố định trên dock (kể cả app iPhone), ẩn mục gợi ý của CarPlay.
+
+### Màn hình khởi động mới
+
+Đổi từ "một video" sang nhiều **kiểu khởi động**. Mỗi kiểu là một mẫu có tham số; người dùng chọn kiểu,
+xem trước ngay trong Cài đặt. Âm thanh phát qua loa xe khi CarPlay kết nối.
+
+- [ ] **Khung chọn kiểu khởi động** · Vừa
+  Trang Cài đặt mới: danh sách kiểu (Video, Logo + âm thanh, Lời chào, Thời tiết…), xem trước, thời lượng, chạm để bỏ qua.
+  Video MP4 hiện tại thành một kiểu trong danh sách, cài đặt cũ được giữ.
+- [ ] **Logo + âm thanh của bạn** · Thấp (sau khi có khung)
+  Chọn ảnh logo (PNG trong suốt) + âm thanh; vài hiệu ứng xuất hiện: hiện dần, phóng to, phát sáng.
+- [ ] **Âm thanh khởi động riêng** · Thấp
+  Gắn âm thanh vào bất kỳ kiểu nào (tiếng máy nổ, chuông, lời chào ghi âm), chỉnh âm lượng, tắt khi đang có cuộc gọi.
+- [ ] **Lời chào theo giờ** · Thấp
+  "Chào buổi sáng, An" + giờ, ngày; chữ và nền đổi theo sáng / chiều / tối.
+- [ ] **Thời tiết và nhiệt độ** · Vừa
+  Nhiệt độ hiện tại, cao / thấp trong ngày, khả năng mưa, biểu tượng thời tiết; lấy từ WeatherKit / dữ liệu Thời tiết của iOS, không có mạng thì dùng số đo gần nhất.
+
+### Chia màn hình
+
+- [ ] **Ghim ô bản đồ** · Thấp
+  Ô được ghim không bị thay khi chọn bố cục / app khác.
+- [ ] **Nhớ tỉ lệ theo cặp app** · Thấp
+  Maps + Nhạc = 70/30, Maps + YouTube = 50/50… tự áp lại.
+- [ ] **Hồ sơ theo từng xe** · Thấp
+  Nhận xe qua tên / ID đầu xe → bố cục chia màn, màn chính CarPlay, kiểu khởi động, cỡ bong bóng riêng cho từng xe.
+- [ ] **Đủ 8 bố cục trở lên** · Vừa
+  Thêm 70/30, 30/70, 3 cột đều, 1 lớn trên + 2 dưới (màn dọc), lưới 2×2 (màn siêu rộng).
+- [ ] **Chọn ô phát tiếng** · Vừa
+  Hai ô cùng có âm thanh → chọn ô nào phát, ô kia tắt tiếng; tự giảm nhạc khi bản đồ đọc hướng dẫn.
+- [ ] **Gán nút giọng nói trên vô lăng** · Vừa
+  Bấm giữ = Siri như cũ; bấm ngắn = mở bảng bố cục / một app / một lệnh OmniCar, người dùng chọn.
+
+### Lái xe
+
+- [ ] **Cảnh báo quá tốc độ** · Thấp
+  Vượt biển + ngưỡng tuỳ chọn → viền màn đổi màu, tiếng ngắn; có chế độ im lặng.
+- [ ] **Chế độ lái** · Vừa
+  Trên tốc độ đặt trước: ô video chỉ còn tiếng / mờ đi, chữ và nút to hơn, khoá thao tác nhỏ; dừng xe → trở lại.
+  Đây cũng là câu trả lời khi repo / người mua hỏi về an toàn.
+- [ ] **Nguồn tốc độ toàn cầu** · Vừa
+  Thêm Google Maps, Waze, Apple Maps; dự phòng bằng giới hạn tốc độ OpenStreetMap tải sẵn theo vùng.
+
+### Cài đặt và hiệu năng
+
+- [ ] **Sao lưu / khôi phục cài đặt** · Thấp
+  Xuất một file `.omnicar`, mở file là nạp lại (bố cục, màn chính, kiểu khởi động, kiểu bong bóng, ảnh / video / âm thanh đã chọn).
+- [ ] **Có gì mới** · Thấp
+  Sau mỗi bản cập nhật hiện một trang ngắn trong Cài đặt.
+- [ ] **Tinh chỉnh hiệu năng** · Vừa
+  Giới hạn FPS app iPhone, tự giảm khi máy nóng, giữ app trong bộ nhớ hay không, giữ kết nối CarPlay khi khoá máy.
+- [ ] **Tối ưu CarPlay không dây** · Vừa
+  Tự giảm chất lượng / FPS app iPhone khi kết nối không dây chập chờn.
+- [ ] **Phím tắt Siri đầy đủ** · Vừa
+  Hành động cho app Phím tắt: mở bố cục, đặt app vào ô, đổi tỉ lệ, đổi hình nền / kiểu khởi động, bật / tắt từng tính năng.
+
+## Mức 3 – Vượt DuoDash (tạo khác biệt khi lái xe)
+
+Những thứ DuoDash không có. Đây là nội dung chính cho video quảng cáo các bản cập nhật lớn.
+
+### Màn chính CarPlay
+
+- [ ] **Hình nền theo giờ** · Thấp
+  Hai ảnh ngày / đêm, tự đổi theo giờ mặt trời mọc / lặn hoặc theo chế độ sáng / tối của xe.
+- [ ] **Hình nền động** · Vừa
+  Video ngắn lặp hoặc ảnh động làm nền, tự dừng khi máy nóng hoặc khi đang chia màn.
+- [ ] **Hình dạng và gói icon** · Vừa
+  Bo tròn / vuông / tròn hẳn, viền kính, bóng; dùng gói icon có sẵn trên máy (theo chuẩn IconBundles) cho màn xe.
+- [ ] **Thư mục và trang riêng** · Vừa
+  Gom app vào thư mục trên màn chính CarPlay; một trang riêng cho app iPhone (App Bridge).
+- [ ] **Widget trên màn chính** · Vừa
+  Đặt đồng hồ, thời tiết, nhạc đang phát… thành ô lớn ngay trên màn chính CarPlay (dùng chung phần Ô tiện ích).
+
+### Màn hình khởi động
+
+- [ ] **Theo dịp đặc biệt** · Thấp
+  Sinh nhật, Tết, Giáng sinh, ngày kỷ niệm → kiểu khởi động riêng hôm đó (người dùng đặt ngày).
+- [ ] **Ngẫu nhiên / xoay vòng** · Thấp
+  Mỗi lần cắm xe chọn ngẫu nhiên hoặc lần lượt trong các kiểu đã đánh dấu.
+- [ ] **Logo hãng xe kiểu mẫu** · Thấp
+  Mẫu dựng sẵn cho logo + âm thanh kiểu xe sang (nền tối, quét sáng, âm "chime"); **người dùng tự nhập logo hãng**,
+  OmniCar không đóng gói sẵn logo / âm thanh của hãng xe (bản quyền thương hiệu).
+- [ ] **Hiệu ứng logo nâng cao** · Vừa
+  Quét sáng qua logo, ghép từng mảnh, chữ hiện từng ký tự, hạt sáng; chỉnh màu và tốc độ.
+- [ ] **Thông tin chuyến đi** · Vừa
+  Lịch hôm nay, giờ đến nơi làm việc dự kiến, quãng đường hôm qua, pin điện thoại (và pin xe khi có OBD2 / VinFast).
+- [ ] **Chia sẻ mẫu khởi động** · Vừa
+  Xuất kiểu khởi động thành một file (ảnh + âm thanh + tham số) để gửi cho người khác, mở là cài.
+
+### Chia màn hình
+
+- [ ] **Thanh nhạc chung** · Thấp
+  Luôn hiện, điều khiển app nào đang phát (kể cả qua App Bridge).
+- [ ] **Tự phóng to ô bản đồ khi sắp rẽ** · Vừa
+  Còn ~300 m tới chỗ rẽ → ô bản đồ to ra (có hiệu ứng), qua chỗ rẽ → trả bố cục cũ. Ngưỡng chỉnh được.
+- [ ] **Bố cục tự do** · Vừa
+  Kéo vạch để tự tạo bố cục tới 4 ô, lưu thành mẫu, chia sẻ bằng mã ngắn (mã chứa bố cục, không chứa dữ liệu cá nhân).
+- [ ] **Tự động theo ngữ cảnh** · Vừa
+  Quy tắc: giờ, ngày trong tuần, xe, vị trí, có lịch hẹn → mở bố cục tương ứng khi cắm.
+- [ ] **Ô tiện ích** · Vừa
+  Đồng hồ, thời tiết, lịch hôm nay, nhạc đang phát, pin điện thoại, nhiệt độ máy, la bàn, độ cao.
+- [ ] **Cụm đồng hồ kiểu xe thể thao** · Vừa
+  Bố cục dạng đồng hồ: tốc độ, bản đồ thu nhỏ, nhạc; thêm dữ liệu OBD2 khi có (Mức 5).
+- [ ] **Kéo icon thả vào ô** · Vừa
+  Từ dock / màn chính CarPlay kéo icon vào ô muốn mở.
+- [ ] **Cửa sổ nổi hoàn chỉnh** · Vừa
+  Thu một app thành ô nhỏ nổi ở góc (kiểu hình trong hình), kéo đi, chạm để mở lại.
+- [ ] **Cử chỉ lớn khi đang chạy** · Vừa
+  Vuốt 3 ngón trái / phải đổi chỗ ô, chụm về màn chính; khi xe chạy chỉ nhận cử chỉ lớn.
+
+### Lái xe
+
+- [ ] **Nhắc nghỉ** · Thấp
+  Lái liên tục 2 giờ (chỉnh được) → nhắc nghỉ, gợi ý trạm dừng gần nhất.
+- [ ] **Nhớ chỗ đỗ xe** · Thấp
+  Rút CarPlay → lưu vị trí (+ ảnh nếu có camera), chỉ đường đi bộ quay lại.
+- [ ] **Nhắc kiểm tra ghế sau** · Thấp
+  Rút CarPlay khi trời nóng (thời tiết) → thông báo trên iPhone.
+- [ ] **HUD bằng chính iPhone** · Thấp
+  Màn iPhone hiện tốc độ + hướng rẽ tiếp theo, lật gương, đặt dưới kính lái.
+- [ ] **Hướng dẫn làn đường cỡ lớn** · Vừa
+  Mũi tên làn to ở mép màn, kể cả khi bản đồ ở ô nhỏ.
+- [ ] **Giữ tốc độ trong hầm** · Vừa
+  Mất GPS → ước lượng tiếp bằng gia tốc kế + tốc độ trước đó, bong bóng không đứng số.
+- [ ] **Nút vô lăng làm phím tắt** · Vừa
+  Bấm đúp "bài tiếp" = đổi ô đang chọn, giữ = mở bảng bố cục.
+- [ ] **Điểm lái an toàn và nhật ký chuyến đi** · Vừa
+  Quãng đường, thời gian, phanh gấp, tăng tốc gắt, vào cua nhanh, số lần quá tốc độ; xem lại trong Cài đặt.
+- [ ] **Lệnh giọng nói ngay trên máy** · Vừa
+  Vài lệnh cố định không cần mạng: "lưu clip", "phóng to bản đồ", "tắt video", "bố cục đi làm".
+- [ ] **Thông báo gọn** · Vừa
+  Gom tin nhắn thành dải ngắn ở mép, Siri đọc khi chạm, trả lời bằng câu soạn sẵn; ẩn nội dung khi xe chạy.
+
+### Giao diện
+
+- [ ] **Màn chờ khi đỗ** · Thấp
+  Đỗ lâu → đồng hồ lớn / ảnh, giống StandBy (dùng chung mẫu với Màn hình khởi động).
+- [ ] **Hiệu ứng chuyển cảnh HarmonyOS** · Thấp
+  Mở ô, đổi app, đổi bố cục mượt theo DESIGN.md.
+- [ ] **Chủ đề giao diện** · Thấp
+  Màu nhấn, độ trong kính, kiểu thanh nút; chủ đề theo hãng xe.
+- [ ] **Hỗ trợ núm xoay (đầu xe không cảm ứng)** · Cao
+  Điều khiển bảng bố cục và chọn ô bằng núm / nút; DuoDash không có.
+
+## Mức 4 – Camera hành trình và hỗ trợ lái (ADAS)
+
+Điện thoại trên giá, camera sau nhìn ra đường. Xử lý bằng Vision / Core ML ngay trên máy, không gửi hình đi đâu.
+Trước khi bắt đầu: đo pin và nhiệt khi chạy camera + CarPlay 1 giờ giữa trưa. Không đạt thì dừng mức này.
+Thứ tự trong mức này theo phụ thuộc: phải có ghi vòng trước rồi mới có tự lưu.
+Điều kiện chung: chấm xanh camera của iOS sẽ hiện, ghi rõ trong mô tả; mọi cảnh báo ghi "hỗ trợ, không thay người lái".
+
+### Camera hành trình
+
+- [ ] **Camera hành trình (ghi vòng)** · Vừa
+  Ghi liên tục, chỉ giữ N phút gần nhất, giới hạn dung lượng.
+- [ ] **Tự lưu khi có sự cố** · Thấp (sau khi có ghi vòng)
+  Phanh gấp / va chạm → giữ đoạn trước + sau, kèm tốc độ, toạ độ, giờ trên hình.
+- [ ] **Lưu bằng chạm / giọng nói, xem lại trên xe khi đỗ** · Thấp
+
+### Hỗ trợ lái (ADAS)
+
+- [ ] **Báo đèn xanh** · Vừa
+  Đang dừng đèn đỏ, đèn chuyển xanh mà xe chưa đi → tiếng ngắn.
+- [ ] **Báo xe trước đã chạy** · Vừa
+- [ ] **Đọc biển tốc độ bằng camera** · Cao
+  Nhận biển thật (kể cả biển tạm), đưa vào Bong bóng tốc độ, ưu tiên hơn dữ liệu bản đồ khi chắc chắn.
+- [ ] **Khoảng cách tới xe trước** · Cao
+  Hiện số giây bám đuôi, nhắc khi dưới 2 giây.
+- [ ] **Cảnh báo va chạm phía trước** · Cao
+- [ ] **Cảnh báo lệch làn** · Cao
+- [ ] **Phát hiện buồn ngủ / nhìn điện thoại** · Cao
+  Chế độ camera trước (máy hướng về người lái). Không chạy cùng lúc với các mục camera sau.
+
+## Mức 5 – Mở rộng hệ sinh thái
+
+Cần thử nghiệm dài và phần cứng / dữ liệu ngoài. Làm khi sản phẩm đã ổn định và có người dùng.
+
+- [ ] **Báo tai nạn cho người thân** · Vừa
+  Va chạm mạnh + không phản hồi trong 30 giây → gửi vị trí (và clip camera nếu có) cho liên hệ đã chọn.
+  Ghi rõ: chỉ hỗ trợ, không thay tính năng phát hiện tai nạn của Apple.
+- [ ] **API cho nhà phát triển** · Vừa
+  Tweak khác / Phím tắt đặt nội dung vào ô tiện ích, widget màn chính, hoặc thêm kiểu khởi động mới. Có tài liệu và ví dụ mã nguồn mở.
+- [ ] **Tốc độ khuyên dùng khi vào cua** · Cao
+  Từ độ cong đường (dữ liệu bản đồ / OSM) nhắc giảm tốc trước cua gắt, nhất là đường đèo.
+- [ ] **OBD2 Bluetooth LE** · Cao
+  Tốc độ thật, vòng tua, nhiệt độ nước, nhiên liệu, điện áp ắc quy, mã lỗi (đọc / xoá). Thử với ELM327 phổ biến.
+
+## Mức 6 – Gói theo vùng (bắt đầu với Việt Nam)
+
+Làm song song khi có thời gian; mỗi gói chỉ phục vụ một thị trường.
+
+- [ ] **Trạm thu phí ETC** · Thấp
+  Báo sắp tới trạm, giá vé theo loại xe.
+- [ ] **Giọng đọc tiếng Việt tự nhiên** cho mọi cảnh báo · Thấp
+- [ ] **Cơ sở dữ liệu camera phạt nguội / trạm cân** · Vừa
+  Cập nhật định kỳ, cảnh báo bằng giọng.
+- [ ] **Pin xe điện VinFast** · Vừa (phụ thuộc dữ liệu có lấy được không)
+- [ ] **Mẫu cho vùng khác** · Vừa
+  Châu Âu: camera cố định / vùng phát thải thấp; Mỹ: school zone… khi có người dùng ở đó.
+
+## Ý tưởng để dành (chưa xếp mức)
+
+- **Chia sẻ giờ đến nơi** cho một liên hệ khi bắt đầu chuyến đi theo lịch / bố cục.
+- **Thời tiết dọc tuyến đường**: mưa lớn ở phía trước 20 phút → nhắc.
+- **Trạm xăng / trạm sạc rẻ nhất trên đường đi** (theo dữ liệu từng vùng).
+- **Tiếp tục podcast / audiobook** đúng chỗ khi cắm lại xe.
+- **Chế độ tài xế mới**: giới hạn app, báo quá tốc độ chặt hơn, khoá Cài đặt bằng mật mã.
+- **Chế độ chở khách / gia đình**: ô video chỉ phát khi đỗ hoặc khi có người ngồi ghế phụ (người dùng xác nhận).
+- **Chế độ ban đêm tự động**: giảm sáng theo giờ mặt trời lặn, chủ đề tối cho mọi lớp phủ.
+- **Nhiều người lái một xe**: nhận người lái theo iPhone đang cắm, mỗi người một hồ sơ.
+- **Đo tốc độ tăng tốc 0–100 km/h** và vòng chạy (track mode) cho dân mê xe.
+- **Ghi chú giọng nói khi lái**: nói một câu → lưu vào Ghi chú / Lời nhắc khi đến nơi.
+- **Âm thanh khi tắt xe / rút cáp**: lời tạm biệt, tóm tắt chuyến đi trên iPhone.
+- **Mô phỏng HTML cho mọi tính năng** (như tools/preview) để duyệt giao diện trước khi code.
+
+## Không làm / không hứa
+
+- Phát video DRM (Netflix, Disney+, Prime Video, Apple TV+): bị FairPlay chặn ở phần cứng, không quảng cáo.
+- Đóng gói sẵn logo, âm thanh khởi động hay hình ảnh của hãng xe: dính bản quyền thương hiệu, repo có thể gỡ. Chỉ cung cấp mẫu, người dùng tự nhập.
+- Tự gỡ tweak của người khác.
+- Gửi hình camera, vị trí hay dữ liệu lái lên server. Thống kê ẩn danh chỉ gửi khi người dùng đồng ý, tắt được bất cứ lúc nào; tính năng nào cần mạng phải ghi rõ trong chính sách riêng tư.
+- Bất kỳ tính năng nào khuyến khích xem video khi xe đang chạy.
 
 ## Nguyên tắc chung
 

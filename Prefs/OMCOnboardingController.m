@@ -1,4 +1,4 @@
-// First-run guide (ROADMAP: Hướng dẫn lần đầu). A horizontal paging scroll view with page dots, Skip and
+// First-run guide (ROADMAP-DEV.md: Hướng dẫn lần đầu). A horizontal paging scroll view with page dots, Skip and
 // Next / Done, presented as a page sheet by OMCRootListController the first time Settings > OmniCar opens:
 //   1. Welcome + choose the iPhone apps for the car screen (pushes OMCAppBridgeAppsController in the sheet)
 //   2. How Split Screen works in the car (OmniCar button on the dock, long-press an app icon)
