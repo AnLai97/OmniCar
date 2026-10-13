@@ -487,6 +487,17 @@ static UIButton *SCPCCircleButton(UIImage *img, CGFloat size, id target, SEL act
     return b;
 }
 
+// Kinh mo cho thanh nut / bang; che do nhe (OMCLiteActive): nen toi dac, khong blur (blur tren ban do dang chay ton GPU
+// tung khung hinh)
+static UIVisualEffectView *SCPCGlassView(void)
+{
+    if (!OMCLiteActive())
+        return [[UIVisualEffectView alloc] initWithEffect:[UIBlurEffect effectWithStyle:UIBlurEffectStyleSystemUltraThinMaterialDark]];
+    UIVisualEffectView *v = [[UIVisualEffectView alloc] initWithEffect:nil];
+    v.backgroundColor = [UIColor colorWithWhite:0.12 alpha:0.94];
+    return v;
+}
+
 // Nen kinh mo kieu HarmonyOS (thanh nut cua o, thanh ti le): nhin xuyen, vien sang manh, bong mem
 static void SCPCGlass(UIView *v, CGFloat radius)
 {
@@ -495,7 +506,7 @@ static void SCPCGlass(UIView *v, CGFloat radius)
     v.layer.cornerCurve = kCACornerCurveContinuous;
     v.layer.shadowColor = [UIColor blackColor].CGColor;
     v.layer.shadowOpacity = 0.3; v.layer.shadowRadius = 12; v.layer.shadowOffset = CGSizeMake(0, 4);
-    UIVisualEffectView *glass = [[UIVisualEffectView alloc] initWithEffect:[UIBlurEffect effectWithStyle:UIBlurEffectStyleSystemUltraThinMaterialDark]];
+    UIVisualEffectView *glass = SCPCGlassView();
     glass.frame = v.bounds;
     glass.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     glass.contentView.backgroundColor = [UIColor colorWithWhite:0.1 alpha:0.2];
@@ -3470,7 +3481,7 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
     card.layer.cornerCurve = kCACornerCurveContinuous;
     card.layer.shadowColor = [UIColor blackColor].CGColor;
     card.layer.shadowOpacity = 0.35; card.layer.shadowRadius = 24; card.layer.shadowOffset = CGSizeMake(0, 8);
-    UIVisualEffectView *glass = [[UIVisualEffectView alloc] initWithEffect:[UIBlurEffect effectWithStyle:UIBlurEffectStyleSystemUltraThinMaterialDark]];
+    UIVisualEffectView *glass = SCPCGlassView();
     glass.frame = card.bounds;
     glass.contentView.backgroundColor = [UIColor colorWithWhite:0.1 alpha:0.18];
     glass.layer.cornerRadius = 22;
@@ -3704,6 +3715,8 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
                           @{@"layout": @(SCPC_LAYOUT_MAIN_STACK), @"name": SCPCT(@"1 lớn + 2", @"1 large + 2")},
                           @{@"layout": @(SCPC_LAYOUT_MAIN_RIGHT), @"name": SCPCT(@"2 + 1 lớn", @"2 + 1 large")}]];
     [names addObject:@"layouts"];
+    BOOL lite = OMCLiteActive();   // che do nhe: chi chia 2 o
+    if (lite) sections[0] = @[sections[0][0]];
 
     NSMutableArray *recent = [NSMutableArray array];
     for (NSDictionary *r in ([SCPPrefs showRecent] ? [SCPPrefs recentLayouts] : @[])) {
@@ -3714,6 +3727,7 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
             if (![bid isKindOfClass:[NSString class]] || ![self isCarPlayApp:bid]) { ok = NO; break; }
             [short_ addObject:[self displayNameFor:bid]];
         }
+        if (lite && [r[@"layout"] intValue] != 2) ok = NO;
         if (ok) [recent addObject:@{@"layout": r[@"layout"], @"apps": apps, @"name": [short_ componentsJoinedByString:@" + "]}];
     }
     if ([SCPPrefs showRecent]) {   // bat trong Cai dat -> luon hien (trong -> dong goi y)
@@ -3726,7 +3740,7 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
     for (NSInteger i = 1; i <= favCount; i++) {
         NSDictionary *f = [SCPPrefs favorite:i];
         NSArray *apps = [self favoriteApps:f];
-        if (!apps) continue;
+        if (!apps || (lite && [(f[@"layout"] ?: @2) intValue] != 2)) continue;
         [favs addObject:@{@"layout": f[@"layout"] ?: @2, @"apps": apps, @"name": f[@"name"] ?: @""}];
     }
     if (favs.count) { [sections addObject:favs]; [names addObject:@"favorite"]; }
@@ -3838,7 +3852,7 @@ static void SCPCMakePassThrough(UIWindow *w)
     panel.layer.cornerCurve = kCACornerCurveContinuous;
     panel.layer.shadowColor = [UIColor blackColor].CGColor;
     panel.layer.shadowOpacity = 0.35; panel.layer.shadowRadius = 24; panel.layer.shadowOffset = CGSizeMake(0, 8);
-    UIVisualEffectView *glass = [[UIVisualEffectView alloc] initWithEffect:[UIBlurEffect effectWithStyle:UIBlurEffectStyleSystemUltraThinMaterialDark]];
+    UIVisualEffectView *glass = SCPCGlassView();
     glass.frame = panel.bounds;
     glass.contentView.backgroundColor = [UIColor colorWithWhite:0.1 alpha:0.18];
     glass.layer.cornerRadius = 24;

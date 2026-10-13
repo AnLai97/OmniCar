@@ -378,6 +378,13 @@ static NSDictionary *OMCCheck(NSString *title, NSString *status, NSString *value
 	return d;
 }
 
+// A check whose fix is something the user does for performance (listed by Optimize as "you can also")
+static NSDictionary *OMCPerf(NSDictionary *check) {
+	NSMutableDictionary *d = [check mutableCopy];
+	d[@"perf"] = @YES;
+	return d;
+}
+
 static NSString *OMCTimeText(NSDate *date) {
 	if (![date isKindOfClass:[NSDate class]]) return @"?";
 	BOOL today = [[NSCalendar currentCalendar] isDateInToday:date];
@@ -434,6 +441,201 @@ static NSString *OMCStartupVideo(void) {
 	for (NSString *f in [[fm contentsOfDirectoryAtPath:SS_VIDEOS_DIR error:nil] sortedArrayUsingSelector:@selector(compare:)])
 		if (![f hasPrefix:@"."]) return f;
 	return nil;
+}
+
+static unsigned long long OMCLogBytes(void) {
+	NSFileManager *fm = [NSFileManager defaultManager];
+	return [fm attributesOfItemAtPath:kLogPath error:nil].fileSize + [fm attributesOfItemAtPath:[kLogPath stringByAppendingString:@".old"] error:nil].fileSize;
+}
+
+// The most likely reason CarPlay was slow on that drive, as advice (heat, Low Power Mode, memory, other tweaks, CPU)
+static NSString *OMCPerfCause(NSDictionary *perf) {
+	NSInteger room = [perf[@"availMinMB"] integerValue] ?: [perf[@"sysFreeMinMB"] integerValue];
+	NSUInteger tweaks = [perf[@"tweaks"] count];
+	if ([perf[@"thermalMax"] integerValue] >= NSProcessInfoThermalStateSerious) return L(@"CHK_PERF_HEAT_FIX");
+	if ([perf[@"lowPower"] boolValue]) return L(@"CHK_LOWPOWER_FIX");
+	if (perf[@"memMB"] && room < 200) return L(@"CHK_PERF_RAM_FIX");
+	if (tweaks >= 4) return [NSString stringWithFormat:L(@"CHK_PERF_TWEAKS_FIX"), (unsigned long)tweaks];
+	if ([perf[@"cpuAvg"] integerValue] >= 30) return L(@"CHK_PERF_CPU_FIX");
+	return L(@"CHK_PERF_GENERIC_FIX");
+}
+
+// Performance on the last drive (OMC_KEY_DIAG_PERF, measured by the CarPlay process)
+static NSArray<NSDictionary *> *OMCPerfChecks(BOOL connected) {
+	NSMutableArray *out = [NSMutableArray array];
+	NSDictionary *perf = OMCDiagPref(OMC_KEY_DIAG_PERF);
+	if (![perf isKindOfClass:[NSDictionary class]] || ![perf[@"start"] isKindOfClass:[NSDate class]]) {
+		[out addObject:OMCCheck(L(@"CHK_PERF_DRIVE"), @"info", L(@"CHK_CP_NONE"), L(@"CHK_PERF_NONE_FIX"), nil)];
+	} else {
+		long minutes = MAX(1, lround([perf[@"seconds"] doubleValue] / 60));
+		BOOL live = connected && [perf[@"updated"] isKindOfClass:[NSDate class]] && -[perf[@"updated"] timeIntervalSinceNow] < 90;
+		NSString *drive = live ? [NSString stringWithFormat:L(@"CHK_PERF_LIVE"), minutes]
+			: [NSString stringWithFormat:L(@"CHK_PERF_AT"), OMCTimeText(perf[@"start"]), minutes];
+		[out addObject:OMCCheck(L(@"CHK_PERF_DRIVE"), @"info", drive, L(@"CHK_PERF_RESET"), @"perfReset")];
+		NSString *cause = OMCPerfCause(perf);
+
+		// Smoothness: frames the car screen's display link fired late (main thread busy)
+		double frames = [perf[@"frames"] doubleValue], late = [perf[@"late"] doubleValue];
+		if (frames < 300) [out addObject:OMCCheck(L(@"CHK_PERF_SMOOTH"), @"info", L(@"CHK_PERF_FEW"), nil, nil)];
+		else {
+			double pct = late * 100 / frames;
+			NSString *status = pct < 3 ? @"ok" : (pct < 10 ? @"warn" : @"bad");
+			NSString *v = [NSString stringWithFormat:L(@"CHK_PERF_SMOOTH_VALUE"), pct, perf[@"fps"] ?: @"?", [perf[@"worstMs"] longValue]];
+			[out addObject:OMCCheck(L(@"CHK_PERF_SMOOTH"), status, v, [status isEqualToString:@"ok"] ? nil : cause, nil)];
+		}
+
+		// Touch response: main thread stuck >= 0.5 s (hangs) / >= 2 s (freezes)
+		long hangs = [perf[@"hangs"] longValue], freezes = [perf[@"freezes"] longValue];
+		NSString *hangStatus = !hangs ? @"ok" : ((freezes || hangs > 10) ? @"bad" : @"warn");
+		NSString *hangValue = hangs ? [NSString stringWithFormat:L(@"CHK_PERF_HANG_VALUE"), hangs, [perf[@"hangMaxMs"] doubleValue] / 1000] : L(@"CHK_PERF_HANG_NONE");
+		[out addObject:OMCCheck(L(@"CHK_PERF_HANG"), hangStatus, hangValue,
+			hangs ? [NSString stringWithFormat:L(@"CHK_PERF_HANG_FIX"), cause] : nil, nil)];
+
+		if (perf[@"cpuAvg"]) {
+			long avg = [perf[@"cpuAvg"] longValue];
+			NSString *status = avg < 30 ? @"ok" : (avg < 60 ? @"warn" : @"bad");
+			[out addObject:OMCCheck(L(@"CHK_PERF_CPU"), status, [NSString stringWithFormat:L(@"CHK_PERF_CPU_VALUE"), avg, [perf[@"cpuMax"] longValue]],
+				[status isEqualToString:@"ok"] ? nil : L(@"CHK_PERF_CPU_FIX"), nil)];
+
+			// Memory: room CarPlay had left before iOS kills it (the phone's free RAM when iOS does not say)
+			long room = [perf[@"availMinMB"] longValue] ?: [perf[@"sysFreeMinMB"] longValue];
+			NSString *memStatus = !room ? @"info" : (room < 100 ? @"bad" : (room < 200 ? @"warn" : @"ok"));
+			NSString *memValue = room ? [NSString stringWithFormat:L(@"CHK_PERF_RAM_VALUE"), [perf[@"memMaxMB"] longValue], room]
+				: [NSString stringWithFormat:L(@"CHK_PERF_RAM_USED"), [perf[@"memMaxMB"] longValue]];
+			[out addObject:OMCCheck(L(@"CHK_PERF_RAM"), memStatus, memValue,
+				([memStatus isEqualToString:@"warn"] || [memStatus isEqualToString:@"bad"]) ? L(@"CHK_PERF_RAM_FIX") : nil, nil)];
+		}
+
+		NSInteger heat = [perf[@"thermalMax"] integerValue];
+		NSArray *heatNames = @[L(@"DIAG_THERMAL_NOMINAL"), L(@"DIAG_THERMAL_FAIR"), L(@"DIAG_THERMAL_SERIOUS"), L(@"DIAG_THERMAL_CRITICAL")];
+		NSString *heatStatus = heat >= NSProcessInfoThermalStateCritical ? @"bad" : (heat >= NSProcessInfoThermalStateSerious ? @"warn" : @"ok");
+		[out addObject:OMCCheck(L(@"CHK_PERF_HEAT"), heatStatus, heatNames[(NSUInteger)MIN(MAX(heat, 0), 3)],
+			[heatStatus isEqualToString:@"ok"] ? nil : L(@"CHK_PERF_HEAT_FIX"), nil)];
+
+		if ([perf[@"lowPower"] boolValue])
+			[out addObject:OMCCheck(L(@"CHK_PERF_LOWPOWER"), @"warn", L(@"CHK_PERF_LOWPOWER_ON"), L(@"CHK_LOWPOWER_FIX"), nil)];
+
+		// Other tweaks injected into CarPlay: each adds start-up time and work on every event
+		NSArray *tweaks = [perf[@"tweaks"] isKindOfClass:[NSArray class]] ? perf[@"tweaks"] : @[];
+		NSString *names = [[tweaks subarrayWithRange:NSMakeRange(0, MIN(tweaks.count, 5))] componentsJoinedByString:@", "];
+		if (tweaks.count > 5) names = [names stringByAppendingFormat:@" +%lu", (unsigned long)(tweaks.count - 5)];
+		NSString *tweakStatus = tweaks.count < 4 ? @"ok" : (tweaks.count < 8 ? @"warn" : @"bad");
+		NSString *tweakValue = tweaks.count ? [NSString stringWithFormat:@"%lu · %@", (unsigned long)tweaks.count, names] : L(@"CHK_PERF_TWEAKS_NONE");
+		[out addObject:OMCCheck(L(@"CHK_PERF_TWEAKS"), tweakStatus, tweakValue,
+			[tweakStatus isEqualToString:@"ok"] ? nil : [NSString stringWithFormat:L(@"CHK_PERF_TWEAKS_FIX"), (unsigned long)tweaks.count], nil)];
+	}
+
+	// OmniCar's own log: written by every process on every logged line
+	unsigned long long bytes = OMCLogBytes();
+	if (bytes > 1024 * 1024)
+		[out addObject:OMCCheck(L(@"CHK_PERF_LOG"), @"info", [NSString stringWithFormat:@"%.1f MB", bytes / 1048576.0], L(@"CHK_PERF_LOG_FIX"), @"clearLog")];
+	NSMutableArray *marked = [NSMutableArray array];
+	for (NSDictionary *c in out) [marked addObject:OMCPerf(c)];
+	return marked;
+}
+
+#pragma mark - Optimize
+
+NSInteger OMCLiteMode(void) {
+	id v = OMCDiagPref(OMC_KEY_LITE_MODE);
+	return v ? [v integerValue] : 2;
+}
+
+static void OMCPrefsChanged(void) {
+	CFPreferencesAppSynchronize(kPrefsDomain);
+	notify_post([(__bridge NSString *)OMC_PREFS_CHANGED UTF8String]);
+}
+
+void OMCSetLiteMode(NSInteger mode) {
+	OMCDiagStore(OMC_KEY_LITE_MODE, @(mode));
+	OMCPrefsChanged();
+}
+
+NSString *OMCLiteStatus(void) {
+	NSInteger mode = OMCLiteMode();
+	if (mode == 0) return L(@"LITE_STATUS_OFF");
+	if (mode == 1) return L(@"LITE_STATUS_ALWAYS");
+	if ([NSProcessInfo processInfo].thermalState >= NSProcessInfoThermalStateSerious) return L(@"LITE_STATUS_ON_HEAT");
+	int token;
+	uint64_t state = 0;
+	if (notify_register_check(OMC_DARWIN_LITE, &token) == NOTIFY_STATUS_OK) {
+		notify_get_state(token, &state);
+		notify_cancel(token);
+	}
+	if (state) {
+		NSDictionary *perf = OMCDiagPref(OMC_KEY_DIAG_PERF);
+		NSString *reason = [perf isKindOfClass:[NSDictionary class]] ? perf[@"liteReason"] : nil;
+		NSString *key = [@"LITE_REASON_" stringByAppendingString:[reason uppercaseString] ?: @""];
+		return [NSString stringWithFormat:L(@"LITE_STATUS_ON"), [reason length] ? L(key) : @""];
+	}
+	return L(@"LITE_STATUS_AUTO");
+}
+
+BOOL OMCCleanRamOn(void) {
+	return [OMCDiagPref(OMC_KEY_CLEAN_RAM) boolValue];
+}
+
+void OMCSetCleanRam(BOOL on) {
+	OMCDiagStore(OMC_KEY_CLEAN_RAM, @(on));
+	OMCPrefsChanged();
+}
+
+void OMCCleanRamNow(void) {
+	notify_post(OMC_DARWIN_CLEAN_NOW);
+}
+
+NSString *OMCCleanRamStatus(void) {
+	NSDictionary *last = OMCDiagPref(OMC_KEY_DIAG_CLEAN);
+	if (![last isKindOfClass:[NSDictionary class]] || ![last[@"date"] isKindOfClass:[NSDate class]]) return L(@"CLEAN_RAM_NEVER");
+	return [NSString stringWithFormat:L(@"CLEAN_RAM_LAST"), (unsigned long)[last[@"closed"] count], OMCTimeText(last[@"date"])];
+}
+
+// What "Optimize" can do by itself (ids: lite, cleanNow, cleanOn, log, reset) and what only the user can do (the fixes of
+// the failing performance / phone checks that have no button).
+NSDictionary *OMCOptimizePlan(NSArray<NSDictionary *> *groups) {
+	NSMutableArray *steps = [NSMutableArray array];
+	if (OMCLiteMode() == 0) [steps addObject:@{@"id": @"lite", @"title": L(@"OPT_LITE")}];
+	NSDictionary *perf = OMCDiagPref(OMC_KEY_DIAG_PERF);
+	if (![perf isKindOfClass:[NSDictionary class]]) perf = nil;
+	long room = [perf[@"availMinMB"] longValue] ?: [perf[@"sysFreeMinMB"] longValue];
+	if (perf[@"memMB"] && room && room < 200) {
+		[steps addObject:@{@"id": @"cleanNow", @"title": L(@"OPT_CLEAN_NOW")}];
+		if (!OMCCleanRamOn()) [steps addObject:@{@"id": @"cleanOn", @"title": L(@"OPT_CLEAN_ON")}];
+	}
+	unsigned long long bytes = OMCLogBytes();
+	if (bytes > 1024 * 1024) [steps addObject:@{@"id": @"log", @"title": [NSString stringWithFormat:L(@"OPT_LOG"), bytes / 1048576.0]}];
+	if (steps.count && perf) [steps addObject:@{@"id": @"reset", @"title": L(@"OPT_RESET")}];
+
+	NSMutableOrderedSet *manual = [NSMutableOrderedSet orderedSet];
+	for (NSDictionary *g in groups) for (NSDictionary *c in g[@"checks"]) {
+		NSString *s = c[@"status"];
+		if (c[@"action"] || ![c[@"fix"] length] || !([s isEqualToString:@"warn"] || [s isEqualToString:@"bad"])) continue;
+		if ([c[@"perf"] boolValue]) [manual addObject:c[@"fix"]];
+	}
+	return @{@"steps": steps, @"manual": manual.array};
+}
+
+void OMCOptimizeApply(NSArray<NSDictionary *> *steps) {
+	for (NSDictionary *step in steps) {
+		NSString *i = step[@"id"];
+		if ([i isEqualToString:@"lite"]) OMCDiagStore(OMC_KEY_LITE_MODE, @2);
+		else if ([i isEqualToString:@"cleanOn"]) OMCDiagStore(OMC_KEY_CLEAN_RAM, @YES);
+		else if ([i isEqualToString:@"cleanNow"]) OMCCleanRamNow();
+		else if ([i isEqualToString:@"log"]) OMCClearLog();
+		else if ([i isEqualToString:@"reset"]) OMCDiagStore(OMC_KEY_DIAG_PERF, nil);
+	}
+	OMCPrefsChanged();
+}
+
+void OMCPerfReset(void) {
+	OMCDiagStore(OMC_KEY_DIAG_PERF, nil);
+	CFPreferencesAppSynchronize(kPrefsDomain);
+}
+
+void OMCClearLog(void) {
+	NSFileManager *fm = [NSFileManager defaultManager];
+	[fm removeItemAtPath:[kLogPath stringByAppendingString:@".old"] error:nil];
+	[[NSData data] writeToFile:kLogPath atomically:NO];   // truncate: processes keep appending to the same path
 }
 
 NSArray<NSDictionary *> *OMCDiagChecks(void) {
@@ -496,12 +698,12 @@ NSArray<NSDictionary *> *OMCDiagChecks(void) {
 	if (dev.batteryState == UIDeviceBatteryStateCharging || dev.batteryState == UIDeviceBatteryStateFull)
 		battery = [battery stringByAppendingFormat:@" · %@", L(@"CHK_BATTERY_CHARGING")];
 	if ([NSProcessInfo processInfo].lowPowerModeEnabled)
-		[phone addObject:OMCCheck(L(@"CHK_BATTERY"), @"warn", [battery stringByAppendingFormat:@" · %@", L(@"CHK_LOWPOWER")], L(@"CHK_LOWPOWER_FIX"), nil)];
+		[phone addObject:OMCPerf(OMCCheck(L(@"CHK_BATTERY"), @"warn", [battery stringByAppendingFormat:@" · %@", L(@"CHK_LOWPOWER")], L(@"CHK_LOWPOWER_FIX"), nil))];
 	else [phone addObject:OMCCheck(L(@"CHK_BATTERY"), @"ok", battery, nil, nil)];
 
 	NSProcessInfoThermalState th = [NSProcessInfo processInfo].thermalState;
 	NSString *thStatus = th >= NSProcessInfoThermalStateCritical ? @"bad" : (th >= NSProcessInfoThermalStateSerious ? @"warn" : @"ok");
-	[phone addObject:OMCCheck(L(@"DIAG_THERMAL"), thStatus, OMCThermal(), [thStatus isEqualToString:@"ok"] ? nil : L(@"CHK_THERMAL_FIX"), nil)];
+	[phone addObject:OMCPerf(OMCCheck(L(@"DIAG_THERMAL"), thStatus, OMCThermal(), [thStatus isEqualToString:@"ok"] ? nil : L(@"CHK_THERMAL_FIX"), nil))];
 
 	NSMutableArray *active = [NSMutableArray array], *idle = [NSMutableArray array];
 	for (NSDictionary *t in OMCConflictingTweaks()) [([t[@"active"] boolValue] ? active : idle) addObject:t[@"name"]];
@@ -619,6 +821,7 @@ NSArray<NSDictionary *> *OMCDiagChecks(void) {
 	return @[
 		@{@"title": L(@"DIAG_DEVICE"), @"checks": phone},
 		@{@"title": @"CarPlay", @"checks": carplay},
+		@{@"title": L(@"CHK_PERF_GROUP"), @"checks": OMCPerfChecks(connected)},
 		@{@"title": L(@"FEATURES_GROUP"), @"checks": features},
 	];
 }
@@ -694,6 +897,8 @@ static NSURL *OMCWriteReport(void) {
 	// Raw car data: CarKit property names differ per iOS, the developer reads them here
 	NSDictionary *car = OMCDiagPref(OMC_KEY_DIAG_CAR);
 	if ([car isKindOfClass:[NSDictionary class]]) [out appendFormat:@"\n== Car (raw) ==\n%@\n", car];
+	NSDictionary *perf = OMCDiagPref(OMC_KEY_DIAG_PERF);
+	if ([perf isKindOfClass:[NSDictionary class]]) [out appendFormat:@"\n== Performance, last drive (raw) ==\n%@\n", perf];
 
 #if OMC_AUTOTEST
 	// Auto test: every step with its result and reason (the split state at each failure is in OmniCar.log)

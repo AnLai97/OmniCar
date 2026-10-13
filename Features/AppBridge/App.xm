@@ -247,11 +247,19 @@ static void ABHandleOrientationRequest(NSDictionary *info)
     if (!bid.length || ![mb.bundlePath containsString:@".app"]) return;
     if ([@[@"com.apple.springboard", @"com.apple.CarPlayApp", @"com.apple.CarPlayTemplateUIHost", @"com.apple.CarPlaySettings",
            @"com.apple.InCallService", @"com.apple.Preferences"] containsObject:bid]) return;
-    %init(APPS);
-    if (OMCHasMethod("UIWindowScene", @"requestGeometryUpdateWithPreferences:errorHandler:")) %init(APPS16);
-    else %init(APPS15);
+    // Hooks only once SpringBoard hosts this app on the car (its first orientation message): every hook above acts only
+    // while orientationOverride / fakeDeviceOrientation are set, which only that message does, so an app that is never
+    // put on the car screen (nearly all of them) runs without any OmniCar hook, just this observer.
     [[objc_getClass("NSDistributedNotificationCenter") defaultCenter]
         addObserverForName:AB_NOTIF_ORIENTATION object:bid queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *note) {
+        static BOOL hooked;
+        if (!hooked) {
+            hooked = YES;
+            %init(APPS);
+            if (OMCHasMethod("UIWindowScene", @"requestGeometryUpdateWithPreferences:errorHandler:")) %init(APPS16);
+            else %init(APPS15);
+            ABLog("%@: dua len xe, cai hook", bid);
+        }
         @try { ABHandleOrientationRequest(note.userInfo); } @catch (NSException *e) { ABLog("%@: xoay loi %@", bid, e); }
     }];
 }

@@ -2,6 +2,13 @@
 #import "SPPPrefs.h"
 #import <notify.h>
 
+// Lite mode (OMCLiteActive): shadows without a path are drawn off screen on every frame; the card goes flat
+static void SPPStripShadows(CALayer *layer)
+{
+    layer.shadowOpacity = 0;
+    for (CALayer *l in layer.sublayers) SPPStripShadows(l);
+}
+
 #define SPP_SPEED_STALE 5.0   // giay khong co so moi -> hien "--" (bong bong van hien)
 #define SPP_VALUE_HOLD  3.0   // giay giu so cu khi app tam khong doc duoc (khong nhay qua lai so <-> "--")
 #define SPP_SOURCE_GONE 90.0  // giay khong nghe gi tu app (va khong biet app con chay khong) -> an
@@ -329,6 +336,8 @@ typedef NS_ENUM(NSInteger, SPPIconShape) {
 @property (nonatomic, strong) SPPSignView *sign;     // bien gioi han toc do
 @property (nonatomic, strong) UILabel *speedLabel, *unitLabel;
 @property (nonatomic, strong) NSTimer *timer;
+@property (nonatomic) NSTimeInterval timerInterval;  // 0.5 s, 1 s in lite mode
+@property (nonatomic) BOOL builtLite;                // card built in lite mode (no shadows)
 @property (nonatomic) int speed, limit;
 @property (nonatomic) CFAbsoluteTime lastUpdate;      // ban tin gan nhat tu app nguon (ke ca khi khong co so)
 @property (nonatomic) CFAbsoluteTime speedAt, limitAt; // lan cuoi doc duoc toc do / gioi han
@@ -513,10 +522,12 @@ static BOOL sSeenRunning[8];
 
     [self applySavedScale];
     NSInteger style = [SPPPrefs style];
-    if (style != self.builtStyle) [self buildStyle:style];
+    BOOL lite = OMCLiteActive();
+    if (style != self.builtStyle || lite != self.builtLite) { self.builtLite = lite; [self buildStyle:style]; }
     // So doi muot: chi dat text, khong animation (cap nhat lien tuc)
     [self renderStyle];
     [self applyCrispScale];
+    if (lite) SPPStripShadows(self.card.layer);
 
     if (self.window.hidden) {
         self.window.hidden = NO;
@@ -528,9 +539,12 @@ static BOOL sSeenRunning[8];
         [UIView animateWithDuration:0.2 delay:0 options:UIViewAnimationOptionBeginFromCurrentState
                          animations:^{ self.card.alpha = 1; self.card.transform = [self baseTransform]; } completion:nil];
     }
+    NSTimeInterval every = lite ? 1.0 : 0.5;   // lite mode: half the redraws
+    if (self.timer && self.timerInterval != every) { [self.timer invalidate]; self.timer = nil; }
     if (!self.timer) {
         __weak SPPBubble *weakSelf = self;
-        self.timer = [NSTimer scheduledTimerWithTimeInterval:0.5 repeats:YES block:^(NSTimer *t) { [weakSelf refresh]; }];
+        self.timerInterval = every;
+        self.timer = [NSTimer scheduledTimerWithTimeInterval:every repeats:YES block:^(NSTimer *t) { [weakSelf refresh]; }];
     }
 }
 

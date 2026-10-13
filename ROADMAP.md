@@ -189,6 +189,13 @@ Thiếu một trong các mục này thì khách quốc tế không mua, hoặc m
   xung đột; CarPlay: kết nối, OmniCar trong CarPlay, tương thích iOS, lần sập gần nhất, chế độ cứu, màn xe; từng tính
   năng), chạm để respring / bật lại; số liệu thô ở Chi tiết kỹ thuật. Chưa có FPS app iPhone (cần đo trong App
   Bridge). Dây / không dây đọc từ CarKit: chờ thử trên xe.
+  Hiệu năng CarPlay: CarPlay tự đo trong lúc lái (khung hình trễ 10 s mỗi phút, khựng ≥ 0,5 s, CPU, RAM còn dư,
+  nhiệt, nguồn điện thấp, tweak khác nạp vào CarPlay), Chẩn đoán đọc lại, chấm ✓ / ⚠ / ✗ và gợi ý nguyên nhân
+  chính; chạm để đo lại / xoá log. Chờ thử trên xe để chỉnh ngưỡng.
+  Tối ưu: nút Tối ưu (tự làm được gì thì làm, còn lại liệt kê cho người dùng), Chế độ nhẹ tắt / tự động / luôn bật
+  (chia màn hình bỏ kính mờ + chỉ 2 app, bong bóng 1 s/lần không đổ bóng, bỏ video khởi động; tự động bật khi máy
+  nóng, khựng 3 lần / 2 phút hoặc ≥ 15% khung trễ, tắt sau 3 phút ổn), dọn RAM khi cắm xe / dọn ngay. App Bridge chỉ cài
+  hook khi app được đưa lên xe. Trang Chẩn đoán: Cần xử lý (nút sửa ngay) → Tối ưu → các nhóm thu gọn.
 - [ ] **Thông tin đầu xe** · Thấp
   Độ phân giải, tỉ lệ màn, chất lượng video gợi ý (gộp vào Màn chẩn đoán).
   Code: CarPlay ghi màn xe + phiên CarKit mỗi lần cắm (OMCCrashGuard), Chẩn đoán > Màn xe. Chờ thử trên xe.

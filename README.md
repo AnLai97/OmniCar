@@ -10,8 +10,11 @@ Makefile              một Makefile: mỗi tính năng -> một dylib OmniCar<T
 control               thông tin gói Sileo (tên, version, mô tả)
 Core/OmniCar.h/.m     API chung cho hook: OMCPref, OMCFeatureEnabled, OMCLog, OMC_DATA_ROOT (biên dịch kèm vào từng dylib);
                       OMCCrashGuard: ghi crash CarPlay + chế độ cứu + đọc màn xe cho trang Chẩn đoán
+                      + đo hiệu năng CarPlay khi đang cắm xe (khung trễ, khựng, CPU, RAM, nhiệt, tweak khác)
+                      OMCLiteActive: Chế độ nhẹ (tắt / tự động / luôn bật) cho các tính năng hỏi trước khi vẽ
 Core/OMCTest.h/.m     khung tự kiểm tra trên xe, chỉ khi OMC_AUTOTEST = 1 (biên dịch kèm vào từng dylib tính năng)
-Core/Core.x           OmniCarCore.dylib, chỉ nạp SpringBoard: trạm nhận log từ app bị sandbox, thông báo chế độ cứu
+Core/Core.x           OmniCarCore.dylib, chỉ nạp SpringBoard: trạm nhận log từ app bị sandbox, thông báo chế độ cứu,
+                      dọn RAM khi cắm xe
 Prefs/                bundle settings dùng chung
   OMCRootListController    trang chính: header card, Bật OmniCar, Respring, danh sách tính năng (tự quét Feature*.plist)
   OMCFeatureListController trang con chuẩn: nạp plist của tính năng, dịch key, vẽ icon

@@ -10,6 +10,10 @@
 #import <signal.h>
 #import <mach-o/dyld.h>
 #import <mach-o/getsect.h>
+#import <mach/mach.h>
+#import <os/proc.h>
+#import <stdatomic.h>
+#import <QuartzCore/QuartzCore.h>
 
 #pragma mark - Preferences
 
@@ -28,6 +32,27 @@ BOOL OMCEnabled(void) {
 
 BOOL OMCFeatureEnabled(NSString *feature) {
 	return OMCEnabled() && [OMCPref([feature stringByAppendingString:@"Enabled"], @YES) boolValue];
+}
+
+// Asked on every Speed Bubble redraw: the answer is kept for 3 s (prefs sync + notify state per call otherwise).
+BOOL OMCLiteActive(void) {
+	static BOOL cached;
+	static CFAbsoluteTime checkedAt;
+	CFAbsoluteTime now = CFAbsoluteTimeGetCurrent();
+	if (checkedAt && now - checkedAt < 3) return cached;
+	checkedAt = now;
+	OMCPrefsSync();
+	NSInteger mode = [OMCPref(OMC_KEY_LITE_MODE, @2) integerValue];
+	if (mode == 1 || mode != 2 || !OMCEnabled()) return cached = (mode == 1 && OMCEnabled());
+	if ([NSProcessInfo processInfo].thermalState >= NSProcessInfoThermalStateSerious) return cached = YES;
+	static int token = -1;
+	if (token == -1 && notify_register_check(OMC_DARWIN_LITE, &token) != NOTIFY_STATUS_OK) {
+		token = -1;
+		return cached = NO;
+	}
+	uint64_t state = 0;
+	notify_get_state(token, &state);
+	return cached = (state != 0);
 }
 
 #pragma mark - Logging
@@ -374,8 +399,12 @@ static NSDictionary<NSString *, NSString *> *OMCDumpProperties(id obj) {
 }
 
 // Car screen (CarPlay process: every screen but the phone's) + the CarKit session, for the Diagnostics page.
+static void OMCPerfBegin(UIScreen *screen);
+static void OMCPerfEnd(void);
+
 static void OMCRecordCarScreen(UIScreen *screen) {
 	if (!screen || screen == [UIScreen mainScreen]) return;
+	OMCPerfBegin(screen);
 	NSMutableDictionary *car = [NSMutableDictionary dictionary];
 	car[@"date"] = [NSDate date];
 	car[@"connected"] = @YES;
@@ -480,6 +509,7 @@ static void OMCGuardStart(void) {
 	[[NSNotificationCenter defaultCenter] addObserverForName:UIScreenDidDisconnectNotification object:nil
 		queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *note) {
 		if (note.object == [UIScreen mainScreen]) return;
+		OMCPerfEnd();
 		NSMutableDictionary *car = [OMCPref(OMC_KEY_DIAG_CAR, nil) mutableCopy];
 		if (![car isKindOfClass:[NSMutableDictionary class]]) return;
 		car[@"connected"] = @NO;
@@ -524,6 +554,291 @@ BOOL OMCCrashGuard(NSString *feature) {
 	}
 #endif
 	return YES;
+}
+
+#pragma mark - Performance monitor (Diagnostics, CarPlay)
+
+// How smooth CarPlay ran on the last drive, for the Diagnostics page (OMC_KEY_DIAG_PERF). Runs in the CarPlay
+// process from the dylib that started the crash guard (once per process), while a car screen is connected.
+// Cheap on purpose: a 4 Hz ping to the main thread (hangs), CPU / memory every 5 s, and a display link on the
+// car screen only 10 s of every minute (late frames). Everything but the watchdog runs on the main thread.
+
+static UIScreen *sPerfScreen;
+static CADisplayLink *sPerfLink;
+static NSUInteger sPerfGeneration;
+static dispatch_source_t sPerfTimer;
+static atomic_bool sPerfPending;
+static NSDate *sPerfStart;
+static NSArray<NSString *> *sPerfTweaks;
+static NSMutableDictionary<NSString *, NSNumber *> *sPerfHangWho;
+static double sPerfFrameTime, sPerfLastFrame, sPerfFrames, sPerfLate, sPerfWorstMs;
+static double sPerfHangs, sPerfFreezes, sPerfHangMaxMs;
+static double sPerfCpuSum, sPerfCpuMax, sPerfMem, sPerfMemMax, sPerfAvailMin, sPerfSysFreeMin;
+static NSUInteger sPerfSamples;
+static NSInteger sPerfThermalMax;
+static BOOL sPerfLowPower;
+// Auto lite mode: late frames of the last 10 s window (%, -1 = none yet), the last three hangs, current state
+static double sPerfWinFrames, sPerfWinLate, sPerfLastWinPct;
+static double sPerfHangAt[3];
+static BOOL sPerfLite;
+static double sPerfLiteAt;
+static NSUInteger sPerfLiteCount;
+static NSString *sPerfLiteReason;
+
+static double OMCNow(void) {
+	static mach_timebase_info_data_t tb;
+	if (!tb.denom) mach_timebase_info(&tb);
+	return (double)mach_absolute_time() * tb.numer / tb.denom / 1e9;
+}
+
+// % of one core, all threads of this process
+static double OMCPerfCPU(void) {
+	thread_act_array_t threads;
+	mach_msg_type_number_t count = 0;
+	if (task_threads(mach_task_self(), &threads, &count) != KERN_SUCCESS) return -1;
+	double total = 0;
+	for (mach_msg_type_number_t i = 0; i < count; i++) {
+		thread_basic_info_data_t info;
+		mach_msg_type_number_t n = THREAD_BASIC_INFO_COUNT;
+		if (thread_info(threads[i], THREAD_BASIC_INFO, (thread_info_t)&info, &n) == KERN_SUCCESS && !(info.flags & TH_FLAGS_IDLE))
+			total += info.cpu_usage * 100.0 / TH_USAGE_SCALE;
+		mach_port_deallocate(mach_task_self(), threads[i]);
+	}
+	vm_deallocate(mach_task_self(), (vm_address_t)threads, count * sizeof(thread_t));
+	return total;
+}
+
+static double OMCPerfFootprintMB(void) {
+	task_vm_info_data_t info;
+	mach_msg_type_number_t n = TASK_VM_INFO_COUNT;
+	if (task_info(mach_task_self(), TASK_VM_INFO, (task_info_t)&info, &n) != KERN_SUCCESS) return -1;
+	return info.phys_footprint / 1048576.0;
+}
+
+// Free + inactive pages: what the phone can hand out without killing an app
+static double OMCPerfSysFreeMB(void) {
+	static mach_port_t host;
+	static vm_size_t page;
+	if (!host) { host = mach_host_self(); host_page_size(host, &page); }
+	vm_statistics64_data_t vm;
+	mach_msg_type_number_t n = HOST_VM_INFO64_COUNT;
+	if (host_statistics64(host, HOST_VM_INFO64, (host_info64_t)&vm, &n) != KERN_SUCCESS) return -1;
+	return (double)(vm.free_count + vm.inactive_count) * page / 1048576.0;
+}
+
+// Other tweaks the loader injected into CarPlay (each one is code on CarPlay's event and drawing paths)
+static NSArray<NSString *> *OMCPerfTweaks(void) {
+	NSMutableOrderedSet<NSString *> *out = [NSMutableOrderedSet orderedSet];
+	for (uint32_t i = 0; i < _dyld_image_count(); i++) {
+		const char *path = _dyld_get_image_name(i);
+		if (!path || (!strstr(path, "/DynamicLibraries/") && !strstr(path, "/TweakInject/"))) continue;
+		NSString *name = @(path).lastPathComponent.stringByDeletingPathExtension;
+		if (![name hasPrefix:@"OmniCar"]) [out addObject:name];
+	}
+	return out.array;
+}
+
+static void OMCPerfSave(void) {
+	double seconds = sPerfStart ? -[sPerfStart timeIntervalSinceNow] : 0;
+	if (seconds < 30) return;   // a quick plug-in-and-out keeps the previous drive
+	NSMutableDictionary *d = [NSMutableDictionary dictionary];
+	d[@"start"] = sPerfStart;
+	d[@"updated"] = [NSDate date];
+	d[@"seconds"] = @(lround(seconds));
+	d[@"fps"] = @(lround(1 / sPerfFrameTime));
+	d[@"frames"] = @(lround(sPerfFrames));
+	d[@"late"] = @(lround(sPerfLate));
+	d[@"worstMs"] = @(lround(sPerfWorstMs));
+	d[@"hangs"] = @(lround(sPerfHangs));
+	d[@"freezes"] = @(lround(sPerfFreezes));
+	d[@"hangMaxMs"] = @(lround(sPerfHangMaxMs));
+	if (sPerfHangWho.count) d[@"hangWho"] = [sPerfHangWho copy];
+	if (sPerfSamples) {
+		d[@"cpuAvg"] = @(lround(sPerfCpuSum / sPerfSamples));
+		d[@"cpuMax"] = @(lround(sPerfCpuMax));
+		d[@"memMB"] = @(lround(sPerfMem));
+		d[@"memMaxMB"] = @(lround(sPerfMemMax));
+		d[@"availMinMB"] = @(sPerfAvailMin < DBL_MAX ? lround(sPerfAvailMin) : 0);
+		d[@"sysFreeMinMB"] = @(sPerfSysFreeMin < DBL_MAX ? lround(sPerfSysFreeMin) : 0);
+	}
+	d[@"thermalMax"] = @(sPerfThermalMax);
+	d[@"lowPower"] = @(sPerfLowPower);
+	d[@"tweaks"] = sPerfTweaks ?: @[];
+	d[@"liteCount"] = @(sPerfLiteCount);
+	if (sPerfLiteReason) d[@"liteReason"] = sPerfLiteReason;
+	OMCGuardStore(OMC_KEY_DIAG_PERF, d);
+	OMCPrefsSync();
+}
+
+static void OMCPerfHang(double seconds) {
+	sPerfHangs++;
+	if (seconds >= 2) sPerfFreezes++;
+	sPerfHangMaxMs = MAX(sPerfHangMaxMs, seconds * 1000);
+	// A weak hint for the developer only: the OmniCar dylib that logged last
+	OMCGuardState *g = OMCGuardShared();
+	NSString *who = g && g->lastFeature[0] ? @(g->lastFeature) : @"-";
+	sPerfHangWho[who] = @(sPerfHangWho[who].integerValue + 1);
+	sPerfHangAt[0] = sPerfHangAt[1];
+	sPerfHangAt[1] = sPerfHangAt[2];
+	sPerfHangAt[2] = OMCNow();
+	if (seconds >= 2) OMCLog(@"Core", @"CarPlay do %.1fs (OmniCar gan nhat: %@)", seconds, who);
+}
+
+static void OMCPerfFrame(void) {
+	double now = OMCNow();
+	if (sPerfLastFrame > 0) {
+		double gap = now - sPerfLastFrame;
+		double missed = gap > sPerfFrameTime * 1.5 ? round(gap / sPerfFrameTime) - 1 : 0;
+		sPerfFrames += 1 + missed;
+		sPerfLate += missed;
+		sPerfWorstMs = MAX(sPerfWorstMs, gap * 1000);
+	}
+	sPerfLastFrame = now;
+}
+
+// The display link needs a target object; Core has no classes (it is compiled into every dylib), so one is
+// made at runtime. Only the dylib running the monitor (one per process) ever creates it.
+static id OMCPerfTicker(void) {
+	static id ticker;
+	if (ticker) return ticker;
+	Class cls = objc_getClass("OMCPerfTicker");
+	if (!cls) {
+		cls = objc_allocateClassPair([NSObject class], "OMCPerfTicker", 0);
+		class_addMethod(cls, sel_registerName("tick:"), imp_implementationWithBlock(^(id me, id link) { OMCPerfFrame(); }), "v@:@");
+		objc_registerClassPair(cls);
+	}
+	ticker = [cls new];
+	return ticker;
+}
+
+static void OMCPerfFrameWindow(void) {
+	if (!sPerfScreen || sPerfLink) return;
+	sPerfLink = [sPerfScreen displayLinkWithTarget:OMCPerfTicker() selector:sel_registerName("tick:")];
+	sPerfLastFrame = 0;
+	sPerfWinFrames = sPerfFrames;
+	sPerfWinLate = sPerfLate;
+	[sPerfLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSRunLoopCommonModes];
+	NSUInteger generation = sPerfGeneration;
+	dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+		if (generation != sPerfGeneration) return;
+		[sPerfLink invalidate];
+		sPerfLink = nil;
+		double frames = sPerfFrames - sPerfWinFrames;
+		if (frames >= 100) sPerfLastWinPct = (sPerfLate - sPerfWinLate) * 100 / frames;
+	});
+}
+
+static void OMCPerfPublishLite(BOOL on) {
+	static int token = -1;
+	if (token == -1 && notify_register_check(OMC_DARWIN_LITE, &token) != NOTIFY_STATUS_OK) token = -1;
+	if (token != -1) notify_set_state(token, on ? 1 : 0);
+	notify_post(OMC_DARWIN_LITE);
+}
+
+static void OMCPerfSetLite(BOOL on, NSString *reason) {
+	if (on == sPerfLite) return;
+	sPerfLite = on;
+	sPerfLiteAt = OMCNow();
+	if (on) { sPerfLiteCount++; sPerfLiteReason = reason; }
+	OMCPerfPublishLite(on);
+	OMCLog(@"Core", @"che do nhe tu dong: %@%@", on ? @"BAT" : @"tat", on ? [@" vi " stringByAppendingString:reason] : @"");
+}
+
+// Auto lite mode, every 5 s: on when the phone is hot, CarPlay hung 3 times within 2 minutes or the last frame
+// window had >= 15 % late frames; off after 3 calm minutes (cool, no hang, smooth frames).
+static void OMCPerfLiteCheck(NSProcessInfoThermalState thermal) {
+	if (!OMCEnabled() || [OMCPref(OMC_KEY_LITE_MODE, @2) integerValue] != 2) { OMCPerfSetLite(NO, nil); return; }
+	double now = OMCNow();
+	NSString *reason = nil;
+	if (thermal >= NSProcessInfoThermalStateSerious) reason = @"heat";
+	else if (sPerfHangAt[0] > 0 && now - sPerfHangAt[0] < 120) reason = @"hangs";
+	else if (sPerfLastWinPct >= 15) reason = @"frames";
+	if (reason) { OMCPerfSetLite(YES, reason); return; }
+	BOOL calm = thermal <= NSProcessInfoThermalStateFair && (sPerfHangAt[2] == 0 || now - sPerfHangAt[2] > 180) && sPerfLastWinPct < 5;
+	if (sPerfLite && calm && now - sPerfLiteAt > 180) OMCPerfSetLite(NO, nil);
+}
+
+static void OMCPerfSample(double cpu, double mem, double avail, double sysFree) {
+	if (!sPerfScreen) return;
+	sPerfSamples++;
+	if (cpu >= 0) { sPerfCpuSum += cpu; sPerfCpuMax = MAX(sPerfCpuMax, cpu); }
+	if (mem >= 0) { sPerfMem = mem; sPerfMemMax = MAX(sPerfMemMax, mem); }
+	if (avail > 0) sPerfAvailMin = MIN(sPerfAvailMin, avail);
+	if (sysFree >= 0) sPerfSysFreeMin = MIN(sPerfSysFreeMin, sysFree);
+	NSProcessInfo *info = [NSProcessInfo processInfo];
+	sPerfThermalMax = MAX(sPerfThermalMax, (NSInteger)info.thermalState);
+	if (info.lowPowerModeEnabled) sPerfLowPower = YES;
+	if (sPerfSamples % 2 == 0) OMCPrefsSync();   // lite mode switched in Settings while driving
+	OMCPerfLiteCheck(info.thermalState);
+	// Frames from the 20th second (the startup screen is done), then every minute; saved every 30 s
+	if (sPerfSamples % 12 == 4) OMCPerfFrameWindow();
+	if (sPerfSamples % 6 == 0) OMCPerfSave();
+}
+
+// Watchdog queue, 4 Hz: is the main thread answering? Every 5 s: CPU and memory.
+static void OMCPerfWatch(void) {
+	static unsigned tick;
+	double sent = OMCNow();
+	bool idle = false;
+	if (atomic_compare_exchange_strong(&sPerfPending, &idle, true)) {
+		dispatch_async(dispatch_get_main_queue(), ^{
+			double stuck = OMCNow() - sent;
+			atomic_store(&sPerfPending, false);
+			if (stuck >= 0.5 && sPerfScreen) OMCPerfHang(stuck);
+		});
+	}
+	if (++tick % 20) return;
+	double cpu = OMCPerfCPU(), mem = OMCPerfFootprintMB(), sysFree = OMCPerfSysFreeMB();
+	double avail = os_proc_available_memory() / 1048576.0;
+	dispatch_async(dispatch_get_main_queue(), ^{ OMCPerfSample(cpu, mem, avail, sysFree); });
+}
+
+static void OMCPerfBegin(UIScreen *screen) {
+	if (sPerfScreen) return;
+	sPerfScreen = screen;
+	sPerfGeneration++;
+	sPerfStart = [NSDate date];
+	sPerfTweaks = OMCPerfTweaks();
+	sPerfHangWho = [NSMutableDictionary dictionary];
+	sPerfFrameTime = 1.0 / MAX(screen.maximumFramesPerSecond, 1);
+	sPerfLastFrame = sPerfFrames = sPerfLate = sPerfWorstMs = 0;
+	sPerfHangs = sPerfFreezes = sPerfHangMaxMs = 0;
+	sPerfCpuSum = sPerfCpuMax = sPerfMem = sPerfMemMax = 0;
+	sPerfAvailMin = sPerfSysFreeMin = DBL_MAX;
+	sPerfSamples = 0;
+	sPerfThermalMax = 0;
+	sPerfLowPower = NO;
+	sPerfWinFrames = sPerfWinLate = 0;
+	sPerfLastWinPct = -1;
+	memset(sPerfHangAt, 0, sizeof sPerfHangAt);
+	sPerfLiteCount = 0;
+	sPerfLiteReason = nil;
+	sPerfLite = NO;
+	OMCPerfPublishLite(NO);   // a state left by a CarPlay that crashed while lite was on
+	atomic_store(&sPerfPending, false);
+	dispatch_queue_t queue = dispatch_queue_create("com.anlai.omnicar.perf", DISPATCH_QUEUE_SERIAL);
+	sPerfTimer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, queue);
+	dispatch_source_set_timer(sPerfTimer, dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC / 4), NSEC_PER_SEC / 4, NSEC_PER_SEC / 20);
+	dispatch_source_set_event_handler(sPerfTimer, ^{ OMCPerfWatch(); });
+	dispatch_resume(sPerfTimer);
+	notify_post(OMC_DARWIN_CAR_CONNECTED);   // SpringBoard: free memory (Core.x)
+	OMCLog(@"Core", @"do hieu nang: bat dau, %lu tweak khac trong CarPlay: %@", (unsigned long)sPerfTweaks.count,
+		[sPerfTweaks componentsJoinedByString:@", "]);
+}
+
+static void OMCPerfEnd(void) {
+	if (!sPerfScreen) return;
+	if (sPerfTimer) dispatch_source_cancel(sPerfTimer);
+	sPerfTimer = nil;
+	[sPerfLink invalidate];
+	sPerfLink = nil;
+	sPerfGeneration++;
+	OMCPerfSave();
+	OMCLog(@"Core", @"do hieu nang: %.0fs, tre %.0f/%.0f khung, do %.0f lan (max %.0f ms), CPU tb %.0f%%, RAM %.0f MB",
+		-[sPerfStart timeIntervalSinceNow], sPerfLate, sPerfFrames, sPerfHangs, sPerfHangMaxMs,
+		sPerfSamples ? sPerfCpuSum / sPerfSamples : 0, sPerfMemMax);
+	OMCPerfSetLite(NO, nil);
+	sPerfScreen = nil;
 }
 
 #pragma mark - Loaded heartbeat (Diagnostics)

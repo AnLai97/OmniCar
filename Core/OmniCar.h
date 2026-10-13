@@ -105,6 +105,30 @@ BOOL OMCCrashGuard(NSString *feature);
 #define OMC_KEY_DIAG_LOADED  @"diagLoaded."
 // ... and the last CarPlay crash the crash guard caught: {date, age (s after start), suspect (feature key prefix)}.
 #define OMC_KEY_DIAG_CRASH   @"diagLastCrash"
+// ... and how CarPlay ran on the last drive (performance monitor, started with the crash guard, runs while a car
+// screen is connected): {start, updated, seconds, fps (car screen max), frames, late (frames > 1.5x the frame time,
+// counted 10 s of every minute), worstMs, hangs (main thread stuck >= 0.5 s), freezes (>= 2 s), hangMaxMs,
+// hangWho ({dylib that logged last: count}), cpuAvg, cpuMax (% of one core), memMB, memMaxMB (CarPlay footprint),
+// availMinMB (memory CarPlay can still use before iOS kills it, 0 = unknown), sysFreeMinMB (phone free RAM),
+// thermalMax (NSProcessInfoThermalState), lowPower, tweaks ([other dylibs injected into CarPlay])}.
+#define OMC_KEY_DIAG_PERF    @"diagPerf"
+
+// Lite mode (Diagnostics > Optimize): features drop what costs the most while driving - Split Screen draws its
+// panels without blur and offers 2 panes only, Speed Bubble refreshes once a second without shadows, the startup
+// screen is skipped. OMC_KEY_LITE_MODE: 0 off, 1 always, 2 auto (default): on while the phone is hot (thermal
+// serious or worse) or while the CarPlay performance monitor sees it struggle (repeated hangs, many late frames),
+// which it publishes as the state of OMC_DARWIN_LITE (1 = on, 0 = off) and posts on every change.
+#define OMC_KEY_LITE_MODE    @"liteMode"
+#define OMC_DARWIN_LITE      "com.anlai.omnicar/lite"
+BOOL OMCLiteActive(void);
+// Free memory when the car connects (Diagnostics > Optimize, default off): SpringBoard (Core.x) quits the user apps
+// running in the background except music / navigation / CarPlay apps, the apps chosen for the car screen and the
+// Speed Bubble source. The CarPlay process posts OMC_DARWIN_CAR_CONNECTED when a car screen appears.
+#define OMC_KEY_CLEAN_RAM    @"cleanRamOnConnect"
+#define OMC_DARWIN_CAR_CONNECTED "com.anlai.omnicar/car.connected"
+#define OMC_DARWIN_CLEAN_NOW "com.anlai.omnicar/cleanram.now"   // Settings: free memory now (whatever the switch)
+// Last RAM cleanup: {date, closed: [bundle id]} (Diagnostics shows it).
+#define OMC_KEY_DIAG_CLEAN   @"diagCleanRam"
 
 #ifdef __cplusplus
 }

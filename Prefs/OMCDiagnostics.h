@@ -13,6 +13,22 @@ NSDictionary *OMCDiagSummary(NSArray<NSDictionary *> *groups);
 NSArray<NSDictionary *> *OMCDiagSections(void);
 // Restart SpringBoard (Respring button, "OmniCar needs a respring" check).
 void OMCRespring(void);
+// Performance group actions: forget the last drive's measurements (perfReset), empty OmniCar.log (clearLog).
+void OMCPerfReset(void);
+void OMCClearLog(void);
+
+// Optimize section: lite mode (0 off, 1 always, 2 auto) and its state in words ("On · the phone is hot"), freeing memory
+// when the car connects (switch, now, last run in words).
+NSInteger OMCLiteMode(void);
+void OMCSetLiteMode(NSInteger mode);
+NSString *OMCLiteStatus(void);
+BOOL OMCCleanRamOn(void);
+void OMCSetCleanRam(BOOL on);
+void OMCCleanRamNow(void);
+NSString *OMCCleanRamStatus(void);
+// The Optimize button: @{@"steps": @[@{@"id", @"title"}] it can apply, @"manual": @[fix text] only the user can do}.
+NSDictionary *OMCOptimizePlan(NSArray<NSDictionary *> *groups);
+void OMCOptimizeApply(NSArray<NSDictionary *> *steps);
 
 // Other tweaks that also change CarPlay: @{@"name", @"active"} (active = its dylib is installed and
 // not disabled, so it loads next to OmniCar; otherwise only the package is installed).

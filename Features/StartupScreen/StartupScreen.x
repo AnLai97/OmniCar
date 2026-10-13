@@ -342,6 +342,8 @@ static void SSShowSplash(UIScreen *screen, UIWindowScene *scene, NSString *sourc
 
 	OMCPrefsSync();
 	if (!OMCFeatureEnabled(SS_FEATURE)) { SSLog(@"disabled in settings"); return; }
+	// Lite mode: decoding the frames competes with CarPlay launching its apps (phone hot / set to always)
+	if (OMCLiteActive()) { SSLog(@"skipped: lite mode"); return; }
 
 	NSString *name = SSVideoName();
 	if (!name) { SSLog(@"no video found in %@", SS_VIDEOS_DIR); return; }
