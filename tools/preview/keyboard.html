@@ -6,7 +6,7 @@
 <title>OmniCar Keyboard</title>
 <!--
   Ban phim tren man xe (Features/AppBridge/ABKeyboard.mm) theo UI/UX ban phim HarmonyOS (giao dien toi):
-  - nam giua vung app, sat mep duoi (2 goc tren bo 20, canh duoi phang), ~82% rong vung app (toi da 600), cao ~78% man
+  - khung nhu ban phim HarmonyOS: kin be rong o app, sat mep duoi, khong bo goc; cao ~78% man
   - nen than xanh dac, phim xam xanh phang bo 7, hang so rieng, goi y nho goc phim, phim , . xam xanh nhat
   - cham phim chu: bong bong phong to ky tu phia tren phim; phim lun 0,96 roi nay lai
   - Shift dang bat / Enter: trang chu toi (DESIGN.md: khong mau xanh)
@@ -51,7 +51,7 @@ h1 { font-size: 16px; font-weight: 600; margin: 0; }
 #app .road { position: absolute; background: #fff; height: 7px; border-radius: 4px; box-shadow: 0 0 0 1px #d0d0d0; }
 
 /* ===== KB ===== */
-#kb { position: absolute; border-radius: 20px 20px 0 0; background: var(--kb-bg);
+#kb { position: absolute; border-radius: 0; background: var(--kb-bg);
   box-shadow: inset 0 .5px 0 var(--kb-line), 0 -6px 24px rgba(0,0,0,.35);
   transform: translateY(0); transition: transform .35s var(--hm-in); }
 #kb.hide { transform: translateY(105%); transition: transform .25s var(--hm-in); }
@@ -111,7 +111,7 @@ h1 { font-size: 16px; font-weight: 600; margin: 0; }
 <div class="notes">
   <b>Lần này</b>
   <ul>
-    <li>Nằm giữa vùng app, sát mép dưới (góc trên bo 20, cạnh dưới phẳng như bàn phím điện thoại); nhỏ hơn: ~82% rộng vùng app (tối đa 600 pt), cao ~78% màn.</li>
+    <li>Khung như bàn phím HarmonyOS: kín bề rộng ô app, sát mép dưới, không bo góc; cao ~78% màn.</li>
     <li>Chạm phím chữ: bong bóng phóng to ký tự hiện trên phím (như HarmonyOS); phím lún nhẹ rồi nảy lại.</li>
     <li>Hiện: trượt lên từ mép dưới theo đường cong HarmonyOS (350 ms); ẩn: trượt xuống (250 ms).</li>
     <li>Icon nét mảnh bo tròn kiểu HarmonyOS: Shift, xoá, quả địa cầu, Enter, ẩn bàn phím.</li>
@@ -137,7 +137,7 @@ const scr = document.getElementById('screen'), kb = document.getElementById('kb'
 document.getElementById('hideBtn').innerHTML = SVG.hide;
 
 // KB: so do giong layoutPanelIn / layoutKeys trong ABKeyboard.mm
-const KB = { wFrac: .82, maxW: 600, minW: 440, hFrac: .78, maxH: 280, top: 33, pad: 5, gapX: 5, gapY: 5 };
+const KB = { hFrac: .78, maxH: 280, top: 33, pad: 5, gapX: 5, gapY: 5 };
 function layout() {
   const appX = S.dock, appW = S.w - S.dock;
   scr.style.width = S.w + 'px'; scr.style.height = S.h + 'px';
@@ -145,7 +145,7 @@ function layout() {
   app.innerHTML = S.app === 'native'
     ? '<div class="road" style="left:-10px;right:-10px;top:120px;transform:rotate(-8deg)"></div><div class="road" style="left:200px;width:7px;height:260px;top:-20px"></div><div class="search">Tìm kiếm</div>'
     : '<div class="search">Tìm kiếm trên YouTube</div>';
-  const w = Math.min(Math.max(Math.round(appW * KB.wFrac), KB.minW), appW, KB.maxW), h = Math.min(Math.floor(S.h * KB.hFrac), KB.maxH);
+  const w = appW, h = Math.min(Math.floor(S.h * KB.hFrac), KB.maxH);   // khung HarmonyOS: kin be rong o app, khong bo goc
   Object.assign(kb.style, { left: (appX + (appW - w) / 2) + 'px', top: (S.h - h) + 'px', width: w + 'px', height: h + 'px' });
   keysEl.style.top = KB.top + 'px';
   const scale = Math.min(2, (Math.min(window.innerWidth, 1340) - 60) / S.w);

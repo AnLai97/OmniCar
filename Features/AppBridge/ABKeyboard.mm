@@ -325,21 +325,18 @@ static NSString *ABKHint(NSString *c, BOOL vietnamese)
     [a startAnimation];
 }
 
-// Giua o app dang go, sat mep duoi man xe (2 goc tren bo 24, canh duoi phang), ~82% rong o app (440..600 pt, khong
-// rong hon man), cao ~78% man (man xe 240 pt: hang phim ~25 pt).
+// Khung nhu ban phim HarmonyOS: kin be rong o app dang go, sat mep duoi man xe, khong bo goc; cao ~78% man (man xe
+// 240 pt: hang phim ~25 pt). Khong co o (app toan man) -> kin be rong man xe.
 - (void)layoutPanelIn:(UIWindow *)window
 {
     CGRect b = window.bounds;
     CGRect app = [[ABHost shared] frameOfApp:self.app];
-    CGFloat appW = CGRectIsNull(app) ? b.size.width : app.size.width;
-    CGFloat w = MIN(MIN(MAX(round(appW * 0.82), 440), MAX(appW, 440)), MIN(600, b.size.width - 12));
+    CGFloat w = CGRectIsNull(app) ? b.size.width : MIN(app.size.width, b.size.width);
+    CGFloat x = CGRectIsNull(app) ? 0 : MIN(MAX(CGRectGetMinX(app), 0), b.size.width - w);
     CGFloat h = MIN(floor(b.size.height * 0.78), 280);
-    CGFloat mid = CGRectIsNull(app) ? CGRectGetMidX(b) : CGRectGetMidX(app);
-    CGFloat x = MIN(MAX(mid - w / 2, 6), CGRectGetMaxX(b) - w - 6);
     self.panel.frame = CGRectMake(x, CGRectGetMaxY(b) - h, w, h);
     self.glass.frame = self.panel.bounds;
-    self.panel.layer.shadowPath = [UIBezierPath bezierPathWithRoundedRect:self.panel.bounds byRoundingCorners:UIRectCornerTopLeft | UIRectCornerTopRight
-                                                              cornerRadii:CGSizeMake(24, 24)].CGPath;
+    self.panel.layer.shadowPath = [UIBezierPath bezierPathWithRect:self.panel.bounds].CGPath;
 }
 
 // Bong bong phong to kieu HarmonyOS: o trang 1.3 x 1.45 phim, day ngang mep tren phim, chu to; nam trong ban phim
@@ -386,7 +383,7 @@ static NSString *ABKHint(NSString *c, BOOL vietnamese)
 
 - (void)buildPanel
 {
-    // Kinh trang mo (2 goc tren bo 24, canh duoi phang sat mep man xe), bong tim nhat huong len
+    // Kinh trang mo, khung vuong khong bo goc nhu ban phim HarmonyOS (kin be rong o app, sat mep duoi), bong tim nhat huong len
     UIView *p = [UIView new];
     p.backgroundColor = [UIColor clearColor];
     p.layer.shadowColor = ABK_SHADOW.CGColor;
@@ -394,9 +391,6 @@ static NSString *ABKHint(NSString *c, BOOL vietnamese)
     p.autoresizingMask = UIViewAutoresizingNone;
     UIVisualEffectView *glass = [[UIVisualEffectView alloc] initWithEffect:[UIBlurEffect effectWithStyle:UIBlurEffectStyleSystemUltraThinMaterialLight]];
     glass.contentView.backgroundColor = [UIColor colorWithWhite:1 alpha:0.55];
-    glass.layer.cornerRadius = 24;
-    glass.layer.cornerCurve = kCACornerCurveContinuous;
-    glass.layer.maskedCorners = kCALayerMinXMinYCorner | kCALayerMaxXMinYCorner;
     glass.layer.borderWidth = 0.5;
     glass.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.85].CGColor;
     glass.clipsToBounds = YES;
