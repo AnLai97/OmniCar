@@ -1,8 +1,7 @@
 # Sinh ROADMAP.html tu ROADMAP.md (cung thu muc goc repo). Chay lai moi khi sua ROADMAP.md:
 #   python tools/roadmap_html.py
-# Trang tu chua (khong can mang), mo bang trinh duyet. Tick tren trang luu tam trong trinh duyet; nut
-# "Luu vao ROADMAP.md" ghi cac tick do vao ROADMAP.md (Edge / Chrome: chon file 1 lan; trinh duyet khac: tai file
-# .md moi ve de chep de). ROADMAP.md van la ban goc: chay lai script nay sau khi luu de trang khop.
+# Trang tu chua (khong can mang), mo bang trinh duyet. Danh dau [x] trong ROADMAP.md moi la luu that;
+# tick tren trang chi luu tam trong trinh duyet.
 import html, io, json, os, re
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -31,7 +30,7 @@ def parse(md):
     cur = None      # section dang doc
     item = None     # muc dang doc (de gom dong thut le)
     prev_blank = True
-    for n, raw in enumerate(lines):
+    for raw in lines:
         line = raw.rstrip()
         if line.startswith("# "):
             doc["title"] = line[2:].strip()
@@ -60,7 +59,7 @@ def parse(md):
             head, diff = (text.rsplit(" · ", 1) + [""])[:2] if " · " in text else (text, "")
             item = {"done": m.group(1) == "x", "title": inline(head), "diff": diff.strip(),
                     "level": level(diff) if diff else "other", "desc": [], "doneWhen": "",
-                    "g": len(cur["groups"]) - 1, "line": n}
+                    "g": len(cur["groups"]) - 1}
             cur["items"].append(item)
             continue
         if item is not None and line.startswith("  "):
@@ -178,9 +177,6 @@ code { font: 13px ui-monospace, SFMono-Regular, Menlo, monospace; background: va
 .empty { padding: 14px; color: var(--sub); font-size: 14px; display: none; }
 .foot { margin-top: 30px; color: var(--sub); font-size: 12.5px; text-align: center; }
 @media (max-width: 520px) { .row1 { flex-direction: column; gap: 4px; } .hero { padding: 18px; } .hero h1 { font-size: 22px; } }
-.savebtn { border-color: var(--accent, #2563EB); color: var(--accent, #2563EB); font-weight: 600; }
-.savebtn.pending { background: var(--accent, #2563EB); color: #fff; }
-.savemsg { font-size: 13px; opacity: .75; align-self: center; }
 </style>
 </head>
 <body>
@@ -200,17 +196,14 @@ code { font: 13px ui-monospace, SFMono-Regular, Menlo, monospace; background: va
     <button class="chipbtn" data-lv="high"><span class="dot" style="background:var(--high)"></span>Cao</button>
     <button class="chipbtn" id="hide-done">Ẩn mục đã xong</button>
     <button class="chipbtn" id="theme" title="Đổi giao diện sáng / tối">◐</button>
-    <button class="chipbtn savebtn" id="save-md" title="Ghi các tick trên trang vào ROADMAP.md">Lưu vào ROADMAP.md</button>
-    <span class="savemsg" id="save-msg"></span>
   </div>
   <nav class="nav" id="nav"></nav>
   <div id="secs"></div>
-  <p class="foot">Sinh từ ROADMAP.md · <span id="gen"></span> · Tick trên trang lưu tạm trong trình duyệt (dấu "(tạm)"); bấm <b>Lưu vào ROADMAP.md</b> để ghi vào file thật.</p>
+  <p class="foot">Sinh từ ROADMAP.md · <span id="gen"></span> · Tick trên trang chỉ lưu tạm trong trình duyệt; đánh <code>[x]</code> trong ROADMAP.md để lưu thật.</p>
 </div>
 <script>
 const DOC = __DATA__;
 const GEN = __GEN__;
-const MD = __MD__;
 const $ = s => document.querySelector(s);
 const TICK = '<svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 7.5l3 3 6-7"/></svg>';
 const KEY = 'omnicar-roadmap-local';
@@ -271,7 +264,7 @@ function refresh() {
       el.classList.toggle('done', ok);
       const id = idOf(si, ii);
       const t = el.querySelector('.t'); const tag = t.querySelector('.local');
-      if (id in local && local[id] !== it.done && !(typeof saved !== 'undefined' && saved[id] === local[id])) { if (!tag) t.insertAdjacentHTML('beforeend', '<span class="local">(tạm)</span>'); } else if (tag) tag.remove();
+      if (id in local && local[id] !== it.done) { if (!tag) t.insertAdjacentHTML('beforeend', '<span class="local">(tạm)</span>'); } else if (tag) tag.remove();
       const text = el.textContent.toLowerCase();
       const vis = (state.lv === 'all' || it.level === state.lv) && (!state.q || text.includes(state.q)) && !(state.hideDone && ok);
       el.classList.toggle('hide', !vis); if (vis) { shown++; gShown[it.g] = 1; }
@@ -303,83 +296,6 @@ $('#theme').addEventListener('click', () => {
   root.dataset.theme = dark ? 'light' : 'dark';
 });
 refresh();
-
-// ---- Lưu vào ROADMAP.md ----------------------------------------------------------------------------
-// Tick trên trang (local) khác ROADMAP.md lúc sinh trang (DOC) mà chưa lưu = thay đổi chờ lưu. Edge / Chrome: ghi
-// thẳng vào file đã chọn (nhớ file trong IndexedDB, lần sau chỉ cần bấm); trình duyệt khác: tải file .md mới về.
-const SAVED_KEY = 'omnicar-roadmap-saved';
-let saved = {};
-try { saved = JSON.parse(localStorage.getItem(SAVED_KEY) || '{}'); } catch (e) {}
-const pendingIds = () => {
-  const out = [];
-  DOC.sections.forEach((s, si) => s.items.forEach((it, ii) => {
-    const id = idOf(si, ii);
-    if (id in local && local[id] !== it.done && saved[id] !== local[id]) out.push([si, ii, local[id]]);
-  }));
-  return out;
-};
-const showPending = () => {
-  const n = pendingIds().length, b = $('#save-md');
-  b.classList.toggle('pending', n > 0);
-  b.textContent = n ? `Lưu ${n} thay đổi vào ROADMAP.md` : 'Lưu vào ROADMAP.md';
-};
-const idb = () => new Promise((ok, no) => {
-  const r = indexedDB.open('omnicar-roadmap', 1);
-  r.onupgradeneeded = () => r.result.createObjectStore('h');
-  r.onsuccess = () => ok(r.result); r.onerror = () => no(r.error);
-});
-const idbGet = async k => { const db = await idb(); return new Promise(ok => { const q = db.transaction('h').objectStore('h').get(k); q.onsuccess = () => ok(q.result); q.onerror = () => ok(null); }); };
-const idbSet = async (k, v) => { const db = await idb(); return new Promise(ok => { const t = db.transaction('h', 'readwrite'); t.objectStore('h').put(v, k); t.oncomplete = ok; t.onerror = ok; }); };
-const plain = t => t.replace(/\*\*|`/g, '').trim();
-// Tick each pending item in the markdown text: by its line, else by its title (the file changed since the page was made)
-function applyTicks(text, list) {
-  const nl = text.includes('\r\n') ? '\r\n' : '\n';
-  const lines = text.split(/\r?\n/);
-  const miss = [];
-  for (const [si, ii, done] of list) {
-    const it = DOC.sections[si].items[ii], title = strip(it.title);
-    const fits = l => { const m = l.match(/^- \[( |x)\] (.*)$/); return m && plain(m[2]).startsWith(title); };
-    let n = fits(lines[it.line] || '') ? it.line : lines.findIndex(fits);
-    if (n < 0) { miss.push(title); continue; }
-    lines[n] = lines[n].replace(/^- \[( |x)\]/, done ? '- [x]' : '- [ ]');
-  }
-  return { text: lines.join(nl), miss };
-}
-function markSaved(list) {
-  for (const [si, ii, done] of list) saved[idOf(si, ii)] = done;
-  try { localStorage.setItem(SAVED_KEY, JSON.stringify(saved)); } catch (e) {}
-  showPending(); refresh();
-}
-async function saveToMd() {
-  const list = pendingIds(), msg = $('#save-msg');
-  if (!list.length) { msg.textContent = 'Không có thay đổi nào cần lưu.'; return; }
-  try {
-    if (window.showOpenFilePicker) {
-      let h = await idbGet('roadmap');
-      if (h && (await h.queryPermission({ mode: 'readwrite' })) !== 'granted' && (await h.requestPermission({ mode: 'readwrite' })) !== 'granted') h = null;
-      if (!h) {
-        [h] = await showOpenFilePicker({ types: [{ description: 'ROADMAP.md', accept: { 'text/markdown': ['.md'] } }] });
-        if (!/roadmap\.md$/i.test(h.name) && !confirm(`File "${h.name}" không phải ROADMAP.md. Vẫn ghi vào?`)) return;
-        if ((await h.requestPermission({ mode: 'readwrite' })) !== 'granted') { msg.textContent = 'Chưa cho phép ghi file.'; return; }
-        await idbSet('roadmap', h);
-      }
-      const { text, miss } = applyTicks(await (await h.getFile()).text(), list);
-      const w = await h.createWritable(); await w.write(text); await w.close();
-      markSaved(list);
-      msg.textContent = `Đã lưu ${list.length - miss.length} mục vào ${h.name}` + (miss.length ? ` · không tìm thấy: ${miss.join(', ')}` : '') + '.';
-    } else {
-      const { text } = applyTicks(MD, list);
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(new Blob([text], { type: 'text/markdown' }));
-      a.download = 'ROADMAP.md'; a.click();
-      markSaved(list);
-      msg.textContent = 'Đã tải ROADMAP.md mới về: chép đè lên file trong repo.';
-    }
-  } catch (e) { if (e && e.name !== 'AbortError') msg.textContent = 'Không lưu được: ' + e.message; }
-}
-$('#save-md').addEventListener('click', saveToMd);
-document.addEventListener('click', e => { if (e.target.closest('.check')) setTimeout(showPending); });
-showPending();
 </script>
 </body>
 </html>
@@ -391,8 +307,7 @@ def main():
     doc = parse(md)
     import datetime
     data = json.dumps(doc, ensure_ascii=False).replace("</", "<\\/")
-    page = PAGE.replace("__DATA__", data).replace("__GEN__", json.dumps(datetime.date.today().isoformat())) \
-        .replace("__MD__", json.dumps(md, ensure_ascii=False).replace("</", "<\\/"))
+    page = PAGE.replace("__DATA__", data).replace("__GEN__", json.dumps(datetime.date.today().isoformat()))
     io.open(OUT, "w", encoding="utf-8", newline="\n").write(page)
     n = sum(len(s["items"]) for s in doc["sections"])
     print("ROADMAP.html: %d giai doan / muc, %d tinh nang" % (len(doc["sections"]), n))
