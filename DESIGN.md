@@ -16,6 +16,9 @@ Xem và thử trước mọi thay đổi bằng `tools/preview/splitscreen.html`
 - **Không dùng màu xanh** làm điểm nhấn. Biểu tượng: nét trắng (hoặc tối trên nền trắng).
 - **Ngoại lệ: công tắc trong Settings khi bật là xanh lá** (`OMCSwitchColor`, systemGreen như iOS). Thanh trượt, nút vẫn than chì / xám bạc.
 - Bản thân bảng / thanh vẫn là kính — đã thử làm cả thanh trắng và bỏ.
+- **Bàn phím trên màn xe theo bàn phím HarmonyOS** (không phải kính): nền than xanh đặc #252935, phím xám xanh
+  phẳng bo 7 pt, hàng số riêng, ký tự gợi ý góc phím (Telex: dấu / chữ phím đó tạo), phím `,` `.` xám xanh nhạt.
+  Shift đang bật và Enter: trắng chữ tối (không xanh). Mẫu: `tools/preview/keyboard.html`.
 
 ## Chuyển động
 - Lò xo êm (damping ~0,86), phóng nhẹ từ 0,9–0,92 lên 1; các mục hiện lần lượt (mờ → rõ, trôi lên nhẹ).
