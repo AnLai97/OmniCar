@@ -14,6 +14,8 @@
 #define SB_KEY_SHOW_APP_ICON @"speedBubbleShowAppIcon"   // BOOL, default YES
 #define SB_KEY_SIZE_PHONE    @"speedBubbleSizePhone"     // 60..220 %, default 100
 #define SB_KEY_SIZE_CAR      @"speedBubbleSizeCar"       // 60..220 %, default 100
+#define SB_KEY_UNIT          @"speedBubbleUnit"          // don vi: 0 tu dong theo vung, 1 km/h, 2 mph (app nguon luon gui km/h)
+#define SB_KEY_SIGN          @"speedBubbleSign"          // bien gioi han: 0 tu dong theo vung, 1 Vienna (tron vien do), 2 My (chu nhat "SPEED LIMIT")
 #define SB_KEY_SOURCE        @"speedBubbleSource"        // nguon toc do duy nhat: 0 Vietmap Live, 1 GOFA (chi so SPP_NAV_APPS)
 // Ten cac nguon cho danh sach "Nguon" trong Cai dat, cung thu tu SPP_NAV_APPS (common.h): them app dan duong moi
 // thi them ten vao CUOI ca hai

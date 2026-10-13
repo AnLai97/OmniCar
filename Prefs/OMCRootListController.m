@@ -1,6 +1,7 @@
 #import "OMCRootListController.h"
 #import "OMCTheme.h"
 #import "OMCDiagnostics.h"
+#import "OMCOnboardingController.h"
 #import <Preferences/PSTableCell.h>
 #import <dlfcn.h>
 #import <notify.h>
@@ -291,6 +292,15 @@
 	self.table.tintColor = OMCAccentColor();
 }
 
+// First open of Settings > OmniCar: the guide, once (Prefs/OMCOnboardingController.m, pref "onboardingDone").
+- (void)viewDidAppear:(BOOL)animated {
+	[super viewDidAppear:animated];
+	static BOOL offered;
+	if (offered || self.presentedViewController || ![OMCOnboardingController shouldShow]) return;
+	offered = YES;
+	[self showGuide];
+}
+
 - (void)applyLanguage {
 	OMCLoadStrings();
 	self.title = @"OmniCar";
@@ -449,6 +459,18 @@
 // Support > Send log: report + OmniCar.log straight into the share sheet (Zalo, Mail ...).
 - (void)sendLog {
 	OMCShareReport(self, nil);
+}
+
+// Support > Show guide again (also the first-run guide from viewDidAppear). Reload afterwards: page 3 can
+// turn Speed Bubble on / off, which the feature row shows.
+- (void)showGuide {
+	if (self.presentedViewController) return;
+	__weak typeof(self) weakSelf = self;
+	UINavigationController *guide = [OMCOnboardingController guideNavigationControllerWithCompletion:^{
+		[weakSelf reloadSpecifiers];
+		[weakSelf updateHeaderStatus];
+	}];
+	[self presentViewController:guide animated:YES completion:nil];
 }
 
 // Rescue card: turn the features rescue mode switched off back on.

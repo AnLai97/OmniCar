@@ -44,4 +44,33 @@ static id value(NSString *key)
 
 + (BOOL)appEnabled:(int)appIndex { return appIndex == [self source]; }
 
+// Ma vung hien tai (vd "VN", "US"); rong neu khong biet
+static NSString *regionCode(void)
+{
+    NSString *cc = [[NSLocale currentLocale] countryCode];
+    return cc ? cc.uppercaseString : @"";
+}
+
+// Don vi: 0 tu dong (mph khi vung khong dung he met, hoac US/GB/LR/MM - Anh dung he met nhung bien duong ghi mph),
+// 1 km/h, 2 mph
++ (BOOL)useMph
+{
+    id v = value(SB_KEY_UNIT);
+    NSInteger i = v ? [v integerValue] : 0;
+    if (i == 1) return NO;
+    if (i == 2) return YES;
+    if (![[NSLocale currentLocale] usesMetricSystem]) return YES;
+    return [@[@"US", @"GB", @"LR", @"MM"] containsObject:regionCode()];
+}
+
+// Bien gioi han: 0 tu dong (kieu My o US/PR/LR/MM, con lai Vienna), 1 Vienna, 2 My
++ (BOOL)usSign
+{
+    id v = value(SB_KEY_SIGN);
+    NSInteger i = v ? [v integerValue] : 0;
+    if (i == 1) return NO;
+    if (i == 2) return YES;
+    return [@[@"US", @"PR", @"LR", @"MM"] containsObject:regionCode()];
+}
+
 @end

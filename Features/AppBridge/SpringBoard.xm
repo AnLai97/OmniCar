@@ -1,5 +1,6 @@
 #import "common.h"
 #import "ABHost.h"
+#import "ABKeyboard.h"
 #import <substrate.h>
 #import <notify.h>
 
@@ -64,11 +65,23 @@ static int (*orig_BKSDisplayServicesSetScreenBlanked)(int) = NULL;
         @try { [[ABHost shared] appWithHash:hash changedOrientation:code supportedMask:mask]; }
         @catch (NSException *e) { ABLog("apporient loi %@", e); }
     });
+    // O nhap trong app dang host duoc chon / bo chon -> ban phim tren man xe (ABKeyboard)
+    static int tokKeyboard = 0;
+    notify_register_dispatch(AB_DARWIN_APP_KEYBOARD, &tokKeyboard, dispatch_get_main_queue(), ^(int t) {
+        uint64_t state = 0;
+        notify_get_state(t, &state);
+        @try {
+            NSString *bid = [[ABHost shared] bundleForHash:state >> 24];
+            if (!bid) { ABLog("ban phim: khong co o cho hash %llu", state >> 24); return; }
+            if (state & 1) [[ABKeyboard shared] showForApp:bid keyboardType:(NSInteger)((state >> 1) & 0x7F) returnType:(NSInteger)((state >> 8) & 0xFF)];
+            else [[ABKeyboard shared] hideForApp:bid];
+        } @catch (NSException *e) { ABLog("ban phim loi %@", e); }
+    });
     // Xe ngat -> bo moi o (app van chay nen)
     [[NSNotificationCenter defaultCenter] addObserverForName:@"CarPlayIsConnectedDidChange" object:nil queue:main
                                                   usingBlock:^(NSNotification *note) {
         id dev = objcInvoke(objc_getClass("AVExternalDevice"), @"currentCarPlayExternalDevice");
-        if (!dev) [[ABHost shared] carDisconnected];
+        if (!dev) { [[ABKeyboard shared] hideForApp:nil]; [[ABHost shared] carDisconnected]; }
     }];
 }
 

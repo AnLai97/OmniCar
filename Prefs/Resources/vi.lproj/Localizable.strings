@@ -127,6 +127,8 @@
 "CHK_RUNNING_RESPRING" = "Chạm để respring và chạy bản vừa cài.";
 "CHK_RUNNING_NONE" = "Chưa chạy";
 "CHK_RUNNING_NONE_FIX" = "Chạm để respring. Vẫn vậy thì kiểm tra trình nạp tweak.";
+"CHK_LICENSE" = "Bản quyền";
+"CHK_LICENSE_TRIAL" = "Dùng thử Pro · còn %ld ngày";
 "CHK_MASTER" = "Công tắc OmniCar";
 "CHK_MASTER_FIX" = "Bật công tắc ở thẻ đầu trang OmniCar.";
 "CHK_STORAGE" = "Bộ nhớ trống";

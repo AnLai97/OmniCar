@@ -29,13 +29,13 @@ endif
 # --- Core dylib (SpringBoard only: log relay) + one tweak dylib per feature ---------------------
 TWEAK_NAME = OmniCarCore $(foreach f,$(FEATURES),OmniCar$(f))
 
-OmniCarCore_FILES = Core/Core.x Core/OmniCar.m
+OmniCarCore_FILES = Core/Core.x Core/OmniCar.m Core/OMCLicense.m
 OmniCarCore_FRAMEWORKS = UIKit
 OmniCarCore_CFLAGS = -fobjc-arc -ICore -DOMC_FEATURE=\"Core\" -DTWEAK_VERSION=\"$(TWEAK_VERSION)\" $(OMC_TEST_CFLAGS)
 $(shell cp "Core/Filter.plist" "OmniCarCore.plist" && chmod 644 "OmniCarCore.plist")
 
 define OMC_FEATURE
-OmniCar$(1)_FILES = $(wildcard Features/$(1)/*.x) $(wildcard Features/$(1)/*.xm) $(wildcard Features/$(1)/*.m) $(wildcard Features/$(1)/*.mm) Core/OmniCar.m Core/OMCTest.m
+OmniCar$(1)_FILES = $(wildcard Features/$(1)/*.x) $(wildcard Features/$(1)/*.xm) $(wildcard Features/$(1)/*.m) $(wildcard Features/$(1)/*.mm) Core/OmniCar.m Core/OMCTest.m Core/OMCLicense.m
 OmniCar$(1)_FRAMEWORKS = UIKit
 # -DOMC_FEATURE keeps each dylib's objects apart (Theos hashes the flags into the object path).
 # TWEAK_VERSION: features that remember "this build crashed" (Split Screen app icons) retry on a new build.
@@ -48,7 +48,7 @@ $(foreach f,$(FEATURES),$(eval $(call OMC_FEATURE,$(f))))
 # --- Settings bundle: core pages + every feature's page, resources merged from every feature ----
 BUNDLE_NAME = OmniCarPrefs
 
-OmniCarPrefs_FILES = $(wildcard Prefs/*.m) $(wildcard Features/*/Prefs/*.m)
+OmniCarPrefs_FILES = $(wildcard Prefs/*.m) $(wildcard Features/*/Prefs/*.m) Core/OMCLicense.m
 OmniCarPrefs_FRAMEWORKS = UIKit AVFoundation AVKit UniformTypeIdentifiers CoreImage CoreMedia CoreVideo ImageIO
 OmniCarPrefs_PRIVATE_FRAMEWORKS = Preferences
 OmniCarPrefs_INSTALL_PATH = /Library/PreferenceBundles

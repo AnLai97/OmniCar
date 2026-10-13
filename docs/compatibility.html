@@ -1,0 +1,371 @@
+<!doctype html>
+<!--
+  OmniCar - public compatibility page.
+
+  HOW TO UPDATE (by hand, no build step, no JavaScript):
+  - Source of truth for test results is COMPATIBILITY.md at the repo root. Change it first, then copy here.
+  - Every bilingual text is a pair: <span lang="en">...</span><span lang="vi">...</span>.
+    The EN / VI switch at the top hides one of the two with CSS only.
+  - Status badges: copy one of these four and paste it in the "Status" cell:
+      <span class="st ok"><span lang="en">Works</span><span lang="vi">Chạy tốt</span></span>
+      <span class="st part"><span lang="en">Partly</span><span lang="vi">Chạy được</span></span>
+      <span class="st no"><span lang="en">Doesn't</span><span lang="vi">Không chạy</span></span>
+      <span class="st un"><span lang="en">Untested</span><span lang="vi">Chưa thử</span></span>
+    iOS / jailbreak rows may also use: <span class="st sup"><span lang="en">Supported</span><span lang="vi">Hỗ trợ</span></span>
+  - Only mark Works / Partly / Doesn't after a real test in a car. Bump "Last updated" when you edit.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OmniCar Compatibility</title>
+<meta name="description" content="Which iOS versions, jailbreaks, devices, head units and apps work with the OmniCar CarPlay tweak.">
+<style>
+:root {
+  --bg: #f6f7fb;
+  --card: #ffffff;
+  --text: #141a2e;
+  --muted: #5b6478;
+  --line: #e2e6ef;
+  --accent: #2563eb;
+  --accent-soft: #e6eefe;
+  --ok: #157f3b;      --ok-bg: #e3f6ea;
+  --part: #8a5a00;    --part-bg: #fff2d6;
+  --no: #b42318;      --no-bg: #fde8e6;
+  --un: #4b5567;      --un-bg: #eceff4;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0b1026;
+    --card: #141b38;
+    --text: #e8ecf8;
+    --muted: #9aa4bf;
+    --line: #26305a;
+    --accent: #6c9bff;
+    --accent-soft: #1c2a5c;
+    --ok: #6fdc95;      --ok-bg: #12351f;
+    --part: #ffcb6b;    --part-bg: #3a2c0c;
+    --no: #ff8a80;      --no-bg: #3d1614;
+    --un: #b6bfd3;      --un-bg: #232b4a;
+  }
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 16px/1.55 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+.wrap { max-width: 920px; margin: 0 auto; padding: 24px 16px 48px; }
+
+/* language switch: CSS only */
+.lang-input { position: absolute; opacity: 0; pointer-events: none; }
+.lang-bar { display: flex; justify-content: flex-end; gap: 0; margin-bottom: 12px; }
+.lang-bar label {
+  cursor: pointer; padding: 6px 14px; border: 1px solid var(--line); background: var(--card);
+  font-size: 14px; font-weight: 600; color: var(--muted);
+}
+.lang-bar label:first-child { border-radius: 999px 0 0 999px; }
+.lang-bar label:last-child { border-radius: 0 999px 999px 0; border-left: 0; }
+#lang-en:checked ~ .wrap .lang-bar label[for="lang-en"],
+#lang-vi:checked ~ .wrap .lang-bar label[for="lang-vi"] { background: var(--accent); border-color: var(--accent); color: #fff; }
+#lang-en:focus-visible ~ .wrap .lang-bar label[for="lang-en"],
+#lang-vi:focus-visible ~ .wrap .lang-bar label[for="lang-vi"] { outline: 2px solid var(--accent); outline-offset: 2px; }
+#lang-en:checked ~ .wrap [lang="vi"] { display: none; }
+#lang-vi:checked ~ .wrap [lang="en"] { display: none; }
+
+header.hero {
+  background: linear-gradient(135deg, #2563eb 0%, #0b1026 100%);
+  color: #fff; border-radius: 20px; padding: 24px 20px; margin-bottom: 20px;
+}
+header.hero h1 { margin: 0 0 6px; font-size: 28px; line-height: 1.2; }
+header.hero p { margin: 0; opacity: .9; }
+.updated { margin-top: 10px !important; font-size: 13px; opacity: .75 !important; }
+
+section.card {
+  background: var(--card); border: 1px solid var(--line); border-radius: 16px;
+  padding: 18px 18px 14px; margin-bottom: 16px;
+}
+h2 { font-size: 20px; margin: 0 0 10px; }
+h3 { font-size: 16px; margin: 16px 0 6px; }
+p, ul { margin: 0 0 10px; }
+ul { padding-left: 20px; }
+li { margin-bottom: 4px; }
+.muted { color: var(--muted); font-size: 14px; }
+a { color: var(--accent); }
+code { font: 13px/1.4 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; background: var(--accent-soft); padding: 1px 5px; border-radius: 5px; }
+
+.summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 10px; margin-bottom: 16px; }
+.summary div { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; }
+.summary b { display: block; font-size: 13px; color: var(--muted); font-weight: 600; margin-bottom: 2px; }
+
+.table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 -4px 8px; padding: 0 4px; }
+table { width: 100%; border-collapse: collapse; font-size: 15px; }
+th, td { text-align: left; vertical-align: top; padding: 9px 10px; border-bottom: 1px solid var(--line); }
+th { font-size: 13px; color: var(--muted); font-weight: 600; white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+td:first-child { font-weight: 600; white-space: nowrap; }
+
+.st { display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: 13px; font-weight: 600; white-space: nowrap; }
+.st.ok { color: var(--ok); background: var(--ok-bg); }
+.st.part { color: var(--part); background: var(--part-bg); }
+.st.no { color: var(--no); background: var(--no-bg); }
+.st.un { color: var(--un); background: var(--un-bg); }
+.st.sup { color: var(--accent); background: var(--accent-soft); }
+.legend { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+
+@media (max-width: 560px) {
+  header.hero h1 { font-size: 24px; }
+  table { font-size: 14px; }
+  th, td { padding: 8px 6px; }
+  td:first-child { white-space: normal; }
+}
+</style>
+</head>
+<body>
+<input class="lang-input" type="radio" name="lang" id="lang-en" checked>
+<input class="lang-input" type="radio" name="lang" id="lang-vi">
+<div class="wrap">
+
+  <nav class="lang-bar" aria-label="Language">
+    <label for="lang-en">EN</label>
+    <label for="lang-vi">VI</label>
+  </nav>
+
+  <header class="hero">
+    <h1><span lang="en">OmniCar compatibility</span><span lang="vi">OmniCar – tương thích</span></h1>
+    <p>
+      <span lang="en">What OmniCar runs on, what has been tested, and the limits you should know before you buy.</span>
+      <span lang="vi">OmniCar chạy trên gì, đã thử những gì, và các giới hạn nên biết trước khi mua.</span>
+    </p>
+    <p class="updated"><span lang="en">Last updated: 2026-10-13 · OmniCar 1.0.0</span><span lang="vi">Cập nhật: 13-10-2026 · OmniCar 1.0.0</span></p>
+  </header>
+
+  <div class="summary">
+    <div><b><span lang="en">iOS</span><span lang="vi">iOS</span></b><span lang="en">15 and 16 (17 and 18 untested)</span><span lang="vi">15 và 16 (17, 18 chưa thử)</span></div>
+    <div><b><span lang="en">Jailbreak</span><span lang="vi">Jailbreak</span></b><span lang="en">Rootless only: Dopamine, palera1n</span><span lang="vi">Chỉ rootless: Dopamine, palera1n</span></div>
+    <div><b><span lang="en">Device</span><span lang="vi">Máy</span></b><span lang="en">iPhone, arm64 / arm64e</span><span lang="vi">iPhone, arm64 / arm64e</span></div>
+    <div><b><span lang="en">Car</span><span lang="vi">Xe</span></b><span lang="en">Any CarPlay head unit (none recorded yet)</span><span lang="vi">Mọi đầu xe CarPlay (chưa ghi đầu xe nào)</span></div>
+  </div>
+
+  <!-- ============================ iOS ============================ -->
+  <section class="card" id="ios">
+    <h2><span lang="en">iOS versions</span><span lang="vi">Phiên bản iOS</span></h2>
+    <div class="table-scroll">
+      <table>
+        <thead><tr>
+          <th>iOS</th>
+          <th><span lang="en">Status</span><span lang="vi">Trạng thái</span></th>
+          <th><span lang="en">Notes</span><span lang="vi">Ghi chú</span></th>
+        </tr></thead>
+        <tbody>
+          <tr>
+            <td>iOS 15</td>
+            <td><span class="st sup"><span lang="en">Supported</span><span lang="vi">Hỗ trợ</span></span></td>
+            <td><span lang="en">Developed and run on iOS 15 by the developer (iOS 16-only hooks are skipped and logged). The full per-feature test sheet is not filled in yet.</span><span lang="vi">Tác giả đã phát triển và chạy trên iOS 15 (hook chỉ có trên iOS 16 được bỏ qua và ghi log). Bảng thử từng tính năng chưa điền.</span></td>
+          </tr>
+          <tr>
+            <td>iOS 16</td>
+            <td><span class="st sup"><span lang="en">Supported</span><span lang="vi">Hỗ trợ</span></span></td>
+            <td><span lang="en">Main development target: Split Screen and App Bridge are built on iOS 16 CarPlay. The full per-feature test sheet is not filled in yet.</span><span lang="vi">Bản phát triển chính: Chia màn hình và App Bridge dựa trên CarPlay iOS 16. Bảng thử từng tính năng chưa điền.</span></td>
+          </tr>
+          <tr>
+            <td>iOS 17</td>
+            <td><span class="st un"><span lang="en">Untested</span><span lang="vi">Chưa thử</span></span></td>
+            <td><span lang="en">Installs (package needs iOS 15+). Some hooks may be missing; Settings &gt; OmniCar &gt; Diagnostics shows which.</span><span lang="vi">Cài được (gói cần iOS 15+). Có thể thiếu một số hook; Cài đặt &gt; OmniCar &gt; Chẩn đoán hiện hook nào thiếu.</span></td>
+          </tr>
+          <tr>
+            <td>iOS 18</td>
+            <td><span class="st un"><span lang="en">Untested</span><span lang="vi">Chưa thử</span></span></td>
+            <td><span lang="en">Same as iOS 17.</span><span lang="vi">Như iOS 17.</span></td>
+          </tr>
+          <tr>
+            <td><span lang="en">iOS 14 and older</span><span lang="vi">iOS 14 trở xuống</span></td>
+            <td><span class="st no"><span lang="en">Doesn't</span><span lang="vi">Không chạy</span></span></td>
+            <td><span lang="en">Not supported; the package requires iOS 15.0 or later.</span><span lang="vi">Không hỗ trợ; gói yêu cầu iOS 15.0 trở lên.</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="muted"><span lang="en">OmniCar can only run where a rootless jailbreak exists for your iPhone and iOS version. Check your jailbreak's own device list first.</span><span lang="vi">OmniCar chỉ chạy khi iPhone và bản iOS của bạn có jailbreak rootless. Xem danh sách máy của bản jailbreak trước.</span></p>
+  </section>
+
+  <!-- ============================ Jailbreak / chip ============================ -->
+  <section class="card" id="jailbreak">
+    <h2><span lang="en">Jailbreak and chip</span><span lang="vi">Jailbreak và chip</span></h2>
+    <div class="table-scroll">
+      <table>
+        <thead><tr>
+          <th><span lang="en">Jailbreak</span><span lang="vi">Jailbreak</span></th>
+          <th><span lang="en">Status</span><span lang="vi">Trạng thái</span></th>
+          <th><span lang="en">Notes</span><span lang="vi">Ghi chú</span></th>
+        </tr></thead>
+        <tbody>
+          <tr>
+            <td>Dopamine</td>
+            <td><span class="st sup"><span lang="en">Supported</span><span lang="vi">Hỗ trợ</span></span></td>
+            <td><span lang="en">Rootless (<code>/var/jb</code>). A12 and newer (arm64e).</span><span lang="vi">Rootless (<code>/var/jb</code>). Chip A12 trở lên (arm64e).</span></td>
+          </tr>
+          <tr>
+            <td>palera1n (rootless)</td>
+            <td><span class="st sup"><span lang="en">Supported</span><span lang="vi">Hỗ trợ</span></span></td>
+            <td><span lang="en">Rootless mode only. A9–A11 (checkm8 devices, arm64).</span><span lang="vi">Chỉ chế độ rootless. Chip A9–A11 (máy checkm8, arm64).</span></td>
+          </tr>
+          <tr>
+            <td>roothide</td>
+            <td><span class="st no"><span lang="en">Not supported</span><span lang="vi">Không hỗ trợ</span></span></td>
+            <td><span lang="en">The package is built for rootless (<code>iphoneos-arm64</code>). roothide support is planned, not done.</span><span lang="vi">Gói build cho rootless (<code>iphoneos-arm64</code>). Hỗ trợ roothide nằm trong kế hoạch, chưa làm.</span></td>
+          </tr>
+          <tr>
+            <td><span lang="en">Rootful (palera1n rootful, older jailbreaks)</span><span lang="vi">Rootful (palera1n rootful, jailbreak cũ)</span></td>
+            <td><span class="st no"><span lang="en">Not supported</span><span lang="vi">Không hỗ trợ</span></span></td>
+            <td><span lang="en">Rootless only.</span><span lang="vi">Chỉ rootless.</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="muted"><span lang="en">The tweak is compiled for arm64 and arm64e, so the chip itself is not a limit: if your jailbreak runs on it, OmniCar can load. Which chip / iOS pairs a jailbreak covers is decided by that jailbreak, not by OmniCar. Status "Supported" means the package is built for it; devices are not recorded one by one yet.</span><span lang="vi">Tweak build cho arm64 và arm64e nên chip không phải giới hạn: jailbreak chạy được trên máy nào thì OmniCar nạp được trên máy đó. Cặp chip / iOS nào có jailbreak là do bản jailbreak quyết định, không phải OmniCar. "Hỗ trợ" nghĩa là gói được build cho nó; chưa ghi kết quả theo từng máy.</span></p>
+  </section>
+
+  <!-- ============================ Head units ============================ -->
+  <section class="card" id="head-units">
+    <h2><span lang="en">Head units tested</span><span lang="vi">Đầu xe đã thử</span></h2>
+    <div class="table-scroll">
+      <table>
+        <thead><tr>
+          <th><span lang="en">Head unit</span><span lang="vi">Đầu xe</span></th>
+          <th><span lang="en">Resolution</span><span lang="vi">Độ phân giải</span></th>
+          <th><span lang="en">Connection</span><span lang="vi">Kết nối</span></th>
+          <th>iOS</th>
+          <th><span lang="en">Status</span><span lang="vi">Trạng thái</span></th>
+        </tr></thead>
+        <tbody>
+          <!-- Copy a row per head unit. Data comes from Settings > OmniCar > Diagnostics > Car screen. -->
+          <tr>
+            <td colspan="5" class="muted"><span lang="en">None recorded yet. OmniCar draws on the screen size the car reports, so it is designed for any CarPlay head unit, wired or wireless, but no specific model has been verified.</span><span lang="vi">Chưa ghi đầu xe nào. OmniCar vẽ theo kích thước màn mà xe báo nên được thiết kế cho mọi đầu xe CarPlay, có dây hay không dây, nhưng chưa xác nhận đời xe cụ thể nào.</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============================ Apps ============================ -->
+  <section class="card" id="apps">
+    <h2><span lang="en">iPhone apps on the car screen (App Bridge)</span><span lang="vi">App iPhone trên màn xe (App Bridge)</span></h2>
+    <p class="muted"><span lang="en">Apps that already have their own CarPlay interface (Maps, Spotify…) run in Split Screen with that interface and do not need App Bridge.</span><span lang="vi">App đã có giao diện CarPlay riêng (Bản đồ, Spotify…) chạy trong Chia màn hình bằng giao diện đó, không cần App Bridge.</span></p>
+    <div class="legend">
+      <span class="st ok"><span lang="en">Works</span><span lang="vi">Chạy tốt</span></span>
+      <span class="st part"><span lang="en">Partly</span><span lang="vi">Chạy được</span></span>
+      <span class="st no"><span lang="en">Doesn't</span><span lang="vi">Không chạy</span></span>
+      <span class="st un"><span lang="en">Untested</span><span lang="vi">Chưa thử</span></span>
+    </div>
+    <div class="table-scroll">
+      <table>
+        <thead><tr>
+          <th>App</th>
+          <th><span lang="en">Status</span><span lang="vi">Trạng thái</span></th>
+          <th><span lang="en">iOS tested</span><span lang="vi">iOS đã thử</span></th>
+          <th><span lang="en">Notes</span><span lang="vi">Ghi chú</span></th>
+        </tr></thead>
+        <tbody>
+          <!-- Keep in the same order as COMPATIBILITY.md > "Theo app (qua App Bridge)". -->
+          <tr><td>YouTube</td><td><span class="st un"><span lang="en">Untested</span><span lang="vi">Chưa thử</span></span></td><td>–</td><td></td></tr>
+          <tr><td>TikTok</td><td><span class="st un"><span lang="en">Untested</span><span lang="vi">Chưa thử</span></span></td><td>–</td><td></td></tr>
+          <tr><td>Facebook</td><td><span class="st un"><span lang="en">Untested</span><span lang="vi">Chưa thử</span></span></td><td>–</td><td></td></tr>
+          <tr><td>Instagram</td><td><span class="st un"><span lang="en">Untested</span><span lang="vi">Chưa thử</span></span></td><td>–</td><td></td></tr>
+          <tr><td>Chrome</td><td><span class="st un"><span lang="en">Untested</span><span lang="vi">Chưa thử</span></span></td><td>–</td><td></td></tr>
+          <tr><td>Safari</td><td><span class="st un"><span lang="en">Untested</span><span lang="vi">Chưa thử</span></span></td><td>–</td><td></td></tr>
+          <tr><td>Zalo</td><td><span class="st un"><span lang="en">Untested</span><span lang="vi">Chưa thử</span></span></td><td>–</td><td></td></tr>
+          <tr><td>Grab</td><td><span class="st un"><span lang="en">Untested</span><span lang="vi">Chưa thử</span></span></td><td>–</td><td></td></tr>
+          <tr><td>Shopee</td><td><span class="st un"><span lang="en">Untested</span><span lang="vi">Chưa thử</span></span></td><td>–</td><td></td></tr>
+          <tr><td>X</td><td><span class="st un"><span lang="en">Untested</span><span lang="vi">Chưa thử</span></span></td><td>–</td><td></td></tr>
+          <tr><td>Twitch</td><td><span class="st un"><span lang="en">Untested</span><span lang="vi">Chưa thử</span></span></td><td>–</td><td></td></tr>
+          <tr><td>Plex</td><td><span class="st un"><span lang="en">Untested</span><span lang="vi">Chưa thử</span></span></td><td>–</td><td></td></tr>
+          <tr><td>Netflix</td><td><span class="st un"><span lang="en">Untested</span><span lang="vi">Chưa thử</span></span></td><td>–</td><td><span lang="en">Expected: black video (DRM), see Known limits.</span><span lang="vi">Dự kiến: video đen (DRM), xem Giới hạn đã biết.</span></td></tr>
+          <tr><td>Disney+</td><td><span class="st un"><span lang="en">Untested</span><span lang="vi">Chưa thử</span></span></td><td>–</td><td><span lang="en">Expected: black video (DRM), see Known limits.</span><span lang="vi">Dự kiến: video đen (DRM), xem Giới hạn đã biết.</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3><span lang="en">Speed Bubble sources</span><span lang="vi">Nguồn cho Bong bóng tốc độ</span></h3>
+    <div class="table-scroll">
+      <table>
+        <thead><tr>
+          <th>App</th>
+          <th><span lang="en">Status</span><span lang="vi">Trạng thái</span></th>
+          <th><span lang="en">Notes</span><span lang="vi">Ghi chú</span></th>
+        </tr></thead>
+        <tbody>
+          <tr><td>Vietmap Live</td><td><span class="st un"><span lang="en">Untested</span><span lang="vi">Chưa thử</span></span></td><td><span lang="en">Speed and posted limit read from the app while it runs.</span><span lang="vi">Tốc độ và biển giới hạn đọc từ app khi app đang chạy.</span></td></tr>
+          <tr><td>GOFA</td><td><span class="st un"><span lang="en">Untested</span><span lang="vi">Chưa thử</span></span></td><td><span lang="en">Same as Vietmap Live.</span><span lang="vi">Như Vietmap Live.</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============================ Known limits ============================ -->
+  <section class="card" id="limits">
+    <h2><span lang="en">Known and expected limits</span><span lang="vi">Giới hạn đã biết và dự kiến</span></h2>
+    <p class="muted"><span lang="en">These follow from how CarPlay and OmniCar work. Some are not yet confirmed in a car.</span><span lang="vi">Các điểm này suy ra từ cách CarPlay và OmniCar hoạt động. Một số chưa xác nhận trên xe.</span></p>
+    <ul lang="en">
+      <li><b>DRM video apps</b> (Netflix, Disney+, Prime Video and similar) block their picture on external screens, so through App Bridge they are expected to show black video, possibly with sound.</li>
+      <li><b>Wireless CarPlay</b>: App Bridge sends a live iPhone app to the car as video, so on wireless CarPlay it may lag or look softer than on a cable, depending on the head unit.</li>
+      <li><b>Speed Bubble</b> only reads Vietmap Live or GOFA (Vietnam navigation apps), and only while that app is running.</li>
+      <li><b>No on-car keyboard</b> yet for iPhone apps shown through App Bridge (planned).</li>
+      <li><b>Changes apply on the next connection</b>: unplug and reconnect after changing settings; respring once after installing.</li>
+      <li><b>Heavy layouts on older iPhones</b>: three live panes or two video apps at once can heat the phone. Lite mode drops blur effects and limits Split Screen to 2 apps.</li>
+      <li><b>iOS 17 and 18</b>: CarPlay internals change between iOS versions; parts that rely on a missing hook will not work. Diagnostics lists the missing hooks.</li>
+      <li><b>Safety and law</b>: showing video on the car screen while driving may be illegal where you live. Use video apps only when parked.</li>
+    </ul>
+    <ul lang="vi">
+      <li><b>App video có DRM</b> (Netflix, Disney+, Prime Video…) chặn hình khi đưa ra màn ngoài, nên qua App Bridge dự kiến hiện màn đen, có thể vẫn có tiếng.</li>
+      <li><b>CarPlay không dây</b>: App Bridge gửi app iPhone đang chạy lên xe dưới dạng video, nên với CarPlay không dây có thể trễ hoặc kém nét hơn cắm dây, tuỳ đầu xe.</li>
+      <li><b>Bong bóng tốc độ</b> chỉ đọc từ Vietmap Live hoặc GOFA, và chỉ khi app đó đang chạy.</li>
+      <li><b>Chưa có bàn phím trên màn xe</b> cho app iPhone qua App Bridge (đã có trong kế hoạch).</li>
+      <li><b>Thay đổi có hiệu lực ở lần cắm sau</b>: rút ra cắm lại sau khi đổi cài đặt; respring một lần sau khi cài.</li>
+      <li><b>Bố cục nặng trên iPhone cũ</b>: ba ô cùng chạy hoặc hai app video cùng lúc có thể làm máy nóng. Chế độ nhẹ bỏ hiệu ứng kính mờ và giới hạn Chia màn hình còn 2 app.</li>
+      <li><b>iOS 17 và 18</b>: phần bên trong CarPlay thay đổi theo bản iOS; phần nào dựa vào hook bị thiếu sẽ không chạy. Chẩn đoán liệt kê hook thiếu.</li>
+      <li><b>An toàn và luật</b>: xem video trên màn xe khi đang lái có thể vi phạm luật nơi bạn sống. Chỉ dùng app video khi đỗ xe.</li>
+    </ul>
+  </section>
+
+  <!-- ============================ Conflicts ============================ -->
+  <section class="card" id="conflicts">
+    <h2><span lang="en">Conflicting tweaks</span><span lang="vi">Tweak xung đột</span></h2>
+    <p><span lang="en">These tweaks also change CarPlay. Running one of them together with OmniCar can break CarPlay, so turn one of them off. OmniCar detects them and shows a warning in Settings; it never removes other tweaks.</span><span lang="vi">Các tweak này cũng sửa CarPlay. Chạy cùng OmniCar có thể làm hỏng CarPlay, hãy tắt một bên. OmniCar tự phát hiện và cảnh báo trong Cài đặt; không bao giờ tự gỡ tweak khác.</span></p>
+    <div class="table-scroll">
+      <table>
+        <thead><tr>
+          <th>Tweak</th>
+          <th><span lang="en">Overlaps with</span><span lang="vi">Trùng với</span></th>
+        </tr></thead>
+        <tbody>
+          <tr><td>CarBridge</td><td><span lang="en">App Bridge (iPhone apps on CarPlay)</span><span lang="vi">App Bridge (app iPhone lên CarPlay)</span></td></tr>
+          <tr><td>DuoDash</td><td><span lang="en">Split Screen</span><span lang="vi">Chia màn hình</span></td></tr>
+          <tr><td>TrueDash</td><td><span lang="en">Also changes CarPlay</span><span lang="vi">Cũng sửa CarPlay</span></td></tr>
+          <tr><td>CarPlayEnable</td><td><span lang="en">iPhone apps on CarPlay</span><span lang="vi">App iPhone lên CarPlay</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="muted"><span lang="en">OmniCar replaces the developer's older standalone tweaks CarSplash, CarSpeed and CarDuo; the package manager removes them when OmniCar is installed.</span><span lang="vi">OmniCar thay cho các tweak lẻ trước đây của tác giả: CarSplash, CarSpeed, CarDuo; trình quản lý gói tự gỡ chúng khi cài OmniCar.</span></p>
+  </section>
+
+  <!-- ============================ Help ============================ -->
+  <section class="card" id="help">
+    <h2><span lang="en">Something not working?</span><span lang="vi">Gặp lỗi?</span></h2>
+    <ul lang="en">
+      <li>Open <b>Settings &gt; OmniCar &gt; Diagnostics</b>: it checks the phone, CarPlay and every feature and tells you how to fix what it finds.</li>
+      <li>If CarPlay crashes twice in a row within a minute of connecting, <b>rescue mode</b> turns off the feature that caused it and tells you; turn it back on from the OmniCar page after an update.</li>
+      <li>Tap <b>Send log</b> and share the file with the developer by Mail or a chat app. Include your head unit and what you did.</li>
+    </ul>
+    <ul lang="vi">
+      <li>Mở <b>Cài đặt &gt; OmniCar &gt; Chẩn đoán</b>: kiểm tra điện thoại, CarPlay, từng tính năng và chỉ cách sửa.</li>
+      <li>CarPlay sập 2 lần liền trong một phút sau khi cắm thì <b>chế độ cứu</b> tự tắt tính năng gây lỗi và báo cho bạn; bật lại ở trang OmniCar sau khi cập nhật.</li>
+      <li>Bấm <b>Gửi log</b> và gửi file cho tác giả qua Zalo hoặc Mail, kèm tên đầu xe và việc bạn đang làm.</li>
+    </ul>
+  </section>
+
+</div>
+</body>
+</html>

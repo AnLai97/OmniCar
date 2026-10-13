@@ -114,7 +114,8 @@ static void OMCCleanRam(BOOL force) {
 %ctor {
 	@autoreleasepool {
 		OMCLogRelayStart();
-		OMCLog(@"Core", @"loaded into %@ enabled=%d", [NSBundle mainBundle].bundleIdentifier, OMCEnabled());
+		OMCLog(@"Core", @"loaded into %@ enabled=%d license=%ld trial=%ld", [NSBundle mainBundle].bundleIdentifier, OMCEnabled(),
+			(long)OMCLicenseState(), (long)OMCTrialDaysLeft());   // first run: starts the trial clock
 		static int token;
 		notify_register_dispatch(OMC_DARWIN_RESCUE, &token, dispatch_get_main_queue(), ^(int t) { OMCShowRescueNotice(); });
 		// The car just connected: wait until CarPlay has launched its apps (and recorded them), then free memory

@@ -119,10 +119,82 @@ static long long ABOrientationFromMask(NSUInteger mask)
     return 0;
 }
 
+// ---- Ban phim tren man xe (AB_DARWIN_APP_KEYBOARD / AB_NOTIF_KEY, ve o SpringBoard: ABKeyboard.mm) ----
+// O nhap dang duoc chon trong luc app nam tren xe; ban phim iPhone bi thay bang inputView rong (danh dau de tra lai khi
+// o mat chon / app roi xe, iPhone lai co ban phim binh thuong)
+static __weak UIResponder *abField;
+static char kABEmptyInputKey;
+
+static BOOL ABHosted(void) { return orientationOverride > 0; }
+
+static void ABTellKeyboard(BOOL show, UIResponder *field)
+{
+    static int token = 0;
+    if (!token) notify_register_check(AB_DARWIN_APP_KEYBOARD, &token);
+    uint64_t flags = show ? 1 : 0;
+    id<UITextInputTraits> traits = (id<UITextInputTraits>)field;
+    if (show && [field respondsToSelector:@selector(keyboardType)]) flags |= ((uint64_t)traits.keyboardType & 0x7F) << 1;
+    if (show && [field respondsToSelector:@selector(returnKeyType)]) flags |= ((uint64_t)traits.returnKeyType & 0xFF) << 8;
+    notify_set_state(token, (ABBundleHash([[NSBundle mainBundle] bundleIdentifier]) << 24) | flags);
+    notify_post(AB_DARWIN_APP_KEYBOARD);
+    ABLog("ban phim xe: %@ (%@)", show ? @"hien" : @"an", field ? NSStringFromClass([field class]) : @"-");
+}
+
+// Truoc becomeFirstResponder: dang tren xe -> khong hien ban phim iPhone
+static void ABPrepareField(UIResponder *field)
+{
+    if (!ABHosted() || ![field respondsToSelector:@selector(setInputView:)] || [(id)field inputView]) return;
+    [(id)field setInputView:[[UIView alloc] initWithFrame:CGRectZero]];
+    objc_setAssociatedObject(field, &kABEmptyInputKey, @YES, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
+static void ABFieldFocused(UIResponder *field)
+{
+    if (!ABHosted()) return;
+    abField = field;
+    ABTellKeyboard(YES, field);
+}
+
+static void ABFieldResigned(UIResponder *field)
+{
+    if (objc_getAssociatedObject(field, &kABEmptyInputKey)) {
+        objc_setAssociatedObject(field, &kABEmptyInputKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        [(id)field setInputView:nil];
+    }
+    if (abField != field) return;
+    abField = nil;
+    ABTellKeyboard(NO, nil);
+}
+
+// Phim tu SpringBoard: type (xoa del ky tu roi chen text: Telex sua lai chu dang go) | return | dismiss
+static void ABHandleKey(NSDictionary *info)
+{
+    UIResponder<UIKeyInput> *f = (UIResponder<UIKeyInput> *)abField;
+    if (!f || !f.isFirstResponder || ![f conformsToProtocol:@protocol(UIKeyInput)]) return;
+    NSString *action = info[@"action"];
+    if ([action isEqualToString:@"type"]) {
+        for (int i = [info[@"del"] intValue]; i > 0; i--) [f deleteBackward];
+        NSString *text = info[@"text"];
+        if ([text isKindOfClass:[NSString class]] && text.length) [f insertText:text];
+    } else if ([action isEqualToString:@"return"]) {
+        if ([f isKindOfClass:[UITextField class]]) {
+            UITextField *tf = (UITextField *)f;
+            id<UITextFieldDelegate> d = tf.delegate;
+            BOOL go = ![d respondsToSelector:@selector(textFieldShouldReturn:)] || [d textFieldShouldReturn:tf];
+            if (go) [tf sendActionsForControlEvents:UIControlEventEditingDidEndOnExit];
+        } else {
+            [f insertText:@"\n"];
+        }
+    } else if ([action isEqualToString:@"dismiss"]) {
+        [f resignFirstResponder];
+    }
+}
+
 // SpringBoard gui huong cua o
 static void ABHandleOrientationRequest(NSDictionary *info)
 {
     int newOverride = [info[@"orientation"] intValue];
+    if (newOverride <= 0 && abField) [abField resignFirstResponder];   // roi xe: tra ban phim iPhone
     BOOL changed = (newOverride != orientationOverride);
     orientationOverride = newOverride;
     appWantsOrientation = 0;
@@ -187,6 +259,39 @@ static void ABHandleOrientationRequest(NSDictionary *info)
     return %orig;
 }
 
+%end
+
+// O nhap trong app tren xe: ban phim ve tren man xe thay cho ban phim iPhone
+%hook UITextField
+- (BOOL)becomeFirstResponder
+{
+    ABPrepareField(self);
+    BOOL ok = %orig;
+    if (ok) ABFieldFocused(self);
+    return ok;
+}
+- (BOOL)resignFirstResponder
+{
+    BOOL ok = %orig;
+    if (ok) ABFieldResigned(self);
+    return ok;
+}
+%end
+
+%hook UITextView
+- (BOOL)becomeFirstResponder
+{
+    if (self.editable) ABPrepareField(self);
+    BOOL ok = %orig;
+    if (ok && self.editable) ABFieldFocused(self);
+    return ok;
+}
+- (BOOL)resignFirstResponder
+{
+    BOOL ok = %orig;
+    if (ok) ABFieldResigned(self);
+    return ok;
+}
 %end
 
 %end // APPS
@@ -261,5 +366,9 @@ static void ABHandleOrientationRequest(NSDictionary *info)
             ABLog("%@: dua len xe, cai hook", bid);
         }
         @try { ABHandleOrientationRequest(note.userInfo); } @catch (NSException *e) { ABLog("%@: xoay loi %@", bid, e); }
+    }];
+    [[objc_getClass("NSDistributedNotificationCenter") defaultCenter]
+        addObserverForName:AB_NOTIF_KEY object:bid queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *note) {
+        @try { ABHandleKey(note.userInfo); } @catch (NSException *e) { ABLog("%@: phim loi %@", bid, e); }
     }];
 }

@@ -69,6 +69,17 @@
 //   code = the UIInterfaceOrientation the app asks for, 0 = back to the box's orientation, 0xFF = the supported mask
 //   changed, SpringBoard derives the orientation from the mask.
 #define AB_DARWIN_APP_ORIENT "com.anlai.omnicar/appbridge.apporient"
+// Car-screen keyboard: a hosted app's text field has no keyboard on the car (the system one belongs to the phone), so the
+// app side (App.xm) gives the focused field an empty inputView and tells SpringBoard, which draws its own keyboard on
+// the car screen (ABKeyboard.mm, Telex for Vietnamese) and sends the keys back.
+//   app -> SpringBoard (Darwin notify with state): state = (ABBundleHash(bundle id) << 24) | (returnKeyType << 8) |
+//   (keyboardType << 1) | show (1 = a field got focus, 0 = it lost it).
+//   SpringBoard -> app (distributed notification, object = bundle id): action = type (del = characters to delete
+//   first, text = characters to insert: Telex rewrites the word being typed) | return | dismiss.
+#define AB_DARWIN_APP_KEYBOARD "com.anlai.omnicar/appbridge.keyboard"
+#define AB_NOTIF_KEY         @"com.anlai.omnicar/appbridge.key"
+// Keyboard language on the car: 0 English, 1 Vietnamese (Telex). Remembered by SpringBoard.
+#define AB_KEY_KEYBOARD_LANG @"appBridgeKeyboardLang"
 // Base scene orientation for hosted apps: 1 portrait (default), 3 landscape.
 #define AB_KEY_ORIENTATION   @"appBridgeOrientation"
 static inline unsigned long long ABBundleHash(NSString *bid)

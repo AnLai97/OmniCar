@@ -139,6 +139,62 @@
 		</dict>
 		<dict>
 			<key>cell</key>
+			<string>PSLinkListCell</string>
+			<key>detail</key>
+			<string>PSListItemsController</string>
+			<key>label</key>
+			<string>SPEEDBUBBLE_UNIT</string>
+			<key>key</key>
+			<string>speedBubbleUnit</string>
+			<key>default</key>
+			<integer>0</integer>
+			<key>validValues</key>
+			<array>
+				<integer>0</integer>
+				<integer>1</integer>
+				<integer>2</integer>
+			</array>
+			<key>validTitles</key>
+			<array>
+				<string>SPEEDBUBBLE_UNIT_0</string>
+				<string>SPEEDBUBBLE_UNIT_1</string>
+				<string>SPEEDBUBBLE_UNIT_2</string>
+			</array>
+			<key>defaults</key>
+			<string>com.anlai.omnicar</string>
+			<key>PostNotification</key>
+			<string>com.anlai.omnicar/prefschanged</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSLinkListCell</string>
+			<key>detail</key>
+			<string>PSListItemsController</string>
+			<key>label</key>
+			<string>SPEEDBUBBLE_SIGN</string>
+			<key>key</key>
+			<string>speedBubbleSign</string>
+			<key>default</key>
+			<integer>0</integer>
+			<key>validValues</key>
+			<array>
+				<integer>0</integer>
+				<integer>1</integer>
+				<integer>2</integer>
+			</array>
+			<key>validTitles</key>
+			<array>
+				<string>SPEEDBUBBLE_SIGN_0</string>
+				<string>SPEEDBUBBLE_SIGN_1</string>
+				<string>SPEEDBUBBLE_SIGN_2</string>
+			</array>
+			<key>defaults</key>
+			<string>com.anlai.omnicar</string>
+			<key>PostNotification</key>
+			<string>com.anlai.omnicar/prefschanged</string>
+		</dict>
+		<dict>
+			<key>cell</key>
 			<string>PSGroupCell</string>
 			<key>label</key>
 			<string>SPEEDBUBBLE_SIZE_PHONE</string>

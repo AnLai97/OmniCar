@@ -130,6 +130,19 @@ BOOL OMCLiteActive(void);
 // Last RAM cleanup: {date, closed: [bundle id]} (Diagnostics shows it).
 #define OMC_KEY_DIAG_CLEAN   @"diagCleanRam"
 
+// License (foundation for the Lite / Pro releases; nothing is locked yet, OMCFeatureNeedsPro lists no feature).
+// Pro = the Pro package (OMC_PRO_PACKAGE) is installed; Trial = OMC_TRIAL_DAYS from the first time OmniCar ran
+// (OMC_KEY_TRIAL_START, also kept in a file under OMC_DATA_ROOT so resetting the prefs does not restart it); else Lite.
+#define OMC_PRO_PACKAGE      @"com.anlai.omnicarpro"
+#define OMC_TRIAL_DAYS       7
+#define OMC_KEY_TRIAL_START  @"trialStart"
+typedef NS_ENUM(NSInteger, OMCLicense) { OMCLicenseLite = 0, OMCLicenseTrial = 1, OMCLicensePro = 2 };
+OMCLicense OMCLicenseState(void);
+NSInteger OMCTrialDaysLeft(void);   // 0 when the trial is over (or Pro)
+BOOL OMCIsPro(void);                // Pro or trial
+// A feature (key prefix) that only runs with Pro / trial: features check it before installing their hooks.
+BOOL OMCFeatureNeedsPro(NSString *feature);
+
 #ifdef __cplusplus
 }
 #endif

@@ -127,6 +127,8 @@
 "CHK_RUNNING_RESPRING" = "Tap to respring and run the build you just installed.";
 "CHK_RUNNING_NONE" = "Not running";
 "CHK_RUNNING_NONE_FIX" = "Tap to respring. If it stays like this, check the tweak loader.";
+"CHK_LICENSE" = "License";
+"CHK_LICENSE_TRIAL" = "Pro trial · %ld days left";
 "CHK_MASTER" = "OmniCar switch";
 "CHK_MASTER_FIX" = "Turn on the switch in the card at the top of the OmniCar page.";
 "CHK_STORAGE" = "Free storage";

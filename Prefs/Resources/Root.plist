@@ -125,6 +125,19 @@
 			<key>symbol</key>
 			<string>square.and.arrow.up</string>
 		</dict>
+		<!-- Reopens the first-run guide (Prefs/OMCOnboardingController.m, strings in Onboarding.strings). -->
+		<dict>
+			<key>cell</key>
+			<string>PSButtonCell</string>
+			<key>id</key>
+			<string>showGuide</string>
+			<key>label</key>
+			<string>ONB_SHOW_AGAIN</string>
+			<key>action</key>
+			<string>showGuide</string>
+			<key>symbol</key>
+			<string>lightbulb</string>
+		</dict>
 	</array>
 </dict>
 </plist>

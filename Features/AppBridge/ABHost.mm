@@ -1,4 +1,5 @@
 #import "ABHost.h"
+#import "ABKeyboard.h"
 #import "common.h"
 
 // =====================================================================
@@ -457,6 +458,23 @@ static void ABPostOrientation(NSString *bid, long long orientation)
 
 // App bao vua doi yeu cau xoay (code: huong muon, 0 = ve huong o, 0xFF = chi doi mask -> suy ra tu mask): dat
 // requestedOrientation roi "lay" scene (khung lech 1pt, ngay sau do khung dung) de UIKit trong app tinh lai huong
+- (UIWindow *)carWindow
+{
+    return [self ensureWindow] ? self.window : nil;
+}
+
+- (NSString *)bundleForHash:(unsigned long long)hash
+{
+    for (ABPane *p in self.panes) if (ABBundleHash(p.bundleID) == hash) return p.bundleID;
+    return nil;
+}
+
+- (CGRect)frameOfApp:(NSString *)bid
+{
+    ABPane *p = [self paneFor:bid];
+    return p ? p.box.frame : CGRectNull;
+}
+
 - (void)appWithHash:(unsigned long long)hash changedOrientation:(int)code supportedMask:(NSUInteger)mask
 {
     for (ABPane *p in self.panes) {
@@ -885,6 +903,7 @@ static void ABTerminate(NSString *bid)
     ABPane *p = [self paneFor:bid];
     if (!p) return;
     ABLog("dong %@%@", bid, terminate ? @" (tat han)" : @"");
+    [[ABKeyboard shared] hideForApp:bid];
     [self teardownPane:p];
     [self.panes removeObject:p];
     [self dropWindowIfEmpty];

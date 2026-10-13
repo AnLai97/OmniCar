@@ -20,4 +20,7 @@
 // AB_DARWIN_APP_ORIENT: the hosted app (found by ABBundleHash) asks for another orientation (YouTube full-screen video)
 - (void)appWithHash:(unsigned long long)hash changedOrientation:(int)code supportedMask:(NSUInteger)mask;
 - (NSUInteger)count;
+- (NSString *)bundleForHash:(unsigned long long)hash;   // hosted app with this ABBundleHash, nil if none
+- (CGRect)frameOfApp:(NSString *)bid;                    // its box on the car screen (points), CGRectNull if none
+- (UIWindow *)carWindow;   // the host window on the car screen (pass-through, kept for the whole connection), nil if no car
 @end

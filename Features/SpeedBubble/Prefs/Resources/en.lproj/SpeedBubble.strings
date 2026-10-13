@@ -28,3 +28,11 @@
 "SPEEDBUBBLE_RESET_LAYOUT" = "Reset position and size";
 "SPEEDBUBBLE_SOURCE" = "Source";
 "SPEEDBUBBLE_GESTURES_FOOTER" = "Drag to move · pinch to resize · hold 2 s to quit the app.";
+"SPEEDBUBBLE_UNIT" = "Speed unit";
+"SPEEDBUBBLE_UNIT_0" = "Automatic (by region)";
+"SPEEDBUBBLE_UNIT_1" = "km/h";
+"SPEEDBUBBLE_UNIT_2" = "mph";
+"SPEEDBUBBLE_SIGN" = "Speed limit sign";
+"SPEEDBUBBLE_SIGN_0" = "Automatic (by region)";
+"SPEEDBUBBLE_SIGN_1" = "Round (Vienna)";
+"SPEEDBUBBLE_SIGN_2" = "Rectangle (US)";

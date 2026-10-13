@@ -658,6 +658,10 @@ static BOOL SCPCIsBridgedApp(NSString *bid);
 @property (nonatomic, strong) UIView *trayCover;      // the icon app che vung app toan man (App Bridge) khi bang bo cuc mo (cua so host an)
 @property (nonatomic, strong) UIWindow *trayWindow;    // cua so rieng cua bang bo cuc (tren cua so App Bridge), giu lai giua cac lan mo
 @property (nonatomic) BOOL trayOverlay;                // bang dang nam trong trayWindow (de len o app iPhone, khong can an o)
+@property (nonatomic, strong) NSNumber *zoomedSlot;    // phong to tam 1 o (cham dup "•••"): o do phu ca vung app, cac o khac an
+                                                       // nhung giu nguyen kich thuoc scene; nil = binh thuong
+@property (nonatomic, copy) NSString *lastBridgeTapBundle;   // cham "•••" cua app iPhone (SpringBoard ve) lan truoc ...
+@property (nonatomic) CFAbsoluteTime lastBridgeTapAt;        // ... va luc nao: 2 lan lien = cham dup
 @property (nonatomic, strong) UIView *pickerSheet;     // bang chon app toan man (trong trayWindow, hoac container neu khong tao duoc)
 @property (nonatomic, strong) UIView *pickerShield;    // lop phu duoi bang chon app
 @property (nonatomic, weak) SCPCarPane *pickerSheetPane;   // o dang chon app trong bang
@@ -890,6 +894,7 @@ static BOOL SCPCIsBridgedApp(NSString *bid);
     int n = [self paneCount];
     if (s < 0 || s >= n) return none;
     if (n == 1) return a;
+    if (self.zoomedSlot && self.zoomedSlot.intValue == s) return a;   // o dang phong to tam
     if ([self mainStack]) return [self mainStackFrameForSlot:s inArea:a];
     BOOL v = [self vertical];
     CGFloat len = (v ? a.size.height : a.size.width) - SCPC_GAP * (n - 1);
@@ -907,6 +912,7 @@ static BOOL SCPCIsBridgedApp(NSString *bid);
 // Goc sat mep man con lai / con 1 o thi vuong.
 - (CACornerMask)innerCornersForSlot:(int)s
 {
+    if (self.zoomedSlot) return 0;   // o phong to phu ca vung app nhu 1 o
     CACornerMask m = [self neighbourCornersForSlot:s];
     if (!m) return 0;
     CGRect f = [self frameForSlot:s], a = CGRectInset(self.container.bounds, SCPC_INSET, SCPC_INSET);
@@ -943,7 +949,7 @@ static BOOL SCPCIsBridgedApp(NSString *bid);
 
 - (BOOL)dividersVisible
 {
-    return [self paneCount] >= 2;
+    return [self paneCount] >= 2 && !self.zoomedSlot;
 }
 
 - (CGRect)dividerFrameAt:(int)i
@@ -1767,13 +1773,22 @@ static NSString *SCPCSceneID(id scene)
 {
     if (!self.container) return;
     if (self.pickerSheet) [self refreshPickerSheetSoon];   // o doi cho / bi bo / vung app doi -> bang chon app ve lai neu can
+    if (self.zoomedSlot) {   // o phong to da dong / doi bo cuc -> ve binh thuong
+        int z = self.zoomedSlot.intValue;
+        SCPCarPane *zp = (z >= 0 && z < (int)self.slots.count) ? self.slots[z] : nil;
+        if (!self.active || [self paneCount] < 2 || z >= [self paneCount] || !zp.vc) {
+            SCPLog("CarSplit: bo phong to o %d", z);
+            self.zoomedSlot = nil;
+        }
+    }
     BOOL showDividers = [self dividersVisible];
     if (self.floatPane) [self fitFloatFrame];
     SCPCarPane *fp = self.floatPane;
+    NSNumber *zoomed = self.zoomedSlot;
     void (^changes)(void) = ^{
         for (SCPCarPane *p in self.slots) {
             CGRect f = [self frameForSlot:p.slot];
-            BOOL visible = f.size.width > 1 && f.size.height > 1;
+            BOOL visible = f.size.width > 1 && f.size.height > 1 && (!zoomed || zoomed.intValue == p.slot);
             p.view.frame = f;
             p.view.alpha = visible ? 1 : 0;
             p.view.layer.cornerRadius = [self innerCornersForSlot:p.slot] ? SCPC_RADIUS : 0;
@@ -1800,6 +1815,8 @@ static NSString *SCPCSceneID(id scene)
             [self layoutBarForPane:fp];
             [self.container bringSubviewToFront:fp.view];
         }
+        if (zoomed && zoomed.intValue < (int)self.slots.count) [self.container bringSubviewToFront:self.slots[zoomed.intValue].view];
+        if (fp) [self.container bringSubviewToFront:fp.view];
         if (self.dragGhost) [self.container bringSubviewToFront:self.dragGhost];
         if (self.ratioMenu.superview == self.container) [self.container bringSubviewToFront:self.ratioMenu];
     };
@@ -2056,12 +2073,8 @@ static CGSize SCPCSceneSize(UIViewController *vc)
     CGSize c = self.container.bounds.size, fs = [self floatSizeLarge:NO];
     self.floatFrame = CGRectMake(c.width - fs.width - 8, c.height - fs.height - 8, fs.width, fs.height);
     [self fitFloatFrame];
-    // Cham 2 lan "•••" cua cua so noi: doi co nho <-> lon (man CarPlay thuong chi cham 1 ngon, khong pinch duoc)
-    UITapGestureRecognizer *dbl = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(floatHandleDoubleTapped:)];
-    dbl.numberOfTapsRequired = 2;
-    for (UIGestureRecognizer *g in p.handle.gestureRecognizers)
-        if ([g isKindOfClass:[UITapGestureRecognizer class]] && ((UITapGestureRecognizer *)g).numberOfTapsRequired == 1) [g requireGestureRecognizerToFail:dbl];
-    [p.handle addGestureRecognizer:dbl];
+    // Cham 2 lan "•••" cua cua so noi: doi co nho <-> lon (man CarPlay thuong chi cham 1 ngon, khong pinch duoc);
+    // nhan dien cham dup gan san o setupBarForPane, handleDoubleTapped chuyen sang floatHandleDoubleTapped
     p.view.frame = self.floatFrame;
     p.host.frame = p.view.bounds;
     p.view.alpha = 0;
@@ -2401,7 +2414,13 @@ static UIView *SCPCDotsHandle(void)
 - (void)setupBarForPane:(SCPCarPane *)p
 {
     UIView *h = SCPCDotsHandle();
-    [h addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapped:)]];
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapped:)];
+    // Cham dup "•••": o thuong -> phong to tam / ve lai; cua so noi -> doi co nho / lon
+    UITapGestureRecognizer *dbl = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleDoubleTapped:)];
+    dbl.numberOfTapsRequired = 2;
+    [tap requireGestureRecognizerToFail:dbl];
+    [h addGestureRecognizer:tap];
+    [h addGestureRecognizer:dbl];
     UIPanGestureRecognizer *pan = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handlePanned:)];
     pan.maximumNumberOfTouches = 1;
     [h addGestureRecognizer:pan];
@@ -2482,6 +2501,27 @@ static UIView *SCPCDotsHandle(void)
             if (pp) [weakSelf sendHostFrameForPane:pp live:NO];   // o app iPhone: cua so host len lai khi thanh an xong
         }];
     }
+}
+
+- (void)handleDoubleTapped:(UITapGestureRecognizer *)g
+{
+    @try {
+        SCPCarPane *p = [self paneForView:g.view];
+        if (!p) return;
+        if (p == self.floatPane) { [self floatHandleDoubleTapped:g]; return; }
+        [self toggleZoomForPane:p];
+    } @catch (NSException *e) { SCPLog("CarSplit: loi cham dup thanh ••• %@", e); }
+}
+
+// Phong to tam 1 o (khac "toan man": cac o khac van mo, chi an di); goi lai -> ve bo cuc cu
+- (void)toggleZoomForPane:(SCPCarPane *)p
+{
+    if (!self.active || !p.vc || p.slot == SCPC_FLOAT_SLOT || [self paneCount] < 2) return;
+    BOOL zoomIn = !(self.zoomedSlot && self.zoomedSlot.intValue == p.slot);
+    self.zoomedSlot = zoomIn ? @(p.slot) : nil;
+    SCPLog("CarSplit: %@ o %d (%@)", zoomIn ? @"phong to" : @"thu nho", p.slot, p.bundleID);
+    [self setBarVisible:NO forPane:p];
+    [self relayoutAnimated:YES];
 }
 
 - (void)handleTapped:(UITapGestureRecognizer *)g
@@ -4171,6 +4211,21 @@ static void SCPCMakePassThrough(UIWindow *w)
 
 // Chon bo cuc mac dinh. Dang chia -> doi bo cuc. Dang mo 1 app toan man -> app do vao o 1, cac o con lai hien
 // bang chon. Man chinh -> moi o deu hien bang chon.
+// Xe lai tay phai: Cai dat (SPL_KEY_DRIVER_SIDE) hoac tu phien CarKit (Core ghi configuration vao diagCar)
+static BOOL SCPCRightHandDrive(void)
+{
+    NSInteger side = [OMCPref(SPL_KEY_DRIVER_SIDE, @0) integerValue];
+    if (side == 1 || side == 2) return side == 2;
+    NSDictionary *car = OMCPref(OMC_KEY_DIAG_CAR, nil);
+    NSDictionary *cfg = [car isKindOfClass:[NSDictionary class]] ? car[@"configuration"] : nil;
+    if (![cfg isKindOfClass:[NSDictionary class]]) return NO;
+    for (NSString *k in @[@"rightHandDrive", @"_rightHandDrive", @"isRightHandDrive"]) {
+        id v = cfg[k];
+        if ([v respondsToSelector:@selector(boolValue)]) return [v boolValue];
+    }
+    return NO;
+}
+
 - (void)layoutChosenID:(int)layoutID
 {
     NSString *app = self.layoutApp;
@@ -4184,8 +4239,14 @@ static void SCPCMakePassThrough(UIWindow *w)
         return;
     }
     if (![self activateWithLayout:layoutID]) return;   // app dang mo toan man: activate tu mo lai no vao o 1
-    [self openApp:app slot:0];
-    for (int s = 1; s < [self paneCount]; s++) if (![self slotOccupied:s]) [self showPickerForSlot:s];
+    // Lai tay phai: app dang dung vao o sat ghe lai (o cuoi ben phai) khi chia ngang deu
+    int first = (SCPCRightHandDrive() && ![self vertical] && ![self mainStack]) ? [self paneCount] - 1 : 0;
+    if (first != 0 && [self.slots[0].bundleID isEqualToString:app]) {
+        SCPLog("CarSplit: lai tay phai -> %@ vao o %d", app, first);
+        [self swapSlot:0 with:first];
+    }
+    [self openApp:app slot:first];
+    for (int s = 0; s < [self paneCount]; s++) if (![self slotOccupied:s]) [self showPickerForSlot:s];
 }
 
 // ---------------------------------------------------------------------
@@ -4435,6 +4496,11 @@ static NSArray<NSDictionary *> *SCPCPhoneApps(void)
 {
     SCPCarPane *p = [self paneForBundle:bid];
     if (!self.active || !p) return;
+    CFAbsoluteTime now = CFAbsoluteTimeGetCurrent();
+    BOOL dbl = [self.lastBridgeTapBundle isEqualToString:bid] && now - self.lastBridgeTapAt < 0.35;
+    self.lastBridgeTapBundle = dbl ? nil : bid;
+    self.lastBridgeTapAt = now;
+    if (dbl && p != self.floatPane) { [self toggleZoomForPane:p]; return; }   // lan 1 da mo thanh nut: toggleZoom dong lai
     [self setBarVisible:p.bar.hidden forPane:p];
 }
 

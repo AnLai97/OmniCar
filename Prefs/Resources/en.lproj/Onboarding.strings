@@ -1,0 +1,24 @@
+/* OmniCar – First-run guide (Prefs/OMCOnboardingController.m) – English */
+
+"ONB_SHOW_AGAIN" = "Show guide again";
+"ONB_SKIP" = "Skip";
+"ONB_NEXT" = "Next";
+"ONB_DONE" = "Done";
+
+"ONB_P1_TITLE" = "Welcome to OmniCar";
+"ONB_P1_BODY" = "OmniCar gives CarPlay more power. Let's start with the iPhone apps you want on the car screen, even apps that have no CarPlay.";
+"ONB_P1_BUTTON" = "Choose apps";
+"ONB_P1_NOTE" = "You can change them any time in Apps on the car screen.";
+
+"ONB_P2_TITLE" = "Split the car screen";
+"ONB_P2_BODY" = "• In the car, tap the OmniCar button on the CarPlay dock to open the layout panel.\n• Pick a layout: 2 panes, 3 panes, 1 large + 2 or 2 + 1 large. Then pick the apps.\n• Or long-press an app icon on the car home screen to split with that app.\n• Drag the round knob to resize. The Home button exits split.";
+"ONB_P2_NOTE" = "Save your go-to layouts in Split Screen > Favorite layouts.";
+
+"ONB_P3_TITLE" = "Speed Bubble";
+"ONB_P3_BODY" = "A small bubble on the car screen shows your speed and the speed limit, so you see it at a glance.";
+"ONB_P3_SWITCH" = "Speed Bubble";
+"ONB_P3_NOTE" = "Needs Vietmap Live or GOFA on your iPhone. Pick the source in the Speed Bubble page.";
+
+"ONB_P4_TITLE" = "Quick tips";
+"ONB_P4_BODY" = "• Layout panel: tap the OmniCar button on the CarPlay dock, or long-press an app icon.\n• Recent and Favorites are in the same panel.\n• Something wrong? Open Support at the bottom of this page: Diagnostics checks everything, Send log sends a report to the developer.";
+"ONB_P4_NOTE" = "You can open this guide again from Support > Show guide again.";
