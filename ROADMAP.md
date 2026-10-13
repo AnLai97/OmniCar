@@ -11,7 +11,7 @@ Cách dùng file này
 - Mỗi mục là một ô `[ ]`. Làm xong thì đánh `[x]` và ghi phiên bản phát hành bên cạnh.
 - **Độ khó**: Thấp (vài ngày) · Vừa (1–2 tuần) · Cao (vài tuần, cần thử nghiệm nhiều trên xe).
 - **Xong khi**: tiêu chí kiểm tra được trên xe thật, không phải "code đã viết".
-- Sửa xong file này thì chạy `python tools/roadmap_html.py` để cập nhật ROADMAP.html.
+- Trạng thái code, file liên quan và cách thử từng mục nằm ở **ROADMAP-DEV.md** (cùng tên mục).
 
 Đã có (1.0.0): Chia màn hình 2–3 ô (4 bố cục, chia dọc, kéo tỉ lệ, yêu thích, gần đây, Siri URL), App Bridge
 (app iPhone lên xe, icon trên màn chính CarPlay), Bong bóng tốc độ (18 kiểu, Vietmap Live / GOFA), Màn hình
@@ -181,32 +181,15 @@ Thiếu một trong các mục này thì khách quốc tế không mua, hoặc m
 - [x] **Gửi log một chạm** · Thấp
   Nút trong Cài đặt: gói OmniCar.log + phiên bản iOS, máy, đầu xe, danh sách tweak → share sheet.
   Xong khi: khách gửi được file qua Zalo / email trong 3 chạm.
-  Code: Hỗ trợ > Gửi log (OMCShareReport) → `OmniCar-log-<ngày>.txt`. Chờ thử gửi Zalo trên máy.
 - [x] **Màn chẩn đoán** · Thấp
   Độ phân giải màn xe, dây / không dây, nhiệt độ máy, FPS app iPhone, phiên bản từng tính năng.
-  Code: Hỗ trợ > Chẩn đoán là trang kiểm tra sức khoẻ cho người dùng: kết luận chung ở đầu, ~20 mục ✓ / ⚠ / ✗ kèm
-  cách sửa (điện thoại: iOS, jailbreak, trình nạp tweak, gói, OmniCar đang chạy đúng bản, bộ nhớ, pin, nhiệt, tweak
-  xung đột; CarPlay: kết nối, OmniCar trong CarPlay, tương thích iOS, lần sập gần nhất, chế độ cứu, màn xe; từng tính
-  năng), chạm để respring / bật lại; số liệu thô ở Chi tiết kỹ thuật. Chưa có FPS app iPhone (cần đo trong App
-  Bridge). Dây / không dây đọc từ CarKit: chờ thử trên xe.
-  Hiệu năng CarPlay: CarPlay tự đo trong lúc lái (khung hình trễ 10 s mỗi phút, khựng ≥ 0,5 s, CPU, RAM còn dư,
-  nhiệt, nguồn điện thấp, tweak khác nạp vào CarPlay), Chẩn đoán đọc lại, chấm ✓ / ⚠ / ✗ và gợi ý nguyên nhân
-  chính; chạm để đo lại / xoá log. Chờ thử trên xe để chỉnh ngưỡng.
-  Tối ưu: nút Tối ưu (tự làm được gì thì làm, còn lại liệt kê cho người dùng), Chế độ nhẹ tắt / tự động / luôn bật
-  (chia màn hình bỏ kính mờ + chỉ 2 app, bong bóng 1 s/lần không đổ bóng, bỏ video khởi động; tự động bật khi máy
-  nóng, khựng 3 lần / 2 phút hoặc ≥ 15% khung trễ, tắt sau 3 phút ổn), dọn RAM khi cắm xe / dọn ngay. App Bridge chỉ cài
-  hook khi app được đưa lên xe. Trang Chẩn đoán: Cần xử lý (nút sửa ngay) → Tối ưu → các nhóm thu gọn.
 - [x] **Thông tin đầu xe** · Thấp
   Độ phân giải, tỉ lệ màn, chất lượng video gợi ý (gộp vào Màn chẩn đoán).
-  Code: CarPlay ghi màn xe + phiên CarKit mỗi lần cắm (OMCCrashGuard), Chẩn đoán > Màn xe. Chờ thử trên xe.
 - [x] **Phát hiện tweak xung đột** · Thấp
   Thấy CarBridge, DuoDash, TrueDash, CarPlayEnable… đang bật → cảnh báo trong Cài đặt (không tự gỡ tweak của người khác).
-  Code: thẻ cảnh báo đầu trang chính khi dylib của tweak đó đang nạp; Chẩn đoán liệt kê cả gói đã cài.
 - [x] **Chế độ cứu (rescue)** · Vừa
   CarPlay sập 2 lần liền trong 60 giây sau khi cắm → tự tắt tính năng nghi gây lỗi, lần cắm sau báo cho người dùng.
   Xong khi: cố tình gây crash trong một tính năng, CarPlay tự phục hồi ở lần cắm thứ 3.
-  Code: OMCCrashGuard (Core) nghi tính năng theo backtrace, thông báo trên iPhone, thẻ "Bật lại" ở trang chính.
-  Thử: Chẩn đoán, nhấn giữ dòng OmniCar → chọn tính năng → cắm xe 3 lần.
 - [x] **Tự kiểm tra trên xe (chỉ bản dev)** · Vừa
   Công cụ cho tác giả, không phát hành: macro `OMC_AUTOTEST` (Core/OmniCar.h, hoặc `make OMC_AUTOTEST=0`) bỏ hẳn
   khỏi bản phát hành. Cài đặt > Hỗ trợ > Tự kiểm tra: chọn tính năng → mỗi tính năng tự chạy bộ test của nó trên xe,
@@ -216,12 +199,9 @@ Thiếu một trong các mục này thì khách quốc tế không mua, hoặc m
   lúc), Màn hình khởi động (phát, khung chạy, tự tắt, chạm bỏ qua, tắt tính năng), Bong bóng tốc độ (hiện trên xe,
   số, gần / vượt giới hạn, ẩn khi Split Screen chiếm màn, 18 kiểu, cỡ, mất nguồn).
   Xong khi: một lần chạy trên xe ra đủ kết quả từng bước, gửi log có ảnh, sửa lỗi không cần thử tay lại từng ca.
-  Code: Core/OMCTest.h (khung), Features/SplitScreen/SCPAutoTest.mm, cuối StartupScreen.x, cuối SPPBubble.mm,
-  Prefs/OMCAutoTestController.m. Chờ chạy thử trên xe.
 - [ ] **Thử với nhiều app hơn** · Vừa
   Danh sách tối thiểu: YouTube, TikTok, Facebook, Instagram, Chrome, Safari, Zalo, Grab, Shopee, X, Twitch, Plex.
   Xong khi: có bảng app chạy tốt / chạy được / không chạy kèm lý do, đưa lên trang tương thích.
-  Bảng ghi kết quả: COMPATIBILITY.md.
 - [ ] **Chạy thật trên iOS 15 16 17 và 18** · Cao
   App Bridge và Chia màn hình đang dựa selector iOS 16. Kiểm tra từng selector, có đường dự phòng khi thiếu.
   Kiểm tra lại luôn app có giao diện CarPlay riêng chạy trong ô.
@@ -232,26 +212,15 @@ Thiếu một trong các mục này thì khách quốc tế không mua, hoặc m
 
 - [x] **Đơn vị và quy chuẩn theo nước** · Thấp
   km/h ↔ mph; biển tốc độ kiểu Viên (tròn viền đỏ) / kiểu Mỹ (chữ nhật trắng); lái tay phải → đảo bố cục mặc định.
-  Code: Bong bóng tốc độ > Đơn vị (tự động theo vùng / km/h / mph) và Biển tốc độ (tự động / Viên / Mỹ), số vẫn so
-  bằng km/h nên cảnh báo vượt tốc không đổi. Chia màn hình > Vị trí tay lái (tự động theo CarKit / trái / phải): tay
-  lái phải thì app đang dùng vào ô bên phải. Chờ thử trên xe (tên trường rightHandDrive của CarKit).
 - [x] **Hướng dẫn lần đầu** · Thấp
   3–4 trang: chọn app lên xe, chọn bố cục đầu tiên, bật bong bóng tốc độ, cách gọi bảng bố cục trên xe.
-  Code: Prefs/OMCOnboardingController.m, 4 trang, tự hiện lần đầu mở Cài đặt (onboardingDone), Hỗ trợ > Xem lại
-  hướng dẫn.
 - [x] **Nhiều ngôn ngữ** · Thấp (dịch) / Vừa (kiểm tra)
   Tối thiểu: en, vi, es, pt-BR, de, fr, it, ru, zh-Hans, ja, ko, ar (RTL), th, id.
   Xong khi: mọi trang Cài đặt và chữ trên xe không bị cắt ở ngôn ngữ dài nhất (de) và RTL (ar).
-  Code: 14 ngôn ngữ (OMCSupportedLanguages, Core/OMCCommon.m), theo ngôn ngữ máy hoặc chọn trong Cài đặt; thiếu câu
-  nào thì dùng tiếng Anh. Chữ trên xe: OMCTr(vi, en), ngôn ngữ khác tra `<lang>.lproj/Car.strings` (khoá = câu tiếng
-  Anh). Bản dịch máy: cần người bản xứ đọc lại; chưa kiểm tra chữ bị cắt (de) và RTL (ar) trên máy.
 - [x] **Trang tương thích công khai** · Thấp
   iOS, kiểu jailbreak (rootless / roothide), chip, đầu xe đã thử, app đã thử, giới hạn đã biết (DRM).
-  Code: docs/compatibility.html (trang tĩnh, EN / VI), đồng bộ với COMPATIBILITY.md. Chưa có kết quả thử nào.
 - [ ] **Bộ tài liệu bán hàng** · Thấp
   Video 60 giây, 6 ảnh chụp màn xe, mô tả ngắn / dài cho repo riêng và Chariz, FAQ, chính sách riêng tư.
-  Code: docs/sales/ (mô tả ngắn / dài, FAQ, riêng tư, kịch bản quay shotlist.md). Còn thiếu: quay video, chụp ảnh,
-  giá / chính sách hoàn tiền (TODO trong file).
 - [ ] **Bản quyền, Lite / Pro và dùng thử** · Vừa
   Nền tảng kỹ thuật cho Phát hành 3 và 4: cờ Pro dùng chung cho mọi tính năng, đếm ngày dùng thử, đọc khoá của gói Pro.
   Đã bỏ khỏi Mức 1 (chưa làm): để tới lúc chốt Lite / Pro.
@@ -260,13 +229,9 @@ Thiếu một trong các mục này thì khách quốc tế không mua, hoặc m
 
 - [x] **Phóng to tạm một ô** · Thấp
   Chạm đúp thanh "•••" → ô to toàn vùng app, chạm lại → về bố cục cũ (khác "toàn màn" là không đóng các ô khác).
-  Code: SCPCarSplit zoomedSlot (ô khác ẩn nhưng giữ kích thước scene), cả thanh ••• của app iPhone (SpringBoard vẽ).
 - [x] **Bàn phím trên màn xe** · Cao
   Một bàn phím chung cho mọi ô (kể cả app iPhone qua App Bridge), kiểu HarmonyOS, có tiếng Việt và các ngôn ngữ chính.
   Xong khi: gõ được tìm kiếm trong YouTube và ô địa chỉ của Safari trên xe.
-  Code: app iPhone qua App Bridge: App.xm chặn bàn phím iPhone khi app trên xe và báo SpringBoard; ABKeyboard.mm vẽ
-  bàn phím trên màn xe (chữ / số, EN / VI Telex), gửi phím về app. App CarPlay gốc dùng bàn phím của CarPlay.
-  Chờ thử YouTube / Safari trên xe.
 
 ## Mức 2 – Quan trọng (bằng DuoDash, làm ngay sau bản bán đầu tiên)
 
@@ -510,10 +475,3 @@ Làm song song khi có thời gian; mỗi gói chỉ phục vụ một thị tr�
 - Tự gỡ tweak của người khác.
 - Gửi hình camera, vị trí hay dữ liệu lái lên server. Thống kê ẩn danh chỉ gửi khi người dùng đồng ý, tắt được bất cứ lúc nào; tính năng nào cần mạng phải ghi rõ trong chính sách riêng tư.
 - Bất kỳ tính năng nào khuyến khích xem video khi xe đang chạy.
-
-## Nguyên tắc chung
-
-- Mỗi tính năng là một dylib riêng (như hiện tại), tắt được độc lập, có log riêng trong OmniCar.log.
-- Mọi giao diện mới có bản mô phỏng trong tools/preview trước, duyệt xong mới code.
-- Không có tính năng nào được làm CarPlay sập: lỗi trong một tính năng chỉ được tắt tính năng đó.
-- Đo pin và nhiệt cho mọi tính năng chạy liên tục, ghi số đo vào ghi chú phát hành.
