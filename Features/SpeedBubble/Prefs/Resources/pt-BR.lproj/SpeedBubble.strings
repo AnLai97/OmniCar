@@ -36,3 +36,13 @@
 "SPEEDBUBBLE_SIGN_0" = "Automática (por região)";
 "SPEEDBUBBLE_SIGN_1" = "Redonda (Viena)";
 "SPEEDBUBBLE_SIGN_2" = "Retangular (EUA)";
+"SPEEDBUBBLE_SOURCE_GPS" = "GPS do iPhone";
+"SPEEDBUBBLE_SOURCE_FOOTER" = "Vietmap Live e GOFA fornecem a velocidade e o limite de velocidade: abra o app uma vez e deixe-o rodando em segundo plano. O GPS do iPhone fornece só a velocidade, sem limite (a placa mostra --, sem alerta de excesso de velocidade), e só funciona com o CarPlay conectado.";
+"SPEEDBUBBLE_GPS_UNAVAILABLE" = "GPS do iPhone indisponível: o SpringBoard não tem permissão para usar sua localização. Verifique Ajustes > Privacidade > Serviços de Localização e faça respring.";
+"SPEEDBUBBLE_WARN" = "Alerta de excesso de velocidade";
+"SPEEDBUBBLE_WARN_MODE" = "Alerta";
+"SPEEDBUBBLE_WARN_MODE_0" = "Desativado";
+"SPEEDBUBBLE_WARN_MODE_1" = "Só a borda (silencioso)";
+"SPEEDBUBBLE_WARN_MODE_2" = "Borda e som curto";
+"SPEEDBUBBLE_WARN_OVER" = "Alertar ao passar do limite em";
+"SPEEDBUBBLE_WARN_FOOTER" = "Quando você passa do limite de velocidade mais esta margem (na unidade mostrada na bolha), uma borda vermelha brilhante pulsa ao redor da tela do CarPlay. O som toca uma vez e só volta a tocar depois que você ficar 5 segundos abaixo do limite. Precisa de um limite de velocidade do app de origem.";

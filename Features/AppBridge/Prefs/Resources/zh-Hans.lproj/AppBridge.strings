@@ -14,3 +14,5 @@
 "APPBRIDGE_APPS_SEARCH" = "搜索 App";
 "APPBRIDGE_APPS_EMPTY" = "此设备上未找到 iPhone App。";
 "APPBRIDGE_APPS_NO_MATCH" = "没有匹配的 App。";
+"APPBRIDGE_DRIVE_MODE" = "驾驶模式";
+"APPBRIDGE_DRIVE_FOOTER" = "驾驶模式：车速超过 10 km/h 时，汽车上的 iPhone App 仅播放声音（画面遮挡、触控锁定）；停车后即可继续观看。使用速度气泡的速度来源。";

@@ -248,6 +248,9 @@
 "CLEAN_RAM_NEVER" = "尚未运行";
 "CLEAN_RAM_LAST" = "上次退出了 %lu 个 App，时间 %@";
 "CLEAN_RAM_NOW" = "立即释放内存";
-"CLEAN_RAM_NOW_SUB" = "退出后台运行的 App，汽车需要的 App 除外。";
+"CLEAN_RAM_NOW_SUB" = "退出所有在后台运行的 App，屏幕上的和正在播放的除外。连接汽车时，还会保留汽车需要的 App。";
+"CLEAN_RAM_RESULT" = "已关闭 %lu 个 App。";
+"CLEAN_RAM_NOTHING" = "没有可关闭的后台 App。";
+"CLEAN_RAM_NO_REPLY" = "SpringBoard 没有响应。请注销后重试；如果仍然失败，请将日志发送给开发者。";
 "CLEAN_RAM_CONFIRM" = "立即释放内存？";
 "CLEAN_RAM_DO" = "释放";

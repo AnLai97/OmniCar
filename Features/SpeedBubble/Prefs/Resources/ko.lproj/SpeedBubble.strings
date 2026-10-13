@@ -36,3 +36,13 @@
 "SPEEDBUBBLE_SIGN_0" = "자동(지역 기준)";
 "SPEEDBUBBLE_SIGN_1" = "원형(비엔나)";
 "SPEEDBUBBLE_SIGN_2" = "사각형(미국)";
+"SPEEDBUBBLE_SOURCE_GPS" = "iPhone GPS";
+"SPEEDBUBBLE_SOURCE_FOOTER" = "Vietmap Live와 GOFA는 속도와 제한 속도를 제공합니다. 앱을 한 번 연 다음 백그라운드에서 계속 실행해 두십시오. iPhone GPS는 제한 속도 없이 속도만 제공하며(표지판에 -- 표시, 과속 경고 없음) CarPlay가 연결된 동안에만 작동합니다.";
+"SPEEDBUBBLE_GPS_UNAVAILABLE" = "iPhone GPS를 사용할 수 없습니다. SpringBoard에 위치 사용 권한이 없습니다. 설정 > 개인정보 보호 > 위치 서비스를 확인한 다음 리스프링하십시오.";
+"SPEEDBUBBLE_WARN" = "과속 경고";
+"SPEEDBUBBLE_WARN_MODE" = "경고";
+"SPEEDBUBBLE_WARN_MODE_0" = "끔";
+"SPEEDBUBBLE_WARN_MODE_1" = "테두리만(무음)";
+"SPEEDBUBBLE_WARN_MODE_2" = "테두리 및 짧은 소리";
+"SPEEDBUBBLE_WARN_OVER" = "제한 속도 초과 허용치";
+"SPEEDBUBBLE_WARN_FOOTER" = "제한 속도에 이 허용치를 더한 속도(버블에 표시된 단위)보다 빨리 달리면 CarPlay 화면 둘레에 빛나는 빨간색 테두리가 깜박입니다. 소리는 한 번 재생되며, 제한 속도 아래로 5초 동안 유지한 후에만 다시 재생됩니다. 출처 앱의 제한 속도가 필요합니다.";

@@ -49,7 +49,7 @@ Three live panes or two video apps at once are heavy. Turn on Lite mode (Auto or
 TODO: refund policy (time window, how to ask, what is needed – for example a log showing the problem).
 
 **15. Does OmniCar collect my data?**
-No. OmniCar has no network code and sends nothing. See the privacy policy.
+No. OmniCar sends nothing to the developer. The only network request is the optional Weather startup screen (Open-Meteo, location rounded to about 1 km). See the privacy policy.
 
 ---
 
@@ -98,4 +98,4 @@ Ba ô cùng chạy hoặc hai app video cùng lúc khá nặng. Bật Chế đ�
 TODO: chính sách hoàn tiền (thời hạn, cách yêu cầu, cần gì – ví dụ log cho thấy lỗi).
 
 **15. OmniCar có thu thập dữ liệu không?**
-Không. OmniCar không có code mạng và không gửi gì đi. Xem chính sách riêng tư.
+Không. OmniCar không gửi gì cho tác giả. Kết nối mạng duy nhất là kiểu khởi động Thời tiết (tuỳ chọn, Open-Meteo, vị trí làm tròn khoảng 1 km). Xem chính sách riêng tư.

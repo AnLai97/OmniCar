@@ -14,3 +14,5 @@
 "APPBRIDGE_APPS_SEARCH" = "Cerca app";
 "APPBRIDGE_APPS_EMPTY" = "Nessuna app di iPhone trovata su questo dispositivo.";
 "APPBRIDGE_APPS_NO_MATCH" = "Nessuna app corrispondente.";
+"APPBRIDGE_DRIVE_MODE" = "Modalità guida";
+"APPBRIDGE_DRIVE_FOOTER" = "Modalità guida: sopra i 10 km/h le app di iPhone sull'auto riproducono solo l'audio (immagine coperta, tocchi bloccati); ferma l'auto per tornare a guardare. Usa la sorgente di velocità di Bolla velocità.";

@@ -36,3 +36,13 @@
 "SPEEDBUBBLE_SIGN_0" = "自動（地域に合わせる）";
 "SPEEDBUBBLE_SIGN_1" = "円形（ウィーン条約）";
 "SPEEDBUBBLE_SIGN_2" = "長方形（米国）";
+"SPEEDBUBBLE_SOURCE_GPS" = "iPhoneのGPS";
+"SPEEDBUBBLE_SOURCE_FOOTER" = "Vietmap LiveとGOFAは速度と制限速度を提供します: Appを一度開き、バックグラウンドで動作させたままにしてください。iPhoneのGPSは速度のみで制限速度はなく（標識は--を表示、速度超過警告なし）、CarPlay接続中のみ動作します。";
+"SPEEDBUBBLE_GPS_UNAVAILABLE" = "iPhoneのGPSを使用できません: SpringBoardに位置情報の使用許可がありません。「設定」>「プライバシーとセキュリティ」>「位置情報サービス」を確認してから、リスプリングしてください。";
+"SPEEDBUBBLE_WARN" = "速度超過警告";
+"SPEEDBUBBLE_WARN_MODE" = "警告";
+"SPEEDBUBBLE_WARN_MODE_0" = "オフ";
+"SPEEDBUBBLE_WARN_MODE_1" = "枠のみ（無音）";
+"SPEEDBUBBLE_WARN_MODE_2" = "枠と短い音";
+"SPEEDBUBBLE_WARN_OVER" = "警告する超過速度";
+"SPEEDBUBBLE_WARN_FOOTER" = "制限速度にこの余裕分（バブルに表示される単位）を加えた速度を超えると、CarPlay画面の周囲で赤く光る枠が点滅します。音は一度だけ鳴り、制限速度以下で5秒間走行した後にのみ再び鳴ります。取得元Appからの制限速度が必要です。";

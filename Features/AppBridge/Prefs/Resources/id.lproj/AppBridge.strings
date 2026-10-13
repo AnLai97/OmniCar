@@ -14,3 +14,5 @@
 "APPBRIDGE_APPS_SEARCH" = "Cari app";
 "APPBRIDGE_APPS_EMPTY" = "Tidak ada app iPhone di perangkat ini.";
 "APPBRIDGE_APPS_NO_MATCH" = "Tidak ada app yang cocok.";
+"APPBRIDGE_DRIVE_MODE" = "Mode berkendara";
+"APPBRIDGE_DRIVE_FOOTER" = "Mode berkendara: di atas 10 km/j app iPhone di mobil hanya memutar suara (gambar ditutup, sentuhan dikunci); hentikan mobil untuk menonton lagi. Memakai sumber kecepatan Gelembung Kecepatan.";

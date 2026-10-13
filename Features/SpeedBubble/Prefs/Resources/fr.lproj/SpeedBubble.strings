@@ -36,3 +36,13 @@
 "SPEEDBUBBLE_SIGN_0" = "Automatique (selon la région)";
 "SPEEDBUBBLE_SIGN_1" = "Rond (Vienne)";
 "SPEEDBUBBLE_SIGN_2" = "Rectangulaire (États-Unis)";
+"SPEEDBUBBLE_SOURCE_GPS" = "GPS de l’iPhone";
+"SPEEDBUBBLE_SOURCE_FOOTER" = "Vietmap Live et GOFA fournissent la vitesse et la limitation : ouvrez l’app une fois, puis laissez-la tourner en arrière-plan. Le GPS de l’iPhone fournit seulement la vitesse, sans limitation (le panneau affiche --, pas d’alerte de survitesse), et ne fonctionne que lorsque CarPlay est connecté.";
+"SPEEDBUBBLE_GPS_UNAVAILABLE" = "GPS de l’iPhone indisponible : SpringBoard n’a pas l’autorisation d’utiliser votre position. Vérifiez Réglages > Confidentialité > Service de localisation, puis faites un respring.";
+"SPEEDBUBBLE_WARN" = "Alerte de survitesse";
+"SPEEDBUBBLE_WARN_MODE" = "Alerte";
+"SPEEDBUBBLE_WARN_MODE_0" = "Désactivée";
+"SPEEDBUBBLE_WARN_MODE_1" = "Bordure seule (silencieux)";
+"SPEEDBUBBLE_WARN_MODE_2" = "Bordure et son bref";
+"SPEEDBUBBLE_WARN_OVER" = "Alerter au-delà de la limite de";
+"SPEEDBUBBLE_WARN_FOOTER" = "Lorsque vous dépassez la limitation de vitesse plus cette marge (dans l’unité affichée sur la bulle), une bordure rouge lumineuse pulse autour de l’écran CarPlay. Le son retentit une fois, puis seulement après 5 secondes passées sous la limite. Nécessite une limitation de vitesse fournie par l’app source.";

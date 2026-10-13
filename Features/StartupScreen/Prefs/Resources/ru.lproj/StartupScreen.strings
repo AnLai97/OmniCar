@@ -14,13 +14,13 @@
 "STARTUPSCREEN_FROM_FILES" = "Из Файлов";
 
 "STARTUPSCREEN_DURATION_GROUP" = "Длительность (секунды)";
-"STARTUPSCREEN_DURATION_FOOTER" = "Более короткие видео повторяются.";
+"STARTUPSCREEN_DURATION_FOOTER" = "Сколько заставка остаётся на экране автомобиля. Более короткие видео повторяются.";
 "STARTUPSCREEN_PLAY_FULL" = "Воспроизводить видео целиком";
 
 "STARTUPSCREEN_DISPLAY_GROUP" = "Отображение";
 "STARTUPSCREEN_SCALE_FILL" = "Заполнить";
 "STARTUPSCREEN_SCALE_FIT" = "Вписать";
-"STARTUPSCREEN_SOUND" = "Звук";
+"STARTUPSCREEN_SOUND" = "Звук видео";
 "STARTUPSCREEN_TAP_TO_SKIP" = "Пропуск касанием";
 
 "STARTUPSCREEN_PREPARING" = "Подготовка видео для CarPlay";
@@ -31,3 +31,37 @@
 "STARTUPSCREEN_DELETE_TITLE" = "Удалить видео";
 "STARTUPSCREEN_DELETE_CONFIRM" = "Удалить «%@»?";
 "STARTUPSCREEN_DELETE_ACTION" = "Удалить";
+"STARTUPSCREEN_STYLE_GROUP" = "Стиль заставки";
+"STARTUPSCREEN_STYLE_FOOTER" = "Карточка вверху показывает, что появится на экране авто. Нажмите на неё, чтобы повторить эффект.";
+"STARTUPSCREEN_STYLE_VIDEO" = "Видео";
+"STARTUPSCREEN_STYLE_LOGO" = "Логотип";
+"STARTUPSCREEN_STYLE_GREETING" = "Приветствие";
+"STARTUPSCREEN_STYLE_WEATHER" = "Погода";
+"STARTUPSCREEN_LOGO_GROUP" = "Логотип";
+"STARTUPSCREEN_LOGO_FOOTER" = "На тёмном фоне лучше всего смотрится PNG с прозрачным фоном. Без логотипа показывается значок автомобиля.";
+"STARTUPSCREEN_LOGO_CHOOSE" = "Выбрать логотип";
+"STARTUPSCREEN_LOGO_DELETE" = "Удалить логотип";
+"STARTUPSCREEN_LOGO_FAILED" = "Не удалось прочитать это изображение.";
+"STARTUPSCREEN_LOGO_NONE" = "Логотипа пока нет.";
+"STARTUPSCREEN_EFFECT_GROUP" = "Эффект";
+"STARTUPSCREEN_EFFECT_FADE" = "Проявление";
+"STARTUPSCREEN_EFFECT_ZOOM" = "Приближение";
+"STARTUPSCREEN_EFFECT_GLOW" = "Свечение";
+"STARTUPSCREEN_GREETING_GROUP" = "Приветствие";
+"STARTUPSCREEN_GREETING_FOOTER" = "«Доброе утро, <имя>» со временем и датой. Текст и цвета меняются утром, днём, вечером и ночью.";
+"STARTUPSCREEN_NAME" = "Ваше имя";
+"STARTUPSCREEN_NAME_PLACEHOLDER" = "Необязательно";
+"STARTUPSCREEN_WEATHER_FOOTER" = "Стиль «Погода» использует интернет: при каждом подключении CarPlay он отправляет вашу последнюю известную геопозицию, округлённую до 2 знаков после запятой (около 1 км), в Open-Meteo (open-meteo.com, без учётной записи). Без сети показывается последний результат с его временем; без доступа к геопозиции или данных показывается приветствие.";
+"STARTUPSCREEN_WEATHER_LAST" = "Последнее обновление: %@";
+"STARTUPSCREEN_WEATHER_NONE" = "Данных о погоде пока нет.";
+"STARTUPSCREEN_STARTUP_SOUND_GROUP" = "Звук заставки";
+"STARTUPSCREEN_STARTUP_SOUND_FOOTER" = "Звучит через динамики автомобиля при подключении CarPlay, с любым стилем. M4A, MP3, WAV, CAF. Со стилем «Видео» и включённым «Звуком видео» вместо него играет звук самого видео.";
+"STARTUPSCREEN_SOUND_CHOOSE" = "Выбрать звук";
+"STARTUPSCREEN_SOUND_PREVIEW" = "Воспроизвести звук";
+"STARTUPSCREEN_SOUND_DELETE" = "Удалить звук";
+"STARTUPSCREEN_SOUND_CURRENT" = "Текущий: %@";
+"STARTUPSCREEN_SOUND_NONE" = "Нет звука заставки.";
+"STARTUPSCREEN_SOUND_FAILED" = "Не удалось воспроизвести этот звук: %@";
+"STARTUPSCREEN_VOLUME_GROUP" = "Громкость";
+"STARTUPSCREEN_VOLUME_FOOTER" = "Для звука заставки и звука видео.";
+"STARTUPSCREEN_SOUND_SKIP_CALL" = "Без звука во время вызова";

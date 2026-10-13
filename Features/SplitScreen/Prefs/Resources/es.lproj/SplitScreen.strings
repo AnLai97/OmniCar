@@ -7,7 +7,8 @@
 "SPLITSCREEN_DRIVER_AUTO" = "Automático";
 "SPLITSCREEN_DRIVER_LEFT" = "Izquierda";
 "SPLITSCREEN_DRIVER_RIGHT" = "Derecha";
-"SPLITSCREEN_DRIVER_FOOTER" = "Volante a la derecha: la app actual se abre en el panel derecho, junto al conductor. Automático = lo que indica el coche.";
+"SPLITSCREEN_PINNED" = "Panel fijado";
+"SPLITSCREEN_DRIVER_FOOTER" = "Volante a la derecha: la app actual se abre en el panel derecho, junto al conductor. Automático = lo que indica el coche.\nPanel fijado (normalmente el mapa): esa app conserva su panel cuando cambian el diseño u otras apps.";
 
 "SPLITSCREEN_PANEL_GROUP" = "Menú OmniCar en el coche";
 "SPLITSCREEN_SHOW_RECENT" = "Recientes";

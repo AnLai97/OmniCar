@@ -14,13 +14,13 @@
 "STARTUPSCREEN_FROM_FILES" = "Aus Dateien";
 
 "STARTUPSCREEN_DURATION_GROUP" = "Dauer (Sekunden)";
-"STARTUPSCREEN_DURATION_FOOTER" = "Kürzere Videos werden wiederholt.";
+"STARTUPSCREEN_DURATION_FOOTER" = "Wie lange der Startbildschirm auf dem Autodisplay bleibt. Kürzere Videos werden wiederholt.";
 "STARTUPSCREEN_PLAY_FULL" = "Ganzes Video abspielen";
 
 "STARTUPSCREEN_DISPLAY_GROUP" = "Anzeige";
 "STARTUPSCREEN_SCALE_FILL" = "Füllen";
 "STARTUPSCREEN_SCALE_FIT" = "Einpassen";
-"STARTUPSCREEN_SOUND" = "Ton";
+"STARTUPSCREEN_SOUND" = "Videoton";
 "STARTUPSCREEN_TAP_TO_SKIP" = "Tippen zum Überspringen";
 
 "STARTUPSCREEN_PREPARING" = "Video wird für CarPlay vorbereitet";
@@ -31,3 +31,42 @@
 "STARTUPSCREEN_DELETE_TITLE" = "Video löschen";
 "STARTUPSCREEN_DELETE_CONFIRM" = "\"%@\" löschen?";
 "STARTUPSCREEN_DELETE_ACTION" = "Löschen";
+
+"STARTUPSCREEN_STYLE_GROUP" = "Startstil";
+"STARTUPSCREEN_STYLE_FOOTER" = "Die Karte oben zeigt, was das Autodisplay anzeigen wird. Tippe darauf, um den Effekt erneut abzuspielen.";
+"STARTUPSCREEN_STYLE_VIDEO" = "Video";
+"STARTUPSCREEN_STYLE_LOGO" = "Logo";
+"STARTUPSCREEN_STYLE_GREETING" = "Begrüßung";
+"STARTUPSCREEN_STYLE_WEATHER" = "Wetter";
+
+"STARTUPSCREEN_LOGO_GROUP" = "Logo";
+"STARTUPSCREEN_LOGO_FOOTER" = "Ein PNG mit transparentem Hintergrund sieht auf dem dunklen Hintergrund am besten aus. Ohne Logo wird ein Auto-Symbol angezeigt.";
+"STARTUPSCREEN_LOGO_CHOOSE" = "Logo wählen";
+"STARTUPSCREEN_LOGO_DELETE" = "Logo entfernen";
+"STARTUPSCREEN_LOGO_FAILED" = "Dieses Bild konnte nicht gelesen werden.";
+"STARTUPSCREEN_LOGO_NONE" = "Noch kein Logo.";
+"STARTUPSCREEN_EFFECT_GROUP" = "Effekt";
+"STARTUPSCREEN_EFFECT_FADE" = "Einblenden";
+"STARTUPSCREEN_EFFECT_ZOOM" = "Zoom";
+"STARTUPSCREEN_EFFECT_GLOW" = "Leuchten";
+
+"STARTUPSCREEN_GREETING_GROUP" = "Begrüßung";
+"STARTUPSCREEN_GREETING_FOOTER" = "\"Guten Morgen, <Name>\" mit Uhrzeit und Datum. Text und Farben ändern sich morgens, nachmittags, abends und nachts.";
+"STARTUPSCREEN_NAME" = "Dein Name";
+"STARTUPSCREEN_NAME_PLACEHOLDER" = "Optional";
+
+"STARTUPSCREEN_WEATHER_FOOTER" = "Der Stil Wetter geht online: Bei jeder CarPlay-Verbindung sendet er deinen letzten bekannten Standort, auf 2 Dezimalstellen gerundet (etwa 1 km), an Open-Meteo (open-meteo.com, ohne Konto). Offline zeigt er das letzte Ergebnis mit Uhrzeit; ohne Standortzugriff oder Daten zeigt er die Begrüßung.";
+"STARTUPSCREEN_WEATHER_LAST" = "Zuletzt aktualisiert: %@";
+"STARTUPSCREEN_WEATHER_NONE" = "Noch keine Wetterdaten.";
+
+"STARTUPSCREEN_STARTUP_SOUND_GROUP" = "Startton";
+"STARTUPSCREEN_STARTUP_SOUND_FOOTER" = "Wird über die Autolautsprecher abgespielt, wenn CarPlay verbindet, bei jedem Stil. M4A, MP3, WAV, CAF. Beim Stil Video mit eingeschaltetem Videoton läuft stattdessen der Ton des Videos.";
+"STARTUPSCREEN_SOUND_CHOOSE" = "Ton wählen";
+"STARTUPSCREEN_SOUND_PREVIEW" = "Ton abspielen";
+"STARTUPSCREEN_SOUND_DELETE" = "Ton entfernen";
+"STARTUPSCREEN_SOUND_CURRENT" = "Aktuell: %@";
+"STARTUPSCREEN_SOUND_NONE" = "Kein Startton.";
+"STARTUPSCREEN_SOUND_FAILED" = "Dieser Ton konnte nicht abgespielt werden: %@";
+"STARTUPSCREEN_VOLUME_GROUP" = "Lautstärke";
+"STARTUPSCREEN_VOLUME_FOOTER" = "Für den Startton und den Ton des Videos.";
+"STARTUPSCREEN_SOUND_SKIP_CALL" = "Stumm während eines Anrufs";

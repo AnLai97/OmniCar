@@ -1,0 +1,9 @@
+/* OmniCar – Profil mobil – Bahasa Indonesia */
+
+"PROFILES" = "Profil mobil";
+"PROFILES_ENABLE" = "Profil untuk tiap mobil";
+"PROFILES_FOOTER" = "Setiap mobil menyimpan sendiri tata letak layar terpisah, panel yang disematkan, sisi pengemudi, Gelembung Kecepatan di mobil, layar pembuka, dan zoom app iPhone. OmniCar beralih ke pengaturan mobil itu saat Anda menghubungkannya.";
+"PROFILES_CARS" = "Mobil";
+"PROFILES_CARS_FOOTER" = "✓ menandai mobil yang sedang dipakai. Geser ke kiri untuk melupakan mobil.";
+"PROFILES_NONE" = "Belum ada mobil: nyalakan, lalu hubungkan mobil sekali";
+"PROFILES_LAST_SEEN" = "Terakhir terhubung: %@";

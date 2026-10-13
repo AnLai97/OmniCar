@@ -36,3 +36,13 @@
 "SPEEDBUBBLE_SIGN_0" = "Otomatis (menurut wilayah)";
 "SPEEDBUBBLE_SIGN_1" = "Bulat (Wina)";
 "SPEEDBUBBLE_SIGN_2" = "Persegi panjang (AS)";
+"SPEEDBUBBLE_SOURCE_GPS" = "GPS iPhone";
+"SPEEDBUBBLE_SOURCE_FOOTER" = "Vietmap Live dan GOFA memberikan kecepatan dan batas kecepatan: buka app sekali, lalu biarkan berjalan di latar belakang. GPS iPhone hanya memberikan kecepatan, tanpa batas kecepatan (rambu menampilkan --, tanpa peringatan kecepatan berlebih), dan hanya berjalan saat CarPlay terhubung.";
+"SPEEDBUBBLE_GPS_UNAVAILABLE" = "GPS iPhone tidak tersedia: SpringBoard tidak punya izin memakai lokasi Anda. Periksa Pengaturan > Privasi > Layanan Lokasi, lalu lakukan Respring.";
+"SPEEDBUBBLE_WARN" = "Peringatan kecepatan berlebih";
+"SPEEDBUBBLE_WARN_MODE" = "Peringatan";
+"SPEEDBUBBLE_WARN_MODE_0" = "Mati";
+"SPEEDBUBBLE_WARN_MODE_1" = "Bingkai saja (senyap)";
+"SPEEDBUBBLE_WARN_MODE_2" = "Bingkai dan suara singkat";
+"SPEEDBUBBLE_WARN_OVER" = "Peringatkan saat melebihi batas sebesar";
+"SPEEDBUBBLE_WARN_FOOTER" = "Saat Anda melaju lebih cepat dari batas kecepatan ditambah margin ini (dalam satuan yang tampil di gelembung), bingkai merah menyala berdenyut di sekeliling layar CarPlay. Suara diputar sekali, lalu baru diputar lagi setelah Anda berada di bawah batas selama 5 detik. Memerlukan batas kecepatan dari app sumber.";

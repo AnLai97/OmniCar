@@ -1,0 +1,9 @@
+/* OmniCar – Car profiles – 日本語 */
+
+"PROFILES" = "車のプロファイル";
+"PROFILES_ENABLE" = "車ごとにプロファイルを使用";
+"PROFILES_FOOTER" = "車ごとに、分割レイアウト、固定する枠、運転席の位置、車でのスピードバブル、起動画面、iPhone Appのズームを個別に保存します。車を接続すると、OmniCarはその車の設定に切り替えます。";
+"PROFILES_CARS" = "車";
+"PROFILES_CARS_FOOTER" = "✓は使用中の車を示します。左にスワイプすると車を削除します。";
+"PROFILES_NONE" = "車はまだありません: オンにして車を一度接続してください";
+"PROFILES_LAST_SEEN" = "最終接続: %@";

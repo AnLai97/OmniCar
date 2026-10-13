@@ -14,13 +14,13 @@
 "STARTUPSCREEN_FROM_FILES" = "จากไฟล์";
 
 "STARTUPSCREEN_DURATION_GROUP" = "ระยะเวลา (วินาที)";
-"STARTUPSCREEN_DURATION_FOOTER" = "วิดีโอที่สั้นกว่าจะเล่นวนซ้ำ";
+"STARTUPSCREEN_DURATION_FOOTER" = "ระยะเวลาที่หน้าจอเริ่มต้นแสดงบนจอรถ วิดีโอที่สั้นกว่าจะเล่นวนซ้ำ";
 "STARTUPSCREEN_PLAY_FULL" = "เล่นวิดีโอทั้งหมด";
 
 "STARTUPSCREEN_DISPLAY_GROUP" = "การแสดงผล";
 "STARTUPSCREEN_SCALE_FILL" = "เต็มจอ";
 "STARTUPSCREEN_SCALE_FIT" = "พอดีจอ";
-"STARTUPSCREEN_SOUND" = "เสียง";
+"STARTUPSCREEN_SOUND" = "เสียงวิดีโอ";
 "STARTUPSCREEN_TAP_TO_SKIP" = "แตะเพื่อข้าม";
 
 "STARTUPSCREEN_PREPARING" = "กำลังเตรียมวิดีโอสำหรับ CarPlay";
@@ -31,3 +31,42 @@
 "STARTUPSCREEN_DELETE_TITLE" = "ลบวิดีโอ";
 "STARTUPSCREEN_DELETE_CONFIRM" = "ลบ \"%@\" หรือไม่";
 "STARTUPSCREEN_DELETE_ACTION" = "ลบ";
+
+"STARTUPSCREEN_STYLE_GROUP" = "รูปแบบการเริ่มต้น";
+"STARTUPSCREEN_STYLE_FOOTER" = "การ์ดด้านบนแสดงสิ่งที่หน้าจอรถจะแสดง แตะการ์ดเพื่อเล่นเอฟเฟกต์อีกครั้ง";
+"STARTUPSCREEN_STYLE_VIDEO" = "วิดีโอ";
+"STARTUPSCREEN_STYLE_LOGO" = "โลโก้";
+"STARTUPSCREEN_STYLE_GREETING" = "คำทักทาย";
+"STARTUPSCREEN_STYLE_WEATHER" = "สภาพอากาศ";
+
+"STARTUPSCREEN_LOGO_GROUP" = "โลโก้";
+"STARTUPSCREEN_LOGO_FOOTER" = "PNG พื้นหลังโปร่งใสจะดูดีที่สุดบนพื้นหลังสีเข้ม หากไม่มีโลโก้จะแสดงไอคอนรถ";
+"STARTUPSCREEN_LOGO_CHOOSE" = "เลือกโลโก้";
+"STARTUPSCREEN_LOGO_DELETE" = "ลบโลโก้";
+"STARTUPSCREEN_LOGO_FAILED" = "อ่านรูปภาพนี้ไม่ได้";
+"STARTUPSCREEN_LOGO_NONE" = "ยังไม่มีโลโก้";
+"STARTUPSCREEN_EFFECT_GROUP" = "เอฟเฟกต์";
+"STARTUPSCREEN_EFFECT_FADE" = "ค่อยๆ ปรากฏ";
+"STARTUPSCREEN_EFFECT_ZOOM" = "ซูม";
+"STARTUPSCREEN_EFFECT_GLOW" = "เรืองแสง";
+
+"STARTUPSCREEN_GREETING_GROUP" = "คำทักทาย";
+"STARTUPSCREEN_GREETING_FOOTER" = "\"อรุณสวัสดิ์ <ชื่อ>\" พร้อมเวลาและวันที่ ข้อความและสีจะเปลี่ยนตามช่วงเช้า บ่าย เย็น และกลางคืน";
+"STARTUPSCREEN_NAME" = "ชื่อของคุณ";
+"STARTUPSCREEN_NAME_PLACEHOLDER" = "ไม่บังคับ";
+
+"STARTUPSCREEN_WEATHER_FOOTER" = "รูปแบบสภาพอากาศต้องใช้อินเทอร์เน็ต: ทุกครั้งที่ CarPlay เชื่อมต่อ จะส่งตำแหน่งล่าสุดที่ทราบของคุณ ซึ่งปัดเป็นทศนิยม 2 ตำแหน่ง (ประมาณ 1 กม.) ไปยัง Open-Meteo (open-meteo.com ไม่ต้องมีบัญชี) เมื่อออฟไลน์จะแสดงผลล่าสุดพร้อมเวลา หากไม่มีสิทธิ์เข้าถึงตำแหน่งหรือไม่มีข้อมูลจะแสดงคำทักทาย";
+"STARTUPSCREEN_WEATHER_LAST" = "อัปเดตล่าสุด: %@";
+"STARTUPSCREEN_WEATHER_NONE" = "ยังไม่มีข้อมูลสภาพอากาศ";
+
+"STARTUPSCREEN_STARTUP_SOUND_GROUP" = "เสียงเริ่มต้น";
+"STARTUPSCREEN_STARTUP_SOUND_FOOTER" = "เล่นผ่านลำโพงรถเมื่อ CarPlay เชื่อมต่อ ใช้ได้กับทุกรูปแบบ M4A, MP3, WAV, CAF เมื่อใช้รูปแบบวิดีโอและเปิดเสียงวิดีโอ จะเล่นเสียงของวิดีโอแทน";
+"STARTUPSCREEN_SOUND_CHOOSE" = "เลือกเสียง";
+"STARTUPSCREEN_SOUND_PREVIEW" = "เล่นเสียง";
+"STARTUPSCREEN_SOUND_DELETE" = "ลบเสียง";
+"STARTUPSCREEN_SOUND_CURRENT" = "ปัจจุบัน: %@";
+"STARTUPSCREEN_SOUND_NONE" = "ไม่มีเสียงเริ่มต้น";
+"STARTUPSCREEN_SOUND_FAILED" = "เล่นเสียงนี้ไม่ได้: %@";
+"STARTUPSCREEN_VOLUME_GROUP" = "ระดับเสียง";
+"STARTUPSCREEN_VOLUME_FOOTER" = "สำหรับเสียงเริ่มต้นและเสียงของวิดีโอ";
+"STARTUPSCREEN_SOUND_SKIP_CALL" = "ปิดเสียงระหว่างโทร";

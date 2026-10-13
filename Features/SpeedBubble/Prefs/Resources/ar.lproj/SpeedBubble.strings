@@ -36,3 +36,13 @@
 "SPEEDBUBBLE_SIGN_0" = "تلقائي (حسب المنطقة)";
 "SPEEDBUBBLE_SIGN_1" = "دائرية (فيينا)";
 "SPEEDBUBBLE_SIGN_2" = "مستطيلة (الولايات المتحدة)";
+"SPEEDBUBBLE_SOURCE_GPS" = "نظام GPS في iPhone";
+"SPEEDBUBBLE_SOURCE_FOOTER" = "يوفّر Vietmap Live وGOFA السرعة والحد الأقصى للسرعة: افتح التطبيق مرة واحدة ثم اتركه يعمل في الخلفية. يوفّر نظام GPS في iPhone السرعة فقط دون حد السرعة (تعرض اللافتة -- ولا يوجد تحذير من تجاوز السرعة)، ولا يعمل إلا أثناء اتصال CarPlay.";
+"SPEEDBUBBLE_GPS_UNAVAILABLE" = "نظام GPS في iPhone غير متاح: ليس لدى SpringBoard إذن باستخدام موقعك. تحقق من الإعدادات > الخصوصية > خدمات الموقع، ثم أجرِ Respring.";
+"SPEEDBUBBLE_WARN" = "تحذير تجاوز السرعة";
+"SPEEDBUBBLE_WARN_MODE" = "التحذير";
+"SPEEDBUBBLE_WARN_MODE_0" = "إيقاف";
+"SPEEDBUBBLE_WARN_MODE_1" = "إطار فقط (صامت)";
+"SPEEDBUBBLE_WARN_MODE_2" = "إطار وصوت قصير";
+"SPEEDBUBBLE_WARN_OVER" = "التحذير عند تجاوز الحد بمقدار";
+"SPEEDBUBBLE_WARN_FOOTER" = "عندما تتجاوز حد السرعة مضافًا إليه هذا الهامش (بالوحدة المعروضة على الفقاعة)، ينبض إطار أحمر متوهج حول شاشة CarPlay. يُشغَّل الصوت مرة واحدة، ثم لا يُشغَّل مجددًا إلا بعد أن تبقى تحت الحد لمدة 5 ثوانٍ. يتطلب حد سرعة من التطبيق المصدر.";

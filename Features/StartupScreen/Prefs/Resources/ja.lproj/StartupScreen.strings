@@ -14,13 +14,13 @@
 "STARTUPSCREEN_FROM_FILES" = "ファイルから";
 
 "STARTUPSCREEN_DURATION_GROUP" = "再生時間（秒）";
-"STARTUPSCREEN_DURATION_FOOTER" = "短いビデオはループ再生されます。";
+"STARTUPSCREEN_DURATION_FOOTER" = "起動画面が車のディスプレイに表示される時間です。短いビデオはループ再生されます。";
 "STARTUPSCREEN_PLAY_FULL" = "ビデオを最後まで再生";
 
 "STARTUPSCREEN_DISPLAY_GROUP" = "表示";
 "STARTUPSCREEN_SCALE_FILL" = "全体に表示";
 "STARTUPSCREEN_SCALE_FIT" = "画面に合わせる";
-"STARTUPSCREEN_SOUND" = "サウンド";
+"STARTUPSCREEN_SOUND" = "ビデオのサウンド";
 "STARTUPSCREEN_TAP_TO_SKIP" = "タップでスキップ";
 
 "STARTUPSCREEN_PREPARING" = "CarPlay用にビデオを準備中";
@@ -31,3 +31,37 @@
 "STARTUPSCREEN_DELETE_TITLE" = "ビデオを削除";
 "STARTUPSCREEN_DELETE_CONFIRM" = "「%@」を削除しますか？";
 "STARTUPSCREEN_DELETE_ACTION" = "削除";
+"STARTUPSCREEN_STYLE_GROUP" = "起動スタイル";
+"STARTUPSCREEN_STYLE_FOOTER" = "上部のカードに、車の画面に表示される内容が表示されます。タップすると効果を再生します。";
+"STARTUPSCREEN_STYLE_VIDEO" = "ビデオ";
+"STARTUPSCREEN_STYLE_LOGO" = "ロゴ";
+"STARTUPSCREEN_STYLE_GREETING" = "あいさつ";
+"STARTUPSCREEN_STYLE_WEATHER" = "天気";
+"STARTUPSCREEN_LOGO_GROUP" = "ロゴ";
+"STARTUPSCREEN_LOGO_FOOTER" = "暗い背景には、背景が透明なPNGが最もきれいに表示されます。ロゴがない場合は車のアイコンが表示されます。";
+"STARTUPSCREEN_LOGO_CHOOSE" = "ロゴを選択";
+"STARTUPSCREEN_LOGO_DELETE" = "ロゴを削除";
+"STARTUPSCREEN_LOGO_FAILED" = "この画像を読み込めませんでした。";
+"STARTUPSCREEN_LOGO_NONE" = "ロゴはまだありません。";
+"STARTUPSCREEN_EFFECT_GROUP" = "効果";
+"STARTUPSCREEN_EFFECT_FADE" = "フェードイン";
+"STARTUPSCREEN_EFFECT_ZOOM" = "ズーム";
+"STARTUPSCREEN_EFFECT_GLOW" = "グロー";
+"STARTUPSCREEN_GREETING_GROUP" = "あいさつ";
+"STARTUPSCREEN_GREETING_FOOTER" = "「おはようございます、<名前>」と時刻・日付を表示します。テキストと色は朝、昼、夕方、夜で変わります。";
+"STARTUPSCREEN_NAME" = "あなたの名前";
+"STARTUPSCREEN_NAME_PLACEHOLDER" = "任意";
+"STARTUPSCREEN_WEATHER_FOOTER" = "天気スタイルはインターネットを使用します: CarPlayが接続するたびに、最後に取得した位置情報を小数点以下2桁（約1 km）に丸めてOpen-Meteo（open-meteo.com、アカウント不要）に送信します。オフラインのときは最後の結果をその時刻とともに表示し、位置情報へのアクセスやデータがない場合はあいさつを表示します。";
+"STARTUPSCREEN_WEATHER_LAST" = "最終更新: %@";
+"STARTUPSCREEN_WEATHER_NONE" = "天気データはまだありません。";
+"STARTUPSCREEN_STARTUP_SOUND_GROUP" = "起動サウンド";
+"STARTUPSCREEN_STARTUP_SOUND_FOOTER" = "CarPlayの接続時に車のスピーカーから再生されます。どのスタイルでも使えます。M4A、MP3、WAV、CAF。ビデオスタイルで「ビデオのサウンド」がオンの場合は、代わりにビデオ自体の音声が再生されます。";
+"STARTUPSCREEN_SOUND_CHOOSE" = "サウンドを選択";
+"STARTUPSCREEN_SOUND_PREVIEW" = "サウンドを再生";
+"STARTUPSCREEN_SOUND_DELETE" = "サウンドを削除";
+"STARTUPSCREEN_SOUND_CURRENT" = "現在: %@";
+"STARTUPSCREEN_SOUND_NONE" = "起動サウンドはありません。";
+"STARTUPSCREEN_SOUND_FAILED" = "このサウンドを再生できませんでした: %@";
+"STARTUPSCREEN_VOLUME_GROUP" = "音量";
+"STARTUPSCREEN_VOLUME_FOOTER" = "起動サウンドとビデオの音声に適用されます。";
+"STARTUPSCREEN_SOUND_SKIP_CALL" = "通話中は鳴らさない";

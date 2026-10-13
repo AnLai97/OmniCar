@@ -248,6 +248,9 @@
 "CLEAN_RAM_NEVER" = "まだ実行されていません";
 "CLEAN_RAM_LAST" = "前回: %lu個のAppを終了（%@）";
 "CLEAN_RAM_NOW" = "今すぐメモリを解放";
-"CLEAN_RAM_NOW_SUB" = "車に必要なAppを除き、バックグラウンドで動作しているAppを終了します。";
+"CLEAN_RAM_NOW_SUB" = "画面に表示中のAppと再生中のAppを除き、バックグラウンドで動作しているAppをすべて終了します。車の接続中は、車に必要なAppも残します。";
+"CLEAN_RAM_RESULT" = "%lu個のAppを終了しました。";
+"CLEAN_RAM_NOTHING" = "終了できるバックグラウンドのAppはありません。";
+"CLEAN_RAM_NO_REPLY" = "SpringBoardから応答がありません。リスプリングしてもう一度お試しください。それでも失敗する場合は、ログを開発者に送信してください。";
 "CLEAN_RAM_CONFIRM" = "今すぐメモリを解放しますか？";
 "CLEAN_RAM_DO" = "解放";

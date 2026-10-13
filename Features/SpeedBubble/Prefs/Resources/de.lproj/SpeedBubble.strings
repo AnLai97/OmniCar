@@ -36,3 +36,13 @@
 "SPEEDBUBBLE_SIGN_0" = "Automatisch (nach Region)";
 "SPEEDBUBBLE_SIGN_1" = "Rund (Wien)";
 "SPEEDBUBBLE_SIGN_2" = "Rechteckig (USA)";
+"SPEEDBUBBLE_SOURCE_GPS" = "iPhone-GPS";
+"SPEEDBUBBLE_SOURCE_FOOTER" = "Vietmap Live und GOFA liefern Tempo und Tempolimit: Öffne die App einmal und lass sie im Hintergrund laufen. iPhone-GPS liefert nur das Tempo, ohne Tempolimit (das Schild zeigt --, keine Tempowarnung), und läuft nur, solange CarPlay verbunden ist.";
+"SPEEDBUBBLE_GPS_UNAVAILABLE" = "iPhone-GPS nicht verfügbar: SpringBoard darf deinen Standort nicht verwenden. Prüfe Einstellungen > Datenschutz > Ortungsdienste und führe dann einen Respring aus.";
+"SPEEDBUBBLE_WARN" = "Tempowarnung";
+"SPEEDBUBBLE_WARN_MODE" = "Warnung";
+"SPEEDBUBBLE_WARN_MODE_0" = "Aus";
+"SPEEDBUBBLE_WARN_MODE_1" = "Nur Rahmen (lautlos)";
+"SPEEDBUBBLE_WARN_MODE_2" = "Rahmen und kurzer Ton";
+"SPEEDBUBBLE_WARN_OVER" = "Warnen bei Überschreitung um";
+"SPEEDBUBBLE_WARN_FOOTER" = "Fährst du schneller als das Tempolimit plus diese Toleranz (in der Einheit der Blase), pulsiert ein rot leuchtender Rahmen um den CarPlay-Bildschirm. Der Ton erklingt einmal und erst wieder, nachdem du 5 Sekunden unter dem Limit warst. Benötigt ein Tempolimit aus der Quell-App.";

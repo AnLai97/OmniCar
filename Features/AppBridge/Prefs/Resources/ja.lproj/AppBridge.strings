@@ -14,3 +14,5 @@
 "APPBRIDGE_APPS_SEARCH" = "Appを検索";
 "APPBRIDGE_APPS_EMPTY" = "このデバイスにiPhone Appが見つかりません。";
 "APPBRIDGE_APPS_NO_MATCH" = "一致するAppはありません。";
+"APPBRIDGE_DRIVE_MODE" = "運転モード";
+"APPBRIDGE_DRIVE_FOOTER" = "運転モード: 10 km/hを超えると、車で使うiPhone Appは音声のみになります（映像は隠され、タッチはロック）。停車すると再び視聴できます。スピードバブルの速度取得元を使用します。";

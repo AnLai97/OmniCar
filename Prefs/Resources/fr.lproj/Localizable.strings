@@ -248,6 +248,9 @@
 "CLEAN_RAM_NEVER" = "Jamais exécuté";
 "CLEAN_RAM_LAST" = "Dernière fois : %lu apps fermées à %@";
 "CLEAN_RAM_NOW" = "Libérer la mémoire maintenant";
-"CLEAN_RAM_NOW_SUB" = "Ferme les apps en arrière-plan, sauf celles dont la voiture a besoin.";
+"CLEAN_RAM_NOW_SUB" = "Ferme toutes les apps en arrière-plan, sauf celle à l’écran et celle en cours de lecture. Avec une voiture connectée, conserve aussi les apps dont la voiture a besoin.";
+"CLEAN_RAM_RESULT" = "%lu apps fermées.";
+"CLEAN_RAM_NOTHING" = "Aucune app en arrière-plan à fermer.";
+"CLEAN_RAM_NO_REPLY" = "SpringBoard n’a pas répondu. Faites un respring et réessayez ; si le problème persiste, envoyez le journal au développeur.";
 "CLEAN_RAM_CONFIRM" = "Libérer la mémoire maintenant ?";
 "CLEAN_RAM_DO" = "Libérer";

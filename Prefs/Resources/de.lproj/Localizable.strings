@@ -248,6 +248,9 @@
 "CLEAN_RAM_NEVER" = "Noch nie ausgeführt";
 "CLEAN_RAM_LAST" = "Zuletzt %lu Apps beendet um %@";
 "CLEAN_RAM_NOW" = "Jetzt Speicher freigeben";
-"CLEAN_RAM_NOW_SUB" = "Beendet Apps im Hintergrund, außer denen, die das Auto braucht.";
+"CLEAN_RAM_NOW_SUB" = "Beendet alle Apps im Hintergrund außer der App auf dem Bildschirm und der, die gerade abspielt. Bei verbundenem Auto bleiben auch die Apps erhalten, die das Auto braucht.";
+"CLEAN_RAM_RESULT" = "%lu Apps beendet.";
+"CLEAN_RAM_NOTHING" = "Keine Apps im Hintergrund zum Beenden.";
+"CLEAN_RAM_NO_REPLY" = "SpringBoard hat nicht geantwortet. Führe einen Respring aus und versuche es erneut; klappt es weiterhin nicht, sende das Protokoll an den Entwickler.";
 "CLEAN_RAM_CONFIRM" = "Jetzt Speicher freigeben?";
 "CLEAN_RAM_DO" = "Freigeben";

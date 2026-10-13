@@ -7,7 +7,8 @@
 "SPLITSCREEN_DRIVER_AUTO" = "自動";
 "SPLITSCREEN_DRIVER_LEFT" = "左";
 "SPLITSCREEN_DRIVER_RIGHT" = "右";
-"SPLITSCREEN_DRIVER_FOOTER" = "右ハンドル: 現在のAppが運転席に近い右側の枠で開きます。自動 = 車からの情報に従います。";
+"SPLITSCREEN_PINNED" = "固定する枠";
+"SPLITSCREEN_DRIVER_FOOTER" = "右ハンドル: 現在のAppが運転席に近い右側の枠で開きます。自動 = 車からの情報に従います。\n固定する枠（通常はマップ）: レイアウトやほかのAppが変わっても、そのAppは自分の枠に残ります。";
 
 "SPLITSCREEN_PANEL_GROUP" = "車内のOmniCarパネル";
 "SPLITSCREEN_SHOW_RECENT" = "最近";

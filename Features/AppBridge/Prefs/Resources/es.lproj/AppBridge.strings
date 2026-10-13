@@ -14,3 +14,5 @@
 "APPBRIDGE_APPS_SEARCH" = "Buscar apps";
 "APPBRIDGE_APPS_EMPTY" = "No se encontraron apps del iPhone en este dispositivo.";
 "APPBRIDGE_APPS_NO_MATCH" = "Ninguna app coincide.";
+"APPBRIDGE_DRIVE_MODE" = "Modo conducción";
+"APPBRIDGE_DRIVE_FOOTER" = "Modo conducción: a más de 10 km/h, las apps del iPhone en el coche solo reproducen el sonido (imagen tapada, toques bloqueados); detén el coche para volver a verlas. Usa el origen de velocidad de Burbuja de velocidad.";

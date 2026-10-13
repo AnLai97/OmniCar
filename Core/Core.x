@@ -150,7 +150,7 @@ static void OMCCleanRam(BOOL force) {
 #pragma mark - Shortcuts / Siri (omnicar:// URLs that are not one feature's)
 
 // omnicar://feature/<splitScreen | appBridge | speedBubble | startupScreen | all>?on=1|0|toggle
-// omnicar://lite?mode=off|auto|always      omnicar://cleanram
+// omnicar://lite?mode=off|auto|always      omnicar://cleanram      omnicar://startup?style=video|logo|greeting|weather
 // (omnicar://splitscreen/... is Split Screen's own, see Features/SplitScreen/SpringBoard.xm)
 static void OMCCoreHandleURL(NSString *urlString) {
 	NSURL *url = [urlString isKindOfClass:[NSString class]] ? [NSURL URLWithString:urlString] : nil;
@@ -175,6 +175,12 @@ static void OMCCoreHandleURL(NSString *urlString) {
 		if (!mode) return;
 		CFPreferencesSetAppValue((__bridge CFStringRef)OMC_KEY_LITE_MODE, (__bridge CFPropertyListRef)mode, OMC_PREFS_DOMAIN);
 		OMCLog(@"Core", @"URL: che do nhe = %@", mode);
+	} else if ([host isEqualToString:@"startup"]) {   // omnicar://startup?style=video|logo|greeting|weather
+		NSDictionary *styles = @{@"video": @0, @"logo": @1, @"greeting": @2, @"weather": @3};
+		NSNumber *style = styles[[q[@"style"] lowercaseString] ?: @""];
+		if (!style) return;
+		CFPreferencesSetAppValue(CFSTR("startupScreenStyle"), (__bridge CFPropertyListRef)style, OMC_PREFS_DOMAIN);
+		OMCLog(@"Core", @"URL: kieu khoi dong = %@", style);
 	} else if ([host isEqualToString:@"cleanram"]) {
 		notify_post(OMC_DARWIN_CLEAN_NOW);
 		return;

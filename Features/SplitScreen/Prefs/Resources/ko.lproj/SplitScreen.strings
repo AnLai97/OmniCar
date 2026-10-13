@@ -7,7 +7,8 @@
 "SPLITSCREEN_DRIVER_AUTO" = "자동";
 "SPLITSCREEN_DRIVER_LEFT" = "왼쪽";
 "SPLITSCREEN_DRIVER_RIGHT" = "오른쪽";
-"SPLITSCREEN_DRIVER_FOOTER" = "우핸들: 현재 앱이 운전석 옆인 오른쪽 창에 열립니다. 자동 = 차량이 알려 주는 값.";
+"SPLITSCREEN_PINNED" = "고정된 창";
+"SPLITSCREEN_DRIVER_FOOTER" = "우핸들: 현재 앱이 운전석 옆인 오른쪽 창에 열립니다. 자동 = 차량이 알려 주는 값.\n고정된 창(보통 지도): 레이아웃이나 다른 앱이 바뀌어도 해당 앱은 자기 창을 유지합니다.";
 
 "SPLITSCREEN_PANEL_GROUP" = "차량의 OmniCar 패널";
 "SPLITSCREEN_SHOW_RECENT" = "최근 항목";

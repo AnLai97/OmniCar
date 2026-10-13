@@ -14,13 +14,13 @@
 "STARTUPSCREEN_FROM_FILES" = "파일에서";
 
 "STARTUPSCREEN_DURATION_GROUP" = "재생 시간(초)";
-"STARTUPSCREEN_DURATION_FOOTER" = "더 짧은 동영상은 반복 재생됩니다.";
+"STARTUPSCREEN_DURATION_FOOTER" = "시작 화면이 차량 디스플레이에 표시되는 시간입니다. 더 짧은 동영상은 반복 재생됩니다.";
 "STARTUPSCREEN_PLAY_FULL" = "동영상 전체 재생";
 
 "STARTUPSCREEN_DISPLAY_GROUP" = "디스플레이";
 "STARTUPSCREEN_SCALE_FILL" = "채우기";
 "STARTUPSCREEN_SCALE_FIT" = "맞추기";
-"STARTUPSCREEN_SOUND" = "사운드";
+"STARTUPSCREEN_SOUND" = "동영상 사운드";
 "STARTUPSCREEN_TAP_TO_SKIP" = "탭하여 건너뛰기";
 
 "STARTUPSCREEN_PREPARING" = "CarPlay용 동영상 준비 중";
@@ -31,3 +31,42 @@
 "STARTUPSCREEN_DELETE_TITLE" = "동영상 삭제";
 "STARTUPSCREEN_DELETE_CONFIRM" = "\"%@\"을(를) 삭제하겠습니까?";
 "STARTUPSCREEN_DELETE_ACTION" = "삭제";
+
+"STARTUPSCREEN_STYLE_GROUP" = "시작 스타일";
+"STARTUPSCREEN_STYLE_FOOTER" = "상단의 카드에 차량 화면에 표시될 모습이 나타납니다. 카드를 탭하면 효과를 다시 재생합니다.";
+"STARTUPSCREEN_STYLE_VIDEO" = "동영상";
+"STARTUPSCREEN_STYLE_LOGO" = "로고";
+"STARTUPSCREEN_STYLE_GREETING" = "인사말";
+"STARTUPSCREEN_STYLE_WEATHER" = "날씨";
+
+"STARTUPSCREEN_LOGO_GROUP" = "로고";
+"STARTUPSCREEN_LOGO_FOOTER" = "투명 배경의 PNG가 어두운 배경에서 가장 잘 보입니다. 로고가 없으면 자동차 아이콘이 표시됩니다.";
+"STARTUPSCREEN_LOGO_CHOOSE" = "로고 선택";
+"STARTUPSCREEN_LOGO_DELETE" = "로고 제거";
+"STARTUPSCREEN_LOGO_FAILED" = "이 이미지를 읽을 수 없습니다.";
+"STARTUPSCREEN_LOGO_NONE" = "아직 로고가 없습니다.";
+"STARTUPSCREEN_EFFECT_GROUP" = "효과";
+"STARTUPSCREEN_EFFECT_FADE" = "페이드 인";
+"STARTUPSCREEN_EFFECT_ZOOM" = "확대";
+"STARTUPSCREEN_EFFECT_GLOW" = "글로우";
+
+"STARTUPSCREEN_GREETING_GROUP" = "인사말";
+"STARTUPSCREEN_GREETING_FOOTER" = "시간 및 날짜와 함께 \"좋은 아침이에요, <이름>\"이 표시됩니다. 아침, 오후, 저녁, 밤에 따라 문구와 색상이 바뀝니다.";
+"STARTUPSCREEN_NAME" = "이름";
+"STARTUPSCREEN_NAME_PLACEHOLDER" = "선택 사항";
+
+"STARTUPSCREEN_WEATHER_FOOTER" = "날씨 스타일은 인터넷을 사용합니다. CarPlay가 연결될 때마다 마지막으로 확인된 위치를 소수점 2자리(약 1km)로 반올림하여 Open-Meteo(open-meteo.com, 계정 불필요)에 보냅니다. 오프라인일 때는 마지막 결과를 시간과 함께 표시하고, 위치 접근 권한이나 데이터가 없으면 인사말을 표시합니다.";
+"STARTUPSCREEN_WEATHER_LAST" = "마지막 업데이트: %@";
+"STARTUPSCREEN_WEATHER_NONE" = "아직 날씨 데이터가 없습니다.";
+
+"STARTUPSCREEN_STARTUP_SOUND_GROUP" = "시작 사운드";
+"STARTUPSCREEN_STARTUP_SOUND_FOOTER" = "CarPlay가 연결되면 스타일과 관계없이 차량 스피커로 재생됩니다. M4A, MP3, WAV, CAF. 동영상 스타일에서 동영상 사운드가 켜져 있으면 동영상 자체의 오디오가 대신 재생됩니다.";
+"STARTUPSCREEN_SOUND_CHOOSE" = "사운드 선택";
+"STARTUPSCREEN_SOUND_PREVIEW" = "사운드 재생";
+"STARTUPSCREEN_SOUND_DELETE" = "사운드 제거";
+"STARTUPSCREEN_SOUND_CURRENT" = "현재: %@";
+"STARTUPSCREEN_SOUND_NONE" = "시작 사운드 없음.";
+"STARTUPSCREEN_SOUND_FAILED" = "이 사운드를 재생할 수 없습니다: %@";
+"STARTUPSCREEN_VOLUME_GROUP" = "음량";
+"STARTUPSCREEN_VOLUME_FOOTER" = "시작 사운드와 동영상 오디오에 적용됩니다.";
+"STARTUPSCREEN_SOUND_SKIP_CALL" = "통화 중에는 무음";

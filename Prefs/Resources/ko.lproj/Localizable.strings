@@ -248,6 +248,9 @@
 "CLEAN_RAM_NEVER" = "아직 실행한 적 없음";
 "CLEAN_RAM_LAST" = "마지막: 앱 %lu개 종료, %@";
 "CLEAN_RAM_NOW" = "지금 메모리 확보";
-"CLEAN_RAM_NOW_SUB" = "차량에 필요한 앱을 제외하고 백그라운드에서 실행 중인 앱을 종료합니다.";
+"CLEAN_RAM_NOW_SUB" = "화면에 표시된 앱과 재생 중인 앱을 제외하고 백그라운드에서 실행 중인 모든 앱을 종료합니다. 차량이 연결되어 있으면 차량에 필요한 앱도 유지합니다.";
+"CLEAN_RAM_RESULT" = "앱 %lu개를 종료했습니다.";
+"CLEAN_RAM_NOTHING" = "종료할 백그라운드 앱이 없습니다.";
+"CLEAN_RAM_NO_REPLY" = "SpringBoard가 응답하지 않았습니다. 리스프링한 다음 다시 시도하십시오. 계속 실패하면 개발자에게 로그를 보내십시오.";
 "CLEAN_RAM_CONFIRM" = "지금 메모리를 확보하겠습니까?";
 "CLEAN_RAM_DO" = "확보";

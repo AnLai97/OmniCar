@@ -7,7 +7,8 @@
 "SPLITSCREEN_DRIVER_AUTO" = "Automatisch";
 "SPLITSCREEN_DRIVER_LEFT" = "Links";
 "SPLITSCREEN_DRIVER_RIGHT" = "Rechts";
-"SPLITSCREEN_DRIVER_FOOTER" = "Rechtslenker: Die aktuelle App öffnet im rechten Bereich, neben dem Fahrer. Automatisch = was das Auto meldet.";
+"SPLITSCREEN_PINNED" = "Fixierter Bereich";
+"SPLITSCREEN_DRIVER_FOOTER" = "Rechtslenker: Die aktuelle App öffnet im rechten Bereich, neben dem Fahrer. Automatisch = was das Auto meldet.\nFixierter Bereich (meist die Karte): Diese App behält ihren Bereich, wenn sich das Layout oder andere Apps ändern.";
 
 "SPLITSCREEN_PANEL_GROUP" = "OmniCar-Menü im Auto";
 "SPLITSCREEN_SHOW_RECENT" = "Zuletzt";

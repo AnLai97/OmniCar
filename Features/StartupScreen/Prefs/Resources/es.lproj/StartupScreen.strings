@@ -14,13 +14,13 @@
 "STARTUPSCREEN_FROM_FILES" = "Desde Archivos";
 
 "STARTUPSCREEN_DURATION_GROUP" = "Duración (segundos)";
-"STARTUPSCREEN_DURATION_FOOTER" = "Los vídeos más cortos se repiten.";
+"STARTUPSCREEN_DURATION_FOOTER" = "Cuánto tiempo se queda la pantalla de inicio en la pantalla del coche. Los vídeos más cortos se repiten.";
 "STARTUPSCREEN_PLAY_FULL" = "Reproducir el vídeo completo";
 
 "STARTUPSCREEN_DISPLAY_GROUP" = "Visualización";
 "STARTUPSCREEN_SCALE_FILL" = "Rellenar";
 "STARTUPSCREEN_SCALE_FIT" = "Ajustar";
-"STARTUPSCREEN_SOUND" = "Sonido";
+"STARTUPSCREEN_SOUND" = "Sonido del vídeo";
 "STARTUPSCREEN_TAP_TO_SKIP" = "Tocar para omitir";
 
 "STARTUPSCREEN_PREPARING" = "Preparando el vídeo para CarPlay";
@@ -31,3 +31,42 @@
 "STARTUPSCREEN_DELETE_TITLE" = "Eliminar vídeo";
 "STARTUPSCREEN_DELETE_CONFIRM" = "¿Eliminar \"%@\"?";
 "STARTUPSCREEN_DELETE_ACTION" = "Eliminar";
+
+"STARTUPSCREEN_STYLE_GROUP" = "Estilo de inicio";
+"STARTUPSCREEN_STYLE_FOOTER" = "La tarjeta de arriba muestra lo que verás en la pantalla del coche. Tócala para repetir el efecto.";
+"STARTUPSCREEN_STYLE_VIDEO" = "Vídeo";
+"STARTUPSCREEN_STYLE_LOGO" = "Logo";
+"STARTUPSCREEN_STYLE_GREETING" = "Saludo";
+"STARTUPSCREEN_STYLE_WEATHER" = "Tiempo";
+
+"STARTUPSCREEN_LOGO_GROUP" = "Logo";
+"STARTUPSCREEN_LOGO_FOOTER" = "Un PNG con fondo transparente queda mejor sobre el fondo oscuro. Sin logo se muestra un icono de coche.";
+"STARTUPSCREEN_LOGO_CHOOSE" = "Elegir logo";
+"STARTUPSCREEN_LOGO_DELETE" = "Quitar logo";
+"STARTUPSCREEN_LOGO_FAILED" = "No se pudo leer esta imagen.";
+"STARTUPSCREEN_LOGO_NONE" = "Aún no hay logo.";
+"STARTUPSCREEN_EFFECT_GROUP" = "Efecto";
+"STARTUPSCREEN_EFFECT_FADE" = "Fundido";
+"STARTUPSCREEN_EFFECT_ZOOM" = "Zoom";
+"STARTUPSCREEN_EFFECT_GLOW" = "Brillo";
+
+"STARTUPSCREEN_GREETING_GROUP" = "Saludo";
+"STARTUPSCREEN_GREETING_FOOTER" = "\"Buenos días, <nombre>\" con la hora y la fecha. El texto y los colores cambian por la mañana, la tarde, la noche y la madrugada.";
+"STARTUPSCREEN_NAME" = "Tu nombre";
+"STARTUPSCREEN_NAME_PLACEHOLDER" = "Opcional";
+
+"STARTUPSCREEN_WEATHER_FOOTER" = "El estilo Tiempo usa internet: cada vez que CarPlay se conecta, envía tu última ubicación conocida, redondeada a 2 decimales (aprox. 1 km), a Open-Meteo (open-meteo.com, sin cuenta). Sin conexión muestra el último resultado con su hora; sin acceso a la ubicación ni datos muestra el saludo.";
+"STARTUPSCREEN_WEATHER_LAST" = "Última actualización: %@";
+"STARTUPSCREEN_WEATHER_NONE" = "Aún no hay datos del tiempo.";
+
+"STARTUPSCREEN_STARTUP_SOUND_GROUP" = "Sonido de inicio";
+"STARTUPSCREEN_STARTUP_SOUND_FOOTER" = "Suena por los altavoces del coche cuando CarPlay se conecta, con cualquier estilo. M4A, MP3, WAV, CAF. Con el estilo Vídeo y Sonido del vídeo activado, suena el audio del propio vídeo.";
+"STARTUPSCREEN_SOUND_CHOOSE" = "Elegir sonido";
+"STARTUPSCREEN_SOUND_PREVIEW" = "Reproducir sonido";
+"STARTUPSCREEN_SOUND_DELETE" = "Quitar sonido";
+"STARTUPSCREEN_SOUND_CURRENT" = "Actual: %@";
+"STARTUPSCREEN_SOUND_NONE" = "Sin sonido de inicio.";
+"STARTUPSCREEN_SOUND_FAILED" = "No se pudo reproducir este sonido: %@";
+"STARTUPSCREEN_VOLUME_GROUP" = "Volumen";
+"STARTUPSCREEN_VOLUME_FOOTER" = "Para el sonido de inicio y el audio del vídeo.";
+"STARTUPSCREEN_SOUND_SKIP_CALL" = "Silencio durante una llamada";

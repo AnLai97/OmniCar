@@ -14,3 +14,5 @@
 "APPBRIDGE_APPS_SEARCH" = "Apps suchen";
 "APPBRIDGE_APPS_EMPTY" = "Keine iPhone-Apps auf diesem Gerät gefunden.";
 "APPBRIDGE_APPS_NO_MATCH" = "Keine passende App.";
+"APPBRIDGE_DRIVE_MODE" = "Fahrmodus";
+"APPBRIDGE_DRIVE_FOOTER" = "Fahrmodus: Über 10 km/h geben iPhone-Apps im Auto nur Ton wieder (Bild verdeckt, Berührungen gesperrt); halte an, um wieder zuzusehen. Nutzt die Tempoquelle der Tempo-Blase.";

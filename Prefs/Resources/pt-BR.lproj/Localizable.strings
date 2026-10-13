@@ -248,6 +248,9 @@
 "CLEAN_RAM_NEVER" = "Ainda não foi executado";
 "CLEAN_RAM_LAST" = "Da última vez fechou %lu apps às %@";
 "CLEAN_RAM_NOW" = "Liberar memória agora";
-"CLEAN_RAM_NOW_SUB" = "Fecha os apps em segundo plano, exceto os que o carro precisa.";
+"CLEAN_RAM_NOW_SUB" = "Fecha todos os apps em segundo plano, exceto o que está na tela e o que está tocando. Com um carro conectado, também mantém os apps de que o carro precisa.";
+"CLEAN_RAM_RESULT" = "%lu apps fechados.";
+"CLEAN_RAM_NOTHING" = "Nenhum app em segundo plano para fechar.";
+"CLEAN_RAM_NO_REPLY" = "O SpringBoard não respondeu. Faça respring e tente de novo; se ainda falhar, envie o registro ao desenvolvedor.";
 "CLEAN_RAM_CONFIRM" = "Liberar memória agora?";
 "CLEAN_RAM_DO" = "Liberar";

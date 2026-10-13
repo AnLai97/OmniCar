@@ -14,3 +14,5 @@
 "APPBRIDGE_APPS_SEARCH" = "앱 검색";
 "APPBRIDGE_APPS_EMPTY" = "이 기기에서 iPhone 앱을 찾을 수 없습니다.";
 "APPBRIDGE_APPS_NO_MATCH" = "일치하는 앱이 없습니다.";
+"APPBRIDGE_DRIVE_MODE" = "주행 모드";
+"APPBRIDGE_DRIVE_FOOTER" = "주행 모드: 시속 10km를 넘으면 차량의 iPhone 앱은 소리만 재생됩니다(화면 가림, 터치 잠금). 다시 보려면 차를 세우십시오. 속도 버블의 속도 출처를 사용합니다.";

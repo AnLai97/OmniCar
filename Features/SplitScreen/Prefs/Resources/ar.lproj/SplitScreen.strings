@@ -7,7 +7,8 @@
 "SPLITSCREEN_DRIVER_AUTO" = "تلقائي";
 "SPLITSCREEN_DRIVER_LEFT" = "يسار";
 "SPLITSCREEN_DRIVER_RIGHT" = "يمين";
-"SPLITSCREEN_DRIVER_FOOTER" = "المقود على اليمين: يُفتح التطبيق الحالي في الجزء الأيمن بجوار السائق. تلقائي = ما تُبلغ به السيارة.";
+"SPLITSCREEN_PINNED" = "الجزء المثبّت";
+"SPLITSCREEN_DRIVER_FOOTER" = "المقود على اليمين: يُفتح التطبيق الحالي في الجزء الأيمن بجوار السائق. تلقائي = ما تُبلغ به السيارة.\nالجزء المثبّت (عادةً الخريطة): يحتفظ ذلك التطبيق بجزئه عند تغيير التخطيط أو التطبيقات الأخرى.";
 
 "SPLITSCREEN_PANEL_GROUP" = "لوحة OmniCar في السيارة";
 "SPLITSCREEN_SHOW_RECENT" = "الأخيرة";

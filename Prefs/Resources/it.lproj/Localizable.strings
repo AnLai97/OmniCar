@@ -248,6 +248,9 @@
 "CLEAN_RAM_NEVER" = "Mai eseguito";
 "CLEAN_RAM_LAST" = "L'ultima volta ha chiuso %lu app alle %@";
 "CLEAN_RAM_NOW" = "Libera memoria ora";
-"CLEAN_RAM_NOW_SUB" = "Chiude le app in background, tranne quelle che servono all'auto.";
+"CLEAN_RAM_NOW_SUB" = "Chiude tutte le app in background tranne quella sullo schermo e quella in riproduzione. Con un'auto connessa mantiene anche le app che servono all'auto.";
+"CLEAN_RAM_RESULT" = "App chiuse: %lu.";
+"CLEAN_RAM_NOTHING" = "Nessuna app in background da chiudere.";
+"CLEAN_RAM_NO_REPLY" = "SpringBoard non ha risposto. Esegui il respring e riprova; se continua a non funzionare, invia il log allo sviluppatore.";
 "CLEAN_RAM_CONFIRM" = "Liberare memoria ora?";
 "CLEAN_RAM_DO" = "Libera";

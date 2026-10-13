@@ -1,0 +1,8 @@
+/* OmniCar – Perfis de carro – Português (Brasil) */
+"PROFILES" = "Perfis de carro";
+"PROFILES_ENABLE" = "Um perfil para cada carro";
+"PROFILES_FOOTER" = "Cada carro guarda seu próprio layout de divisão, painel fixado, lado do motorista, Bolha de velocidade no carro, tela de inicialização e zoom dos apps do iPhone. O OmniCar muda para as configurações desse carro quando você o conecta.";
+"PROFILES_CARS" = "Carros";
+"PROFILES_CARS_FOOTER" = "✓ marca o carro em uso. Deslize para a esquerda para esquecer um carro.";
+"PROFILES_NONE" = "Nenhum carro ainda: ative e conecte um carro uma vez";
+"PROFILES_LAST_SEEN" = "Última conexão: %@";

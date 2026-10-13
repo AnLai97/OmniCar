@@ -14,13 +14,13 @@
 "STARTUPSCREEN_FROM_FILES" = "Dari File";
 
 "STARTUPSCREEN_DURATION_GROUP" = "Durasi (detik)";
-"STARTUPSCREEN_DURATION_FOOTER" = "Video yang lebih pendek akan diputar berulang.";
+"STARTUPSCREEN_DURATION_FOOTER" = "Berapa lama layar pembuka tampil di layar mobil. Video yang lebih pendek akan diputar berulang.";
 "STARTUPSCREEN_PLAY_FULL" = "Putar video penuh";
 
 "STARTUPSCREEN_DISPLAY_GROUP" = "Tampilan";
 "STARTUPSCREEN_SCALE_FILL" = "Isi";
 "STARTUPSCREEN_SCALE_FIT" = "Pas";
-"STARTUPSCREEN_SOUND" = "Suara";
+"STARTUPSCREEN_SOUND" = "Suara video";
 "STARTUPSCREEN_TAP_TO_SKIP" = "Ketuk untuk melewati";
 
 "STARTUPSCREEN_PREPARING" = "Menyiapkan video untuk CarPlay";
@@ -31,3 +31,42 @@
 "STARTUPSCREEN_DELETE_TITLE" = "Hapus video";
 "STARTUPSCREEN_DELETE_CONFIRM" = "Hapus \"%@\"?";
 "STARTUPSCREEN_DELETE_ACTION" = "Hapus";
+
+"STARTUPSCREEN_STYLE_GROUP" = "Gaya pembuka";
+"STARTUPSCREEN_STYLE_FOOTER" = "Kartu di bagian atas menampilkan apa yang akan tampil di layar mobil. Ketuk kartu untuk memutar ulang efeknya.";
+"STARTUPSCREEN_STYLE_VIDEO" = "Video";
+"STARTUPSCREEN_STYLE_LOGO" = "Logo";
+"STARTUPSCREEN_STYLE_GREETING" = "Sapaan";
+"STARTUPSCREEN_STYLE_WEATHER" = "Cuaca";
+
+"STARTUPSCREEN_LOGO_GROUP" = "Logo";
+"STARTUPSCREEN_LOGO_FOOTER" = "PNG berlatar transparan paling bagus di latar gelap. Tanpa logo, ikon mobil yang ditampilkan.";
+"STARTUPSCREEN_LOGO_CHOOSE" = "Pilih logo";
+"STARTUPSCREEN_LOGO_DELETE" = "Hapus logo";
+"STARTUPSCREEN_LOGO_FAILED" = "Tidak dapat membaca gambar ini.";
+"STARTUPSCREEN_LOGO_NONE" = "Belum ada logo.";
+"STARTUPSCREEN_EFFECT_GROUP" = "Efek";
+"STARTUPSCREEN_EFFECT_FADE" = "Muncul perlahan";
+"STARTUPSCREEN_EFFECT_ZOOM" = "Zoom";
+"STARTUPSCREEN_EFFECT_GLOW" = "Berpendar";
+
+"STARTUPSCREEN_GREETING_GROUP" = "Sapaan";
+"STARTUPSCREEN_GREETING_FOOTER" = "\"Selamat pagi, <nama>\" dengan waktu dan tanggal. Teks dan warnanya berubah untuk pagi, siang, malam, dan larut malam.";
+"STARTUPSCREEN_NAME" = "Nama Anda";
+"STARTUPSCREEN_NAME_PLACEHOLDER" = "Opsional";
+
+"STARTUPSCREEN_WEATHER_FOOTER" = "Gaya Cuaca memakai internet: setiap kali CarPlay terhubung, lokasi terakhir Anda yang diketahui, dibulatkan ke 2 desimal (sekitar 1 km), dikirim ke Open-Meteo (open-meteo.com, tanpa akun). Saat offline, hasil terakhir ditampilkan beserta waktunya; tanpa akses lokasi atau data, sapaan yang ditampilkan.";
+"STARTUPSCREEN_WEATHER_LAST" = "Pembaruan terakhir: %@";
+"STARTUPSCREEN_WEATHER_NONE" = "Belum ada data cuaca.";
+
+"STARTUPSCREEN_STARTUP_SOUND_GROUP" = "Suara pembuka";
+"STARTUPSCREEN_STARTUP_SOUND_FOOTER" = "Diputar melalui speaker mobil saat CarPlay terhubung, dengan gaya apa pun. M4A, MP3, WAV, CAF. Dengan gaya Video dan Suara video menyala, audio video itu sendiri yang diputar.";
+"STARTUPSCREEN_SOUND_CHOOSE" = "Pilih suara";
+"STARTUPSCREEN_SOUND_PREVIEW" = "Putar suara";
+"STARTUPSCREEN_SOUND_DELETE" = "Hapus suara";
+"STARTUPSCREEN_SOUND_CURRENT" = "Saat ini: %@";
+"STARTUPSCREEN_SOUND_NONE" = "Tidak ada suara pembuka.";
+"STARTUPSCREEN_SOUND_FAILED" = "Tidak dapat memutar suara ini: %@";
+"STARTUPSCREEN_VOLUME_GROUP" = "Volume";
+"STARTUPSCREEN_VOLUME_FOOTER" = "Untuk suara pembuka dan audio video.";
+"STARTUPSCREEN_SOUND_SKIP_CALL" = "Senyap saat panggilan";

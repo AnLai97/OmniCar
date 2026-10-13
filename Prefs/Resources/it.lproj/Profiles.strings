@@ -1,0 +1,9 @@
+/* OmniCar – Car profiles – Italiano */
+
+"PROFILES" = "Profili auto";
+"PROFILES_ENABLE" = "Un profilo per ogni auto";
+"PROFILES_FOOTER" = "Ogni auto mantiene il proprio layout diviso, riquadro fissato, lato guida, Bolla velocità sull'auto, schermata di avvio e zoom delle app di iPhone. OmniCar passa alle impostazioni di quell'auto quando la connetti.";
+"PROFILES_CARS" = "Auto";
+"PROFILES_CARS_FOOTER" = "✓ indica l'auto in uso. Scorri a sinistra per dimenticare un'auto.";
+"PROFILES_NONE" = "Ancora nessuna auto: attiva l'opzione e connetti un'auto una volta";
+"PROFILES_LAST_SEEN" = "Ultima connessione: %@";

@@ -8,11 +8,13 @@ TODO before publishing: contact address for privacy questions, and a note on wha
 
 ## English
 
-**Short version: OmniCar collects nothing and sends nothing. It has no network code.**
+**Short version: OmniCar collects nothing and sends nothing to the developer. The only network request is the optional Weather startup screen.**
 
 ### What OmniCar does not do
 - No analytics, no tracking, no ads, no account.
-- No network connections: OmniCar never sends data to the developer or anyone else.
+- No data to the developer or anyone else. One exception, only if you choose the **Weather** startup style: the CarPlay
+  process asks Open-Meteo (api.open-meteo.com, no account) for the forecast at your last known location, rounded to
+  2 decimals (about 1 km). Nothing else is sent; other styles make no network request.
 - It does not read your messages, photos, contacts or browsing.
 
 ### What stays on your iPhone
@@ -43,11 +45,13 @@ Uninstall OmniCar, then delete `/var/mobile/Documents/OmniCar.log*` and `/var/jb
 
 ## Tiếng Việt
 
-**Ngắn gọn: OmniCar không thu thập và không gửi gì đi. OmniCar không có code mạng.**
+**Ngắn gọn: OmniCar không thu thập và không gửi gì cho tác giả. Kết nối mạng duy nhất là kiểu khởi động Thời tiết (tuỳ chọn).**
 
 ### OmniCar không làm gì
 - Không thống kê, không theo dõi, không quảng cáo, không tài khoản.
-- Không kết nối mạng: không bao giờ gửi dữ liệu cho tác giả hay bất kỳ ai.
+- Không gửi dữ liệu cho tác giả hay bất kỳ ai. Ngoại lệ duy nhất, chỉ khi bạn chọn kiểu khởi động **Thời tiết**: CarPlay hỏi
+  Open-Meteo (api.open-meteo.com, không cần tài khoản) dự báo tại vị trí gần nhất của máy, làm tròn 2 chữ số thập phân
+  (khoảng 1 km). Không gửi gì khác; các kiểu khác không dùng mạng.
 - Không đọc tin nhắn, ảnh, danh bạ hay lịch sử duyệt web.
 
 ### Những gì nằm lại trên iPhone

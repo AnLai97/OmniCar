@@ -248,6 +248,9 @@
 "CLEAN_RAM_NEVER" = "Belum pernah dijalankan";
 "CLEAN_RAM_LAST" = "Terakhir menutup %lu app pada %@";
 "CLEAN_RAM_NOW" = "Kosongkan memori sekarang";
-"CLEAN_RAM_NOW_SUB" = "Menutup app yang berjalan di latar belakang, kecuali yang dibutuhkan mobil.";
+"CLEAN_RAM_NOW_SUB" = "Menutup semua app yang berjalan di latar belakang kecuali yang ada di layar dan yang sedang memutar. Saat mobil terhubung, app yang dibutuhkan mobil juga tetap dibiarkan.";
+"CLEAN_RAM_RESULT" = "%lu app ditutup.";
+"CLEAN_RAM_NOTHING" = "Tidak ada app di latar belakang untuk ditutup.";
+"CLEAN_RAM_NO_REPLY" = "SpringBoard tidak merespons. Lakukan Respring dan coba lagi; jika masih gagal, kirim log ke pengembang.";
 "CLEAN_RAM_CONFIRM" = "Kosongkan memori sekarang?";
 "CLEAN_RAM_DO" = "Kosongkan";
