@@ -281,6 +281,17 @@ static UIColor *SCPCAccent2(void) { return [UIColor colorWithRed:0x5A / 255.0 gr
 static UIColor *SCPCShadow(void) { return [UIColor colorWithRed:70 / 255.0 green:60 / 255.0 blue:140 / 255.0 alpha:1]; }  // bong tim nhat
 static UIColor *SCPCPastel(void) { return [UIColor colorWithRed:0xEE / 255.0 green:0xF0 / 255.0 blue:0xFB / 255.0 alpha:1]; } // nen o cho
 
+// O lua chon trong cac bang (bo cuc trong khay, app / so do trong bang chon app): tim rat nhat + vien manh, bo 14.
+// Cung mot ham de 2 bang luon cung mau.
+static void SCPCOptionTile(UIView *v)
+{
+    v.layer.cornerRadius = 14;
+    v.layer.cornerCurve = kCACornerCurveContinuous;
+    v.backgroundColor = [SCPCAccent() colorWithAlphaComponent:0.12];
+    v.layer.borderWidth = 0.5;
+    v.layer.borderColor = [SCPCAccent() colorWithAlphaComponent:0.3].CGColor;
+}
+
 // Dang chon / nut chinh: lop gradient tim -> xanh troi (bo goc theo view) + quang mau tim; on = NO go ra.
 // Goi lai sau khi doi kich thuoc view de lop gradient theo kip.
 static void SCPCAccentFill(UIView *v, BOOL on)
@@ -3747,7 +3758,8 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
     card.layer.shadowOpacity = 0.3; card.layer.shadowRadius = 24; card.layer.shadowOffset = CGSizeMake(0, 8);
     UIVisualEffectView *glass = SCPCGlassView();
     glass.frame = card.bounds;
-    glass.contentView.backgroundColor = [UIColor colorWithWhite:1 alpha:0.75];
+    // Cung kinh / vien / bong voi khay bo cuc (showLayoutPanelForApp) de 2 bang nhin nhu mot
+    glass.contentView.backgroundColor = [UIColor colorWithWhite:1 alpha:0.78];
     glass.layer.cornerRadius = 24;
     glass.layer.cornerCurve = kCACornerCurveContinuous;
     glass.layer.borderWidth = 0.5;
@@ -3755,17 +3767,9 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
     glass.clipsToBounds = YES;
     [card addSubview:glass];
     UIView *sheet = glass.contentView;   // noi dung nam tren kinh; card la khung hien / an
-    // Mau chat long pastel (oai huong -> xanh troi -> bac ha) pha len kinh nhu tools/preview/theme.html
-    CAGradientLayer *liquid = [CAGradientLayer layer];
-    liquid.frame = sheet.bounds;
-    liquid.colors = @[(id)[UIColor colorWithRed:0xB7 / 255.0 green:0xA6 / 255.0 blue:1 alpha:0.35].CGColor,
-                      (id)[UIColor colorWithRed:0x8F / 255.0 green:0xD3 / 255.0 blue:1 alpha:0.28].CGColor,
-                      (id)[UIColor colorWithRed:0x9D / 255.0 green:0xF2 / 255.0 blue:0xD8 / 255.0 alpha:0.28].CGColor];
-    liquid.startPoint = CGPointZero; liquid.endPoint = CGPointMake(1, 1);
-    [sheet.layer insertSublayer:liquid atIndex:0];
 
-    UIView *side = [[UIView alloc] initWithFrame:CGRectMake(gridW, 0, sideW, h)];   // cot phai, nen tim rat nhat de so do noi len
-    side.backgroundColor = [SCPCAccent() colorWithAlphaComponent:0.08];
+    UIView *side = [[UIView alloc] initWithFrame:CGRectMake(gridW, 0, sideW, h)];   // cot phai: cung mau o cua khay bo cuc
+    side.backgroundColor = [SCPCAccent() colorWithAlphaComponent:0.12];
     [sheet addSubview:side];
     UIView *map = [self pickerMapForPane:target height:mapH];
     if (map) { map.frame = CGRectMake(pad, pad + 32 + 8, map.bounds.size.width, mapH); [side addSubview:map]; }
@@ -3800,6 +3804,12 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
         b.frame = CGRectMake(page * gridW + gridPad + col * cellW, 2 + row * cellH, cellW, cellH);
         b.accessibilityIdentifier = app[@"id"];
         [b addTarget:self action:@selector(pickerAppTapped:) forControlEvents:UIControlEventTouchUpInside];
+        // O app: cung o tim nhat + vien manh bo 14 nhu o bo cuc trong khay (SCPCOptionTile)
+        UIView *tile = [[UIView alloc] initWithFrame:CGRectInset(b.bounds, 3, 2)];
+        tile.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+        tile.userInteractionEnabled = NO;
+        SCPCOptionTile(tile);
+        [b addSubview:tile];
         UIImageView *iv = [[UIImageView alloc] initWithFrame:CGRectMake((cellW - icon) / 2, 6, icon, icon)];
         iv.image = SCPCAppIcon(app[@"id"]);
         SCPCStyleIcon(iv);
@@ -4169,15 +4179,8 @@ static void SCPCMakePassThrough(UIWindow *w)
             [choices addObject:c];
             [b addTarget:self action:@selector(panelChoiceTapped:) forControlEvents:UIControlEventTouchUpInside];
             BOOL currentLayout = (si == 0 && layoutID == current);
-            b.layer.cornerRadius = 14;
-            b.layer.cornerCurve = kCACornerCurveContinuous;
-            if (currentLayout) {   // bo cuc dang dung: gradient mau nhan + quang, hinh bo cuc trang
-                SCPCAccentFill(b, YES);
-            } else {               // o khac: nen tim rat nhat + vien manh de tach khoi kinh trang
-                b.backgroundColor = [SCPCAccent() colorWithAlphaComponent:0.12];
-                b.layer.borderWidth = 0.5;
-                b.layer.borderColor = [SCPCAccent() colorWithAlphaComponent:0.3].CGColor;
-            }
+            SCPCOptionTile(b);
+            if (currentLayout) SCPCAccentFill(b, YES);   // bo cuc dang dung: gradient mau nhan + quang, hinh bo cuc trang
             NSArray *picApps = c[@"apps"] ?: slotApps;
             UIImageView *iv = [[UIImageView alloc] initWithImage:SCPCLayoutImage(layoutID, v, CGSizeMake(imgW, imgH), picApps, currentLayout)];
             iv.center = CGPointMake(cellW / 2, rowH / 2);
