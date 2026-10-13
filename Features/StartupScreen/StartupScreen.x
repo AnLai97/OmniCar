@@ -18,6 +18,7 @@
 #import <objc/runtime.h>
 #import "OmniCar.h"
 #import "StartupScreen.h"
+#import "OMCTest.h"
 
 #define SSLog(fmt, ...) OMCLog(@"StartupScreen", fmt, ##__VA_ARGS__)
 
@@ -381,6 +382,115 @@ static void SSTearDownScreen(UIScreen *screen) {
 	[splash tearDown];
 }
 
+#pragma mark - Auto test (developer only)
+
+#if OMC_AUTOTEST
+// Bo test "startupScreen" (Core/OMCTest.h): phat lai man hinh khoi dong tren xe nhu luc cam xe va kiem tra no hien,
+// chay khung hinh, tu tat dung han, cham de bo qua, va khong phat khi tinh nang tat.
+static UIScreen *SSTestCarScreen(UIWindowScene **outScene) {
+	for (UIScene *sc in [UIApplication sharedApplication].connectedScenes) {
+		if ([sc isKindOfClass:[UIWindowScene class]] && SSIsCarScreen(((UIWindowScene *)sc).screen)) {
+			if (outScene) *outScene = (UIWindowScene *)sc;
+			return ((UIWindowScene *)sc).screen;
+		}
+	}
+	if (outScene) *outScene = nil;
+	for (UIScreen *screen in [UIScreen screens]) if (SSIsCarScreen(screen)) return screen;
+	return nil;
+}
+
+static SSSplash *SSTestSplash(void) {
+	UIScreen *screen = SSTestCarScreen(NULL);
+	return screen ? objc_getAssociatedObject(screen, &kSplashKey) : nil;
+}
+
+// Nhu luc cam xe: bo dau "da phat" cua man xe roi goi dung ham phat
+static NSString *SSTestReplay(void) {
+	UIWindowScene *scene = nil;
+	UIScreen *screen = SSTestCarScreen(&scene);
+	if (!screen) return @"khong thay man xe";
+	[SSTestSplash() tearDown];
+	objc_setAssociatedObject(screen, &kShownKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+	SSShowSplash(screen, scene, @"autotest");
+	return nil;
+}
+
+static NSDictionary *SSTestFramesInfo(void) {
+	NSString *name = SSVideoName();
+	return name ? [NSDictionary dictionaryWithContentsOfFile:[SS_FRAMES_DIR(name) stringByAppendingPathComponent:@"info.plist"]] : nil;
+}
+
+static NSString *SSTestShowing(void) {
+	SSSplash *sp = SSTestSplash();
+	if (!sp || sp.finished) return @"khong co man hinh khoi dong dang phat";
+	if (!sp.window || sp.window.hidden || sp.window.alpha < 0.5) return @"cua so man hinh khoi dong dang an";
+	if (!sp.shownFrames) return OMCTestFormat(@"chua hien khung nao (giai ma loi %lu)", (unsigned long)sp.failedFrames);
+	return nil;
+}
+
+static NSArray<NSDictionary *> *SSTestSteps(void) {
+	NSMutableArray *steps = [NSMutableArray array];
+	NSDictionary *info = SSTestFramesInfo();
+	double fps = [info[@"fps"] doubleValue];
+	NSUInteger count = [info[@"count"] unsignedIntegerValue];
+	BOOL loop = ![OMCPref(SS_KEY_PLAY_FULL, @NO) boolValue];
+	double length = loop ? MAX(1.0, [OMCPref(SS_KEY_DURATION, @5) doubleValue]) : MIN(kMaxFullPlay, fps > 0 ? count / fps : kMaxFullPlay);
+
+	[steps addObject:OMCTestStep(@"Moi truong: video va khung hinh", 0, 0, nil, ^NSString *{
+		if (!OMCFeatureEnabled(SS_FEATURE)) return @"Man hinh khoi dong dang tat";
+		NSString *name = SSVideoName();
+		if (!name) return OMCTestFormat(@"chua co video trong %@", SS_VIDEOS_DIR);
+		if (!count || fps <= 0) return OMCTestFormat(@"%@ chua trich khung (mo Cai dat > Man hinh khoi dong)", name);
+		OMCTestLog(@"video %@: %lu khung @ %.0f fps, phat %.1fs, lap=%d", name, (unsigned long)count, fps, length, loop);
+		return nil;
+	})];
+	if (!OMCFeatureEnabled(SS_FEATURE) || !count || fps <= 0) return steps;
+
+	[steps addObject:OMCTestStep(@"Phat lai nhu luc cam xe", 1, 6, ^NSString *{ return SSTestReplay(); }, ^NSString *{ return SSTestShowing(); })];
+	__block NSUInteger seen = 0;
+	[steps addObject:OMCTestStep(@"Khung hinh chay (khong dung hinh)", 0, 3, ^NSString *{
+		seen = SSTestSplash().shownFrames; return nil;
+	}, ^NSString *{
+		SSSplash *sp = SSTestSplash();
+		if (!sp || sp.finished) return @"da tat truoc khi kiem";
+		return sp.shownFrames > seen + 2 ? nil : OMCTestFormat(@"khung dung o %lu", (unsigned long)sp.shownFrames);
+	})];
+	[steps addObject:OMCTestStep(OMCTestFormat(@"Tu tat sau ~%.0fs", length), 1, length + 4, nil, ^NSString *{
+		return SSTestSplash() ? @"van con man hinh khoi dong" : nil;
+	})];
+
+	if ([OMCPref(SS_KEY_TAP_TO_SKIP, @YES) boolValue]) {
+		[steps addObject:OMCTestStep(@"Phat lai de thu cham bo qua", 1, 6, ^NSString *{ return SSTestReplay(); }, ^NSString *{ return SSTestShowing(); })];
+		[steps addObject:OMCTestStep(@"Cham de bo qua", 0.2, 2, ^NSString *{
+			SSSplash *sp = SSTestSplash();
+			if (!sp) return @"khong co man hinh khoi dong";
+			[sp dismiss];   // cung viec cu cham tren anh
+			return nil;
+		}, ^NSString *{ return SSTestSplash() ? @"chua tat sau khi cham" : nil; })];
+	} else {
+		[steps addObject:OMCTestStep(@"Cham de bo qua", 0, 0, ^NSString *{ return @"dang tat trong Cai dat"; }, nil)];
+	}
+
+	// Tat tinh nang -> khong phat; bat lai ngay trong cung buoc (khong de tinh nang tat neu bai test dung giua chung)
+	[steps addObject:OMCTestStep(@"Tat tinh nang thi khong phat", 2.5, 2.5, ^NSString *{
+		CFPreferencesSetAppValue((__bridge CFStringRef)SS_KEY_ENABLED, kCFBooleanFalse, OMC_PREFS_DOMAIN);
+		CFPreferencesAppSynchronize(OMC_PREFS_DOMAIN);
+		return SSTestReplay();
+	}, ^NSString *{
+		BOOL shown = SSTestSplash() != nil;
+		[SSTestSplash() tearDown];
+		CFPreferencesSetAppValue((__bridge CFStringRef)SS_KEY_ENABLED, kCFBooleanTrue, OMC_PREFS_DOMAIN);
+		CFPreferencesAppSynchronize(OMC_PREFS_DOMAIN);
+		return shown ? @"van phat khi tinh nang tat" : nil;
+	})];
+	return steps;
+}
+
+static void SSTestInstall(void) {
+	OMCTestRegister(SS_FEATURE, ^BOOL { return SSTestCarScreen(NULL) != nil; }, ^NSArray<NSDictionary *> *{ return SSTestSteps(); }, nil);
+}
+#endif
+
 %group StartupScreen
 
 %hook UIWindow
@@ -423,8 +533,12 @@ static void SSTearDownScreen(UIScreen *screen) {
 			return;
 		}
 		if (![bundleID isEqualToString:@"com.apple.CarPlayApp"]) return;
+		if (!OMCCrashGuard(SS_FEATURE)) return;
 		gIsCarPlay = YES;
 		%init(StartupScreen);
+#if OMC_AUTOTEST
+		SSTestInstall();
+#endif
 
 		for (UIScreen *screen in [UIScreen screens]) SSLog(@"existing screen: %@", SSDescribeScreen(screen));
 		SSLog(@"videos dir %@ readable=%d", SS_VIDEOS_DIR, [[NSFileManager defaultManager] isReadableFileAtPath:SS_VIDEOS_DIR]);

@@ -81,6 +81,7 @@ static void SCPIconsHookError(const char *where, NSException *e)
 %ctor
 {
     if (![[[NSBundle mainBundle] bundleIdentifier] isEqualToString:@"com.apple.CarPlayApp"]) return;
+    if (!OMCCrashGuard(SPL_FEATURE)) return;
     %init(APPICONS, DashBoard = OMCCarClass("DashBoard"), DBApplicationInfo = OMCCarClass("DBApplicationInfo"), DBDashboardHomeViewController = OMCCarClass("DBDashboardHomeViewController"), DBApplicationLaunchInfo = OMCCarClass("DBApplicationLaunchInfo"));
     OMCCheckHooks(@"SplitScreen", @[@"DashBoard +_newApplicationLibrary", @"DBApplicationInfo -_loadFromProxy:",
         @"DBDashboardHomeViewController -initWithEnvironment:", @"DBApplicationLaunchInfo +launchInfoForApplication:",

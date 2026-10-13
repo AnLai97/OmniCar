@@ -19,3 +19,82 @@
 "FEATURES_FOOTER" = "Changes apply right away. Respring after installing or updating.";
 "FEATURE_ON" = "On";
 "FEATURE_OFF" = "Off";
+
+"SUPPORT_GROUP" = "Support";
+"SUPPORT_FOOTER" = "Something wrong? Tap Send log and pick Mail or a chat app to send it to the developer.";
+"DIAGNOSTICS" = "Diagnostics";
+"SEND_LOG" = "Send log";
+"SEND_LOG_FAILED" = "Could not create the log file.";
+
+"RESCUE_GROUP" = "Rescue mode";
+"RESCUE_FOOTER" = "CarPlay crashed twice in a row right after connecting, so OmniCar turned off: %@. Turn it back on after an update, or send the log to the developer.";
+"RESCUE_RESTORE" = "Turn back on";
+"RESCUE_RESTORED" = "Turned back on. Reconnect the car to apply.";
+
+"CONFLICTS_GROUP" = "Possible tweak conflict";
+"CONFLICTS_FOOTER" = "This tweak also changes CarPlay. Running it with OmniCar can break CarPlay; turn one of them off. OmniCar never removes other tweaks.";
+
+"DIAG_DEVICE" = "Phone";
+"DIAG_MODEL" = "Model";
+"DIAG_JAILBREAK" = "Jailbreak";
+"DIAG_THERMAL" = "Temperature";
+"DIAG_THERMAL_NOMINAL" = "Normal";
+"DIAG_THERMAL_FAIR" = "Warm";
+"DIAG_THERMAL_SERIOUS" = "Hot";
+"DIAG_THERMAL_CRITICAL" = "Very hot";
+"DIAG_UNKNOWN" = "Unknown";
+
+"DIAG_CAR" = "Car screen";
+"DIAG_CAR_NAME" = "Head unit";
+"DIAG_CAR_CONNECTION" = "Connection";
+"DIAG_CAR_WIRED" = "Wired";
+"DIAG_CAR_WIRELESS" = "Wireless";
+"DIAG_CAR_RESOLUTION" = "Resolution";
+"DIAG_CAR_POINTS" = "UI size";
+"DIAG_CAR_RATIO" = "Aspect ratio";
+"DIAG_CAR_FPS" = "Max FPS";
+"DIAG_CAR_VIDEO" = "Suggested video";
+"DIAG_CAR_LAST" = "Last connected";
+"DIAG_CAR_FOOTER" = "Read on the last connection. Suggested video: startup video size that fits the car screen.";
+"DIAG_CAR_NONE" = "Not yet";
+"DIAG_CAR_NONE_FOOTER" = "Connect the car once so OmniCar can read the car screen.";
+
+"DIAG_NOT_INSTALLED" = "Not installed";
+"DIAG_HOOKS_OK" = "all %lu hooks";
+"DIAG_HOOKS_MISSING" = "%lu/%lu hooks missing";
+"DIAG_HOOKS_FOOTER_MISSING" = "Hooks this iOS lacks (the parts using them will not work):";
+"DIAG_FEATURES_FOOTER" = "Every feature is version %@. Hooks are checked when CarPlay / SpringBoard starts.";
+
+"DIAG_RESCUED" = "Off (rescue mode)";
+"DIAG_RESCUE_FOOTER" = "Since %@. Turn it back on from the OmniCar main page.";
+
+"DIAG_CONFLICTS" = "Other CarPlay tweaks";
+"DIAG_CONFLICT_ACTIVE" = "Running";
+"DIAG_CONFLICT_INSTALLED" = "Installed, off";
+"DIAG_CONFLICTS_NONE" = "None found";
+"DIAG_CONFLICTS_FOOTER" = "CarBridge, DuoDash, TrueDash, CarPlayEnable.";
+
+"CRASH_TEST_TITLE" = "Test rescue mode";
+"CRASH_TEST_MESSAGE" = "Pick the feature that will crash CarPlay 5 seconds after it opens. For testing only.";
+"CRASH_TEST_STOP" = "Stop test";
+"CRASH_TEST_ARMED" = "Connect the car twice: CarPlay will crash. On the 3rd connection rescue mode should turn this feature off and CarPlay should work again.";
+
+/* Auto test: dev builds only (OMC_AUTOTEST) */
+"AUTOTEST" = "Auto test (dev)";
+"AUTOTEST_SUITES" = "Features to test";
+"AUTOTEST_SUITES_FOOTER" = "Each suite runs in its own process (CarPlay / SpringBoard), one after another in this order. Connect the car first.";
+"AUTOTEST_NO_SUITES" = "No suite has reported in yet: respring, connect the car once, then reopen this page.";
+"AUTOTEST_NO_SUITES_ROW" = "No suites yet";
+"AUTOTEST_ACTION_FOOTER" = "Only while parked. The car screen changes by itself; the orange bar on it shows progress, tap it to stop.";
+"AUTOTEST_CONFIRM" = "Parked? OmniCar will drive the car screen by itself for a few minutes. Then tap Send log for the results and snapshots.";
+"AUTOTEST_START" = "Start";
+"AUTOTEST_STOP" = "Stop";
+"AUTOTEST_LAST" = "Run";
+"AUTOTEST_STEP" = "step";
+"AUTOTEST_STEPS" = "Steps";
+"AUTOTEST_RESULT" = "Result";
+"AUTOTEST_COUNTS" = "%lu passed · %lu failed · %lu skipped";
+"AUTOTEST_FOOTER" = "Full reasons and the state at each failure are in OmniCar.log. Send log to include car-screen snapshots of every step.";
+"AUTOTEST_STATE_RUNNING" = "Running";
+"AUTOTEST_STATE_DONE" = "Done";
+"AUTOTEST_STATE_STOPPED" = "Stopped";

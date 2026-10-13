@@ -8,18 +8,22 @@ trang cài đặt riêng trong Settings > OmniCar.
 ```
 Makefile              một Makefile: mỗi tính năng -> một dylib OmniCar<Tên>.dylib, cộng bundle settings
 control               thông tin gói Sileo (tên, version, mô tả)
-Core/OmniCar.h/.m     API chung cho hook: OMCPref, OMCFeatureEnabled, OMCLog, OMC_DATA_ROOT (biên dịch kèm vào từng dylib)
-Core/Core.x           OmniCarCore.dylib, chỉ nạp SpringBoard: trạm nhận log từ app bị sandbox
+Core/OmniCar.h/.m     API chung cho hook: OMCPref, OMCFeatureEnabled, OMCLog, OMC_DATA_ROOT (biên dịch kèm vào từng dylib);
+                      OMCCrashGuard: ghi crash CarPlay + chế độ cứu + đọc màn xe cho trang Chẩn đoán
+Core/OMCTest.h/.m     khung tự kiểm tra trên xe, chỉ khi OMC_AUTOTEST = 1 (biên dịch kèm vào từng dylib tính năng)
+Core/Core.x           OmniCarCore.dylib, chỉ nạp SpringBoard: trạm nhận log từ app bị sandbox, thông báo chế độ cứu
 Prefs/                bundle settings dùng chung
   OMCRootListController    trang chính: header card, Bật OmniCar, Respring, danh sách tính năng (tự quét Feature*.plist)
   OMCFeatureListController trang con chuẩn: nạp plist của tính năng, dịch key, vẽ icon
   OMCTheme                 ngôn ngữ (vi/en), màu HarmonyOS, icon dòng, style cell
+  OMCDiagnostics           dữ liệu Hỗ trợ: trang Chẩn đoán (OMCDiagnosticsController), Gửi log, tweak xung đột, chế độ cứu
+  OMCAutoTestController    trang Tự kiểm tra (dev): chọn tính năng, chạy / dừng, kết quả, thử chế độ cứu
   Resources/               Root.plist, Info.plist, icon/logo/avatar, <lang>.lproj/Localizable.strings
 layout/               entry PreferenceLoader
 Features/<Tên>/       mỗi tính năng là một component (xem bên dưới)
   StartupScreen/      video khởi động trên màn CarPlay (từ CarSplash)
   SpeedBubble/        bong bóng tốc độ + biển giới hạn từ Vietmap Live / GOFA (từ CarSpeed, ObjC++)
-  SplitScreen/        chia màn xe cho 2-3 app CarPlay chạy song song (từ CarDuo, ObjC++); split nằm trong
+  SplitScreen/        chia màn xe cho 2-3 app CarPlay chạy song song (từ CarDuo, ObjC++); SCPAutoTest = bộ test dev; split nằm trong
                       process CarPlay, SpringBoard chỉ nhận URL; app iPhone trong ô đi qua AppBridge; AppIcons.xm +
                       SCPAppIcons.mm chèn icon app iPhone đã chọn lên màn chính CarPlay (declaration giả, như carplay-cast)
   AppBridge/          đưa app iPhone không có CarPlay lên màn xe (thay CarBridge): SpringBoard tạo scene app
@@ -83,7 +87,8 @@ Quy ước:
 
 1. Tạo `Features/<Tên>/<Tên>.h` khai báo key, đường dẫn, notification.
 2. Viết hook trong `Features/<Tên>/<Tên>.x`: `%group <Tên>`, `%init(<Tên>)` trong `%ctor` của file,
-   đọc prefs bằng `OMCPref()`, gate bằng `OMCFeatureEnabled()`.
+   đọc prefs bằng `OMCPref()`, gate bằng `OMCFeatureEnabled()`. `%ctor` trong CarPlay mở đầu bằng
+   `if (!OMCCrashGuard(@"<tên>")) return;` (chế độ cứu), sau `%init` gọi `OMCCheckHooks()` (trang Chẩn đoán).
 3. `Features/<Tên>/Filter.plist`: process cần nạp. Cần framework thì thêm `Features/<Tên>/feature.mk`
    với `OmniCar<Tên>_FRAMEWORKS += ...` (bundle settings cần framework thì sửa `OmniCarPrefs_FRAMEWORKS`).
 4. Copy `Template/FeatureExample.plist` thành `Features/<Tên>/Prefs/Resources/Feature<Tên>.plist`,
@@ -93,6 +98,25 @@ Quy ước:
 6. Icon dòng: vẽ bằng script trong `tools/icons/` (29pt, @2x, @3x) hoặc dùng `featureSymbol`.
 
 Không phải sửa Root.plist hay Makefile: trang chính tự liệt kê, Makefile tự gom.
+
+Kết quả thử theo iOS và theo app: `COMPATIBILITY.md`.
+
+### Tự kiểm tra trên xe (chỉ bản dev)
+
+`OMC_AUTOTEST` trong `Core/OmniCar.h` (mặc định 1; bản phát hành đặt 0 hoặc `make package OMC_AUTOTEST=0`): bật thì
+có khung chạy test `Core/OMCTest.h`, bộ test của từng tính năng và trang Hỗ trợ > Tự kiểm tra (dev); tắt thì không
+biên dịch dòng nào trong số đó. Mỗi tính năng đăng ký bộ test của nó trong process chạy được nó:
+
+```objc
+#if OMC_AUTOTEST
+OMCTestRegister(@"<tiền tố key>", ^BOOL { return <sẵn sàng>; }, ^NSArray<NSDictionary *> *{
+    return @[ OMCTestStep(@"Tên bước", chờ, hạn, ^NSString *{ <làm>; return nil; }, ^NSString *{ return <lỗi> ? @"lý do" : nil; }) ];
+}, nil);
+#endif
+```
+
+Bộ test hiện có: `Features/SplitScreen/SCPAutoTest.mm` (Chia màn hình, App Bridge), cuối `StartupScreen.x`,
+cuối `SPPBubble.mm` (Bong bóng tốc độ, chạy trong SpringBoard).
 
 Build chỉ chạy trên CI (GitHub Actions, macOS): push lên `main` để lấy `OmniCar_<Version>_rootless.deb`,
 tag `v<Version>` để ra Release.

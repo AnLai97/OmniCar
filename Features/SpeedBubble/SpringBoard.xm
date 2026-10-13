@@ -50,4 +50,7 @@
     if (![[[NSBundle mainBundle] bundleIdentifier] isEqualToString:@"com.apple.springboard"]) return;
     SPPLog("loaded into SpringBoard");
     %init(SPRINGBOARD);
+#if OMC_AUTOTEST
+    SPPAutoTestInstall();
+#endif
 }

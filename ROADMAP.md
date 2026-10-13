@@ -181,22 +181,42 @@ Thiếu một trong các mục này thì khách quốc tế không mua, hoặc m
 - [ ] **Gửi log một chạm** · Thấp
   Nút trong Cài đặt: gói OmniCar.log + phiên bản iOS, máy, đầu xe, danh sách tweak → share sheet.
   Xong khi: khách gửi được file qua Zalo / email trong 3 chạm.
+  Code: Hỗ trợ > Gửi log (OMCShareReport) → OmniCar-log-<ngày>.txt. Chờ thử gửi Zalo trên máy.
 - [ ] **Màn chẩn đoán** · Thấp
   Độ phân giải màn xe, dây / không dây, nhiệt độ máy, FPS app iPhone, phiên bản từng tính năng.
+  Code: Hỗ trợ > Chẩn đoán (máy, màn xe, tính năng + hook trên iOS này, chế độ cứu, tweak xung đột). Chưa có
+  FPS app iPhone (cần đo trong App Bridge). Dây / không dây đọc từ CarKit: chờ thử trên xe.
 - [ ] **Thông tin đầu xe** · Thấp
   Độ phân giải, tỉ lệ màn, chất lượng video gợi ý (gộp vào Màn chẩn đoán).
+  Code: CarPlay ghi màn xe + phiên CarKit mỗi lần cắm (OMCCrashGuard), Chẩn đoán > Màn xe. Chờ thử trên xe.
 - [ ] **Phát hiện tweak xung đột** · Thấp
   Thấy CarBridge, DuoDash, TrueDash, CarPlayEnable… đang bật → cảnh báo trong Cài đặt (không tự gỡ tweak của người khác).
+  Code: thẻ cảnh báo đầu trang chính khi dylib của tweak đó đang nạp; Chẩn đoán liệt kê cả gói đã cài.
 - [ ] **Chế độ cứu (rescue)** · Vừa
   CarPlay sập 2 lần liền trong 60 giây sau khi cắm → tự tắt tính năng nghi gây lỗi, lần cắm sau báo cho người dùng.
   Xong khi: cố tình gây crash trong một tính năng, CarPlay tự phục hồi ở lần cắm thứ 3.
+  Code: OMCCrashGuard (Core) nghi tính năng theo backtrace, thông báo trên iPhone, thẻ "Bật lại" ở trang chính.
+  Thử: Chẩn đoán, nhấn giữ dòng OmniCar → chọn tính năng → cắm xe 3 lần.
+- [ ] **Tự kiểm tra trên xe (chỉ bản dev)** · Vừa
+  Công cụ cho tác giả, không phát hành: macro `OMC_AUTOTEST` (Core/OmniCar.h, hoặc `make OMC_AUTOTEST=0`) bỏ hẳn
+  khỏi bản phát hành. Cài đặt > Hỗ trợ > Tự kiểm tra: chọn tính năng → mỗi tính năng tự chạy bộ test của nó trên xe,
+  mỗi bước ghi đạt / lỗi + lý do + trạng thái + ảnh màn xe → Gửi log. Process sập giữa chừng thì lần sau chạy tiếp.
+  Bộ test: Chia màn hình (bố cục, tỉ lệ, đổi chỗ, cửa sổ nổi, bảng chọn / bảng bố cục, toàn màn, lệnh URL, yêu thích,
+  gần đây, bấm nhanh), App Bridge (trong ô, tỉ lệ, đổi chỗ, 3 ô, chặn cửa sổ nổi, toàn màn, đóng, icon, 2 app cùng
+  lúc), Màn hình khởi động (phát, khung chạy, tự tắt, chạm bỏ qua, tắt tính năng), Bong bóng tốc độ (hiện trên xe,
+  số, gần / vượt giới hạn, ẩn khi Split Screen chiếm màn, 18 kiểu, cỡ, mất nguồn).
+  Xong khi: một lần chạy trên xe ra đủ kết quả từng bước, gửi log có ảnh, sửa lỗi không cần thử tay lại từng ca.
+  Code: Core/OMCTest.h (khung), Features/SplitScreen/SCPAutoTest.mm, cuối StartupScreen.x, cuối SPPBubble.mm,
+  Prefs/OMCAutoTestController.m. Chờ chạy thử trên xe.
 - [ ] **Thử với nhiều app hơn** · Vừa
   Danh sách tối thiểu: YouTube, TikTok, Facebook, Instagram, Chrome, Safari, Zalo, Grab, Shopee, X, Twitch, Plex.
   Xong khi: có bảng app chạy tốt / chạy được / không chạy kèm lý do, đưa lên trang tương thích.
-- [ ] **Chạy thật trên iOS 17 và 18** · Cao
+  Bảng ghi kết quả: COMPATIBILITY.md.
+- [ ] **Chạy thật trên iOS 15 16 17 và 18** · Cao
   App Bridge và Chia màn hình đang dựa selector iOS 16. Kiểm tra từng selector, có đường dự phòng khi thiếu.
   Kiểm tra lại luôn app có giao diện CarPlay riêng chạy trong ô.
   Xong khi: thử đủ 4 bố cục + YouTube / TikTok qua App Bridge trên iOS 15, 16, 17, 18 (rootless), ghi kết quả.
+  Chẩn đoán hiện hook thiếu trên từng iOS; ghi kết quả vào COMPATIBILITY.md.
 
 ### Bán quốc tế
 

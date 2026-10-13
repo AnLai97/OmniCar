@@ -10,6 +10,16 @@
 #import <Foundation/Foundation.h>
 #import <rootless.h>
 
+#ifndef OMC_FEATURE
+#define OMC_FEATURE "Prefs"
+#endif
+
+// Developer auto test on the car (Core/OMCTest.h): 1 = the test runner, every feature's test cases and the
+// Settings page are built in; 0 for a release build. `make OMC_AUTOTEST=0` overrides it without editing.
+#ifndef OMC_AUTOTEST
+#define OMC_AUTOTEST 1
+#endif
+
 #define OMC_PREFS_DOMAIN  CFSTR("com.anlai.omnicar")
 #define OMC_PREFS_CHANGED CFSTR("com.anlai.omnicar/prefschanged")
 // Data root; features keep their files under OMC_DATA_ROOT/<Name>/.
@@ -56,6 +66,40 @@ Class OMCCarClass(const char *name);
 // [DBApplicationLaunchInfo launchInfoForApplication:] (iOS 16) or
 // [CARApplicationLaunchInfo launchInfoForApplication:withActivationSettings:nil] (iOS 14 / 15).
 id OMCCarLaunchInfo(id appInfo);
+
+// Rescue mode (CarPlay process). First line of a feature's CarPlay %ctor, before %init:
+//   if (!OMCCrashGuard(SPL_FEATURE)) return;
+// The first call in the process installs the crash logger (signal + uncaught exception -> a file in tmp,
+// copied into OmniCar.log on the next launch) and records the car screen for the Diagnostics page.
+// CarPlay crashing OMC_RESCUE_CRASHES times in a row within OMC_RESCUE_SECONDS of starting turns the
+// feature seen in the crash backtrace off (every CarPlay feature when none is), lists it under
+// OMC_KEY_RESCUE and posts OMC_DARWIN_RESCUE (SpringBoard tells the user). NO = this feature is off by
+// rescue mode: skip its hooks. Turning the feature back on in Settings takes it off the list.
+BOOL OMCCrashGuard(NSString *feature);
+#define OMC_RESCUE_CRASHES   2
+#define OMC_RESCUE_SECONDS   60
+#define OMC_KEY_RESCUE       @"rescueFeatures"     // [feature key prefix] turned off by rescue mode
+#define OMC_KEY_RESCUE_DATE  @"rescueDate"
+#define OMC_DARWIN_RESCUE    "com.anlai.omnicar/rescue"
+#if OMC_AUTOTEST
+// Rescue-mode test (Settings > Auto test > Test rescue mode): feature key prefix whose CarPlay %ctor crashes
+// CarPlay a few seconds after it starts, until rescue mode turns that feature off.
+#define OMC_KEY_CRASH_TEST   @"debugCrashTest"
+// Auto test run (Core/OMCTest.m): {state: running | done | stopped, run (NSDate), suites: [suite], suite (index),
+// step (index), inStep, results: [{suite, name, status: pass | fail | skip | crash, detail, seconds, shot}], ios}.
+// Settings writes a new run (state running) or state stopped and posts OMC_DARWIN_AUTOTEST; the process owning
+// the current suite runs it. Crashes while it runs never count toward rescue mode.
+#define OMC_KEY_AUTOTEST       @"autoTest"
+#define OMC_KEY_AUTOTEST_PICK  @"autoTestPick"     // suites ticked in Settings
+#define OMC_KEY_AUTOTEST_AVAIL @"autoTestAvail."   // + suite: {process, date}, written when a suite registers
+#define OMC_DARWIN_AUTOTEST    "com.anlai.omnicar/autotest"
+#define OMC_AUTOTEST_DIR       @"/var/mobile/Documents/OmniCar-AutoTest"   // snapshots + autotest.txt
+#endif
+// Diagnostics written by the tweak, read by Settings (Diagnostics page, Send log):
+// last car screen and session (dictionary, see OMCRecordCarScreen in OmniCar.m) ...
+#define OMC_KEY_DIAG_CAR     @"diagCar"
+// ... and one key per feature and process with the OMCCheckHooks result: {ios, total, missing}.
+#define OMC_KEY_DIAG_HOOKS   @"diagHooks."
 
 #ifdef __cplusplus
 }

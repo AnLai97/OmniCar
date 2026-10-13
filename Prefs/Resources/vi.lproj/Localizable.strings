@@ -19,3 +19,82 @@
 "FEATURES_FOOTER" = "Thay đổi áp dụng ngay. Respring sau khi cài hoặc cập nhật.";
 "FEATURE_ON" = "Bật";
 "FEATURE_OFF" = "Tắt";
+
+"SUPPORT_GROUP" = "Hỗ trợ";
+"SUPPORT_FOOTER" = "Gặp lỗi? Bấm Gửi log rồi chọn Zalo hoặc Mail để gửi cho tác giả.";
+"DIAGNOSTICS" = "Chẩn đoán";
+"SEND_LOG" = "Gửi log";
+"SEND_LOG_FAILED" = "Không tạo được file log.";
+
+"RESCUE_GROUP" = "Chế độ cứu";
+"RESCUE_FOOTER" = "CarPlay sập 2 lần liền ngay sau khi cắm nên OmniCar đã tắt: %@. Bật lại khi có bản cập nhật, hoặc gửi log cho tác giả.";
+"RESCUE_RESTORE" = "Bật lại";
+"RESCUE_RESTORED" = "Đã bật lại. Rút và cắm lại xe để áp dụng.";
+
+"CONFLICTS_GROUP" = "Tweak có thể xung đột";
+"CONFLICTS_FOOTER" = "Tweak này cũng chỉnh CarPlay. Dùng cùng OmniCar có thể làm CarPlay lỗi; nên tắt một bên. OmniCar không tự gỡ tweak khác.";
+
+"DIAG_DEVICE" = "Điện thoại";
+"DIAG_MODEL" = "Máy";
+"DIAG_JAILBREAK" = "Jailbreak";
+"DIAG_THERMAL" = "Nhiệt độ";
+"DIAG_THERMAL_NOMINAL" = "Bình thường";
+"DIAG_THERMAL_FAIR" = "Hơi ấm";
+"DIAG_THERMAL_SERIOUS" = "Nóng";
+"DIAG_THERMAL_CRITICAL" = "Rất nóng";
+"DIAG_UNKNOWN" = "Không rõ";
+
+"DIAG_CAR" = "Màn xe";
+"DIAG_CAR_NAME" = "Đầu xe";
+"DIAG_CAR_CONNECTION" = "Kết nối";
+"DIAG_CAR_WIRED" = "Dây";
+"DIAG_CAR_WIRELESS" = "Không dây";
+"DIAG_CAR_RESOLUTION" = "Độ phân giải";
+"DIAG_CAR_POINTS" = "Kích thước giao diện";
+"DIAG_CAR_RATIO" = "Tỉ lệ màn";
+"DIAG_CAR_FPS" = "FPS tối đa";
+"DIAG_CAR_VIDEO" = "Video gợi ý";
+"DIAG_CAR_LAST" = "Lần kết nối cuối";
+"DIAG_CAR_FOOTER" = "Đọc ở lần cắm xe gần nhất. Video gợi ý: cỡ video khởi động vừa màn xe.";
+"DIAG_CAR_NONE" = "Chưa có";
+"DIAG_CAR_NONE_FOOTER" = "Cắm xe một lần để OmniCar đọc thông tin màn xe.";
+
+"DIAG_NOT_INSTALLED" = "Chưa cài";
+"DIAG_HOOKS_OK" = "đủ %lu hook";
+"DIAG_HOOKS_MISSING" = "thiếu %lu/%lu hook";
+"DIAG_HOOKS_FOOTER_MISSING" = "Hook không có trên iOS này (phần liên quan sẽ không chạy):";
+"DIAG_FEATURES_FOOTER" = "Mọi tính năng cùng phiên bản %@. Hook được kiểm tra khi CarPlay / SpringBoard khởi động.";
+
+"DIAG_RESCUED" = "Tắt bởi chế độ cứu";
+"DIAG_RESCUE_FOOTER" = "Từ %@. Bật lại ở trang chính OmniCar.";
+
+"DIAG_CONFLICTS" = "Tweak CarPlay khác";
+"DIAG_CONFLICT_ACTIVE" = "Đang chạy";
+"DIAG_CONFLICT_INSTALLED" = "Đã cài, đang tắt";
+"DIAG_CONFLICTS_NONE" = "Không thấy";
+"DIAG_CONFLICTS_FOOTER" = "CarBridge, DuoDash, TrueDash, CarPlayEnable.";
+
+"CRASH_TEST_TITLE" = "Thử chế độ cứu";
+"CRASH_TEST_MESSAGE" = "Chọn tính năng sẽ làm CarPlay sập 5 giây sau khi mở. Chỉ dùng để kiểm tra.";
+"CRASH_TEST_STOP" = "Dừng thử";
+"CRASH_TEST_ARMED" = "Cắm xe 2 lần: CarPlay sẽ sập. Lần cắm thứ 3, chế độ cứu phải tắt tính năng này và CarPlay chạy lại bình thường.";
+
+/* Tự kiểm tra: chỉ bản dev (OMC_AUTOTEST) */
+"AUTOTEST" = "Tự kiểm tra (dev)";
+"AUTOTEST_SUITES" = "Tính năng cần kiểm tra";
+"AUTOTEST_SUITES_FOOTER" = "Mỗi bộ chạy trong process của nó (CarPlay / SpringBoard), lần lượt theo thứ tự trên. Cắm xe trước.";
+"AUTOTEST_NO_SUITES" = "Chưa có bộ test nào báo sẵn sàng: respring, cắm xe một lần rồi mở lại trang này.";
+"AUTOTEST_NO_SUITES_ROW" = "Chưa có bộ test";
+"AUTOTEST_ACTION_FOOTER" = "Chỉ chạy khi xe đỗ. Màn xe tự đổi; thanh cam trên màn xe hiện tiến độ, chạm để dừng.";
+"AUTOTEST_CONFIRM" = "Xe đang đỗ? OmniCar sẽ tự thao tác trên màn xe vài phút. Xong thì bấm Gửi log để lấy kết quả và ảnh.";
+"AUTOTEST_START" = "Bắt đầu";
+"AUTOTEST_STOP" = "Dừng";
+"AUTOTEST_LAST" = "Lần chạy";
+"AUTOTEST_STEP" = "bước";
+"AUTOTEST_STEPS" = "Từng bước";
+"AUTOTEST_RESULT" = "Kết quả";
+"AUTOTEST_COUNTS" = "%lu đạt · %lu lỗi · %lu bỏ qua";
+"AUTOTEST_FOOTER" = "Lý do đầy đủ và trạng thái lúc lỗi nằm trong OmniCar.log. Gửi log để gửi kèm ảnh màn xe từng bước.";
+"AUTOTEST_STATE_RUNNING" = "Đang chạy";
+"AUTOTEST_STATE_DONE" = "Xong";
+"AUTOTEST_STATE_STOPPED" = "Đã dừng";

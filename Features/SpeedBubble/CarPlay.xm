@@ -24,6 +24,7 @@ static void SPPOpenAppOnCar(NSString *bid)
 %ctor
 {
     if (![[[NSBundle mainBundle] bundleIdentifier] isEqualToString:@"com.apple.CarPlayApp"]) return;
+    if (!OMCCrashGuard(SB_FEATURE)) return;
     SPPLog("loaded into CarPlay");
     int tok = 0;
     notify_register_dispatch(SPP_DARWIN_OPEN_CAR, &tok, dispatch_get_main_queue(), ^(int t) {

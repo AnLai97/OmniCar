@@ -1,5 +1,6 @@
 #import "OMCRootListController.h"
 #import "OMCTheme.h"
+#import "OMCDiagnostics.h"
 #import <Preferences/PSTableCell.h>
 #import <dlfcn.h>
 #import <notify.h>
@@ -157,6 +158,7 @@
 
 @interface OMCRootListController ()
 @property (nonatomic, strong) OMCHeaderCard *headerCard;
+@property (nonatomic, copy) NSString *supportState;   // rescue + conflicts the rows were built for
 @end
 
 @implementation OMCRootListController
@@ -169,8 +171,57 @@
 		_specifiers = [self loadSpecifiersFromPlistName:@"Root" target:self];
 		[self insertFeatureSpecifiers];
 		OMCLocalizeSpecifiers(_specifiers);
+		[self applySupportState];
+#if OMC_AUTOTEST
+		[self insertAutoTestSpecifier];
+#endif
 	}
 	return _specifiers;
+}
+
+#if OMC_AUTOTEST
+// Developer builds only: Support > Auto test (Prefs/OMCAutoTestController.m), right after Send log.
+- (void)insertAutoTestSpecifier {
+	PSSpecifier *spec = [PSSpecifier preferenceSpecifierNamed:L(@"AUTOTEST") target:self set:NULL get:NULL
+		detail:NSClassFromString(@"OMCAutoTestController") cell:PSLinkCell edit:Nil];
+	UIImage *icon = OMCIcon(@"checklist", nil);
+	if (icon) [spec setProperty:icon forKey:@"iconImage"];
+	NSUInteger index = _specifiers.count;
+	for (NSUInteger i = 0; i < _specifiers.count; i++)
+		if ([[_specifiers[i] identifier] isEqualToString:@"sendLog"]) { index = i + 1; break; }
+	[_specifiers insertObject:spec atIndex:index];
+}
+#endif
+
+// Rescue and conflict cards (Root.plist rows tagged "omcGroup"): dropped when there is nothing to say,
+// otherwise filled with the feature / tweak names.
+- (NSString *)currentSupportState {
+	NSMutableArray *active = [NSMutableArray array];
+	for (NSDictionary *t in OMCConflictingTweaks()) if ([t[@"active"] boolValue]) [active addObject:t[@"name"]];
+	return [NSString stringWithFormat:@"%@|%@", [OMCRescueFeatures() componentsJoinedByString:@","], [active componentsJoinedByString:@", "]];
+}
+
+- (void)applySupportState {
+	self.supportState = [self currentSupportState];
+	NSArray *parts = [self.supportState componentsSeparatedByString:@"|"];
+	NSString *rescued = parts[0], *conflicts = parts[1];
+	NSMutableArray *names = [NSMutableArray array];
+	for (NSString *f in rescued.length ? [rescued componentsSeparatedByString:@","] : @[]) [names addObject:OMCFeatureDisplayName(f)];
+
+	for (PSSpecifier *spec in [_specifiers copy]) {
+		NSString *group = [spec propertyForKey:@"omcGroup"];
+		if (!group) continue;
+		if (([group isEqualToString:@"rescue"] && !names.count) || ([group isEqualToString:@"conflicts"] && !conflicts.length)) {
+			[_specifiers removeObject:spec];
+			continue;
+		}
+		if ([spec.identifier isEqualToString:@"rescueGroup"])
+			[spec setProperty:[NSString stringWithFormat:L(@"RESCUE_FOOTER"), [names componentsJoinedByString:@", "]] forKey:@"footerText"];
+		else if ([spec.identifier isEqualToString:@"conflictsGroup"])
+			[spec setProperty:L(@"CONFLICTS_FOOTER") forKey:@"footerText"];
+		else if ([spec.identifier isEqualToString:@"conflictsRow"])
+			spec.name = conflicts;
+	}
 }
 
 // One PSLinkCell per Feature*.plist in the bundle, after the "features" group cell of Root.plist.
@@ -233,6 +284,7 @@
 	// Pick up values the tweak wrote from another process (e.g. SpringBoard) since last time, and the
 	// On / Off of the feature pages just left.
 	CFPreferencesAppSynchronize(kPrefsDomain);
+	if (![[self currentSupportState] isEqualToString:self.supportState ?: @""]) _specifiers = nil;   // rescue / conflict cards changed
 	[self reloadSpecifiers];
 	[self updateHeaderStatus];
 	self.table.backgroundColor = OMCBackgroundColor();
@@ -393,6 +445,19 @@
 }
 
 #pragma mark - Actions
+
+// Support > Send log: report + OmniCar.log straight into the share sheet (Zalo, Mail ...).
+- (void)sendLog {
+	OMCShareReport(self, nil);
+}
+
+// Rescue card: turn the features rescue mode switched off back on.
+- (void)rescueRestore {
+	OMCRescueRestore();
+	_specifiers = nil;
+	[self reloadSpecifiers];
+	[self showMessage:L(@"RESCUE_RESTORED")];
+}
 
 // Respring button (nav bar): confirm, then restart SpringBoard.
 - (void)respring {

@@ -1705,3 +1705,139 @@ static void SPPSetContentsScale(CALayer *l, CGFloat s)
 }
 
 @end
+
+#pragma mark - Auto test (developer only)
+
+#if OMC_AUTOTEST
+#import "OMCTest.h"
+
+// Bo test "speedBubble" (Core/OMCTest.h), chay trong SpringBoard khi xe da ket noi: bom toc do gia vao dung duong
+// app dan duong gui (updateSpeed:...), kiem bong bong hien tren xe, so dung, trang thai gan / vuot gioi han, an khi
+// Split Screen chiem man xe, ve dung ca 18 kieu, co lon, an khi mat nguon. Kieu / co lon cua nguoi dung duoc tra lai.
+static NSTimer *sSPPTestTimer;   // gia lam "Xem thu" (demoTimer): bo qua dieu kien "app da duoc mo"
+static id sSPPTestStyle, sSPPTestSizeCar;
+
+static void SPPTestFeed(int speed, int limit)
+{
+    SPPBubble *b = [SPPBubble shared];
+    if (!sSPPTestTimer) sSPPTestTimer = [NSTimer timerWithTimeInterval:1e6 repeats:NO block:^(NSTimer *t) {}];
+    b.demoTimer = sSPPTestTimer;
+    [b updateSpeed:speed limit:limit appForeground:NO app:b.app];
+}
+
+static void SPPTestEnd(void)
+{
+    SPPBubble *b = [SPPBubble shared];
+    if (b.demoTimer == sSPPTestTimer) b.demoTimer = nil;
+    sSPPTestTimer = nil;
+    b.speed = -1; b.limit = -1; b.speedAt = 0; b.limitAt = 0; b.lastUpdate = 0;
+    [b refresh];
+}
+
+static void SPPTestSetPref(NSString *key, id value)
+{
+    CFPreferencesSetAppValue((__bridge CFStringRef)key, (__bridge CFPropertyListRef)value, OMC_PREFS_DOMAIN);
+    CFPreferencesAppSynchronize(OMC_PREFS_DOMAIN);
+}
+
+static NSString *SPPTestState(void)
+{
+    SPPBubble *b = [SPPBubble shared];
+    return OMCTestFormat(@"window=%d hidden=%d alpha=%.2f onPhone=%d speed=%d limit=%d state=%d style=%ld/%ld scale=%.2f card=%@ carBusy=%d fg=%d",
+        b.window != nil, b.window.hidden, b.card.alpha, b.onPhone, b.speed, b.limit, [b speedState], (long)b.builtStyle, (long)[SPPPrefs style],
+        b.scale, NSStringFromCGRect(b.card.frame), b.carBusy, [b anyAppForeground]);
+}
+
+static NSString *SPPTestWhy(NSString *why) { return why ? [NSString stringWithFormat:@"%@ || %@", why, SPPTestState()] : nil; }
+
+static NSString *SPPTestVisibleOnCar(void)
+{
+    SPPBubble *b = [SPPBubble shared];
+    if (!b.window || b.window.hidden || b.card.alpha < 0.9) return SPPTestWhy(@"bong bong khong hien");
+    if (b.onPhone) return SPPTestWhy(@"bong bong dang o iPhone, khong o man xe");
+    if ([b anyAppForeground]) return SPPTestWhy(@"app dan duong dang mo tren man hinh (bong bong co tinh an)");
+    CGRect inWin = [b.card convertRect:b.card.bounds toView:b.window];
+    if (inWin.size.width < 20 || !CGRectIntersectsRect(inWin, b.window.bounds)) return SPPTestWhy(@"the bong bong ra ngoai man xe");
+    return nil;
+}
+
+static NSArray<NSDictionary *> *SPPTestSteps(void)
+{
+    NSMutableArray *steps = [NSMutableArray array];
+    SPPBubble *b = [SPPBubble shared];
+    sSPPTestStyle = OMCPref(SB_KEY_STYLE, nil);
+    sSPPTestSizeCar = OMCPref(SB_KEY_SIZE_CAR, nil);
+
+    [steps addObject:OMCTestStep(@"Moi truong: bat bong bong, co man xe", 0, 0, nil, ^NSString *{
+        if (![SPPPrefs enabled]) return @"Bong bong toc do dang tat";
+        if (!SPPGetCarPlayCADisplay()) return @"khong thay man CarPlay";
+        return nil;
+    })];
+    if (![SPPPrefs enabled]) return steps;
+
+    [steps addObject:OMCTestStep(@"Hien tren xe khi co toc do (50 / 60)", 1, 5, ^NSString *{ SPPTestFeed(50, 60); return nil; },
+        ^NSString *{ SPPTestFeed(50, 60); return SPPTestVisibleOnCar(); })];
+    [steps addObject:OMCTestStep(@"So toc do dung", 0.5, 3, ^NSString *{ SPPTestFeed(57, 60); return nil; }, ^NSString *{
+        SPPTestFeed(57, 60);
+        if (b.speed != 57 || b.limit != 60) return SPPTestWhy(@"toc do / gioi han khong khop");
+        if (b.speedLabel && ![b.speedLabel.text isEqualToString:@"57"]) return SPPTestWhy(OMCTestFormat(@"chu hien '%@', can 57", b.speedLabel.text));
+        return nil;
+    })];
+    [steps addObject:OMCTestStep(@"Gan gioi han (57 / 60) -> canh bao", 0.5, 3, nil, ^NSString *{
+        SPPTestFeed(57, 60);
+        return [b speedState] == 1 ? nil : SPPTestWhy(@"khong o trang thai gan gioi han");
+    })];
+    [steps addObject:OMCTestStep(@"Vuot gioi han (75 / 60) -> do", 0.5, 3, nil, ^NSString *{
+        SPPTestFeed(75, 60);
+        return [b speedState] == 2 ? nil : SPPTestWhy(@"khong o trang thai vuot gioi han");
+    })];
+    [steps addObject:OMCTestStep(@"Duoi gioi han (40 / 60) -> binh thuong", 0.5, 3, nil, ^NSString *{
+        SPPTestFeed(40, 60);
+        return [b speedState] == 0 ? nil : SPPTestWhy(@"van canh bao khi da cham lai");
+    })];
+    [steps addObject:OMCTestStep(@"Split Screen chiem man xe -> an", 0.8, 3, ^NSString *{ [b setCarBusy:YES]; return nil; }, ^NSString *{
+        SPPTestFeed(40, 60);
+        return (b.window.hidden || b.card.alpha < 0.1) ? nil : SPPTestWhy(@"van hien khi man xe ban");
+    })];
+    [steps addObject:OMCTestStep(@"Man xe ranh -> hien lai", 0.8, 4, ^NSString *{ [b setCarBusy:NO]; return nil; },
+        ^NSString *{ SPPTestFeed(40, 60); return SPPTestVisibleOnCar(); })];
+
+    for (NSInteger style = 0; style < 18; style++) {
+        [steps addObject:OMCTestStep(OMCTestFormat(@"Kieu %ld", (long)style), 0.8, 4, ^NSString *{
+            SPPTestSetPref(SB_KEY_STYLE, @(style));
+            SPPTestFeed(style % 3 == 2 ? 72 : 48, 60);   // vai kieu ve luc vuot gioi han
+            return nil;
+        }, ^NSString *{
+            SPPTestFeed(style % 3 == 2 ? 72 : 48, 60);
+            if (b.builtStyle != style) return SPPTestWhy(OMCTestFormat(@"dang ve kieu %ld", (long)b.builtStyle));
+            return SPPTestVisibleOnCar();
+        })];
+    }
+    [steps addObject:OMCTestStep(@"Tra lai kieu cua nguoi dung", 0.5, 3, ^NSString *{ SPPTestSetPref(SB_KEY_STYLE, sSPPTestStyle); return nil; },
+        ^NSString *{ SPPTestFeed(48, 60); return b.builtStyle == [SPPPrefs style] ? nil : SPPTestWhy(@"kieu chua ve lai"); })];
+
+    for (NSNumber *pct in @[@60, @220]) {
+        [steps addObject:OMCTestStep(OMCTestFormat(@"Co %@%% tren xe", pct), 0.8, 4, ^NSString *{ SPPTestSetPref(SB_KEY_SIZE_CAR, pct); return nil; },
+            ^NSString *{
+            SPPTestFeed(48, 60);
+            CGFloat want = SPP_SCALE_BASE * pct.doubleValue / 100.0;
+            if (fabs(b.scale - want) > 0.02) return SPPTestWhy(OMCTestFormat(@"ti le %.2f, can %.2f", b.scale, want));
+            return SPPTestVisibleOnCar();
+        })];
+    }
+    [steps addObject:OMCTestStep(@"Tra lai co cua nguoi dung", 0.5, 3, ^NSString *{ SPPTestSetPref(SB_KEY_SIZE_CAR, sSPPTestSizeCar); return nil; },
+        ^NSString *{ SPPTestFeed(48, 60); return SPPTestVisibleOnCar(); })];
+
+    [steps addObject:OMCTestStep(@"Mat nguon toc do -> an", 1, 4, ^NSString *{ SPPTestEnd(); return nil; },
+        ^NSString *{ return (!b.window || b.window.hidden || b.card.alpha < 0.1) ? nil : SPPTestWhy(@"van hien khi khong con nguon"); })];
+    return steps;
+}
+
+void SPPAutoTestInstall(void)
+{
+    OMCTestRegister(SB_FEATURE, ^BOOL { return SPPGetCarPlayCADisplay() != nil; }, ^NSArray<NSDictionary *> *{ return SPPTestSteps(); }, ^NSArray<UIWindow *> *{
+        UIWindow *w = [SPPBubble shared].window;
+        return w ? @[w] : @[];
+    });
+}
+#endif

@@ -14,3 +14,13 @@
 - (void)resetLayout;                                // Cai dat > Dat lai vi tri & kich thuoc
 - (void)runDemo;                                    // Cai dat > Xem thu: toc do gia 10 giay
 @end
+
+#if OMC_AUTOTEST
+#ifdef __cplusplus
+extern "C" {
+#endif
+void SPPAutoTestInstall(void);   // SpringBoard: bo test "speedBubble" (Core/OMCTest.h, chi ban dev)
+#ifdef __cplusplus
+}
+#endif
+#endif

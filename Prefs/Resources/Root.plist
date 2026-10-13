@@ -2,13 +2,61 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <!-- Labels and footers are keys into <lang>.lproj/Localizable.strings; "symbol" draws the row icon (or "icon" =
      a 29pt image in the bundle). The master switch lives in the header card and Respring / Language in the nav
-     bar (OMCRootListController), so this page is just the apps row and the feature rows. -->
+     bar (OMCRootListController), so this page is the apps row, the feature rows and Support. -->
 <plist version="1.0">
 <dict>
 	<key>title</key>
 	<string>OmniCar</string>
 	<key>items</key>
 	<array>
+		<!-- RESCUE / CONFLICTS: shown only when needed (OMCRootListController removes the rows tagged
+		     "omcGroup" otherwise and fills in the names). Rescue: CarPlay crashed right after connecting and
+		     rescue mode turned a feature off (OMCCrashGuard). Conflicts: another CarPlay tweak is loaded. -->
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>omcGroup</key>
+			<string>rescue</string>
+			<key>id</key>
+			<string>rescueGroup</string>
+			<key>label</key>
+			<string>RESCUE_GROUP</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSButtonCell</string>
+			<key>omcGroup</key>
+			<string>rescue</string>
+			<key>label</key>
+			<string>RESCUE_RESTORE</string>
+			<key>action</key>
+			<string>rescueRestore</string>
+			<key>symbol</key>
+			<string>arrow.uturn.backward</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>omcGroup</key>
+			<string>conflicts</string>
+			<key>id</key>
+			<string>conflictsGroup</string>
+			<key>label</key>
+			<string>CONFLICTS_GROUP</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSStaticTextCell</string>
+			<key>omcGroup</key>
+			<string>conflicts</string>
+			<key>id</key>
+			<string>conflictsRow</string>
+			<key>label</key>
+			<string>CONFLICTS_GROUP</string>
+			<key>symbol</key>
+			<string>exclamationmark.triangle.fill</string>
+		</dict>
+
 		<!-- APPS: the iPhone apps shown on the car screen through App Bridge (its own page,
 		     OMCAppBridgeAppsController in Features/AppBridge/Prefs). -->
 		<dict>
@@ -42,6 +90,40 @@
 			<string>FEATURES_GROUP</string>
 			<key>footerText</key>
 			<string>FEATURES_FOOTER</string>
+		</dict>
+
+		<!-- SUPPORT: Diagnostics page (Prefs/OMCDiagnosticsController.m) and the one-tap log report
+		     (OMCShareReport in Prefs/OMCDiagnostics.m: report + OmniCar.log -> share sheet). Dev builds
+		     (OMC_AUTOTEST) get an "Auto test" row after Send log, added by OMCRootListController. -->
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>label</key>
+			<string>SUPPORT_GROUP</string>
+			<key>footerText</key>
+			<string>SUPPORT_FOOTER</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSLinkCell</string>
+			<key>detail</key>
+			<string>OMCDiagnosticsController</string>
+			<key>label</key>
+			<string>DIAGNOSTICS</string>
+			<key>symbol</key>
+			<string>stethoscope</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSButtonCell</string>
+			<key>id</key>
+			<string>sendLog</string>
+			<key>label</key>
+			<string>SEND_LOG</string>
+			<key>action</key>
+			<string>sendLog</string>
+			<key>symbol</key>
+			<string>square.and.arrow.up</string>
 		</dict>
 	</array>
 </dict>
