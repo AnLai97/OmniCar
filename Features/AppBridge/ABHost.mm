@@ -685,8 +685,8 @@ static void ABHandleOpen(UIView *pill, BOOL open)
     } else if (!open) {
         [g removeFromSuperlayer];
     }
-    pill.backgroundColor = open ? [UIColor clearColor] : [UIColor colorWithWhite:1 alpha:0.82];
-    for (UIView *d in pill.subviews) d.backgroundColor = open ? [UIColor whiteColor] : [ABInk() colorWithAlphaComponent:0.75];
+    pill.backgroundColor = open ? [UIColor clearColor] : [UIColor colorWithWhite:1 alpha:0.35];
+    for (UIView *d in pill.subviews) d.backgroundColor = open ? [UIColor whiteColor] : [ABInk() colorWithAlphaComponent:0.85];
 }
 
 #define AB_M(x, y) [p moveToPoint:CGPointMake(x, y)]
@@ -878,14 +878,14 @@ static UIButton *ABRoundButton(NSString *glyph, id target, SEL action)
 {
     UIView *hit = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 44, 24)];
     UIView *pill = [[UIView alloc] initWithFrame:CGRectMake(5, 6, 34, 12)];
-    pill.backgroundColor = [UIColor colorWithWhite:1 alpha:0.82];   // kinh trang, 3 cham mau muc (= SCPCDotsHandle)
+    pill.backgroundColor = [UIColor colorWithWhite:1 alpha:0.35];   // vien bau duc trong, 3 cham mau muc (= SCPCDotsHandle)
     pill.layer.cornerRadius = 6;
     pill.layer.borderWidth = 0.5;
-    pill.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.9].CGColor;
+    pill.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.55].CGColor;
     pill.userInteractionEnabled = NO;
     for (int i = 0; i < 3; i++) {
         UIView *d = [[UIView alloc] initWithFrame:CGRectMake(9 + i * 7, 4, 4, 4)];
-        d.backgroundColor = [ABInk() colorWithAlphaComponent:0.75];
+        d.backgroundColor = [ABInk() colorWithAlphaComponent:0.85];
         d.layer.cornerRadius = 2;
         [pill addSubview:d];
     }

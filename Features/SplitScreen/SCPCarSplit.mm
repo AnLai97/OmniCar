@@ -2494,15 +2494,15 @@ static UIView *SCPCDotsHandle(void)
 {
     // Kinh trang, 3 cham mau muc; dang mo thanh nut: gradient + cham trang (SCPCHandleOpen)
     UIView *h = [[SCPCarTabView alloc] initWithFrame:CGRectMake(0, 0, SCPC_HANDLE_W, SCPC_HANDLE_H)];
-    h.backgroundColor = [UIColor colorWithWhite:1 alpha:0.82];
+    h.backgroundColor = [UIColor colorWithWhite:1 alpha:0.35];   // vien bau duc trong, chi 3 cham ro
     h.layer.cornerRadius = SCPC_HANDLE_H / 2;
     h.layer.cornerCurve = kCACornerCurveContinuous;
     h.layer.borderWidth = 0.5;
-    h.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.9].CGColor;
+    h.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.55].CGColor;
     for (int i = -1; i <= 1; i++) {
         UIView *d = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 4, 4)];
         d.center = CGPointMake(SCPC_HANDLE_W / 2 + i * 8, SCPC_HANDLE_H / 2);
-        d.backgroundColor = [SCPCInk() colorWithAlphaComponent:0.75];
+        d.backgroundColor = [SCPCInk() colorWithAlphaComponent:0.85];
         d.layer.cornerRadius = 2;
         d.userInteractionEnabled = NO;
         [h addSubview:d];
@@ -2514,8 +2514,8 @@ static UIView *SCPCDotsHandle(void)
 static void SCPCHandleOpen(UIView *h, BOOL open)
 {
     SCPCAccentFill(h, open);
-    h.backgroundColor = open ? [UIColor clearColor] : [UIColor colorWithWhite:1 alpha:0.82];
-    for (UIView *d in h.subviews) d.backgroundColor = open ? [UIColor whiteColor] : [SCPCInk() colorWithAlphaComponent:0.75];
+    h.backgroundColor = open ? [UIColor clearColor] : [UIColor colorWithWhite:1 alpha:0.35];
+    for (UIView *d in h.subviews) d.backgroundColor = open ? [UIColor whiteColor] : [SCPCInk() colorWithAlphaComponent:0.85];
 }
 
 - (void)setupBarForPane:(SCPCarPane *)p

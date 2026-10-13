@@ -110,7 +110,8 @@ section > p { margin: -6px 0 0; color: var(--ink2); font-size: 13px; }
 /* thanh nut cua o */
 /* tay cam ••• cua o + thanh hanh dong */
 .handle { position: absolute; top: 5px; width: 40px; height: 16px; border-radius: 8px; display: flex; align-items: center; justify-content: center; gap: 3px; z-index: 5; }
-.handle i { width: 4px; height: 4px; border-radius: 2px; background: var(--ink); opacity: .75; }
+.handle i { width: 4px; height: 4px; border-radius: 2px; background: var(--ink); opacity: .85; }
+.handle.glass { background: rgba(255,255,255,.35); box-shadow: inset 0 0 0 .5px rgba(255,255,255,.55); }   /* vien bau duc trong */
 .handle.open { background: var(--acc); box-shadow: var(--acc-glow); } .handle.open i { background: #fff; opacity: 1; }
 /* Thanh hanh dong kieu HarmonyOS: vien kinh, chi icon (khong nhan, khong vong tron), cham = nen mo */
 .abar { position: absolute; height: 44px; border-radius: 22px; padding: 0 6px; display: flex; align-items: center; gap: 4px; z-index: 6; animation: drop .4s var(--hm-spring) both; }
