@@ -1,0 +1,423 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OmniCar Startup Preview</title>
+<!--
+  Mo phong cac kieu Man hinh khoi dong moi tren man xe CarPlay (ti le 16:6), de chon kieu nao dua vao code
+  (Features/StartupScreen/SSStartupView.m). Mo truc tiep bang trinh duyet, khong can server.
+  Moi kieu la mot ham ve canvas theo thoi gian t (giay); "Phat lai" chay lai tu 0.
+-->
+<style>
+:root { --page: #0f1115; --panel: #171a21; --text: #e8eaef; --muted: #8b93a3; --line: #262b35; }
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--page); color: var(--text); font: 14px/1.45 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif; }
+body { display: flex; flex-direction: column; align-items: center; padding: 16px; gap: 14px; }
+.wrap { width: 100%; max-width: 1180px; display: flex; flex-direction: column; gap: 14px; }
+h1 { font-size: 17px; margin: 0; }
+.sub { color: var(--muted); margin: 2px 0 0; }
+.bezel { background: #050506; border-radius: 22px; padding: 14px; box-shadow: 0 20px 60px rgba(0,0,0,.6), inset 0 0 0 1px #1d1f24; }
+canvas { display: block; width: 100%; aspect-ratio: 16 / 6; border-radius: 10px; background: #000; cursor: pointer; }
+.tabs { display: flex; flex-wrap: wrap; gap: 8px; }
+.tab { border: 1px solid var(--line); background: var(--panel); color: var(--text); border-radius: 999px; padding: 7px 14px; cursor: pointer; font: inherit; }
+.tab.on { background: #fff; color: #111; border-color: #fff; box-shadow: 0 0 18px rgba(255,255,255,.35); }
+.row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.row label { color: var(--muted); display: flex; gap: 6px; align-items: center; }
+select, input { background: var(--panel); color: var(--text); border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; font: inherit; }
+button.act { border: 0; background: #fff; color: #111; border-radius: 10px; padding: 8px 14px; font-weight: 600; cursor: pointer; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; }
+.card h2 { font-size: 15px; margin: 0 0 6px; }
+.card p { margin: 4px 0; color: #c9ced8; }
+.tag { display: inline-block; font-size: 12px; padding: 2px 8px; border-radius: 999px; background: #232836; color: var(--muted); margin-right: 6px; }
+@media (max-width: 600px) { body { padding: 10px; } .bezel { padding: 8px; border-radius: 14px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div>
+    <h1>Màn hình khởi động – các kiểu mới</h1>
+    <p class="sub">Chạm vào màn xe hoặc bấm "Phát lại". Thời lượng như trên xe (~5 giây).</p>
+  </div>
+  <div class="tabs" id="tabs"></div>
+  <div class="bezel"><canvas id="c" width="1600" height="600"></canvas></div>
+  <div class="row">
+    <button class="act" id="replay">Phát lại</button>
+    <label>Tên <input id="name" value="An" size="8"></label>
+    <label>Xe <input id="car" value="CX-5" size="8"></label>
+    <label>Thời tiết <select id="weather"><option value="rain">Mưa</option><option value="sun">Nắng</option><option value="night">Đêm quang</option><option value="fog">Sương mù</option></select></label>
+    <label>Dịp <select id="occasion"><option value="tet">Tết</option><option value="birthday">Sinh nhật</option><option value="xmas">Giáng sinh</option><option value="mid">Trung thu</option></select></label>
+    <label>Nhịp <select id="tempo"><option value="1.4">Chậm rãi</option><option value="1" selected>Vừa</option><option value="0.7">Nhanh</option></select></label>
+  </div>
+  <div class="card" id="about"></div>
+</div>
+<script>
+const cv = document.getElementById('c'), ctx = cv.getContext('2d');
+const W = cv.width, H = cv.height;
+const $ = id => document.getElementById(id);
+const clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x));
+const ease = x => { x = clamp(x); return x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; };
+const out = x => 1 - Math.pow(1 - clamp(x), 3);
+const span = (t, a, b) => clamp((t - a) / (b - a));
+const rnd = (a, b) => a + Math.random() * (b - a);
+const FONT = '-apple-system, "SF Pro Rounded", "SF Pro Display", "Segoe UI", Roboto, sans-serif';
+function greet() {
+  const h = new Date().getHours();
+  return h < 5 ? 'Khuya rồi' : h < 11 ? 'Chào buổi sáng' : h < 17 ? 'Chào buổi chiều' : h < 21 ? 'Chào buổi tối' : 'Khuya rồi';
+}
+function text(s, x, y, size, alpha = 1, weight = 700, color = '255,255,255', align = 'center') {
+  ctx.save();
+  ctx.font = `${weight} ${size}px ${FONT}`;
+  ctx.textAlign = align; ctx.textBaseline = 'middle';
+  ctx.fillStyle = `rgba(${color},${alpha})`;
+  ctx.shadowColor = `rgba(0,0,0,${0.45 * alpha})`; ctx.shadowBlur = 18;
+  ctx.fillText(s, x, y);
+  ctx.restore();
+}
+function bg(top, bottom) {
+  const g = ctx.createLinearGradient(0, 0, 0, H);
+  g.addColorStop(0, top); g.addColorStop(1, bottom);
+  ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+}
+function radial(cx, cy, r, inner, outer) {
+  const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+  g.addColorStop(0, inner); g.addColorStop(1, outer);
+  ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+}
+const time = () => new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+
+// ---------------------------------------------------------------- 1. Khởi động máy
+function gauge(cx, cy, r, value, label, unit, max, redFrom) {
+  const a0 = Math.PI * 0.75, a1 = Math.PI * 2.25;
+  ctx.save();
+  ctx.lineCap = 'round';
+  ctx.strokeStyle = 'rgba(255,255,255,.1)'; ctx.lineWidth = 10;
+  ctx.beginPath(); ctx.arc(cx, cy, r, a0, a1); ctx.stroke();
+  const av = a0 + (a1 - a0) * value;
+  const g = ctx.createLinearGradient(cx - r, cy, cx + r, cy);
+  g.addColorStop(0, '#7fd3ff'); g.addColorStop(1, value > redFrom ? '#ff5c54' : '#ffffff');
+  ctx.strokeStyle = g; ctx.lineWidth = 10; ctx.shadowColor = 'rgba(255,255,255,.6)'; ctx.shadowBlur = 16;
+  ctx.beginPath(); ctx.arc(cx, cy, r, a0, av); ctx.stroke();
+  ctx.shadowBlur = 0;
+  for (let i = 0; i <= 10; i++) {
+    const a = a0 + (a1 - a0) * i / 10, inR = r - 26, outR = r - 14;
+    ctx.strokeStyle = i / 10 >= redFrom ? 'rgba(255,92,84,.9)' : 'rgba(255,255,255,.55)'; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.moveTo(cx + Math.cos(a) * inR, cy + Math.sin(a) * inR); ctx.lineTo(cx + Math.cos(a) * outR, cy + Math.sin(a) * outR); ctx.stroke();
+  }
+  ctx.strokeStyle = '#ff5c54'; ctx.lineWidth = 5; ctx.shadowColor = '#ff5c54'; ctx.shadowBlur = 12;
+  ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx + Math.cos(av) * (r - 30), cy + Math.sin(av) * (r - 30)); ctx.stroke();
+  ctx.restore();
+  ctx.fillStyle = '#111'; ctx.beginPath(); ctx.arc(cx, cy, 14, 0, 7); ctx.fill();
+  text(String(Math.round(value * max)), cx, cy + r * 0.45, 46, 1, 700);
+  text(unit, cx, cy + r * 0.45 + 38, 20, .55, 600);
+  text(label, cx, cy - r * 0.35, 18, .45, 600);
+}
+function sceneEngine(t, o) {
+  bg('#05070c', '#000');
+  radial(W / 2, H / 2, W * .5, 'rgba(40,60,110,.35)', 'rgba(0,0,0,0)');
+  const sweep = t < 0.4 ? 0 : t < 1.3 ? ease(span(t, .4, 1.3)) : t < 2.3 ? 1 - ease(span(t, 1.3, 2.3)) : 0;
+  const idle = t > 2.3 ? 0.08 + Math.sin(t * 9) * 0.004 : 0;
+  gauge(330, 320, 210, Math.max(sweep, idle), 'VÒNG TUA', 'x1000 rpm', 8, .8);
+  gauge(W - 330, 320, 210, sweep, 'TỐC ĐỘ', 'km/h', 220, .9);
+  // den bao tu kiem tra: sang het roi tat dan (nhu bat chia khoa)
+  const lights = [['⛽', '255,180,0'], ['🔋', '255,92,84'], ['⚠️', '255,180,0'], ['ABS', '255,180,0'], ['🛞', '255,180,0'], ['🔆', '80,200,255']];
+  lights.forEach((l, i) => {
+    const off = 1 - span(t, 1.4 + i * .12, 1.7 + i * .12);
+    const a = t < .3 ? span(t, 0, .3) : off;
+    text(l[0], W / 2 - 200 + i * 80, 120, 34, a * .95, 700, l[1]);
+  });
+  const a = span(t, 2.2, 2.9);
+  text(o.car, W / 2, 300 - 10 * (1 - out(a)), 70, a, 800);
+  text(`${greet()}, ${o.name}`, W / 2, 380, 30, span(t, 2.6, 3.3), 600);
+  text(time(), W / 2, 450, 24, span(t, 2.9, 3.6) * .7, 500);
+}
+
+// ---------------------------------------------------------------- 2. Ánh sáng chào
+const CAR = [[0, .78], [.05, .74], [.12, .7], [.22, .62], [.36, .44], [.52, .40], [.66, .44], [.8, .58], [.94, .62], [1, .7], [1, .78]];
+function sceneWelcome(t, o) {
+  const k = o.tempo;
+  bg('#020308', '#06070d');
+  const cx = W / 2, w = 900, h = 420, x0 = cx - w / 2, y0 = 40;
+  const pts = CAR.map(([u, v]) => [x0 + u * w, y0 + v * h]);
+  let len = 0; const seg = [];
+  for (let i = 1; i < pts.length; i++) { const d = Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]); seg.push(d); len += d; }
+  const p = ease(span(t, .2 * k, 1.8 * k));
+  // duong sang chay tu giua ra 2 phia
+  ctx.save();
+  ctx.lineWidth = 6; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  ctx.strokeStyle = '#fff'; ctx.shadowColor = 'rgba(160,210,255,.95)'; ctx.shadowBlur = 30;
+  const draw = (from, to) => {
+    let acc = 0; ctx.beginPath(); let started = false;
+    for (let i = 1; i < pts.length; i++) {
+      const a = acc, b = acc + seg[i - 1]; acc = b;
+      if (b < from || a > to) continue;
+      const s = clamp((from - a) / seg[i - 1]), e = clamp((to - a) / seg[i - 1]);
+      const P = (q) => [pts[i - 1][0] + (pts[i][0] - pts[i - 1][0]) * q, pts[i - 1][1] + (pts[i][1] - pts[i - 1][1]) * q];
+      const A = P(s), B = P(e);
+      if (!started) { ctx.moveTo(A[0], A[1]); started = true; }
+      ctx.lineTo(B[0], B[1]);
+    }
+    ctx.stroke();
+  };
+  draw(len / 2 - p * len / 2, len / 2 + p * len / 2);
+  // banh xe
+  const wheel = span(t, 1.6 * k, 2.2 * k);
+  [[.22, .78], [.78, .78]].forEach(([u, v]) => { ctx.globalAlpha = wheel; ctx.beginPath(); ctx.arc(x0 + u * w, y0 + v * h, 55, Math.PI, 0); ctx.stroke(); });
+  ctx.restore();
+  // den pha nhay 2 lan
+  const flash = (t > 2.2 * k && t < 2.35 * k) || (t > 2.5 * k && t < 2.65 * k) ? 1 : 0;
+  if (flash) { const fx = x0 + .96 * w, fy = y0 + .66 * h; const g = ctx.createRadialGradient(fx, fy, 0, fx, fy, 260); g.addColorStop(0, 'rgba(255,255,255,.95)'); g.addColorStop(1, 'rgba(255,255,255,0)'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H); }
+  // duong chan troi
+  ctx.fillStyle = `rgba(160,210,255,${.25 * span(t, 1.2 * k, 2 * k)})`; ctx.fillRect(0, y0 + .78 * h + 56, W, 2);
+  text(`${greet()}, ${o.name}`, cx, 545, 44, span(t, 2.7 * k, 3.4 * k), 700);
+}
+
+// ---------------------------------------------------------------- 3. Thời tiết sống động
+let drops = [], stars = [], fogs = [];
+function initWeather() {
+  drops = Array.from({ length: 160 }, () => ({ x: rnd(0, W), y: rnd(0, H), r: rnd(3, 9), v: rnd(0, 1) }));
+  stars = Array.from({ length: 140 }, () => ({ x: rnd(0, W), y: rnd(0, H * .7), r: rnd(.6, 2), p: rnd(0, 6) }));
+  fogs = Array.from({ length: 6 }, (_, i) => ({ y: 120 + i * 80, s: rnd(20, 60), o: rnd(0, W) }));
+}
+function weatherInfo(o) {
+  return { rain: ['🌧', '24°', 'Mưa vừa · 80% khả năng mưa'], sun: ['☀️', '33°', 'Nắng · cao 34° thấp 27°'],
+    night: ['🌙', '26°', 'Trời quang · sao rõ'], fog: ['🌫', '19°', 'Sương mù · đi chậm, bật đèn'] }[o.weather];
+}
+function sceneWeather(t, o) {
+  const w = o.weather, info = weatherInfo(o);
+  if (w === 'sun') { bg('#2a7fd8', '#9fd3ff'); }
+  else if (w === 'night') { bg('#02030a', '#0b1230'); }
+  else if (w === 'fog') { bg('#5f6670', '#9aa1aa'); }
+  else { bg('#1c2633', '#33404f'); }
+  if (w === 'sun') {
+    const cx = W - 260, cy = 150;
+    ctx.save(); ctx.translate(cx, cy); ctx.rotate(t * .25);
+    for (let i = 0; i < 12; i++) { ctx.rotate(Math.PI / 6); ctx.fillStyle = 'rgba(255,240,180,.18)'; ctx.fillRect(0, -14, 520, 28); }
+    ctx.restore();
+    radial(cx, cy, 180, 'rgba(255,250,220,1)', 'rgba(255,220,120,0)');
+  }
+  if (w === 'night') {
+    stars.forEach(s => { ctx.fillStyle = `rgba(255,255,255,${.4 + .6 * Math.abs(Math.sin(t * 2 + s.p))})`; ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, 7); ctx.fill(); });
+    radial(W - 260, 140, 120, 'rgba(255,255,230,.95)', 'rgba(255,255,230,0)');
+  }
+  if (w === 'fog') {
+    fogs.forEach(f => { ctx.fillStyle = 'rgba(255,255,255,.18)'; const x = (f.o + t * f.s * 3) % (W + 600) - 600; ctx.beginPath(); ctx.ellipse(x + 300, f.y, 420, 50, 0, 0, 7); ctx.fill(); });
+  }
+  // noi dung
+  const a = span(t, .6, 1.3);
+  text(info[0], 300, 260, 150, a);
+  text(info[1], 300, 430, 110, a, 800);
+  text(`${greet()}, ${o.name}`, W / 2 + 160, 230, 54, span(t, .9, 1.6), 700);
+  text(info[2], W / 2 + 160, 310, 30, span(t, 1.2, 1.9) * .85, 500);
+  text(time(), W / 2 + 160, 380, 26, span(t, 1.4, 2.1) * .6, 500);
+  // mua tren kinh + can gat nuoc quet qua lo ra noi dung
+  if (w === 'rain') {
+    const wipe = t < 1.0 ? 0 : t < 1.9 ? ease(span(t, 1.0, 1.9)) : t < 2.6 ? 1 - ease(span(t, 1.9, 2.6)) : 0;
+    const cleared = t < 1.0 ? 0 : t < 1.9 ? wipe : 1;   // vung da gat giu sach khi can gat quay ve
+    const ang = -Math.PI + wipe * Math.PI, px = W / 2, py = H + 80, L = 980;
+    ctx.save();
+    ctx.beginPath(); ctx.rect(0, 0, W, H);
+    if (cleared > 0) { ctx.moveTo(px, py); ctx.arc(px, py, L, Math.PI, Math.PI + cleared * Math.PI, false); ctx.closePath(); }
+    ctx.clip('evenodd');
+    ctx.fillStyle = 'rgba(30,40,55,.55)'; ctx.fillRect(0, 0, W, H);   // kinh mo hoi nuoc
+    drops.forEach(d => {
+      const y = (d.y + (t * 60 * d.v)) % H;
+      const g = ctx.createRadialGradient(d.x - d.r * .3, y - d.r * .3, 0, d.x, y, d.r);
+      g.addColorStop(0, 'rgba(255,255,255,.75)'); g.addColorStop(1, 'rgba(180,200,220,.15)');
+      ctx.fillStyle = g; ctx.beginPath(); ctx.ellipse(d.x, y, d.r * .8, d.r, 0, 0, 7); ctx.fill();
+    });
+    ctx.restore();
+    ctx.save(); ctx.translate(px, py); ctx.rotate(ang);
+    ctx.strokeStyle = '#0b0b0d'; ctx.lineWidth = 16; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(L, 0); ctx.stroke();
+    ctx.strokeStyle = 'rgba(255,255,255,.15)'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(60, -6); ctx.lineTo(L, -6); ctx.stroke();
+    ctx.restore();
+  }
+}
+
+// ---------------------------------------------------------------- 4. Hạt sáng tụ chữ
+let parts = [], partsFor = '';
+function buildParticles(s) {
+  const off = document.createElement('canvas'); off.width = W; off.height = H;
+  const c = off.getContext('2d');
+  c.fillStyle = '#fff'; c.font = `800 180px ${FONT}`; c.textAlign = 'center'; c.textBaseline = 'middle';
+  c.fillText(s, W / 2, H / 2 - 20);
+  const img = c.getImageData(0, 0, W, H).data, pts = [];
+  for (let y = 0; y < H; y += 6) for (let x = 0; x < W; x += 6) if (img[(y * W + x) * 4 + 3] > 128) pts.push([x, y]);
+  parts = pts.map(([x, y]) => ({ tx: x, ty: y, sx: rnd(-200, W + 200), sy: rnd(-200, H + 200), d: rnd(0, .5), hue: rnd(190, 230) }));
+  partsFor = s;
+}
+function sceneParticles(t, o) {
+  if (partsFor !== o.name) buildParticles(o.name);
+  bg('#020309', '#070a18');
+  radial(W / 2, H / 2, W * .45, 'rgba(60,90,200,.25)', 'rgba(0,0,0,0)');
+  ctx.save(); ctx.globalCompositeOperation = 'lighter';
+  for (const p of parts) {
+    const k = out(span(t, .2 + p.d, 1.8 + p.d));
+    const leave = ease(span(t, 4.1, 4.9));
+    let x = p.sx + (p.tx - p.sx) * k, y = p.sy + (p.ty - p.sy) * k;
+    x += Math.sin(t * 3 + p.tx * .02) * 1.5 * k; y += leave * (p.ty - H / 2) * .6 - leave * 140;
+    const a = (1 - leave) * (.35 + .65 * k);
+    ctx.fillStyle = `hsla(${p.hue},100%,${70 + 30 * Math.sin(t * 4 + p.tx)}%,${a})`;
+    ctx.fillRect(x, y, 3.2, 3.2);
+  }
+  ctx.restore();
+  text(greet(), W / 2, 500, 32, span(t, 2.0, 2.6) * (1 - span(t, 4.1, 4.6)), 600);
+}
+
+// ---------------------------------------------------------------- 5. Dịp đặc biệt
+let bursts = [], petals = [], confetti = [], snow = [];
+function initFestive() {
+  bursts = Array.from({ length: 7 }, (_, i) => ({ x: rnd(200, W - 200), y: rnd(80, 300), t: .3 + i * .55, hue: [0, 45, 55, 330, 20, 200, 120][i], n: 70 }));
+  petals = Array.from({ length: 40 }, () => ({ x: rnd(0, W), y: rnd(-H, 0), s: rnd(10, 18), v: rnd(60, 120), r: rnd(0, 6), sw: rnd(1, 3) }));
+  confetti = Array.from({ length: 160 }, () => ({ x: rnd(0, W), y: rnd(-H, 0), v: rnd(120, 260), c: `hsl(${rnd(0, 360)},90%,60%)`, r: rnd(0, 6), w: rnd(8, 16) }));
+  snow = Array.from({ length: 140 }, () => ({ x: rnd(0, W), y: rnd(-H, H), r: rnd(1.5, 4.5), v: rnd(30, 70) }));
+}
+function firework(b, t) {
+  const age = t - b.t; if (age < 0 || age > 2) return;
+  if (age < .4) { const y = H - (H - b.y) * out(age / .4); ctx.fillStyle = 'rgba(255,240,200,.9)'; ctx.fillRect(b.x - 2, y, 4, 14); return; }
+  const k = (age - .4) / 1.6;
+  for (let i = 0; i < b.n; i++) {
+    const a = i / b.n * Math.PI * 2, r = out(k) * 190;
+    ctx.fillStyle = `hsla(${b.hue},100%,65%,${1 - k})`;
+    ctx.beginPath(); ctx.arc(b.x + Math.cos(a) * r, b.y + Math.sin(a) * r + k * k * 60, 3.4, 0, 7); ctx.fill();
+  }
+}
+function sceneFestive(t, o) {
+  const occ = o.occasion;
+  if (occ === 'tet') {
+    bg('#5a0006', '#a3000f'); radial(W / 2, H / 2, W * .5, 'rgba(255,200,60,.25)', 'rgba(0,0,0,0)');
+    ctx.save(); ctx.globalCompositeOperation = 'lighter'; bursts.forEach(b => firework(b, t)); ctx.restore();
+    petals.forEach(p => {   // hoa mai roi
+      const y = p.y + t * p.v, x = p.x + Math.sin(t * p.sw + p.r) * 30;
+      ctx.save(); ctx.translate(x, y % (H + 40)); ctx.rotate(t + p.r);
+      for (let i = 0; i < 5; i++) { ctx.rotate(Math.PI * 2 / 5); ctx.fillStyle = '#ffd43b'; ctx.beginPath(); ctx.ellipse(0, -p.s * .55, p.s * .35, p.s * .55, 0, 0, 7); ctx.fill(); }
+      ctx.fillStyle = '#e8590c'; ctx.beginPath(); ctx.arc(0, 0, p.s * .18, 0, 7); ctx.fill(); ctx.restore();
+    });
+    text('Chúc Mừng Năm Mới', W / 2, 250, 96, span(t, .8, 1.6), 800, '255,214,92');
+    text(`An khang thịnh vượng · thượng lộ bình an, ${o.name}`, W / 2, 360, 32, span(t, 1.4, 2.1), 600, '255,236,190');
+  } else if (occ === 'birthday') {
+    bg('#1b0b3a', '#3b1a78');
+    confetti.forEach(c => { const y = c.y + t * c.v; ctx.save(); ctx.translate(c.x + Math.sin(t * 2 + c.r) * 20, y % (H + 30)); ctx.rotate(t * 3 + c.r); ctx.fillStyle = c.c; ctx.fillRect(-c.w / 2, -3, c.w, 6); ctx.restore(); });
+    text('🎂', W / 2, 180, 120, out(span(t, .3, 1)));
+    text(`Chúc mừng sinh nhật, ${o.name}!`, W / 2, 330, 72, span(t, .8, 1.5), 800);
+    text('Hôm nay lái xe vui nhé', W / 2, 420, 30, span(t, 1.3, 2), 500, '230,220,255');
+  } else if (occ === 'xmas') {
+    bg('#04121f', '#0b2a3d');
+    snow.forEach(s => { ctx.fillStyle = 'rgba(255,255,255,.85)'; ctx.beginPath(); ctx.arc(s.x + Math.sin(t + s.y) * 10, (s.y + t * s.v) % H, s.r, 0, 7); ctx.fill(); });
+    text('🎄', W / 2, 190, 120, out(span(t, .3, 1)));
+    text('Giáng Sinh An Lành', W / 2, 340, 80, span(t, .8, 1.5), 800);
+    text(`Merry Christmas, ${o.name}`, W / 2, 425, 30, span(t, 1.3, 2), 500, '200,230,255');
+  } else {
+    bg('#0a0a24', '#1d1446'); radial(W - 300, 160, 160, 'rgba(255,240,190,1)', 'rgba(255,220,120,0)');
+    for (let i = 0; i < 6; i++) {   // den long bay len
+      const x = 200 + i * 230, y = H - ((t * 50 + i * 90) % (H + 120)) + 60;
+      ctx.fillStyle = 'rgba(255,120,40,.9)'; ctx.beginPath(); ctx.ellipse(x, y, 34, 44, 0, 0, 7); ctx.fill();
+      radial(x, y, 90, 'rgba(255,170,80,.35)', 'rgba(255,170,80,0)');
+    }
+    text('Trung Thu Vui Vẻ', W / 2, 300, 84, span(t, .8, 1.5), 800, '255,226,160');
+    text(`Trăng tròn, đường thông, ${o.name} nhé`, W / 2, 400, 30, span(t, 1.3, 2), 500);
+  }
+}
+
+// ---------------------------------------------------------------- 6. HUD tự kiểm tra
+function sceneHud(t, o) {
+  bg('#01050c', '#04121e');
+  const cx = 400, cy = H / 2;
+  ctx.save(); ctx.translate(cx, cy); ctx.strokeStyle = 'rgba(120,220,255,.55)';
+  [210, 170, 130].forEach((r, i) => {
+    ctx.lineWidth = i === 0 ? 3 : 2; ctx.setLineDash(i === 1 ? [6, 10] : i === 2 ? [40, 16] : []);
+    ctx.save(); ctx.rotate((i % 2 ? -1 : 1) * t * (.6 + i * .3));
+    ctx.beginPath(); ctx.arc(0, 0, r * out(span(t, 0, .8)), 0, Math.PI * 2 * out(span(t, 0, 1))); ctx.stroke(); ctx.restore();
+  });
+  ctx.setLineDash([]);
+  const g = ctx.createConicGradient ? ctx.createConicGradient(t * 3, 0, 0) : null;   // tia radar
+  if (g) { g.addColorStop(0, 'rgba(120,220,255,.45)'); g.addColorStop(.12, 'rgba(120,220,255,0)'); g.addColorStop(1, 'rgba(120,220,255,0)'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, 0, 205, 0, 7); ctx.fill(); }
+  ctx.restore();
+  text(Math.round(out(span(t, .3, 2.6)) * 100) + '%', cx, cy, 64, 1, 800, '170,235,255');
+  const checks = ['Kết nối CarPlay', 'Pin iPhone 82% · đang sạc', 'Nhiệt độ máy: ổn', 'Chế độ nhẹ: tự động', `Hồ sơ xe: ${o.car}`];
+  checks.forEach((c, i) => {
+    const a = span(t, .5 + i * .38, .8 + i * .38);
+    text('✓', 800, 150 + i * 62, 30, a, 800, '120,255,170', 'left');
+    text(c, 850, 150 + i * 62, 30, a, 500, '220,240,255', 'left');
+  });
+  text('SẴN SÀNG', 1060, 500, 56, span(t, 2.6, 3.1), 800, '170,235,255');
+}
+
+// ---------------------------------------------------------------- 7. Bảng tin buổi sáng
+function card(x, y, w, h, a, dy) {
+  ctx.save(); ctx.globalAlpha = a; ctx.translate(0, dy);
+  ctx.fillStyle = 'rgba(255,255,255,.08)'; ctx.strokeStyle = 'rgba(255,255,255,.22)'; ctx.lineWidth = 1.2;
+  ctx.beginPath(); ctx.roundRect(x, y, w, h, 34); ctx.fill(); ctx.stroke(); ctx.restore();
+}
+function sceneBriefing(t, o) {
+  bg('#0c1a33', '#1f3a66'); radial(200, 80, 600, 'rgba(255,190,120,.25)', 'rgba(0,0,0,0)');
+  const items = [
+    [`${greet()}, ${o.name}`, time() + ' · thứ Ba 13/10', '👋'],
+    ['24° · mưa nhẹ lúc 17h', 'Mang ô nếu đỗ xa', '🌦'],
+    ['Họp nhóm 9:30', '28 phút tới công ty · đường thông', '📅'],
+    ['Thắt dây an toàn', 'Chúc bạn thượng lộ bình an', '🛡'],
+  ];
+  items.forEach(([h, s, icon], i) => {
+    const k = out(span(t, .3 + i * .45, .9 + i * .45));
+    const x = 70 + (i % 2) * 740, y = 70 + Math.floor(i / 2) * 240;
+    card(x, y, 700, 210, k, (1 - k) * 40);
+    ctx.save(); ctx.globalAlpha = k; ctx.translate(0, (1 - k) * 40);
+    text(icon, x + 90, y + 105, 70, 1);
+    text(h, x + 170, y + 85, 40, 1, 700, '255,255,255', 'left');
+    text(s, x + 170, y + 140, 26, .7, 500, '255,255,255', 'left');
+    ctx.restore();
+  });
+}
+
+// ---------------------------------------------------------------- bang chon
+const STYLES = [
+  { id: 'engine', name: 'Khởi động máy', fn: sceneEngine, d: 4.5,
+    about: 'Như bật chìa khoá xe thể thao: kim vòng tua và tốc độ quét hết vòng rồi về 0, đèn báo sáng cả rồi tắt dần (tự kiểm tra), tên xe và lời chào hiện ra. Kèm tiếng máy nổ (tuỳ chọn).',
+    tags: ['Dễ làm', 'Rất "xe"'] },
+  { id: 'welcome', name: 'Ánh sáng chào', fn: sceneWelcome, d: 4.5,
+    about: 'Lấy cảm hứng từ Welcome Light của BMW / Porsche: một vệt sáng chạy từ giữa ra vẽ dáng xe, bánh xe hiện ra, đèn pha nháy 2 lần rồi lời chào. 3 nhịp: Chậm rãi / Vừa / Nhanh (như Adagio / Vivace / Allegro của BMW).',
+    tags: ['Sang', 'Chọn nhịp'] },
+  { id: 'weather', name: 'Thời tiết sống động', fn: sceneWeather, d: 4.5,
+    about: 'Nâng cấp kiểu Thời tiết: nền chuyển động theo thời tiết thật. Mưa: kính đầy giọt nước, cần gạt quét qua lộ ra nhiệt độ. Nắng: tia nắng xoay. Đêm: sao lấp lánh. Sương mù: mây trôi + nhắc bật đèn.',
+    tags: ['Có ích', 'Bất ngờ'] },
+  { id: 'particles', name: 'Hạt sáng', fn: sceneParticles, d: 5,
+    about: 'Hàng nghìn hạt sáng bay từ khắp màn hình tụ lại thành tên bạn (hoặc logo), lấp lánh rồi tan đi.',
+    tags: ['Đẹp', 'Cá nhân'] },
+  { id: 'festive', name: 'Dịp đặc biệt', fn: sceneFestive, d: 4.5,
+    about: 'Tự đổi theo ngày: Tết (pháo hoa + hoa mai), sinh nhật (confetti + tên), Giáng sinh (tuyết), Trung thu (đèn lồng). Như BMW: chỉ tự hiện vài lần trong dịp đó, các ngày khác dùng kiểu thường.',
+    tags: ['Theo lịch', 'Vui'] },
+  { id: 'hud', name: 'HUD tự kiểm tra', fn: sceneHud, d: 4,
+    about: 'Kiểu khoa học viễn tưởng: vòng HUD xoay, tia radar quét, từng dòng kiểm tra hiện dấu ✓ — dùng số thật từ trang Chẩn đoán (kết nối, pin, nhiệt, Chế độ nhẹ, hồ sơ xe) rồi "SẴN SÀNG".',
+    tags: ['Có ích', 'Ngầu'] },
+  { id: 'briefing', name: 'Bảng tin đầu ngày', fn: sceneBriefing, d: 4.5,
+    about: 'Các thẻ kính trượt vào lần lượt: lời chào + giờ, thời tiết trong ngày, lịch hẹn kế tiếp + thời gian tới nơi, nhắc an toàn. Cần quyền Lịch (iOS) cho thẻ lịch hẹn.',
+    tags: ['Có ích', 'Gọn'] },
+];
+let cur = STYLES[0], t0 = performance.now();
+function opts() { return { name: $('name').value || 'An', car: $('car').value || 'OmniCar', weather: $('weather').value, occasion: $('occasion').value, tempo: +$('tempo').value }; }
+function replay() { t0 = performance.now(); initWeather(); initFestive(); }
+function select(s) {
+  cur = s; replay();
+  document.querySelectorAll('.tab').forEach(b => b.classList.toggle('on', b.dataset.id === s.id));
+  $('about').innerHTML = `<h2>${s.name}</h2><p>${s.about}</p><p>${s.tags.map(x => `<span class="tag">${x}</span>`).join('')}</p>`;
+}
+STYLES.forEach(s => { const b = document.createElement('button'); b.className = 'tab'; b.textContent = s.name; b.dataset.id = s.id; b.onclick = () => select(s); $('tabs').appendChild(b); });
+$('replay').onclick = replay; cv.onclick = replay;
+['weather', 'occasion', 'tempo', 'name', 'car'].forEach(id => $(id).addEventListener('input', replay));
+// #weather@1.5 = mo kieu "weather" va dung hinh o giay 1.5 (de chup man hinh / so sanh)
+const pin = location.hash.match(/^#(\w+)@([\d.]+)$/);
+function frame(now) {
+  const t = pin ? +pin[2] : (now - t0) / 1000;
+  ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1; ctx.clearRect(0, 0, W, H);
+  try { cur.fn(Math.min(t, cur.d + 3), opts()); } catch (e) { console.error(e); }
+  if (t > cur.d + 1.5) {   // het thoi luong: mo dan nhu tren xe
+    ctx.fillStyle = `rgba(0,0,0,${span(t, cur.d + 1.5, cur.d + 2.3)})`; ctx.fillRect(0, 0, W, H);
+  }
+  requestAnimationFrame(frame);
+}
+select(STYLES.find(s => pin && s.id === pin[1]) || STYLES[0]);
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>
