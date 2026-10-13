@@ -78,6 +78,7 @@
 "STARTUPSCREEN_STYLE_PARTICLES" = "Particles";
 "STARTUPSCREEN_STYLE_HUD" = "HUD check";
 "STARTUPSCREEN_STYLE_BRIEFING" = "Briefing";
+"STARTUPSCREEN_STYLE_LIQUID" = "Liquid";
 "STARTUPSCREEN_STYLE_RANDOM" = "Random";
 "STARTUPSCREEN_DISPLAY_FOOTER" = "With Video sound on, the video's audio replaces the startup sound.";
 "STARTUPSCREEN_PARTICLES_FOOTER" = "Glowing particles gather into your name (or OmniCar).";

@@ -746,18 +746,18 @@ static void SSShowSplash(UIScreen *screen, UIWindowScene *scene, NSString *sourc
 	NSInteger style = SSResolveStyle(&occasion);
 	if (style != SSCurrentStyle()) SSLog(@"style %ld this time (setting %ld, occasion %ld)", (long)style, (long)SSCurrentStyle(), (long)occasion);
 	SSSplash *splash = nil;
+	// Video chosen but none ready (no file, or not converted yet): the OmniCar liquid screen instead of nothing.
+	NSString *name = style == SS_STYLE_VIDEO ? SSVideoName() : nil;
+	NSString *framesDir = name ? SS_FRAMES_DIR(name) : nil;
+	NSDictionary *info = framesDir ? [NSDictionary dictionaryWithContentsOfFile:[framesDir stringByAppendingPathComponent:@"info.plist"]] : nil;
+	NSUInteger count = [info[@"count"] unsignedIntegerValue];
+	double fps = [info[@"fps"] doubleValue];
+	if (style == SS_STYLE_VIDEO && (!name || !count || fps <= 0)) {
+		if (!name) SSLog(@"no video found in %@ -> liquid style", SS_VIDEOS_DIR);
+		else SSLog(@"no frames for %@ (open Settings > OmniCar > Startup Screen to convert it) -> liquid style", name);
+		style = SS_STYLE_LIQUID;
+	}
 	if (style == SS_STYLE_VIDEO) {
-		NSString *name = SSVideoName();
-		if (!name) { SSLog(@"no video found in %@", SS_VIDEOS_DIR); return; }
-
-		NSString *framesDir = SS_FRAMES_DIR(name);
-		NSDictionary *info = [NSDictionary dictionaryWithContentsOfFile:[framesDir stringByAppendingPathComponent:@"info.plist"]];
-		NSUInteger count = [info[@"count"] unsignedIntegerValue];
-		double fps = [info[@"fps"] doubleValue];
-		if (!count || fps <= 0) {
-			SSLog(@"no frames for %@ - open Settings > OmniCar > Startup Screen to convert it", name);
-			return;
-		}
 		SSLog(@"playing %@ (%lu frames @ %.0ffps)", name, (unsigned long)count, fps);
 		splash = [[SSSplash alloc] initWithScreen:screen scene:scene style:style occasion:SS_OCCASION_NONE framesDir:framesDir frameCount:count fps:fps];
 	} else {

@@ -584,6 +584,7 @@ static NSArray<NSDictionary *> *SSSampleHud(NSString *carName) {
 		case SS_STYLE_PARTICLES: _restTime = 3.0; break;
 		case SS_STYLE_HUD:       _restTime = 3.4; break;
 		case SS_STYLE_BRIEFING:  _restTime = 2.6; _linkEnd = 2.5; break;
+		case SS_STYLE_LIQUID:    _restTime = 2.8; _linkEnd = 2.6; break;
 		default:                 _restTime = 2.5; break;
 	}
 
@@ -649,6 +650,7 @@ static NSArray<NSDictionary *> *SSSampleHud(NSString *carName) {
 		case SS_STYLE_PARTICLES: return SSPair(0x020309, 0x070A18);
 		case SS_STYLE_HUD:       return SSPair(0x01050C, 0x04121E);
 		case SS_STYLE_BRIEFING:  return SSPair(0x0C1A33, 0x1F3A66);
+		case SS_STYLE_LIQUID:    return SSPair(0xEEF0FB, 0xF4F5FB);   // sang; mau chat long la cac lop glow trong canh
 		default: break;
 	}
 	switch (self.occasion) {
@@ -967,6 +969,7 @@ static NSArray<NSDictionary *> *SSSampleHud(NSString *carName) {
 		case SS_STYLE_PARTICLES: [self ss_buildParticles]; break;
 		case SS_STYLE_HUD:       [self ss_buildHud]; break;
 		case SS_STYLE_BRIEFING:  [self ss_buildBriefing]; break;
+		case SS_STYLE_LIQUID:    [self ss_buildLiquid]; break;
 		case SS_STYLE_FESTIVE:   [self ss_buildFestive]; break;
 		default: break;
 	}
@@ -1734,6 +1737,94 @@ static NSArray<NSDictionary *> *SSSampleHud(NSString *carName) {
 		fade.outEase = YES;
 		fade.rise = 40 * k;
 	}
+}
+
+#pragma mark Liquid (the OmniCar look)
+
+// tools/preview/theme.html part 6: four pastel blobs drifting slowly (lavender, sky, mint, peach), the glass logo rising
+// on a spring and breathing, "OmniCar" in the violet -> sky gradient, the slogan under it, a thin loading bar.
+- (void)ss_buildLiquid {
+	CGFloat k = _k;
+	UIView *host = [self ss_host];
+	// Blobs: radial glows that drift back and forth (14 s, offset per blob) like the preview's "drift" keyframes
+	NSArray *blobs = @[@[@0xB7A6FF, @260, @120, @700], @[@0x8FD3FF, @1350, @170, @650], @[@0x9DF2D8, @1250, @560, @600], @[@0xFFC2D6, @320, @540, @560]];
+	NSInteger i = 0;
+	for (NSArray *b in blobs) {
+		uint32_t rgb = (uint32_t)[b[0] unsignedIntValue];
+		CGPoint c = CGPointMake(_ox + [b[1] doubleValue] * k, _oy + [b[2] doubleValue] * k);
+		CAGradientLayer *glow = SSGlow(c, [b[3] doubleValue] * k, SSRGBA(rgb, 0.85), SSRGBA(rgb, 0));
+		[host.layer addSublayer:glow];
+		CABasicAnimation *drift = [CABasicAnimation animationWithKeyPath:@"position"];
+		drift.fromValue = [NSValue valueWithCGPoint:c];
+		drift.toValue = [NSValue valueWithCGPoint:CGPointMake(c.x + (i % 2 ? -60 : 60) * k, c.y + (i < 2 ? 40 : -40) * k)];
+		drift.duration = 14; drift.autoreverses = YES; drift.repeatCount = HUGE_VALF;
+		drift.timeOffset = i * 3.5;
+		drift.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
+		[glow addAnimation:drift forKey:@"ssDrift"];
+		i++;
+	}
+
+	// Logo: the package icon from the settings bundle (same image Settings shows), 300 units, soft violet shadow
+	UIImage *logo = [UIImage imageWithContentsOfFile:ROOT_PATH_NS(@"/Library/PreferenceBundles/OmniCarPrefs.bundle/PackageIcon.png")]
+		?: [UIImage imageWithContentsOfFile:ROOT_PATH_NS(@"/Library/PreferenceBundles/OmniCarPrefs.bundle/logo@3x.png")];
+	CGFloat side = 300 * k;
+	UIImageView *logoView = [[UIImageView alloc] initWithImage:logo];
+	logoView.contentMode = UIViewContentModeScaleAspectFit;
+	logoView.bounds = CGRectMake(0, 0, side, side);
+	logoView.center = CGPointMake(_ox + 560 * k, _oy + 300 * k);
+	logoView.layer.shadowColor = SSRGB(0x5A50AA).CGColor;
+	logoView.layer.shadowOpacity = 0.35; logoView.layer.shadowRadius = 26 * k; logoView.layer.shadowOffset = CGSizeMake(0, 14 * k);
+	[host addSubview:logoView];
+	SSFade *lf = [self ss_fade:logoView from:0.1 to:0.9 alpha:1];
+	lf.rise = 40 * k;
+	CABasicAnimation *breathe = [CABasicAnimation animationWithKeyPath:@"transform.translation.y"];   // floats +-4 units
+	breathe.fromValue = @(4 * k); breathe.toValue = @(-4 * k);
+	breathe.duration = 2.4; breathe.autoreverses = YES; breathe.repeatCount = HUGE_VALF; breathe.additive = YES;
+	breathe.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
+	[logoView.layer addAnimation:breathe forKey:@"ssBreathe"];
+
+	// "OmniCar" in the accent gradient: a gradient view masked by the label
+	UILabel *name = SSLabel(@"OmniCar");
+	name.font = SSFont(110 * k, UIFontWeightHeavy);
+	name.textColor = [UIColor blackColor];
+	CGSize ns = [name sizeThatFits:CGSizeMake(CGFLOAT_MAX, CGFLOAT_MAX)];
+	UIView *nameView = [[UIView alloc] initWithFrame:CGRectMake(_ox + 780 * k, _oy + 215 * k, ceil(ns.width), ceil(ns.height))];
+	CAGradientLayer *ink = [CAGradientLayer layer];
+	ink.frame = nameView.bounds;
+	ink.colors = @[(id)SSRGB(0x6F5CF6).CGColor, (id)SSRGB(0x3B9CF0).CGColor];
+	ink.startPoint = CGPointMake(0, 0.5); ink.endPoint = CGPointMake(1, 0.5);
+	[nameView.layer addSublayer:ink];
+	name.frame = nameView.bounds;
+	nameView.maskView = name;
+	[host addSubview:nameView];
+	SSFade *nf = [self ss_fade:nameView from:0.45 to:1.15 alpha:1];
+	nf.rise = 30 * k;
+
+	UILabel *slogan = [self ss_label:OMCTr(@"Sức mạnh của CarPlay", @"The power of CarPlay") at:CGPointMake(_ox + 784 * k, _oy + 355 * k)
+	                            size:40 weight:UIFontWeightMedium color:SSRGB(0x6B7090) left:YES in:host maxWidth:700 * k];
+	slogan.layer.shadowOpacity = 0;
+	SSFade *sf = [self ss_fade:slogan from:0.7 to:1.4 alpha:1];
+	sf.rise = 30 * k;
+
+	// Loading bar: thin track, a short accent segment sweeping across (1.6 s, repeats)
+	CGFloat bw = 240 * k, bh = MAX(2, 8 * k);
+	UIView *track = [[UIView alloc] initWithFrame:CGRectMake(_ox + 680 * k, _oy + 540 * k, bw, bh)];
+	track.backgroundColor = SSRGBA(0x1F2233, 0.1);
+	track.layer.cornerRadius = bh / 2;
+	track.clipsToBounds = YES;
+	[host addSubview:track];
+	CAGradientLayer *seg = [CAGradientLayer layer];
+	seg.frame = CGRectMake(0, 0, bw * 0.4, bh);
+	seg.cornerRadius = bh / 2;
+	seg.colors = @[(id)SSRGB(0x8B7CFF).CGColor, (id)SSRGB(0x5AB8FF).CGColor];
+	seg.startPoint = CGPointMake(0, 0.5); seg.endPoint = CGPointMake(1, 0.5);
+	[track.layer addSublayer:seg];
+	CABasicAnimation *sweep = [CABasicAnimation animationWithKeyPath:@"transform.translation.x"];
+	sweep.fromValue = @(-bw * 0.4); sweep.toValue = @(bw * 1.04);
+	sweep.duration = 1.6; sweep.repeatCount = HUGE_VALF;
+	sweep.timingFunction = [CAMediaTimingFunction functionWithControlPoints:0.2 :0 :0.2 :1];
+	[seg addAnimation:sweep forKey:@"ssSweep"];
+	[self ss_fade:track from:1.0 to:1.5 alpha:1];
 }
 
 #pragma mark Festive

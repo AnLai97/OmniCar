@@ -27,6 +27,8 @@ logo: `tools/preview/logo.html`; bàn phím: `tools/preview/keyboard.html`. Th�
 - **Thanh tỉ lệ**: hình mô tả tỉ lệ (1/3 · 1/2 · 2/3), không dùng số.
 - **Bàn phím** theo bàn phím HarmonyOS: giữa vùng app, sát mép dưới, hàng số riêng, gợi ý góc phím (Telex: dấu /
   chữ phím đó tạo), bong bóng phóng to khi chạm; màu kính trắng, phím chức năng tím nhạt, Shift / Enter gradient.
+- **Màn hình khởi động**: kiểu "Chất lỏng" (`SS_STYLE_LIQUID`) là bộ mặt mới — 4 vệt pastel trôi chậm, logo kính nổi
+  lên, chữ OmniCar gradient, thanh tải mảnh; tự thay cho Video khi chưa có video. Các kiểu khác giữ bản sắc riêng.
 - Không tô tối cả màn hình; không bao giờ che dock.
 
 ## Chuyển động

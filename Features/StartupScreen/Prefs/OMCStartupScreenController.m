@@ -80,7 +80,8 @@ static NSString *SSPDetectedCarName(void) {
 static NSString *SSPStyleTitleKey(NSInteger style) {
 	NSArray *keys = @[@"STARTUPSCREEN_STYLE_VIDEO", @"STARTUPSCREEN_STYLE_LOGO", @"STARTUPSCREEN_STYLE_GREETING",
 		@"STARTUPSCREEN_STYLE_WEATHER", @"STARTUPSCREEN_STYLE_ENGINE", @"STARTUPSCREEN_STYLE_WELCOME",
-		@"STARTUPSCREEN_STYLE_PARTICLES", @"STARTUPSCREEN_STYLE_HUD", @"STARTUPSCREEN_STYLE_BRIEFING", @"STARTUPSCREEN_STYLE_RANDOM"];
+		@"STARTUPSCREEN_STYLE_PARTICLES", @"STARTUPSCREEN_STYLE_HUD", @"STARTUPSCREEN_STYLE_BRIEFING", @"STARTUPSCREEN_STYLE_LIQUID",
+		@"STARTUPSCREEN_STYLE_RANDOM"];
 	return (style >= 0 && style < (NSInteger)keys.count) ? keys[style] : keys[0];
 }
 
@@ -88,7 +89,7 @@ static NSString *SSPStyleTitleKey(NSInteger style) {
 static UIImage *SSPStyleSymbol(NSInteger style, CGFloat pointSize) {
 	NSArray *names = @[@[@"film"], @[@"seal.fill", @"seal"], @[@"hand.wave.fill", @"hand.wave"], @[@"cloud.sun.rain.fill"],
 		@[@"gauge.with.dots.needle.67percent", @"speedometer"], @[@"car.side.fill", @"car.fill"], @[@"sparkles"],
-		@[@"scope"], @[@"rectangle.grid.2x2.fill"], @[@"shuffle"]];
+		@[@"scope"], @[@"rectangle.grid.2x2.fill"], @[@"drop.fill", @"drop"], @[@"shuffle"]];
 	if (style < 0 || style >= (NSInteger)names.count) return nil;
 	UIImageSymbolConfiguration *config = [UIImageSymbolConfiguration configurationWithPointSize:pointSize weight:UIImageSymbolWeightSemibold];
 	for (NSString *name in names[style]) {
@@ -98,9 +99,9 @@ static UIImage *SSPStyleSymbol(NSInteger style, CGFloat pointSize) {
 	return nil;
 }
 
-// Gallery card color per style (no blue accents: DESIGN.md).
+// Gallery card color per style (SS_STYLE_* order).
 static UIColor *SSPStyleColor(NSInteger style) {
-	NSArray *hex = @[@"#E11D48", @"#7C3AED", @"#F59E0B", @"#0EA5E9", @"#EA580C", @"#0D9488", @"#C026D3", @"#16A34A", @"#4F46E5", @"#475569"];
+	NSArray *hex = @[@"#E11D48", @"#7C3AED", @"#F59E0B", @"#0EA5E9", @"#EA580C", @"#0D9488", @"#C026D3", @"#16A34A", @"#4F46E5", @"#8B7CFF", @"#475569"];
 	return OMCColorFromHex((style >= 0 && style < (NSInteger)hex.count) ? hex[style] : hex[0]);
 }
 
@@ -154,10 +155,11 @@ static NSInteger SSPNextOccasion(NSString *birthday) {
 #pragma mark - Gallery tile
 
 // One style in the gallery: colored rounded card with a white symbol, name below. The chosen one turns
-// bright white with a white glow and a dark symbol (DESIGN.md).
+// the violet -> sky accent gradient with a violet glow (DESIGN.md).
 @interface OMCSSStyleTileCell : UICollectionViewCell
 @property (nonatomic, strong) UIView *card;
 @property (nonatomic, strong) CAGradientLayer *fill;
+@property (nonatomic, copy) NSArray *styleColors;   // the style's own gradient (shown when not chosen)
 @property (nonatomic, strong) UIImageView *glyph;
 @property (nonatomic, strong) UILabel *title;
 - (void)showStyle:(NSInteger)style chosen:(BOOL)chosen dark:(BOOL)dark;
@@ -207,7 +209,7 @@ static NSInteger SSPNextOccasion(NSString *birthday) {
 	CGFloat h = 0, s = 0, b = 0, a = 1;
 	[color getHue:&h saturation:&s brightness:&b alpha:&a];
 	UIColor *light = [UIColor colorWithHue:h saturation:s * 0.75 brightness:MIN(1.0, b * 1.15) alpha:1];
-	self.fill.colors = @[(id)light.CGColor, (id)color.CGColor];
+	self.styleColors = @[(id)light.CGColor, (id)color.CGColor];
 	self.glyph.image = SSPStyleSymbol(style, 28);
 	self.title.text = L(SSPStyleTitleKey(style));
 	self.accessibilityLabel = self.title.text;
@@ -217,17 +219,17 @@ static NSInteger SSPNextOccasion(NSString *birthday) {
 - (void)setChosen:(BOOL)chosen dark:(BOOL)dark {
 	[CATransaction begin];
 	[CATransaction setDisableActions:YES];
-	self.fill.hidden = chosen;
+	// Chosen: the accent gradient (violet -> sky) with a violet glow; others keep their own colour
+	self.fill.colors = chosen ? @[(id)OMCColorFromHex(@"#8B7CFF").CGColor, (id)OMCColorFromHex(@"#5AB8FF").CGColor] : self.styleColors;
 	[CATransaction commit];
-	self.card.backgroundColor = chosen ? [UIColor whiteColor] : [UIColor clearColor];
-	self.glyph.tintColor = chosen ? OMCColorFromHex(@"#1C1C1E") : [UIColor whiteColor];
-	// White glow on the dark page; on the light page a hairline and a soft shadow keep the white card visible.
-	self.card.layer.shadowColor = (chosen && dark) ? [UIColor whiteColor].CGColor : [UIColor blackColor].CGColor;
-	self.card.layer.shadowOpacity = chosen ? (dark ? 0.85 : 0.22) : 0.12;
-	self.card.layer.shadowRadius = chosen ? 12 : 4;
-	self.card.layer.shadowOffset = (chosen && dark) ? CGSizeZero : CGSizeMake(0, 2);
-	self.card.layer.borderWidth = chosen ? (dark ? 0 : 1) : 0.5;
-	self.card.layer.borderColor = chosen ? [UIColor colorWithWhite:0 alpha:0.12].CGColor : [UIColor colorWithWhite:1 alpha:0.22].CGColor;
+	self.card.backgroundColor = [UIColor clearColor];
+	self.glyph.tintColor = [UIColor whiteColor];
+	self.card.layer.shadowColor = chosen ? OMCColorFromHex(@"#6E78FF").CGColor : [UIColor colorWithRed:70 / 255.0 green:60 / 255.0 blue:140 / 255.0 alpha:1].CGColor;
+	self.card.layer.shadowOpacity = chosen ? 0.5 : 0.14;
+	self.card.layer.shadowRadius = chosen ? 12 : 5;
+	self.card.layer.shadowOffset = CGSizeMake(0, chosen ? 5 : 2);
+	self.card.layer.borderWidth = 0.5;
+	self.card.layer.borderColor = [UIColor colorWithWhite:1 alpha:chosen ? 0.6 : 0.3].CGColor;
 	self.card.transform = chosen ? CGAffineTransformMakeScale(1.06, 1.06) : CGAffineTransformIdentity;
 	self.title.font = [UIFont systemFontOfSize:11 weight:chosen ? UIFontWeightSemibold : UIFontWeightMedium];
 	self.title.textColor = chosen ? [UIColor labelColor] : [UIColor secondaryLabelColor];

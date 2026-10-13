@@ -45,9 +45,11 @@
 #define SS_STYLE_PARTICLES  6   // glowing particles gather into the name (or "OmniCar"), shimmer, scatter
 #define SS_STYLE_HUD        7   // sci-fi self check: rotating rings, radar sweep, real checks (SSStartupView.hud), "READY"
 #define SS_STYLE_BRIEFING   8   // glass cards: greeting + date, weather, next calendar event (when allowed), safety reminder
-#define SS_STYLE_RANDOM     9   // a different style each connection, from SS_KEY_RANDOM_SET
-#define SS_STYLE_FESTIVE   10   // never stored: chosen by the occasion rule (SSStartupView.occasion says which)
-#define SS_STYLE_COUNT      10  // stored styles 0..9 (settings gallery)
+#define SS_STYLE_LIQUID     9   // the OmniCar look (DESIGN.md): pastel liquid background, the glass logo rising, "OmniCar" in
+                                // the accent gradient, a thin loading bar. Shown instead of Video when no video is ready.
+#define SS_STYLE_RANDOM    10   // a different style each connection, from SS_KEY_RANDOM_SET
+#define SS_STYLE_FESTIVE   11   // never stored: chosen by the occasion rule (SSStartupView.occasion says which)
+#define SS_STYLE_COUNT      11  // stored styles 0..10 (settings gallery)
 
 // Occasions (SSStartupView.occasion).
 #define SS_OCCASION_NONE     0

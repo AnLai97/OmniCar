@@ -78,6 +78,7 @@
 "STARTUPSCREEN_STYLE_PARTICLES" = "Hạt sáng";
 "STARTUPSCREEN_STYLE_HUD" = "HUD tự kiểm tra";
 "STARTUPSCREEN_STYLE_BRIEFING" = "Bảng tin";
+"STARTUPSCREEN_STYLE_LIQUID" = "Chất lỏng";
 "STARTUPSCREEN_STYLE_RANDOM" = "Ngẫu nhiên";
 "STARTUPSCREEN_DISPLAY_FOOTER" = "Bật Âm thanh của video thì âm thanh video thay cho âm thanh khởi động.";
 "STARTUPSCREEN_PARTICLES_FOOTER" = "Các hạt sáng tụ lại thành tên bạn (hoặc OmniCar).";
