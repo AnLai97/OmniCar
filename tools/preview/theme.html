@@ -16,7 +16,7 @@
   --lav: #B7A6FF; --sky: #8FD3FF; --mint: #9DF2D8; --peach: #FFC2D6;
   --acc1: #8B7CFF; --acc2: #5AB8FF; --acc: linear-gradient(135deg, var(--acc1), var(--acc2)); --acc-glow: 0 6px 18px rgba(110,120,255,.45);
   --on: #34C759; --danger: #FF5A5F;
-  --glass: rgba(255,255,255,.58); --glass-strong: rgba(255,255,255,.78); --glass-rim: rgba(255,255,255,.85);
+  --glass: rgba(255,255,255,.4); --glass-strong: rgba(255,255,255,.78); --glass-rim: rgba(255,255,255,.85);
   --glass-shadow: 0 10px 30px rgba(70,60,140,.18), 0 1px 2px rgba(70,60,140,.08);
   --hm-in: cubic-bezier(.2, 0, .2, 1); --hm-spring: cubic-bezier(.25, 1.35, .45, 1);
 }
@@ -93,8 +93,8 @@ section > p { margin: -6px 0 0; color: var(--ink2); font-size: 13px; }
 .dock .t { font-size: 10px; font-weight: 700; }
 .dock .d { width: 30px; height: 30px; border-radius: 8px; }
 .dock .sp { flex: 1; }
-.dock .split { width: 26px; height: 26px; border-radius: 13px; display: grid; place-items: center; background: var(--acc); box-shadow: var(--acc-glow); }
-.dock .split i { width: 14px; height: 10px; display: flex; gap: 2px; } .dock .split i b { flex: 1; background: #fff; border-radius: 2px; }
+.dock .split { width: 26px; height: 26px; display: grid; place-items: center; }   /* icon chia man hinh tran, cung mau luoi Home */
+.dock .split i { width: 14px; height: 10px; display: flex; gap: 2px; } .dock .split i b { flex: 1; background: #c9cdd4; border-radius: 2px; }
 .dock .g { width: 18px; height: 12px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; } .dock .g i { background: #c9cdd4; border-radius: 1px; }
 .area { position: absolute; left: 45px; top: 0; right: 0; bottom: 0; }
 .pane { position: absolute; top: 0; bottom: 0; overflow: hidden; border-radius: 10px; }
@@ -141,22 +141,21 @@ section > p { margin: -6px 0 0; color: var(--ink2); font-size: 13px; }
 .tray .hd { width: 32px; display: grid; place-items: center; color: var(--ink2); }
 .tray .hd svg { width: 18px; height: 18px; }
 .tray .cell { width: 84px; height: 56px; border-radius: 14px; display: grid; place-items: center; transition: transform .3s var(--hm-spring); background: rgba(139,124,255,.12); box-shadow: inset 0 0 0 .5px rgba(139,124,255,.3); }
-.tray.glass { background: rgba(255,255,255,.78); }   /* duc hon: app phia sau khong lam mo cac o */
 .tray .cell.sel { background: var(--acc); box-shadow: var(--acc-glow); }
 .lay { width: 72px; height: 40px; display: flex; gap: 3px; }
-.lay i, .lay .col i { flex: 1; border-radius: 6px; background: #fff; box-shadow: inset 0 0 0 1px rgba(31,34,51,.4); display: grid; place-items: center; }
-.cell:not(.sel) .lay i { background: #fff; }
+.lay i, .lay .col i { flex: 1; border-radius: 6px; background: rgba(255,255,255,.4); box-shadow: inset 0 0 0 1.5px var(--acc1); display: grid; place-items: center; }   /* khung mau chu dao quanh tung o */
+.cell:not(.sel) .lay i { background: rgba(255,255,255,.4); }
 .lay .col { flex: 1; display: flex; flex-direction: column; gap: 3px; }
 .lay img, .lay em { width: 18px; height: 18px; border-radius: 5px; display: block; }
-.lay .plus { font-style: normal; color: var(--ink2); font-size: 14px; line-height: 18px; text-align: center; }
+.lay .plus { font-style: normal; color: var(--acc1); font-size: 14px; line-height: 18px; text-align: center; }
 .cell.sel .lay i { background: rgba(255,255,255,.35); box-shadow: inset 0 0 0 1px rgba(255,255,255,.6); }
 .cell.sel .lay .plus { color: #fff; }
 .tray .exit { width: 40px; height: 40px; border-radius: 20px; display: grid; place-items: center; color: var(--danger); background: rgba(255,90,95,.12); box-shadow: inset 0 0 0 1px rgba(255,90,95,.18); margin-left: 6px; }
 .tray .exit svg { width: 18px; height: 18px; }
 /* bang chon app */
-.picker { position: absolute; inset: 8px; border-radius: 24px; display: flex; gap: 10px; padding: 12px; z-index: 6; background: rgba(255,255,255,.78); }
-.pgrid { flex: 1; display: grid; grid-template-columns: repeat(5, 1fr); grid-auto-rows: 70px; gap: 6px; }
-.papp { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 10px; border-radius: 14px; padding-top: 6px; background: rgba(139,124,255,.12); box-shadow: inset 0 0 0 .5px rgba(139,124,255,.3); }   /* cung o voi khay bo cuc */
+.picker { position: absolute; inset: 8px; border-radius: 24px; display: flex; gap: 10px; padding: 12px; z-index: 6; }
+.pgrid { flex: 1; display: grid; grid-template-columns: repeat(6, 1fr); grid-auto-rows: 56px; gap: 6px; }
+.papp { display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 14px; background: rgba(139,124,255,.12); box-shadow: inset 0 0 0 .5px rgba(139,124,255,.3); }   /* cung o voi khay bo cuc */
 .papp em { width: 42px; height: 42px; border-radius: 11px; display: block; box-shadow: 0 3px 8px rgba(0,0,0,.18); }
 .papp.sel { background: rgba(255,255,255,.85); box-shadow: 0 0 0 2px var(--acc1), var(--acc-glow); }
 .papp.dim { opacity: .35; }
@@ -164,7 +163,7 @@ section > p { margin: -6px 0 0; color: var(--ink2); font-size: 13px; }
 .pinfo .x { align-self: flex-end; width: 32px; height: 32px; border-radius: 16px; display: grid; place-items: center; color: var(--danger); background: rgba(255,90,95,.12); box-shadow: inset 0 0 0 1px rgba(255,90,95,.18); }
 .pinfo .x svg { width: 14px; height: 14px; }
 .pinfo .mapx { flex: 1; border-radius: 14px; display: flex; gap: 4px; padding: 6px; background: rgba(139,124,255,.12); box-shadow: inset 0 0 0 .5px rgba(139,124,255,.3); }
-.pinfo .mapx i { flex: 1; border-radius: 8px; background: #fff; box-shadow: inset 0 0 0 1px rgba(31,34,51,.25); }
+.pinfo .mapx i { flex: 1; border-radius: 8px; background: rgba(255,255,255,.4); box-shadow: inset 0 0 0 1.5px var(--acc1); }
 .pinfo .mapx i.sel { background: var(--acc); box-shadow: var(--acc-glow); }
 .dots { display: flex; gap: 5px; justify-content: center; } .dots i { width: 6px; height: 6px; border-radius: 3px; background: rgba(31,34,51,.2); } .dots i.on { width: 16px; background: var(--acc1); }
 /* bong bong toc do */
@@ -211,7 +210,7 @@ section > p { margin: -6px 0 0; color: var(--ink2); font-size: 13px; }
   <div class="pal" id="pal"></div>
   <div class="card glass" style="padding:12px 16px;font-size:13px;line-height:1.7">
     <b>Quy tắc chung (mọi phần dùng cùng):</b><br>
-    · <b>Kính trắng</b> cho bảng / thanh / thẻ / phím: trắng 58–78%, mờ 22, viền sáng trên, bóng tím nhạt. Không dùng nền xám đặc.<br>
+    · <b>Kính mờ</b> cho bảng / thanh / thẻ / phím: trắng ~40% + mờ 22 (nhìn xuyên, không trắng đục), viền sáng trên, bóng tím nhạt.<br>
     · <b>Bo góc</b>: bảng lớn 24 (khay bố cục, bảng chọn app; thẻ Settings 20; bàn phím 20, bo cả 4 góc) · thanh = viên thuốc · ô bố cục 14 · phím 7 · nút tròn.<br>
     · <b>Đang chọn / nút chính</b> = gradient tím → xanh trời + quầng màu (bố cục đang dùng, tay cầm ••• đang mở, tỉ lệ đang dùng, Enter / Shift, Mở lại).<br>
     · <b>Đóng / Tắt</b> = dấu X đỏ trên nền đỏ nhạt, luôn ở cuối, tách bằng vạch mảnh. <b>Công tắc bật</b> = xanh lá.<br>
@@ -261,7 +260,7 @@ section > p { margin: -6px 0 0; color: var(--ink2); font-size: 13px; }
 
 <section>
   <h2>3 · Màn xe: chia màn hình, khay bố cục, bong bóng tốc độ</h2>
-  <p>Bong bóng tốc độ: kính trắng, vòng gradient, biển giới hạn tốc độ đỏ. Khay bố cục kính trắng phía trên; bố cục đang dùng = gradient có quầng màu; dấu X đỏ. Nút Split Screen trên dock là viên gradient. Mỗi ô có tay cầm ••• ở giữa mép trên (xem 3b); thanh tỉ lệ cùng kiểu kính.</p>
+  <p>Bong bóng tốc độ: kính trắng, vòng gradient, biển giới hạn tốc độ đỏ. Khay bố cục kính trắng phía trên; bố cục đang dùng = gradient có quầng màu; dấu X đỏ. Nút Split Screen trên dock là icon 2 ô trần cùng màu lưới Home. Mỗi ô có tay cầm ••• ở giữa mép trên (xem 3b); thanh tỉ lệ cùng kiểu kính.</p>
   <div class="car"><div class="carfit"><div class="cs" id="c1">
     <div class="dock"><div class="t">9:41</div><div class="d" style="background:#2fb24c"></div><div class="d" style="background:#ff375f"></div><div class="sp"></div><div class="split"><i><b></b><b></b></i></div><div class="g"><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
     <div class="area">
@@ -450,7 +449,7 @@ document.getElementById('pal').innerHTML = PAL.map(([c, n, u]) => `<div class="s
 
 // ---------- Bang chon app ----------
 const PICK = [['maps', 'Bản đồ'], ['music', 'Nhạc'], ['spot', 'Spotify', 'sel'], ['yt', 'YouTube'], ['phone', 'Điện thoại', 'dim'], ['gofa', 'GOFA'], ['waze', 'Waze'], ['tiktok', 'TikTok'], ['fb', 'Facebook'], ['wa', 'WhatsApp']];
-document.getElementById('pgrid').innerHTML = PICK.map(([a, n, s]) => `<div class="papp ${s || ''}"><em style="background:${APPC[a]}"></em>${n}</div>`).join('');
+document.getElementById('pgrid').innerHTML = PICK.map(([a, n, s]) => `<div class="papp ${s || ''}" title="${n}"><em style="background:${APPC[a]}"></em></div>`).join('');
 
 // ---------- Ban phim (so do giong tools/preview/keyboard.html) ----------
 (function () {

@@ -287,9 +287,9 @@ static void SCPCOptionTile(UIView *v)
 {
     v.layer.cornerRadius = 14;
     v.layer.cornerCurve = kCACornerCurveContinuous;
-    v.backgroundColor = [SCPCAccent() colorWithAlphaComponent:0.12];
+    v.backgroundColor = [SCPCAccent() colorWithAlphaComponent:0.1];
     v.layer.borderWidth = 0.5;
-    v.layer.borderColor = [SCPCAccent() colorWithAlphaComponent:0.3].CGColor;
+    v.layer.borderColor = [SCPCAccent() colorWithAlphaComponent:0.45].CGColor;
 }
 
 // Dang chon / nut chinh: lop gradient tim -> xanh troi (bo goc theo view) + quang mau tim; on = NO go ra.
@@ -465,10 +465,10 @@ static NSArray<NSValue *> *SCPCLayoutBoxes(int layoutID, BOOL vertical, CGSize s
 static UIImage *SCPCLayoutImage(int layoutID, BOOL vertical, CGSize size, NSArray *apps, BOOL onAccent)
 {
     NSArray<NSValue *> *boxes = SCPCLayoutBoxes(layoutID, vertical, size);
-    // Khong tren nen gradient: o trang dac vien muc ro (tren kinh trang / o tim nhat van thay), dau cong muc
-    UIColor *box = onAccent ? [UIColor colorWithWhite:1 alpha:0.3] : [UIColor whiteColor];
-    UIColor *edgeColor = onAccent ? [UIColor colorWithWhite:1 alpha:0.75] : [SCPCInk() colorWithAlphaComponent:0.4];
-    UIColor *plusColor = onAccent ? [UIColor whiteColor] : [SCPCInk() colorWithAlphaComponent:0.8];
+    // Khong tren nen gradient: moi o co khung mau chu dao (tim) tren nen trang mo, dau cong cung mau (ro tren kinh mo)
+    UIColor *box = onAccent ? [UIColor colorWithWhite:1 alpha:0.3] : [UIColor colorWithWhite:1 alpha:0.4];
+    UIColor *edgeColor = onAccent ? [UIColor colorWithWhite:1 alpha:0.75] : SCPCAccent();
+    UIColor *plusColor = onAccent ? [UIColor whiteColor] : SCPCAccent();
     UIGraphicsImageRenderer *r = [[UIGraphicsImageRenderer alloc] initWithSize:size];
     return [r imageWithActions:^(UIGraphicsImageRendererContext *rc) {
         for (NSUInteger i = 0; i < boxes.count; i++) {
@@ -489,8 +489,8 @@ static UIImage *SCPCLayoutImage(int layoutID, BOOL vertical, CGSize size, NSArra
             [box setFill];
             [[UIBezierPath bezierPathWithRoundedRect:b cornerRadius:5] fill];
             [edgeColor setStroke];
-            UIBezierPath *edge = [UIBezierPath bezierPathWithRoundedRect:CGRectInset(b, 0.6, 0.6) cornerRadius:4.4];
-            edge.lineWidth = 1.2;
+            UIBezierPath *edge = [UIBezierPath bezierPathWithRoundedRect:CGRectInset(b, 0.75, 0.75) cornerRadius:4.4];
+            edge.lineWidth = 1.5;
             [edge stroke];
             CGFloat arm = MIN(4, floor(MIN(b.size.width, b.size.height) / 4));
             UIBezierPath *plus = [UIBezierPath bezierPath];
@@ -592,7 +592,7 @@ static void SCPCGlass(UIView *v, CGFloat radius)
     UIVisualEffectView *glass = SCPCGlassView();
     glass.frame = v.bounds;
     glass.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-    glass.contentView.backgroundColor = [UIColor colorWithWhite:1 alpha:0.62];   // thanh nut / thanh ti le: icon muc ro tren app toi
+    glass.contentView.backgroundColor = [UIColor colorWithWhite:1 alpha:0.45];   // thanh nut / thanh ti le: kinh mo, icon muc
     glass.layer.cornerRadius = radius;
     glass.layer.cornerCurve = kCACornerCurveContinuous;
     glass.layer.borderWidth = 0.5;
@@ -3738,11 +3738,10 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
         b.tag = p.slot;
         b.layer.cornerRadius = 5;
         b.layer.cornerCurve = kCACornerCurveContinuous;
-        // O dang chon: gradient mau nhan + quang; o khac: trang dac vien muc (o dang cho chon app: vien dam hon)
-        b.backgroundColor = (p == target) ? [UIColor clearColor] : [UIColor whiteColor];
+        // O dang chon: gradient mau nhan + quang; o khac: khung mau chu dao tren nen trang mo (o dang cho chon app: dam hon)
+        b.backgroundColor = (p == target) ? [UIColor clearColor] : [UIColor colorWithWhite:1 alpha:0.4];
         if (p == target) SCPCAccentFill(b, YES);
-        else { b.layer.borderWidth = 1; b.layer.borderColor = [SCPCInk() colorWithAlphaComponent:p.picker ? 0.45 : 0.25].CGColor; }
-        if (p == self.floatPane && p != target) b.layer.borderColor = SCPCAccent().CGColor;
+        else { b.layer.borderWidth = 1.5; b.layer.borderColor = [SCPCAccent() colorWithAlphaComponent:p.picker ? 1 : 0.6].CGColor; }
         CGFloat side = MIN(r.size.width, r.size.height);
         if (bid) {
             CGFloat s = MIN(22, floor(side * 0.7));
@@ -3755,7 +3754,7 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
             UILabel *plus = [[UILabel alloc] initWithFrame:b.bounds];
             plus.text = @"+";
             plus.textAlignment = NSTextAlignmentCenter;
-            plus.textColor = (p == target) ? [UIColor whiteColor] : [SCPCInk() colorWithAlphaComponent:0.8];   // o dang chon (gradient): dau + trang
+            plus.textColor = (p == target) ? [UIColor whiteColor] : SCPCAccent();   // o dang chon (gradient): dau + trang
             plus.font = [UIFont systemFontOfSize:MIN(22, floor(side * 0.8)) weight:(p == target) ? UIFontWeightBold : UIFontWeightRegular];
             plus.userInteractionEnabled = NO;
             [b addSubview:plus];
@@ -3793,7 +3792,7 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
     // Popup 2 phan: ben trai la luoi app dung het chieu cao (man xe thap van duoc nhieu hang); cot phai: "Ô N" + nut
     // dong o goc tren phai, so do bo cuc lon de cham chon o, "Còn N ô". App van cach nhau de
     // cham khi xe chay (o 78 x 68pt, icon 36pt); het cho thi chia trang vuot ngang co cham trang
-    CGFloat cellW = 78, cellH = 68, icon = 36, gridPad = 10, sideW = 150, pad = 14;
+    CGFloat cellW = 62, cellH = 56, icon = 38, gridPad = 10, sideW = 150, pad = 14;   // chi icon, khong ten (nguoi dung)
     CGSize cs = self.container.bounds.size;
     CGFloat mapW = sideW - pad * 2, mapH = (cs.width > 1) ? MIN(84, mapW * cs.height / cs.width) : 60;
     NSInteger cols = MAX(1, MIN((NSInteger)((area.size.width - 24 - sideW - gridPad * 2) / cellW), MAX((NSInteger)4, (NSInteger)apps.count)));
@@ -3814,7 +3813,7 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
     UIVisualEffectView *glass = SCPCGlassView();
     glass.frame = card.bounds;
     // Cung kinh / vien / bong voi khay bo cuc (showLayoutPanelForApp) de 2 bang nhin nhu mot
-    glass.contentView.backgroundColor = [UIColor colorWithWhite:1 alpha:0.78];
+    glass.contentView.backgroundColor = [UIColor colorWithWhite:1 alpha:0.38];
     glass.layer.cornerRadius = 24;
     glass.layer.cornerCurve = kCACornerCurveContinuous;
     glass.layer.borderWidth = 0.5;
@@ -3865,7 +3864,8 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
         tile.userInteractionEnabled = NO;
         SCPCOptionTile(tile);
         [b addSubview:tile];
-        UIImageView *iv = [[UIImageView alloc] initWithFrame:CGRectMake((cellW - icon) / 2, 6, icon, icon)];
+        b.accessibilityLabel = app[@"name"];   // khong hien ten, chi doc len
+        UIImageView *iv = [[UIImageView alloc] initWithFrame:CGRectMake((cellW - icon) / 2, (cellH - icon) / 2, icon, icon)];
         iv.image = SCPCAppIcon(app[@"id"]);
         SCPCStyleIcon(iv);
         iv.userInteractionEnabled = NO;
@@ -3884,14 +3884,6 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
             tick.userInteractionEnabled = NO;
             [b addSubview:tick];
         }
-        UILabel *l = [[UILabel alloc] initWithFrame:CGRectMake(3, 6 + icon + 6, cellW - 6, 14)];
-        l.text = app[@"name"];
-        l.textColor = SCPCInk();
-        l.font = [UIFont systemFontOfSize:11 weight:UIFontWeightMedium];
-        l.textAlignment = NSTextAlignmentCenter;
-        l.numberOfLines = 1;
-        l.userInteractionEnabled = NO;
-        [b addSubview:l];
         if (used) {   // mo noi dung (khong mo ca nut: hieu ung hien len dat alpha nut ve 1); cham xuyen xuong scroll de van vuot trang
             for (UIView *sv in b.subviews) sv.alpha = 0.3;
             b.userInteractionEnabled = NO;
@@ -4189,7 +4181,7 @@ static void SCPCMakePassThrough(UIWindow *w)
     panel.layer.shadowOpacity = 0.3; panel.layer.shadowRadius = 24; panel.layer.shadowOffset = CGSizeMake(0, 8);
     UIVisualEffectView *glass = SCPCGlassView();
     glass.frame = panel.bounds;
-    glass.contentView.backgroundColor = [UIColor colorWithWhite:1 alpha:0.78];   // duc hon de app phia sau khong lam mo cac o
+    glass.contentView.backgroundColor = [UIColor colorWithWhite:1 alpha:0.38];   // kinh mo that (nguoi dung: khong nen trang duc)
     glass.layer.cornerRadius = 24;
     glass.layer.cornerCurve = kCACornerCurveContinuous;
     glass.layer.borderWidth = 0.5;
@@ -5067,18 +5059,19 @@ static void SCPCStatusBottom(UIView *v, UIView *parent, CGRect strip, int depth,
     CGFloat size = SCPC_HOME_BTN, shift = 0;
     CGPoint c = [self launcherCenterInParent:parent size:&size shift:&shift];
     [self setDockShift:shift];
-    // Giao dien moi (tools/preview/theme.html): tren dock va o goc vung app deu la vien tron gradient mau nhan, hinh 2 o trang
+    // Tren dock: icon chia man hinh tran (2 o) cung mau luoi app cua nut Home ngay duoi, khong o nen (nguoi dung: khong
+    // muon vong tron mau). Goc vung app (khong co dock doc): nut tron kinh trang cho noi tren app.
     BOOL bare = ![self.launcherWhere hasPrefix:@"goc"];
     if (!self.homeButton || fabs(self.homeButton.bounds.size.width - size) > 0.5 || self.launcherBare != bare) {
         [self.homeButton removeFromSuperview];
-        UIButton *b = SCPCRoundButton(SCPCSplitImage(size), self, @selector(homeButtonTapped));   // hinh da co le trong anh
+        UIButton *b = bare ? SCPCRoundButton(SCPCSplitImage(size), self, @selector(homeButtonTapped))
+                           : SCPCCircleButton(SCPCSplitImage(size * 0.9), size, self, @selector(homeButtonTapped));
         b.bounds = CGRectMake(0, 0, size, size);
-        b.layer.cornerRadius = size / 2;
-        SCPCAccentFill(b, YES);
+        if (bare) { b.layer.cornerRadius = 0; b.backgroundColor = nil; }
         self.homeButton = b;
         self.launcherBare = bare;
     }
-    self.homeButton.tintColor = [UIColor whiteColor];
+    self.homeButton.tintColor = bare ? (self.homeInk ?: [UIColor whiteColor]) : SCPCInk();
     // Nut nam tren dai dock: gan vao chinh view ve dai dock (status bar CarPlay nam tren baseContainerView,
     // gan vao tabParent thi nut bi dai dock che mat). Ngoai dock (goc vung app) thi van gan vao tabParent.
     CGRect r = CGRectMake(c.x - size / 2, c.y - size / 2, size, size);
