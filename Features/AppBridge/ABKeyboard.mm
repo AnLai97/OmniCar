@@ -459,7 +459,7 @@ static NSString *ABKHint(NSString *c, BOOL vietnamese)
     k.layer.cornerCurve = kCACornerCurveContinuous;
     if (!k.lit) {   // phim trang noi tren kinh mo: vien manh + bong mong duoi phim
         k.layer.borderWidth = 0.5;
-        k.layer.borderColor = [ABK_TEXT colorWithAlphaComponent:0.12].CGColor;
+        k.layer.borderColor = [ABK_ACC1 colorWithAlphaComponent:0.55].CGColor;   // vien mau chu dao (tim) nhu khung o bo cuc
         k.layer.shadowColor = ABK_TEXT.CGColor;
         k.layer.shadowOpacity = 0.18; k.layer.shadowRadius = 1; k.layer.shadowOffset = CGSizeMake(0, 1);
     }
