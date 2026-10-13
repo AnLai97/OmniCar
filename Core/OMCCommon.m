@@ -2,6 +2,15 @@
 // directly: the settings bundle does not have Core/OmniCar.m.
 #import "OmniCar.h"
 
+#pragma mark - Car profiles
+
+// What a car profile keeps: split layout and side, Speed Bubble on the car, startup screen, iPhone app zoom
+NSArray<NSString *> *OMCProfileKeys(void) {
+	return @[@"splitScreenLastLeft", @"splitScreenLastRight", @"splitScreenSplitRatio", @"splitScreenSplitDirection",
+		@"splitScreenPaneOrientation", @"splitScreenDriverSide", @"splitScreenAutoLaunch", @"splitScreenPinnedApp",
+		@"speedBubbleSizeCar", @"speedBubbleStyle", @"startupScreenVideoName", @"startupScreenStyle", @"appBridgeZoom"];
+}
+
 #pragma mark - Languages
 
 NSArray<NSString *> *OMCSupportedLanguages(void) {

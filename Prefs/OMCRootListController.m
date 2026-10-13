@@ -2,6 +2,8 @@
 #import "OMCTheme.h"
 #import "OMCDiagnostics.h"
 #import "OMCOnboardingController.h"
+#import "OMCWhatsNewController.h"
+#import "OMCBackup.h"
 #import <Preferences/PSTableCell.h>
 #import <dlfcn.h>
 #import <notify.h>
@@ -293,12 +295,20 @@
 }
 
 // First open of Settings > OmniCar: the guide, once (Prefs/OMCOnboardingController.m, pref "onboardingDone").
+// After an update: What's new, once per version (Prefs/OMCWhatsNewController.m, pref "whatsNewSeen"). Never
+// both: when the guide is due, this version's What's new counts as seen.
 - (void)viewDidAppear:(BOOL)animated {
 	[super viewDidAppear:animated];
 	static BOOL offered;
-	if (offered || self.presentedViewController || ![OMCOnboardingController shouldShow]) return;
-	offered = YES;
-	[self showGuide];
+	if (offered || self.presentedViewController) return;
+	if ([OMCOnboardingController shouldShow]) {
+		offered = YES;
+		[OMCWhatsNewController markSeen];
+		[self showGuide];
+	} else if ([OMCWhatsNewController shouldShow]) {
+		offered = YES;
+		[self showWhatsNew];
+	}
 }
 
 - (void)applyLanguage {
@@ -471,6 +481,33 @@
 		[weakSelf updateHeaderStatus];
 	}];
 	[self presentViewController:guide animated:YES completion:nil];
+}
+
+// Support > What's new (also shown once after an update from viewDidAppear).
+- (void)showWhatsNew {
+	if (self.presentedViewController) return;
+	[self presentViewController:[OMCWhatsNewController whatsNewNavigationController] animated:YES completion:nil];
+}
+
+// Support > Back up settings: one .omnicar file into the share sheet (Files, AirDrop, Zalo ...).
+- (void)backupSettings {
+	OMCBackupShare(self);
+}
+
+// Support > Restore from file: Files picker, confirm, write back, offer a respring. The language and every row
+// may have changed, so the page is rebuilt.
+- (void)restoreSettings {
+	__weak typeof(self) weakSelf = self;
+	OMCBackupPickAndRestore(self, ^{
+		[weakSelf rebuildPage];
+	});
+}
+
+- (void)rebuildPage {
+	[self applyLanguage];
+	_specifiers = nil;
+	[self reloadSpecifiers];
+	[self updateHeaderStatus];
 }
 
 // Rescue card: turn the features rescue mode switched off back on.

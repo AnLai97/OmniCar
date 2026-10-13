@@ -1,13 +1,18 @@
-// Startup Screen - play a short video over the CarPlay screen while CarPlay is starting.
+// Startup Screen - show a startup style over the CarPlay screen while CarPlay is starting.
 //
 // Runs inside CarPlay.app (com.apple.CarPlayApp). Each time a car connects, a new UIScreen
 // (and, depending on the iOS build, a UIWindowScene) is created for the car display. We put a
-// high-level window on top of it, play the chosen video for the configured time, then fade it
+// high-level window on top of it, show the chosen style for the configured time, then fade it
 // out to reveal the CarPlay home screen underneath.
+//
+// Styles (SS_KEY_STYLE): Video plays the chosen video; Logo, Greeting and Weather are drawn by
+// SSStartupView (the same code draws the preview in Settings). Weather asks Open-Meteo for the
+// current weather at the last known location (rounded to 2 decimals), only while that style is on.
 //
 // AVFoundation never finishes loading media inside CarPlay.app, so the settings page extracts
 // each video into JPEG frames (Videos/.frames/<video>/) and we play those as a flipbook. The
-// soundtrack (audio.m4a next to the frames) is played by the same tweak loaded into SpringBoard.
+// soundtrack (audio.m4a next to the frames) and the startup sound (Sounds/) are played by the
+// same tweak loaded into SpringBoard.
 //
 // Logs are prefixed with "[OmniCar/StartupScreen]" - filter for it in Console.app to debug.
 
@@ -15,9 +20,12 @@
 #import <AVFoundation/AVFoundation.h>
 #import <ImageIO/ImageIO.h>
 #import <QuartzCore/QuartzCore.h>
+#import <CoreLocation/CoreLocation.h>
+#import <CallKit/CallKit.h>
 #import <objc/runtime.h>
 #import "OmniCar.h"
 #import "StartupScreen.h"
+#import "SSStartupView.h"
 #import "OMCTest.h"
 
 #define SSLog(fmt, ...) OMCLog(@"StartupScreen", fmt, ##__VA_ARGS__)
@@ -25,10 +33,18 @@
 static const NSTimeInterval kFadeDuration = 0.4;
 static const NSTimeInterval kMaxFullPlay  = 60.0;
 static const NSUInteger kFrameBufferSize  = 4;
+// Weather: request timeout, and how old a cached result may be to still be shown (with "updated at").
+static const NSTimeInterval kWeatherTimeout = 3.0;
+static const NSTimeInterval kWeatherMaxAge  = 12 * 3600;
 static char kSplashKey;
 static char kShownKey;
 
 #pragma mark - Preferences
+
+static NSInteger SSCurrentStyle(void) {
+	NSInteger style = [OMCPref(SS_KEY_STYLE, @(SS_STYLE_VIDEO)) integerValue];
+	return (style >= SS_STYLE_VIDEO && style <= SS_STYLE_WEATHER) ? style : SS_STYLE_VIDEO;
+}
 
 static NSString *SSVideoName(void) {
 	NSFileManager *fm = [NSFileManager defaultManager];
@@ -76,16 +92,51 @@ static void SSAudioStop(void) {
 	});
 }
 
+// A call ringing, dialing or in progress (the startup sound stays silent then, SS_KEY_SOUND_NO_CALL).
+static CXCallObserver *gCallObserver;
+
+static BOOL SSPhoneCallActive(void) {
+	if (!gCallObserver) gCallObserver = [CXCallObserver new];
+	for (CXCall *call in gCallObserver.calls) {
+		if (!call.hasEnded) return YES;
+	}
+	return NO;
+}
+
+// The startup sound picked in Settings (any style), nil when none.
+static NSString *SSStartupSoundPath(void) {
+	id name = OMCPref(SS_KEY_SOUND_FILE, nil);
+	if (![name isKindOfClass:[NSString class]] || ![(NSString *)name length]) return nil;
+	NSString *path = [SS_SOUNDS_DIR stringByAppendingPathComponent:[(NSString *)name lastPathComponent]];
+	if ([[NSFileManager defaultManager] fileExistsAtPath:path]) return path;
+	SSLog(@"audio: startup sound %@ is missing", name);
+	return nil;
+}
+
 static void SSAudioPlay(void) {
 	OMCPrefsSync();
-	if (![OMCPref(SS_KEY_SOUND, @NO) boolValue]) return;
-	NSString *name = SSVideoName();
-	if (!name) return;
-	NSString *path = [SS_FRAMES_DIR(name) stringByAppendingPathComponent:@"audio.m4a"];
-	if (![[NSFileManager defaultManager] fileExistsAtPath:path]) {
-		SSLog(@"audio: no soundtrack for %@", name);
+	// Video style with "Video sound" on: the video's own soundtrack. Otherwise the startup sound, if any.
+	NSString *path = nil;
+	BOOL loop = NO;
+	if (SSCurrentStyle() == SS_STYLE_VIDEO && [OMCPref(SS_KEY_SOUND, @NO) boolValue]) {
+		NSString *name = SSVideoName();
+		NSString *soundtrack = name ? [SS_FRAMES_DIR(name) stringByAppendingPathComponent:@"audio.m4a"] : nil;
+		if (soundtrack && [[NSFileManager defaultManager] fileExistsAtPath:soundtrack]) {
+			path = soundtrack;
+			// Loop along with the frames unless the clip plays exactly once.
+			loop = ![OMCPref(SS_KEY_PLAY_FULL, @NO) boolValue];
+		} else {
+			SSLog(@"audio: no soundtrack for %@", name);
+		}
+	}
+	if (!path) path = SSStartupSoundPath();
+	if (!path) return;
+	if ([OMCPref(SS_KEY_SOUND_NO_CALL, @YES) boolValue] && SSPhoneCallActive()) {
+		SSLog(@"audio: skipped, a phone call is in progress");
 		return;
 	}
+	float volume = (float)(MAX(0.0, MIN(100.0, [OMCPref(SS_KEY_SOUND_VOLUME, @100) doubleValue])) / 100.0);
+	if (volume <= 0) return;
 
 	if (gAudioPlayer) [gAudioPlayer stop];
 	AVAudioSession *session = [AVAudioSession sharedInstance];
@@ -104,10 +155,10 @@ static void SSAudioPlay(void) {
 		SSAudioRestoreSession();
 		return;
 	}
-	// Loop along with the frames unless the clip plays exactly once.
-	gAudioPlayer.numberOfLoops = [OMCPref(SS_KEY_PLAY_FULL, @NO) boolValue] ? 0 : -1;
+	gAudioPlayer.numberOfLoops = loop ? -1 : 0;
+	gAudioPlayer.volume = volume;
 	BOOL ok = [gAudioPlayer play];
-	SSLog(@"audio: playing %@ ok=%d route=%@", path.lastPathComponent, ok, session.currentRoute.outputs.firstObject.portType);
+	SSLog(@"audio: playing %@ ok=%d volume=%.2f route=%@", path.lastPathComponent, ok, volume, session.currentRoute.outputs.firstObject.portType);
 }
 
 static void SSAudioNotification(CFNotificationCenterRef center, void *observer, CFNotificationName name, const void *object, CFDictionaryRef info) {
@@ -133,6 +184,60 @@ static UIImage *SSDecodeFrame(NSString *path) {
 	return image;
 }
 
+#pragma mark - Weather (CarPlay, Weather style only)
+
+// Current weather from Open-Meteo (no API key) at the last location iOS already knows - no new
+// location request, nothing when location access is off. The position is rounded to 2 decimals
+// (about 1 km) before it leaves the phone. done(nil) when there is no location or no answer within
+// kWeatherTimeout; a good answer is cached in SS_WEATHER_CACHE first. done runs on the main queue.
+static void SSWeatherFetch(void (^done)(NSDictionary *weather)) {
+	CLLocationManager *manager = [CLLocationManager new];
+	CLAuthorizationStatus status = manager.authorizationStatus;
+	if (status != kCLAuthorizationStatusAuthorizedAlways && status != kCLAuthorizationStatusAuthorizedWhenInUse) {
+		SSLog(@"weather: no location access (status %d), using the cache", (int)status);
+		done(nil);
+		return;
+	}
+	CLLocation *location = manager.location;
+	if (!location) {
+		SSLog(@"weather: no last known location, using the cache");
+		done(nil);
+		return;
+	}
+	double lat = round(location.coordinate.latitude * 100.0) / 100.0;
+	double lon = round(location.coordinate.longitude * 100.0) / 100.0;
+	NSString *query = [NSString stringWithFormat:@"https://api.open-meteo.com/v1/forecast?latitude=%.2f&longitude=%.2f"
+		"&current=temperature_2m,weather_code,is_day"
+		"&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max"
+		"&timezone=auto&forecast_days=1", lat, lon];
+	NSURL *url = [NSURL URLWithString:query];
+	if (!url) {
+		done(nil);
+		return;
+	}
+
+	NSURLSessionConfiguration *config = [NSURLSessionConfiguration ephemeralSessionConfiguration];
+	config.timeoutIntervalForRequest = kWeatherTimeout;
+	config.timeoutIntervalForResource = kWeatherTimeout;
+	config.waitsForConnectivity = NO;
+	config.requestCachePolicy = NSURLRequestReloadIgnoringLocalCacheData;
+	NSURLSession *session = [NSURLSession sessionWithConfiguration:config];
+	CFTimeInterval started = CACurrentMediaTime();
+	NSURLSessionDataTask *task = [session dataTaskWithURL:url completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+		NSDictionary *weather = nil;
+		NSInteger httpStatus = [response isKindOfClass:[NSHTTPURLResponse class]] ? ((NSHTTPURLResponse *)response).statusCode : 0;
+		if (data && !error && httpStatus == 200) {
+			weather = SSWeatherParse([NSJSONSerialization JSONObjectWithData:data options:0 error:nil]);
+			if (weather) SSWeatherSaveCache(weather);
+		}
+		SSLog(@"weather: %@ in %.1fs (http %ld, %@)", weather ? @"updated" : @"failed", CACurrentMediaTime() - started,
+			(long)httpStatus, error.localizedDescription ?: @"no error");
+		dispatch_async(dispatch_get_main_queue(), ^{ done(weather); });
+	}];
+	[task resume];
+	[session finishTasksAndInvalidate];
+}
+
 #pragma mark - Splash
 
 // Marker class so the window hook below ignores our own window.
@@ -144,7 +249,9 @@ static UIImage *SSDecodeFrame(NSString *path) {
 
 @interface SSSplash : NSObject
 @property (nonatomic, strong) UIWindow *window;
-@property (nonatomic, strong) UIImageView *imageView;
+@property (nonatomic, assign) NSInteger style;
+@property (nonatomic, strong) UIImageView *imageView;       // Video style
+@property (nonatomic, strong) SSStartupView *startView;     // the other styles
 @property (nonatomic, weak) UIScreen *screen;
 @property (nonatomic, copy) NSString *framesDir;
 @property (nonatomic, assign) NSUInteger frameCount;
@@ -163,10 +270,12 @@ static UIImage *SSDecodeFrame(NSString *path) {
 
 @implementation SSSplash
 
-- (instancetype)initWithScreen:(UIScreen *)screen scene:(UIWindowScene *)scene framesDir:(NSString *)framesDir
+// style: SS_STYLE_*. framesDir / frameCount / fps are for the Video style only (nil / 0 otherwise).
+- (instancetype)initWithScreen:(UIScreen *)screen scene:(UIWindowScene *)scene style:(NSInteger)style framesDir:(NSString *)framesDir
                     frameCount:(NSUInteger)frameCount fps:(double)fps {
 	if ((self = [super init])) {
 		_screen = screen;
+		_style = style;
 		_framesDir = [framesDir copy];
 		_frameCount = frameCount;
 		_fps = fps;
@@ -175,18 +284,36 @@ static UIImage *SSDecodeFrame(NSString *path) {
 		_buffer = [NSMutableArray array];
 		_decodeQueue = dispatch_queue_create("com.anlai.omnicar.startupscreen.decode", DISPATCH_QUEUE_SERIAL);
 
-		BOOL fit     = [OMCPref(SS_KEY_SCALE_MODE, @0) integerValue] == 1;
 		BOOL tapSkip = [OMCPref(SS_KEY_TAP_TO_SKIP, @YES) boolValue];
+		UIView *root = nil;
 
-		_imageView = [[UIImageView alloc] initWithFrame:screen.bounds];
-		_imageView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-		_imageView.backgroundColor = [UIColor blackColor];
-		_imageView.contentMode = fit ? UIViewContentModeScaleAspectFit : UIViewContentModeScaleAspectFill;
-		_imageView.clipsToBounds = YES;
-		_imageView.userInteractionEnabled = YES;
+		if (style == SS_STYLE_VIDEO) {
+			BOOL fit = [OMCPref(SS_KEY_SCALE_MODE, @0) integerValue] == 1;
+			_imageView = [[UIImageView alloc] initWithFrame:screen.bounds];
+			_imageView.backgroundColor = [UIColor blackColor];
+			_imageView.contentMode = fit ? UIViewContentModeScaleAspectFit : UIViewContentModeScaleAspectFill;
+			_imageView.clipsToBounds = YES;
+			root = _imageView;
+		} else {
+			_startView = [[SSStartupView alloc] initWithFrame:screen.bounds];
+			_startView.style = style;
+			id name = OMCPref(SS_KEY_GREET_NAME, nil);
+			_startView.name = [name isKindOfClass:[NSString class]] ? name : nil;
+			_startView.logoEffect = [OMCPref(SS_KEY_LOGO_EFFECT, @(SS_EFFECT_FADE)) integerValue];
+			if (style == SS_STYLE_LOGO) {
+				_startView.image = SSDecodeFrame(SS_LOGO_PATH);
+				if (!_startView.image) SSLog(@"no logo at %@, showing the car glyph", SS_LOGO_PATH);
+			}
+			// Weather: the cached result right away (or the greeting), refreshed by -start when the network answers.
+			if (style == SS_STYLE_WEATHER) _startView.weather = SSWeatherLoadCache(kWeatherMaxAge);
+			[_startView reload];
+			root = _startView;
+		}
+		root.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+		root.userInteractionEnabled = YES;
 
 		UIViewController *vc = [UIViewController new];
-		vc.view = _imageView;
+		vc.view = root;
 
 		// CarPlay may or may not drive the car display through a UIWindowScene.
 		if (scene) {
@@ -205,7 +332,7 @@ static UIImage *SSDecodeFrame(NSString *path) {
 
 		if (tapSkip) {
 			UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(dismiss)];
-			[_imageView addGestureRecognizer:tap];
+			[root addGestureRecognizer:tap];
 		}
 	}
 	return self;
@@ -213,13 +340,14 @@ static UIImage *SSDecodeFrame(NSString *path) {
 
 - (void)start {
 	self.window.hidden = NO;
-	SSLog(@"splash window shown: frame=%@ level=%.0f scene=%@ frames=%lu fps=%.0f loop=%d",
+	SSLog(@"splash window shown: style=%ld frame=%@ level=%.0f scene=%@ frames=%lu fps=%.0f loop=%d", (long)self.style,
 		NSStringFromCGRect(self.window.frame), self.window.windowLevel,
 		self.window.windowScene.session.persistentIdentifier, (unsigned long)self.frameCount, self.fps, self.loop);
 
 	self.displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(tick)];
 	[self.displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSRunLoopCommonModes];
-	[self decodeMore];
+	if (self.style == SS_STYLE_VIDEO) [self decodeMore];
+	else if (self.style == SS_STYLE_WEATHER) [self refreshWeather];
 
 	// Safety net in case no frame ever decodes: never block CarPlay for long.
 	__weak __typeof(self) weakSelf = self;
@@ -233,7 +361,7 @@ static UIImage *SSDecodeFrame(NSString *path) {
 
 // Decodes frames one at a time on a background queue, keeping a few ready ahead of playback.
 - (void)decodeMore {
-	if (self.decoding || self.finished || self.buffer.count >= kFrameBufferSize) return;
+	if (!self.frameCount || self.decoding || self.finished || self.buffer.count >= kFrameBufferSize) return;
 	if (!self.loop && self.queuedFrames >= self.frameCount) return;
 	// Every frame failing would otherwise spin forever.
 	if (self.failedFrames >= self.frameCount) return;
@@ -257,8 +385,33 @@ static UIImage *SSDecodeFrame(NSString *path) {
 	});
 }
 
+// Weather style: swap in fresh numbers if Open-Meteo answers while the splash is still up.
+- (void)refreshWeather {
+	__weak __typeof(self) weakSelf = self;
+	SSWeatherFetch(^(NSDictionary *weather) {
+		SSSplash *splash = weakSelf;
+		if (!weather || !splash || splash.finished) return;
+		SSStartupView *view = splash.startView;
+		view.weather = weather;
+		[UIView transitionWithView:view duration:0.35 options:UIViewAnimationOptionTransitionCrossDissolve animations:^{
+			[view reload];
+		} completion:nil];
+	});
+}
+
 - (void)tick {
-	if (self.finished || !self.buffer.count) return;
+	if (self.finished) return;
+	if (self.style != SS_STYLE_VIDEO) {
+		// Drawn styles: the first display refresh puts the content on screen; one tick is all they need.
+		[self.displayLink invalidate];
+		self.displayLink = nil;
+		self.startTime = CACurrentMediaTime();
+		self.shownFrames = 1;
+		[self.startView playIntro];
+		[self startCountdown];
+		return;
+	}
+	if (!self.buffer.count) return;
 
 	CFTimeInterval now = CACurrentMediaTime();
 	if (!self.shownFrames) {
@@ -286,7 +439,8 @@ static UIImage *SSDecodeFrame(NSString *path) {
 // CarPlay's main thread can stall for seconds while it starts up, so the countdown only
 // begins once the first frame is on screen.
 - (void)startCountdown {
-	NSTimeInterval limit = self.loop ? MAX(1.0, [OMCPref(SS_KEY_DURATION, @5) doubleValue]) : kMaxFullPlay;
+	BOOL timed = self.style != SS_STYLE_VIDEO || self.loop;
+	NSTimeInterval limit = timed ? MAX(1.0, [OMCPref(SS_KEY_DURATION, @5) doubleValue]) : kMaxFullPlay;
 	SSLog(@"first frame shown, playing for up to %.0fs", limit);
 	SSPostNotification(SS_NOTIFY_AUDIO_PLAY);
 
@@ -345,20 +499,26 @@ static void SSShowSplash(UIScreen *screen, UIWindowScene *scene, NSString *sourc
 	// Lite mode: decoding the frames competes with CarPlay launching its apps (phone hot / set to always)
 	if (OMCLiteActive()) { SSLog(@"skipped: lite mode"); return; }
 
-	NSString *name = SSVideoName();
-	if (!name) { SSLog(@"no video found in %@", SS_VIDEOS_DIR); return; }
+	NSInteger style = SSCurrentStyle();
+	SSSplash *splash = nil;
+	if (style == SS_STYLE_VIDEO) {
+		NSString *name = SSVideoName();
+		if (!name) { SSLog(@"no video found in %@", SS_VIDEOS_DIR); return; }
 
-	NSString *framesDir = SS_FRAMES_DIR(name);
-	NSDictionary *info = [NSDictionary dictionaryWithContentsOfFile:[framesDir stringByAppendingPathComponent:@"info.plist"]];
-	NSUInteger count = [info[@"count"] unsignedIntegerValue];
-	double fps = [info[@"fps"] doubleValue];
-	if (!count || fps <= 0) {
-		SSLog(@"no frames for %@ - open Settings > OmniCar > Startup Screen to convert it", name);
-		return;
+		NSString *framesDir = SS_FRAMES_DIR(name);
+		NSDictionary *info = [NSDictionary dictionaryWithContentsOfFile:[framesDir stringByAppendingPathComponent:@"info.plist"]];
+		NSUInteger count = [info[@"count"] unsignedIntegerValue];
+		double fps = [info[@"fps"] doubleValue];
+		if (!count || fps <= 0) {
+			SSLog(@"no frames for %@ - open Settings > OmniCar > Startup Screen to convert it", name);
+			return;
+		}
+		SSLog(@"playing %@ (%lu frames @ %.0ffps)", name, (unsigned long)count, fps);
+		splash = [[SSSplash alloc] initWithScreen:screen scene:scene style:style framesDir:framesDir frameCount:count fps:fps];
+	} else {
+		SSLog(@"showing style %ld", (long)style);
+		splash = [[SSSplash alloc] initWithScreen:screen scene:scene style:style framesDir:nil frameCount:0 fps:0];
 	}
-	SSLog(@"playing %@ (%lu frames @ %.0ffps)", name, (unsigned long)count, fps);
-
-	SSSplash *splash = [[SSSplash alloc] initWithScreen:screen scene:scene framesDir:framesDir frameCount:count fps:fps];
 	objc_setAssociatedObject(screen, &kSplashKey, splash, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 	[splash start];
 }
@@ -432,25 +592,31 @@ static NSString *SSTestShowing(void) {
 
 static NSArray<NSDictionary *> *SSTestSteps(void) {
 	NSMutableArray *steps = [NSMutableArray array];
-	NSDictionary *info = SSTestFramesInfo();
+	NSInteger style = SSCurrentStyle();
+	BOOL video = style == SS_STYLE_VIDEO;
+	NSDictionary *info = video ? SSTestFramesInfo() : nil;
 	double fps = [info[@"fps"] doubleValue];
 	NSUInteger count = [info[@"count"] unsignedIntegerValue];
-	BOOL loop = ![OMCPref(SS_KEY_PLAY_FULL, @NO) boolValue];
+	BOOL loop = !video || ![OMCPref(SS_KEY_PLAY_FULL, @NO) boolValue];
 	double length = loop ? MAX(1.0, [OMCPref(SS_KEY_DURATION, @5) doubleValue]) : MIN(kMaxFullPlay, fps > 0 ? count / fps : kMaxFullPlay);
 
 	[steps addObject:OMCTestStep(@"Moi truong: video va khung hinh", 0, 0, nil, ^NSString *{
 		if (!OMCFeatureEnabled(SS_FEATURE)) return @"Man hinh khoi dong dang tat";
+		if (!video) {
+			OMCTestLog(@"kieu %ld (ve, khong phai video), phat %.1fs", (long)style, length);
+			return nil;
+		}
 		NSString *name = SSVideoName();
 		if (!name) return OMCTestFormat(@"chua co video trong %@", SS_VIDEOS_DIR);
 		if (!count || fps <= 0) return OMCTestFormat(@"%@ chua trich khung (mo Cai dat > Man hinh khoi dong)", name);
 		OMCTestLog(@"video %@: %lu khung @ %.0f fps, phat %.1fs, lap=%d", name, (unsigned long)count, fps, length, loop);
 		return nil;
 	})];
-	if (!OMCFeatureEnabled(SS_FEATURE) || !count || fps <= 0) return steps;
+	if (!OMCFeatureEnabled(SS_FEATURE) || (video && (!count || fps <= 0))) return steps;
 
 	[steps addObject:OMCTestStep(@"Phat lai nhu luc cam xe", 1, 6, ^NSString *{ return SSTestReplay(); }, ^NSString *{ return SSTestShowing(); })];
 	__block NSUInteger seen = 0;
-	[steps addObject:OMCTestStep(@"Khung hinh chay (khong dung hinh)", 0, 3, ^NSString *{
+	if (video) [steps addObject:OMCTestStep(@"Khung hinh chay (khong dung hinh)", 0, 3, ^NSString *{
 		seen = SSTestSplash().shownFrames; return nil;
 	}, ^NSString *{
 		SSSplash *sp = SSTestSplash();
@@ -532,6 +698,10 @@ static void SSTestInstall(void) {
 			CFNotificationCenterRef darwin = CFNotificationCenterGetDarwinNotifyCenter();
 			CFNotificationCenterAddObserver(darwin, NULL, SSAudioNotification, SS_NOTIFY_AUDIO_PLAY, NULL, CFNotificationSuspensionBehaviorDeliverImmediately);
 			CFNotificationCenterAddObserver(darwin, NULL, SSAudioNotification, SS_NOTIFY_AUDIO_STOP, NULL, CFNotificationSuspensionBehaviorDeliverImmediately);
+			// Create the call observer once SpringBoard is up, so its call list is filled in by the time a car connects.
+			dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+				if (!gCallObserver) gCallObserver = [CXCallObserver new];
+			});
 			return;
 		}
 		if (![bundleID isEqualToString:@"com.apple.CarPlayApp"]) return;

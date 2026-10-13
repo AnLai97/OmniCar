@@ -334,6 +334,14 @@ static BOOL SCPLayoutHasElement(id publisher, NSString *identifier)
                 [sp openFavorite:[u[@"index"] integerValue]];
             } else if ([action isEqualToString:@"picker"]) {
                 [sp showPickerForFocusedPane];
+            } else if ([action isEqualToString:@"layout"]) {
+                [sp urlLayout:[u[@"id"] intValue]];
+            } else if ([action isEqualToString:@"ratio"]) {
+                [sp urlRatio:[u[@"r"] doubleValue]];
+            } else if ([action isEqualToString:@"swap"]) {
+                [sp urlSwap];
+            } else if ([action isEqualToString:@"zoom"]) {
+                [sp urlZoomPane:[u[@"pane"] intValue] ?: 1];
             }
         } @catch (NSException *e) { SCPHookError("yeu cau tu SpringBoard", e); }
         // Bao SpringBoard da nhan (khong thi SpringBoard giu lai, gui lai khi man xe san sang)

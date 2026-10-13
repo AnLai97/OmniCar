@@ -1,6 +1,7 @@
 #import "ABHost.h"
 #import "ABKeyboard.h"
 #import "common.h"
+#import <notify.h>
 
 // =====================================================================
 //  ABHost - iPhone apps on the car screen, hosted by SpringBoard.
@@ -413,6 +414,7 @@ static void ABPostOrientation(NSString *bid, long long orientation)
 - (void)layoutPane:(ABPane *)pane
 {
     if (!pane.appViewController) return;
+    [self applyDriveOverlayToPane:pane];
     CGSize boxSize = pane.box.bounds.size;
     if (boxSize.width < 2 || boxSize.height < 2) return;
     CGFloat z = [self zoom];
@@ -458,6 +460,88 @@ static void ABPostOrientation(NSString *bid, long long orientation)
 
 // App bao vua doi yeu cau xoay (code: huong muon, 0 = ve huong o, 0xFF = chi doi mask -> suy ra tu mask): dat
 // requestedOrientation roi "lay" scene (khung lech 1pt, ngay sau do khung dung) de UIKit trong app tinh lai huong
+#pragma mark - Che do lai
+
+static BOOL sABDriving;
+static const NSInteger kABDriveOverlayTag = 0xD71E;
+
+// The toi phu o app iPhone khi xe chay: chi con tieng, chan cham (tru thanh ••• / thanh nut nam tren no)
+- (void)applyDriveOverlayToPane:(ABPane *)pane
+{
+    UIView *box = pane.box;
+    if (!box) return;
+    UIView *cover = [box viewWithTag:kABDriveOverlayTag];
+    if (!sABDriving) { [cover removeFromSuperview]; return; }
+    if (!cover) {
+        cover = [[UIView alloc] initWithFrame:box.bounds];
+        cover.tag = kABDriveOverlayTag;
+        cover.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+        cover.backgroundColor = [UIColor colorWithWhite:0.04 alpha:0.9];
+        UIImageSymbolConfiguration *cfg = [UIImageSymbolConfiguration configurationWithPointSize:34 weight:UIImageSymbolWeightSemibold];
+        UIImageView *icon = [[UIImageView alloc] initWithImage:[UIImage systemImageNamed:@"car.fill" withConfiguration:cfg]];
+        icon.tintColor = [UIColor colorWithWhite:1 alpha:0.9];
+        UILabel *title = [UILabel new];
+        title.text = OMCTr(@"Đang lái · chỉ còn tiếng", @"Driving · sound only");
+        title.font = [UIFont systemFontOfSize:20 weight:UIFontWeightSemibold];
+        title.textColor = [UIColor whiteColor];
+        title.adjustsFontSizeToFitWidth = YES;
+        UILabel *sub = [UILabel new];
+        sub.text = OMCTr(@"Dừng xe để xem tiếp", @"Stop the car to watch again");
+        sub.font = [UIFont systemFontOfSize:15];
+        sub.textColor = [UIColor colorWithWhite:1 alpha:0.6];
+        sub.adjustsFontSizeToFitWidth = YES;
+        UIStackView *stack = [[UIStackView alloc] initWithArrangedSubviews:@[icon, title, sub]];
+        stack.axis = UILayoutConstraintAxisVertical;
+        stack.alignment = UIStackViewAlignmentCenter;
+        stack.spacing = 8;
+        stack.translatesAutoresizingMaskIntoConstraints = NO;
+        [cover addSubview:stack];
+        [NSLayoutConstraint activateConstraints:@[
+            [stack.centerXAnchor constraintEqualToAnchor:cover.centerXAnchor],
+            [stack.centerYAnchor constraintEqualToAnchor:cover.centerYAnchor],
+            [stack.widthAnchor constraintLessThanOrEqualToAnchor:cover.widthAnchor constant:-24],
+        ]];
+        [box addSubview:cover];
+    }
+    cover.frame = box.bounds;
+    [box bringSubviewToFront:cover];
+    for (UIView *v in @[pane.bar ?: [NSNull null], pane.handleHit ?: [NSNull null], pane.handle ?: [NSNull null]])
+        if ([v isKindOfClass:[UIView class]] && v.superview == box) [box bringSubviewToFront:v];
+}
+
+- (void)setDriving:(BOOL)driving
+{
+    if (driving == sABDriving) return;
+    sABDriving = driving;
+    ABLog("che do lai: %@ (%lu o)", driving ? @"BAT" : @"tat", (unsigned long)self.panes.count);
+    [UIView animateWithDuration:0.3 animations:^{
+        for (ABPane *p in self.panes) [self applyDriveOverlayToPane:p];
+    }];
+}
+
+// Toc do tu Bong bong toc do: tren nguong 3 s lien -> bat; duoi 3 km/h 5 s lien (hoac mat toc do 20 s) -> tat
+- (void)startDriveMonitor
+{
+    static int token;
+    static NSUInteger generation;
+    notify_register_dispatch(AB_DARWIN_SPEED_NOW, &token, dispatch_get_main_queue(), ^(int t) {
+        uint64_t state = 0;
+        notify_get_state(t, &state);
+        OMCPrefsSync();
+        BOOL on = OMCFeatureEnabled(AB_FEATURE) && [OMCPref(AB_KEY_DRIVE_MODE, @YES) boolValue];
+        NSInteger limit = MAX(3, [OMCPref(AB_KEY_DRIVE_SPEED, @10) integerValue]);
+        BOOL known = state != 0xFFFF;
+        BOOL want = on && known && (NSInteger)state >= limit;
+        BOOL stop = !on || (known && state < 3);
+        NSUInteger g = ++generation;
+        if (want == sABDriving || (!want && !stop && known)) return;   // khong doi, hoac dang cham dan (giu nguyen)
+        double delay = want ? 3 : (known ? 5 : 20);
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delay * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            if (g == generation) [self setDriving:want];
+        });
+    });
+}
+
 - (UIWindow *)carWindow
 {
     return [self ensureWindow] ? self.window : nil;

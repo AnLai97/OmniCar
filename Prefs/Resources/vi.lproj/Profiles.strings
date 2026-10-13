@@ -1,0 +1,8 @@
+/* OmniCar – Hồ sơ theo từng xe */
+"PROFILES" = "Hồ sơ theo xe";
+"PROFILES_ENABLE" = "Hồ sơ riêng cho từng xe";
+"PROFILES_FOOTER" = "Mỗi xe nhớ riêng bố cục chia màn hình, ô ghim, vị trí tay lái, bong bóng tốc độ trên xe, màn hình khởi động và độ phóng app iPhone. Cắm xe nào thì OmniCar tự đổi sang cài đặt của xe đó.";
+"PROFILES_CARS" = "Xe đã nhận";
+"PROFILES_CARS_FOOTER" = "Dấu ✓ là xe đang dùng. Vuốt sang trái để quên một xe.";
+"PROFILES_NONE" = "Chưa có xe nào: bật rồi cắm xe một lần";
+"PROFILES_LAST_SEEN" = "Lần cuối: %@";

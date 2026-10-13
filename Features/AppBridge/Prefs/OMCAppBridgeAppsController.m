@@ -224,7 +224,7 @@ enum { OMCABSectionSettings = 0, OMCABSectionChosen, OMCABSectionUser, OMCABSect
 
 - (void)enabledChanged:(UISwitch *)sw
 {
-    OMCABStore(AB_KEY_ENABLED, @(sw.on));
+    OMCABStore(sw.tag == 1 ? AB_KEY_DRIVE_MODE : AB_KEY_ENABLED, @(sw.on));
 }
 
 #pragma mark - Table
@@ -241,7 +241,7 @@ enum { OMCABSectionSettings = 0, OMCABSectionChosen, OMCABSectionUser, OMCABSect
 
 - (NSInteger)tableView:(UITableView *)tv numberOfRowsInSection:(NSInteger)section
 {
-    if (section == OMCABSectionSettings) return [self searching] ? 0 : 1;
+    if (section == OMCABSectionSettings) return [self searching] ? 0 : 2;
     return [self rowsInSection:section].count;
 }
 
@@ -256,7 +256,7 @@ enum { OMCABSectionSettings = 0, OMCABSectionChosen, OMCABSectionUser, OMCABSect
 
 - (NSString *)tableView:(UITableView *)tv titleForFooterInSection:(NSInteger)section
 {
-    if (section == OMCABSectionSettings) return [self searching] ? nil : L(@"APPBRIDGE_FOOTER");
+    if (section == OMCABSectionSettings) return [self searching] ? nil : [NSString stringWithFormat:@"%@\n%@", L(@"APPBRIDGE_FOOTER"), L(@"APPBRIDGE_DRIVE_FOOTER")];
     if (section == OMCABSectionChosen) return (_chosenRows.count || [self searching]) ? nil : L(@"APPBRIDGE_APPS_FOOTER");
     if (section != OMCABSectionSystem) return nil;
     if (!_apps.count) return L(@"APPBRIDGE_APPS_EMPTY");
@@ -269,19 +269,20 @@ enum { OMCABSectionSettings = 0, OMCABSectionChosen, OMCABSectionUser, OMCABSect
 
 - (UITableViewCell *)settingsCellForRow:(NSInteger)row inTable:(UITableView *)tv
 {
-    UITableViewCell *c = [tv dequeueReusableCellWithIdentifier:@"enable"];
+    UITableViewCell *c = [tv dequeueReusableCellWithIdentifier:row ? @"drive" : @"enable"];
     if (!c) {
-        c = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"enable"];
+        c = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:row ? @"drive" : @"enable"];
         UISwitch *sw = [UISwitch new];
+        sw.tag = row;   // 0 App Bridge, 1 che do lai
         sw.onTintColor = OMCAccentColor();
         [sw addTarget:self action:@selector(enabledChanged:) forControlEvents:UIControlEventValueChanged];
         c.accessoryView = sw;
         c.selectionStyle = UITableViewCellSelectionStyleNone;
     }
     OMCStyleCell(c);
-    c.textLabel.text = L(@"APPBRIDGE_ENABLE");
-    c.imageView.image = OMCIcon(@"power", OMCColorFromHex(@"#0A59F7"));
-    id v = OMCABPref(AB_KEY_ENABLED);
+    c.textLabel.text = L(row ? @"APPBRIDGE_DRIVE_MODE" : @"APPBRIDGE_ENABLE");
+    c.imageView.image = OMCIcon(row ? @"car.fill" : @"power", OMCColorFromHex(row ? @"#FF9500" : @"#0A59F7"));
+    id v = OMCABPref(row ? AB_KEY_DRIVE_MODE : AB_KEY_ENABLED);
     [(UISwitch *)c.accessoryView setOn:(v ? [v boolValue] : YES) animated:NO];
     return c;
 }

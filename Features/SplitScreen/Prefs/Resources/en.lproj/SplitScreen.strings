@@ -7,7 +7,8 @@
 "SPLITSCREEN_DRIVER_AUTO" = "Automatic";
 "SPLITSCREEN_DRIVER_LEFT" = "Left";
 "SPLITSCREEN_DRIVER_RIGHT" = "Right";
-"SPLITSCREEN_DRIVER_FOOTER" = "Right-hand drive: the current app opens in the right pane, next to the driver. Automatic = what the car reports.";
+"SPLITSCREEN_PINNED" = "Pinned pane";
+"SPLITSCREEN_DRIVER_FOOTER" = "Right-hand drive: the current app opens in the right pane, next to the driver. Automatic = what the car reports.\nPinned pane (usually the map): that app keeps its pane when the layout or other apps change.";
 
 "SPLITSCREEN_PANEL_GROUP" = "OmniCar panel in the car";
 "SPLITSCREEN_SHOW_RECENT" = "Recent";
@@ -41,5 +42,5 @@
 "SPLITSCREEN_GUIDE_CAR" = "In the car";
 "SPLITSCREEN_GUIDE_CAR_TEXT" = "• OmniCar button on the dock: layouts, Recent, Favorites, exit split.\n• Round knob: tap for ratios · drag to resize · drag to the edge to close a pane.\n• ••• bar: tap for Replace / Float / Full screen / Close · drag onto another pane to swap.\n• Double-tap the ••• bar: enlarge that pane for a moment, double-tap again to go back.\n• Double-tap a divider: swap the two panes.\n• Home button: exit split.";
 "SPLITSCREEN_SHORTCUTS_GROUP" = "Siri / Shortcuts (Open URL)";
-"SPLITSCREEN_SHORTCUTS_FOOTER" = "omnicar://splitscreen/open?left=com.apple.Maps&right=com.spotify.client\nomnicar://splitscreen/fav?n=1\nomnicar://splitscreen/close";
+"SPLITSCREEN_SHORTCUTS_FOOTER" = "omnicar://splitscreen/open?left=com.apple.Maps&right=com.spotify.client\nomnicar://splitscreen/fav?n=1\nomnicar://splitscreen/close\nomnicar://splitscreen/layout?id=3 · ratio?r=70 · swap · zoom?pane=1\nomnicar://feature/speedBubble?on=toggle\nomnicar://lite?mode=auto\nomnicar://cleanram";
 "SPLITSCREEN_CREDITS_FOOTER" = "Formerly CarDuo. App hosting is based on carplay-cast (Ethan Arbuckle).";

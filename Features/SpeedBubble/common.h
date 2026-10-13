@@ -13,12 +13,18 @@
 #define SPPLog(fmt, ...) SPPLogWrite([NSString stringWithFormat:@fmt, ##__VA_ARGS__])
 
 // App dan duong ho tro (thu tu = chi so app gui trong Darwin state; them app moi thi them CUOI danh sach + CarSpeed.plist
-// + ten vao SB_SOURCE_NAMES trong SpeedBubble.h)
+// + ten vao SB_SOURCE_NAMES trong SpeedBubble.h). Toi da 8 (3 bit trong Darwin state).
 #define SPP_APP_VIETMAP         @"vn.vietmap.live"
 #define SPP_APP_GOFA            @"com.lumi.GOFA"
-#define SPP_NAV_APPS            (@[SPP_APP_VIETMAP, SPP_APP_GOFA])
-#define SPP_NAV_APP_NAMES       (@[@"Vietmap", @"GOFA"])
-#define SPP_NAV_APP_COUNT       2
+// Chi so SB_SOURCE_GPS: khong phai app (ma gia, khong app nao trung) - GPS iPhone do SpringBoard tu doc (SPPGPS.mm).
+// Khong mo / khong thoat app nay (SPPIsGPSSource).
+#define SPP_APP_GPS             @"com.anlai.omnicar.gps"
+#define SPP_NAV_APPS            (@[SPP_APP_VIETMAP, SPP_APP_GOFA, SPP_APP_GPS])
+#define SPP_NAV_APP_NAMES       (@[@"Vietmap", @"GOFA", @"GPS"])
+#define SPP_NAV_APP_COUNT       3
+#define SPP_SOURCE_GPS          SB_SOURCE_GPS
+
+static inline BOOL SPPIsGPSSource(int i) { return i == SPP_SOURCE_GPS; }
 
 static inline int SPPNavAppIndex(NSString *bid)
 {

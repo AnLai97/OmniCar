@@ -26,12 +26,23 @@
 }
 
 // "Source" list from SB_SOURCE_NAMES (index = SPP_NAV_APPS index), so new navigation apps show up here.
+// iPhone GPS (SB_SOURCE_GPS) is read by SpringBoard itself; its name is localized, and the source footer says
+// when SpringBoard has no location permission (SB_KEY_GPS_STATUS, written by SpringBoard: 1 restricted, 2 denied).
 - (NSArray *)specifiers {
 	if (!_specifiers) {
 		[super specifiers];
 		for (PSSpecifier *spec in _specifiers) {
+			if ([spec.identifier isEqualToString:@"speedBubbleSourceGroup"]) {
+				id status = CFBridgingRelease(CFPreferencesCopyAppValue((__bridge CFStringRef)SB_KEY_GPS_STATUS, kPrefsDomain));
+				if ([status respondsToSelector:@selector(intValue)] && ([status intValue] == 1 || [status intValue] == 2)) {
+					NSString *footer = [spec propertyForKey:@"footerText"] ?: @"";
+					[spec setProperty:[NSString stringWithFormat:@"%@\n\n%@", footer, L(@"SPEEDBUBBLE_GPS_UNAVAILABLE")] forKey:@"footerText"];
+				}
+				continue;
+			}
 			if (![[spec propertyForKey:@"key"] isEqualToString:SB_KEY_SOURCE]) continue;
-			NSArray *names = SB_SOURCE_NAMES;
+			NSMutableArray *names = [SB_SOURCE_NAMES mutableCopy];
+			if ((NSUInteger)SB_SOURCE_GPS < names.count) names[SB_SOURCE_GPS] = L(@"SPEEDBUBBLE_SOURCE_GPS");
 			NSMutableArray *values = [NSMutableArray array];
 			for (NSUInteger i = 0; i < names.count; i++) [values addObject:@(i)];
 			[spec setValues:values titles:names];

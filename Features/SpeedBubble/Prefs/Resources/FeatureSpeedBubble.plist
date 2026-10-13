@@ -2,7 +2,7 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <!-- Speed Bubble page. Labels and footers are keys into <lang>.lproj/SpeedBubble.strings. Keys are the
      SB_KEY_* of ../../SpeedBubble.h. The source list is filled by OMCSpeedBubbleController from
-     SB_SOURCE_NAMES, so a new navigation app only needs adding there. -->
+     SB_SOURCE_NAMES, so a new navigation app only needs adding there (iPhone GPS is the last one). -->
 <plist version="1.0">
 <dict>
 	<key>featureLabel</key>
@@ -35,9 +35,14 @@
 			<key>PostNotification</key>
 			<string>com.anlai.omnicar/prefschanged</string>
 		</dict>
+		<!-- Footer: OMCSpeedBubbleController adds "iPhone GPS unavailable" when SpringBoard has no location permission. -->
 		<dict>
 			<key>cell</key>
 			<string>PSGroupCell</string>
+			<key>id</key>
+			<string>speedBubbleSourceGroup</string>
+			<key>footerText</key>
+			<string>SPEEDBUBBLE_SOURCE_FOOTER</string>
 		</dict>
 		<dict>
 			<key>cell</key>
@@ -64,6 +69,10 @@
 			<string>com.anlai.omnicar</string>
 			<key>PostNotification</key>
 			<string>com.anlai.omnicar/prefschanged</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
 		</dict>
 		<dict>
 			<key>cell</key>
@@ -188,6 +197,70 @@
 				<string>SPEEDBUBBLE_SIGN_1</string>
 				<string>SPEEDBUBBLE_SIGN_2</string>
 			</array>
+			<key>defaults</key>
+			<string>com.anlai.omnicar</string>
+			<key>PostNotification</key>
+			<string>com.anlai.omnicar/prefschanged</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>label</key>
+			<string>SPEEDBUBBLE_WARN</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSLinkListCell</string>
+			<key>detail</key>
+			<string>PSListItemsController</string>
+			<key>label</key>
+			<string>SPEEDBUBBLE_WARN_MODE</string>
+			<key>key</key>
+			<string>speedBubbleWarnMode</string>
+			<key>default</key>
+			<integer>2</integer>
+			<key>validValues</key>
+			<array>
+				<integer>0</integer>
+				<integer>1</integer>
+				<integer>2</integer>
+			</array>
+			<key>validTitles</key>
+			<array>
+				<string>SPEEDBUBBLE_WARN_MODE_0</string>
+				<string>SPEEDBUBBLE_WARN_MODE_1</string>
+				<string>SPEEDBUBBLE_WARN_MODE_2</string>
+			</array>
+			<key>defaults</key>
+			<string>com.anlai.omnicar</string>
+			<key>PostNotification</key>
+			<string>com.anlai.omnicar/prefschanged</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>label</key>
+			<string>SPEEDBUBBLE_WARN_OVER</string>
+			<key>footerText</key>
+			<string>SPEEDBUBBLE_WARN_FOOTER</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSliderCell</string>
+			<key>key</key>
+			<string>speedBubbleWarnOver</string>
+			<key>default</key>
+			<integer>5</integer>
+			<key>min</key>
+			<integer>0</integer>
+			<key>max</key>
+			<integer>20</integer>
+			<key>showValue</key>
+			<true/>
+			<key>isSegmented</key>
+			<true/>
+			<key>segmentCount</key>
+			<integer>20</integer>
 			<key>defaults</key>
 			<string>com.anlai.omnicar</string>
 			<key>PostNotification</key>

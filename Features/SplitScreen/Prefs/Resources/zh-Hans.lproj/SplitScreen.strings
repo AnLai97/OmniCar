@@ -41,5 +41,5 @@
 "SPLITSCREEN_GUIDE_CAR" = "在车内";
 "SPLITSCREEN_GUIDE_CAR_TEXT" = "• 程序坞上的 OmniCar 按钮：布局、最近、常用、退出分屏。\n• 圆形旋钮：轻点选择比例 · 拖动调整大小 · 拖到边缘关闭该格。\n• ••• 条：轻点可替换 / 浮动 / 全屏 / 关闭 · 拖到另一格上可交换位置。\n• 轻点两下 ••• 条：临时放大该格，再轻点两下返回。\n• 轻点两下分隔线：交换两格。\n• 主屏幕按钮：退出分屏。";
 "SPLITSCREEN_SHORTCUTS_GROUP" = "Siri / 快捷指令（打开 URL）";
-"SPLITSCREEN_SHORTCUTS_FOOTER" = "omnicar://splitscreen/open?left=com.apple.Maps&right=com.spotify.client\nomnicar://splitscreen/fav?n=1\nomnicar://splitscreen/close";
+"SPLITSCREEN_SHORTCUTS_FOOTER" = "omnicar://splitscreen/open?left=com.apple.Maps&right=com.spotify.client\nomnicar://splitscreen/fav?n=1\nomnicar://splitscreen/close\nomnicar://splitscreen/layout?id=3 · ratio?r=70 · swap · zoom?pane=1\nomnicar://feature/speedBubble?on=toggle\nomnicar://lite?mode=auto\nomnicar://cleanram";
 "SPLITSCREEN_CREDITS_FOOTER" = "前身为 CarDuo。App 托管基于 carplay-cast（Ethan Arbuckle）。";

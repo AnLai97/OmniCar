@@ -92,6 +92,22 @@
 			<string>FEATURES_FOOTER</string>
 		</dict>
 
+		<!-- Car profiles (Prefs/OMCCarProfilesController.m): settings per car, switched on connect -->
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSLinkCell</string>
+			<key>detail</key>
+			<string>OMCCarProfilesController</string>
+			<key>label</key>
+			<string>PROFILES</string>
+			<key>symbol</key>
+			<string>car.2.fill</string>
+		</dict>
+
 		<!-- SUPPORT: Diagnostics page (Prefs/OMCDiagnosticsController.m) and the one-tap log report
 		     (OMCShareReport in Prefs/OMCDiagnostics.m: report + OmniCar.log -> share sheet). Dev builds
 		     (OMC_AUTOTEST) get an "Auto test" row after Send log, added by OMCRootListController. -->
@@ -137,6 +153,46 @@
 			<string>showGuide</string>
 			<key>symbol</key>
 			<string>lightbulb</string>
+		</dict>
+		<!-- What's new in this version (Prefs/OMCWhatsNewController.m, content in WhatsNew.plist); also shown once
+		     after an update by OMCRootListController. -->
+		<dict>
+			<key>cell</key>
+			<string>PSButtonCell</string>
+			<key>id</key>
+			<string>whatsNew</string>
+			<key>label</key>
+			<string>WN_ROW</string>
+			<key>action</key>
+			<string>showWhatsNew</string>
+			<key>symbol</key>
+			<string>sparkles</string>
+		</dict>
+		<!-- Back up every setting + the files under OMC_DATA_ROOT to one .omnicar file, and restore one
+		     (Prefs/OMCBackup.m, strings in Backup.strings). -->
+		<dict>
+			<key>cell</key>
+			<string>PSButtonCell</string>
+			<key>id</key>
+			<string>backup</string>
+			<key>label</key>
+			<string>BAK_BACKUP</string>
+			<key>action</key>
+			<string>backupSettings</string>
+			<key>symbol</key>
+			<string>externaldrive.fill</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSButtonCell</string>
+			<key>id</key>
+			<string>restore</string>
+			<key>label</key>
+			<string>BAK_RESTORE</string>
+			<key>action</key>
+			<string>restoreSettings</string>
+			<key>symbol</key>
+			<string>clock.arrow.circlepath</string>
 		</dict>
 	</array>
 </dict>

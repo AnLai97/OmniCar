@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <!-- Startup Screen page. Labels and footers are keys into <lang>.lproj/StartupScreen.strings. Keys are the
-     SS_KEY_* of ../../StartupScreen.h. "Add video" asks Photos or Files (OMCStartupScreenController addVideo). -->
+     SS_KEY_* of ../../StartupScreen.h. The live preview card is the table header (OMCStartupScreenController).
+     "ssStyles" lists the startup styles (SS_STYLE_*) a row shows for; rows without it always show.
+     "Add video" / "Choose logo" ask Photos or Files; "Choose sound" opens Files. -->
 <plist version="1.0">
 <dict>
 	<key>featureLabel</key>
@@ -35,11 +37,54 @@
 			<string>com.anlai.omnicar/prefschanged</string>
 		</dict>
 
+		<!-- Style picker (the preview above follows it) -->
 		<dict>
 			<key>cell</key>
 			<string>PSGroupCell</string>
+			<key>label</key>
+			<string>STARTUPSCREEN_STYLE_GROUP</string>
+			<key>footerText</key>
+			<string>STARTUPSCREEN_STYLE_FOOTER</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSegmentCell</string>
+			<key>id</key>
+			<string>style</string>
+			<key>key</key>
+			<string>startupScreenStyle</string>
+			<key>default</key>
+			<integer>0</integer>
+			<key>validValues</key>
+			<array>
+				<integer>0</integer>
+				<integer>1</integer>
+				<integer>2</integer>
+				<integer>3</integer>
+			</array>
+			<key>validTitles</key>
+			<array>
+				<string>STARTUPSCREEN_STYLE_VIDEO</string>
+				<string>STARTUPSCREEN_STYLE_LOGO</string>
+				<string>STARTUPSCREEN_STYLE_GREETING</string>
+				<string>STARTUPSCREEN_STYLE_WEATHER</string>
+			</array>
+			<key>defaults</key>
+			<string>com.anlai.omnicar</string>
+			<key>PostNotification</key>
+			<string>com.anlai.omnicar/prefschanged</string>
+		</dict>
+
+		<!-- Video style -->
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>label</key>
+			<string>STARTUPSCREEN_VIDEO_GROUP</string>
 			<key>footerText</key>
 			<string>STARTUPSCREEN_VIDEO_FOOTER</string>
+			<key>ssStyles</key>
+			<array><integer>0</integer></array>
 		</dict>
 		<dict>
 			<key>cell</key>
@@ -58,6 +103,8 @@
 			<string>com.anlai.omnicar</string>
 			<key>PostNotification</key>
 			<string>com.anlai.omnicar/prefschanged</string>
+			<key>ssStyles</key>
+			<array><integer>0</integer></array>
 		</dict>
 		<dict>
 			<key>cell</key>
@@ -66,6 +113,8 @@
 			<string>STARTUPSCREEN_ADD</string>
 			<key>action</key>
 			<string>addVideo</string>
+			<key>ssStyles</key>
+			<array><integer>0</integer></array>
 		</dict>
 		<dict>
 			<key>cell</key>
@@ -74,6 +123,8 @@
 			<string>STARTUPSCREEN_PREVIEW</string>
 			<key>action</key>
 			<string>previewVideo</string>
+			<key>ssStyles</key>
+			<array><integer>0</integer></array>
 		</dict>
 		<dict>
 			<key>cell</key>
@@ -84,8 +135,173 @@
 			<string>deleteVideo</string>
 			<key>isDestructive</key>
 			<true/>
+			<key>ssStyles</key>
+			<array><integer>0</integer></array>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>label</key>
+			<string>STARTUPSCREEN_DISPLAY_GROUP</string>
+			<key>ssStyles</key>
+			<array><integer>0</integer></array>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSegmentCell</string>
+			<key>key</key>
+			<string>startupScreenScaleMode</string>
+			<key>default</key>
+			<integer>0</integer>
+			<key>validValues</key>
+			<array>
+				<integer>0</integer>
+				<integer>1</integer>
+			</array>
+			<key>validTitles</key>
+			<array>
+				<string>STARTUPSCREEN_SCALE_FILL</string>
+				<string>STARTUPSCREEN_SCALE_FIT</string>
+			</array>
+			<key>defaults</key>
+			<string>com.anlai.omnicar</string>
+			<key>PostNotification</key>
+			<string>com.anlai.omnicar/prefschanged</string>
+			<key>ssStyles</key>
+			<array><integer>0</integer></array>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>label</key>
+			<string>STARTUPSCREEN_SOUND</string>
+			<key>key</key>
+			<string>startupScreenSound</string>
+			<key>default</key>
+			<false/>
+			<key>defaults</key>
+			<string>com.anlai.omnicar</string>
+			<key>PostNotification</key>
+			<string>com.anlai.omnicar/prefschanged</string>
+			<key>ssStyles</key>
+			<array><integer>0</integer></array>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>label</key>
+			<string>STARTUPSCREEN_PLAY_FULL</string>
+			<key>key</key>
+			<string>startupScreenPlayFull</string>
+			<key>default</key>
+			<false/>
+			<key>defaults</key>
+			<string>com.anlai.omnicar</string>
+			<key>PostNotification</key>
+			<string>com.anlai.omnicar/prefschanged</string>
+			<key>ssStyles</key>
+			<array><integer>0</integer></array>
 		</dict>
 
+		<!-- Logo style -->
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>label</key>
+			<string>STARTUPSCREEN_LOGO_GROUP</string>
+			<key>footerText</key>
+			<string>STARTUPSCREEN_LOGO_FOOTER</string>
+			<key>ssStyles</key>
+			<array><integer>1</integer></array>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSButtonCell</string>
+			<key>label</key>
+			<string>STARTUPSCREEN_LOGO_CHOOSE</string>
+			<key>action</key>
+			<string>chooseLogo</string>
+			<key>ssStyles</key>
+			<array><integer>1</integer></array>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSButtonCell</string>
+			<key>label</key>
+			<string>STARTUPSCREEN_LOGO_DELETE</string>
+			<key>action</key>
+			<string>deleteLogo</string>
+			<key>isDestructive</key>
+			<true/>
+			<key>ssStyles</key>
+			<array><integer>1</integer></array>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>label</key>
+			<string>STARTUPSCREEN_EFFECT_GROUP</string>
+			<key>ssStyles</key>
+			<array><integer>1</integer></array>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSegmentCell</string>
+			<key>key</key>
+			<string>startupScreenLogoEffect</string>
+			<key>default</key>
+			<integer>0</integer>
+			<key>validValues</key>
+			<array>
+				<integer>0</integer>
+				<integer>1</integer>
+				<integer>2</integer>
+			</array>
+			<key>validTitles</key>
+			<array>
+				<string>STARTUPSCREEN_EFFECT_FADE</string>
+				<string>STARTUPSCREEN_EFFECT_ZOOM</string>
+				<string>STARTUPSCREEN_EFFECT_GLOW</string>
+			</array>
+			<key>defaults</key>
+			<string>com.anlai.omnicar</string>
+			<key>PostNotification</key>
+			<string>com.anlai.omnicar/prefschanged</string>
+			<key>ssStyles</key>
+			<array><integer>1</integer></array>
+		</dict>
+
+		<!-- Greeting style (also the Weather style's top line); the Weather footer is added in code -->
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>id</key>
+			<string>greetingGroup</string>
+			<key>label</key>
+			<string>STARTUPSCREEN_GREETING_GROUP</string>
+			<key>footerText</key>
+			<string>STARTUPSCREEN_GREETING_FOOTER</string>
+			<key>ssStyles</key>
+			<array><integer>2</integer><integer>3</integer></array>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSEditTextCell</string>
+			<key>label</key>
+			<string>STARTUPSCREEN_NAME</string>
+			<key>placeholder</key>
+			<string>STARTUPSCREEN_NAME_PLACEHOLDER</string>
+			<key>key</key>
+			<string>startupScreenGreetingName</string>
+			<key>defaults</key>
+			<string>com.anlai.omnicar</string>
+			<key>PostNotification</key>
+			<string>com.anlai.omnicar/prefschanged</string>
+			<key>ssStyles</key>
+			<array><integer>2</integer><integer>3</integer></array>
+		</dict>
+
+		<!-- Every style -->
 		<dict>
 			<key>cell</key>
 			<string>PSGroupCell</string>
@@ -120,40 +336,79 @@
 			<key>cell</key>
 			<string>PSSwitchCell</string>
 			<key>label</key>
-			<string>STARTUPSCREEN_PLAY_FULL</string>
+			<string>STARTUPSCREEN_TAP_TO_SKIP</string>
 			<key>key</key>
-			<string>startupScreenPlayFull</string>
+			<string>startupScreenTapToSkip</string>
 			<key>default</key>
-			<false/>
+			<true/>
 			<key>defaults</key>
 			<string>com.anlai.omnicar</string>
 			<key>PostNotification</key>
 			<string>com.anlai.omnicar/prefschanged</string>
 		</dict>
 
+		<!-- Startup sound (any style); the footer shows the current file (added in code) -->
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>id</key>
+			<string>soundGroup</string>
+			<key>label</key>
+			<string>STARTUPSCREEN_STARTUP_SOUND_GROUP</string>
+			<key>footerText</key>
+			<string>STARTUPSCREEN_STARTUP_SOUND_FOOTER</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSButtonCell</string>
+			<key>label</key>
+			<string>STARTUPSCREEN_SOUND_CHOOSE</string>
+			<key>action</key>
+			<string>chooseSound</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSButtonCell</string>
+			<key>label</key>
+			<string>STARTUPSCREEN_SOUND_PREVIEW</string>
+			<key>action</key>
+			<string>previewSound</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSButtonCell</string>
+			<key>label</key>
+			<string>STARTUPSCREEN_SOUND_DELETE</string>
+			<key>action</key>
+			<string>deleteSound</string>
+			<key>isDestructive</key>
+			<true/>
+		</dict>
 		<dict>
 			<key>cell</key>
 			<string>PSGroupCell</string>
 			<key>label</key>
-			<string>STARTUPSCREEN_DISPLAY_GROUP</string>
+			<string>STARTUPSCREEN_VOLUME_GROUP</string>
+			<key>footerText</key>
+			<string>STARTUPSCREEN_VOLUME_FOOTER</string>
 		</dict>
 		<dict>
 			<key>cell</key>
-			<string>PSSegmentCell</string>
+			<string>PSSliderCell</string>
 			<key>key</key>
-			<string>startupScreenScaleMode</string>
+			<string>startupScreenSoundVolume</string>
 			<key>default</key>
-			<integer>0</integer>
-			<key>validValues</key>
-			<array>
-				<integer>0</integer>
-				<integer>1</integer>
-			</array>
-			<key>validTitles</key>
-			<array>
-				<string>STARTUPSCREEN_SCALE_FILL</string>
-				<string>STARTUPSCREEN_SCALE_FIT</string>
-			</array>
+			<real>100</real>
+			<key>min</key>
+			<real>0</real>
+			<key>max</key>
+			<real>100</real>
+			<key>showValue</key>
+			<true/>
+			<key>isSegmented</key>
+			<true/>
+			<key>segmentCount</key>
+			<integer>20</integer>
 			<key>defaults</key>
 			<string>com.anlai.omnicar</string>
 			<key>PostNotification</key>
@@ -163,23 +418,9 @@
 			<key>cell</key>
 			<string>PSSwitchCell</string>
 			<key>label</key>
-			<string>STARTUPSCREEN_SOUND</string>
+			<string>STARTUPSCREEN_SOUND_SKIP_CALL</string>
 			<key>key</key>
-			<string>startupScreenSound</string>
-			<key>default</key>
-			<false/>
-			<key>defaults</key>
-			<string>com.anlai.omnicar</string>
-			<key>PostNotification</key>
-			<string>com.anlai.omnicar/prefschanged</string>
-		</dict>
-		<dict>
-			<key>cell</key>
-			<string>PSSwitchCell</string>
-			<key>label</key>
-			<string>STARTUPSCREEN_TAP_TO_SKIP</string>
-			<key>key</key>
-			<string>startupScreenTapToSkip</string>
+			<string>startupScreenSoundSkipCall</string>
 			<key>default</key>
 			<true/>
 			<key>defaults</key>

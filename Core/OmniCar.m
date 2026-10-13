@@ -401,6 +401,7 @@ static NSDictionary<NSString *, NSString *> *OMCDumpProperties(id obj) {
 // Car screen (CarPlay process: every screen but the phone's) + the CarKit session, for the Diagnostics page.
 static void OMCPerfBegin(UIScreen *screen);
 static void OMCPerfEnd(void);
+static void OMCProfileSwitch(NSDictionary *car);
 
 static void OMCRecordCarScreen(UIScreen *screen) {
 	if (!screen || screen == [UIScreen mainScreen]) return;
@@ -427,7 +428,66 @@ static void OMCRecordCarScreen(UIScreen *screen) {
 	} @catch (NSException *e) { OMCLog(@"Core", @"CarKit loi: %@", e); }
 	OMCGuardStore(OMC_KEY_DIAG_CAR, car);
 	OMCPrefsSync();
+	OMCProfileSwitch(car);
 	OMCLog(@"Core", @"man xe %@ pt, %@ px, %@ fps, session=%d", car[@"points"], car[@"pixels"], car[@"maxFPS"], car[@"session"] != nil);
+}
+
+#pragma mark - Car profiles
+
+static NSString *OMCCarValue(NSDictionary *car, NSArray<NSString *> *names) {
+	for (NSString *group in @[@"configuration", @"session"]) {
+		NSDictionary *props = car[group];
+		if (![props isKindOfClass:[NSDictionary class]]) continue;
+		for (NSString *name in names) {
+			NSString *v = props[name];
+			if ([v isKindOfClass:[NSString class]] && v.length && ![v isEqualToString:@"nil"] && ![v isEqualToString:@"(null)"]) return v;
+		}
+	}
+	return nil;
+}
+
+static NSDictionary *OMCProfileSnapshot(void) {
+	NSMutableDictionary *values = [NSMutableDictionary dictionary];
+	for (NSString *key in OMCProfileKeys()) {
+		id v = OMCPref(key, nil);
+		if (v) values[key] = v;
+	}
+	return values;
+}
+
+// A car just connected: save the settings into the car that was in use, load this car's (see OMC_KEY_PROFILES)
+static void OMCProfileSwitch(NSDictionary *car) {
+	OMCPrefsSync();
+	if (![OMCPref(OMC_KEY_PROFILES_ON, @NO) boolValue]) return;
+	NSString *name = OMCCarValue(car, @[@"modelName", @"name", @"vehicleName", @"accessoryName", @"model"]);
+	NSString *ident = OMCCarValue(car, @[@"vehicleIdentifier", @"identifier", @"uniqueIdentifier", @"accessoryID", @"deviceID", @"serialNumber"]);
+	NSString *key = ident ?: [NSString stringWithFormat:@"%@|%@", name ?: @"?", car[@"pixels"] ?: @"?"];
+	NSMutableDictionary *all = [NSMutableDictionary dictionary];
+	NSDictionary *stored = OMCPref(OMC_KEY_PROFILES, nil);
+	if ([stored isKindOfClass:[NSDictionary class]])
+		for (NSString *k in stored) if ([stored[k] isKindOfClass:[NSDictionary class]]) all[k] = [stored[k] mutableCopy];
+	NSString *current = OMCPref(OMC_KEY_PROFILE_CURRENT, nil);
+	if ([current isKindOfClass:[NSString class]] && all[current] && ![current isEqualToString:key])
+		all[current][@"values"] = OMCProfileSnapshot();   // what the user set while in the previous car
+	NSMutableDictionary *profile = all[key];
+	if (!profile) {
+		profile = [@{@"values": OMCProfileSnapshot()} mutableCopy];
+		all[key] = profile;
+		OMCLog(@"Core", @"ho so xe moi: %@ (%@)", name ?: @"?", key);
+	} else if (![current isEqual:key]) {
+		NSDictionary *values = profile[@"values"];
+		for (NSString *k in OMCProfileKeys()) {
+			id v = [values isKindOfClass:[NSDictionary class]] ? values[k] : nil;
+			CFPreferencesSetAppValue((__bridge CFStringRef)k, (__bridge CFPropertyListRef)v, OMC_PREFS_DOMAIN);
+		}
+		OMCLog(@"Core", @"nap ho so xe %@ (%@)", name ?: @"?", key);
+	}
+	profile[@"name"] = name ?: OMCTr(@"Xe", @"Car");
+	profile[@"lastSeen"] = [NSDate date];
+	OMCGuardStore(OMC_KEY_PROFILES, all);
+	OMCGuardStore(OMC_KEY_PROFILE_CURRENT, key);
+	OMCPrefsSync();
+	notify_post("com.anlai.omnicar/prefschanged");
 }
 
 static void OMCRecordCarScreensSoon(void) {

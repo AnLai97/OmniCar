@@ -41,5 +41,5 @@
 "SPLITSCREEN_GUIDE_CAR" = "В автомобиле";
 "SPLITSCREEN_GUIDE_CAR_TEXT" = "• Кнопка OmniCar в доке: раскладки, Недавние, Избранное, выход из разделения.\n• Круглый ползунок: нажмите для выбора пропорций · перетащите для изменения размера · перетащите к краю, чтобы закрыть панель.\n• Полоса •••: нажмите для Заменить / Плавающее окно / Во весь экран / Закрыть · перетащите на другую панель, чтобы поменять их местами.\n• Двойное касание полосы •••: временно увеличить панель, ещё одно двойное касание — вернуть.\n• Двойное касание разделителя: поменять панели местами.\n• Кнопка «Домой»: выйти из разделения.";
 "SPLITSCREEN_SHORTCUTS_GROUP" = "Siri / Команды (Открыть URL)";
-"SPLITSCREEN_SHORTCUTS_FOOTER" = "omnicar://splitscreen/open?left=com.apple.Maps&right=com.spotify.client\nomnicar://splitscreen/fav?n=1\nomnicar://splitscreen/close";
+"SPLITSCREEN_SHORTCUTS_FOOTER" = "omnicar://splitscreen/open?left=com.apple.Maps&right=com.spotify.client\nomnicar://splitscreen/fav?n=1\nomnicar://splitscreen/close\nomnicar://splitscreen/layout?id=3 · ratio?r=70 · swap · zoom?pane=1\nomnicar://feature/speedBubble?on=toggle\nomnicar://lite?mode=auto\nomnicar://cleanram";
 "SPLITSCREEN_CREDITS_FOOTER" = "Ранее CarDuo. Размещение приложений основано на carplay-cast (Ethan Arbuckle).";

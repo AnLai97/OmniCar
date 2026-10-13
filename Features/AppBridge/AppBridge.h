@@ -80,6 +80,12 @@
 #define AB_NOTIF_KEY         @"com.anlai.omnicar/appbridge.key"
 // Keyboard language on the car: 0 English, 1 Vietnamese (Telex). Remembered by SpringBoard.
 #define AB_KEY_KEYBOARD_LANG @"appBridgeKeyboardLang"
+// Driving mode (SpringBoard, ABHost): above AB_KEY_DRIVE_SPEED km/h for a few seconds every iPhone app box on the car is
+// covered ("sound only", touches blocked except the ••• bar), back once the car stops. Speed comes from the Speed Bubble's
+// Darwin notification AB_DARWIN_SPEED_NOW (state = km/h, 0xFFFF unknown), whatever its source (nav app or GPS).
+#define AB_KEY_DRIVE_MODE    @"appBridgeDriveMode"    // BOOL, default YES
+#define AB_KEY_DRIVE_SPEED   @"appBridgeDriveSpeed"   // km/h, default 10
+#define AB_DARWIN_SPEED_NOW  "com.anlai.omnicar/speed"
 // Base scene orientation for hosted apps: 1 portrait (default), 3 landscape.
 #define AB_KEY_ORIENTATION   @"appBridgeOrientation"
 static inline unsigned long long ABBundleHash(NSString *bid)

@@ -14,13 +14,13 @@
 "STARTUPSCREEN_FROM_FILES" = "Từ Tệp";
 
 "STARTUPSCREEN_DURATION_GROUP" = "Thời lượng (giây)";
-"STARTUPSCREEN_DURATION_FOOTER" = "Video ngắn hơn thì lặp lại.";
+"STARTUPSCREEN_DURATION_FOOTER" = "Thời gian màn hình khởi động hiện trên màn xe. Video ngắn hơn thì lặp lại.";
 "STARTUPSCREEN_PLAY_FULL" = "Phát hết video";
 
 "STARTUPSCREEN_DISPLAY_GROUP" = "Hiển thị";
 "STARTUPSCREEN_SCALE_FILL" = "Lấp đầy";
 "STARTUPSCREEN_SCALE_FIT" = "Vừa khung";
-"STARTUPSCREEN_SOUND" = "Âm thanh";
+"STARTUPSCREEN_SOUND" = "Âm thanh của video";
 "STARTUPSCREEN_TAP_TO_SKIP" = "Chạm để bỏ qua";
 
 "STARTUPSCREEN_PREPARING" = "Đang chuẩn bị video cho CarPlay";
@@ -31,3 +31,42 @@
 "STARTUPSCREEN_DELETE_TITLE" = "Xoá video";
 "STARTUPSCREEN_DELETE_CONFIRM" = "Xoá \"%@\"?";
 "STARTUPSCREEN_DELETE_ACTION" = "Xoá";
+
+"STARTUPSCREEN_STYLE_GROUP" = "Kiểu khởi động";
+"STARTUPSCREEN_STYLE_FOOTER" = "Thẻ trên cùng là hình xem trước trên màn xe. Chạm vào để xem lại hiệu ứng.";
+"STARTUPSCREEN_STYLE_VIDEO" = "Video";
+"STARTUPSCREEN_STYLE_LOGO" = "Logo";
+"STARTUPSCREEN_STYLE_GREETING" = "Lời chào";
+"STARTUPSCREEN_STYLE_WEATHER" = "Thời tiết";
+
+"STARTUPSCREEN_LOGO_GROUP" = "Logo";
+"STARTUPSCREEN_LOGO_FOOTER" = "Ảnh PNG nền trong suốt sẽ đẹp nhất trên nền tối. Chưa chọn logo thì hiện biểu tượng xe.";
+"STARTUPSCREEN_LOGO_CHOOSE" = "Chọn logo";
+"STARTUPSCREEN_LOGO_DELETE" = "Xoá logo";
+"STARTUPSCREEN_LOGO_FAILED" = "Không đọc được ảnh này.";
+"STARTUPSCREEN_LOGO_NONE" = "Chưa có logo.";
+"STARTUPSCREEN_EFFECT_GROUP" = "Hiệu ứng";
+"STARTUPSCREEN_EFFECT_FADE" = "Hiện dần";
+"STARTUPSCREEN_EFFECT_ZOOM" = "Phóng to";
+"STARTUPSCREEN_EFFECT_GLOW" = "Phát sáng";
+
+"STARTUPSCREEN_GREETING_GROUP" = "Lời chào";
+"STARTUPSCREEN_GREETING_FOOTER" = "\"Chào buổi sáng, <tên>\" kèm giờ và ngày. Chữ và màu nền đổi theo sáng, chiều, tối và đêm.";
+"STARTUPSCREEN_NAME" = "Tên của bạn";
+"STARTUPSCREEN_NAME_PLACEHOLDER" = "Không bắt buộc";
+
+"STARTUPSCREEN_WEATHER_FOOTER" = "Kiểu Thời tiết dùng mạng: mỗi lần cắm CarPlay, vị trí gần nhất của máy (làm tròn 2 chữ số thập phân, khoảng 1 km) được gửi tới Open-Meteo (open-meteo.com, không cần tài khoản). Không có mạng thì hiện số đo gần nhất kèm giờ cập nhật; không có quyền vị trí hoặc chưa có dữ liệu thì hiện lời chào.";
+"STARTUPSCREEN_WEATHER_LAST" = "Cập nhật gần nhất: %@";
+"STARTUPSCREEN_WEATHER_NONE" = "Chưa có dữ liệu thời tiết.";
+
+"STARTUPSCREEN_STARTUP_SOUND_GROUP" = "Âm thanh khởi động";
+"STARTUPSCREEN_STARTUP_SOUND_FOOTER" = "Phát qua loa xe khi CarPlay kết nối, với mọi kiểu. M4A, MP3, WAV, CAF. Kiểu Video có bật Âm thanh của video thì phát âm thanh của video thay thế.";
+"STARTUPSCREEN_SOUND_CHOOSE" = "Chọn âm thanh";
+"STARTUPSCREEN_SOUND_PREVIEW" = "Nghe thử";
+"STARTUPSCREEN_SOUND_DELETE" = "Xoá âm thanh";
+"STARTUPSCREEN_SOUND_CURRENT" = "Đang dùng: %@";
+"STARTUPSCREEN_SOUND_NONE" = "Chưa có âm thanh khởi động.";
+"STARTUPSCREEN_SOUND_FAILED" = "Không phát được âm thanh này: %@";
+"STARTUPSCREEN_VOLUME_GROUP" = "Âm lượng";
+"STARTUPSCREEN_VOLUME_FOOTER" = "Cho âm thanh khởi động và âm thanh của video.";
+"STARTUPSCREEN_SOUND_SKIP_CALL" = "Im lặng khi đang gọi điện";

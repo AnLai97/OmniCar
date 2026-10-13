@@ -41,5 +41,5 @@
 "SPLITSCREEN_GUIDE_CAR" = "차량에서";
 "SPLITSCREEN_GUIDE_CAR_TEXT" = "• Dock의 OmniCar 버튼: 레이아웃, 최근 항목, 즐겨찾기, 분할 종료.\n• 둥근 손잡이: 탭하여 비율 선택 · 드래그하여 크기 조절 · 가장자리로 드래그하여 창 닫기.\n• ••• 막대: 탭하여 교체 / 플로팅 / 전체 화면 / 닫기 · 다른 창으로 드래그하여 바꾸기.\n• ••• 막대 이중 탭: 해당 창을 잠시 확대, 다시 이중 탭하면 원래대로.\n• 구분선 이중 탭: 두 창 바꾸기.\n• 홈 버튼: 분할 종료.";
 "SPLITSCREEN_SHORTCUTS_GROUP" = "Siri / 단축어(URL 열기)";
-"SPLITSCREEN_SHORTCUTS_FOOTER" = "omnicar://splitscreen/open?left=com.apple.Maps&right=com.spotify.client\nomnicar://splitscreen/fav?n=1\nomnicar://splitscreen/close";
+"SPLITSCREEN_SHORTCUTS_FOOTER" = "omnicar://splitscreen/open?left=com.apple.Maps&right=com.spotify.client\nomnicar://splitscreen/fav?n=1\nomnicar://splitscreen/close\nomnicar://splitscreen/layout?id=3 · ratio?r=70 · swap · zoom?pane=1\nomnicar://feature/speedBubble?on=toggle\nomnicar://lite?mode=auto\nomnicar://cleanram";
 "SPLITSCREEN_CREDITS_FOOTER" = "이전 이름은 CarDuo. 앱 호스팅은 carplay-cast(Ethan Arbuckle)를 기반으로 합니다.";

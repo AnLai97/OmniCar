@@ -43,8 +43,17 @@
 #define SCPC_FLOAT_SLOT        9    // so o gia cua cua so noi (pending / openApp / closeSlot)
 typedef NS_ENUM(NSInteger, SCPCLayoutKind) { SCPCLayoutColumns = 0, SCPCLayoutMainStack = 1, SCPCLayoutMainRight = 2 };
 
+// 2 o lech san: 70 = o 1 chiem 70 %, 30 = o 1 chiem 30 % (chon trong bang, sau do keo vach nhu 2 o thuong)
+#define SCPC_LAYOUT_70 70
+#define SCPC_LAYOUT_30 30
+static CGFloat SCPCPresetRatio(int layoutID) { return layoutID == SCPC_LAYOUT_70 ? 0.7 : (layoutID == SCPC_LAYOUT_30 ? 0.3 : 0); }
+
 static BOOL SCPCIsStackLayout(int layoutID) { return layoutID == SCPC_LAYOUT_MAIN_STACK || layoutID == SCPC_LAYOUT_MAIN_RIGHT; }
-static int SCPCPanesForLayout(int layoutID) { return SCPCIsStackLayout(layoutID) ? 3 : MAX(2, MIN(SCPC_MAX_PANES, layoutID)); }
+static int SCPCPanesForLayout(int layoutID)
+{
+    if (SCPCPresetRatio(layoutID) > 0) return 2;
+    return SCPCIsStackLayout(layoutID) ? 3 : MAX(2, MIN(SCPC_MAX_PANES, layoutID));
+}
 static NSInteger SCPCKindForLayout(int layoutID)
 {
     if (layoutID == SCPC_LAYOUT_MAIN_STACK) return SCPCLayoutMainStack;
@@ -367,6 +376,14 @@ static NSArray<NSValue *> *SCPCLayoutBoxes(int layoutID, BOOL vertical, CGSize s
                 boxes[i] = [NSValue valueWithCGRect:b];
             }
         }
+        return boxes;
+    }
+    CGFloat preset = SCPCPresetRatio(layoutID);
+    if (preset > 0) {
+        CGFloat len = (vertical ? size.height : size.width) - gap, first = floor(len * preset);
+        [boxes addObject:[NSValue valueWithCGRect:vertical ? CGRectMake(0, 0, size.width, first) : CGRectMake(0, 0, first, size.height)]];
+        [boxes addObject:[NSValue valueWithCGRect:vertical ? CGRectMake(0, first + gap, size.width, len - first)
+                                                           : CGRectMake(first + gap, 0, len - first, size.height)]];
         return boxes;
     }
     int n = MAX(1, layoutID);
@@ -876,10 +893,27 @@ static BOOL SCPCIsBridgedApp(NSString *bid);
 }
 
 // Ngan cho app moi khi khong chi dinh: ngan trong truoc, het cho thi ngan dang duoc cham gan nhat
+// App ghim (SPL_KEY_PINNED_APP): o chua no khong bi thay / bo khi doi bo cuc hay chon app
+static NSString *SCPCPinnedApp(void)
+{
+    NSString *bid = OMCPref(SPL_KEY_PINNED_APP, nil);
+    return [bid isKindOfClass:[NSString class]] && bid.length ? bid : nil;
+}
+
+- (BOOL)slotIsPinned:(int)s
+{
+    NSString *pin = SCPCPinnedApp();
+    SCPCarPane *p = [self paneAtSlot:s];
+    return pin && p && [p.bundleID isEqualToString:pin];
+}
+
 - (int)autoSlot
 {
     for (int s = 0; s < [self paneCount]; s++) if (![self slotOccupied:s]) return s;
-    return MIN(self.focusedSlot, MAX(0, [self paneCount] - 1));
+    int s = MIN(self.focusedSlot, MAX(0, [self paneCount] - 1));
+    if ([self slotIsPinned:s])   // o dang chon la o ghim -> o khac
+        for (int t = 0; t < [self paneCount]; t++) if (![self slotIsPinned:t]) return t;
+    return s;
 }
 
 // ---------------------------------------------------------------------
@@ -1258,6 +1292,8 @@ static BOOL SCPCIsBridgedApp(NSString *bid);
             for (NSString *b in self.pending) if ([self pendingSlotForBundle:b] == q.slot) waiting = YES;
             if (!q.vc && !waiting) { drop = q; break; }
         }
+        if (!drop)   // o cuoi, tru o ghim
+            for (SCPCarPane *q in [self.slots reverseObjectEnumerator]) if (![self slotIsPinned:q.slot]) { drop = q; break; }
         if (!drop) drop = self.slots.lastObject;
         if (drop.bundleID) [dropped addObject:[self displayNameFor:drop.bundleID]];
         [self removePaneAt:drop.slot background:YES];
@@ -1393,6 +1429,12 @@ static BOOL SCPCIsBridgedApp(NSString *bid);
 
     SCPCarPane *existing = [self paneForBundle:bid];
     if (autoSlotRequested) slot = existing ? existing.slot : [self autoSlot];
+    if (!existing && slot != SCPC_FLOAT_SLOT && [self slotIsPinned:slot]) {   // o ghim giu nguyen app cua no
+        int other = [self autoSlot];
+        if ([self slotIsPinned:other]) { [self toast:SCPCT(@"Ô này đang ghim", @"This pane is pinned")]; return; }
+        SCPLog("CarSplit: o %d dang ghim -> mo %@ vao o %d", slot, bid, other);
+        slot = other;
+    }
     // App dang o cua so noi ma chon cho o chia (hoac nguoc lai): khong doi cho giua 2 loai o
     if (existing && existing.slot != slot && (existing.slot == SCPC_FLOAT_SLOT || slot == SCPC_FLOAT_SLOT)) {
         [self toast:[NSString stringWithFormat:SCPCT(@"%@ đang mở ở %@", @"%@ is already open in %@"), [self displayNameFor:bid],
@@ -2503,6 +2545,38 @@ static UIView *SCPCDotsHandle(void)
     }
 }
 
+// ---- Siri / Phim tat (omnicar://splitscreen/layout | ratio | swap | zoom) ----
+- (void)urlLayout:(int)layoutID
+{
+    if (layoutID != 2 && layoutID != 3 && layoutID != SCPC_LAYOUT_MAIN_STACK && layoutID != SCPC_LAYOUT_MAIN_RIGHT
+        && SCPCPresetRatio(layoutID) <= 0) return;
+    if (self.active) [self switchToLayout:layoutID];
+    else if ([self activateWithLayout:layoutID]) [self showPickersForEmptySlots];
+    if (SCPCPresetRatio(layoutID) > 0) [self urlRatio:SCPCPresetRatio(layoutID)];
+}
+
+- (void)urlRatio:(CGFloat)ratio
+{
+    if (!self.active || [self paneCount] != 2 || [self mainStack]) return;
+    ratio = MIN(0.8, MAX(0.2, ratio));
+    self.fractions = [NSMutableArray arrayWithObjects:@(ratio), @(1 - ratio), nil];
+    [self relayoutAnimated:YES];
+    [self rememberPair];
+}
+
+- (void)urlSwap
+{
+    if (!self.active || [self paneCount] < 2) return;
+    [self swapSlot:0 with:1];
+    [self relayoutAnimated:YES];
+}
+
+- (void)urlZoomPane:(int)pane
+{
+    SCPCarPane *p = [self paneAtSlot:pane - 1];
+    if (p) [self toggleZoomForPane:p];
+}
+
 - (void)handleDoubleTapped:(UITapGestureRecognizer *)g
 {
     @try {
@@ -2644,6 +2718,7 @@ static UIView *SCPCDotsHandle(void)
         SCPCarPane *p = [self paneForView:b];
         if (!p) return;
         [self setBarVisible:NO forPane:p];
+        if ([self slotIsPinned:p.slot]) { [self toast:SCPCT(@"Ô này đang ghim", @"This pane is pinned")]; return; }
         [self showPickerForSlot:p.slot];
         if (p.picker) { self.pickerSheetPane = p; [self refreshPickerSheetSoon]; }   // chon lai app cho o nay: bang chon cho o nay ngay
     } @catch (NSException *e) { SCPLog("CarSplit: loi nut doi app %@", e); }
@@ -3751,7 +3826,9 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
 - (NSArray<NSArray<NSDictionary *> *> *)panelSections:(NSArray<NSString *> **)titles
 {
     NSMutableArray *sections = [NSMutableArray array], *names = [NSMutableArray array];
-    [sections addObject:@[@{@"layout": @2, @"name": SCPCT(@"2 ô", @"2 panes")}, @{@"layout": @3, @"name": SCPCT(@"3 ô", @"3 panes")},
+    [sections addObject:@[@{@"layout": @2, @"name": SCPCT(@"2 ô", @"2 panes")},
+                          @{@"layout": @(SCPC_LAYOUT_70), @"name": @"70 / 30"}, @{@"layout": @(SCPC_LAYOUT_30), @"name": @"30 / 70"},
+                          @{@"layout": @3, @"name": SCPCT(@"3 ô", @"3 panes")},
                           @{@"layout": @(SCPC_LAYOUT_MAIN_STACK), @"name": SCPCT(@"1 lớn + 2", @"1 large + 2")},
                           @{@"layout": @(SCPC_LAYOUT_MAIN_RIGHT), @"name": SCPCT(@"2 + 1 lớn", @"2 + 1 large")}]];
     [names addObject:@"layouts"];
@@ -4231,10 +4308,12 @@ static BOOL SCPCRightHandDrive(void)
     NSString *app = self.layoutApp;
     self.layoutApp = nil;
     [self collapseAppTray];
-    if (self.active) { [self switchToLayout:layoutID]; return; }
+    CGFloat preset = SCPCPresetRatio(layoutID);
+    if (self.active) { [self switchToLayout:layoutID]; if (preset > 0) [self urlRatio:preset]; return; }
     SCPLog("CarSplit: chon bo cuc %d cho %@", layoutID, app ?: @"man chinh (moi o trong)");
     if (!app) {   // man chinh: moi o deu trong, hien bang chon app (dung nhu hinh dau cong trong bang)
         if (![self activateWithLayout:layoutID]) return;
+        if (preset > 0) [self urlRatio:preset];
         [self showPickersForEmptySlots];
         return;
     }
@@ -4247,6 +4326,7 @@ static BOOL SCPCRightHandDrive(void)
     }
     [self openApp:app slot:first];
     for (int s = 0; s < [self paneCount]; s++) if (![self slotOccupied:s]) [self showPickerForSlot:s];
+    if (preset > 0) [self urlRatio:preset];
 }
 
 // ---------------------------------------------------------------------

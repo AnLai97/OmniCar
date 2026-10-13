@@ -7,7 +7,8 @@
 "SPLITSCREEN_DRIVER_AUTO" = "Tự động";
 "SPLITSCREEN_DRIVER_LEFT" = "Bên trái";
 "SPLITSCREEN_DRIVER_RIGHT" = "Bên phải";
-"SPLITSCREEN_DRIVER_FOOTER" = "Tay lái bên phải: app đang dùng vào ô bên phải, gần ghế lái. Tự động = theo thông tin đầu xe gửi.";
+"SPLITSCREEN_PINNED" = "Ô được ghim";
+"SPLITSCREEN_DRIVER_FOOTER" = "Tay lái bên phải: app đang dùng vào ô bên phải, gần ghế lái. Tự động = theo thông tin đầu xe gửi.\nÔ được ghim (thường là bản đồ): app đó giữ nguyên ô khi đổi bố cục hay chọn app khác.";
 
 "SPLITSCREEN_PANEL_GROUP" = "Bảng OmniCar trên xe";
 "SPLITSCREEN_SHOW_RECENT" = "Gần đây";
@@ -41,5 +42,5 @@
 "SPLITSCREEN_GUIDE_CAR" = "Trên xe";
 "SPLITSCREEN_GUIDE_CAR_TEXT" = "• Nút OmniCar trên dock: chọn bố cục, Gần đây, Yêu thích, thoát chia màn.\n• Chấm tròn: chạm để chọn tỉ lệ · kéo để đổi tỉ lệ · kéo sát mép để đóng ô.\n• Thanh •••: chạm để Đổi app / Cửa sổ nổi / Toàn màn / Đóng · kéo thả lên ô khác để đổi chỗ.\n• Chạm 2 lần vào thanh •••: phóng to tạm ô đó, chạm 2 lần nữa để về như cũ.\n• Chạm 2 lần vào vạch chia: đổi chỗ 2 ô.\n• Nút Home: thoát chia màn.";
 "SPLITSCREEN_SHORTCUTS_GROUP" = "Siri / Shortcuts (Mở URL)";
-"SPLITSCREEN_SHORTCUTS_FOOTER" = "omnicar://splitscreen/open?left=com.apple.Maps&right=com.spotify.client\nomnicar://splitscreen/fav?n=1\nomnicar://splitscreen/close";
+"SPLITSCREEN_SHORTCUTS_FOOTER" = "omnicar://splitscreen/open?left=com.apple.Maps&right=com.spotify.client\nomnicar://splitscreen/fav?n=1\nomnicar://splitscreen/close\nomnicar://splitscreen/layout?id=3 · ratio?r=70 · swap · zoom?pane=1\nomnicar://feature/speedBubble?on=toggle\nomnicar://lite?mode=auto\nomnicar://cleanram";
 "SPLITSCREEN_CREDITS_FOOTER" = "Trước đây là CarDuo. Host app dựa trên carplay-cast (Ethan Arbuckle).";

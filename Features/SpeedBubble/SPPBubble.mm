@@ -1,5 +1,7 @@
 #import "SPPBubble.h"
 #import "SPPPrefs.h"
+#import "SPPWarn.h"
+#import "SPPGPS.h"
 #import <notify.h>
 
 // Lite mode (OMCLiteActive): shadows without a path are drawn off screen on every frame; the card goes flat
@@ -26,7 +28,7 @@ static void SPPStripShadows(CALayer *layer)
 // ---------------------------------------------------------------------
 
 // CADisplay cua man hinh xe (nil neu chua ket noi)
-static id SPPGetCarPlayCADisplay(void)
+id SPPGetCarPlayCADisplay(void)
 {
     id carplayDevice = objcInvoke(objc_getClass("AVExternalDevice"), @"currentCarPlayExternalDevice");
     if (!carplayDevice) return nil;
@@ -40,7 +42,7 @@ static id SPPGetCarPlayCADisplay(void)
 }
 
 // *scale = so diem anh that tren 1 diem cua man xe (man xe thuong 1x / 2x, khac iPhone 3x)
-static UIWindow *SPPMakeCarWindow(CGFloat *scale)
+UIWindow *SPPMakeCarWindow(CGFloat *scale)
 {
     id carDisplay = SPPGetCarPlayCADisplay();
     if (!carDisplay) return nil;
@@ -104,7 +106,7 @@ static UIView *SPPPassThroughHitTest(id self, SEL _cmd, CGPoint p, UIEvent *e)
     return (v == self) ? nil : v;   // cham vao chinh cua so (khong trung subview) -> bo qua, xuong duoi
 }
 
-static void SPPMakeWindowPassThrough(UIWindow *w)
+void SPPMakeWindowPassThrough(UIWindow *w)
 {
     Class base = object_getClass(w);
     NSString *name = [NSString stringWithFormat:@"SPPPassThrough_%@", NSStringFromClass(base)];
@@ -129,7 +131,22 @@ static UIImage *SPPAppIcon(int app)
     if (!cache) cache = [NSMutableDictionary dictionary];
     UIImage *img = cache[@(app)];
     if (img) return img;
-    if ([UIImage respondsToSelector:@selector(_applicationIconImageForBundleIdentifier:format:scale:)])
+    if (SPPIsGPSSource(app)) {
+        // GPS iPhone khong phai app: o xanh co mui ten vi tri (SF Symbol)
+        UIImageSymbolConfiguration *cfg = [UIImageSymbolConfiguration configurationWithPointSize:30 weight:UIImageSymbolWeightBold];
+        UIImage *glyph = [[UIImage systemImageNamed:@"location.fill" withConfiguration:cfg]
+                          imageWithTintColor:[UIColor whiteColor] renderingMode:UIImageRenderingModeAlwaysOriginal];
+        if (glyph) {
+            CGFloat d = 60;
+            UIGraphicsImageRenderer *r = [[UIGraphicsImageRenderer alloc] initWithSize:CGSizeMake(d, d)];
+            img = [r imageWithActions:^(UIGraphicsImageRendererContext *ctx) {
+                [[UIColor colorWithRed:10 / 255.0 green:132 / 255.0 blue:1 alpha:1] setFill];
+                UIRectFill(CGRectMake(0, 0, d, d));
+                CGSize gs = glyph.size;
+                [glyph drawInRect:CGRectMake((d - gs.width) / 2, (d - gs.height) / 2, gs.width, gs.height)];
+            }];
+        }
+    } else if ([UIImage respondsToSelector:@selector(_applicationIconImageForBundleIdentifier:format:scale:)])
         img = [UIImage _applicationIconImageForBundleIdentifier:SPPNavAppBundle(app) format:2 scale:[UIScreen mainScreen].scale];
     if (!img) {
         CGFloat d = 60;
@@ -137,7 +154,7 @@ static UIImage *SPPAppIcon(int app)
         img = [r imageWithActions:^(UIGraphicsImageRendererContext *ctx) {
             UIColor *bg = app == 1 ? [UIColor colorWithRed:0.0 green:0.6 blue:0.45 alpha:1] : [UIColor colorWithRed:0.1 green:0.4 blue:0.85 alpha:1];
             [bg setFill]; UIRectFill(CGRectMake(0, 0, d, d));
-            NSString *t = app == 1 ? @"GO" : @"VM";
+            NSString *t = SPPIsGPSSource(app) ? @"GPS" : (app == 1 ? @"GO" : @"VM");
             NSDictionary *a = @{NSFontAttributeName: [UIFont systemFontOfSize:26 weight:UIFontWeightHeavy], NSForegroundColorAttributeName: [UIColor whiteColor]};
             CGSize ts = [t sizeWithAttributes:a];
             [t drawAtPoint:CGPointMake((d - ts.width) / 2, (d - ts.height) / 2) withAttributes:a];
@@ -430,6 +447,7 @@ typedef NS_ENUM(NSInteger, SPPIconShape) {
 @property (nonatomic) CGFloat spinRate;                              // kieu Banh xe: vong/giay dang quay
 @property (nonatomic, strong) UIView *flashView;     // nen / quang do nhay khi vuot gioi han (moi kieu)
 @property (nonatomic, strong) NSTimer *demoTimer;    // "Xem thu bong bong" trong Cai dat
+@property (nonatomic, strong) NSTimer *staleTimer;   // canh so cu ca khi bong bong an (canh bao qua toc do, SB_DARWIN_SPEED_NOW)
 @property (nonatomic) CGFloat appliedRotation;       // goc xoay dang ap cho cua so tren iPhone
 @property (nonatomic) CGFloat displayScale;          // diem anh / diem cua man dang ve (xe hoac iPhone)
 @property (nonatomic) CGPoint phoneFraction, carFraction;   // vi tri the theo ti le man (-1 = mac dinh), rieng iPhone / xe
@@ -465,6 +483,59 @@ typedef NS_ENUM(NSInteger, SPPIconShape) {
 }
 - (CGAffineTransform)baseScaled:(CGFloat)k { return CGAffineTransformMakeScale(self.scale * k, self.scale * k); }
 
+// Toc do hien tai cho tinh nang khac (vd Che do lai): Darwin SB_DARWIN_SPEED_NOW, state = km/h, SB_SPEED_UNKNOWN = khong
+// biet. Chi gui khi doi.
+static void SPPPublishSpeed(int kmh)
+{
+    static int token = 0;
+    static uint64_t last = UINT64_MAX;
+    uint64_t state = kmh >= 0 ? (uint64_t)MIN(kmh, 255) : (uint64_t)SB_SPEED_UNKNOWN;
+    if (state == last) return;
+    if (!token) notify_register_check(SB_DARWIN_SPEED_NOW, &token);
+    if (!token) return;
+    last = state;
+    notify_set_state(token, state);
+    notify_post(SB_DARWIN_SPEED_NOW);
+}
+
+// Moi lan doi toc do (ban tin moi, so cu qua han, mat nguon...) -> bao cho tinh nang khac. "Xem thu" / test: so gia, khong gui.
+- (void)setSpeed:(int)speed
+{
+    _speed = speed;
+    if (!self.demoTimer) SPPPublishSpeed(speed);
+}
+
+// Ban tin moi -> canh bao qua toc do theo so moi; dong ho 1 giay canh so cu (bong bong an thi timer cua refresh dung)
+- (void)feedWarning
+{
+    CFAbsoluteTime now = CFAbsoluteTimeGetCurrent();
+    BOOL fresh = self.speed >= 0 && now - self.speedAt <= SPP_SPEED_STALE;
+    int limit = (self.limit > 0 && now - self.limitAt <= SPP_SPEED_STALE) ? self.limit : -1;
+    [[SPPOverspeed shared] updateSpeed:(fresh ? self.speed : -1) limit:limit];
+    if (!fresh) {
+        if (self.speed >= 0 && !self.demoTimer) self.speed = -1;   // so cu -> "khong biet"
+        [self.staleTimer invalidate]; self.staleTimer = nil;
+        return;
+    }
+    if (self.staleTimer) return;
+    __weak SPPBubble *weakSelf = self;
+    self.staleTimer = [NSTimer scheduledTimerWithTimeInterval:1.0 repeats:YES block:^(NSTimer *t) {
+        SPPBubble *me = weakSelf;
+        if (!me) { [t invalidate]; return; }
+        [me feedWarning];
+    }];
+}
+
+// Nguon ngung han (GPS iPhone tat vi xe ngat / doi nguon / tat tinh nang): bo so, an ngay - khong cho SPP_SOURCE_GONE
+- (void)sourceStopped:(int)app
+{
+    if ((app & 7) != (self.app & 7) || self.demoTimer) return;
+    SPPLog("bubble: nguon %@ ngung -> bo so", SPPNavAppName(app));
+    self.speed = -1; self.limit = -1; self.speedAt = 0; self.limitAt = 0; self.lastUpdate = 0;
+    [self feedWarning];
+    [self refresh];
+}
+
 - (void)updateSpeed:(int)speed limit:(int)limit
 {
     [self updateSpeed:speed limit:limit appForeground:NO];
@@ -497,6 +568,7 @@ static int sPreferredApp = -1;   // app mo gan nhat (nguon uu tien)
     if (fg != sAppFg[app]) SPPLog("bubble: %@ %@", SPPNavAppName(app), fg ? @"dang hien -> an bong bong" : @"chay nen -> hien bong bong");
     if (fg && !sAppFg[app]) sAppFgSince[app] = now;
     sAppFg[app] = fg; sAppSeenAt[app] = now;
+    if (SPPIsGPSSource(app)) sAppOpened[app] = YES;   // GPS iPhone: khong co app de mo, co so la hien
     // Chi tinh la "da mo" khi app hien lien tuc >= 1.5 giay (bo qua lan active thoang qua luc he thong khoi chay app)
     if (fg && !sAppOpened[app] && now - sAppFgSince[app] >= 1.5) {
         sAppOpened[app] = YES; SPPLog("bubble: %@ da duoc mo", SPPNavAppName(app));
@@ -525,6 +597,7 @@ static int sPreferredApp = -1;   // app mo gan nhat (nguon uu tien)
         else if (now - self.limitAt > SPP_VALUE_HOLD) self.limit = -1;
         self.lastUpdate = now;
     }
+    [self feedWarning];
     [self refresh];
 }
 
@@ -536,6 +609,7 @@ static BOOL sSeenRunning[8];
 - (int)sourceAppState
 {
     int app = self.app & 7;
+    if (SPPIsGPSSource(app)) return [SPPPhoneGPS shared].running ? 1 : 0;   // GPS iPhone: theo CLLocationManager trong SpringBoard
     id ctl = objcInvoke(objc_getClass("SBApplicationController"), @"sharedInstance");
     id sbApp = ctl ? objcInvoke_1(ctl, @"applicationWithBundleIdentifier:", SPPNavAppBundle(app)) : nil;
     if (!sbApp) return -1;
@@ -1539,7 +1613,7 @@ static void SPPPlace(UIView *v, CGFloat cx, CGFloat cy, CGFloat size)
     switch (g.state) {
     case UIGestureRecognizerStateBegan:
         self.holdStart = p; self.holdDragging = NO;
-        [self startHold];
+        if (!SPPIsGPSSource(self.app)) [self startHold];   // GPS iPhone: khong co app de thoat, giu chi de keo
         break;
     case UIGestureRecognizerStateChanged:
         if (!self.holdDragging && hypot(p.x - self.holdStart.x, p.y - self.holdStart.y) > 12) { self.holdDragging = YES; [self cancelHold]; }
@@ -1595,6 +1669,7 @@ static void SPPPlace(UIView *v, CGFloat cx, CGFloat cy, CGFloat size)
 - (void)quitSourceApp
 {
     [self cancelHold];
+    if (SPPIsGPSSource(self.app)) return;
     NSString *bid = SPPNavAppBundle(self.app);
     SPPLog("bubble: giu %.0f giay -> thoat han %@", SPP_HOLD_QUIT, bid);
     [[[UINotificationFeedbackGenerator alloc] init] notificationOccurred:UINotificationFeedbackTypeSuccess];
@@ -1640,6 +1715,7 @@ static void SPPPlace(UIView *v, CGFloat cx, CGFloat cy, CGFloat size)
 {
     [UIView animateWithDuration:0.1 animations:^{ self.card.transform = [self baseScaled:0.92]; }
                      completion:^(BOOL f) { [UIView animateWithDuration:0.15 animations:^{ self.card.transform = [self baseTransform]; }]; }];
+    if (SPPIsGPSSource(self.app)) return;   // GPS iPhone: khong co app de mo
     if (!self.onPhone) {
         SPPLog("bubble: cham -> mo %@ tren CarPlay", SPPNavAppName(self.app));
         static int tokOpen = 0;

@@ -36,3 +36,13 @@
 "SPEEDBUBBLE_SIGN_0" = "Tự động (theo vùng)";
 "SPEEDBUBBLE_SIGN_1" = "Tròn (Vienna)";
 "SPEEDBUBBLE_SIGN_2" = "Chữ nhật (Mỹ)";
+"SPEEDBUBBLE_SOURCE_GPS" = "GPS iPhone";
+"SPEEDBUBBLE_SOURCE_FOOTER" = "Vietmap Live và GOFA cho tốc độ và giới hạn tốc độ: mở app một lần rồi để app chạy nền. GPS iPhone chỉ cho tốc độ, không có giới hạn tốc độ (biển hiện --, không cảnh báo quá tốc độ), và chỉ chạy khi đang kết nối CarPlay.";
+"SPEEDBUBBLE_GPS_UNAVAILABLE" = "Không dùng được GPS iPhone: SpringBoard không có quyền dùng vị trí. Kiểm tra Cài đặt > Quyền riêng tư > Dịch vụ định vị rồi respring.";
+"SPEEDBUBBLE_WARN" = "Cảnh báo quá tốc độ";
+"SPEEDBUBBLE_WARN_MODE" = "Cảnh báo";
+"SPEEDBUBBLE_WARN_MODE_0" = "Tắt";
+"SPEEDBUBBLE_WARN_MODE_1" = "Chỉ viền (im lặng)";
+"SPEEDBUBBLE_WARN_MODE_2" = "Viền và tiếng ngắn";
+"SPEEDBUBBLE_WARN_OVER" = "Cảnh báo khi vượt giới hạn quá";
+"SPEEDBUBBLE_WARN_FOOTER" = "Khi chạy nhanh hơn giới hạn tốc độ cộng mức này (theo đơn vị đang hiện trên bong bóng), viền đỏ phát sáng nhấp nháy quanh màn CarPlay. Tiếng chỉ kêu một lần, lần sau chỉ kêu lại khi đã chạy dưới giới hạn liên tục 5 giây. Cần nguồn có giới hạn tốc độ.";

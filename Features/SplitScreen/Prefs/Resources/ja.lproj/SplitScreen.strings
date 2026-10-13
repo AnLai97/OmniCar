@@ -41,5 +41,5 @@
 "SPLITSCREEN_GUIDE_CAR" = "車内での操作";
 "SPLITSCREEN_GUIDE_CAR_TEXT" = "• DockのOmniCarボタン: レイアウト、最近、お気に入り、分割を終了。\n• 丸いノブ: タップで比率を選択 · ドラッグでサイズ変更 · 端までドラッグで枠を閉じる。\n• •••バー: タップで置き換え / フローティング / フルスクリーン / 閉じる · 別の枠にドラッグで入れ替え。\n• •••バーをダブルタップ: その枠を一時的に拡大、もう一度ダブルタップで元に戻す。\n• 区切り線をダブルタップ: 2つの枠を入れ替え。\n• ホームボタン: 分割を終了。";
 "SPLITSCREEN_SHORTCUTS_GROUP" = "Siri / ショートカット（URLを開く）";
-"SPLITSCREEN_SHORTCUTS_FOOTER" = "omnicar://splitscreen/open?left=com.apple.Maps&right=com.spotify.client\nomnicar://splitscreen/fav?n=1\nomnicar://splitscreen/close";
+"SPLITSCREEN_SHORTCUTS_FOOTER" = "omnicar://splitscreen/open?left=com.apple.Maps&right=com.spotify.client\nomnicar://splitscreen/fav?n=1\nomnicar://splitscreen/close\nomnicar://splitscreen/layout?id=3 · ratio?r=70 · swap · zoom?pane=1\nomnicar://feature/speedBubble?on=toggle\nomnicar://lite?mode=auto\nomnicar://cleanram";
 "SPLITSCREEN_CREDITS_FOOTER" = "旧称CarDuo。Appのホスティングはcarplay-cast（Ethan Arbuckle）をベースにしています。";

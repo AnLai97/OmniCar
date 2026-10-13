@@ -147,6 +147,44 @@ static void OMCCleanRam(BOOL force) {
 	});
 }
 
+#pragma mark - Shortcuts / Siri (omnicar:// URLs that are not one feature's)
+
+// omnicar://feature/<splitScreen | appBridge | speedBubble | startupScreen | all>?on=1|0|toggle
+// omnicar://lite?mode=off|auto|always      omnicar://cleanram
+// (omnicar://splitscreen/... is Split Screen's own, see Features/SplitScreen/SpringBoard.xm)
+static void OMCCoreHandleURL(NSString *urlString) {
+	NSURL *url = [urlString isKindOfClass:[NSString class]] ? [NSURL URLWithString:urlString] : nil;
+	if (![url.scheme isEqualToString:@"omnicar"]) return;
+	NSMutableDictionary *q = [NSMutableDictionary dictionary];
+	for (NSURLQueryItem *it in [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:NO].queryItems) if (it.value) q[it.name] = it.value;
+	NSString *host = url.host.lowercaseString;
+	OMCPrefsSync();
+	if ([host isEqualToString:@"feature"]) {
+		NSString *name = url.pathComponents.count > 1 ? url.pathComponents[1] : @"";
+		NSDictionary *keys = @{@"splitscreen": @"splitScreenEnabled", @"appbridge": @"appBridgeEnabled", @"speedbubble": @"speedBubbleEnabled",
+			@"startupscreen": @"startupScreenEnabled", @"all": @"enabled"};
+		NSString *key = keys[name.lowercaseString];
+		if (!key) { OMCLog(@"Core", @"URL: khong co tinh nang %@", name); return; }
+		NSString *on = [q[@"on"] lowercaseString] ?: @"toggle";
+		BOOL value = [on isEqualToString:@"toggle"] ? ![OMCPref(key, @YES) boolValue] : [on boolValue];
+		CFPreferencesSetAppValue((__bridge CFStringRef)key, (__bridge CFPropertyListRef)@(value), OMC_PREFS_DOMAIN);
+		OMCLog(@"Core", @"URL: %@ = %d", key, value);
+	} else if ([host isEqualToString:@"lite"]) {
+		NSDictionary *modes = @{@"off": @0, @"always": @1, @"on": @1, @"auto": @2};
+		NSNumber *mode = modes[[q[@"mode"] lowercaseString] ?: @""];
+		if (!mode) return;
+		CFPreferencesSetAppValue((__bridge CFStringRef)OMC_KEY_LITE_MODE, (__bridge CFPropertyListRef)mode, OMC_PREFS_DOMAIN);
+		OMCLog(@"Core", @"URL: che do nhe = %@", mode);
+	} else if ([host isEqualToString:@"cleanram"]) {
+		notify_post(OMC_DARWIN_CLEAN_NOW);
+		return;
+	} else {
+		return;
+	}
+	OMCPrefsSync();
+	notify_post("com.anlai.omnicar/prefschanged");
+}
+
 %ctor {
 	@autoreleasepool {
 		OMCLogRelayStart();
@@ -158,6 +196,8 @@ static void OMCCleanRam(BOOL force) {
 		notify_register_dispatch(OMC_DARWIN_CAR_CONNECTED, &carToken, dispatch_get_main_queue(), ^(int t) {
 			dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(8 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{ OMCCleanRam(NO); });
 		});
+		[(NSNotificationCenter *)[objc_getClass("NSDistributedNotificationCenter") defaultCenter] addObserverForName:@"com.anlai.omnicar/url"
+			object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *note) { OMCCoreHandleURL(note.userInfo[@"url"]); }];
 		static int nowToken;
 		notify_register_dispatch(OMC_DARWIN_CLEAN_NOW, &nowToken, dispatch_get_main_queue(), ^(int t) { OMCCleanRam(YES); });
 	}

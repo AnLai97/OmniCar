@@ -5,6 +5,9 @@
 //   omnicar://splitscreen/fav?n=1                              open favorite layout 1..3
 //   omnicar://splitscreen/close                                leave the split
 //   omnicar://splitscreen/picker                               app picker for the focused pane
+//   omnicar://splitscreen/layout?id=2|3|13|31 · ratio?r=70 · swap · zoom?pane=1 · pin?app=<bundle>
+//   omnicar://feature/<splitScreen|appBridge|speedBubble|startupScreen|all>?on=1|0|toggle   (Core.x)
+//   omnicar://lite?mode=off|auto|always · omnicar://cleanram                                 (Core.x)
 #import <UIKit/UIKit.h>
 #import "SplitScreen.h"
 

@@ -41,5 +41,5 @@
 "SPLITSCREEN_GUIDE_CAR" = "Di mobil";
 "SPLITSCREEN_GUIDE_CAR_TEXT" = "• Tombol OmniCar di Dock: tata letak, Terbaru, Favorit, keluar layar terpisah.\n• Kenop bulat: ketuk untuk rasio · seret untuk mengubah ukuran · seret ke tepi untuk menutup panel.\n• Bilah •••: ketuk untuk Ganti / Mengambang / Layar penuh / Tutup · seret ke panel lain untuk menukar.\n• Ketuk dua kali bilah •••: perbesar panel itu sejenak, ketuk dua kali lagi untuk kembali.\n• Ketuk dua kali pembatas: tukar kedua panel.\n• Tombol Utama: keluar layar terpisah.";
 "SPLITSCREEN_SHORTCUTS_GROUP" = "Siri / Pintasan (Buka URL)";
-"SPLITSCREEN_SHORTCUTS_FOOTER" = "omnicar://splitscreen/open?left=com.apple.Maps&right=com.spotify.client\nomnicar://splitscreen/fav?n=1\nomnicar://splitscreen/close";
+"SPLITSCREEN_SHORTCUTS_FOOTER" = "omnicar://splitscreen/open?left=com.apple.Maps&right=com.spotify.client\nomnicar://splitscreen/fav?n=1\nomnicar://splitscreen/close\nomnicar://splitscreen/layout?id=3 · ratio?r=70 · swap · zoom?pane=1\nomnicar://feature/speedBubble?on=toggle\nomnicar://lite?mode=auto\nomnicar://cleanram";
 "SPLITSCREEN_CREDITS_FOOTER" = "Sebelumnya bernama CarDuo. Hosting app berbasis carplay-cast (Ethan Arbuckle).";

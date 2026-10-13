@@ -14,13 +14,13 @@
 "STARTUPSCREEN_FROM_FILES" = "From Files";
 
 "STARTUPSCREEN_DURATION_GROUP" = "Duration (seconds)";
-"STARTUPSCREEN_DURATION_FOOTER" = "Shorter videos loop.";
+"STARTUPSCREEN_DURATION_FOOTER" = "How long the startup screen stays on the car display. Shorter videos loop.";
 "STARTUPSCREEN_PLAY_FULL" = "Play full video";
 
 "STARTUPSCREEN_DISPLAY_GROUP" = "Display";
 "STARTUPSCREEN_SCALE_FILL" = "Fill";
 "STARTUPSCREEN_SCALE_FIT" = "Fit";
-"STARTUPSCREEN_SOUND" = "Sound";
+"STARTUPSCREEN_SOUND" = "Video sound";
 "STARTUPSCREEN_TAP_TO_SKIP" = "Tap to skip";
 
 "STARTUPSCREEN_PREPARING" = "Preparing video for CarPlay";
@@ -31,3 +31,42 @@
 "STARTUPSCREEN_DELETE_TITLE" = "Delete video";
 "STARTUPSCREEN_DELETE_CONFIRM" = "Delete \"%@\"?";
 "STARTUPSCREEN_DELETE_ACTION" = "Delete";
+
+"STARTUPSCREEN_STYLE_GROUP" = "Startup style";
+"STARTUPSCREEN_STYLE_FOOTER" = "The card at the top shows what the car screen will show. Tap it to replay the effect.";
+"STARTUPSCREEN_STYLE_VIDEO" = "Video";
+"STARTUPSCREEN_STYLE_LOGO" = "Logo";
+"STARTUPSCREEN_STYLE_GREETING" = "Greeting";
+"STARTUPSCREEN_STYLE_WEATHER" = "Weather";
+
+"STARTUPSCREEN_LOGO_GROUP" = "Logo";
+"STARTUPSCREEN_LOGO_FOOTER" = "A PNG with a transparent background looks best on the dark background. Without a logo a car icon is shown.";
+"STARTUPSCREEN_LOGO_CHOOSE" = "Choose logo";
+"STARTUPSCREEN_LOGO_DELETE" = "Remove logo";
+"STARTUPSCREEN_LOGO_FAILED" = "Couldn't read this image.";
+"STARTUPSCREEN_LOGO_NONE" = "No logo yet.";
+"STARTUPSCREEN_EFFECT_GROUP" = "Effect";
+"STARTUPSCREEN_EFFECT_FADE" = "Fade in";
+"STARTUPSCREEN_EFFECT_ZOOM" = "Zoom";
+"STARTUPSCREEN_EFFECT_GLOW" = "Glow";
+
+"STARTUPSCREEN_GREETING_GROUP" = "Greeting";
+"STARTUPSCREEN_GREETING_FOOTER" = "\"Good morning, <name>\" with the time and date. The text and colors change for morning, afternoon, evening and night.";
+"STARTUPSCREEN_NAME" = "Your name";
+"STARTUPSCREEN_NAME_PLACEHOLDER" = "Optional";
+
+"STARTUPSCREEN_WEATHER_FOOTER" = "The Weather style goes online: each time CarPlay connects it sends your last known location, rounded to 2 decimals (about 1 km), to Open-Meteo (open-meteo.com, no account). Offline it shows the last result with its time; without location access or data it shows the greeting.";
+"STARTUPSCREEN_WEATHER_LAST" = "Last update: %@";
+"STARTUPSCREEN_WEATHER_NONE" = "No weather data yet.";
+
+"STARTUPSCREEN_STARTUP_SOUND_GROUP" = "Startup sound";
+"STARTUPSCREEN_STARTUP_SOUND_FOOTER" = "Plays through the car speakers when CarPlay connects, with any style. M4A, MP3, WAV, CAF. With the Video style and Video sound on, the video's own audio plays instead.";
+"STARTUPSCREEN_SOUND_CHOOSE" = "Choose sound";
+"STARTUPSCREEN_SOUND_PREVIEW" = "Play sound";
+"STARTUPSCREEN_SOUND_DELETE" = "Remove sound";
+"STARTUPSCREEN_SOUND_CURRENT" = "Current: %@";
+"STARTUPSCREEN_SOUND_NONE" = "No startup sound.";
+"STARTUPSCREEN_SOUND_FAILED" = "Couldn't play this sound: %@";
+"STARTUPSCREEN_VOLUME_GROUP" = "Volume";
+"STARTUPSCREEN_VOLUME_FOOTER" = "For the startup sound and the video's audio.";
+"STARTUPSCREEN_SOUND_SKIP_CALL" = "Silent during a call";

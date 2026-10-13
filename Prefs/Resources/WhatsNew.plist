@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- What's new page (Prefs/OMCWhatsNewController.m): one array per version (the Version of control = TWEAK_VERSION),
+     shown once after updating to that version. symbol = SF Symbol (iOS 15), titleKey / textKey = keys in
+     <lang>.lproj/Backup.strings. Add a new version on top for each release. -->
+<plist version="1.0">
+<dict>
+	<key>1.0.0</key>
+	<array>
+		<dict>
+			<key>symbol</key>
+			<string>waveform.path.ecg</string>
+			<key>titleKey</key>
+			<string>WN_DIAG_TITLE</string>
+			<key>textKey</key>
+			<string>WN_DIAG_TEXT</string>
+		</dict>
+		<dict>
+			<key>symbol</key>
+			<string>wand.and.stars</string>
+			<key>titleKey</key>
+			<string>WN_OPTIMIZE_TITLE</string>
+			<key>textKey</key>
+			<string>WN_OPTIMIZE_TEXT</string>
+		</dict>
+		<dict>
+			<key>symbol</key>
+			<string>keyboard</string>
+			<key>titleKey</key>
+			<string>WN_KEYBOARD_TITLE</string>
+			<key>textKey</key>
+			<string>WN_KEYBOARD_TEXT</string>
+		</dict>
+		<dict>
+			<key>symbol</key>
+			<string>arrow.up.left.and.arrow.down.right</string>
+			<key>titleKey</key>
+			<string>WN_ZOOM_TITLE</string>
+			<key>textKey</key>
+			<string>WN_ZOOM_TEXT</string>
+		</dict>
+		<dict>
+			<key>symbol</key>
+			<string>car.fill</string>
+			<key>titleKey</key>
+			<string>WN_DRIVER_TITLE</string>
+			<key>textKey</key>
+			<string>WN_DRIVER_TEXT</string>
+		</dict>
+		<dict>
+			<key>symbol</key>
+			<string>speedometer</string>
+			<key>titleKey</key>
+			<string>WN_UNITS_TITLE</string>
+			<key>textKey</key>
+			<string>WN_UNITS_TEXT</string>
+		</dict>
+		<dict>
+			<key>symbol</key>
+			<string>globe</string>
+			<key>titleKey</key>
+			<string>WN_LANG_TITLE</string>
+			<key>textKey</key>
+			<string>WN_LANG_TEXT</string>
+		</dict>
+		<dict>
+			<key>symbol</key>
+			<string>lightbulb</string>
+			<key>titleKey</key>
+			<string>WN_GUIDE_TITLE</string>
+			<key>textKey</key>
+			<string>WN_GUIDE_TEXT</string>
+		</dict>
+		<dict>
+			<key>symbol</key>
+			<string>externaldrive.fill</string>
+			<key>titleKey</key>
+			<string>WN_BACKUP_TITLE</string>
+			<key>textKey</key>
+			<string>WN_BACKUP_TEXT</string>
+		</dict>
+	</array>
+</dict>
+</plist>

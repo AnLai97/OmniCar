@@ -41,5 +41,5 @@
 "SPLITSCREEN_GUIDE_CAR" = "Im Auto";
 "SPLITSCREEN_GUIDE_CAR_TEXT" = "• OmniCar-Taste im Dock: Layouts, Zuletzt, Favoriten, Teilung beenden.\n• Runder Regler: tippen für Verhältnisse · ziehen zum Skalieren · zum Rand ziehen, um einen Bereich zu schließen.\n• •••-Leiste: tippen für Ersetzen / Schweben / Vollbild / Schließen · auf einen anderen Bereich ziehen zum Tauschen.\n• Doppeltippen auf die •••-Leiste: vergrößert den Bereich kurz, erneut doppeltippen zum Zurückkehren.\n• Doppeltippen auf einen Trenner: tauscht die zwei Bereiche.\n• Home-Taste: Teilung beenden.";
 "SPLITSCREEN_SHORTCUTS_GROUP" = "Siri / Kurzbefehle (URL öffnen)";
-"SPLITSCREEN_SHORTCUTS_FOOTER" = "omnicar://splitscreen/open?left=com.apple.Maps&right=com.spotify.client\nomnicar://splitscreen/fav?n=1\nomnicar://splitscreen/close";
+"SPLITSCREEN_SHORTCUTS_FOOTER" = "omnicar://splitscreen/open?left=com.apple.Maps&right=com.spotify.client\nomnicar://splitscreen/fav?n=1\nomnicar://splitscreen/close\nomnicar://splitscreen/layout?id=3 · ratio?r=70 · swap · zoom?pane=1\nomnicar://feature/speedBubble?on=toggle\nomnicar://lite?mode=auto\nomnicar://cleanram";
 "SPLITSCREEN_CREDITS_FOOTER" = "Ehemals CarDuo. Das App-Hosting basiert auf carplay-cast (Ethan Arbuckle).";

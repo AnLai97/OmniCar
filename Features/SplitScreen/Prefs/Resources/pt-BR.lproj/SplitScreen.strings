@@ -41,5 +41,5 @@
 "SPLITSCREEN_GUIDE_CAR" = "No carro";
 "SPLITSCREEN_GUIDE_CAR_TEXT" = "• Botão OmniCar no Dock: layouts, Recentes, Favoritos, sair da divisão.\n• Controle redondo: toque para proporções · arraste para redimensionar · arraste até a borda para fechar um painel.\n• Barra •••: toque para Substituir / Flutuar / Tela cheia / Fechar · arraste para outro painel para trocar.\n• Toque duas vezes na barra •••: amplia esse painel por um momento; toque duas vezes de novo para voltar.\n• Toque duas vezes em um divisor: troca os dois painéis.\n• Botão Início: sai da divisão.";
 "SPLITSCREEN_SHORTCUTS_GROUP" = "Siri / Atalhos (Abrir URL)";
-"SPLITSCREEN_SHORTCUTS_FOOTER" = "omnicar://splitscreen/open?left=com.apple.Maps&right=com.spotify.client\nomnicar://splitscreen/fav?n=1\nomnicar://splitscreen/close";
+"SPLITSCREEN_SHORTCUTS_FOOTER" = "omnicar://splitscreen/open?left=com.apple.Maps&right=com.spotify.client\nomnicar://splitscreen/fav?n=1\nomnicar://splitscreen/close\nomnicar://splitscreen/layout?id=3 · ratio?r=70 · swap · zoom?pane=1\nomnicar://feature/speedBubble?on=toggle\nomnicar://lite?mode=auto\nomnicar://cleanram";
 "SPLITSCREEN_CREDITS_FOOTER" = "Antigo CarDuo. A hospedagem de apps é baseada no carplay-cast (Ethan Arbuckle).";

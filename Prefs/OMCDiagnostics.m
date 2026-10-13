@@ -921,6 +921,11 @@ static NSURL *OMCWriteReport(void) {
 	[out appendString:@"\n== Installed packages ==\n"];
 	for (NSDictionary *p in OMCInstalledPackages()) [out appendFormat:@"%@ %@ (%@)\n", p[@"id"], p[@"version"], p[@"name"]];
 
+#if OMC_AUTOTEST
+	// Dev builds: CarPlay home-screen probe (Features/CarProbe, written on each car connection)
+	if ([[NSFileManager defaultManager] fileExistsAtPath:@"/var/mobile/Documents/OmniCar-Probe.txt"])
+		OMCAppendFile(out, @"CarPlay probe", @"/var/mobile/Documents/OmniCar-Probe.txt");
+#endif
 	OMCAppendFile(out, @"OmniCar.log.old", [kLogPath stringByAppendingString:@".old"]);
 	OMCAppendFile(out, @"OmniCar.log", kLogPath);
 

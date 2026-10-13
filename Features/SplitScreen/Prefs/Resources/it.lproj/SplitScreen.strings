@@ -41,5 +41,5 @@
 "SPLITSCREEN_GUIDE_CAR" = "In auto";
 "SPLITSCREEN_GUIDE_CAR_TEXT" = "• Pulsante OmniCar nel dock: layout, Recenti, Preferiti, esci dalla divisione.\n• Manopola rotonda: tocca per le proporzioni · trascina per ridimensionare · trascina sul bordo per chiudere un riquadro.\n• Barra •••: tocca per Sostituisci / Mobile / Schermo intero / Chiudi · trascina su un altro riquadro per scambiarli.\n• Tocca due volte la barra •••: ingrandisce per un momento quel riquadro, tocca di nuovo due volte per tornare.\n• Tocca due volte un divisore: scambia i due riquadri.\n• Pulsante Home: esci dalla divisione.";
 "SPLITSCREEN_SHORTCUTS_GROUP" = "Siri / Comandi Rapidi (Apri URL)";
-"SPLITSCREEN_SHORTCUTS_FOOTER" = "omnicar://splitscreen/open?left=com.apple.Maps&right=com.spotify.client\nomnicar://splitscreen/fav?n=1\nomnicar://splitscreen/close";
+"SPLITSCREEN_SHORTCUTS_FOOTER" = "omnicar://splitscreen/open?left=com.apple.Maps&right=com.spotify.client\nomnicar://splitscreen/fav?n=1\nomnicar://splitscreen/close\nomnicar://splitscreen/layout?id=3 · ratio?r=70 · swap · zoom?pane=1\nomnicar://feature/speedBubble?on=toggle\nomnicar://lite?mode=auto\nomnicar://cleanram";
 "SPLITSCREEN_CREDITS_FOOTER" = "In precedenza CarDuo. L'hosting delle app si basa su carplay-cast (Ethan Arbuckle).";

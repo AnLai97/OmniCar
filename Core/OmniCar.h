@@ -127,6 +127,13 @@ BOOL OMCLiteActive(void);
 #define OMC_KEY_CLEAN_RAM    @"cleanRamOnConnect"
 #define OMC_DARWIN_CAR_CONNECTED "com.anlai.omnicar/car.connected"
 #define OMC_DARWIN_CLEAN_NOW "com.anlai.omnicar/cleanram.now"   // Settings: free memory now (whatever the switch)
+// Profiles per car (Settings > Car profiles, off by default): when a car connects the CarPlay process saves the
+// OMCProfileKeys() values into the previous car's profile and loads the new car's (or starts one from the current
+// values). OMC_KEY_PROFILES = {car key: {name, lastSeen, values: {pref key: value}}}; OMC_KEY_PROFILE_CURRENT = car key.
+#define OMC_KEY_PROFILES_ON      @"carProfilesEnabled"
+#define OMC_KEY_PROFILES         @"carProfiles"
+#define OMC_KEY_PROFILE_CURRENT  @"carProfileCurrent"
+NSArray<NSString *> *OMCProfileKeys(void);
 // Last RAM cleanup: {date, closed: [bundle id]} (Diagnostics shows it).
 #define OMC_KEY_DIAG_CLEAN   @"diagCleanRam"
 
