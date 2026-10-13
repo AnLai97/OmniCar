@@ -325,15 +325,16 @@ static NSString *ABKHint(NSString *c, BOOL vietnamese)
     [a startAnimation];
 }
 
-// Khung nhu ban phim HarmonyOS: the noi bo tron ca 4 goc (20), cach mep o app va mep duoi 6 pt, kin be rong o app dang go;
-// cao ~78% man (man xe 240 pt: hang phim ~25 pt). Khong co o (app toan man) -> theo be rong man xe.
+// Khung nhu ban phim HarmonyOS: the noi bo tron ca 4 goc (20), cach mep 6 pt, trai theo ca vung app cua man xe (khong
+// tinh dock) - ke ca khi app dang o 1 o chia, ban phim van to nhu luc 1 app (nguoi dung); cao ~78% man.
 #define ABK_RADIUS 20.0
 #define ABK_MARGIN 6.0
 - (void)layoutPanelIn:(UIWindow *)window
 {
     CGRect b = window.bounds;
-    CGRect app = [[ABHost shared] frameOfApp:self.app];
-    CGRect area = CGRectIsNull(app) ? b : CGRectIntersection(app, b);
+    CGRect carArea = [[ABHost shared] carAppArea];
+    CGRect area = carArea.size.width > 100 ? CGRectIntersection(carArea, b) : b;
+    if (CGRectIsEmpty(area)) area = b;
     CGFloat w = MAX(200, area.size.width - 2 * ABK_MARGIN);
     CGFloat x = MIN(MAX(CGRectGetMinX(area) + ABK_MARGIN, 0), b.size.width - w);
     CGFloat h = MIN(floor(b.size.height * 0.78), 280);
@@ -393,7 +394,7 @@ static NSString *ABKHint(NSString *c, BOOL vietnamese)
     p.layer.shadowOpacity = 0.3; p.layer.shadowRadius = 20; p.layer.shadowOffset = CGSizeMake(0, 6);
     p.autoresizingMask = UIViewAutoresizingNone;
     UIVisualEffectView *glass = [[UIVisualEffectView alloc] initWithEffect:[UIBlurEffect effectWithStyle:UIBlurEffectStyleSystemUltraThinMaterialLight]];
-    glass.contentView.backgroundColor = [UIColor colorWithWhite:1 alpha:0.55];
+    glass.contentView.backgroundColor = [UIColor colorWithWhite:1 alpha:0.38];   // cung kinh mo voi khay bo cuc / bang chon app
     glass.layer.cornerRadius = 20;
     glass.layer.cornerCurve = kCACornerCurveContinuous;
     glass.layer.borderWidth = 0.5;
@@ -456,9 +457,11 @@ static NSString *ABKHint(NSString *c, BOOL vietnamese)
     k.restTint = fn ? ABK_FN_TEXT : ABK_TEXT;
     k.layer.cornerRadius = 7;
     k.layer.cornerCurve = kCACornerCurveContinuous;
-    if (!k.lit) {   // phim trang noi nhe tren kinh (bong mong duoi phim)
+    if (!k.lit) {   // phim trang noi tren kinh mo: vien manh + bong mong duoi phim
+        k.layer.borderWidth = 0.5;
+        k.layer.borderColor = [ABK_TEXT colorWithAlphaComponent:0.12].CGColor;
         k.layer.shadowColor = ABK_TEXT.CGColor;
-        k.layer.shadowOpacity = 0.12; k.layer.shadowRadius = 0; k.layer.shadowOffset = CGSizeMake(0, 1);
+        k.layer.shadowOpacity = 0.18; k.layer.shadowRadius = 1; k.layer.shadowOffset = CGSizeMake(0, 1);
     }
     if (symbol) {
         UIImageSymbolConfiguration *cfg = [UIImageSymbolConfiguration configurationWithPointSize:15 weight:UIImageSymbolWeightMedium];

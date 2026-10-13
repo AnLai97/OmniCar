@@ -31,6 +31,7 @@ static int (*orig_BKSDisplayServicesSetScreenBlanked)(int) = NULL;
             [[ABHost shared] setCornerRadius:[u[@"r"] doubleValue] corners:(CACornerMask)[u[@"corners"] unsignedLongLongValue] forApp:u[@"identifier"]];
             [[ABHost shared] setHandleOffset:[u[@"hx"] doubleValue] forApp:u[@"identifier"]];
             [[ABHost shared] setFront:[u[@"front"] boolValue] forApp:u[@"identifier"]];
+            if ([u[@"aw"] doubleValue] > 0) [ABHost shared].carAppArea = CGRectMake([u[@"ax"] doubleValue], [u[@"ay"] doubleValue], [u[@"aw"] doubleValue], [u[@"ah"] doubleValue]);
         } @catch (NSException *e) { ABLog("open loi %@\n%@", e, e.callStackSymbols); }
     }];
     [dnc addObserverForName:AB_NOTIF_FRAME object:nil queue:main usingBlock:^(NSNotification *note) {
@@ -43,6 +44,7 @@ static int (*orig_BKSDisplayServicesSetScreenBlanked)(int) = NULL;
             [[ABHost shared] setCornerRadius:[u[@"r"] doubleValue] corners:(CACornerMask)[u[@"corners"] unsignedLongLongValue] forApp:u[@"identifier"]];
             [[ABHost shared] setHandleOffset:[u[@"hx"] doubleValue] forApp:u[@"identifier"]];
             [[ABHost shared] setFront:[u[@"front"] boolValue] forApp:u[@"identifier"]];
+            if ([u[@"aw"] doubleValue] > 0) [ABHost shared].carAppArea = CGRectMake([u[@"ax"] doubleValue], [u[@"ay"] doubleValue], [u[@"aw"] doubleValue], [u[@"ah"] doubleValue]);
         } @catch (NSException *e) { ABLog("frame loi %@", e); }
     }];
     [dnc addObserverForName:AB_NOTIF_CLOSE object:nil queue:main usingBlock:^(NSNotification *note) {

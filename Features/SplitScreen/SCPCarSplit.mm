@@ -4683,6 +4683,12 @@ static NSArray<NSDictionary *> *SCPCPhoneApps(void)
     // Thanh "•••" lech sang phai nhu thanh cua o CarPlay khi o nam duoi vach ngang (cham tron cua vach o giua)
     if (p) d[@"hx"] = @([self handleShiftForPane:p]);
     if (p) d[@"front"] = @(p == self.floatPane);   // cua so noi app iPhone: SpringBoard dua len tren cac o app iPhone khac
+    // Vung app cua man xe (khong tinh dock): ban phim xe trai theo ca vung nay du app dang o 1 o chia
+    UIView *parent = [self tabParent];
+    if (parent) {
+        CGRect area = [parent convertRect:[self appAreaInParent:parent] toView:nil];
+        d[@"ax"] = @(area.origin.x); d[@"ay"] = @(area.origin.y); d[@"aw"] = @(area.size.width); d[@"ah"] = @(area.size.height);
+    }
     return d;
 }
 

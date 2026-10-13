@@ -17,7 +17,7 @@
 :root { --page: #0f1115; --text: #e8eaef; --muted: #8b93a3;
   --hm-in: cubic-bezier(.2, 0, .2, 1); --hm-spring: cubic-bezier(.25, 1.35, .45, 1);
   /* KB mau: kinh trang cua giao dien moi (= tools/preview/theme.html, ABKeyboard.mm) */
-  --kb-bg: rgba(255,255,255,.6); --kb-line: rgba(255,255,255,.85); --key: rgba(255,255,255,.92); --key-fn: rgba(214,210,240,.75); --key-soft: #d9d3ff; --key-down: #e4e2f2;
+  --kb-bg: rgba(255,255,255,.38); --kb-line: rgba(255,255,255,.85); --key: rgba(255,255,255,.92); --key-fn: rgba(214,210,240,.75); --key-soft: #d9d3ff; --key-down: #e4e2f2;
   --kb-text: #1f2233; --kb-fn-text: #4a4f6a; --kb-hint: #9aa0b8; --acc: linear-gradient(135deg, #8b7cff, #5ab8ff); --acc-down: linear-gradient(135deg, #7a6ce6, #4ea4e6); --acc-text: #fff; --bubble: #fff; }
 * { box-sizing: border-box; }
 html, body { margin: 0; background: var(--page); color: var(--text); font: 14px/1.4 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif; }
@@ -66,7 +66,7 @@ h1 { font-size: 16px; font-weight: 600; margin: 0; }
 .tb svg { width: 18px; height: 18px; }
 .chip { border: 1px solid rgba(31,34,51,.25); border-radius: 6px; padding: 0 4px; line-height: 14px; font-size: 10px; }
 #keys { position: absolute; left: 5px; right: 5px; bottom: 5px; }
-.k { position: absolute; border-radius: 7px; display: grid; place-items: center; color: var(--kb-text); cursor: pointer; background: var(--key); font-weight: 400; box-shadow: 0 1px 0 rgba(31,34,51,.12);
+.k { position: absolute; border-radius: 7px; display: grid; place-items: center; color: var(--kb-text); cursor: pointer; background: var(--key); font-weight: 400; box-shadow: inset 0 0 0 .5px rgba(31,34,51,.12), 0 1px 1px rgba(31,34,51,.18);
   transition: background .12s, transform .25s var(--hm-spring); }
 .k.fn { background: var(--key-fn); font-size: 10.5px; font-weight: 600; color: var(--kb-fn-text); }
 .k.soft { background: var(--key-soft); }
