@@ -360,6 +360,304 @@ NSArray<NSDictionary *> *OMCDiagSections(void) {
 	return sections;
 }
 
+#pragma mark - Health checks
+
+// Feature contracts (keys, folders) - macros only, safe to include here
+#import "../Features/AppBridge/AppBridge.h"
+#import "../Features/SplitScreen/SplitScreen.h"
+#import "../Features/SpeedBubble/SpeedBubble.h"
+#import "../Features/StartupScreen/StartupScreen.h"
+#import <objc/message.h>
+#import <dlfcn.h>
+#import <spawn.h>
+
+static NSDictionary *OMCCheck(NSString *title, NSString *status, NSString *value, NSString *fix, NSString *action) {
+	NSMutableDictionary *d = [@{@"title": title, @"status": status, @"value": value ?: @""} mutableCopy];
+	if (fix.length) d[@"fix"] = fix;
+	if (action) d[@"action"] = action;
+	return d;
+}
+
+static NSString *OMCTimeText(NSDate *date) {
+	if (![date isKindOfClass:[NSDate class]]) return @"?";
+	BOOL today = [[NSCalendar currentCalendar] isDateInToday:date];
+	return [NSDateFormatter localizedStringFromDate:date dateStyle:today ? NSDateFormatterNoStyle : NSDateFormatterShortStyle
+		timeStyle:NSDateFormatterShortStyle];
+}
+
+static BOOL OMCAppInstalled(NSString *bid) {
+	Class ws = NSClassFromString(@"LSApplicationWorkspace");
+	id workspace = [ws respondsToSelector:NSSelectorFromString(@"defaultWorkspace")] ? ((id (*)(id, SEL))objc_msgSend)(ws, NSSelectorFromString(@"defaultWorkspace")) : nil;
+	SEL sel = NSSelectorFromString(@"applicationIsInstalled:");
+	if (![workspace respondsToSelector:sel]) return YES;   // cannot tell: do not warn
+	return ((BOOL (*)(id, SEL, id))objc_msgSend)(workspace, sel, bid);
+}
+
+// 1 = a car is connected now, 0 = none, -1 = cannot tell from Settings
+static int OMCCarConnectedNow(void) {
+	Class dev = NSClassFromString(@"AVExternalDevice");
+	SEL sel = NSSelectorFromString(@"currentCarPlayExternalDevice");
+	if (![dev respondsToSelector:sel]) return -1;
+	return ((id (*)(id, SEL))objc_msgSend)(dev, sel) ? 1 : 0;
+}
+
+static NSArray<NSString *> *OMCInstalledDylibs(void) {
+	NSMutableArray *out = [NSMutableArray array];
+	for (NSString *f in [[NSFileManager defaultManager] contentsOfDirectoryAtPath:ROOT_PATH_NS(@"/Library/MobileSubstrate/DynamicLibraries") error:nil])
+		if ([f hasPrefix:@"OmniCar"] && [f.pathExtension isEqualToString:@"dylib"]) [out addObject:[f.stringByDeletingPathExtension substringFromIndex:7]];
+	return [out sortedArrayUsingSelector:@selector(compare:)];
+}
+
+static NSDictionary *OMCLoaded(NSString *dylib, NSString *process) {
+	NSDictionary *d = OMCDiagPref([NSString stringWithFormat:@"%@%@@%@", OMC_KEY_DIAG_LOADED, dylib, process]);
+	return [d isKindOfClass:[NSDictionary class]] ? d : nil;
+}
+
+// Was this dylib loaded into `process` with the installed build? @"ok" / @"old" / @"none"; latest load date out.
+static NSString *OMCLoadState(NSArray<NSString *> *dylibs, NSString *process, NSDate **latest) {
+	BOOL any = NO, old = NO, missing = NO;
+	for (NSString *d in dylibs) {
+		NSDictionary *l = OMCLoaded(d, process);
+		if (!l) { missing = YES; continue; }
+		any = YES;
+		if (![l[@"version"] isEqual:@TWEAK_VERSION]) old = YES;
+		if (latest && (!*latest || [l[@"date"] compare:*latest] == NSOrderedDescending)) *latest = l[@"date"];
+	}
+	if (!any) return @"none";
+	return (old || missing) ? @"old" : @"ok";
+}
+
+static NSString *OMCStartupVideo(void) {
+	NSFileManager *fm = [NSFileManager defaultManager];
+	NSString *name = OMCDiagPref(SS_KEY_VIDEO_NAME);
+	if ([name isKindOfClass:[NSString class]] && name.length && [fm fileExistsAtPath:[SS_VIDEOS_DIR stringByAppendingPathComponent:name]]) return name;
+	for (NSString *f in [[fm contentsOfDirectoryAtPath:SS_VIDEOS_DIR error:nil] sortedArrayUsingSelector:@selector(compare:)])
+		if (![f hasPrefix:@"."]) return f;
+	return nil;
+}
+
+NSArray<NSDictionary *> *OMCDiagChecks(void) {
+	CFPreferencesAppSynchronize(kPrefsDomain);
+	NSFileManager *fm = [NSFileManager defaultManager];
+	NSString *ios = [UIDevice currentDevice].systemVersion;
+	NSInteger major = ios.integerValue;
+	NSArray *packages = OMCInstalledPackages();
+	NSMutableSet *pkgIDs = [NSMutableSet set];
+	for (NSDictionary *p in packages) [pkgIDs addObject:[p[@"id"] lowercaseString]];
+
+	// ---------------- Phone
+	NSMutableArray *phone = [NSMutableArray array];
+	NSString *iosValue = [NSString stringWithFormat:@"iOS %@ · %@", ios, OMCDeviceModel()];
+	if (major < 15) [phone addObject:OMCCheck(L(@"CHK_IOS"), @"bad", iosValue, L(@"CHK_IOS_OLD"), nil)];
+	else if (major <= 16) [phone addObject:OMCCheck(L(@"CHK_IOS"), @"ok", iosValue, nil, nil)];
+	else [phone addObject:OMCCheck(L(@"CHK_IOS"), @"warn", iosValue, L(@"CHK_IOS_NEW"), nil)];
+
+	BOOL rootless = [fm fileExistsAtPath:@"/var/jb"];
+	[phone addObject:OMCCheck(L(@"CHK_JB"), rootless ? @"ok" : @"bad", OMCJailbreak(), rootless ? nil : L(@"CHK_JB_ROOTFUL"), nil)];
+
+	NSString *loader = nil;
+	for (NSString *id_ in @[@"ellekit", @"mobilesubstrate", @"com.opa334.libhooker", @"org.coolstar.libhooker", @"com.ex.substitute"])
+		if ([pkgIDs containsObject:id_]) { loader = id_; break; }
+	BOOL loaderFile = [fm fileExistsAtPath:ROOT_PATH_NS(@"/usr/lib/ellekit/libinjector.dylib")] || [fm fileExistsAtPath:ROOT_PATH_NS(@"/usr/lib/libellekit.dylib")]
+		|| [fm fileExistsAtPath:ROOT_PATH_NS(@"/usr/lib/libsubstrate.dylib")] || [fm fileExistsAtPath:ROOT_PATH_NS(@"/usr/lib/TweakInject.dylib")];
+	if (loader || loaderFile) [phone addObject:OMCCheck(L(@"CHK_LOADER"), @"ok", [loader isEqualToString:@"ellekit"] || !loader ? @"ElleKit" : loader, nil, nil)];
+	else [phone addObject:OMCCheck(L(@"CHK_LOADER"), @"bad", L(@"CHK_LOADER_NONE"), L(@"CHK_LOADER_FIX"), nil)];
+
+	// Package: every dylib with a world-readable filter plist (a 0600 plist = the dylib never loads)
+	NSArray<NSString *> *dylibs = OMCInstalledDylibs();
+	NSMutableArray *broken = [NSMutableArray array];
+	for (NSString *d in dylibs) {
+		NSString *plist = [NSString stringWithFormat:@"%@/OmniCar%@.plist", ROOT_PATH_NS(@"/Library/MobileSubstrate/DynamicLibraries"), d];
+		NSNumber *perm = [fm attributesOfItemAtPath:plist error:nil][NSFilePosixPermissions];
+		if (!perm || !(perm.unsignedShortValue & 0004)) [broken addObject:d];
+	}
+	if (!dylibs.count) [phone addObject:OMCCheck(L(@"CHK_PACKAGE"), @"bad", L(@"CHK_PACKAGE_NONE"), L(@"CHK_PACKAGE_FIX"), nil)];
+	else if (broken.count) [phone addObject:OMCCheck(L(@"CHK_PACKAGE"), @"bad", [NSString stringWithFormat:L(@"CHK_PACKAGE_BROKEN"), [broken componentsJoinedByString:@", "]], L(@"CHK_PACKAGE_FIX"), nil)];
+	else [phone addObject:OMCCheck(L(@"CHK_PACKAGE"), @"ok", [NSString stringWithFormat:L(@"CHK_PACKAGE_OK"), @TWEAK_VERSION, (unsigned long)dylibs.count], nil, nil)];
+
+	NSDate *sbDate = nil;
+	NSString *sb = OMCLoadState(dylibs, @"SpringBoard", &sbDate);
+	if ([sb isEqualToString:@"ok"]) [phone addObject:OMCCheck(L(@"CHK_RUNNING"), @"ok", [NSString stringWithFormat:L(@"CHK_RUNNING_OK"), OMCTimeText(sbDate)], nil, nil)];
+	else if ([sb isEqualToString:@"old"]) [phone addObject:OMCCheck(L(@"CHK_RUNNING"), @"warn", L(@"CHK_RUNNING_OLD"), L(@"CHK_RUNNING_RESPRING"), @"respring")];
+	else [phone addObject:OMCCheck(L(@"CHK_RUNNING"), @"bad", L(@"CHK_RUNNING_NONE"), L(@"CHK_RUNNING_NONE_FIX"), @"respring")];
+
+	if (!OMCEnabled()) [phone addObject:OMCCheck(L(@"CHK_MASTER"), @"warn", L(@"STATUS_OFF"), L(@"CHK_MASTER_FIX"), nil)];
+
+	NSNumber *freeBytes = [fm attributesOfFileSystemForPath:@"/var" error:nil][NSFileSystemFreeSize];
+	double gb = freeBytes.doubleValue / 1e9;
+	NSString *freeText = [NSString stringWithFormat:L(@"CHK_STORAGE_FREE"), gb];
+	if (freeBytes && gb < 0.5) [phone addObject:OMCCheck(L(@"CHK_STORAGE"), @"bad", freeText, L(@"CHK_STORAGE_FIX"), nil)];
+	else if (freeBytes && gb < 2) [phone addObject:OMCCheck(L(@"CHK_STORAGE"), @"warn", freeText, L(@"CHK_STORAGE_FIX"), nil)];
+	else [phone addObject:OMCCheck(L(@"CHK_STORAGE"), @"ok", freeBytes ? freeText : L(@"DIAG_UNKNOWN"), nil, nil)];
+
+	UIDevice *dev = [UIDevice currentDevice];
+	dev.batteryMonitoringEnabled = YES;
+	NSString *battery = dev.batteryLevel >= 0 ? [NSString stringWithFormat:@"%.0f%%", dev.batteryLevel * 100] : @"?";
+	if (dev.batteryState == UIDeviceBatteryStateCharging || dev.batteryState == UIDeviceBatteryStateFull)
+		battery = [battery stringByAppendingFormat:@" · %@", L(@"CHK_BATTERY_CHARGING")];
+	if ([NSProcessInfo processInfo].lowPowerModeEnabled)
+		[phone addObject:OMCCheck(L(@"CHK_BATTERY"), @"warn", [battery stringByAppendingFormat:@" · %@", L(@"CHK_LOWPOWER")], L(@"CHK_LOWPOWER_FIX"), nil)];
+	else [phone addObject:OMCCheck(L(@"CHK_BATTERY"), @"ok", battery, nil, nil)];
+
+	NSProcessInfoThermalState th = [NSProcessInfo processInfo].thermalState;
+	NSString *thStatus = th >= NSProcessInfoThermalStateCritical ? @"bad" : (th >= NSProcessInfoThermalStateSerious ? @"warn" : @"ok");
+	[phone addObject:OMCCheck(L(@"DIAG_THERMAL"), thStatus, OMCThermal(), [thStatus isEqualToString:@"ok"] ? nil : L(@"CHK_THERMAL_FIX"), nil)];
+
+	NSMutableArray *active = [NSMutableArray array], *idle = [NSMutableArray array];
+	for (NSDictionary *t in OMCConflictingTweaks()) [([t[@"active"] boolValue] ? active : idle) addObject:t[@"name"]];
+	if (active.count) [phone addObject:OMCCheck(L(@"CHK_CONFLICT"), @"bad", [NSString stringWithFormat:L(@"CHK_CONFLICT_ACTIVE"), [active componentsJoinedByString:@", "]], L(@"CONFLICTS_FOOTER"), nil)];
+	else [phone addObject:OMCCheck(L(@"CHK_CONFLICT"), @"ok", idle.count ? [NSString stringWithFormat:L(@"CHK_CONFLICT_IDLE"), [idle componentsJoinedByString:@", "]] : L(@"DIAG_CONFLICTS_NONE"), nil, nil)];
+
+	// ---------------- CarPlay
+	NSMutableArray *carplay = [NSMutableArray array];
+	NSDictionary *car = OMCDiagPref(OMC_KEY_DIAG_CAR);
+	if (![car isKindOfClass:[NSDictionary class]]) car = nil;
+	int now = OMCCarConnectedNow();
+	BOOL connected = now == 1 || (now == -1 && [car[@"connected"] boolValue]);
+	NSString *carName = OMCCarField(car, @[@"modelName", @"name", @"vehicleName", @"accessoryName", @"model"]);
+	if (connected) {
+		NSString *v = car ? [NSString stringWithFormat:@"%@ · %@", carName ?: L(@"CHK_CAR_UNKNOWN"), OMCCarConnection(car)] : L(@"CHK_CAR_CONNECTED");
+		[carplay addObject:OMCCheck(L(@"CHK_CAR"), @"ok", v, nil, nil)];
+	} else if (car) {
+		NSDate *last = car[@"disconnected"] ?: car[@"date"];
+		[carplay addObject:OMCCheck(L(@"CHK_CAR"), @"info", [NSString stringWithFormat:L(@"CHK_CAR_LAST"), OMCTimeText(last)], nil, nil)];
+	} else {
+		[carplay addObject:OMCCheck(L(@"CHK_CAR"), @"info", L(@"CHK_CAR_NEVER"), L(@"CHK_CAR_NEVER_FIX"), nil)];
+	}
+
+	NSMutableArray *carDylibs = [NSMutableArray array];
+	for (NSString *d in dylibs) if (OMCLoaded(d, @"CarPlay")) [carDylibs addObject:d];
+	NSDate *cpDate = nil;
+	NSString *cp = carDylibs.count ? OMCLoadState(carDylibs, @"CarPlay", &cpDate) : @"none";
+	if ([cp isEqualToString:@"ok"]) [carplay addObject:OMCCheck(L(@"CHK_CP_RUNNING"), @"ok", [NSString stringWithFormat:L(@"CHK_RUNNING_OK"), OMCTimeText(cpDate)], nil, nil)];
+	else if ([cp isEqualToString:@"old"]) [carplay addObject:OMCCheck(L(@"CHK_CP_RUNNING"), @"warn", L(@"CHK_RUNNING_OLD"), L(@"CHK_CP_RECONNECT"), nil)];
+	else [carplay addObject:OMCCheck(L(@"CHK_CP_RUNNING"), @"info", L(@"CHK_CP_NONE"), L(@"CHK_CAR_NEVER_FIX"), nil)];
+
+	// Hooks this iOS lacks, by feature name (the exact list is in the technical details / log)
+	NSDictionary *names = OMCFeatureNames();
+	NSDictionary *hooks = OMCHookResults();
+	NSUInteger total = 0;
+	NSMutableArray *lacking = [NSMutableArray array];
+	for (NSString *dylib in hooks) {
+		NSUInteger miss = 0;
+		for (NSDictionary *e in hooks[dylib]) { total += [e[@"total"] unsignedIntegerValue]; miss += [e[@"missing"] count]; }
+		NSString *prefix = [[dylib substringToIndex:1].lowercaseString stringByAppendingString:[dylib substringFromIndex:1]];
+		if (miss) [lacking addObject:[NSString stringWithFormat:@"%@ (%lu)", names[prefix] ?: dylib, (unsigned long)miss]];
+	}
+	if (!total) [carplay addObject:OMCCheck(L(@"CHK_HOOKS"), @"info", L(@"CHK_CP_NONE"), L(@"CHK_CAR_NEVER_FIX"), nil)];
+	else if (lacking.count) [carplay addObject:OMCCheck(L(@"CHK_HOOKS"), @"warn", [NSString stringWithFormat:L(@"CHK_HOOKS_MISSING"), [lacking componentsJoinedByString:@", "]],
+		[NSString stringWithFormat:L(@"CHK_HOOKS_MISSING_FIX"), ios], nil)];
+	else [carplay addObject:OMCCheck(L(@"CHK_HOOKS"), @"ok", [NSString stringWithFormat:L(@"CHK_HOOKS_OK"), (unsigned long)total, ios], nil, nil)];
+
+	NSDictionary *crash = OMCDiagPref(OMC_KEY_DIAG_CRASH);
+	if ([crash isKindOfClass:[NSDictionary class]] && [crash[@"date"] isKindOfClass:[NSDate class]]) {
+		NSString *who = crash[@"suspect"] ? [NSString stringWithFormat:L(@"CHK_CRASH_SUSPECT"), OMCFeatureDisplayName(crash[@"suspect"])] : @"";
+		NSString *v = [NSString stringWithFormat:L(@"CHK_CRASH_AT"), OMCTimeText(crash[@"date"]), who];
+		BOOL recent = -[crash[@"date"] timeIntervalSinceNow] < 7 * 86400;
+		[carplay addObject:OMCCheck(L(@"CHK_CRASH"), recent ? @"warn" : @"ok", v, recent ? L(@"CHK_CRASH_FIX") : nil, nil)];
+	} else {
+		[carplay addObject:OMCCheck(L(@"CHK_CRASH"), @"ok", L(@"CHK_CRASH_NONE"), nil, nil)];
+	}
+
+	NSArray *rescued = OMCRescueFeatures();
+	if (rescued.count) {
+		NSMutableArray *n = [NSMutableArray array];
+		for (NSString *f in rescued) [n addObject:OMCFeatureDisplayName(f)];
+		[carplay addObject:OMCCheck(L(@"RESCUE_GROUP"), @"bad", [NSString stringWithFormat:L(@"CHK_RESCUE_ON"), [n componentsJoinedByString:@", "]],
+			L(@"CHK_RESCUE_FIX"), @"rescue")];
+	}
+
+	if (car[@"pixels"]) {
+		CGSize px = OMCSizeFromString(car[@"pixels"]);
+		NSString *v = [NSString stringWithFormat:@"%@ · %@ · %@ FPS", OMCPretty(car[@"pixels"]), OMCRatio(px), car[@"maxFPS"] ?: @"?"];
+		[carplay addObject:OMCCheck(L(@"DIAG_CAR"), @"info", v, [NSString stringWithFormat:L(@"CHK_SCREEN_VIDEO"), OMCVideoHint(px)], nil)];
+	}
+
+	// ---------------- Features
+	NSMutableArray *features = [NSMutableArray array];
+	BOOL master = OMCEnabled();
+	#define OMC_FEATURE_OFF(prefix) (!master || !OMCFeatureOn(prefix))
+
+	NSString *splitName = OMCFeatureDisplayName(SPL_FEATURE);
+	NSArray *carApps = OMCDiagPref(SPL_KEY_CARPLAY_APPS);
+	NSUInteger carCount = [carApps isKindOfClass:[NSArray class]] ? carApps.count : 0;
+	if (OMC_FEATURE_OFF(SPL_FEATURE)) [features addObject:OMCCheck(splitName, @"info", L(@"FEATURE_OFF"), nil, nil)];
+	else if (!carApps) [features addObject:OMCCheck(splitName, @"info", L(@"FEATURE_ON"), L(@"CHK_CAR_NEVER_FIX"), nil)];
+	else if (carCount < 2) [features addObject:OMCCheck(splitName, @"warn", [NSString stringWithFormat:L(@"CHK_SPLIT_APPS"), (unsigned long)carCount], L(@"CHK_SPLIT_FEW"), nil)];
+	else [features addObject:OMCCheck(splitName, @"ok", [NSString stringWithFormat:L(@"CHK_SPLIT_APPS"), (unsigned long)carCount], nil, nil)];
+
+	NSString *bridgeName = OMCFeatureDisplayName(AB_FEATURE);
+	NSArray *chosen = OMCDiagPref(AB_KEY_APPS);
+	if (![chosen isKindOfClass:[NSArray class]]) chosen = @[];
+	NSMutableArray *gone = [NSMutableArray array];
+	for (NSString *b in chosen) if (!OMCAppInstalled(b)) [gone addObject:b];
+	if (OMC_FEATURE_OFF(AB_FEATURE)) [features addObject:OMCCheck(bridgeName, @"info", L(@"FEATURE_OFF"), nil, nil)];
+	else if (!chosen.count) [features addObject:OMCCheck(bridgeName, @"warn", L(@"CHK_BRIDGE_NONE"), L(@"CHK_BRIDGE_NONE_FIX"), nil)];
+	else if (gone.count) [features addObject:OMCCheck(bridgeName, @"warn", [NSString stringWithFormat:L(@"CHK_BRIDGE_APPS"), (unsigned long)chosen.count],
+		[NSString stringWithFormat:L(@"CHK_BRIDGE_GONE"), [gone componentsJoinedByString:@", "]], nil)];
+	else [features addObject:OMCCheck(bridgeName, @"ok", [NSString stringWithFormat:L(@"CHK_BRIDGE_APPS"), (unsigned long)chosen.count], nil, nil)];
+
+	NSString *bubbleName = OMCFeatureDisplayName(SB_FEATURE);
+	NSArray *sources = SB_SOURCE_NAMES, *sourceIDs = @[@"vn.vietmap.live", @"com.lumi.GOFA"];   // same order as SPP_NAV_APPS
+	NSInteger src = [OMCDiagPref(SB_KEY_SOURCE) integerValue];
+	if (src < 0 || src >= (NSInteger)sources.count) src = 0;
+	NSString *srcText = [NSString stringWithFormat:L(@"CHK_BUBBLE_SOURCE"), sources[src]];
+	if (OMC_FEATURE_OFF(SB_FEATURE)) [features addObject:OMCCheck(bubbleName, @"info", L(@"FEATURE_OFF"), nil, nil)];
+	else if (src < (NSInteger)sourceIDs.count && !OMCAppInstalled(sourceIDs[src]))
+		[features addObject:OMCCheck(bubbleName, @"warn", srcText, [NSString stringWithFormat:L(@"CHK_BUBBLE_MISSING"), sources[src]], nil)];
+	else [features addObject:OMCCheck(bubbleName, @"ok", srcText, nil, nil)];
+
+	NSString *startName = OMCFeatureDisplayName(SS_FEATURE);
+	NSString *video = OMCStartupVideo();
+	NSDictionary *frames = video ? [NSDictionary dictionaryWithContentsOfFile:[SS_FRAMES_DIR(video) stringByAppendingPathComponent:@"info.plist"]] : nil;
+	if (OMC_FEATURE_OFF(SS_FEATURE)) [features addObject:OMCCheck(startName, @"info", L(@"FEATURE_OFF"), nil, nil)];
+	else if (!video) [features addObject:OMCCheck(startName, @"warn", L(@"CHK_START_NONE"), L(@"CHK_START_NONE_FIX"), nil)];
+	else if (![frames[@"count"] unsignedIntegerValue]) [features addObject:OMCCheck(startName, @"warn", video, L(@"CHK_START_FRAMES_FIX"), nil)];
+	else [features addObject:OMCCheck(startName, @"ok", [NSString stringWithFormat:@"%@ · %@ fps", video, frames[@"fps"] ?: @"?"], nil, nil)];
+	#undef OMC_FEATURE_OFF
+
+	return @[
+		@{@"title": L(@"DIAG_DEVICE"), @"checks": phone},
+		@{@"title": @"CarPlay", @"checks": carplay},
+		@{@"title": L(@"FEATURES_GROUP"), @"checks": features},
+	];
+}
+
+NSDictionary *OMCDiagSummary(NSArray<NSDictionary *> *groups) {
+	NSUInteger bad = 0, warn = 0, ok = 0;
+	for (NSDictionary *g in groups) for (NSDictionary *c in g[@"checks"]) {
+		NSString *s = c[@"status"];
+		if ([s isEqualToString:@"bad"]) bad++; else if ([s isEqualToString:@"warn"]) warn++; else if ([s isEqualToString:@"ok"]) ok++;
+	}
+	NSString *status = bad ? @"bad" : (warn ? @"warn" : @"ok");
+	NSString *title = bad ? [NSString stringWithFormat:L(@"CHK_SUM_BAD"), (unsigned long)bad]
+		: (warn ? [NSString stringWithFormat:L(@"CHK_SUM_WARN"), (unsigned long)warn] : L(@"CHK_SUM_OK"));
+	NSString *sub = [NSString stringWithFormat:L(@"CHK_SUM_COUNTS"), (unsigned long)ok, (unsigned long)warn, (unsigned long)bad];
+	return @{@"status": status, @"title": title, @"subtitle": sub};
+}
+
+void OMCRespring(void) {
+	dlopen("/System/Library/PrivateFrameworks/FrontBoardServices.framework/FrontBoardServices", RTLD_LAZY);
+	dlopen("/System/Library/PrivateFrameworks/SpringBoardServices.framework/SpringBoardServices", RTLD_LAZY);
+	Class relaunch = NSClassFromString(@"SBSRelaunchAction"), service = NSClassFromString(@"FBSSystemService");
+	if (relaunch && service) {
+		id action = ((id (*)(Class, SEL, NSString *, NSUInteger, NSURL *))objc_msgSend)(relaunch,
+			NSSelectorFromString(@"actionWithReason:options:targetURL:"), @"RestartRenderServer", 4 /* FadeToBlack */, nil);
+		id shared = ((id (*)(Class, SEL))objc_msgSend)(service, NSSelectorFromString(@"sharedService"));
+		if (action && shared) {
+			((void (*)(id, SEL, NSSet *, id))objc_msgSend)(shared, NSSelectorFromString(@"sendActions:withResult:"), [NSSet setWithObject:action], nil);
+			return;
+		}
+	}
+	for (NSString *path in @[@"/var/jb/usr/bin/killall", @"/usr/bin/killall"]) {   // no relaunch API: killall
+		if (![[NSFileManager defaultManager] isExecutableFileAtPath:path]) continue;
+		pid_t pid;
+		const char *argv[] = {path.fileSystemRepresentation, "-9", "SpringBoard", NULL};
+		posix_spawn(&pid, argv[0], NULL, NULL, (char *const *)argv, NULL);
+		return;
+	}
+}
+
 #pragma mark - Report
 
 static void OMCAppendFile(NSMutableString *out, NSString *title, NSString *path) {
@@ -375,6 +673,17 @@ static NSURL *OMCWriteReport(void) {
 	df.dateFormat = @"yyyy-MM-dd HH:mm:ss";
 	[out appendFormat:@"OmniCar report %@\n", [df stringFromDate:[NSDate date]]];
 	[out appendFormat:@"master switch: %@, language: %@\n", OMCEnabled() ? @"on" : @"off", OMCLanguage()];
+
+	// Health checks first: what the user saw, with the verdict of each line
+	NSArray *groups = OMCDiagChecks();
+	NSDictionary *sum = OMCDiagSummary(groups);
+	[out appendFormat:@"\n== %@ (%@) ==\n", sum[@"title"], sum[@"subtitle"]];
+	NSDictionary *marks = @{@"ok": @"OK  ", @"warn": @"WARN", @"bad": @"BAD ", @"info": @"INFO"};
+	for (NSDictionary *g in groups) {
+		[out appendFormat:@"-- %@\n", g[@"title"]];
+		for (NSDictionary *c in g[@"checks"])
+			[out appendFormat:@"[%@] %@: %@%@\n", marks[c[@"status"]], c[@"title"], c[@"value"], c[@"fix"] ? [@" -> " stringByAppendingString:c[@"fix"]] : @""];
+	}
 
 	for (NSDictionary *section in OMCDiagSections()) {
 		[out appendFormat:@"\n== %@ ==\n", section[@"title"]];

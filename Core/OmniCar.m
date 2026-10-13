@@ -378,6 +378,7 @@ static void OMCRecordCarScreen(UIScreen *screen) {
 	if (!screen || screen == [UIScreen mainScreen]) return;
 	NSMutableDictionary *car = [NSMutableDictionary dictionary];
 	car[@"date"] = [NSDate date];
+	car[@"connected"] = @YES;
 	car[@"ios"] = [UIDevice currentDevice].systemVersion;
 	car[@"points"] = OMCScreenSize(screen.bounds.size);
 	car[@"pixels"] = OMCScreenSize(screen.nativeBounds.size);
@@ -424,6 +425,7 @@ static void OMCGuardStart(void) {
 	BOOL crashedEarly = NO;
 	if (prev.length) {
 		OMCLog(@"Core", @"CARPLAY SAP LAN TRUOC:\n%@", prev);
+		NSDate *when = [[NSFileManager defaultManager] attributesOfItemAtPath:path error:nil].fileModificationDate ?: [NSDate date];
 		unlink(sGuard->path);
 		long age = LONG_MAX;
 		NSString *suspect = nil, *last = nil;
@@ -437,6 +439,10 @@ static void OMCGuardStart(void) {
 		}
 		crashedEarly = age < OMC_RESCUE_SECONDS;
 		NSString *who = OMCGuardPrefix(suspect ?: last);
+		NSMutableDictionary *crash = [@{@"date": when} mutableCopy];   // Diagnostics: "CarPlay crashed at ..."
+		if (age != LONG_MAX) crash[@"age"] = @(age);
+		if (who) crash[@"suspect"] = who;
+		OMCGuardStore(OMC_KEY_DIAG_CRASH, crash);
 		if (crashedEarly && who && ![suspects containsObject:who]) [suspects addObject:who];
 	}
 #if OMC_AUTOTEST
@@ -470,6 +476,17 @@ static void OMCGuardStart(void) {
 
 	[[NSNotificationCenter defaultCenter] addObserverForName:UIScreenDidConnectNotification object:nil
 		queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *note) { OMCRecordCarScreensSoon(); }];
+	// Car unplugged: Diagnostics shows "last connected at" instead of "connected"
+	[[NSNotificationCenter defaultCenter] addObserverForName:UIScreenDidDisconnectNotification object:nil
+		queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *note) {
+		if (note.object == [UIScreen mainScreen]) return;
+		NSMutableDictionary *car = [OMCPref(OMC_KEY_DIAG_CAR, nil) mutableCopy];
+		if (![car isKindOfClass:[NSMutableDictionary class]]) return;
+		car[@"connected"] = @NO;
+		car[@"disconnected"] = [NSDate date];
+		OMCGuardStore(OMC_KEY_DIAG_CAR, car);
+		OMCPrefsSync();
+	}];
 	OMCRecordCarScreensSoon();
 }
 
@@ -507,4 +524,23 @@ BOOL OMCCrashGuard(NSString *feature) {
 	}
 #endif
 	return YES;
+}
+
+#pragma mark - Loaded heartbeat (Diagnostics)
+
+#ifndef TWEAK_VERSION
+#define TWEAK_VERSION "dev"
+#endif
+
+// Every dylib records that it loaded into SpringBoard / CarPlay and which build it is. Other processes (App Bridge
+// loads into every app, many sandboxed) are skipped: they cannot write the prefs domain and are not what Settings checks.
+__attribute__((constructor)) static void OMCDiagLoaded(void) {
+	NSString *process = [NSProcessInfo processInfo].processName;
+	if (![process isEqualToString:@"SpringBoard"] && ![process isEqualToString:@"CarPlay"]) return;
+	dispatch_async(dispatch_get_main_queue(), ^{
+		NSString *key = [NSString stringWithFormat:@"%@%s@%@", OMC_KEY_DIAG_LOADED, OMC_FEATURE, process];
+		NSDictionary *value = @{@"version": @TWEAK_VERSION, @"date": [NSDate date]};
+		CFPreferencesSetAppValue((__bridge CFStringRef)key, (__bridge CFPropertyListRef)value, OMC_PREFS_DOMAIN);
+		CFPreferencesAppSynchronize(OMC_PREFS_DOMAIN);
+	});
 }

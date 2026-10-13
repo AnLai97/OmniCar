@@ -4,8 +4,15 @@
 #import <UIKit/UIKit.h>
 #import "OmniCar.h"
 
-// Diagnostics as sections: @{@"title", @"rows": @[@{@"label", @"value"}], @"footer"}, localized.
+// Health checks, in plain words: @[@{@"title", @"checks": @[@{@"title", @"status": ok | warn | bad | info, @"value",
+// @"fix" (what to do, optional), @"action" (respring | rescue, optional)}]}] for the phone, CarPlay and each feature.
+NSArray<NSDictionary *> *OMCDiagChecks(void);
+// One line over all checks: @{@"status", @"title" ("Everything looks good" / "2 things need attention"), @"subtitle"}.
+NSDictionary *OMCDiagSummary(NSArray<NSDictionary *> *groups);
+// Technical details (raw values) as sections: @{@"title", @"rows": @[@{@"label", @"value"}], @"footer"}, localized.
 NSArray<NSDictionary *> *OMCDiagSections(void);
+// Restart SpringBoard (Respring button, "OmniCar needs a respring" check).
+void OMCRespring(void);
 
 // Other tweaks that also change CarPlay: @{@"name", @"active"} (active = its dylib is installed and
 // not disabled, so it loads next to OmniCar; otherwise only the package is installed).

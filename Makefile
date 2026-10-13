@@ -31,7 +31,7 @@ TWEAK_NAME = OmniCarCore $(foreach f,$(FEATURES),OmniCar$(f))
 
 OmniCarCore_FILES = Core/Core.x Core/OmniCar.m
 OmniCarCore_FRAMEWORKS = UIKit
-OmniCarCore_CFLAGS = -fobjc-arc -ICore -DOMC_FEATURE=\"Core\" $(OMC_TEST_CFLAGS)
+OmniCarCore_CFLAGS = -fobjc-arc -ICore -DOMC_FEATURE=\"Core\" -DTWEAK_VERSION=\"$(TWEAK_VERSION)\" $(OMC_TEST_CFLAGS)
 $(shell cp "Core/Filter.plist" "OmniCarCore.plist" && chmod 644 "OmniCarCore.plist")
 
 define OMC_FEATURE

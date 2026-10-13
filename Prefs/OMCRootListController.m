@@ -470,29 +470,9 @@
 	[self presentViewController:alert animated:YES completion:nil];
 }
 
-// Userspace respring (FBSSystemService + SBSRelaunchAction, like other tweaks' Respring buttons);
-// falls back to killall SpringBoard.
+// Userspace respring (FBSSystemService + SBSRelaunchAction), falls back to killall SpringBoard: OMCRespring.
 - (void)performRespring {
-	dlopen("/System/Library/PrivateFrameworks/FrontBoardServices.framework/FrontBoardServices", RTLD_LAZY);
-	dlopen("/System/Library/PrivateFrameworks/SpringBoardServices.framework/SpringBoardServices", RTLD_LAZY);
-	Class relaunch = NSClassFromString(@"SBSRelaunchAction"), service = NSClassFromString(@"FBSSystemService");
-	if (relaunch && service) {
-		id action = ((id (*)(Class, SEL, NSString *, NSUInteger, NSURL *))objc_msgSend)(relaunch,
-			NSSelectorFromString(@"actionWithReason:options:targetURL:"), @"RestartRenderServer", 4 /* FadeToBlack */, nil);
-		id shared = ((id (*)(Class, SEL))objc_msgSend)(service, NSSelectorFromString(@"sharedService"));
-		if (action && shared) {
-			((void (*)(id, SEL, NSSet *, id))objc_msgSend)(shared, NSSelectorFromString(@"sendActions:withResult:"),
-				[NSSet setWithObject:action], nil);
-			return;
-		}
-	}
-	for (NSString *path in @[@"/var/jb/usr/bin/killall", @"/usr/bin/killall"]) {
-		if (![[NSFileManager defaultManager] isExecutableFileAtPath:path]) continue;
-		pid_t pid;
-		const char *argv[] = {path.fileSystemRepresentation, "-9", "SpringBoard", NULL};
-		posix_spawn(&pid, argv[0], NULL, NULL, (char *const *)argv, NULL);
-		return;
-	}
+	OMCRespring();
 }
 
 @end

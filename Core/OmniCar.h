@@ -100,6 +100,11 @@ BOOL OMCCrashGuard(NSString *feature);
 #define OMC_KEY_DIAG_CAR     @"diagCar"
 // ... and one key per feature and process with the OMCCheckHooks result: {ios, total, missing}.
 #define OMC_KEY_DIAG_HOOKS   @"diagHooks."
+// ... one key per dylib and process it loaded into (SpringBoard, CarPlay): {version, date}. Settings compares the
+// version with the installed one (respring needed after an update) and sees which features never loaded ...
+#define OMC_KEY_DIAG_LOADED  @"diagLoaded."
+// ... and the last CarPlay crash the crash guard caught: {date, age (s after start), suspect (feature key prefix)}.
+#define OMC_KEY_DIAG_CRASH   @"diagLastCrash"
 
 #ifdef __cplusplus
 }

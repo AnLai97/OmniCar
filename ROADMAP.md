@@ -184,8 +184,11 @@ Thiếu một trong các mục này thì khách quốc tế không mua, hoặc m
   Code: Hỗ trợ > Gửi log (OMCShareReport) → OmniCar-log-<ngày>.txt. Chờ thử gửi Zalo trên máy.
 - [ ] **Màn chẩn đoán** · Thấp
   Độ phân giải màn xe, dây / không dây, nhiệt độ máy, FPS app iPhone, phiên bản từng tính năng.
-  Code: Hỗ trợ > Chẩn đoán (máy, màn xe, tính năng + hook trên iOS này, chế độ cứu, tweak xung đột). Chưa có
-  FPS app iPhone (cần đo trong App Bridge). Dây / không dây đọc từ CarKit: chờ thử trên xe.
+  Code: Hỗ trợ > Chẩn đoán là trang kiểm tra sức khoẻ cho người dùng: kết luận chung ở đầu, ~20 mục ✓ / ⚠ / ✗ kèm
+  cách sửa (điện thoại: iOS, jailbreak, trình nạp tweak, gói, OmniCar đang chạy đúng bản, bộ nhớ, pin, nhiệt, tweak
+  xung đột; CarPlay: kết nối, OmniCar trong CarPlay, tương thích iOS, lần sập gần nhất, chế độ cứu, màn xe; từng tính
+  năng), chạm để respring / bật lại; số liệu thô ở Chi tiết kỹ thuật. Chưa có FPS app iPhone (cần đo trong App
+  Bridge). Dây / không dây đọc từ CarKit: chờ thử trên xe.
 - [ ] **Thông tin đầu xe** · Thấp
   Độ phân giải, tỉ lệ màn, chất lượng video gợi ý (gộp vào Màn chẩn đoán).
   Code: CarPlay ghi màn xe + phiên CarKit mỗi lần cắm (OMCCrashGuard), Chẩn đoán > Màn xe. Chờ thử trên xe.
