@@ -306,6 +306,10 @@ static BOOL SCPLayoutHasElement(id publisher, NSString *identifier)
         @try { [[SCPCarSplit shared] bridgeHandleTapped:note.userInfo[@"identifier"]]; }
         @catch (NSException *e) { SCPHookError("AB_HANDLE_TAP", e); }
     }];
+    [dnc addObserverForName:AB_NOTIF_HANDLE_DRAG object:nil queue:main usingBlock:^(NSNotification *note) {
+        @try { [[SCPCarSplit shared] bridgeHandleDrag:note.userInfo]; }
+        @catch (NSException *e) { SCPHookError("AB_HANDLE_DRAG", e); }
+    }];
     [dnc addObserverForName:AB_NOTIF_BAR_ACTION object:nil queue:main usingBlock:^(NSNotification *note) {
         @try { [[SCPCarSplit shared] bridgeBarAction:note.userInfo[@"action"] forBundle:note.userInfo[@"identifier"]]; }
         @catch (NSException *e) { SCPHookError("AB_BAR_ACTION", e); }

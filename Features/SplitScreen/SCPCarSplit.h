@@ -54,6 +54,7 @@
 // App Bridge (SpringBoard) bao ve
 - (void)hostedApp:(NSString *)bundleID state:(NSString *)state;   // ready | failed | gone
 - (void)bridgeHandleTapped:(NSString *)bundleID;                   // cham thanh "•••" ve tren app -> hien thanh nut cua o
+- (void)bridgeHandleDrag:(NSDictionary *)info;                   // keo thanh "•••" tren o app iPhone (AB_NOTIF_HANDLE_DRAG): doi cho / keo cua so noi
 - (void)bridgeBarAction:(NSString *)action forBundle:(NSString *)bundleID;   // nut tren thanh nut SpringBoard ve: replace | pop | full | close
 @end
 

@@ -891,6 +891,9 @@ static UIButton *ABRoundButton(NSString *glyph, id target, SEL action)
     }
     [hit addSubview:pill];
     [hit addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapped:)]];
+    UIPanGestureRecognizer *pan = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handlePanned:)];   // keo doi cho / keo cua so noi
+    pan.maximumNumberOfTouches = 1;
+    [hit addGestureRecognizer:pan];
     hit.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin;
     pane.handle = pill;
     pane.handleHit = hit;
@@ -975,6 +978,32 @@ static ABKnobView *ABMakeKnob(void)
     if (!p || p.handleOffset == dx) return;
     p.handleOffset = dx;
     [self setHandleVisible:!p.handleHit.hidden forPane:p];
+}
+
+// Keo "•••": CarPlay khong nhan duoc cham tren cua so nay -> gui tung pha cho CarPlay (AB_NOTIF_HANDLE_DRAG), ben do
+// keo doi cho / keo cua so noi nhu voi o CarPlay
+- (void)handlePanned:(UIPanGestureRecognizer *)g
+{
+    for (ABPane *p in self.panes) {
+        if (p.handleHit != g.view) continue;
+        int phase = g.state == UIGestureRecognizerStateBegan ? 0 : g.state == UIGestureRecognizerStateChanged ? 1
+                  : g.state == UIGestureRecognizerStateEnded ? 2 : 3;
+        CGPoint pt = [g locationInView:self.window];
+        if (phase != 1) ABLog("keo thanh ••• cua %@: pha %d tai %@", p.bundleID, phase, NSStringFromCGPoint(pt));
+        [[objc_getClass("NSDistributedNotificationCenter") defaultCenter]
+            postNotificationName:AB_NOTIF_HANDLE_DRAG object:nil
+                        userInfo:@{@"identifier": p.bundleID, @"phase": @(phase), @"x": @(pt.x), @"y": @(pt.y)}];
+        return;
+    }
+}
+
+// Cua so noi: o nay nam tren cac o app iPhone khac (cham tron van tren cung)
+- (void)setFront:(BOOL)front forApp:(NSString *)bid
+{
+    ABPane *p = [self paneFor:bid];
+    if (!p || !front || p.box.superview != self.window) return;
+    [self.window bringSubviewToFront:p.box];
+    [self raiseKnobs];
 }
 
 - (void)handleTapped:(UITapGestureRecognizer *)g

@@ -10,6 +10,7 @@
 // Thanh nut cua o ve de len app (SpringBoard ve, CarPlay nhan tap qua AB_NOTIF_BAR_ACTION); pop 1 = nut "noi", 2 = "ghim";
 // single = o dang chay 1 man hinh (nut "Chay 1 man hinh" doi thanh "Chia man hinh")
 - (void)setBarVisible:(BOOL)visible pop:(int)pop dim:(BOOL)dim single:(BOOL)single forApp:(NSString *)bid;
+- (void)setFront:(BOOL)front forApp:(NSString *)bid;   // cua so noi: len tren cac o app iPhone khac
 - (void)setCornerRadius:(CGFloat)radius corners:(CACornerMask)corners forApp:(NSString *)bid;   // bo goc nhu o CarPlay
 - (void)setHandleOffset:(CGFloat)dx forApp:(NSString *)bid;   // thanh "•••" lech ngang (o duoi vach ngang: tranh cham tron cua vach)
 - (void)setKnobs:(NSArray *)knobs;   // cham tron cua vach chia (AB_NOTIF_KNOBS): ve len tren cac o, nhan cham roi chuyen sang CarPlay

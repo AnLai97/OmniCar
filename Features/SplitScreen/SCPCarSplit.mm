@@ -1487,13 +1487,6 @@ static NSString *SCPCPinnedApp(void)
     if (![self activate]) return;
     [self purgePending];
     BOOL autoSlotRequested = ![self validSlot:slot];
-    // Cua so noi: khong nhan app CarBridge (CBWindow cua CarBridge luon nam tren moi view CarPlay)
-    if (slot == SCPC_FLOAT_SLOT && self.floatPane && SCPCIsBridgedApp(bid)) {
-        SCPLog("CarSplit: %@ la app CarBridge -> khong mo trong cua so noi", bid);
-        [self toast:[NSString stringWithFormat:SCPCT(@"%@ không mở được trong cửa sổ nổi", @"%@ can't open in the floating window"), [self displayNameFor:bid]]];
-        return;
-    }
-
     SCPCarPane *existing = [self paneForBundle:bid];
     if (autoSlotRequested) slot = existing ? existing.slot : [self autoSlot];
     if (!existing && slot != SCPC_FLOAT_SLOT && [self slotIsPinned:slot]) {   // o ghim giu nguyen app cua no
@@ -2287,11 +2280,11 @@ static CGSize SCPCSceneSize(UIViewController *vc)
 - (NSString *)popOutBlockReason:(SCPCarPane *)p
 {
     if (!p || p == self.floatPane || !p.vc || !p.bundleID) return SCPCT(@"Ô chưa có app", @"This pane has no app");
-    if (SCPCIsBridgedApp(p.bundleID))
-        return [NSString stringWithFormat:SCPCT(@"%@ không dùng được hình trong hình", @"%@ can't go picture-in-picture"), [self displayNameFor:p.bundleID]];
     if (self.floatPane.vc) return nil;   // doi cho voi cua so noi
     if ([self paneCount] < 2) return SCPCT(@"Cần ít nhất 2 ô", @"Needs at least 2 panes");
-    // Cac o con lai deu la app CarBridge: CBWindow phu het vung app, cua so noi khong con cho -> app vua dua ra se mat
+    // App iPhone noi ra: cua so cua no duoc SpringBoard dua len tren cac o app iPhone khac (front) -> luon duoc
+    if (SCPCIsBridgedApp(p.bundleID)) return nil;
+    // Cac o con lai deu la app iPhone: cua so cua chung phu het vung app, cua so noi CarPlay khong con cho -> app vua dua ra se mat
     BOOL roomLeft = NO;
     for (SCPCarPane *o in self.slots) if (o != p && !(o.vc && SCPCIsBridgedApp(o.bundleID))) roomLeft = YES;
     if (!roomLeft) {
@@ -2728,8 +2721,10 @@ static void SCPCHandleOpen(UIView *h, BOOL open)
     SCPCStyleIcon(iv);
     iv.center = CGPointMake(w / 2, h / 2);
     [ghost addSubview:iv];
-    ghost.center = pt;
-    [self.container addSubview:ghost];
+    // The theo tay nam trong cua so bang bo cuc (tren cac o app iPhone) khi co; khong thi trong container
+    UIWindow *tw = [self trayWindowForParent:self.container];
+    ghost.center = tw ? [self.container convertPoint:pt toView:nil] : pt;
+    [tw ?: self.container addSubview:ghost];
     self.dragGhost = ghost;
     self.dragTarget = -1;
     ghost.transform = CGAffineTransformMakeScale(0.6, 0.6);
@@ -2742,7 +2737,7 @@ static void SCPCHandleOpen(UIView *h, BOOL open)
 - (void)movePaneDragTo:(CGPoint)pt from:(SCPCarPane *)src
 {
     if (!self.dragGhost) return;
-    self.dragGhost.center = pt;
+    self.dragGhost.center = (self.dragGhost.superview == self.container) ? pt : [self.container convertPoint:pt toView:nil];
     int target = -1;
     for (SCPCarPane *o in self.slots)
         if (o != src && o.view.alpha > 0 && CGRectContainsPoint(o.view.frame, pt)) target = o.slot;
@@ -2762,9 +2757,11 @@ static void SCPCHandleOpen(UIView *h, BOOL open)
     if (!ghost) { [self cancelPaneDrag]; return; }
     [self clearPaneDragMarks];
     CGPoint to = (target >= 0 && target < [self paneCount]) ? self.slots[target].view.center : src.view.center;
+    if (ghost.superview != self.container) to = [self.container convertPoint:to toView:nil];
+    __weak SCPCarSplit *weakSelf = self;
     [UIView animateWithDuration:0.25 animations:^{
         ghost.center = to; ghost.alpha = 0; ghost.transform = CGAffineTransformMakeScale(0.7, 0.7);
-    } completion:^(BOOL f) { [ghost removeFromSuperview]; }];
+    } completion:^(BOOL f) { [ghost removeFromSuperview]; [weakSelf hideTrayWindowIfIdle]; }];
     src.cover.alpha = 1;
     if (target >= 0 && target != src.slot) [self swapSlot:src.slot with:target];
     [self endResize];
@@ -2782,8 +2779,63 @@ static void SCPCHandleOpen(UIView *h, BOOL open)
     UIView *ghost = self.dragGhost;
     if (!ghost) return;
     [self clearPaneDragMarks];
-    [UIView animateWithDuration:0.15 animations:^{ ghost.alpha = 0; } completion:^(BOOL f) { [ghost removeFromSuperview]; }];
+    __weak SCPCarSplit *weakSelf = self;
+    [UIView animateWithDuration:0.15 animations:^{ ghost.alpha = 0; } completion:^(BOOL f) { [ghost removeFromSuperview]; [weakSelf hideTrayWindowIfIdle]; }];
     [self endResize];
+}
+
+// Cua so bang bo cuc khong con gi (bang, thanh ti le, bang chon app, the keo, thong bao) -> an (giu lai cho lan sau)
+- (void)hideTrayWindowIfIdle
+{
+    UIWindow *tw = self.trayWindow;
+    if (!tw || self.tray || self.ratioMenu || self.pickerSheet || self.dragGhost) return;
+    if ([tw viewWithTag:SCPC_BG_TOAST_TAG]) return;
+    tw.hidden = YES;
+}
+
+// SpringBoard bao keo thanh "•••" tren o app iPhone (AB_NOTIF_HANDLE_DRAG): keo doi cho nhu o CarPlay; cua so noi: di chuyen
+- (void)bridgeHandleDrag:(NSDictionary *)u
+{
+    SCPCarPane *p = [self paneForBundle:u[@"identifier"]];
+    if (!p || !self.container || !self.active) return;
+    int phase = [u[@"phase"] intValue];
+    CGPoint pt = [self.container convertPoint:CGPointMake([u[@"x"] doubleValue], [u[@"y"] doubleValue]) fromView:nil];
+    if (p == self.floatPane) { [self floatDragPhase:phase at:pt]; return; }
+    switch (phase) {
+        case 0:  [self beginPaneDrag:p at:pt]; break;
+        case 1:  [self movePaneDragTo:pt from:p]; break;
+        case 2:  [self endPaneDrag:p]; break;
+        default: [self cancelPaneDrag]; break;
+    }
+}
+
+// Keo cua so noi theo tung pha (cung viec voi floatPanned nhung khong co gesture: app iPhone trong cua so noi)
+- (void)floatDragPhase:(int)phase at:(CGPoint)pt
+{
+    static CGPoint startPt, startOrigin;
+    SCPCarPane *fp = self.floatPane;
+    if (!fp || !self.container) return;
+    if (phase == 0) {
+        startPt = pt; startOrigin = self.floatFrame.origin;
+        [self setBarVisible:NO forPane:fp];
+        [self hideRatioMenu];
+        return;
+    }
+    CGRect f = self.floatFrame;
+    f.origin = CGPointMake(startOrigin.x + pt.x - startPt.x, startOrigin.y + pt.y - startPt.y);
+    if (phase == 1) {
+        self.floatFrame = f;
+        [CATransaction begin]; [CATransaction setDisableActions:YES];
+        fp.view.frame = f;
+        [CATransaction commit];
+        [self pushHostFramesLive:YES];   // cua so app chay theo tay
+        return;
+    }
+    CGRect c = self.container.bounds;
+    f.origin.x = (CGRectGetMidX(f) < CGRectGetMidX(c)) ? 8 : c.size.width - f.size.width - 8;
+    self.floatFrame = f;
+    [self relayoutAnimated:YES];
+    SCPLog("CarSplit: tha cua so noi (app iPhone) o %@", NSStringFromCGRect(self.floatFrame));
 }
 
 // "Chay 1 man hinh": o nay phu ca vung app, cac o khac van chay phia sau (phong to tam); bam lai ("Chia man hinh")
@@ -2822,7 +2874,9 @@ static void SCPCHandleOpen(UIView *h, BOOL open)
 // Thong bao "<App> dang chay nen  [Mo lai]" (kinh trang, nut gradient) o dau vung app, tu an sau 5 s
 - (void)showBackgroundToastFor:(NSString *)bid slot:(int)slot
 {
-    UIView *host = SCPCRootVC().view;
+    // Trong cua so bang bo cuc (tren cac o app iPhone, khong bi che) khi co; khong thi trong view goc CarPlay
+    UIView *root = SCPCRootVC().view;
+    UIView *host = root ? ([self trayWindowForParent:root] ?: root) : nil;
     if (!host) return;
     [[host viewWithTag:SCPC_BG_TOAST_TAG] removeFromSuperview];
     UIView *t = [[UIView alloc] initWithFrame:CGRectZero];
@@ -2853,6 +2907,7 @@ static void SCPCHandleOpen(UIView *h, BOOL open)
         [weakToast removeFromSuperview];
         SCPCarSplit *me = weakSelf;
         if (!me) return;
+        [me hideTrayWindowIfIdle];
         int at = me.active ? MIN(slot, [me paneCount]) : 0;
         SCPLog("CarSplit: [mo lai] %@ vao o %d", bid, at);
         [me openApp:bid slot:at];
@@ -2866,7 +2921,7 @@ static void SCPCHandleOpen(UIView *h, BOOL open)
     SCPCAfter(5, ^{
         UIView *tt = weakToast;
         if (!tt) return;
-        [UIView animateWithDuration:0.25 animations:^{ tt.alpha = 0; } completion:^(BOOL f) { [tt removeFromSuperview]; }];
+        [UIView animateWithDuration:0.25 animations:^{ tt.alpha = 0; } completion:^(BOOL f) { [tt removeFromSuperview]; [weakSelf hideTrayWindowIfIdle]; }];
     });
 }
 
@@ -4615,6 +4670,7 @@ static NSArray<NSDictionary *> *SCPCPhoneApps(void)
     if (p) { d[@"r"] = @(p.view.layer.cornerRadius); d[@"corners"] = @((unsigned long long)p.view.layer.maskedCorners); }
     // Thanh "•••" lech sang phai nhu thanh cua o CarPlay khi o nam duoi vach ngang (cham tron cua vach o giua)
     if (p) d[@"hx"] = @([self handleShiftForPane:p]);
+    if (p) d[@"front"] = @(p == self.floatPane);   // cua so noi app iPhone: SpringBoard dua len tren cac o app iPhone khac
     return d;
 }
 
