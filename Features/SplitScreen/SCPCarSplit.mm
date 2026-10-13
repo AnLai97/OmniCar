@@ -454,9 +454,10 @@ static NSArray<NSValue *> *SCPCLayoutBoxes(int layoutID, BOOL vertical, CGSize s
 static UIImage *SCPCLayoutImage(int layoutID, BOOL vertical, CGSize size, NSArray *apps, BOOL onAccent)
 {
     NSArray<NSValue *> *boxes = SCPCLayoutBoxes(layoutID, vertical, size);
-    UIColor *box = onAccent ? [UIColor colorWithWhite:1 alpha:0.3] : [UIColor colorWithWhite:1 alpha:0.85];
-    UIColor *edgeColor = onAccent ? [UIColor colorWithWhite:1 alpha:0.75] : [SCPCInk() colorWithAlphaComponent:0.12];
-    UIColor *plusColor = onAccent ? [UIColor whiteColor] : SCPCInk2();
+    // Khong tren nen gradient: o trang dac vien muc ro (tren kinh trang / o tim nhat van thay), dau cong muc
+    UIColor *box = onAccent ? [UIColor colorWithWhite:1 alpha:0.3] : [UIColor whiteColor];
+    UIColor *edgeColor = onAccent ? [UIColor colorWithWhite:1 alpha:0.75] : [SCPCInk() colorWithAlphaComponent:0.4];
+    UIColor *plusColor = onAccent ? [UIColor whiteColor] : [SCPCInk() colorWithAlphaComponent:0.8];
     UIGraphicsImageRenderer *r = [[UIGraphicsImageRenderer alloc] initWithSize:size];
     return [r imageWithActions:^(UIGraphicsImageRendererContext *rc) {
         for (NSUInteger i = 0; i < boxes.count; i++) {
@@ -580,7 +581,7 @@ static void SCPCGlass(UIView *v, CGFloat radius)
     UIVisualEffectView *glass = SCPCGlassView();
     glass.frame = v.bounds;
     glass.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-    glass.contentView.backgroundColor = [UIColor colorWithWhite:1 alpha:0.45];
+    glass.contentView.backgroundColor = [UIColor colorWithWhite:1 alpha:0.62];   // thanh nut / thanh ti le: icon muc ro tren app toi
     glass.layer.cornerRadius = radius;
     glass.layer.cornerCurve = kCACornerCurveContinuous;
     glass.layer.borderWidth = 0.5;
@@ -3671,9 +3672,11 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
         b.tag = p.slot;
         b.layer.cornerRadius = 5;
         b.layer.cornerCurve = kCACornerCurveContinuous;
-        b.backgroundColor = (p == target) ? [UIColor clearColor] : p.picker ? [UIColor colorWithWhite:1 alpha:0.85] : [UIColor colorWithWhite:1 alpha:0.6];
-        if (p == target) SCPCAccentFill(b, YES);   // o dang chon: gradient mau nhan + quang
-        if (p == self.floatPane) { b.layer.borderWidth = 1; b.layer.borderColor = [SCPCInk() colorWithAlphaComponent:0.25].CGColor; }
+        // O dang chon: gradient mau nhan + quang; o khac: trang dac vien muc (o dang cho chon app: vien dam hon)
+        b.backgroundColor = (p == target) ? [UIColor clearColor] : [UIColor whiteColor];
+        if (p == target) SCPCAccentFill(b, YES);
+        else { b.layer.borderWidth = 1; b.layer.borderColor = [SCPCInk() colorWithAlphaComponent:p.picker ? 0.45 : 0.25].CGColor; }
+        if (p == self.floatPane && p != target) b.layer.borderColor = SCPCAccent().CGColor;
         CGFloat side = MIN(r.size.width, r.size.height);
         if (bid) {
             CGFloat s = MIN(22, floor(side * 0.7));
@@ -3686,7 +3689,7 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
             UILabel *plus = [[UILabel alloc] initWithFrame:b.bounds];
             plus.text = @"+";
             plus.textAlignment = NSTextAlignmentCenter;
-            plus.textColor = (p == target) ? [UIColor whiteColor] : SCPCInk2();   // o dang chon (gradient): dau + trang
+            plus.textColor = (p == target) ? [UIColor whiteColor] : [SCPCInk() colorWithAlphaComponent:0.8];   // o dang chon (gradient): dau + trang
             plus.font = [UIFont systemFontOfSize:MIN(22, floor(side * 0.8)) weight:(p == target) ? UIFontWeightBold : UIFontWeightRegular];
             plus.userInteractionEnabled = NO;
             [b addSubview:plus];
@@ -3744,7 +3747,7 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
     card.layer.shadowOpacity = 0.3; card.layer.shadowRadius = 24; card.layer.shadowOffset = CGSizeMake(0, 8);
     UIVisualEffectView *glass = SCPCGlassView();
     glass.frame = card.bounds;
-    glass.contentView.backgroundColor = [UIColor colorWithWhite:1 alpha:0.5];
+    glass.contentView.backgroundColor = [UIColor colorWithWhite:1 alpha:0.75];
     glass.layer.cornerRadius = 24;
     glass.layer.cornerCurve = kCACornerCurveContinuous;
     glass.layer.borderWidth = 0.5;
@@ -3761,8 +3764,8 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
     liquid.startPoint = CGPointZero; liquid.endPoint = CGPointMake(1, 1);
     [sheet.layer insertSublayer:liquid atIndex:0];
 
-    UIView *side = [[UIView alloc] initWithFrame:CGRectMake(gridW, 0, sideW, h)];   // cot phai, nen sang hon chut
-    side.backgroundColor = [UIColor colorWithWhite:1 alpha:0.25];
+    UIView *side = [[UIView alloc] initWithFrame:CGRectMake(gridW, 0, sideW, h)];   // cot phai, nen tim rat nhat de so do noi len
+    side.backgroundColor = [SCPCAccent() colorWithAlphaComponent:0.08];
     [sheet addSubview:side];
     UIView *map = [self pickerMapForPane:target height:mapH];
     if (map) { map.frame = CGRectMake(pad, pad + 32 + 8, map.bounds.size.width, mapH); [side addSubview:map]; }
@@ -4121,7 +4124,7 @@ static void SCPCMakePassThrough(UIWindow *w)
     panel.layer.shadowOpacity = 0.3; panel.layer.shadowRadius = 24; panel.layer.shadowOffset = CGSizeMake(0, 8);
     UIVisualEffectView *glass = SCPCGlassView();
     glass.frame = panel.bounds;
-    glass.contentView.backgroundColor = [UIColor colorWithWhite:1 alpha:0.45];
+    glass.contentView.backgroundColor = [UIColor colorWithWhite:1 alpha:0.78];   // duc hon de app phia sau khong lam mo cac o
     glass.layer.cornerRadius = 24;
     glass.layer.cornerCurve = kCACornerCurveContinuous;
     glass.layer.borderWidth = 0.5;
@@ -4166,9 +4169,14 @@ static void SCPCMakePassThrough(UIWindow *w)
             [choices addObject:c];
             [b addTarget:self action:@selector(panelChoiceTapped:) forControlEvents:UIControlEventTouchUpInside];
             BOOL currentLayout = (si == 0 && layoutID == current);
+            b.layer.cornerRadius = 14;
+            b.layer.cornerCurve = kCACornerCurveContinuous;
             if (currentLayout) {   // bo cuc dang dung: gradient mau nhan + quang, hinh bo cuc trang
-                b.layer.cornerRadius = 14;
                 SCPCAccentFill(b, YES);
+            } else {               // o khac: nen tim rat nhat + vien manh de tach khoi kinh trang
+                b.backgroundColor = [SCPCAccent() colorWithAlphaComponent:0.12];
+                b.layer.borderWidth = 0.5;
+                b.layer.borderColor = [SCPCAccent() colorWithAlphaComponent:0.3].CGColor;
             }
             NSArray *picApps = c[@"apps"] ?: slotApps;
             UIImageView *iv = [[UIImageView alloc] initWithImage:SCPCLayoutImage(layoutID, v, CGSizeMake(imgW, imgH), picApps, currentLayout)];
