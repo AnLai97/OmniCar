@@ -49,67 +49,108 @@ static id OMCSend(id target, NSString *selector) {
 	return [target respondsToSelector:sel] ? ((id (*)(id, SEL))objc_msgSend)(target, sel) : nil;
 }
 
-// Apps never quit: phone / messages / music / maps, every app with a CarPlay interface (Split Screen recorded them),
-// the iPhone apps chosen for the car screen, the Speed Bubble sources, what is playing and what is on screen.
-static NSSet<NSString *> *OMCCleanKeep(void) {
-	NSMutableSet *keep = [NSMutableSet setWithArray:@[@"com.apple.mobilephone", @"com.apple.MobileSMS", @"com.apple.Music",
-		@"com.apple.Maps", @"com.apple.podcasts", @"com.apple.InCallService", @"com.apple.Preferences", @"com.anlai.omnicar",
-		@"vn.vietmap.live", @"com.lumi.GOFA"]];
-	for (NSString *key in @[@"splitScreenCarPlayApps", @"appBridgeApps"]) {
-		NSArray *ids = OMCPref(key, nil);
-		if ([ids isKindOfClass:[NSArray class]]) [keep addObjectsFromArray:ids];
+// Apps never quit, with the reason (logged): what is on screen and what is playing, calls / messages / Settings, and
+// while a car is connected (or on connect) the apps the car needs: music / maps, every app with a CarPlay interface
+// (Split Screen recorded them), the iPhone apps chosen for the car screen and the Speed Bubble sources. "Free memory
+// now" with no car closes those too: it was the reason nothing closed when they were the apps left open.
+static NSDictionary<NSString *, NSString *> *OMCCleanKeep(BOOL forCar) {
+	NSMutableDictionary *keep = [NSMutableDictionary dictionary];
+	for (NSString *bid in @[@"com.apple.mobilephone", @"com.apple.MobileSMS", @"com.apple.InCallService", @"com.apple.Preferences",
+		@"com.apple.facetime", @"com.anlai.omnicar"]) keep[bid] = @"system";
+	if (forCar) {
+		for (NSString *bid in @[@"com.apple.Music", @"com.apple.Maps", @"com.apple.podcasts", @"vn.vietmap.live", @"com.lumi.GOFA"]) keep[bid] = @"car";
+		for (NSString *key in @[@"splitScreenCarPlayApps", @"appBridgeApps"]) {
+			NSArray *ids = OMCPref(key, nil);
+			if ([ids isKindOfClass:[NSArray class]]) for (NSString *bid in ids) keep[bid] = key;
+		}
 	}
 	NSString *playing = OMCSend(OMCSend(OMCSend(objc_getClass("SBMediaController"), @"sharedInstance"), @"nowPlayingApplication"), @"bundleIdentifier");
-	if (playing) [keep addObject:playing];
+	if (playing) keep[playing] = @"playing";
 	NSString *front = OMCSend(OMCSend([UIApplication sharedApplication], @"_accessibilityFrontMostApplication"), @"bundleIdentifier");
-	if (front) [keep addObject:front];
+	if (front) keep[front] = @"front";
 	return keep;
 }
 
-static BOOL OMCIsUserApp(NSString *bid) {
+// Apps with a home screen icon: user apps and Apple apps that are not hidden (web sheets, system services)
+static BOOL OMCIsClosableApp(NSString *bid) {
 	id proxy = nil;
 	Class cls = objc_getClass("LSApplicationProxy");
 	SEL sel = NSSelectorFromString(@"applicationProxyForIdentifier:");
 	if ([cls respondsToSelector:sel]) proxy = ((id (*)(id, SEL, id))objc_msgSend)(cls, sel, bid);
-	return [OMCSend(proxy, @"applicationType") isEqual:@"User"];
+	NSString *type = OMCSend(proxy, @"applicationType");
+	if ([type isEqual:@"User"]) return YES;
+	if (![type isEqual:@"System"]) return NO;
+	NSArray *tags = OMCSend(proxy, @"appTags");
+	return !([tags isKindOfClass:[NSArray class]] && [tags containsObject:@"hidden"]);
+}
+
+static BOOL OMCAppRunning(id app) {
+	SEL isRunning = NSSelectorFromString(@"isRunning");
+	if ([app respondsToSelector:isRunning]) return ((BOOL (*)(id, SEL))objc_msgSend)(app, isRunning);
+	return OMCSend(app, @"processState") != nil;
+}
+
+static NSArray *OMCRunningApps(void) {
+	id controller = OMCSend(objc_getClass("SBApplicationController"), @"sharedInstance");
+	NSArray *running = OMCSend(controller, @"runningApplications");
+	if ([running isKindOfClass:[NSArray class]] && running.count) return running;
+	NSMutableArray *found = [NSMutableArray array];   // no such method on this iOS (or empty): check every app
+	for (id app in OMCSend(controller, @"allApplications")) if (OMCAppRunning(app)) [found addObject:app];
+	return found;
+}
+
+// BackBoardServices first (what the app switcher's swipe-up ends in), FrontBoardServices as the fallback
+static BOOL OMCTerminateApp(NSString *bid) {
+	typedef void (*BKSTerminateFn)(CFStringRef, int, bool, CFStringRef);
+	static BKSTerminateFn bks;
+	static dispatch_once_t once;
+	dispatch_once(&once, ^{
+		dlopen("/System/Library/PrivateFrameworks/BackBoardServices.framework/BackBoardServices", RTLD_LAZY);
+		bks = (BKSTerminateFn)dlsym(RTLD_DEFAULT, "BKSTerminateApplicationForReasonAndReportWithDescription");
+	});
+	if (bks) { bks((__bridge CFStringRef)bid, 5, false, CFSTR("OmniCar: free memory")); return YES; }
+	id service = OMCSend(objc_getClass("FBSSystemService"), @"sharedService");
+	SEL terminate = NSSelectorFromString(@"terminateApplication:forReason:andReport:withDescription:");
+	if (![service respondsToSelector:terminate]) return NO;
+	((void (*)(id, SEL, id, int, BOOL, id))objc_msgSend)(service, terminate, bid, 1, NO, @"OmniCar: free memory");
+	return YES;
 }
 
 // force = "Free memory now" from Diagnostics (ignores the switch)
 static void OMCCleanRam(BOOL force) {
 	OMCPrefsSync();
 	if (!force && (!OMCEnabled() || ![OMCPref(OMC_KEY_CLEAN_RAM, @NO) boolValue])) return;
-	id controller = OMCSend(objc_getClass("SBApplicationController"), @"sharedInstance");
-	NSArray *running = OMCSend(controller, @"runningApplications");
-	if (!running) {   // no such method on this iOS: every app, keep the running ones
-		NSMutableArray *found = [NSMutableArray array];
-		SEL isRunning = NSSelectorFromString(@"isRunning");
-		for (id app in OMCSend(controller, @"allApplications"))
-			if ([app respondsToSelector:isRunning] && ((BOOL (*)(id, SEL))objc_msgSend)(app, isRunning)) [found addObject:app];
-		running = found;
-	}
-	if (![running isKindOfClass:[NSArray class]]) { OMCLog(@"Core", @"don RAM: khong lay duoc danh sach app dang chay"); return; }
-	id service = OMCSend(objc_getClass("FBSSystemService"), @"sharedService");
-	SEL terminate = NSSelectorFromString(@"terminateApplication:forReason:andReport:withDescription:");
-	if (![service respondsToSelector:terminate]) { OMCLog(@"Core", @"don RAM: khong co FBSSystemService"); return; }
-	NSSet *keep = OMCCleanKeep();
-	NSMutableArray *closed = [NSMutableArray array];
+	BOOL car = OMCSend(objc_getClass("AVExternalDevice"), @"currentCarPlayExternalDevice") != nil;
+	NSArray *running = OMCRunningApps();
+	NSDictionary *keep = OMCCleanKeep(!force || car);
+	NSMutableArray *closed = [NSMutableArray array], *kept = [NSMutableArray array];
 	for (id app in running) {
 		NSString *bid = OMCSend(app, @"bundleIdentifier");
-		if (![bid isKindOfClass:[NSString class]] || [keep containsObject:bid] || !OMCIsUserApp(bid)) continue;
-		((void (*)(id, SEL, id, int, BOOL, id))objc_msgSend)(service, terminate, bid, 1, NO, @"OmniCar: free memory for CarPlay");
-		[closed addObject:bid];
+		if (![bid isKindOfClass:[NSString class]]) continue;
+		if (keep[bid]) { [kept addObject:[NSString stringWithFormat:@"%@ (%@)", bid, keep[bid]]]; continue; }
+		if (!OMCIsClosableApp(bid)) continue;
+		if (OMCTerminateApp(bid)) [closed addObject:bid];
 	}
 	CFPreferencesSetAppValue((__bridge CFStringRef)OMC_KEY_DIAG_CLEAN,
-		(__bridge CFPropertyListRef)@{@"date": [NSDate date], @"closed": closed}, OMC_PREFS_DOMAIN);
+		(__bridge CFPropertyListRef)@{@"date": [NSDate date], @"closed": closed, @"running": @(running.count)}, OMC_PREFS_DOMAIN);
 	OMCPrefsSync();
-	OMCLog(@"Core", @"don RAM (%@): dong %lu app (%@)", force ? @"bam tay" : @"cam xe", (unsigned long)closed.count, [closed componentsJoinedByString:@", "]);
+	OMCLog(@"Core", @"don RAM (%@, xe=%d): %lu app dang chay, dong %lu: %@ | giu lai: %@", force ? @"bam tay" : @"cam xe", car,
+		(unsigned long)running.count, (unsigned long)closed.count, [closed componentsJoinedByString:@", "], [kept componentsJoinedByString:@", "]);
+	// Did they really quit? (the log says which did not)
+	dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+		NSMutableArray *alive = [NSMutableArray array];
+		for (id app in OMCRunningApps()) {
+			NSString *bid = OMCSend(app, @"bundleIdentifier");
+			if ([closed containsObject:bid]) [alive addObject:bid];
+		}
+		if (alive.count) OMCLog(@"Core", @"don RAM: van con chay sau 2s: %@", [alive componentsJoinedByString:@", "]);
+	});
 }
 
 %ctor {
 	@autoreleasepool {
 		OMCLogRelayStart();
-		OMCLog(@"Core", @"loaded into %@ enabled=%d license=%ld trial=%ld", [NSBundle mainBundle].bundleIdentifier, OMCEnabled(),
-			(long)OMCLicenseState(), (long)OMCTrialDaysLeft());   // first run: starts the trial clock
+		OMCLog(@"Core", @"loaded into %@ enabled=%d", [NSBundle mainBundle].bundleIdentifier, OMCEnabled());
 		static int token;
 		notify_register_dispatch(OMC_DARWIN_RESCUE, &token, dispatch_get_main_queue(), ^(int t) { OMCShowRescueNotice(); });
 		// The car just connected: wait until CarPlay has launched its apps (and recorded them), then free memory

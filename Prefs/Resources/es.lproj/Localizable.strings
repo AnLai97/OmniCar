@@ -127,8 +127,6 @@
 "CHK_RUNNING_RESPRING" = "Toca para hacer respring y ejecutar la compilación que acabas de instalar.";
 "CHK_RUNNING_NONE" = "No se está ejecutando";
 "CHK_RUNNING_NONE_FIX" = "Toca para hacer respring. Si sigue así, revisa el cargador de tweaks.";
-"CHK_LICENSE" = "Licencia";
-"CHK_LICENSE_TRIAL" = "Prueba Pro · quedan %ld días";
 "CHK_MASTER" = "Interruptor de OmniCar";
 "CHK_MASTER_FIX" = "Activa el interruptor de la tarjeta superior de la página de OmniCar.";
 "CHK_STORAGE" = "Almacenamiento libre";

@@ -127,8 +127,6 @@
 "CHK_RUNNING_RESPRING" = "Toque para fazer respring e executar o build que você acabou de instalar.";
 "CHK_RUNNING_NONE" = "Não está em execução";
 "CHK_RUNNING_NONE_FIX" = "Toque para fazer respring. Se continuar assim, verifique o carregador de tweaks.";
-"CHK_LICENSE" = "Licença";
-"CHK_LICENSE_TRIAL" = "Teste Pro · faltam %ld dias";
 "CHK_MASTER" = "Chave do OmniCar";
 "CHK_MASTER_FIX" = "Ative a chave no cartão no topo da página do OmniCar.";
 "CHK_STORAGE" = "Armazenamento livre";

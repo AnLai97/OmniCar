@@ -127,8 +127,6 @@
 "CHK_RUNNING_RESPRING" = "Tap to respring and run the build you just installed.";
 "CHK_RUNNING_NONE" = "Not running";
 "CHK_RUNNING_NONE_FIX" = "Tap to respring. If it stays like this, check the tweak loader.";
-"CHK_LICENSE" = "License";
-"CHK_LICENSE_TRIAL" = "Pro trial · %ld days left";
 "CHK_MASTER" = "OmniCar switch";
 "CHK_MASTER_FIX" = "Turn on the switch in the card at the top of the OmniCar page.";
 "CHK_STORAGE" = "Free storage";
@@ -250,6 +248,9 @@
 "CLEAN_RAM_NEVER" = "Never run yet";
 "CLEAN_RAM_LAST" = "Last time quit %lu apps at %@";
 "CLEAN_RAM_NOW" = "Free memory now";
-"CLEAN_RAM_NOW_SUB" = "Quits apps running in the background, except the ones the car needs.";
+"CLEAN_RAM_NOW_SUB" = "Quits every app running in the background except the one on screen and the one playing. With a car connected it also keeps the apps the car needs.";
+"CLEAN_RAM_RESULT" = "Closed %lu apps.";
+"CLEAN_RAM_NOTHING" = "No apps running in the background to close.";
+"CLEAN_RAM_NO_REPLY" = "SpringBoard did not answer. Respring and try again; if it still fails, send the log to the developer.";
 "CLEAN_RAM_CONFIRM" = "Free memory now?";
 "CLEAN_RAM_DO" = "Free";

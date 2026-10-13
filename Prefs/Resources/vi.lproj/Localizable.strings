@@ -127,8 +127,6 @@
 "CHK_RUNNING_RESPRING" = "Chạm để respring và chạy bản vừa cài.";
 "CHK_RUNNING_NONE" = "Chưa chạy";
 "CHK_RUNNING_NONE_FIX" = "Chạm để respring. Vẫn vậy thì kiểm tra trình nạp tweak.";
-"CHK_LICENSE" = "Bản quyền";
-"CHK_LICENSE_TRIAL" = "Dùng thử Pro · còn %ld ngày";
 "CHK_MASTER" = "Công tắc OmniCar";
 "CHK_MASTER_FIX" = "Bật công tắc ở thẻ đầu trang OmniCar.";
 "CHK_STORAGE" = "Bộ nhớ trống";
@@ -250,6 +248,9 @@
 "CLEAN_RAM_NEVER" = "Chưa dọn lần nào";
 "CLEAN_RAM_LAST" = "Lần gần nhất đóng %lu app lúc %@";
 "CLEAN_RAM_NOW" = "Dọn RAM ngay";
-"CLEAN_RAM_NOW_SUB" = "Đóng các app đang chạy nền, trừ app cần cho xe.";
+"CLEAN_RAM_NOW_SUB" = "Đóng mọi app đang chạy nền, trừ app đang mở và app đang phát nhạc. Khi đang cắm xe thì giữ cả app cần cho xe.";
+"CLEAN_RAM_RESULT" = "Đã đóng %lu app.";
+"CLEAN_RAM_NOTHING" = "Không có app nào chạy nền để đóng.";
+"CLEAN_RAM_NO_REPLY" = "SpringBoard chưa phản hồi. Respring rồi thử lại; vẫn vậy thì gửi log cho tác giả.";
 "CLEAN_RAM_CONFIRM" = "Dọn RAM ngay?";
 "CLEAN_RAM_DO" = "Dọn";

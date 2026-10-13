@@ -127,8 +127,6 @@
 "CHK_RUNNING_RESPRING" = "탭하여 리스프링하고 방금 설치한 빌드를 실행하십시오.";
 "CHK_RUNNING_NONE" = "실행 중이 아님";
 "CHK_RUNNING_NONE_FIX" = "탭하여 리스프링하십시오. 계속 이 상태라면 트윅 로더를 확인하십시오.";
-"CHK_LICENSE" = "라이선스";
-"CHK_LICENSE_TRIAL" = "Pro 체험판 · %ld일 남음";
 "CHK_MASTER" = "OmniCar 스위치";
 "CHK_MASTER_FIX" = "OmniCar 페이지 상단 카드의 스위치를 켜십시오.";
 "CHK_STORAGE" = "사용 가능한 저장 공간";

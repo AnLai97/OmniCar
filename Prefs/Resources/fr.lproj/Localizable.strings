@@ -127,8 +127,6 @@
 "CHK_RUNNING_RESPRING" = "Touchez pour faire un respring et lancer la version que vous venez d’installer.";
 "CHK_RUNNING_NONE" = "Inactif";
 "CHK_RUNNING_NONE_FIX" = "Touchez pour faire un respring. Si rien ne change, vérifiez le chargeur de tweaks.";
-"CHK_LICENSE" = "Licence";
-"CHK_LICENSE_TRIAL" = "Essai Pro · %ld jours restants";
 "CHK_MASTER" = "Interrupteur OmniCar";
 "CHK_MASTER_FIX" = "Activez l’interrupteur dans la carte en haut de la page OmniCar.";
 "CHK_STORAGE" = "Stockage libre";

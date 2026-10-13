@@ -26,6 +26,7 @@ BOOL OMCCleanRamOn(void);
 void OMCSetCleanRam(BOOL on);
 void OMCCleanRamNow(void);
 NSString *OMCCleanRamStatus(void);
+NSDictionary *OMCCleanRamLast(void);   // last run written by SpringBoard: {date, closed: [bundle id], running}
 // The Optimize button: @{@"steps": @[@{@"id", @"title"}] it can apply, @"manual": @[fix text] only the user can do}.
 NSDictionary *OMCOptimizePlan(NSArray<NSDictionary *> *groups);
 void OMCOptimizeApply(NSArray<NSDictionary *> *steps);

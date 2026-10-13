@@ -584,6 +584,12 @@ void OMCCleanRamNow(void) {
 	notify_post(OMC_DARWIN_CLEAN_NOW);
 }
 
+NSDictionary *OMCCleanRamLast(void) {
+	CFPreferencesAppSynchronize(kPrefsDomain);
+	NSDictionary *last = OMCDiagPref(OMC_KEY_DIAG_CLEAN);
+	return [last isKindOfClass:[NSDictionary class]] ? last : nil;
+}
+
 NSString *OMCCleanRamStatus(void) {
 	NSDictionary *last = OMCDiagPref(OMC_KEY_DIAG_CLEAN);
 	if (![last isKindOfClass:[NSDictionary class]] || ![last[@"date"] isKindOfClass:[NSDate class]]) return L(@"CLEAN_RAM_NEVER");
@@ -682,11 +688,6 @@ NSArray<NSDictionary *> *OMCDiagChecks(void) {
 	if ([sb isEqualToString:@"ok"]) [phone addObject:OMCCheck(L(@"CHK_RUNNING"), @"ok", [NSString stringWithFormat:L(@"CHK_RUNNING_OK"), OMCTimeText(sbDate)], nil, nil)];
 	else if ([sb isEqualToString:@"old"]) [phone addObject:OMCCheck(L(@"CHK_RUNNING"), @"warn", L(@"CHK_RUNNING_OLD"), L(@"CHK_RUNNING_RESPRING"), @"respring")];
 	else [phone addObject:OMCCheck(L(@"CHK_RUNNING"), @"bad", L(@"CHK_RUNNING_NONE"), L(@"CHK_RUNNING_NONE_FIX"), @"respring")];
-
-	OMCLicense license = OMCLicenseState();
-	NSString *licenseText = license == OMCLicensePro ? @"Pro" : (license == OMCLicenseTrial
-		? [NSString stringWithFormat:L(@"CHK_LICENSE_TRIAL"), (long)OMCTrialDaysLeft()] : @"Lite");
-	[phone addObject:OMCCheck(L(@"CHK_LICENSE"), license == OMCLicensePro ? @"ok" : @"info", licenseText, nil, nil)];
 
 	if (!OMCEnabled()) [phone addObject:OMCCheck(L(@"CHK_MASTER"), @"warn", L(@"STATUS_OFF"), L(@"CHK_MASTER_FIX"), nil)];
 

@@ -127,8 +127,6 @@
 "CHK_RUNNING_RESPRING" = "اضغط لإجراء Respring وتشغيل الإصدار الذي ثبّته للتو.";
 "CHK_RUNNING_NONE" = "لا يعمل";
 "CHK_RUNNING_NONE_FIX" = "اضغط لإجراء Respring. إذا بقي هكذا، فافحص مُحمِّل التويكات.";
-"CHK_LICENSE" = "الترخيص";
-"CHK_LICENSE_TRIAL" = "تجربة Pro · متبقٍ %ld يوم";
 "CHK_MASTER" = "مفتاح OmniCar";
 "CHK_MASTER_FIX" = "شغّل المفتاح في البطاقة أعلى صفحة OmniCar.";
 "CHK_STORAGE" = "مساحة التخزين المتاحة";

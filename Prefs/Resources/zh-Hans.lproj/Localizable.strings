@@ -127,8 +127,6 @@
 "CHK_RUNNING_RESPRING" = "轻点以注销并运行刚安装的版本。";
 "CHK_RUNNING_NONE" = "未运行";
 "CHK_RUNNING_NONE_FIX" = "轻点以注销。如果仍是这样，请检查插件加载器。";
-"CHK_LICENSE" = "许可证";
-"CHK_LICENSE_TRIAL" = "Pro 试用 · 剩余 %ld 天";
 "CHK_MASTER" = "OmniCar 开关";
 "CHK_MASTER_FIX" = "打开 OmniCar 页面顶部卡片中的开关。";
 "CHK_STORAGE" = "可用空间";

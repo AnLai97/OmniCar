@@ -127,8 +127,6 @@
 "CHK_RUNNING_RESPRING" = "タップしてリスプリングし、インストールしたばかりのビルドを実行します。";
 "CHK_RUNNING_NONE" = "実行されていません";
 "CHK_RUNNING_NONE_FIX" = "タップしてリスプリングします。変わらない場合はTweakローダーを確認してください。";
-"CHK_LICENSE" = "ライセンス";
-"CHK_LICENSE_TRIAL" = "Pro体験版 · 残り%ld日";
 "CHK_MASTER" = "OmniCarスイッチ";
 "CHK_MASTER_FIX" = "OmniCarページ上部のカードにあるスイッチをオンにしてください。";
 "CHK_STORAGE" = "空き容量";

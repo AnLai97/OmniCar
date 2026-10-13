@@ -12,7 +12,7 @@ Core/OmniCar.h/.m     API chung cho hook: OMCPref, OMCFeatureEnabled, OMCLog, OM
                       OMCCrashGuard: ghi crash CarPlay + chế độ cứu + đọc màn xe cho trang Chẩn đoán
                       + đo hiệu năng CarPlay khi đang cắm xe (khung trễ, khựng, CPU, RAM, nhiệt, tweak khác)
                       OMCLiteActive: Chế độ nhẹ (tắt / tự động / luôn bật) cho các tính năng hỏi trước khi vẽ
-Core/OMCCommon.m      ngôn ngữ (OMCCurrentLanguage, OMCTr cho chữ trên xe) + bản quyền Lite / Pro / dùng thử;
+Core/OMCCommon.m      ngôn ngữ (OMCCurrentLanguage, OMCTr cho chữ trên xe);
                       biên dịch kèm vào mọi dylib và bundle Cài đặt
 Core/OMCTest.h/.m     khung tự kiểm tra trên xe, chỉ khi OMC_AUTOTEST = 1 (biên dịch kèm vào từng dylib tính năng)
 Core/Core.x           OmniCarCore.dylib, chỉ nạp SpringBoard: trạm nhận log từ app bị sandbox, thông báo chế độ cứu,

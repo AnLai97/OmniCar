@@ -252,10 +252,9 @@ Thiếu một trong các mục này thì khách quốc tế không mua, hoặc m
   Video 60 giây, 6 ảnh chụp màn xe, mô tả ngắn / dài cho repo riêng và Chariz, FAQ, chính sách riêng tư.
   Code: docs/sales/ (mô tả ngắn / dài, FAQ, riêng tư, kịch bản quay shotlist.md). Còn thiếu: quay video, chụp ảnh,
   giá / chính sách hoàn tiền (TODO trong file).
-- [x] **Bản quyền, Lite / Pro và dùng thử** · Vừa
+- [ ] **Bản quyền, Lite / Pro và dùng thử** · Vừa
   Nền tảng kỹ thuật cho Phát hành 3 và 4: cờ Pro dùng chung cho mọi tính năng, đếm ngày dùng thử, đọc khoá của gói Pro.
-  Code: Core/OMCCommon.m: OMCLicenseState (Pro = gói com.anlai.omnicarpro đã cài, dùng thử 7 ngày từ lần chạy đầu,
-  còn lại Lite), OMCFeatureNeedsPro (chưa khoá tính năng nào), Chẩn đoán hiện bản quyền. Chưa có khoá ký số.
+  Đã bỏ khỏi Mức 1 (chưa làm): để tới lúc chốt Lite / Pro.
 
 ### Dùng hằng ngày
 

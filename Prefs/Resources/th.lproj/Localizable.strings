@@ -127,8 +127,6 @@
 "CHK_RUNNING_RESPRING" = "แตะเพื่อ Respring และรันบิลด์ที่เพิ่งติดตั้ง";
 "CHK_RUNNING_NONE" = "ไม่ได้ทำงาน";
 "CHK_RUNNING_NONE_FIX" = "แตะเพื่อ Respring หากยังเป็นแบบนี้ ให้ตรวจสอบตัวโหลดทวีก";
-"CHK_LICENSE" = "ใบอนุญาต";
-"CHK_LICENSE_TRIAL" = "ทดลองใช้ Pro · เหลือ %ld วัน";
 "CHK_MASTER" = "สวิตช์ OmniCar";
 "CHK_MASTER_FIX" = "เปิดสวิตช์ในการ์ดด้านบนของหน้า OmniCar";
 "CHK_STORAGE" = "พื้นที่ว่าง";

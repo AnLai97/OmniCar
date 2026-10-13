@@ -127,8 +127,6 @@
 "CHK_RUNNING_RESPRING" = "Ketuk untuk respring dan menjalankan build yang baru diinstal.";
 "CHK_RUNNING_NONE" = "Tidak berjalan";
 "CHK_RUNNING_NONE_FIX" = "Ketuk untuk respring. Jika tetap seperti ini, periksa pemuat tweak.";
-"CHK_LICENSE" = "Lisensi";
-"CHK_LICENSE_TRIAL" = "Uji coba Pro · sisa %ld hari";
 "CHK_MASTER" = "Sakelar OmniCar";
 "CHK_MASTER_FIX" = "Nyalakan sakelar di kartu bagian atas halaman OmniCar.";
 "CHK_STORAGE" = "Penyimpanan kosong";

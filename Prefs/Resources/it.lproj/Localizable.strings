@@ -127,8 +127,6 @@
 "CHK_RUNNING_RESPRING" = "Tocca per eseguire il respring e avviare la build appena installata.";
 "CHK_RUNNING_NONE" = "Non in esecuzione";
 "CHK_RUNNING_NONE_FIX" = "Tocca per eseguire il respring. Se resta così, controlla il caricatore tweak.";
-"CHK_LICENSE" = "Licenza";
-"CHK_LICENSE_TRIAL" = "Prova Pro · %ld giorni rimasti";
 "CHK_MASTER" = "Interruttore OmniCar";
 "CHK_MASTER_FIX" = "Attiva l'interruttore nella scheda in cima alla pagina di OmniCar.";
 "CHK_STORAGE" = "Spazio libero";

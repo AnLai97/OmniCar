@@ -127,8 +127,6 @@
 "CHK_RUNNING_RESPRING" = "Tippen für einen Respring, um den gerade installierten Build zu starten.";
 "CHK_RUNNING_NONE" = "Nicht aktiv";
 "CHK_RUNNING_NONE_FIX" = "Tippen für einen Respring. Bleibt es so, prüfe den Tweak-Loader.";
-"CHK_LICENSE" = "Lizenz";
-"CHK_LICENSE_TRIAL" = "Pro-Testversion · noch %ld Tage";
 "CHK_MASTER" = "OmniCar-Schalter";
 "CHK_MASTER_FIX" = "Aktiviere den Schalter in der Karte oben auf der OmniCar-Seite.";
 "CHK_STORAGE" = "Freier Speicher";

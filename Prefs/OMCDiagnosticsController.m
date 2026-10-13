@@ -542,9 +542,20 @@ static void OMCSetAlertList(UIAlertController *alert, NSString *text) {
 		UIAlertController *alert = [UIAlertController alertControllerWithTitle:L(@"CLEAN_RAM_CONFIRM") message:L(@"CLEAN_RAM_NOW_SUB") preferredStyle:UIAlertControllerStyleAlert];
 		[alert addAction:[UIAlertAction actionWithTitle:L(@"CANCEL") style:UIAlertActionStyleCancel handler:nil]];
 		[alert addAction:[UIAlertAction actionWithTitle:L(@"CLEAN_RAM_DO") style:UIAlertActionStyleDestructive handler:^(UIAlertAction *a) {
+			NSDate *asked = [NSDate date];
 			OMCCleanRamNow();
-			// SpringBoard writes the result a moment later
-			dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{ [self runChecks]; });
+			// SpringBoard writes the result a moment later: say how many apps it closed
+			dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+				[self runChecks];
+				NSDictionary *last = OMCCleanRamLast();
+				NSString *msg;
+				if (![last[@"date"] isKindOfClass:[NSDate class]] || [last[@"date"] compare:asked] == NSOrderedAscending) msg = L(@"CLEAN_RAM_NO_REPLY");
+				else if ([last[@"closed"] count]) msg = [NSString stringWithFormat:L(@"CLEAN_RAM_RESULT"), (unsigned long)[last[@"closed"] count]];
+				else msg = L(@"CLEAN_RAM_NOTHING");
+				UIAlertController *done = [UIAlertController alertControllerWithTitle:L(@"CLEAN_RAM_NOW") message:msg preferredStyle:UIAlertControllerStyleAlert];
+				[done addAction:[UIAlertAction actionWithTitle:L(@"OK") style:UIAlertActionStyleDefault handler:nil]];
+				[self presentViewController:done animated:YES completion:nil];
+			});
 		}]];
 		[self presentViewController:alert animated:YES completion:nil];
 	} else if ([action isEqualToString:@"rescue"]) {
