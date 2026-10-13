@@ -1,0 +1,45 @@
+/* OmniCar – Geteilter Bildschirm – Deutsch */
+
+"SPLITSCREEN" = "Geteilter Bildschirm";
+"SPLITSCREEN_ENABLE" = "Geteilter Bildschirm";
+"SPLITSCREEN_AUTO_LAUNCH" = "Beim Verbinden öffnen";
+"SPLITSCREEN_DRIVER_SIDE" = "Fahrerseite";
+"SPLITSCREEN_DRIVER_AUTO" = "Automatisch";
+"SPLITSCREEN_DRIVER_LEFT" = "Links";
+"SPLITSCREEN_DRIVER_RIGHT" = "Rechts";
+"SPLITSCREEN_DRIVER_FOOTER" = "Rechtslenker: Die aktuelle App öffnet im rechten Bereich, neben dem Fahrer. Automatisch = was das Auto meldet.";
+
+"SPLITSCREEN_PANEL_GROUP" = "OmniCar-Menü im Auto";
+"SPLITSCREEN_SHOW_RECENT" = "Zuletzt";
+"SPLITSCREEN_SHOW_FAVORITES" = "Favoriten";
+
+"SPLITSCREEN_FAV_GROUP" = "Favoriten-Layouts";
+"SPLITSCREEN_FAV_FOOTER" = "Siri: omnicar://splitscreen/fav?n=1";
+"SPLITSCREEN_FAV1_PLACEHOLDER" = "Arbeitsweg";
+"SPLITSCREEN_FAV2_PLACEHOLDER" = "Wochenende";
+"SPLITSCREEN_FAV3_PLACEHOLDER" = "Roadtrip";
+"SPLITSCREEN_PAIR_NAME" = "Name";
+"SPLITSCREEN_LAYOUT_GROUP" = "Layout";
+"SPLITSCREEN_APPS_GROUP" = "Apps";
+"SPLITSCREEN_LAYOUT_2" = "2 Bereiche";
+"SPLITSCREEN_LAYOUT_3" = "3 Bereiche";
+"SPLITSCREEN_LAYOUT_13" = "1 groß + 2";
+"SPLITSCREEN_LAYOUT_31" = "2 + 1 groß";
+"SPLITSCREEN_BOX_1" = "Bereich 1";
+"SPLITSCREEN_BOX_2" = "Bereich 2";
+"SPLITSCREEN_BOX_3" = "Bereich 3";
+
+"SPLITSCREEN_APP_NOT_SET" = "Noch keine Apps";
+"SPLITSCREEN_PICKER_NONE" = "Keine";
+"SPLITSCREEN_PICKER_CARPLAY_APPS" = "CarPlay-Apps";
+"SPLITSCREEN_PICKER_PHONE_APPS" = "iPhone-Apps (App Bridge)";
+"SPLITSCREEN_PICKER_GUESS_FOOTER" = "Noch nicht mit einem Auto verbunden: geschätzt anhand der CarPlay-Unterstützung.";
+"SPLITSCREEN_PICKER_PHONE_FOOTER" = "Unter „Apps auf dem Autodisplay“ gewählte Apps.";
+"SPLITSCREEN_PICKER_NO_PHONE_FOOTER" = "Noch keine iPhone-Apps gewählt (Apps auf dem Autodisplay).";
+
+"SPLITSCREEN_GUIDE" = "Anleitung";
+"SPLITSCREEN_GUIDE_CAR" = "Im Auto";
+"SPLITSCREEN_GUIDE_CAR_TEXT" = "• OmniCar-Taste im Dock: Layouts, Zuletzt, Favoriten, Teilung beenden.\n• Runder Regler: tippen für Verhältnisse · ziehen zum Skalieren · zum Rand ziehen, um einen Bereich zu schließen.\n• •••-Leiste: tippen für Ersetzen / Schweben / Vollbild / Schließen · auf einen anderen Bereich ziehen zum Tauschen.\n• Doppeltippen auf die •••-Leiste: vergrößert den Bereich kurz, erneut doppeltippen zum Zurückkehren.\n• Doppeltippen auf einen Trenner: tauscht die zwei Bereiche.\n• Home-Taste: Teilung beenden.";
+"SPLITSCREEN_SHORTCUTS_GROUP" = "Siri / Kurzbefehle (URL öffnen)";
+"SPLITSCREEN_SHORTCUTS_FOOTER" = "omnicar://splitscreen/open?left=com.apple.Maps&right=com.spotify.client\nomnicar://splitscreen/fav?n=1\nomnicar://splitscreen/close";
+"SPLITSCREEN_CREDITS_FOOTER" = "Ehemals CarDuo. Das App-Hosting basiert auf carplay-cast (Ethan Arbuckle).";

@@ -1,0 +1,51 @@
+/* OmniCar - text on the car screen and in notices, keyed by the English text in the code (OMCTr / SCPCT / ABKT).
+   Vietnamese and English come from the code; other languages translate the value. Every key must match the English
+   literal in the code exactly (format specifiers included): rerun the key extraction when a call is added. */
+
+"%@ can't go picture-in-picture" = "%@ tidak bisa gambar-dalam-gambar";
+"%@ can't open in the floating window" = "%@ tidak bisa dibuka di jendela mengambang";
+"%@ is already open in %@" = "%@ sudah terbuka di %@";
+"%@ moved to the background" = "%@ dipindah ke latar belakang";
+"%@ replaced %@ in pane %d" = "%@ menggantikan %@ di panel %d";
+"%@ would cover the floating window" = "%@ akan menutupi jendela mengambang";
+"1 large + 2" = "1 besar + 2";
+"2 + 1 large" = "2 + 1 besar";
+"2 panes" = "2 panel";
+"3 panes" = "3 panel";
+"Already 3 panes, can't dock back" = "Sudah 3 panel, tidak bisa dikembalikan";
+"Apps on the car screen" = "App di Layar Mobil";
+"Cancel opening" = "Batal membuka";
+"CarPlay crashed %d times in a row right after connecting, so OmniCar turned off: %@.\n\nOpen Settings > OmniCar to turn it back on or send the log to the developer." = "CarPlay crash %d kali berturut-turut tepat setelah terhubung, jadi OmniCar mematikan: %@.\n\nBuka Pengaturan > OmniCar untuk menyalakannya lagi atau mengirim log ke pengembang.";
+"Change layout" = "Ubah tata letak";
+"Close" = "Tutup";
+"Couldn't open %@ in the pane" = "Tidak dapat membuka %@ di panel";
+"Couldn't reopen %@" = "Tidak dapat membuka ulang %@";
+"Couldn't show %@ on the car" = "Tidak dapat menampilkan %@ di mobil";
+"Done" = "Selesai";
+"Exit split" = "Keluar layar terpisah";
+"Favorites" = "Favorit";
+"Floating window closed: %@ covers the screen" = "Jendela mengambang ditutup: %@ menutupi layar";
+"Go" = "Buka";
+"Layout" = "Tata letak";
+"Layouts" = "Tata letak";
+"Needs at least 2 panes" = "Perlu minimal 2 panel";
+"Next" = "Berikutnya";
+"No apps" = "Tidak ada app";
+"OmniCar: rescue mode" = "OmniCar: mode penyelamatan";
+"Recent" = "Terbaru";
+"Search" = "Cari";
+"Send" = "Kirim";
+"Speed Bubble" = "Gelembung Kecepatan";
+"Split Screen" = "Layar Terpisah";
+"Startup Screen" = "Layar Pembuka";
+"This app can't be split" = "App ini tidak bisa dibagi";
+"This app doesn't support CarPlay" = "App ini tidak mendukung CarPlay";
+"This pane has no app" = "Panel ini tidak berisi app";
+"Tip: double-tap a divider to swap the two panes" = "Tips: ketuk dua kali pembatas untuk menukar kedua panel";
+"Tip: drag a divider to the edge to close that pane" = "Tips: seret pembatas ke tepi untuk menutup panel itu";
+"Tip: drag ••• onto another pane to swap them" = "Tips: seret ••• ke panel lain untuk menukarnya";
+"Type into the app" = "Ketik ke app";
+"Vietnamese (Telex)" = "Vietnam (Telex)";
+"Your splits will show up here" = "Layar terpisah Anda akan muncul di sini";
+"another pane" = "panel lain";
+"the floating window" = "jendela mengambang";

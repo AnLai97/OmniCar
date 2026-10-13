@@ -1,0 +1,33 @@
+/* OmniCar – Layar Pembuka – Bahasa Indonesia */
+
+"STARTUPSCREEN" = "Layar Pembuka";
+"STARTUPSCREEN_ENABLE" = "Layar Pembuka";
+
+"STARTUPSCREEN_VIDEO_GROUP" = "Video";
+"STARTUPSCREEN_VIDEO_FOOTER" = "MP4, MOV, M4V · maksimal 60 detik.";
+"STARTUPSCREEN_CURRENT_VIDEO" = "Video";
+"STARTUPSCREEN_NO_VIDEO" = "(Tidak ada video)";
+"STARTUPSCREEN_PREVIEW" = "Pratinjau";
+"STARTUPSCREEN_DELETE" = "Hapus video";
+"STARTUPSCREEN_ADD" = "Tambah video";
+"STARTUPSCREEN_FROM_PHOTOS" = "Dari Foto";
+"STARTUPSCREEN_FROM_FILES" = "Dari File";
+
+"STARTUPSCREEN_DURATION_GROUP" = "Durasi (detik)";
+"STARTUPSCREEN_DURATION_FOOTER" = "Video yang lebih pendek akan diputar berulang.";
+"STARTUPSCREEN_PLAY_FULL" = "Putar video penuh";
+
+"STARTUPSCREEN_DISPLAY_GROUP" = "Tampilan";
+"STARTUPSCREEN_SCALE_FILL" = "Isi";
+"STARTUPSCREEN_SCALE_FIT" = "Pas";
+"STARTUPSCREEN_SOUND" = "Suara";
+"STARTUPSCREEN_TAP_TO_SKIP" = "Ketuk untuk melewati";
+
+"STARTUPSCREEN_PREPARING" = "Menyiapkan video untuk CarPlay";
+"STARTUPSCREEN_PROCESS_FAILED" = "Tidak dapat memproses video:\n%@";
+"STARTUPSCREEN_SAVE_FAILED" = "Tidak dapat menyimpan video: %@";
+"STARTUPSCREEN_NO_VIDEO_PREVIEW" = "Belum ada video. Tambahkan dulu.";
+"STARTUPSCREEN_NO_VIDEO_DELETE" = "Tidak ada video untuk dihapus.";
+"STARTUPSCREEN_DELETE_TITLE" = "Hapus video";
+"STARTUPSCREEN_DELETE_CONFIRM" = "Hapus \"%@\"?";
+"STARTUPSCREEN_DELETE_ACTION" = "Hapus";

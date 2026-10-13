@@ -1,0 +1,16 @@
+/* OmniCar – App Bridge – 한국어 */
+
+"APPBRIDGE" = "App Bridge";
+"APPBRIDGE_FOOTER" = "CarPlay를 지원하지 않는 iPhone 앱(YouTube, TikTok…)을 차량 화면에 표시합니다.";
+"APPBRIDGE_ENABLE" = "차량에 iPhone 앱 표시";
+"APPBRIDGE_APPS" = "차량 화면 앱";
+"APPBRIDGE_APPS_FOOTER" = "앱을 켜면 CarPlay 홈 화면에 아이콘이 추가됩니다.";
+"APPBRIDGE_APPS_NONE" = "없음";
+"APPBRIDGE_APPS_COUNT" = "앱 %ld개";
+"APPBRIDGE_APPS_ON_CAR" = "차량 화면에 표시";
+"APPBRIDGE_APPS_USER" = "내 앱";
+"APPBRIDGE_APPS_SYSTEM" = "시스템 앱";
+"APPBRIDGE_APPS_OTHER_FOOTER" = "자체 CarPlay 인터페이스가 있는 앱은 목록에 표시되지 않습니다.";
+"APPBRIDGE_APPS_SEARCH" = "앱 검색";
+"APPBRIDGE_APPS_EMPTY" = "이 기기에서 iPhone 앱을 찾을 수 없습니다.";
+"APPBRIDGE_APPS_NO_MATCH" = "일치하는 앱이 없습니다.";

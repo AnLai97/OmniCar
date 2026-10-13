@@ -14,32 +14,26 @@
 typedef SInt32 (*OMCDisplayNoticeFn)(CFTimeInterval timeout, CFOptionFlags flags, CFURLRef iconURL, CFURLRef soundURL,
 	CFURLRef localizationURL, CFStringRef alertHeader, CFStringRef alertMessage, CFStringRef defaultButtonTitle);
 
-// Same language rule as the settings page (OMCLanguage in Prefs/OMCTheme.m).
-static BOOL OMCCoreVietnamese(void) {
-	NSString *lang = OMCPref(@"language", nil);
-	if ([lang isKindOfClass:[NSString class]] && lang.length) return [lang isEqualToString:@"vi"];
-	return [[NSLocale preferredLanguages].firstObject hasPrefix:@"vi"];
-}
-
-static NSString *OMCCoreFeatureName(NSString *feature, BOOL vi) {
-	NSDictionary *names = vi
-		? @{@"splitScreen": @"Chia màn hình", @"startupScreen": @"Màn hình khởi động", @"speedBubble": @"Bong bóng tốc độ", @"appBridge": @"App trên màn xe"}
-		: @{@"splitScreen": @"Split Screen", @"startupScreen": @"Startup Screen", @"speedBubble": @"Speed Bubble", @"appBridge": @"Apps on the car screen"};
-	return names[feature] ?: feature;
+static NSString *OMCCoreFeatureName(NSString *feature) {
+	if ([feature isEqualToString:@"splitScreen"]) return OMCTr(@"Chia màn hình", @"Split Screen");
+	if ([feature isEqualToString:@"startupScreen"]) return OMCTr(@"Màn hình khởi động", @"Startup Screen");
+	if ([feature isEqualToString:@"speedBubble"]) return OMCTr(@"Bong bóng tốc độ", @"Speed Bubble");
+	if ([feature isEqualToString:@"appBridge"]) return OMCTr(@"App trên màn xe", @"Apps on the car screen");
+	return feature;
 }
 
 static void OMCShowRescueNotice(void) {
 	OMCPrefsSync();
 	NSArray *features = OMCPref(OMC_KEY_RESCUE, nil);
 	if (![features isKindOfClass:[NSArray class]] || !features.count) return;
-	BOOL vi = OMCCoreVietnamese();
 	NSMutableArray *names = [NSMutableArray array];
-	for (NSString *f in features) [names addObject:OMCCoreFeatureName(f, vi)];
+	for (NSString *f in features) [names addObject:OMCCoreFeatureName(f)];
 	NSString *list = [names componentsJoinedByString:@", "];
-	NSString *title = vi ? @"OmniCar: chế độ cứu" : @"OmniCar: rescue mode";
-	NSString *message = vi
-		? [NSString stringWithFormat:@"CarPlay bị sập %d lần liền ngay sau khi cắm, nên OmniCar đã tắt: %@.\n\nVào Cài đặt > OmniCar để bật lại hoặc gửi log cho tác giả.", OMC_RESCUE_CRASHES, list]
-		: [NSString stringWithFormat:@"CarPlay crashed %d times in a row right after connecting, so OmniCar turned off: %@.\n\nOpen Settings > OmniCar to turn it back on or send the log to the developer.", OMC_RESCUE_CRASHES, list];
+	NSString *title = OMCTr(@"OmniCar: chế độ cứu", @"OmniCar: rescue mode");
+	NSString *message = [NSString stringWithFormat:OMCTr(
+		@"CarPlay bị sập %d lần liền ngay sau khi cắm, nên OmniCar đã tắt: %@.\n\nVào Cài đặt > OmniCar để bật lại hoặc gửi log cho tác giả.",
+		@"CarPlay crashed %d times in a row right after connecting, so OmniCar turned off: %@.\n\nOpen Settings > OmniCar to turn it back on or send the log to the developer."),
+		OMC_RESCUE_CRASHES, list];
 	OMCDisplayNoticeFn notice = (OMCDisplayNoticeFn)dlsym(RTLD_DEFAULT, "CFUserNotificationDisplayNotice");
 	OMCLog(@"Core", @"thong bao che do cuu: %@ (notice=%d)", list, notice != NULL);
 	if (!notice) return;

@@ -6,17 +6,19 @@
 static NSDictionary<NSString *, NSString *> *sStrings;
 
 NSArray<NSString *> *OMCLanguages(void) {
-	return @[@"vi", @"en"];
+	return OMCSupportedLanguages();
 }
 
+// Each language in its own name (the picker lists them so)
 NSString *OMCLanguageName(NSString *lang) {
-	return [lang isEqualToString:@"vi"] ? @"Tiếng Việt" : @"English";
+	NSDictionary *names = @{@"vi": @"Tiếng Việt", @"en": @"English", @"es": @"Español", @"pt-BR": @"Português (Brasil)",
+		@"de": @"Deutsch", @"fr": @"Français", @"it": @"Italiano", @"ru": @"Русский", @"zh-Hans": @"简体中文",
+		@"ja": @"日本語", @"ko": @"한국어", @"ar": @"العربية", @"th": @"ไทย", @"id": @"Bahasa Indonesia"};
+	return names[lang] ?: lang;
 }
 
 NSString *OMCLanguage(void) {
-	NSString *lang = (__bridge_transfer NSString *)CFPreferencesCopyAppValue(kLanguageKey, kPrefsDomain);
-	if (lang && [OMCLanguages() containsObject:lang]) return lang;
-	return [[NSLocale preferredLanguages].firstObject hasPrefix:@"vi"] ? @"vi" : @"en";
+	return OMCCurrentLanguage();
 }
 
 // Merges every table in <lang>.lproj: Localizable.strings (core) plus one <Feature>.strings per
@@ -25,9 +27,13 @@ void OMCLoadStrings(void) {
 	NSString *bundlePath = [NSBundle bundleForClass:NSClassFromString(@"OMCRootListController")].bundlePath;
 	NSString *lproj = [bundlePath stringByAppendingFormat:@"/%@.lproj", OMCLanguage()];
 	NSMutableDictionary *all = [NSMutableDictionary dictionary];
-	for (NSString *file in [[NSFileManager defaultManager] contentsOfDirectoryAtPath:lproj error:nil]) {
-		if (![file.pathExtension isEqualToString:@"strings"]) continue;
-		NSDictionary *table = [NSDictionary dictionaryWithContentsOfFile:[lproj stringByAppendingPathComponent:file]];
+	NSMutableArray *dirs = [NSMutableArray array];
+	if (![OMCLanguage() isEqualToString:@"en"] && ![OMCLanguage() isEqualToString:@"vi"])
+		[dirs addObject:[bundlePath stringByAppendingString:@"/en.lproj"]];   // English under a partial translation
+	[dirs addObject:lproj];
+	for (NSString *dir in dirs) for (NSString *file in [[NSFileManager defaultManager] contentsOfDirectoryAtPath:dir error:nil]) {
+		if (![file.pathExtension isEqualToString:@"strings"] || [file isEqualToString:@"Car.strings"]) continue;
+		NSDictionary *table = [NSDictionary dictionaryWithContentsOfFile:[dir stringByAppendingPathComponent:file]];
 		if (table) [all addEntriesFromDictionary:table];
 	}
 	sStrings = all;

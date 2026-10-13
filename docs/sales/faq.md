@@ -40,7 +40,7 @@ Most changes apply the next time CarPlay connects: unplug and reconnect (or turn
 The bubble reads speed and the posted limit from Vietmap Live or GOFA. Pick your app as the speed source in Speed Bubble settings and keep that app running (it can be in the background).
 
 **12. Can I type in YouTube or Safari on the car screen?**
-Not yet. There is no on-car keyboard for iPhone apps at the moment; it is planned.
+Yes: when you tap a text field in an iPhone app shown through App Bridge, OmniCar shows its own keyboard on the car screen (English, or Vietnamese with Telex). Not tested on a car yet.
 
 **13. My phone gets hot or the car screen stutters.**
 Three live panes or two video apps at once are heavy. Turn on Lite mode (Auto or Always) in OmniCar settings: it drops blur effects and limits Split Screen to two apps. Diagnostics shows temperature and CarPlay performance with tips.
@@ -89,7 +89,7 @@ Cài đặt > OmniCar > Gửi log, chọn Zalo hoặc Mail. Ghi kèm tên đầu
 Bong bóng đọc tốc độ và biển giới hạn từ Vietmap Live hoặc GOFA. Chọn app đó làm nguồn trong cài đặt Bong bóng tốc độ và để app chạy (chạy nền cũng được).
 
 **12. Gõ phím trong YouTube, Safari trên màn xe được không?**
-Chưa. Hiện chưa có bàn phím trên màn xe cho app iPhone; đã có trong kế hoạch.
+Được: chạm vào ô nhập trong app iPhone (qua App Bridge), OmniCar hiện bàn phím riêng trên màn xe (tiếng Anh, hoặc tiếng Việt kiểu Telex). Chưa thử trên xe.
 
 **13. Máy nóng hoặc màn xe bị khựng.**
 Ba ô cùng chạy hoặc hai app video cùng lúc khá nặng. Bật Chế độ nhẹ (Tự động hoặc Luôn bật) trong cài đặt OmniCar: bỏ hiệu ứng kính mờ và giới hạn Chia màn hình còn 2 app. Chẩn đoán hiện nhiệt độ, hiệu năng CarPlay kèm gợi ý.

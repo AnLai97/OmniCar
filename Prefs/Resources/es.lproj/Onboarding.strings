@@ -1,0 +1,24 @@
+/* OmniCar – Guía inicial (Prefs/OMCOnboardingController.m) – Español */
+
+"ONB_SHOW_AGAIN" = "Ver la guía de nuevo";
+"ONB_SKIP" = "Omitir";
+"ONB_NEXT" = "Siguiente";
+"ONB_DONE" = "OK";
+
+"ONB_P1_TITLE" = "Te damos la bienvenida a OmniCar";
+"ONB_P1_BODY" = "OmniCar le da más poder a CarPlay. Empieza eligiendo las apps del iPhone que quieres en la pantalla del coche, incluso las que no tienen CarPlay.";
+"ONB_P1_BUTTON" = "Elegir apps";
+"ONB_P1_NOTE" = "Puedes cambiarlas cuando quieras en Apps en la pantalla del coche.";
+
+"ONB_P2_TITLE" = "Divide la pantalla del coche";
+"ONB_P2_BODY" = "• En el coche, toca el botón OmniCar del dock de CarPlay para abrir el menú de diseños.\n• Elige un diseño: 2 paneles, 3 paneles, 1 grande + 2 o 2 + 1 grande. Luego elige las apps.\n• O mantén pulsado el icono de una app en la pantalla de inicio del coche para dividir con esa app.\n• Arrastra el control redondo para cambiar el tamaño. El botón de inicio sale de la división.";
+"ONB_P2_NOTE" = "Guarda tus diseños habituales en Pantalla dividida > Diseños favoritos.";
+
+"ONB_P3_TITLE" = "Burbuja de velocidad";
+"ONB_P3_BODY" = "Una pequeña burbuja en la pantalla del coche muestra tu velocidad y el límite de velocidad, para que los veas de un vistazo.";
+"ONB_P3_SWITCH" = "Burbuja de velocidad";
+"ONB_P3_NOTE" = "Requiere Vietmap Live o GOFA en tu iPhone. Elige el origen en la página Burbuja de velocidad.";
+
+"ONB_P4_TITLE" = "Consejos rápidos";
+"ONB_P4_BODY" = "• Menú de diseños: toca el botón OmniCar del dock de CarPlay o mantén pulsado el icono de una app.\n• Recientes y Favoritos están en el mismo menú.\n• ¿Algo falla? Abre Soporte al final de esta página: Diagnóstico lo revisa todo y Enviar registro envía un informe al desarrollador.";
+"ONB_P4_NOTE" = "Puedes volver a abrir esta guía en Soporte > Ver la guía de nuevo.";

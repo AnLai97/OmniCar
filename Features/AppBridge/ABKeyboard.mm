@@ -176,14 +176,7 @@ NSString *ABTelexApply(NSString *word, NSString *key)
 
 #pragma mark - Keyboard view
 
-static BOOL ABKVietnameseUI(void)
-{
-    NSString *lang = OMCPref(@"language", nil);
-    if ([lang isKindOfClass:[NSString class]] && lang.length) return [lang isEqualToString:@"vi"];
-    return [[NSLocale preferredLanguages].firstObject hasPrefix:@"vi"];
-}
-
-static NSString *ABKT(NSString *vi, NSString *en) { return ABKVietnameseUI() ? vi : en; }
+static NSString *ABKT(NSString *vi, NSString *en) { return OMCTr(vi, en); }
 
 // Phim: chu (ky tu), hoac lenh: shift, del, mode (doi trang chu / so), lang (EN / VI), space, ret, hide
 @interface ABKey : UIButton
@@ -228,7 +221,7 @@ static NSString *ABKT(NSString *vi, NSString *en) { return ABKVietnameseUI() ? v
     BOOL fresh = ![self.app isEqualToString:bid] || !self.panel.superview;
     self.app = bid;
     self.returnType = ret;
-    self.vietnamese = [OMCPref(AB_KEY_KEYBOARD_LANG, @(ABKVietnameseUI() ? 1 : 0)) intValue] == 1;
+    self.vietnamese = [OMCPref(AB_KEY_KEYBOARD_LANG, @([OMCCurrentLanguage() isEqualToString:@"vi"] ? 1 : 0)) intValue] == 1;
     // UIKeyboardTypeNumberPad 4, PhonePad 5, DecimalPad 8, NumbersAndPunctuation 2, ASCIICapableNumberPad 11
     self.numbers = (type == 2 || type == 4 || type == 5 || type == 8 || type == 11);
     self.shift = NO;

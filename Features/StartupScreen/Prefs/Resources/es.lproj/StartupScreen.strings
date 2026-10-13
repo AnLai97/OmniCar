@@ -1,0 +1,33 @@
+/* OmniCar – Pantalla de inicio – Español */
+
+"STARTUPSCREEN" = "Pantalla de inicio";
+"STARTUPSCREEN_ENABLE" = "Pantalla de inicio";
+
+"STARTUPSCREEN_VIDEO_GROUP" = "Vídeo";
+"STARTUPSCREEN_VIDEO_FOOTER" = "MP4, MOV, M4V · hasta 60 segundos.";
+"STARTUPSCREEN_CURRENT_VIDEO" = "Vídeo";
+"STARTUPSCREEN_NO_VIDEO" = "(Sin vídeos)";
+"STARTUPSCREEN_PREVIEW" = "Vista previa";
+"STARTUPSCREEN_DELETE" = "Eliminar vídeo";
+"STARTUPSCREEN_ADD" = "Añadir vídeo";
+"STARTUPSCREEN_FROM_PHOTOS" = "Desde Fotos";
+"STARTUPSCREEN_FROM_FILES" = "Desde Archivos";
+
+"STARTUPSCREEN_DURATION_GROUP" = "Duración (segundos)";
+"STARTUPSCREEN_DURATION_FOOTER" = "Los vídeos más cortos se repiten.";
+"STARTUPSCREEN_PLAY_FULL" = "Reproducir el vídeo completo";
+
+"STARTUPSCREEN_DISPLAY_GROUP" = "Visualización";
+"STARTUPSCREEN_SCALE_FILL" = "Rellenar";
+"STARTUPSCREEN_SCALE_FIT" = "Ajustar";
+"STARTUPSCREEN_SOUND" = "Sonido";
+"STARTUPSCREEN_TAP_TO_SKIP" = "Tocar para omitir";
+
+"STARTUPSCREEN_PREPARING" = "Preparando el vídeo para CarPlay";
+"STARTUPSCREEN_PROCESS_FAILED" = "No se pudo procesar el vídeo:\n%@";
+"STARTUPSCREEN_SAVE_FAILED" = "No se pudo guardar el vídeo: %@";
+"STARTUPSCREEN_NO_VIDEO_PREVIEW" = "Aún no hay vídeos. Añade uno primero.";
+"STARTUPSCREEN_NO_VIDEO_DELETE" = "No hay ningún vídeo que eliminar.";
+"STARTUPSCREEN_DELETE_TITLE" = "Eliminar vídeo";
+"STARTUPSCREEN_DELETE_CONFIRM" = "¿Eliminar \"%@\"?";
+"STARTUPSCREEN_DELETE_ACTION" = "Eliminar";

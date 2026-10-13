@@ -1,0 +1,24 @@
+/* OmniCar – Panduan awal (Prefs/OMCOnboardingController.m) – Bahasa Indonesia */
+
+"ONB_SHOW_AGAIN" = "Tampilkan panduan lagi";
+"ONB_SKIP" = "Lewati";
+"ONB_NEXT" = "Berikutnya";
+"ONB_DONE" = "Selesai";
+
+"ONB_P1_TITLE" = "Selamat datang di OmniCar";
+"ONB_P1_BODY" = "OmniCar membuat CarPlay lebih bertenaga. Mari mulai dengan app iPhone yang Anda inginkan di layar mobil, bahkan app yang tidak mendukung CarPlay.";
+"ONB_P1_BUTTON" = "Pilih app";
+"ONB_P1_NOTE" = "Anda bisa mengubahnya kapan saja di App di Layar Mobil.";
+
+"ONB_P2_TITLE" = "Bagi layar mobil";
+"ONB_P2_BODY" = "• Di mobil, ketuk tombol OmniCar di Dock CarPlay untuk membuka panel tata letak.\n• Pilih tata letak: 2 panel, 3 panel, 1 besar + 2 atau 2 + 1 besar. Lalu pilih app-nya.\n• Atau tekan lama ikon app di layar utama mobil untuk membagi layar dengan app itu.\n• Seret kenop bulat untuk mengubah ukuran. Tombol Utama keluar dari layar terpisah.";
+"ONB_P2_NOTE" = "Simpan tata letak andalan Anda di Layar Terpisah > Tata letak favorit.";
+
+"ONB_P3_TITLE" = "Gelembung Kecepatan";
+"ONB_P3_BODY" = "Gelembung kecil di layar mobil menampilkan kecepatan Anda dan batas kecepatan, sehingga terlihat sekilas.";
+"ONB_P3_SWITCH" = "Gelembung Kecepatan";
+"ONB_P3_NOTE" = "Memerlukan Vietmap Live atau GOFA di iPhone Anda. Pilih sumbernya di halaman Gelembung Kecepatan.";
+
+"ONB_P4_TITLE" = "Tips singkat";
+"ONB_P4_BODY" = "• Panel tata letak: ketuk tombol OmniCar di Dock CarPlay, atau tekan lama ikon app.\n• Terbaru dan Favorit ada di panel yang sama.\n• Ada masalah? Buka Dukungan di bagian bawah halaman ini: Diagnostik memeriksa semuanya, Kirim log mengirim laporan ke pengembang.";
+"ONB_P4_NOTE" = "Anda bisa membuka panduan ini lagi dari Dukungan > Tampilkan panduan lagi.";

@@ -1,0 +1,33 @@
+/* OmniCar – Startup Screen – Русский */
+
+"STARTUPSCREEN" = "Заставка";
+"STARTUPSCREEN_ENABLE" = "Заставка";
+
+"STARTUPSCREEN_VIDEO_GROUP" = "Видео";
+"STARTUPSCREEN_VIDEO_FOOTER" = "MP4, MOV, M4V · до 60 секунд.";
+"STARTUPSCREEN_CURRENT_VIDEO" = "Видео";
+"STARTUPSCREEN_NO_VIDEO" = "(Нет видео)";
+"STARTUPSCREEN_PREVIEW" = "Предпросмотр";
+"STARTUPSCREEN_DELETE" = "Удалить видео";
+"STARTUPSCREEN_ADD" = "Добавить видео";
+"STARTUPSCREEN_FROM_PHOTOS" = "Из Фото";
+"STARTUPSCREEN_FROM_FILES" = "Из Файлов";
+
+"STARTUPSCREEN_DURATION_GROUP" = "Длительность (секунды)";
+"STARTUPSCREEN_DURATION_FOOTER" = "Более короткие видео повторяются.";
+"STARTUPSCREEN_PLAY_FULL" = "Воспроизводить видео целиком";
+
+"STARTUPSCREEN_DISPLAY_GROUP" = "Отображение";
+"STARTUPSCREEN_SCALE_FILL" = "Заполнить";
+"STARTUPSCREEN_SCALE_FIT" = "Вписать";
+"STARTUPSCREEN_SOUND" = "Звук";
+"STARTUPSCREEN_TAP_TO_SKIP" = "Пропуск касанием";
+
+"STARTUPSCREEN_PREPARING" = "Подготовка видео для CarPlay";
+"STARTUPSCREEN_PROCESS_FAILED" = "Не удалось обработать видео:\n%@";
+"STARTUPSCREEN_SAVE_FAILED" = "Не удалось сохранить видео: %@";
+"STARTUPSCREEN_NO_VIDEO_PREVIEW" = "Видео пока нет. Сначала добавьте его.";
+"STARTUPSCREEN_NO_VIDEO_DELETE" = "Нет видео для удаления.";
+"STARTUPSCREEN_DELETE_TITLE" = "Удалить видео";
+"STARTUPSCREEN_DELETE_CONFIRM" = "Удалить «%@»?";
+"STARTUPSCREEN_DELETE_ACTION" = "Удалить";

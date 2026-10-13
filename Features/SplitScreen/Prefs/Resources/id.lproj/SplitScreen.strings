@@ -1,0 +1,45 @@
+/* OmniCar – Layar Terpisah – Bahasa Indonesia */
+
+"SPLITSCREEN" = "Layar Terpisah";
+"SPLITSCREEN_ENABLE" = "Layar Terpisah";
+"SPLITSCREEN_AUTO_LAUNCH" = "Buka saat terhubung";
+"SPLITSCREEN_DRIVER_SIDE" = "Sisi pengemudi";
+"SPLITSCREEN_DRIVER_AUTO" = "Otomatis";
+"SPLITSCREEN_DRIVER_LEFT" = "Kiri";
+"SPLITSCREEN_DRIVER_RIGHT" = "Kanan";
+"SPLITSCREEN_DRIVER_FOOTER" = "Setir kanan: app saat ini terbuka di panel kanan, di sebelah pengemudi. Otomatis = sesuai laporan mobil.";
+
+"SPLITSCREEN_PANEL_GROUP" = "Panel OmniCar di mobil";
+"SPLITSCREEN_SHOW_RECENT" = "Terbaru";
+"SPLITSCREEN_SHOW_FAVORITES" = "Favorit";
+
+"SPLITSCREEN_FAV_GROUP" = "Tata letak favorit";
+"SPLITSCREEN_FAV_FOOTER" = "Siri: omnicar://splitscreen/fav?n=1";
+"SPLITSCREEN_FAV1_PLACEHOLDER" = "Pulang-pergi kerja";
+"SPLITSCREEN_FAV2_PLACEHOLDER" = "Akhir pekan";
+"SPLITSCREEN_FAV3_PLACEHOLDER" = "Perjalanan jauh";
+"SPLITSCREEN_PAIR_NAME" = "Nama";
+"SPLITSCREEN_LAYOUT_GROUP" = "Tata letak";
+"SPLITSCREEN_APPS_GROUP" = "App";
+"SPLITSCREEN_LAYOUT_2" = "2 panel";
+"SPLITSCREEN_LAYOUT_3" = "3 panel";
+"SPLITSCREEN_LAYOUT_13" = "1 besar + 2";
+"SPLITSCREEN_LAYOUT_31" = "2 + 1 besar";
+"SPLITSCREEN_BOX_1" = "Panel 1";
+"SPLITSCREEN_BOX_2" = "Panel 2";
+"SPLITSCREEN_BOX_3" = "Panel 3";
+
+"SPLITSCREEN_APP_NOT_SET" = "Belum ada app";
+"SPLITSCREEN_PICKER_NONE" = "Tidak ada";
+"SPLITSCREEN_PICKER_CARPLAY_APPS" = "App CarPlay";
+"SPLITSCREEN_PICKER_PHONE_APPS" = "App iPhone (App Bridge)";
+"SPLITSCREEN_PICKER_GUESS_FOOTER" = "Belum terhubung ke mobil: menebak dari dukungan CarPlay.";
+"SPLITSCREEN_PICKER_PHONE_FOOTER" = "App yang dipilih di App di Layar Mobil.";
+"SPLITSCREEN_PICKER_NO_PHONE_FOOTER" = "Belum ada app iPhone yang dipilih (App di Layar Mobil).";
+
+"SPLITSCREEN_GUIDE" = "Panduan";
+"SPLITSCREEN_GUIDE_CAR" = "Di mobil";
+"SPLITSCREEN_GUIDE_CAR_TEXT" = "• Tombol OmniCar di Dock: tata letak, Terbaru, Favorit, keluar layar terpisah.\n• Kenop bulat: ketuk untuk rasio · seret untuk mengubah ukuran · seret ke tepi untuk menutup panel.\n• Bilah •••: ketuk untuk Ganti / Mengambang / Layar penuh / Tutup · seret ke panel lain untuk menukar.\n• Ketuk dua kali bilah •••: perbesar panel itu sejenak, ketuk dua kali lagi untuk kembali.\n• Ketuk dua kali pembatas: tukar kedua panel.\n• Tombol Utama: keluar layar terpisah.";
+"SPLITSCREEN_SHORTCUTS_GROUP" = "Siri / Pintasan (Buka URL)";
+"SPLITSCREEN_SHORTCUTS_FOOTER" = "omnicar://splitscreen/open?left=com.apple.Maps&right=com.spotify.client\nomnicar://splitscreen/fav?n=1\nomnicar://splitscreen/close";
+"SPLITSCREEN_CREDITS_FOOTER" = "Sebelumnya bernama CarDuo. Hosting app berbasis carplay-cast (Ethan Arbuckle).";

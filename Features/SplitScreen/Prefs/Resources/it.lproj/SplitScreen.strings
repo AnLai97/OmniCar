@@ -1,0 +1,45 @@
+/* OmniCar – Split Screen – Italiano */
+
+"SPLITSCREEN" = "Schermo diviso";
+"SPLITSCREEN_ENABLE" = "Schermo diviso";
+"SPLITSCREEN_AUTO_LAUNCH" = "Apri alla connessione";
+"SPLITSCREEN_DRIVER_SIDE" = "Lato guida";
+"SPLITSCREEN_DRIVER_AUTO" = "Automatico";
+"SPLITSCREEN_DRIVER_LEFT" = "Sinistra";
+"SPLITSCREEN_DRIVER_RIGHT" = "Destra";
+"SPLITSCREEN_DRIVER_FOOTER" = "Guida a destra: l'app attuale si apre nel riquadro destro, vicino al conducente. Automatico = ciò che indica l'auto.";
+
+"SPLITSCREEN_PANEL_GROUP" = "Pannello OmniCar in auto";
+"SPLITSCREEN_SHOW_RECENT" = "Recenti";
+"SPLITSCREEN_SHOW_FAVORITES" = "Preferiti";
+
+"SPLITSCREEN_FAV_GROUP" = "Layout preferiti";
+"SPLITSCREEN_FAV_FOOTER" = "Siri: omnicar://splitscreen/fav?n=1";
+"SPLITSCREEN_FAV1_PLACEHOLDER" = "Tragitto";
+"SPLITSCREEN_FAV2_PLACEHOLDER" = "Weekend";
+"SPLITSCREEN_FAV3_PLACEHOLDER" = "Viaggio";
+"SPLITSCREEN_PAIR_NAME" = "Nome";
+"SPLITSCREEN_LAYOUT_GROUP" = "Layout";
+"SPLITSCREEN_APPS_GROUP" = "App";
+"SPLITSCREEN_LAYOUT_2" = "2 riquadri";
+"SPLITSCREEN_LAYOUT_3" = "3 riquadri";
+"SPLITSCREEN_LAYOUT_13" = "1 grande + 2";
+"SPLITSCREEN_LAYOUT_31" = "2 + 1 grande";
+"SPLITSCREEN_BOX_1" = "Riquadro 1";
+"SPLITSCREEN_BOX_2" = "Riquadro 2";
+"SPLITSCREEN_BOX_3" = "Riquadro 3";
+
+"SPLITSCREEN_APP_NOT_SET" = "Ancora nessuna app";
+"SPLITSCREEN_PICKER_NONE" = "Nessuna";
+"SPLITSCREEN_PICKER_CARPLAY_APPS" = "App CarPlay";
+"SPLITSCREEN_PICKER_PHONE_APPS" = "App di iPhone (App Bridge)";
+"SPLITSCREEN_PICKER_GUESS_FOOTER" = "Non ancora connesso a un'auto: stima in base al supporto CarPlay.";
+"SPLITSCREEN_PICKER_PHONE_FOOTER" = "App scelte in App sullo schermo dell'auto.";
+"SPLITSCREEN_PICKER_NO_PHONE_FOOTER" = "Nessuna app di iPhone ancora scelta (App sullo schermo dell'auto).";
+
+"SPLITSCREEN_GUIDE" = "Guida";
+"SPLITSCREEN_GUIDE_CAR" = "In auto";
+"SPLITSCREEN_GUIDE_CAR_TEXT" = "• Pulsante OmniCar nel dock: layout, Recenti, Preferiti, esci dalla divisione.\n• Manopola rotonda: tocca per le proporzioni · trascina per ridimensionare · trascina sul bordo per chiudere un riquadro.\n• Barra •••: tocca per Sostituisci / Mobile / Schermo intero / Chiudi · trascina su un altro riquadro per scambiarli.\n• Tocca due volte la barra •••: ingrandisce per un momento quel riquadro, tocca di nuovo due volte per tornare.\n• Tocca due volte un divisore: scambia i due riquadri.\n• Pulsante Home: esci dalla divisione.";
+"SPLITSCREEN_SHORTCUTS_GROUP" = "Siri / Comandi Rapidi (Apri URL)";
+"SPLITSCREEN_SHORTCUTS_FOOTER" = "omnicar://splitscreen/open?left=com.apple.Maps&right=com.spotify.client\nomnicar://splitscreen/fav?n=1\nomnicar://splitscreen/close";
+"SPLITSCREEN_CREDITS_FOOTER" = "In precedenza CarDuo. L'hosting delle app si basa su carplay-cast (Ethan Arbuckle).";

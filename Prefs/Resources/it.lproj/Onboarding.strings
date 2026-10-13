@@ -1,0 +1,24 @@
+/* OmniCar – Guida al primo avvio (Prefs/OMCOnboardingController.m) – Italiano */
+
+"ONB_SHOW_AGAIN" = "Mostra di nuovo la guida";
+"ONB_SKIP" = "Salta";
+"ONB_NEXT" = "Avanti";
+"ONB_DONE" = "Fine";
+
+"ONB_P1_TITLE" = "Benvenuto in OmniCar";
+"ONB_P1_BODY" = "OmniCar dà più potenza a CarPlay. Inizia scegliendo le app di iPhone che vuoi sullo schermo dell'auto, anche quelle senza CarPlay.";
+"ONB_P1_BUTTON" = "Scegli le app";
+"ONB_P1_NOTE" = "Puoi cambiarle quando vuoi in App sullo schermo dell'auto.";
+
+"ONB_P2_TITLE" = "Dividi lo schermo dell'auto";
+"ONB_P2_BODY" = "• In auto, tocca il pulsante OmniCar nel dock di CarPlay per aprire il pannello dei layout.\n• Scegli un layout: 2 riquadri, 3 riquadri, 1 grande + 2 o 2 + 1 grande. Poi scegli le app.\n• Oppure tieni premuta l'icona di un'app nella schermata Home dell'auto per dividere con quell'app.\n• Trascina la manopola rotonda per ridimensionare. Il pulsante Home esce dalla divisione.";
+"ONB_P2_NOTE" = "Salva i layout che usi di più in Schermo diviso > Layout preferiti.";
+
+"ONB_P3_TITLE" = "Bolla velocità";
+"ONB_P3_BODY" = "Una piccola bolla sullo schermo dell'auto mostra la tua velocità e il limite, così li vedi a colpo d'occhio.";
+"ONB_P3_SWITCH" = "Bolla velocità";
+"ONB_P3_NOTE" = "Richiede Vietmap Live o GOFA su iPhone. Scegli la sorgente nella pagina Bolla velocità.";
+
+"ONB_P4_TITLE" = "Consigli rapidi";
+"ONB_P4_BODY" = "• Pannello dei layout: tocca il pulsante OmniCar nel dock di CarPlay o tieni premuta l'icona di un'app.\n• Recenti e Preferiti sono nello stesso pannello.\n• Qualcosa non va? Apri Supporto in fondo a questa pagina: Diagnostica controlla tutto, Invia log manda un rapporto allo sviluppatore.";
+"ONB_P4_NOTE" = "Puoi riaprire questa guida da Supporto > Mostra di nuovo la guida.";

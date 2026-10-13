@@ -1,0 +1,16 @@
+/* OmniCar – App Bridge – Português (Brasil) */
+
+"APPBRIDGE" = "App Bridge";
+"APPBRIDGE_FOOTER" = "Apps do iPhone sem CarPlay (YouTube, TikTok…) na tela do carro.";
+"APPBRIDGE_ENABLE" = "Mostrar apps do iPhone no carro";
+"APPBRIDGE_APPS" = "Apps na tela do carro";
+"APPBRIDGE_APPS_FOOTER" = "Ative um app para colocar o ícone dele na tela inicial do CarPlay.";
+"APPBRIDGE_APPS_NONE" = "Nenhum";
+"APPBRIDGE_APPS_COUNT" = "%ld apps";
+"APPBRIDGE_APPS_ON_CAR" = "Na tela do carro";
+"APPBRIDGE_APPS_USER" = "Seus apps";
+"APPBRIDGE_APPS_SYSTEM" = "Apps do sistema";
+"APPBRIDGE_APPS_OTHER_FOOTER" = "Apps com interface própria de CarPlay não aparecem na lista.";
+"APPBRIDGE_APPS_SEARCH" = "Buscar apps";
+"APPBRIDGE_APPS_EMPTY" = "Nenhum app do iPhone encontrado neste dispositivo.";
+"APPBRIDGE_APPS_NO_MATCH" = "Nenhum app corresponde.";

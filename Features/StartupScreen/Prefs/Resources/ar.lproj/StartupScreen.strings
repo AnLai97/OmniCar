@@ -1,0 +1,33 @@
+/* OmniCar – شاشة البدء – العربية */
+
+"STARTUPSCREEN" = "شاشة البدء";
+"STARTUPSCREEN_ENABLE" = "شاشة البدء";
+
+"STARTUPSCREEN_VIDEO_GROUP" = "الفيديو";
+"STARTUPSCREEN_VIDEO_FOOTER" = "‏MP4، MOV، M4V · حتى 60 ثانية.";
+"STARTUPSCREEN_CURRENT_VIDEO" = "الفيديو";
+"STARTUPSCREEN_NO_VIDEO" = "(لا توجد فيديوهات)";
+"STARTUPSCREEN_PREVIEW" = "معاينة";
+"STARTUPSCREEN_DELETE" = "حذف الفيديو";
+"STARTUPSCREEN_ADD" = "إضافة فيديو";
+"STARTUPSCREEN_FROM_PHOTOS" = "من الصور";
+"STARTUPSCREEN_FROM_FILES" = "من الملفات";
+
+"STARTUPSCREEN_DURATION_GROUP" = "المدة (بالثواني)";
+"STARTUPSCREEN_DURATION_FOOTER" = "الفيديوهات الأقصر تتكرر.";
+"STARTUPSCREEN_PLAY_FULL" = "تشغيل الفيديو كاملًا";
+
+"STARTUPSCREEN_DISPLAY_GROUP" = "العرض";
+"STARTUPSCREEN_SCALE_FILL" = "ملء";
+"STARTUPSCREEN_SCALE_FIT" = "ملاءمة";
+"STARTUPSCREEN_SOUND" = "الصوت";
+"STARTUPSCREEN_TAP_TO_SKIP" = "اضغط للتخطي";
+
+"STARTUPSCREEN_PREPARING" = "جارٍ تجهيز الفيديو لـ CarPlay";
+"STARTUPSCREEN_PROCESS_FAILED" = "تعذّرت معالجة الفيديو:\n%@";
+"STARTUPSCREEN_SAVE_FAILED" = "تعذّر حفظ الفيديو: %@";
+"STARTUPSCREEN_NO_VIDEO_PREVIEW" = "لا توجد فيديوهات بعد. أضف واحدًا أولًا.";
+"STARTUPSCREEN_NO_VIDEO_DELETE" = "لا يوجد فيديو لحذفه.";
+"STARTUPSCREEN_DELETE_TITLE" = "حذف الفيديو";
+"STARTUPSCREEN_DELETE_CONFIRM" = "هل تريد حذف \"%@\"؟";
+"STARTUPSCREEN_DELETE_ACTION" = "حذف";

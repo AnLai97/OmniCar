@@ -130,6 +130,14 @@ BOOL OMCLiteActive(void);
 // Last RAM cleanup: {date, closed: [bundle id]} (Diagnostics shows it).
 #define OMC_KEY_DIAG_CLEAN   @"diagCleanRam"
 
+// Languages: vi and en are written in the code; the others come from the settings bundle's <lang>.lproj tables.
+// OMCCurrentLanguage: the "language" pref (Settings), else the device language when OmniCar has it, else "en".
+// OMCTr: text shown on the car / in notices, written as OMCTr(@"Vietnamese", @"English"); other languages look the
+// English text up in <lang>.lproj/Car.strings (keys are the English text), falling back to English.
+NSArray<NSString *> *OMCSupportedLanguages(void);
+NSString *OMCCurrentLanguage(void);
+NSString *OMCTr(NSString *vi, NSString *en);
+
 // License (foundation for the Lite / Pro releases; nothing is locked yet, OMCFeatureNeedsPro lists no feature).
 // Pro = the Pro package (OMC_PRO_PACKAGE) is installed; Trial = OMC_TRIAL_DAYS from the first time OmniCar ran
 // (OMC_KEY_TRIAL_START, also kept in a file under OMC_DATA_ROOT so resetting the prefs does not restart it); else Lite.

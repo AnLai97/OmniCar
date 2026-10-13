@@ -88,7 +88,7 @@ Suy ra từ cách hoạt động, chưa xác nhận hết trên xe:
 - App có DRM: dự kiến màn đen (có thể vẫn có tiếng).
 - CarPlay không dây: App Bridge có thể trễ / kém nét hơn cắm dây, tuỳ đầu xe.
 - Bong bóng tốc độ chỉ đọc Vietmap Live / GOFA, khi app đó đang chạy.
-- Chưa có bàn phím trên màn xe cho app qua App Bridge.
+- Bàn phím trên màn xe cho app qua App Bridge: mới có, chưa thử trên xe; app tự vẽ ô nhập (game, Flutter) có thể không nhận phím.
 - Đổi cài đặt có hiệu lực ở lần cắm sau; respring một lần sau khi cài.
 - Ba ô / hai app video cùng lúc có thể làm máy nóng (Chế độ nhẹ giới hạn còn 2 app).
 - iOS 17, 18: phần dựa vào hook thiếu sẽ không chạy.

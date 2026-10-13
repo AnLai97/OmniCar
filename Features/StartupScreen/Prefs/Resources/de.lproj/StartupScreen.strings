@@ -1,0 +1,33 @@
+/* OmniCar – Startbildschirm – Deutsch */
+
+"STARTUPSCREEN" = "Startbildschirm";
+"STARTUPSCREEN_ENABLE" = "Startbildschirm";
+
+"STARTUPSCREEN_VIDEO_GROUP" = "Video";
+"STARTUPSCREEN_VIDEO_FOOTER" = "MP4, MOV, M4V · bis zu 60 Sekunden.";
+"STARTUPSCREEN_CURRENT_VIDEO" = "Video";
+"STARTUPSCREEN_NO_VIDEO" = "(Keine Videos)";
+"STARTUPSCREEN_PREVIEW" = "Vorschau";
+"STARTUPSCREEN_DELETE" = "Video löschen";
+"STARTUPSCREEN_ADD" = "Video hinzufügen";
+"STARTUPSCREEN_FROM_PHOTOS" = "Aus Fotos";
+"STARTUPSCREEN_FROM_FILES" = "Aus Dateien";
+
+"STARTUPSCREEN_DURATION_GROUP" = "Dauer (Sekunden)";
+"STARTUPSCREEN_DURATION_FOOTER" = "Kürzere Videos werden wiederholt.";
+"STARTUPSCREEN_PLAY_FULL" = "Ganzes Video abspielen";
+
+"STARTUPSCREEN_DISPLAY_GROUP" = "Anzeige";
+"STARTUPSCREEN_SCALE_FILL" = "Füllen";
+"STARTUPSCREEN_SCALE_FIT" = "Einpassen";
+"STARTUPSCREEN_SOUND" = "Ton";
+"STARTUPSCREEN_TAP_TO_SKIP" = "Tippen zum Überspringen";
+
+"STARTUPSCREEN_PREPARING" = "Video wird für CarPlay vorbereitet";
+"STARTUPSCREEN_PROCESS_FAILED" = "Video konnte nicht verarbeitet werden:\n%@";
+"STARTUPSCREEN_SAVE_FAILED" = "Video konnte nicht gesichert werden: %@";
+"STARTUPSCREEN_NO_VIDEO_PREVIEW" = "Noch keine Videos. Füge zuerst eines hinzu.";
+"STARTUPSCREEN_NO_VIDEO_DELETE" = "Es gibt kein Video zum Löschen.";
+"STARTUPSCREEN_DELETE_TITLE" = "Video löschen";
+"STARTUPSCREEN_DELETE_CONFIRM" = "\"%@\" löschen?";
+"STARTUPSCREEN_DELETE_ACTION" = "Löschen";

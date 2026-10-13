@@ -1,0 +1,45 @@
+/* OmniCar – Tela dividida – Português (Brasil) */
+
+"SPLITSCREEN" = "Tela dividida";
+"SPLITSCREEN_ENABLE" = "Tela dividida";
+"SPLITSCREEN_AUTO_LAUNCH" = "Abrir ao conectar";
+"SPLITSCREEN_DRIVER_SIDE" = "Lado do motorista";
+"SPLITSCREEN_DRIVER_AUTO" = "Automático";
+"SPLITSCREEN_DRIVER_LEFT" = "Esquerda";
+"SPLITSCREEN_DRIVER_RIGHT" = "Direita";
+"SPLITSCREEN_DRIVER_FOOTER" = "Volante à direita: o app atual abre no painel direito, ao lado do motorista. Automático = o que o carro informa.";
+
+"SPLITSCREEN_PANEL_GROUP" = "Menu OmniCar no carro";
+"SPLITSCREEN_SHOW_RECENT" = "Recentes";
+"SPLITSCREEN_SHOW_FAVORITES" = "Favoritos";
+
+"SPLITSCREEN_FAV_GROUP" = "Layouts favoritos";
+"SPLITSCREEN_FAV_FOOTER" = "Siri: omnicar://splitscreen/fav?n=1";
+"SPLITSCREEN_FAV1_PLACEHOLDER" = "Trabalho";
+"SPLITSCREEN_FAV2_PLACEHOLDER" = "Fim de semana";
+"SPLITSCREEN_FAV3_PLACEHOLDER" = "Viagem";
+"SPLITSCREEN_PAIR_NAME" = "Nome";
+"SPLITSCREEN_LAYOUT_GROUP" = "Layout";
+"SPLITSCREEN_APPS_GROUP" = "Apps";
+"SPLITSCREEN_LAYOUT_2" = "2 painéis";
+"SPLITSCREEN_LAYOUT_3" = "3 painéis";
+"SPLITSCREEN_LAYOUT_13" = "1 grande + 2";
+"SPLITSCREEN_LAYOUT_31" = "2 + 1 grande";
+"SPLITSCREEN_BOX_1" = "Painel 1";
+"SPLITSCREEN_BOX_2" = "Painel 2";
+"SPLITSCREEN_BOX_3" = "Painel 3";
+
+"SPLITSCREEN_APP_NOT_SET" = "Nenhum app ainda";
+"SPLITSCREEN_PICKER_NONE" = "Nenhum";
+"SPLITSCREEN_PICKER_CARPLAY_APPS" = "Apps de CarPlay";
+"SPLITSCREEN_PICKER_PHONE_APPS" = "Apps do iPhone (App Bridge)";
+"SPLITSCREEN_PICKER_GUESS_FOOTER" = "Ainda não conectado a um carro: estimando pela compatibilidade com o CarPlay.";
+"SPLITSCREEN_PICKER_PHONE_FOOTER" = "Apps escolhidos em Apps na tela do carro.";
+"SPLITSCREEN_PICKER_NO_PHONE_FOOTER" = "Nenhum app do iPhone escolhido ainda (Apps na tela do carro).";
+
+"SPLITSCREEN_GUIDE" = "Guia";
+"SPLITSCREEN_GUIDE_CAR" = "No carro";
+"SPLITSCREEN_GUIDE_CAR_TEXT" = "• Botão OmniCar no Dock: layouts, Recentes, Favoritos, sair da divisão.\n• Controle redondo: toque para proporções · arraste para redimensionar · arraste até a borda para fechar um painel.\n• Barra •••: toque para Substituir / Flutuar / Tela cheia / Fechar · arraste para outro painel para trocar.\n• Toque duas vezes na barra •••: amplia esse painel por um momento; toque duas vezes de novo para voltar.\n• Toque duas vezes em um divisor: troca os dois painéis.\n• Botão Início: sai da divisão.";
+"SPLITSCREEN_SHORTCUTS_GROUP" = "Siri / Atalhos (Abrir URL)";
+"SPLITSCREEN_SHORTCUTS_FOOTER" = "omnicar://splitscreen/open?left=com.apple.Maps&right=com.spotify.client\nomnicar://splitscreen/fav?n=1\nomnicar://splitscreen/close";
+"SPLITSCREEN_CREDITS_FOOTER" = "Antigo CarDuo. A hospedagem de apps é baseada no carplay-cast (Ethan Arbuckle).";

@@ -232,25 +232,42 @@ Thiếu một trong các mục này thì khách quốc tế không mua, hoặc m
 
 - [ ] **Đơn vị và quy chuẩn theo nước** · Thấp
   km/h ↔ mph; biển tốc độ kiểu Viên (tròn viền đỏ) / kiểu Mỹ (chữ nhật trắng); lái tay phải → đảo bố cục mặc định.
+  Code: Bong bóng tốc độ > Đơn vị (tự động theo vùng / km/h / mph) và Biển tốc độ (tự động / Viên / Mỹ), số vẫn so
+  bằng km/h nên cảnh báo vượt tốc không đổi. Chia màn hình > Vị trí tay lái (tự động theo CarKit / trái / phải): tay
+  lái phải thì app đang dùng vào ô bên phải. Chờ thử trên xe (tên trường rightHandDrive của CarKit).
 - [ ] **Hướng dẫn lần đầu** · Thấp
   3–4 trang: chọn app lên xe, chọn bố cục đầu tiên, bật bong bóng tốc độ, cách gọi bảng bố cục trên xe.
+  Code: Prefs/OMCOnboardingController.m, 4 trang, tự hiện lần đầu mở Cài đặt (onboardingDone), Hỗ trợ > Xem lại
+  hướng dẫn.
 - [ ] **Nhiều ngôn ngữ** · Thấp (dịch) / Vừa (kiểm tra)
   Tối thiểu: en, vi, es, pt-BR, de, fr, it, ru, zh-Hans, ja, ko, ar (RTL), th, id.
   Xong khi: mọi trang Cài đặt và chữ trên xe không bị cắt ở ngôn ngữ dài nhất (de) và RTL (ar).
+  Code: 14 ngôn ngữ (OMCSupportedLanguages, Core/OMCCommon.m), theo ngôn ngữ máy hoặc chọn trong Cài đặt; thiếu câu
+  nào thì dùng tiếng Anh. Chữ trên xe: OMCTr(vi, en), ngôn ngữ khác tra <lang>.lproj/Car.strings (khoá = câu tiếng
+  Anh). Bản dịch máy: cần người bản xứ đọc lại; chưa kiểm tra chữ bị cắt (de) và RTL (ar) trên máy.
 - [ ] **Trang tương thích công khai** · Thấp
   iOS, kiểu jailbreak (rootless / roothide), chip, đầu xe đã thử, app đã thử, giới hạn đã biết (DRM).
+  Code: docs/compatibility.html (trang tĩnh, EN / VI), đồng bộ với COMPATIBILITY.md. Chưa có kết quả thử nào.
 - [ ] **Bộ tài liệu bán hàng** · Thấp
   Video 60 giây, 6 ảnh chụp màn xe, mô tả ngắn / dài cho repo riêng và Chariz, FAQ, chính sách riêng tư.
+  Code: docs/sales/ (mô tả ngắn / dài, FAQ, riêng tư, kịch bản quay shotlist.md). Còn thiếu: quay video, chụp ảnh,
+  giá / chính sách hoàn tiền (TODO trong file).
 - [ ] **Bản quyền, Lite / Pro và dùng thử** · Vừa
   Nền tảng kỹ thuật cho Phát hành 3 và 4: cờ Pro dùng chung cho mọi tính năng, đếm ngày dùng thử, đọc khoá của gói Pro.
+  Code: Core/OMCCommon.m: OMCLicenseState (Pro = gói com.anlai.omnicarpro đã cài, dùng thử 7 ngày từ lần chạy đầu,
+  còn lại Lite), OMCFeatureNeedsPro (chưa khoá tính năng nào), Chẩn đoán hiện bản quyền. Chưa có khoá ký số.
 
 ### Dùng hằng ngày
 
 - [ ] **Phóng to tạm một ô** · Thấp
   Chạm đúp thanh "•••" → ô to toàn vùng app, chạm lại → về bố cục cũ (khác "toàn màn" là không đóng các ô khác).
+  Code: SCPCarSplit zoomedSlot (ô khác ẩn nhưng giữ kích thước scene), cả thanh ••• của app iPhone (SpringBoard vẽ).
 - [ ] **Bàn phím trên màn xe** · Cao
   Một bàn phím chung cho mọi ô (kể cả app iPhone qua App Bridge), kiểu HarmonyOS, có tiếng Việt và các ngôn ngữ chính.
   Xong khi: gõ được tìm kiếm trong YouTube và ô địa chỉ của Safari trên xe.
+  Code: app iPhone qua App Bridge: App.xm chặn bàn phím iPhone khi app trên xe và báo SpringBoard; ABKeyboard.mm vẽ
+  bàn phím trên màn xe (chữ / số, EN / VI Telex), gửi phím về app. App CarPlay gốc dùng bàn phím của CarPlay.
+  Chờ thử YouTube / Safari trên xe.
 
 ## Mức 2 – Quan trọng (bằng DuoDash, làm ngay sau bản bán đầu tiên)
 

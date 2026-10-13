@@ -91,7 +91,7 @@ static void SCPCAfter(double delay, dispatch_block_t block)
 }
 
 // Chu tren man xe: tieng Viet / tieng Anh theo Cai dat > OmniCar > ngon ngu
-static NSString *SCPCT(NSString *vi, NSString *en) { return [SCPPrefs english] ? en : vi; }
+static NSString *SCPCT(NSString *vi, NSString *en) { return OMCTr(vi, en); }   // ngon ngu khac: Car.strings
 
 // Bao SpringBoard (OMC_DARWIN_CAR_BUSY): dang chia man / bang bo cuc dang mo -> lop phu tren man xe (bong bong
 // toc do) tam an de khong de len cho dang cham. Chi gui khi trang thai doi.

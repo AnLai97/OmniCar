@@ -1,0 +1,33 @@
+/* OmniCar – หน้าจอเริ่มต้น – ภาษาไทย */
+
+"STARTUPSCREEN" = "หน้าจอเริ่มต้น";
+"STARTUPSCREEN_ENABLE" = "หน้าจอเริ่มต้น";
+
+"STARTUPSCREEN_VIDEO_GROUP" = "วิดีโอ";
+"STARTUPSCREEN_VIDEO_FOOTER" = "MP4, MOV, M4V · ยาวไม่เกิน 60 วินาที";
+"STARTUPSCREEN_CURRENT_VIDEO" = "วิดีโอ";
+"STARTUPSCREEN_NO_VIDEO" = "(ไม่มีวิดีโอ)";
+"STARTUPSCREEN_PREVIEW" = "แสดงตัวอย่าง";
+"STARTUPSCREEN_DELETE" = "ลบวิดีโอ";
+"STARTUPSCREEN_ADD" = "เพิ่มวิดีโอ";
+"STARTUPSCREEN_FROM_PHOTOS" = "จากรูปภาพ";
+"STARTUPSCREEN_FROM_FILES" = "จากไฟล์";
+
+"STARTUPSCREEN_DURATION_GROUP" = "ระยะเวลา (วินาที)";
+"STARTUPSCREEN_DURATION_FOOTER" = "วิดีโอที่สั้นกว่าจะเล่นวนซ้ำ";
+"STARTUPSCREEN_PLAY_FULL" = "เล่นวิดีโอทั้งหมด";
+
+"STARTUPSCREEN_DISPLAY_GROUP" = "การแสดงผล";
+"STARTUPSCREEN_SCALE_FILL" = "เต็มจอ";
+"STARTUPSCREEN_SCALE_FIT" = "พอดีจอ";
+"STARTUPSCREEN_SOUND" = "เสียง";
+"STARTUPSCREEN_TAP_TO_SKIP" = "แตะเพื่อข้าม";
+
+"STARTUPSCREEN_PREPARING" = "กำลังเตรียมวิดีโอสำหรับ CarPlay";
+"STARTUPSCREEN_PROCESS_FAILED" = "ไม่สามารถประมวลผลวิดีโอได้:\n%@";
+"STARTUPSCREEN_SAVE_FAILED" = "ไม่สามารถบันทึกวิดีโอได้: %@";
+"STARTUPSCREEN_NO_VIDEO_PREVIEW" = "ยังไม่มีวิดีโอ เพิ่มวิดีโอก่อน";
+"STARTUPSCREEN_NO_VIDEO_DELETE" = "ไม่มีวิดีโอให้ลบ";
+"STARTUPSCREEN_DELETE_TITLE" = "ลบวิดีโอ";
+"STARTUPSCREEN_DELETE_CONFIRM" = "ลบ \"%@\" หรือไม่";
+"STARTUPSCREEN_DELETE_ACTION" = "ลบ";
