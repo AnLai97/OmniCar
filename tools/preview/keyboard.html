@@ -6,7 +6,7 @@
 <title>OmniCar Keyboard</title>
 <!--
   Ban phim tren man xe (Features/AppBridge/ABKeyboard.mm) theo UI/UX ban phim HarmonyOS (giao dien toi):
-  - khung nhu ban phim HarmonyOS: kin be rong o app, sat mep duoi, khong bo goc; cao ~78% man
+  - khung nhu ban phim HarmonyOS: the noi bo 4 goc (20), cach mep 6, kin be rong o app; cao ~78% man
   - kinh trang, phim trang bo 7, phim chuc nang tim nhat, hang so rieng, goi y nho goc phim, phim , . tim nhat
   - cham phim chu: bong bong phong to ky tu phia tren phim; phim lun 0,96 roi nay lai
   - Shift dang bat / Enter: gradient tim -> xanh troi, chu trang (DESIGN.md)
@@ -51,7 +51,7 @@ h1 { font-size: 16px; font-weight: 600; margin: 0; }
 #app .road { position: absolute; background: #fff; height: 7px; border-radius: 4px; box-shadow: 0 0 0 1px #d0d0d0; }
 
 /* ===== KB ===== */
-#kb { position: absolute; border-radius: 0; background: var(--kb-bg); -webkit-backdrop-filter: blur(22px) saturate(1.6); backdrop-filter: blur(22px) saturate(1.6);
+#kb { position: absolute; border-radius: 20px; background: var(--kb-bg); -webkit-backdrop-filter: blur(22px) saturate(1.6); backdrop-filter: blur(22px) saturate(1.6);
   box-shadow: inset 0 .5px 0 var(--kb-line), 0 -6px 24px rgba(70,60,140,.3);
   transform: translateY(0); transition: transform .35s var(--hm-in); }
 #kb.hide { transform: translateY(105%); transition: transform .25s var(--hm-in); }
@@ -111,7 +111,7 @@ h1 { font-size: 16px; font-weight: 600; margin: 0; }
 <div class="notes">
   <b>Lần này</b>
   <ul>
-    <li>Khung như bàn phím HarmonyOS: kín bề rộng ô app, sát mép dưới, không bo góc; cao ~78% màn.</li>
+    <li>Khung như bàn phím HarmonyOS: thẻ nổi bo tròn 4 góc (20), cách mép ô app và mép dưới 6 pt, kín bề rộng ô app; cao ~78% màn.</li>
     <li>Chạm phím chữ: bong bóng phóng to ký tự hiện trên phím (như HarmonyOS); phím lún nhẹ rồi nảy lại.</li>
     <li>Hiện: trượt lên từ mép dưới theo đường cong HarmonyOS (350 ms); ẩn: trượt xuống (250 ms).</li>
     <li>Icon nét mảnh bo tròn kiểu HarmonyOS: Shift, xoá, quả địa cầu, Enter, ẩn bàn phím.</li>
@@ -145,8 +145,8 @@ function layout() {
   app.innerHTML = S.app === 'native'
     ? '<div class="road" style="left:-10px;right:-10px;top:120px;transform:rotate(-8deg)"></div><div class="road" style="left:200px;width:7px;height:260px;top:-20px"></div><div class="search">Tìm kiếm</div>'
     : '<div class="search">Tìm kiếm trên YouTube</div>';
-  const w = appW, h = Math.min(Math.floor(S.h * KB.hFrac), KB.maxH);   // khung HarmonyOS: kin be rong o app, khong bo goc
-  Object.assign(kb.style, { left: (appX + (appW - w) / 2) + 'px', top: (S.h - h) + 'px', width: w + 'px', height: h + 'px' });
+  const w = appW - 12, h = Math.min(Math.floor(S.h * KB.hFrac), KB.maxH);   // khung HarmonyOS: the noi bo 4 goc, cach mep 6
+  Object.assign(kb.style, { left: (appX + 6) + 'px', top: (S.h - h - 6) + 'px', width: w + 'px', height: h + 'px' });
   keysEl.style.top = KB.top + 'px';
   const scale = Math.min(2, (Math.min(window.innerWidth, 1340) - 60) / S.w);
   scr.style.transform = `scale(${scale})`;

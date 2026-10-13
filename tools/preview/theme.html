@@ -174,7 +174,7 @@ section > p { margin: -6px 0 0; color: var(--ink2); font-size: 13px; }
 .bubble b { font-size: 26px; line-height: 1; font-weight: 700; margin-top: 4px; } .bubble small { font-size: 9px; color: var(--ink2); margin-top: -14px; }
 .limit { position: absolute; width: 36px; height: 36px; border-radius: 18px; background: #fff; border: 4px solid var(--danger); display: grid; place-items: center; font-weight: 800; font-size: 13px; z-index: 7; box-shadow: 0 4px 10px rgba(0,0,0,.2); }
 /* ban phim */
-.kb { position: absolute; border-radius: 0; z-index: 6; padding: 5px; }
+.kb { position: absolute; border-radius: 20px; z-index: 6; padding: 5px; }
 .kb .bar { height: 24px; display: flex; gap: 4px; align-items: center; margin-bottom: 4px; }
 .kb .fld { flex: 1; height: 24px; border-radius: 12px; background: rgba(255,255,255,.7); display: flex; align-items: center; padding: 0 10px; font-size: 12px; font-weight: 500; box-shadow: inset 0 0 0 1px rgba(31,34,51,.06); }
 .kb .fld .caret { display: inline-block; width: 1.5px; height: 13px; background: var(--acc1); margin-left: 1px; vertical-align: -2px; animation: blink 1s steps(1) infinite; }
@@ -212,7 +212,7 @@ section > p { margin: -6px 0 0; color: var(--ink2); font-size: 13px; }
   <div class="card glass" style="padding:12px 16px;font-size:13px;line-height:1.7">
     <b>Quy tắc chung (mọi phần dùng cùng):</b><br>
     · <b>Kính trắng</b> cho bảng / thanh / thẻ / phím: trắng 58–78%, mờ 22, viền sáng trên, bóng tím nhạt. Không dùng nền xám đặc.<br>
-    · <b>Bo góc</b>: bảng lớn 24 (khay bố cục, bảng chọn app; thẻ Settings 20; bàn phím không bo góc) · thanh = viên thuốc · ô bố cục 14 · phím 7 · nút tròn.<br>
+    · <b>Bo góc</b>: bảng lớn 24 (khay bố cục, bảng chọn app; thẻ Settings 20; bàn phím 20, bo cả 4 góc) · thanh = viên thuốc · ô bố cục 14 · phím 7 · nút tròn.<br>
     · <b>Đang chọn / nút chính</b> = gradient tím → xanh trời + quầng màu (bố cục đang dùng, tay cầm ••• đang mở, tỉ lệ đang dùng, Enter / Shift, Mở lại).<br>
     · <b>Đóng / Tắt</b> = dấu X đỏ trên nền đỏ nhạt, luôn ở cuối, tách bằng vạch mảnh. <b>Công tắc bật</b> = xanh lá.<br>
     · <b>Icon</b> nét mảnh bo tròn 1.7–2; trên màn xe nút có nhãn ngắn khi là hành động (thanh •••), chỉ icon khi là chọn nhanh (khay).<br>
@@ -339,7 +339,7 @@ section > p { margin: -6px 0 0; color: var(--ink2); font-size: 13px; }
 
 <section>
   <h2>5 · Màn xe: bàn phím</h2>
-  <p>Bàn phím giữ bố cục HarmonyOS (khung kín bề rộng ô app, sát mép dưới, không bo góc, hàng số, gợi ý góc phím, bong bóng phóng to khi chạm) nhưng đổi sang kính trắng: phím trắng, phím chức năng tím nhạt, Shift / Enter gradient.</p>
+  <p>Bàn phím giữ bố cục HarmonyOS (thẻ nổi bo tròn 4 góc, cách mép 6 pt, kín bề rộng ô app, hàng số, gợi ý góc phím, bong bóng phóng to khi chạm) nhưng đổi sang kính trắng: phím trắng, phím chức năng tím nhạt, Shift / Enter gradient.</p>
   <div class="car"><div class="carfit"><div class="cs" id="c3">
     <div class="dock"><div class="t">9:41</div><div class="d" style="background:#2fb24c"></div><div class="d" style="background:#ff375f"></div><div class="sp"></div><div class="split"><i><b></b><b></b></i></div><div class="g"><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
     <div class="area"><div class="pane yt" style="left:0;right:0"></div>
@@ -454,8 +454,8 @@ document.getElementById('pgrid').innerHTML = PICK.map(([a, n, s]) => `<div class
 
 // ---------- Ban phim (so do giong tools/preview/keyboard.html) ----------
 (function () {
-  const kb = document.getElementById("kb"), W = 595, H = Math.floor(240 * .78);   // khung HarmonyOS: kin be rong o app, khong bo goc
-  Object.assign(kb.style, { left: "0px", top: 240 - H + "px", width: W + "px", height: H + "px" });
+  const kb = document.getElementById("kb"), W = 595 - 12, H = Math.floor(240 * .78);   // khung HarmonyOS: the noi bo 4 goc, cach mep 6
+  Object.assign(kb.style, { left: "6px", top: 240 - H - 6 + "px", width: W + "px", height: H + "px" });
   kb.innerHTML = `<div class="bar"><div class="fld">Sơn Tùng<i class="caret"></i></div><span class="chip">VI</span><span class="tb">${ICON.KBHIDE}</span></div><div class="keys"></div>`;
   const keys = kb.querySelector('.keys'), TEL = { s: '´', f: '`', r: '?', x: '~', j: '.', w: 'ư', d: 'đ', a: 'â', e: 'ê', o: 'ô' };
   const rows = ['1234567890', 'qwertyuiop', 'asdfghjkl', 'zxcvbnm'].map((l, r) => [...l].map(c => ({ t: c, w: 1, h: r ? TEL[c] : '' })));
