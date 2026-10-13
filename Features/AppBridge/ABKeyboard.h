@@ -9,6 +9,7 @@
 - (void)showForApp:(NSString *)bid keyboardType:(NSInteger)type returnType:(NSInteger)ret;
 - (void)hideForApp:(NSString *)bid;   // nil = whatever app it is showing for
 - (NSString *)app;                    // app the keyboard is showing for, nil when hidden
+- (void)key:(UIButton *)key pressed:(BOOL)down;   // letter key down / up: the enlarged-letter bubble above it
 @end
 
 #ifdef __cplusplus

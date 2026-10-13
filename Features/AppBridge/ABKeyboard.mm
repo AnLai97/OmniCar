@@ -178,20 +178,21 @@ NSString *ABTelexApply(NSString *word, NSString *key)
 
 static NSString *ABKT(NSString *vi, NSString *en) { return OMCTr(vi, en); }
 
-// Theo ban phim HarmonyOS (giao dien toi), tools/preview/keyboard.html: nen than xanh dac, phim xam xanh phang bo 7,
-// hang so rieng, ky tu goi y nho goc tren phai, phim , . xam xanh nhat. Shift dang bat / Enter: trang chu toi (DESIGN.md:
-// khong mau xanh).
+// Bo cuc ban phim HarmonyOS (hang so rieng, goi y nho goc phim, phim , . rieng), mau giao dien moi (DESIGN.md,
+// tools/preview/theme.html): kinh trang, phim trang, phim chuc nang tim nhat, Shift dang bat / Enter = gradient tim ->
+// xanh troi chu trang; cham phim chu -> bong bong phong to ky tu phia tren phim.
 static UIColor *ABKHex(uint32_t v, CGFloat a) { return [UIColor colorWithRed:((v >> 16) & 0xFF) / 255.0 green:((v >> 8) & 0xFF) / 255.0 blue:(v & 0xFF) / 255.0 alpha:a]; }
-#define ABK_BG      ABKHex(0x252935, 1)
-#define ABK_KEY     ABKHex(0x3B404E, 1)
-#define ABK_FN      ABKHex(0x2E3240, 1)
-#define ABK_SOFT    ABKHex(0x7D88A6, 1)
-#define ABK_DOWN    ABKHex(0x5B6172, 1)
-#define ABK_TEXT    ABKHex(0xF2F4F8, 1)
-#define ABK_HINT    ABKHex(0xF2F4F8, 0.5)
-#define ABK_ACC     ABKHex(0xF2F4F8, 1)
-#define ABK_ACC_DN  ABKHex(0xD6D9E0, 1)
-#define ABK_INK     ABKHex(0x15171B, 1)
+#define ABK_KEY     ABKHex(0xFFFFFF, 0.92)
+#define ABK_FN      ABKHex(0xD6D2F0, 0.75)
+#define ABK_SOFT    ABKHex(0xD9D3FF, 1)
+#define ABK_DOWN    ABKHex(0xE4E2F2, 1)
+#define ABK_TEXT    ABKHex(0x1F2233, 1)
+#define ABK_FN_TEXT ABKHex(0x4A4F6A, 1)
+#define ABK_HINT    ABKHex(0x9AA0B8, 1)
+#define ABK_ACC1    ABKHex(0x8B7CFF, 1)
+#define ABK_ACC2    ABKHex(0x5AB8FF, 1)
+#define ABK_SHADOW  ABKHex(0x463C8C, 1)
+
 
 // Goi y goc phim: tieng Viet = chu / dau Telex phim do tao; tieng Anh = ky hieu nhu ban phim HarmonyOS
 static NSString *ABKHint(NSString *c, BOOL vietnamese)
@@ -214,30 +215,52 @@ static NSString *ABKHint(NSString *c, BOOL vietnamese)
 @property (nonatomic) CGFloat weight;
 @property (nonatomic) BOOL lit;                    // mau nhan khi khong cham (Shift dang bat, Enter)
 @property (nonatomic, strong) UIColor *restColor;  // nen khi khong cham
+@property (nonatomic, strong) UIColor *restTint;   // mau chu / icon khi khong to mau nhan
 @property (nonatomic, strong) UILabel *hint;       // ky tu goi y goc tren phai
+@property (nonatomic, strong) CAGradientLayer *accent;   // gradient mau nhan (lit)
 @end
 @implementation ABKey
 - (void)paint:(BOOL)down
 {
-    self.backgroundColor = self.lit ? (down ? ABK_ACC_DN : ABK_ACC) : (down ? ABK_DOWN : self.restColor);
-    self.tintColor = self.lit ? ABK_INK : ABK_TEXT;
+    if (self.lit && !self.accent) {
+        self.accent = [CAGradientLayer layer];
+        self.accent.colors = @[(id)ABK_ACC1.CGColor, (id)ABK_ACC2.CGColor];
+        self.accent.startPoint = CGPointZero; self.accent.endPoint = CGPointMake(1, 1);
+        self.accent.cornerRadius = 7;
+        [self.layer insertSublayer:self.accent atIndex:0];
+        self.layer.shadowColor = ABK_ACC1.CGColor;
+        self.layer.shadowOpacity = 0.4; self.layer.shadowRadius = 6; self.layer.shadowOffset = CGSizeMake(0, 3);
+    }
+    self.accent.opacity = down ? 0.82 : 1;
+    self.backgroundColor = self.lit ? [UIColor clearColor] : (down ? ABK_DOWN : self.restColor);
+    self.tintColor = self.lit ? [UIColor whiteColor] : self.restTint;
 }
 - (void)setHighlighted:(BOOL)h
 {
     if (h == self.highlighted) return;
     [super setHighlighted:h];
     [self paint:h];
+    // HarmonyOS: phim lun nhe 0,96 roi nay lai; phim chu: bong bong phong to ky tu phia tren
+    [UIView animateWithDuration:h ? 0.08 : 0.3 delay:0 usingSpringWithDamping:h ? 1 : 0.6 initialSpringVelocity:0
+                        options:UIViewAnimationOptionAllowUserInteraction | UIViewAnimationOptionBeginFromCurrentState
+                     animations:^{ self.transform = h ? CGAffineTransformMakeScale(0.96, 0.96) : CGAffineTransformIdentity; } completion:nil];
+    if (!self.command && self.value.length) [[ABKeyboard shared] key:self pressed:h];
 }
 - (void)layoutSubviews
 {
     [super layoutSubviews];
-    if (self.hint) self.hint.frame = CGRectMake(self.bounds.size.width - 14, 1, 11, 11);
+    [CATransaction begin]; [CATransaction setDisableActions:YES];
+    self.accent.frame = self.bounds;
+    [CATransaction commit];
+    if (self.hint) self.hint.frame = CGRectMake(self.bounds.size.width - 13, 0, 11, 11);
 }
 @end
 
 @interface ABKeyboard ()
 @property (nonatomic, copy) NSString *app;
 @property (nonatomic, strong) UIView *panel;
+@property (nonatomic, strong) UIVisualEffectView *glass;   // nen kinh trang cua panel (panel giu bong)
+@property (nonatomic, strong) UILabel *bubble;            // bong bong phong to khi cham phim chu
 @property (nonatomic, strong) UIView *field;        // vien chua chu da go
 @property (nonatomic, strong) UILabel *preview;     // chu da go trong lan nay (o nhap cua app bi ban phim che)
 @property (nonatomic, strong) UIButton *langButton; // chip VI / EN
@@ -278,12 +301,12 @@ static NSString *ABKHint(NSString *c, BOOL vietnamese)
     [window bringSubviewToFront:self.panel];
     [self rebuildKeys];
     [self updatePreview];
-    if (fresh) {   // lo xo em tu duoi len, phong nhe 0,94 -> 1
-        self.panel.alpha = 0;
-        self.panel.transform = CGAffineTransformScale(CGAffineTransformMakeTranslation(0, 30), 0.94, 0.94);
-        [UIView animateWithDuration:0.45 delay:0 usingSpringWithDamping:0.86 initialSpringVelocity:0.3
-                            options:UIViewAnimationOptionAllowUserInteraction
-                         animations:^{ self.panel.alpha = 1; self.panel.transform = CGAffineTransformIdentity; } completion:nil];
+    if (fresh) {   // HarmonyOS: truot len tu mep duoi (duong cong friction 0.2, 0, 0.2, 1; 350 ms)
+        self.panel.transform = CGAffineTransformMakeTranslation(0, self.panel.bounds.size.height + 12);
+        UIViewPropertyAnimator *a = [[UIViewPropertyAnimator alloc] initWithDuration:0.35
+            timingParameters:[[UICubicTimingParameters alloc] initWithControlPoint1:CGPointMake(0.2, 0) controlPoint2:CGPointMake(0.2, 1)]];
+        [a addAnimations:^{ self.panel.transform = CGAffineTransformIdentity; }];
+        [a startAnimation];
     }
     ABLog("ban phim xe: hien cho %@ (kieu %ld, phim enter %ld)", bid, (long)type, (long)ret);
 }
@@ -294,43 +317,100 @@ static NSString *ABKHint(NSString *c, BOOL vietnamese)
     ABLog("ban phim xe: an (%@)", self.app);
     self.app = nil;
     UIView *panel = self.panel;
-    [UIView animateWithDuration:0.2 animations:^{
-        panel.alpha = 0;
-        panel.transform = CGAffineTransformScale(CGAffineTransformMakeTranslation(0, 30), 0.94, 0.94);
-    } completion:^(BOOL f) { if (!self.app) [panel removeFromSuperview]; panel.transform = CGAffineTransformIdentity; }];
+    [self key:nil pressed:NO];
+    UIViewPropertyAnimator *a = [[UIViewPropertyAnimator alloc] initWithDuration:0.25
+        timingParameters:[[UICubicTimingParameters alloc] initWithControlPoint1:CGPointMake(0.2, 0) controlPoint2:CGPointMake(0.2, 1)]];
+    [a addAnimations:^{ panel.transform = CGAffineTransformMakeTranslation(0, panel.bounds.size.height + 12); }];
+    [a addCompletion:^(UIViewAnimatingPosition pos) { if (!self.app) [panel removeFromSuperview]; panel.transform = CGAffineTransformIdentity; }];
+    [a startAnimation];
 }
 
-// Duoi man xe, giua o app dang go, cao ~88% man (man xe 240 pt: hang phim ~29 pt). Rong theo o app; o hep (dang
-// chia) thi rong toi thieu 480 pt, khong ra ngoai man.
+// Giua o app dang go, sat mep duoi man xe (2 goc tren bo 24, canh duoi phang), ~82% rong o app (440..600 pt, khong
+// rong hon man), cao ~78% man (man xe 240 pt: hang phim ~25 pt).
 - (void)layoutPanelIn:(UIWindow *)window
 {
     CGRect b = window.bounds;
     CGRect app = [[ABHost shared] frameOfApp:self.app];
     CGFloat appW = CGRectIsNull(app) ? b.size.width : app.size.width;
-    CGFloat w = MIN(MIN(MAX(appW - 12, 480), b.size.width - 12), 720), h = MIN(floor(b.size.height * 0.88), 300);
+    CGFloat w = MIN(MIN(MAX(round(appW * 0.82), 440), MAX(appW, 440)), MIN(600, b.size.width - 12));
+    CGFloat h = MIN(floor(b.size.height * 0.78), 280);
     CGFloat mid = CGRectIsNull(app) ? CGRectGetMidX(b) : CGRectGetMidX(app);
     CGFloat x = MIN(MAX(mid - w / 2, 6), CGRectGetMaxX(b) - w - 6);
-    self.panel.frame = CGRectMake(x, CGRectGetMaxY(b) - h - 6, w, h);
-    self.panel.layer.shadowPath = [UIBezierPath bezierPathWithRoundedRect:self.panel.bounds cornerRadius:20].CGPath;
+    self.panel.frame = CGRectMake(x, CGRectGetMaxY(b) - h, w, h);
+    self.glass.frame = self.panel.bounds;
+    self.panel.layer.shadowPath = [UIBezierPath bezierPathWithRoundedRect:self.panel.bounds byRoundingCorners:UIRectCornerTopLeft | UIRectCornerTopRight
+                                                              cornerRadii:CGSizeMake(24, 24)].CGPath;
+}
+
+// Bong bong phong to kieu HarmonyOS: o trang 1.3 x 1.45 phim, day ngang mep tren phim, chu to; nam trong ban phim
+// theo chieu ngang. key nil / down NO: an.
+- (void)key:(UIButton *)key pressed:(BOOL)down
+{
+    if (!down || !key.superview || !self.panel) {
+        [UIView animateWithDuration:0.12 animations:^{ self.bubble.alpha = 0; }];
+        return;
+    }
+    if (!self.bubble) {
+        UILabel *l = [UILabel new];
+        l.backgroundColor = [UIColor whiteColor];
+        l.textColor = ABK_TEXT;
+        l.textAlignment = NSTextAlignmentCenter;
+        l.layer.cornerRadius = 9;
+        l.layer.cornerCurve = kCACornerCurveContinuous;
+        l.layer.masksToBounds = NO;
+        l.layer.shadowColor = ABK_SHADOW.CGColor;
+        l.layer.shadowOpacity = 0.3; l.layer.shadowRadius = 9; l.layer.shadowOffset = CGSizeMake(0, 6);
+        l.userInteractionEnabled = NO;
+        self.bubble = l;
+    }
+    UILabel *l = self.bubble;
+    if (l.superview != self.panel) [self.panel addSubview:l];
+    // Khung that cua phim (phim co the dang lun 0,96): tam phim + kich thuoc bounds
+    CGRect seen = [self.panel convertRect:key.bounds fromView:key];
+    CGRect kf = CGRectMake(CGRectGetMidX(seen) - key.bounds.size.width / 2, CGRectGetMidY(seen) - key.bounds.size.height / 2,
+                           key.bounds.size.width, key.bounds.size.height);
+    CGFloat bw = round(kf.size.width * 1.3), bh = round(kf.size.height * 1.45);
+    CGFloat bx = MIN(MAX(CGRectGetMidX(kf) - bw / 2, 2), self.panel.bounds.size.width - bw - 2);
+    l.transform = CGAffineTransformIdentity;
+    l.layer.anchorPoint = CGPointMake(0.5, 1);   // phong ra tu mep duoi (cho phim)
+    l.frame = CGRectMake(bx, CGRectGetMinY(kf) - bh + 2, bw, bh);
+    l.layer.shadowPath = [UIBezierPath bezierPathWithRoundedRect:l.bounds cornerRadius:9].CGPath;
+    l.font = [UIFont systemFontOfSize:round(kf.size.height * 0.85)];
+    l.text = [key titleForState:UIControlStateNormal];
+    [self.panel bringSubviewToFront:l];
+    l.alpha = 1;
+    l.transform = CGAffineTransformMakeScale(0.7, 0.7);
+    [UIView animateWithDuration:0.18 delay:0 usingSpringWithDamping:0.62 initialSpringVelocity:0.5 options:UIViewAnimationOptionBeginFromCurrentState
+                     animations:^{ l.transform = CGAffineTransformIdentity; } completion:nil];
 }
 
 - (void)buildPanel
 {
+    // Kinh trang mo (2 goc tren bo 24, canh duoi phang sat mep man xe), bong tim nhat huong len
     UIView *p = [UIView new];
-    p.backgroundColor = ABK_BG;
-    p.layer.cornerRadius = 20;
-    p.layer.cornerCurve = kCACornerCurveContinuous;
-    p.layer.borderWidth = 0.5;
-    p.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.1].CGColor;
-    p.layer.shadowColor = [UIColor blackColor].CGColor;
-    p.layer.shadowOpacity = 0.45; p.layer.shadowRadius = 24; p.layer.shadowOffset = CGSizeMake(0, 8);
+    p.backgroundColor = [UIColor clearColor];
+    p.layer.shadowColor = ABK_SHADOW.CGColor;
+    p.layer.shadowOpacity = 0.3; p.layer.shadowRadius = 20; p.layer.shadowOffset = CGSizeMake(0, -4);
     p.autoresizingMask = UIViewAutoresizingNone;
+    UIVisualEffectView *glass = [[UIVisualEffectView alloc] initWithEffect:[UIBlurEffect effectWithStyle:UIBlurEffectStyleSystemUltraThinMaterialLight]];
+    glass.contentView.backgroundColor = [UIColor colorWithWhite:1 alpha:0.55];
+    glass.layer.cornerRadius = 24;
+    glass.layer.cornerCurve = kCACornerCurveContinuous;
+    glass.layer.maskedCorners = kCALayerMinXMinYCorner | kCALayerMaxXMinYCorner;
+    glass.layer.borderWidth = 0.5;
+    glass.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.85].CGColor;
+    glass.clipsToBounds = YES;
+    glass.userInteractionEnabled = NO;
+    [p addSubview:glass];
+    self.glass = glass;
 
     // Hang tren: o chu da go | chip VI / EN | nut an ban phim
     UIView *field = [UIView new];
-    field.backgroundColor = [UIColor colorWithWhite:0 alpha:0.22];
-    field.layer.cornerRadius = 13;
+    field.backgroundColor = [UIColor colorWithWhite:1 alpha:0.7];
+    field.layer.cornerRadius = 12;
     field.layer.cornerCurve = kCACornerCurveContinuous;
+    field.layer.borderWidth = 0.5;
+    field.layer.borderColor = [ABK_TEXT colorWithAlphaComponent:0.06].CGColor;
     [p addSubview:field];
     self.field = field;
     UILabel *preview = [UILabel new];
@@ -341,10 +421,10 @@ static NSString *ABKHint(NSString *c, BOOL vietnamese)
 
     UIButton *lang = [UIButton buttonWithType:UIButtonTypeCustom];
     lang.titleLabel.font = [UIFont systemFontOfSize:10.5 weight:UIFontWeightSemibold];
-    [lang setTitleColor:ABKHex(0xF2F4F8, 0.85) forState:UIControlStateNormal];
+    [lang setTitleColor:ABK_FN_TEXT forState:UIControlStateNormal];
     lang.layer.borderWidth = 1;
-    lang.layer.borderColor = ABKHex(0xF2F4F8, 0.35).CGColor;
-    lang.layer.cornerRadius = 7;
+    lang.layer.borderColor = [ABK_TEXT colorWithAlphaComponent:0.25].CGColor;
+    lang.layer.cornerRadius = 6;
     [lang addTarget:self action:@selector(langTapped) forControlEvents:UIControlEventTouchUpInside];
     [p addSubview:lang];
     self.langButton = lang;
@@ -352,7 +432,7 @@ static NSString *ABKHint(NSString *c, BOOL vietnamese)
     UIButton *hide = [UIButton buttonWithType:UIButtonTypeCustom];
     UIImageSymbolConfiguration *cfg = [UIImageSymbolConfiguration configurationWithPointSize:16 weight:UIImageSymbolWeightMedium];
     [hide setImage:[UIImage systemImageNamed:@"keyboard.chevron.compact.down" withConfiguration:cfg] forState:UIControlStateNormal];
-    hide.tintColor = ABKHex(0xF2F4F8, 0.85);
+    hide.tintColor = ABK_FN_TEXT;
     [hide addTarget:self action:@selector(hideTapped) forControlEvents:UIControlEventTouchUpInside];
     [p addSubview:hide];
     self.hideButton = hide;
@@ -363,7 +443,7 @@ static NSString *ABKHint(NSString *c, BOOL vietnamese)
     self.panel = p;
 }
 
-// title: chu tren phim; symbol: SF Symbol thay cho chu. Kieu: chu (xam xanh), chuc nang (toi hon), soft (, .), nhan (Enter)
+// title: chu tren phim; symbol: SF Symbol thay cho chu. Kieu: chu (trang), chuc nang (tim nhat), soft (, .), nhan (Enter)
 - (ABKey *)key:(NSString *)title symbol:(NSString *)symbol value:(NSString *)value command:(NSString *)command weight:(CGFloat)weight
 {
     ABKey *k = [ABKey buttonWithType:UIButtonTypeCustom];
@@ -374,16 +454,21 @@ static NSString *ABKHint(NSString *c, BOOL vietnamese)
     BOOL fn = command != nil && !space && !ret, soft = !command && ([value isEqualToString:@","] || [value isEqualToString:@"."]);
     k.restColor = fn ? ABK_FN : soft ? ABK_SOFT : ABK_KEY;
     k.lit = ret || ([command isEqualToString:@"shift"] && self.shift);
+    k.restTint = fn ? ABK_FN_TEXT : ABK_TEXT;
     k.layer.cornerRadius = 7;
     k.layer.cornerCurve = kCACornerCurveContinuous;
+    if (!k.lit) {   // phim trang noi nhe tren kinh (bong mong duoi phim)
+        k.layer.shadowColor = ABK_TEXT.CGColor;
+        k.layer.shadowOpacity = 0.12; k.layer.shadowRadius = 0; k.layer.shadowOffset = CGSizeMake(0, 1);
+    }
     if (symbol) {
         UIImageSymbolConfiguration *cfg = [UIImageSymbolConfiguration configurationWithPointSize:15 weight:UIImageSymbolWeightMedium];
         [k setImage:[UIImage systemImageNamed:symbol withConfiguration:cfg] forState:UIControlStateNormal];
     } else {
         [k setTitle:title forState:UIControlStateNormal];
     }
-    [k setTitleColor:space ? ABK_HINT : (k.lit ? ABK_INK : ABK_TEXT) forState:UIControlStateNormal];
-    k.titleLabel.font = space ? [UIFont systemFontOfSize:11] : fn ? [UIFont systemFontOfSize:12 weight:UIFontWeightMedium] : [UIFont systemFontOfSize:17];
+    [k setTitleColor:space ? ABK_HINT : (k.lit ? [UIColor whiteColor] : k.restTint) forState:UIControlStateNormal];
+    k.titleLabel.font = space ? [UIFont systemFontOfSize:10] : fn ? [UIFont systemFontOfSize:11 weight:UIFontWeightSemibold] : [UIFont systemFontOfSize:17];
     k.titleLabel.adjustsFontSizeToFitWidth = YES;
     [k paint:NO];
     [k addTarget:self action:@selector(keyTapped:) forControlEvents:UIControlEventTouchUpInside];
@@ -445,13 +530,13 @@ static NSString *ABKHint(NSString *c, BOOL vietnamese)
 
 - (void)layoutKeys
 {
-    // Hang tren cao 26 (o chu, chip VI / EN, nut an); duoi: 5 hang phim, khe 5 (tools/preview/keyboard.html)
+    // Hang tren cao 24 (o chu, chip VI / EN, nut an); duoi: 5 hang phim, khe 5 (tools/preview/keyboard.html, theme.html)
     CGRect b = self.panel.bounds;
-    CGFloat pad = 6, top = 36, gap = 5, bar = 26, langW = 26, hideW = 34;
+    CGFloat pad = 5, top = 33, gap = 5, bar = 24, langW = 26, hideW = 34;
     self.hideButton.frame = CGRectMake(b.size.width - pad - hideW, 5, hideW, bar);
-    self.langButton.frame = CGRectMake(CGRectGetMinX(self.hideButton.frame) - 4 - langW, 5 + (bar - 18) / 2, langW, 18);
+    self.langButton.frame = CGRectMake(CGRectGetMinX(self.hideButton.frame) - 4 - langW, 5 + (bar - 16) / 2, langW, 16);
     self.field.frame = CGRectMake(pad, 5, CGRectGetMinX(self.langButton.frame) - 8 - pad, bar);
-    self.preview.frame = CGRectInset(self.field.bounds, 11, 0);
+    self.preview.frame = CGRectInset(self.field.bounds, 10, 0);
     self.keysView.frame = CGRectMake(pad, top, b.size.width - pad * 2, b.size.height - top - pad);
     CGSize area = self.keysView.bounds.size;
     NSUInteger n = self.rows.count;
