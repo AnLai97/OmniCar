@@ -1,21 +1,24 @@
 <!doctype html>
-<html lang="vi" class="white">
+<html lang="vi">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>OmniCar Keyboard</title>
 <!--
-  Ban phim tren man xe (App Bridge, Features/AppBridge/ABKeyboard.mm) theo ban phim HarmonyOS (HarmoniKeyboard, giao
-  dien toi): nen than xanh dac, phim xam xanh phang bo nho, hang so rieng, ky tu goi y nho goc tren phai, phim , va .
-  xam xanh nhat, Shift dang bat + Enter to mau nhan. Mau nhan: xanh (nhu anh) hoac trang (quy tac OmniCar) - nut tren.
-  Do theo diem (pt) cua man xe roi phong to 2x. Doi giao dien trong code thi doi o day cung luc (khoi KB).
+  Ban phim tren man xe (Features/AppBridge/ABKeyboard.mm) theo UI/UX ban phim HarmonyOS (giao dien toi):
+  - nam giua vung app, sat mep duoi (2 goc tren bo 20, canh duoi phang), ~82% rong vung app (toi da 600), cao ~78% man
+  - nen than xanh dac, phim xam xanh phang bo 7, hang so rieng, goi y nho goc phim, phim , . xam xanh nhat
+  - cham phim chu: bong bong phong to ky tu phia tren phim; phim lun 0,96 roi nay lai
+  - Shift dang bat / Enter: trang chu toi (DESIGN.md: khong mau xanh)
+  - hien: truot len tu mep duoi (duong cong HarmonyOS 'friction' 0.2,0,0.2,1, 350 ms); an: truot xuong 250 ms
+  Dung cho moi app tren man xe: app iPhone (App Bridge) va app CarPlay goc (nut tren). Do theo pt, phong to 2x.
 -->
 <style>
-:root { --page: #0f1115; --text: #e8eaef; --muted: #8b93a3; --spring: cubic-bezier(.2, 1.18, .38, 1);
+:root { --page: #0f1115; --text: #e8eaef; --muted: #8b93a3;
+  --hm-in: cubic-bezier(.2, 0, .2, 1); --hm-spring: cubic-bezier(.25, 1.35, .45, 1);
   /* KB mau (HarmonyOS toi) */
-  --kb-bg: #252935; --kb-line: rgba(255,255,255,.10); --key: #3b404e; --key-fn: #2e3240; --key-soft: #7d88a6; --key-down: #5b6172;
-  --kb-text: #f2f4f8; --kb-hint: rgba(242,244,248,.5); --acc: #0A59F7; --acc-text: #fff; }
-.white { --acc: #f2f4f8; --acc-text: #15171b; }
+  --kb-bg: #252935; --kb-line: rgba(255,255,255,.10); --key: #3b404e; --key-fn: #2e3240; --key-soft: #7d88a6; --key-down: #4d5262;
+  --kb-text: #f2f4f8; --kb-hint: rgba(242,244,248,.5); --acc: #f2f4f8; --acc-down: #d6d9e0; --acc-text: #15171b; --bubble: #4a5060; }
 * { box-sizing: border-box; }
 html, body { margin: 0; background: var(--page); color: var(--text); font: 14px/1.4 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif; }
 body { display: flex; flex-direction: column; align-items: center; padding: 16px; gap: 14px; min-height: 100vh; }
@@ -29,7 +32,7 @@ h1 { font-size: 16px; font-weight: 600; margin: 0; }
 .bezel { background: #050506; border-radius: 22px; padding: 14px; box-shadow: 0 20px 60px rgba(0,0,0,.6), inset 0 0 0 1px #1d1f24; max-width: 100%; }
 .fit { position: relative; overflow: hidden; border-radius: 10px; }
 #screen { position: absolute; left: 0; top: 0; transform-origin: 0 0; overflow: hidden; background: #000; user-select: none; -webkit-user-select: none;
-  font-family: -apple-system, "SF Pro Text", "HarmonyOS Sans", "Segoe UI", Roboto, sans-serif; }
+  font-family: "HarmonyOS Sans", -apple-system, "SF Pro Text", "Segoe UI", Roboto, sans-serif; }
 
 #dock { position: absolute; left: 0; top: 0; bottom: 0; width: 45px; background: #101114; display: flex; flex-direction: column; align-items: center; padding: 6px 0; gap: 6px; z-index: 2; }
 #dock .t { color: #fff; font-size: 10px; font-weight: 600; }
@@ -37,37 +40,48 @@ h1 { font-size: 16px; font-weight: 600; margin: 0; }
 #dock .sp { flex: 1; }
 #dock .g { width: 18px; height: 12px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; }
 #dock .g i { background: #c9cdd4; border-radius: 1px; }
-#app { position: absolute; top: 0; bottom: 0; right: 0; overflow: hidden;
-  background: radial-gradient(circle at 30% 40%, #2b3a2e 0 18%, transparent 19%), radial-gradient(circle at 75% 70%, #2a3343 0 22%, transparent 23%),
+
+/* Nen sau ban phim: app iPhone (YouTube) hoac app CarPlay goc (Ban do) */
+#app { position: absolute; top: 0; bottom: 0; right: 0; overflow: hidden; }
+#app.bridge { background: radial-gradient(circle at 30% 40%, #2b3a2e 0 18%, transparent 19%), radial-gradient(circle at 75% 70%, #2a3343 0 22%, transparent 23%),
     repeating-linear-gradient(35deg, #1b1e22 0 22px, #22262b 22px 24px), #1b1e22; }
+#app.native { background: linear-gradient(160deg, #e9e4d8, #d9e4cf 40%, #cfdbe6); }
 #app .search { position: absolute; left: 12px; right: 12px; top: 10px; height: 30px; border-radius: 10px; background: rgba(255,255,255,.92); color: #333; font-size: 12px; display: flex; align-items: center; padding: 0 10px; }
+#app.native .search { background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,.2); left: 50%; width: 260px; margin-left: -130px; border-radius: 15px; }
+#app .road { position: absolute; background: #fff; height: 7px; border-radius: 4px; box-shadow: 0 0 0 1px #d0d0d0; }
 
 /* ===== KB ===== */
-#kb { position: absolute; border-radius: 20px; overflow: hidden; background: var(--kb-bg);
-  box-shadow: inset 0 0 0 .5px var(--kb-line), 0 8px 24px rgba(0,0,0,.45);
-  transition: transform .45s var(--spring), opacity .3s; }
-#kb.hide { transform: translateY(30px) scale(.94); opacity: 0; pointer-events: none; }
-#bar { position: absolute; left: 6px; right: 6px; top: 5px; height: 26px; display: flex; align-items: center; gap: 4px; }
-#field { flex: 1; height: 26px; border-radius: 13px; background: rgba(0,0,0,.22); display: flex; align-items: center; padding: 0 11px; font-size: 13px; font-weight: 500; color: var(--kb-text); overflow: hidden; white-space: nowrap; }
+#kb { position: absolute; border-radius: 20px 20px 0 0; background: var(--kb-bg);
+  box-shadow: inset 0 .5px 0 var(--kb-line), 0 -6px 24px rgba(0,0,0,.35);
+  transform: translateY(0); transition: transform .35s var(--hm-in); }
+#kb.hide { transform: translateY(105%); transition: transform .25s var(--hm-in); }
+#bar { position: absolute; left: 6px; right: 6px; top: 5px; height: 24px; display: flex; align-items: center; gap: 2px; }
+#field { flex: 1; height: 24px; border-radius: 12px; background: rgba(0,0,0,.22); display: flex; align-items: center; padding: 0 10px; font-size: 12px; font-weight: 500; color: var(--kb-text); overflow: hidden; white-space: nowrap; }
 #field.ph { color: var(--kb-hint); }
-#field .caret { display: inline-block; width: 1.5px; height: 14px; background: var(--acc); margin-left: 1px; vertical-align: -2px; animation: blink 1s steps(1) infinite; }
-.white #field .caret { background: #fff; }
+#field .caret { display: inline-block; width: 1.5px; height: 13px; background: #fff; margin-left: 1px; vertical-align: -2px; animation: blink 1s steps(1) infinite; }
 @keyframes blink { 50% { opacity: 0; } }
-.tb { height: 26px; min-width: 30px; padding: 0 6px; display: grid; place-items: center; color: rgba(242,244,248,.85); cursor: pointer; border-radius: 13px; font-size: 12px; font-weight: 600; }
-.tb:active { background: rgba(255,255,255,.1); }
-.tb svg { width: 17px; height: 17px; }
-.chip { border: 1px solid rgba(242,244,248,.35); border-radius: 7px; padding: 0 5px; line-height: 16px; font-size: 10.5px; }
-#keys { position: absolute; left: 6px; right: 6px; bottom: 6px; }
+.tb { height: 24px; min-width: 30px; padding: 0 5px; display: grid; place-items: center; color: rgba(242,244,248,.85); cursor: pointer; border-radius: 12px; font-size: 11px; font-weight: 600;
+  transition: background .15s, transform .2s var(--hm-spring); }
+.tb:active { background: rgba(255,255,255,.1); transform: scale(.92); }
+.tb svg { width: 18px; height: 18px; }
+.chip { border: 1px solid rgba(242,244,248,.35); border-radius: 6px; padding: 0 4px; line-height: 14px; font-size: 10px; }
+#keys { position: absolute; left: 5px; right: 5px; bottom: 5px; }
 .k { position: absolute; border-radius: 7px; display: grid; place-items: center; color: var(--kb-text); cursor: pointer; background: var(--key); font-weight: 400;
-  transition: background .1s; }
-.k.fn { background: var(--key-fn); font-size: 11px; font-weight: 500; }
+  transition: background .12s, transform .25s var(--hm-spring); }
+.k.fn { background: var(--key-fn); font-size: 10.5px; font-weight: 500; }
 .k.soft { background: var(--key-soft); }
-.k.space { font-size: 11px; color: var(--kb-hint); }
+.k.space { font-size: 10px; color: var(--kb-hint); }
 .k.acc, .k.on { background: var(--acc); color: var(--acc-text); }
-.k.down { background: var(--key-down); }
-.k.acc.down, .k.on.down { filter: brightness(1.15); }
-.k svg { width: 16px; height: 16px; }
-.k .h { position: absolute; right: 4px; top: 1px; font-size: 8px; color: var(--kb-hint); line-height: 1.1; }
+.k.down { background: var(--key-down); transform: scale(.96); transition: background .05s, transform .08s var(--hm-in); }
+.k.acc.down, .k.on.down { background: var(--acc-down); }
+.k svg { width: 15px; height: 15px; }
+.k .h { position: absolute; right: 3px; top: 1px; font-size: 7.5px; color: var(--kb-hint); line-height: 1.1; }
+
+/* Bong bong phong to khi cham phim chu (HarmonyOS): nam tren phim, chu to, bong mem */
+#bubble { position: absolute; display: none; z-index: 5; pointer-events: none; border-radius: 9px; background: var(--bubble); color: #fff;
+  box-shadow: 0 4px 14px rgba(0,0,0,.45); text-align: center; font-weight: 400; transform-origin: 50% 100%; animation: pop .14s var(--hm-spring); }
+#bubble.show { display: block; }
+@keyframes pop { from { transform: scale(.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
 .notes { max-width: 1340px; width: 100%; color: var(--muted); font-size: 13px; }
 .notes b { color: var(--text); }
@@ -76,10 +90,10 @@ h1 { font-size: 16px; font-weight: 600; margin: 0; }
 </head>
 <body>
 <div class="top">
-  <h1>Bàn phím trên màn xe · theo HarmonyOS <small>(bấm phím thử được)</small></h1>
+  <h1>Bàn phím trên màn xe · UI/UX HarmonyOS <small>(bấm phím thử được)</small></h1>
   <div class="btns">
-    <button data-acc="blue">Nhấn xanh (như ảnh)</button>
-    <button data-acc="white" class="on">Nhấn trắng (quy tắc OmniCar)</button>
+    <button data-app="bridge" class="on">App iPhone (YouTube)</button>
+    <button data-app="native">App CarPlay (Bản đồ)</button>
     <button data-size="640x240" class="on">Màn 640×240</button>
     <button data-size="800x480">Màn 800×480</button>
     <button id="toggle">Ẩn / hiện</button>
@@ -87,46 +101,52 @@ h1 { font-size: 16px; font-weight: 600; margin: 0; }
 </div>
 <div class="bezel"><div class="fit" id="fit"><div id="screen">
   <div id="dock"><div class="t">9:41</div><div class="d" style="background:#2fb24c"></div><div class="d" style="background:#ff375f"></div><div class="d" style="background:#0a84ff"></div><div class="sp"></div><div class="g"><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
-  <div id="app"><div class="search">Tìm kiếm trên YouTube</div></div>
+  <div id="app" class="bridge"><div class="search">Tìm kiếm trên YouTube</div></div>
   <div id="kb">
     <div id="bar"><div id="field"></div><div class="tb" id="langTb"></div><div class="tb" id="hideBtn"></div></div>
     <div id="keys"></div>
+    <div id="bubble"></div>
   </div>
 </div></div></div>
 <div class="notes">
-  <b>Theo ảnh HarmonyOS</b>
+  <b>Lần này</b>
   <ul>
-    <li>Nền than xanh đặc, phím xám xanh phẳng bo 7 pt, khe hẹp; hàng số 1–0 riêng; ký tự gợi ý nhỏ góc trên phải.</li>
-    <li>Telex: góc phím s f r x j w d a e o hiện dấu / chữ mà phím đó tạo — nhìn là biết gõ dấu gì.</li>
-    <li>Phím , và . xám xanh nhạt; Shift đang bật và Enter tô màu nhấn; phím #+= đổi sang ký hiệu.</li>
-    <li>Hàng trên: ô chữ đang gõ (ô nhập của app bị bàn phím che), chip VI / EN, nút ẩn. Quả địa cầu ở hàng dưới cùng.</li>
-    <li>Cao ~88% màn xe: hàng phím ~29 pt trên màn 240 pt.</li>
+    <li>Nằm giữa vùng app, sát mép dưới (góc trên bo 20, cạnh dưới phẳng như bàn phím điện thoại); nhỏ hơn: ~82% rộng vùng app (tối đa 600 pt), cao ~78% màn.</li>
+    <li>Chạm phím chữ: bong bóng phóng to ký tự hiện trên phím (như HarmonyOS); phím lún nhẹ rồi nảy lại.</li>
+    <li>Hiện: trượt lên từ mép dưới theo đường cong HarmonyOS (350 ms); ẩn: trượt xuống (250 ms).</li>
+    <li>Icon nét mảnh bo tròn kiểu HarmonyOS: Shift, xoá, quả địa cầu, Enter, ẩn bàn phím.</li>
+    <li>Dùng cho mọi app trên màn xe: app iPhone (App Bridge) và app CarPlay gốc (Bản đồ, Spotify…) — nút trên để xem.</li>
   </ul>
 </div>
 <script>
+// Icon kieu HarmonyOS: net 1.6, dau bo tron
+const I = (d, fill) => `<svg viewBox="0 0 24 24" fill="${fill ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
 const SVG = {
-  down: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="11" rx="2"/><path d="M7 7h.01M11 7h.01M15 7h.01M8 10.5h8M9 18l3 3 3-3"/></svg>',
-  shift: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3.5 3.5 12.5H8v7h8v-7h4.5z"/></svg>',
-  shiftO: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 3.5 3.5 12.5H8v7h8v-7h4.5z"/></svg>',
-  del: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"><path d="M8.5 5H20a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H8.5L2.5 12z"/><path d="m11 9.5 5 5m0-5-5 5"/></svg>',
-  globe: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.6 2.6 3.8 5.6 3.8 9s-1.2 6.4-3.8 9c-2.6-2.6-3.8-5.6-3.8-9S9.4 5.6 12 3z"/></svg>',
-  ret: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 5v7a2 2 0 0 1-2 2H6"/><path d="m10 10-4 4 4 4"/></svg>'
+  hide: I('<rect x="3.5" y="4" width="17" height="11" rx="2.5"/><path d="M7.5 8h.01M10.5 8h.01M13.5 8h.01M16.5 8h.01M9 11.5h6M9.5 18.5l2.5 2 2.5-2"/>'),
+  shift: I('<path d="M12 4.2 4.6 11.6a.6.6 0 0 0 .4 1H8.5V18a1.5 1.5 0 0 0 1.5 1.5h4A1.5 1.5 0 0 0 15.5 18v-5.4H19a.6.6 0 0 0 .4-1z"/>', true),
+  shiftO: I('<path d="M12 4.2 4.6 11.6a.6.6 0 0 0 .4 1H8.5V18a1.5 1.5 0 0 0 1.5 1.5h4A1.5 1.5 0 0 0 15.5 18v-5.4H19a.6.6 0 0 0 .4-1z"/>'),
+  del: I('<path d="M9 5.5h10a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H9l-6-6.5z"/><path d="m11.5 9.5 5 5m0-5-5 5"/>'),
+  globe: I('<circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.3 2.4 3.5 5.2 3.5 8.5s-1.2 6.1-3.5 8.5c-2.3-2.4-3.5-5.2-3.5-8.5s1.2-6.1 3.5-8.5z"/>'),
+  ret: I('<path d="M19.5 5.5v6a2.5 2.5 0 0 1-2.5 2.5H5.5"/><path d="m9.5 10-4 4 4 4"/>')
 };
 // Goi y goc phim: Telex (tieng Viet) / ky hieu (tieng Anh) - giong ABKHint() trong ABKeyboard.mm
 const TELEX = { s: '´', f: '`', r: '?', x: '~', j: '.', w: 'ư', d: 'đ', a: 'â', e: 'ê', o: 'ô' };
 const SYM = { q: '%', w: '\\', e: '|', r: '=', t: '[', y: ']', u: '<', i: '>', o: '{', p: '}', a: '@', s: '#', d: '&', f: '*', g: '-', h: '+', j: '(', k: ')', l: '"', z: '_', x: '$', c: "'", v: ':', b: ';', n: '!', m: '?' };
-const S = { w: 640, h: 240, dock: 45, numbers: false, shift: false, vi: true, typed: '' };
-const scr = document.getElementById('screen'), kb = document.getElementById('kb'), keysEl = document.getElementById('keys'), field = document.getElementById('field');
-document.getElementById('hideBtn').innerHTML = SVG.down;
+const S = { w: 640, h: 240, dock: 45, numbers: false, shift: false, vi: true, typed: '', app: 'bridge' };
+const scr = document.getElementById('screen'), kb = document.getElementById('kb'), keysEl = document.getElementById('keys'), field = document.getElementById('field'), bubble = document.getElementById('bubble');
+document.getElementById('hideBtn').innerHTML = SVG.hide;
 
 // KB: so do giong layoutPanelIn / layoutKeys trong ABKeyboard.mm
-const KB = { maxW: 720, hFrac: .88, maxH: 300, margin: 6, top: 36, pad: 6, gapX: 5, gapY: 5 };
+const KB = { wFrac: .82, maxW: 600, minW: 440, hFrac: .78, maxH: 280, top: 33, pad: 5, gapX: 5, gapY: 5 };
 function layout() {
   const appX = S.dock, appW = S.w - S.dock;
   scr.style.width = S.w + 'px'; scr.style.height = S.h + 'px';
-  document.getElementById('app').style.left = appX + 'px';
-  const w = Math.min(appW - 12, KB.maxW), h = Math.min(Math.floor(S.h * KB.hFrac), KB.maxH);
-  Object.assign(kb.style, { left: (appX + (appW - w) / 2) + 'px', top: (S.h - h - KB.margin) + 'px', width: w + 'px', height: h + 'px' });
+  const app = document.getElementById('app'); app.style.left = appX + 'px'; app.className = S.app;
+  app.innerHTML = S.app === 'native'
+    ? '<div class="road" style="left:-10px;right:-10px;top:120px;transform:rotate(-8deg)"></div><div class="road" style="left:200px;width:7px;height:260px;top:-20px"></div><div class="search">Tìm kiếm</div>'
+    : '<div class="search">Tìm kiếm trên YouTube</div>';
+  const w = Math.min(Math.max(Math.round(appW * KB.wFrac), KB.minW), appW, KB.maxW), h = Math.min(Math.floor(S.h * KB.hFrac), KB.maxH);
+  Object.assign(kb.style, { left: (appX + (appW - w) / 2) + 'px', top: (S.h - h) + 'px', width: w + 'px', height: h + 'px' });
   keysEl.style.top = KB.top + 'px';
   const scale = Math.min(2, (Math.min(window.innerWidth, 1340) - 60) / S.w);
   scr.style.transform = `scale(${scale})`;
@@ -140,7 +160,7 @@ function build() {
   const lines = S.numbers ? ['1234567890', '[]{}#%^*+=', '-/:;()$&@"', '.,?!\''] : ['1234567890', 'qwertyuiop', 'asdfghjkl', 'zxcvbnm'];
   const rows = lines.map((line, r) => [...line].map(c => {
     const t = S.numbers || r === 0 ? c : up(c);
-    return { t, v: t, w: 1, h: S.numbers || r === 0 ? '' : (S.vi ? TELEX[c] : SYM[c]) || '' };
+    return { t, v: t, w: 1, pop: 1, h: S.numbers || r === 0 ? '' : (S.vi ? TELEX[c] : SYM[c]) || '' };
   }));
   const last = rows.length - 1;
   rows[last].unshift(S.numbers ? { t: '#', v: '#', w: 1.5, fn: 1 } : { t: S.shift ? SVG.shift : SVG.shiftO, cmd: 'shift', w: 1.5, fn: 1, on: S.shift });
@@ -158,15 +178,25 @@ function build() {
       const el = document.createElement('div');
       el.className = 'k' + (k.fn ? ' fn' : '') + (k.cls ? ' ' + k.cls : '') + (k.on ? ' on' : '');
       el.innerHTML = k.t + (k.h ? `<span class="h">${k.h}</span>` : '');
-      Object.assign(el.style, { left: x + 'px', top: r * (rowH + KB.gapY) + 'px', width: u * k.w + 'px', height: rowH + 'px', fontSize: k.fn || k.cls === 'space' ? '' : Math.round(rowH * .56) + 'px' });
-      el.onpointerdown = () => el.classList.add('down');
-      el.onpointerleave = () => el.classList.remove('down');
-      el.onpointerup = () => { el.classList.remove('down'); tap(k); };
+      const box = { x, y: r * (rowH + KB.gapY), w: u * k.w, h: rowH };
+      Object.assign(el.style, { left: box.x + 'px', top: box.y + 'px', width: box.w + 'px', height: box.h + 'px', fontSize: k.fn || k.cls === 'space' ? '' : Math.round(rowH * .56) + 'px' });
+      el.onpointerdown = () => { el.classList.add('down'); if (k.pop) showBubble(k, box); };
+      el.onpointerleave = () => { el.classList.remove('down'); hideBubble(); };
+      el.onpointerup = () => { el.classList.remove('down'); hideBubble(); tap(k); };
       keysEl.appendChild(el); x += u * k.w + KB.gapX;
     });
   });
   showField();
 }
+// Bong bong: rong 1.3 phim, cao 1.45 phim, day bong bong ngang mep tren phim; khong ra ngoai ban phim theo chieu ngang
+function showBubble(k, b) {
+  const bw = Math.round(b.w * 1.3), bh = Math.round(b.h * 1.45);
+  const left = Math.min(Math.max(KB.pad + b.x + b.w / 2 - bw / 2, 2), kb.clientWidth - bw - 2);
+  Object.assign(bubble.style, { left: left + 'px', top: (KB.top + b.y - bh + 2) + 'px', width: bw + 'px', height: bh + 'px', lineHeight: bh * .8 + 'px', fontSize: Math.round(b.h * .85) + 'px' });
+  bubble.textContent = k.t;
+  bubble.classList.remove('show'); void bubble.offsetWidth; bubble.classList.add('show');
+}
+function hideBubble() { bubble.classList.remove('show'); }
 function tap(k) {
   if (!k.cmd) { S.typed += k.v; if (S.shift) { S.shift = false; build(); } }
   else if (k.cmd === 'del') S.typed = S.typed.slice(0, -1);
@@ -185,9 +215,9 @@ document.querySelectorAll('[data-size]').forEach(b => b.onclick = () => {
   document.querySelectorAll('[data-size]').forEach(x => x.classList.toggle('on', x === b));
   [S.w, S.h] = b.dataset.size.split('x').map(Number); S.dock = S.h > 300 ? 76 : 45; layout();
 });
-document.querySelectorAll('[data-acc]').forEach(b => b.onclick = () => {
-  document.querySelectorAll('[data-acc]').forEach(x => x.classList.toggle('on', x === b));
-  document.documentElement.classList.toggle('white', b.dataset.acc === 'white');
+document.querySelectorAll('[data-app]').forEach(b => b.onclick = () => {
+  document.querySelectorAll('[data-app]').forEach(x => x.classList.toggle('on', x === b));
+  S.app = b.dataset.app; layout();
 });
 document.getElementById('langTb').onclick = () => { S.vi = !S.vi; build(); };
 document.getElementById('toggle').onclick = () => kb.classList.toggle('hide');
