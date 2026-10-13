@@ -29,7 +29,7 @@ Mức 1 xong thì mở repo miễn phí; Mức 2 xong phần lớn thì bán Pro
   OmniCar (miễn phí, có dùng thử Pro) và OmniCar Pro (gói mở khoá trả phí). Chốt bundle id trước khi mở repo để
   người dùng thời kỳ miễn phí lên bản chính thức không mất cài đặt.
 - [ ] **Repo riêng** · Thấp
-  repo.<tên miền> (APT repo cho Sileo / Zebra): Release ký, ảnh bìa, trang mô tả (depiction) kiểu Sileo cho từng gói,
+  `repo.<tên miền>` (APT repo cho Sileo / Zebra): Release ký, ảnh bìa, trang mô tả (depiction) kiểu Sileo cho từng gói,
   nhánh beta tách khỏi nhánh chính. Đặt sau Cloudflare / máy chủ có log để đếm lượt tải.
   Xong khi: thêm repo trên Sileo và Zebra, cài / cập nhật / gỡ OmniCar chạy đúng trên rootless và roothide.
 - [ ] **Trang giới thiệu một trang** · Thấp
@@ -181,7 +181,7 @@ Thiếu một trong các mục này thì khách quốc tế không mua, hoặc m
 - [x] **Gửi log một chạm** · Thấp
   Nút trong Cài đặt: gói OmniCar.log + phiên bản iOS, máy, đầu xe, danh sách tweak → share sheet.
   Xong khi: khách gửi được file qua Zalo / email trong 3 chạm.
-  Code: Hỗ trợ > Gửi log (OMCShareReport) → OmniCar-log-<ngày>.txt. Chờ thử gửi Zalo trên máy.
+  Code: Hỗ trợ > Gửi log (OMCShareReport) → `OmniCar-log-<ngày>.txt`. Chờ thử gửi Zalo trên máy.
 - [x] **Màn chẩn đoán** · Thấp
   Độ phân giải màn xe, dây / không dây, nhiệt độ máy, FPS app iPhone, phiên bản từng tính năng.
   Code: Hỗ trợ > Chẩn đoán là trang kiểm tra sức khoẻ cho người dùng: kết luận chung ở đầu, ~20 mục ✓ / ⚠ / ✗ kèm
@@ -243,7 +243,7 @@ Thiếu một trong các mục này thì khách quốc tế không mua, hoặc m
   Tối thiểu: en, vi, es, pt-BR, de, fr, it, ru, zh-Hans, ja, ko, ar (RTL), th, id.
   Xong khi: mọi trang Cài đặt và chữ trên xe không bị cắt ở ngôn ngữ dài nhất (de) và RTL (ar).
   Code: 14 ngôn ngữ (OMCSupportedLanguages, Core/OMCCommon.m), theo ngôn ngữ máy hoặc chọn trong Cài đặt; thiếu câu
-  nào thì dùng tiếng Anh. Chữ trên xe: OMCTr(vi, en), ngôn ngữ khác tra <lang>.lproj/Car.strings (khoá = câu tiếng
+  nào thì dùng tiếng Anh. Chữ trên xe: OMCTr(vi, en), ngôn ngữ khác tra `<lang>.lproj/Car.strings` (khoá = câu tiếng
   Anh). Bản dịch máy: cần người bản xứ đọc lại; chưa kiểm tra chữ bị cắt (de) và RTL (ar) trên máy.
 - [x] **Trang tương thích công khai** · Thấp
   iOS, kiểu jailbreak (rootless / roothide), chip, đầu xe đã thử, app đã thử, giới hạn đã biết (DRM).
