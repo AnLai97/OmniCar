@@ -645,7 +645,7 @@ static NSArray *OMCABArray(NSString *key)
 {
     UITableViewCell *c = [tv dequeueReusableCellWithIdentifier:@"head"] ?: [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:@"head"];
     OMCStyleCell(c);
-    NSDictionary *info = @{@(OMCABApps): @[@"APPS_CARD", @"square.grid.2x2.fill", @"#5AB8FF"],
+    NSArray *info = @{@(OMCABApps): @[@"APPS_CARD", @"square.grid.2x2.fill", @"#5AB8FF"],
                            @(OMCABDock): @[@"HOMESCREEN_DOCK", @"dock.rectangle", @"#8B7CFF"],
                            @(OMCABLayout): @[@"APPS_LAYOUT", @"square.grid.3x2.fill", @"#2BC79A"],
                            @(OMCABWall): @[@"HOMESCREEN_WALLPAPER", @"photo.fill", @"#FF8A65"]}[@(card)];
@@ -938,16 +938,6 @@ static NSArray *OMCABArray(NSString *key)
 }
 
 - (void)setAccessory:(UIView *)v onCell:(UITableViewCell *)c { c.accessoryView = v; c.editingAccessoryView = v; }
-
-- (UISwitch *)switchFor:(NSString *)key def:(BOOL)def
-{
-    UISwitch *sw = [UISwitch new];
-    sw.onTintColor = OMCSwitchColor();
-    sw.on = [OMCHSPref(key, @(def)) boolValue];
-    objc_setAssociatedObject(sw, &kOMCABKey, key, OBJC_ASSOCIATION_COPY_NONATOMIC);
-    [sw addTarget:self action:@selector(switchChanged:) forControlEvents:UIControlEventValueChanged];
-    return sw;
-}
 
 - (UISwitch *)switchFor:(NSString *)key def:(BOOL)def
 {
