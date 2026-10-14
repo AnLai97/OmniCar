@@ -3,12 +3,8 @@
 "SPLITSCREEN" = "Layar Terpisah";
 "SPLITSCREEN_ENABLE" = "Layar Terpisah";
 "SPLITSCREEN_AUTO_LAUNCH" = "Buka saat terhubung";
-"SPLITSCREEN_DRIVER_SIDE" = "Sisi pengemudi";
-"SPLITSCREEN_DRIVER_AUTO" = "Otomatis";
-"SPLITSCREEN_DRIVER_LEFT" = "Kiri";
-"SPLITSCREEN_DRIVER_RIGHT" = "Kanan";
 "SPLITSCREEN_PINNED" = "Panel yang disematkan";
-"SPLITSCREEN_DRIVER_FOOTER" = "Setir kanan: app saat ini terbuka di panel kanan, di sebelah pengemudi. Otomatis = sesuai laporan mobil.\nPanel yang disematkan (biasanya peta): app itu tetap di panelnya saat tata letak atau app lain berubah.";
+"SPLITSCREEN_PINNED_FOOTER" = "Panel yang disematkan (biasanya peta): app itu tetap di panelnya saat tata letak atau app lain berubah.";
 
 "SPLITSCREEN_PANEL_GROUP" = "Panel OmniCar di mobil";
 "SPLITSCREEN_SHOW_RECENT" = "Terbaru";

@@ -41,14 +41,6 @@
 		</dict>
 		<dict>
 			<key>symbol</key>
-			<string>car.fill</string>
-			<key>titleKey</key>
-			<string>WN_DRIVER_TITLE</string>
-			<key>textKey</key>
-			<string>WN_DRIVER_TEXT</string>
-		</dict>
-		<dict>
-			<key>symbol</key>
 			<string>speedometer</string>
 			<key>titleKey</key>
 			<string>WN_UNITS_TITLE</string>

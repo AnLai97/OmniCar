@@ -36,8 +36,6 @@
 "WN_KEYBOARD_TEXT" = "Saisissez du texte dans les apps iPhone affichées dans la voiture avec un clavier directement sur l’écran de la voiture.";
 "WN_ZOOM_TITLE" = "Zoom de volet";
 "WN_ZOOM_TEXT" = "Touchez deux fois la barre ••• d’un volet de l’Écran partagé pour qu’il remplisse l’écran, touchez deux fois à nouveau pour revenir.";
-"WN_DRIVER_TITLE" = "Côté conducteur";
-"WN_DRIVER_TEXT" = "L’Écran partagé suit la conduite à gauche ou à droite : automatiquement selon la voiture, ou à régler vous-même.";
 "WN_UNITS_TITLE" = "km/h ou mph, panneaux US";
 "WN_UNITS_TEXT" = "La Bulle de vitesse affiche km/h ou mph et un panneau de limitation rond ou de style américain, automatiquement selon votre région.";
 "WN_LANG_TITLE" = "14 langues";

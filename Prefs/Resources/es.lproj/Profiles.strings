@@ -1,7 +1,7 @@
 /* OmniCar – Perfiles de coche – Español */
 "PROFILES" = "Perfiles de coche";
 "PROFILES_ENABLE" = "Un perfil para cada coche";
-"PROFILES_FOOTER" = "Cada coche guarda su propio diseño de división, panel fijado, lado del conductor, Burbuja de velocidad en el coche, pantalla de inicio y zoom de las apps del iPhone. OmniCar cambia a los ajustes de ese coche al conectarlo.";
+"PROFILES_FOOTER" = "Cada coche guarda su propio diseño de división, panel fijado, Burbuja de velocidad en el coche, pantalla de inicio y zoom de las apps del iPhone. OmniCar cambia a los ajustes de ese coche al conectarlo.";
 "PROFILES_CARS" = "Coches";
 "PROFILES_CARS_FOOTER" = "✓ marca el coche en uso. Desliza a la izquierda para olvidar un coche.";
 "PROFILES_NONE" = "Aún no hay coches: actívalo y conecta un coche una vez";

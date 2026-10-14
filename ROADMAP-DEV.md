@@ -85,10 +85,9 @@ Thiếu một trong các mục này thì khách quốc tế không mua, hoặc m
 ### 1.2 Bán quốc tế
 
 - [x] [ ] **1.2.1 Đơn vị và quy chuẩn theo nước** · Thấp
-  km/h ↔ mph; biển tốc độ kiểu Viên (tròn viền đỏ) / kiểu Mỹ (chữ nhật trắng); lái tay phải → đảo bố cục mặc định.
+  km/h ↔ mph; biển tốc độ kiểu Viên (tròn viền đỏ) / kiểu Mỹ (chữ nhật trắng).
   Code: Bong bóng tốc độ > Đơn vị (tự động theo vùng / km/h / mph) và Biển tốc độ (tự động / Viên / Mỹ), số vẫn so
-  bằng km/h nên cảnh báo vượt tốc không đổi. Chia màn hình > Vị trí tay lái (tự động theo CarKit / trái / phải): tay
-  lái phải thì app đang dùng vào ô bên phải. Chờ thử trên xe (tên trường rightHandDrive của CarKit).
+  bằng km/h nên cảnh báo vượt tốc không đổi. (Vị trí tay lái của Chia màn hình đã bỏ: không cần thiết.)
 - [x] [ ] **1.2.2 Hướng dẫn lần đầu** · Thấp
   3–4 trang: chọn app lên xe, chọn bố cục đầu tiên, bật bong bóng tốc độ, cách gọi bảng bố cục trên xe.
   Code: Prefs/OMCOnboardingController.m, 4 trang, tự hiện lần đầu mở Cài đặt (onboardingDone), Hỗ trợ > Xem lại

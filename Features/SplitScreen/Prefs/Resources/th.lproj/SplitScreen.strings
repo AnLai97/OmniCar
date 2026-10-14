@@ -3,12 +3,8 @@
 "SPLITSCREEN" = "แบ่งหน้าจอ";
 "SPLITSCREEN_ENABLE" = "แบ่งหน้าจอ";
 "SPLITSCREEN_AUTO_LAUNCH" = "เปิดเมื่อเชื่อมต่อ";
-"SPLITSCREEN_DRIVER_SIDE" = "ฝั่งคนขับ";
-"SPLITSCREEN_DRIVER_AUTO" = "อัตโนมัติ";
-"SPLITSCREEN_DRIVER_LEFT" = "ซ้าย";
-"SPLITSCREEN_DRIVER_RIGHT" = "ขวา";
 "SPLITSCREEN_PINNED" = "ช่องที่ปักหมุด";
-"SPLITSCREEN_DRIVER_FOOTER" = "พวงมาลัยขวา: แอปปัจจุบันจะเปิดในช่องขวา ใกล้คนขับ อัตโนมัติ = ตามที่รถรายงาน\nช่องที่ปักหมุด (ปกติคือแผนที่): แอปนั้นจะคงอยู่ในช่องของตัวเองเมื่อเลย์เอาต์หรือแอปอื่นเปลี่ยน";
+"SPLITSCREEN_PINNED_FOOTER" = "ช่องที่ปักหมุด (ปกติคือแผนที่): แอปนั้นจะคงอยู่ในช่องของตัวเองเมื่อเลย์เอาต์หรือแอปอื่นเปลี่ยน";
 
 "SPLITSCREEN_PANEL_GROUP" = "แผง OmniCar ในรถ";
 "SPLITSCREEN_SHOW_RECENT" = "ล่าสุด";

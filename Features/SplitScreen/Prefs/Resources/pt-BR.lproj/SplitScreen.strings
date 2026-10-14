@@ -3,12 +3,8 @@
 "SPLITSCREEN" = "Tela dividida";
 "SPLITSCREEN_ENABLE" = "Tela dividida";
 "SPLITSCREEN_AUTO_LAUNCH" = "Abrir ao conectar";
-"SPLITSCREEN_DRIVER_SIDE" = "Lado do motorista";
-"SPLITSCREEN_DRIVER_AUTO" = "Automático";
-"SPLITSCREEN_DRIVER_LEFT" = "Esquerda";
-"SPLITSCREEN_DRIVER_RIGHT" = "Direita";
 "SPLITSCREEN_PINNED" = "Painel fixado";
-"SPLITSCREEN_DRIVER_FOOTER" = "Volante à direita: o app atual abre no painel direito, ao lado do motorista. Automático = o que o carro informa.\nPainel fixado (geralmente o mapa): esse app mantém o painel quando o layout ou outros apps mudam.";
+"SPLITSCREEN_PINNED_FOOTER" = "Painel fixado (geralmente o mapa): esse app mantém o painel quando o layout ou outros apps mudam.";
 
 "SPLITSCREEN_PANEL_GROUP" = "Menu OmniCar no carro";
 "SPLITSCREEN_SHOW_RECENT" = "Recentes";

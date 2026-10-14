@@ -36,8 +36,6 @@
 "WN_KEYBOARD_TEXT" = "Tippe in iPhone-Apps im Auto mit einer Tastatur direkt auf dem Autodisplay.";
 "WN_ZOOM_TITLE" = "Bereich-Zoom";
 "WN_ZOOM_TEXT" = "Doppeltippe auf die ••• eines Bereichs im geteilten Bildschirm, damit er den ganzen Bildschirm füllt; erneut doppeltippen zum Zurückkehren.";
-"WN_DRIVER_TITLE" = "Fahrerseite";
-"WN_DRIVER_TEXT" = "Geteilter Bildschirm folgt Links- oder Rechtslenkung: automatisch vom Auto oder selbst festgelegt.";
 "WN_UNITS_TITLE" = "km/h oder mph, US-Schilder";
 "WN_UNITS_TEXT" = "Die Tempo-Blase zeigt km/h oder mph und ein rundes Tempolimit-Schild oder eines im US-Stil, automatisch nach deiner Region.";
 "WN_LANG_TITLE" = "14 Sprachen";

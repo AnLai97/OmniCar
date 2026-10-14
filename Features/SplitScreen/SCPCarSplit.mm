@@ -4643,21 +4643,6 @@ static void SCPCMakePassThrough(UIWindow *w)
 
 // Chon bo cuc mac dinh. Dang chia -> doi bo cuc. Dang mo 1 app toan man -> app do vao o 1, cac o con lai hien
 // bang chon. Man chinh -> moi o deu hien bang chon.
-// Xe lai tay phai: Cai dat (SPL_KEY_DRIVER_SIDE) hoac tu phien CarKit (Core ghi configuration vao diagCar)
-static BOOL SCPCRightHandDrive(void)
-{
-    NSInteger side = [OMCPref(SPL_KEY_DRIVER_SIDE, @0) integerValue];
-    if (side == 1 || side == 2) return side == 2;
-    NSDictionary *car = OMCPref(OMC_KEY_DIAG_CAR, nil);
-    NSDictionary *cfg = [car isKindOfClass:[NSDictionary class]] ? car[@"configuration"] : nil;
-    if (![cfg isKindOfClass:[NSDictionary class]]) return NO;
-    for (NSString *k in @[@"rightHandDrive", @"_rightHandDrive", @"isRightHandDrive"]) {
-        id v = cfg[k];
-        if ([v respondsToSelector:@selector(boolValue)]) return [v boolValue];
-    }
-    return NO;
-}
-
 - (void)layoutChosenID:(int)layoutID
 {
     NSString *app = self.layoutApp;
@@ -4671,13 +4656,7 @@ static BOOL SCPCRightHandDrive(void)
         return;
     }
     if (![self activateWithLayout:layoutID]) return;   // app dang mo toan man: activate tu mo lai no vao o 1
-    // Lai tay phai: app dang dung vao o sat ghe lai (o cuoi ben phai) khi chia ngang deu
-    int first = (SCPCRightHandDrive() && ![self vertical] && ![self mainStack]) ? [self paneCount] - 1 : 0;
-    if (first != 0 && [self.slots[0].bundleID isEqualToString:app]) {
-        SCPLog("CarSplit: lai tay phai -> %@ vao o %d", app, first);
-        [self swapSlot:0 with:first];
-    }
-    [self openApp:app slot:first];
+    [self openApp:app slot:0];
     for (int s = 0; s < [self paneCount]; s++) if (![self slotOccupied:s]) [self showPickerForSlot:s];
 }
 

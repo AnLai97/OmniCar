@@ -3,12 +3,8 @@
 "SPLITSCREEN" = "Chia màn hình";
 "SPLITSCREEN_ENABLE" = "Chia màn hình";
 "SPLITSCREEN_AUTO_LAUNCH" = "Tự mở khi cắm xe";
-"SPLITSCREEN_DRIVER_SIDE" = "Vị trí tay lái";
-"SPLITSCREEN_DRIVER_AUTO" = "Tự động";
-"SPLITSCREEN_DRIVER_LEFT" = "Bên trái";
-"SPLITSCREEN_DRIVER_RIGHT" = "Bên phải";
 "SPLITSCREEN_PINNED" = "Ô được ghim";
-"SPLITSCREEN_DRIVER_FOOTER" = "Tay lái bên phải: app đang dùng vào ô bên phải, gần ghế lái. Tự động = theo thông tin đầu xe gửi.\nÔ được ghim (thường là bản đồ): app đó giữ nguyên ô khi đổi bố cục hay chọn app khác.";
+"SPLITSCREEN_PINNED_FOOTER" = "Ô được ghim (thường là bản đồ): app đó giữ nguyên ô khi đổi bố cục hay chọn app khác.";
 
 "SPLITSCREEN_PANEL_GROUP" = "Bảng OmniCar trên xe";
 "SPLITSCREEN_SHOW_RECENT" = "Gần đây";

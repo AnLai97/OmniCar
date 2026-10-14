@@ -3,12 +3,8 @@
 "SPLITSCREEN" = "分屏";
 "SPLITSCREEN_ENABLE" = "分屏";
 "SPLITSCREEN_AUTO_LAUNCH" = "连接时打开";
-"SPLITSCREEN_DRIVER_SIDE" = "驾驶座位置";
-"SPLITSCREEN_DRIVER_AUTO" = "自动";
-"SPLITSCREEN_DRIVER_LEFT" = "左侧";
-"SPLITSCREEN_DRIVER_RIGHT" = "右侧";
 "SPLITSCREEN_PINNED" = "固定格";
-"SPLITSCREEN_DRIVER_FOOTER" = "右舵车：当前 App 在靠近驾驶员的右侧格中打开。自动 = 以汽车报告的为准。\n固定格（通常是地图）：更改布局或其他 App 时，该 App 保持在自己的格中。";
+"SPLITSCREEN_PINNED_FOOTER" = "固定格（通常是地图）：更改布局或其他 App 时，该 App 保持在自己的格中。";
 
 "SPLITSCREEN_PANEL_GROUP" = "车内 OmniCar 面板";
 "SPLITSCREEN_SHOW_RECENT" = "最近";

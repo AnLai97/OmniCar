@@ -1,7 +1,7 @@
 /* OmniCar – Profils de voiture – Français */
 "PROFILES" = "Profils de voiture";
 "PROFILES_ENABLE" = "Un profil par voiture";
-"PROFILES_FOOTER" = "Chaque voiture garde sa propre disposition partagée, son volet épinglé, son côté conducteur, sa Bulle de vitesse, son écran de démarrage et le zoom des apps iPhone. OmniCar passe aux réglages de cette voiture quand vous la connectez.";
+"PROFILES_FOOTER" = "Chaque voiture garde sa propre disposition partagée, son volet épinglé, sa Bulle de vitesse, son écran de démarrage et le zoom des apps iPhone. OmniCar passe aux réglages de cette voiture quand vous la connectez.";
 "PROFILES_CARS" = "Voitures";
 "PROFILES_CARS_FOOTER" = "✓ indique la voiture utilisée. Balayez vers la gauche pour oublier une voiture.";
 "PROFILES_NONE" = "Aucune voiture pour l’instant : activez puis connectez une voiture une fois";

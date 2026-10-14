@@ -36,8 +36,6 @@
 "WN_KEYBOARD_TEXT" = "Type in iPhone apps shown on the car screen with a keyboard right on the car display.";
 "WN_ZOOM_TITLE" = "Pane zoom";
 "WN_ZOOM_TEXT" = "Double-tap the ••• of a Split Screen pane to fill the screen with it, double-tap again to go back.";
-"WN_DRIVER_TITLE" = "Driver side";
-"WN_DRIVER_TEXT" = "Split Screen follows left-hand or right-hand drive: automatic from the car, or set it yourself.";
 "WN_UNITS_TITLE" = "km/h or mph, US signs";
 "WN_UNITS_TEXT" = "Speed Bubble shows km/h or mph and a round or US-style speed limit sign, automatic for your region.";
 "WN_LANG_TITLE" = "14 languages";

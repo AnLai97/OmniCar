@@ -131,7 +131,7 @@ h1 { margin: 0; font-size: 22px; }
     <div class="phone"><div class="scr"><div class="liquid"><i></i><i></i><i></i><i></i></div><div class="stbar"><span>9:41</span><span>●●● 5G ▮</span></div><div class="page" id="startup"></div></div></div>
     <div class="was">Trước: 12 nhóm dài; mục của nhiều kiểu chen nhau.</div></div>
 </div>
-<div class="note"><b>Giữ nguyên:</b> mọi cài đặt hiện có (không bỏ tính năng nào), key lưu trữ, Siri URL. <b>Đổi:</b> cách bày: tay lái / bảng trên xe thành nút chọn, ô ghim và
+<div class="note"><b>Giữ nguyên:</b> mọi cài đặt hiện có (không bỏ tính năng nào), key lưu trữ, Siri URL. <b>Đổi:</b> cách bày: bảng trên xe thành nút chọn, bỏ Vị trí tay lái, ô ghim và
   app trong yêu thích là ô có icon (chạm để chọn), yêu thích có sơ đồ bố cục thu nhỏ, hướng dẫn + URL Siri gập lại (có nút chép); Màn hình khởi động gom thành
   Kiểu → Tuỳ chỉnh kiểu này → Chung → Âm thanh → Ngày đặc biệt, chỉ hiện mục của kiểu đang chọn.</div>
 
@@ -155,7 +155,7 @@ function flash(pg, text) { const d = document.createElement('div'); d.className 
 const nextApp = id => ORDER[(ORDER.indexOf(id) + 1) % ORDER.length];
 
 // =====================================================================  Chia man hinh
-const SP = { on: true, auto: true, driver: 'auto', pinned: 'maps', recent: true, favs: true, open: {},
+const SP = { on: true, auto: true, pinned: 'maps', recent: true, favs: true, open: {},
   fav: [{ name: 'Đi làm', layout: 2, apps: ['maps', 'spotify'] }, { name: 'Đi chơi', layout: 13, apps: ['vietmap', 'youtube', 'music'] }, { name: 'Đi xa', layout: 3, apps: ['maps', 'podcast', 'phone'] }] };
 const LAYOUTS = [[2, '2 ô'], [3, '3 ô'], [13, '1 lớn + 2'], [31, '2 + 1 lớn']];
 function layHtml(f, big) {
@@ -168,12 +168,11 @@ function layHtml(f, big) {
 }
 function renderSplit() {
   const pg = $('split'), off = SP.on ? '' : 'off';
-  // xem truoc: bo cuc 2 o, o ghim theo phia tay lai
-  const rightHand = SP.driver === 'right';
+  // xem truoc: bo cuc 2 o, o ghim ben phai
   const pin = `<div class="pane" style="flex:1.2;background:${APPS[SP.pinned][1]}">${APPS[SP.pinned][0]}<span class="pin">📌</span></div>`;
   const other = `<div class="pane" style="flex:1;background:${APPS.spotify[1]}">S</div>`;
   const live = SP.on ? `<div class="dk"><i style="background:#8b7cff"></i><i style="background:${APPS.maps[1]}"></i><i style="background:${APPS.music[1]}"></i></div>
-      <div class="panes">${rightHand ? pin + other : other + pin}</div>` : '<div class="off">Chia màn hình đang tắt</div>';
+      <div class="panes">${other + pin}</div>` : '<div class="off">Chia màn hình đang tắt</div>';
   const favRows = SP.fav.map((f, i) => `<div class="r tap" data-fav="${i}">${layHtml(f)}<span class="lab">${f.name}<small>${LAYOUTS.find(l => l[0] === f.layout)[1]} · ${f.apps.slice(0, f.layout === 2 ? 2 : 3).map(a => APPS[a][2]).join(', ')}</small></span><span class="chev">›</span></div>`).join('');
   const editing = SP.edit !== undefined ? SP.fav[SP.edit] : null;
   const editor = editing ? `<div class="pc glass" style="box-shadow:inset 0 0 0 2px #8b7cff, var(--glass-shadow)">
@@ -187,9 +186,8 @@ function renderSplit() {
       <div class="r ${off}">${tile('⚡', 'linear-gradient(135deg,#9DF2D8,#2BC79A)')}<span class="lab">Tự mở khi cắm xe<small>Mở bố cục dùng lần trước</small></span>${sw(SP, 'auto')}</div></div>
     <div class="lbl">Bố cục</div>
     <div class="pc glass ${off}">
-      <div class="r">${tile('◐', 'linear-gradient(135deg,#8FD3FF,#5AB8FF)')}<span class="lab">Tay lái</span>${seg(SP, 'driver', [['auto', 'Tự động'], ['left', 'Trái'], ['right', 'Phải']])}</div>
       <div class="r tap" data-pinapp>${tile('📌', 'linear-gradient(135deg,#FFD58A,#FFB340)')}<span class="lab">Ô ghim<small>Giữ nguyên ô khi đổi bố cục</small></span>${app(SP.pinned)}<span class="v" style="min-width:0">${APPS[SP.pinned][2]}</span><span class="chev">›</span></div></div>
-    <div class="foot">Tay lái phải: app đang dùng vào ô bên phải, gần ghế lái.</div>
+    <div class="foot">Thường ghim bản đồ: app đó không bị thay khi đổi bố cục hay chọn app khác.</div>
     <div class="lbl">Yêu thích</div>
     <div class="pc glass ${off}">${favRows}</div>
     ${editor}

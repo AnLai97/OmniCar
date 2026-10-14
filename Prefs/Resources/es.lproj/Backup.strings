@@ -36,8 +36,6 @@
 "WN_KEYBOARD_TEXT" = "Escribe en las apps del iPhone que se muestran en el coche con un teclado en la propia pantalla del coche.";
 "WN_ZOOM_TITLE" = "Zoom de panel";
 "WN_ZOOM_TEXT" = "Toca dos veces la barra ••• de un panel de Pantalla dividida para que ocupe toda la pantalla; vuelve a tocar dos veces para regresar.";
-"WN_DRIVER_TITLE" = "Lado del conductor";
-"WN_DRIVER_TEXT" = "Pantalla dividida se adapta al volante a la izquierda o a la derecha: automático según el coche, o elígelo tú.";
 "WN_UNITS_TITLE" = "km/h o mph, señales de EE. UU.";
 "WN_UNITS_TEXT" = "Burbuja de velocidad muestra km/h o mph y una señal de límite redonda o de estilo EE. UU., automática según tu región.";
 "WN_LANG_TITLE" = "14 idiomas";

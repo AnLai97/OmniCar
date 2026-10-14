@@ -3,12 +3,8 @@
 "SPLITSCREEN" = "Split Screen";
 "SPLITSCREEN_ENABLE" = "Split Screen";
 "SPLITSCREEN_AUTO_LAUNCH" = "Open on connect";
-"SPLITSCREEN_DRIVER_SIDE" = "Driver side";
-"SPLITSCREEN_DRIVER_AUTO" = "Automatic";
-"SPLITSCREEN_DRIVER_LEFT" = "Left";
-"SPLITSCREEN_DRIVER_RIGHT" = "Right";
 "SPLITSCREEN_PINNED" = "Pinned pane";
-"SPLITSCREEN_DRIVER_FOOTER" = "Right-hand drive: the current app opens in the right pane, next to the driver. Automatic = what the car reports.\nPinned pane (usually the map): that app keeps its pane when the layout or other apps change.";
+"SPLITSCREEN_PINNED_FOOTER" = "Pinned pane (usually the map): that app keeps its pane when the layout or other apps change.";
 
 "SPLITSCREEN_PANEL_GROUP" = "OmniCar panel in the car";
 "SPLITSCREEN_SHOW_RECENT" = "Recent";

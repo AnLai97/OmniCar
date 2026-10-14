@@ -34,8 +34,6 @@
 "WN_KEYBOARD_TEXT" = "在车机屏幕上显示的 iPhone App 中，直接用车机显示屏上的键盘输入。";
 "WN_ZOOM_TITLE" = "格放大";
 "WN_ZOOM_TEXT" = "轻点两下分屏格的 •••，让该格铺满屏幕，再轻点两下返回。";
-"WN_DRIVER_TITLE" = "驾驶座位置";
-"WN_DRIVER_TEXT" = "分屏会适配左舵或右舵：根据汽车自动设置，或自行设置。";
 "WN_UNITS_TITLE" = "km/h 或 mph、美式标志";
 "WN_UNITS_TEXT" = "速度气泡可显示 km/h 或 mph，以及圆形或美式限速标志，并根据你的地区自动选择。";
 "WN_LANG_TITLE" = "14 种语言";

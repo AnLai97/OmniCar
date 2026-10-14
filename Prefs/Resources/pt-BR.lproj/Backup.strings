@@ -36,8 +36,6 @@
 "WN_KEYBOARD_TEXT" = "Digite nos apps do iPhone exibidos no carro com um teclado direto na tela do carro.";
 "WN_ZOOM_TITLE" = "Zoom do painel";
 "WN_ZOOM_TEXT" = "Toque duas vezes no ••• de um painel da Tela dividida para que ele ocupe a tela; toque duas vezes de novo para voltar.";
-"WN_DRIVER_TITLE" = "Lado do motorista";
-"WN_DRIVER_TEXT" = "A Tela dividida segue a direção à esquerda ou à direita: automático pelo carro, ou defina você mesmo.";
 "WN_UNITS_TITLE" = "km/h ou mph, placas dos EUA";
 "WN_UNITS_TEXT" = "A Bolha de velocidade mostra km/h ou mph e uma placa de limite redonda ou no estilo dos EUA, automaticamente conforme sua região.";
 "WN_LANG_TITLE" = "14 idiomas";

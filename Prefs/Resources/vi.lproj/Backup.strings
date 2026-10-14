@@ -36,8 +36,6 @@
 "WN_KEYBOARD_TEXT" = "Gõ chữ trong các app iPhone hiển thị trên màn hình xe bằng bàn phím ngay trên màn hình xe.";
 "WN_ZOOM_TITLE" = "Phóng to ô";
 "WN_ZOOM_TEXT" = "Chạm hai lần vào ••• của một ô Chia màn hình để ô đó chiếm cả màn hình, chạm hai lần nữa để quay lại.";
-"WN_DRIVER_TITLE" = "Vị trí tay lái";
-"WN_DRIVER_TEXT" = "Chia màn hình đặt theo xe tay lái thuận hoặc tay lái nghịch: tự động theo xe, hoặc bạn tự chọn.";
 "WN_UNITS_TITLE" = "km/h hoặc mph, biển kiểu Mỹ";
 "WN_UNITS_TEXT" = "Bong bóng tốc độ hiện km/h hoặc mph, biển giới hạn tròn hoặc kiểu Mỹ, tự động theo vùng của bạn.";
 "WN_LANG_TITLE" = "14 ngôn ngữ";

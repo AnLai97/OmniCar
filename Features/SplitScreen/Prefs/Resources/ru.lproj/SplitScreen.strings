@@ -3,12 +3,8 @@
 "SPLITSCREEN" = "Разделённый экран";
 "SPLITSCREEN_ENABLE" = "Разделённый экран";
 "SPLITSCREEN_AUTO_LAUNCH" = "Открывать при подключении";
-"SPLITSCREEN_DRIVER_SIDE" = "Сторона водителя";
-"SPLITSCREEN_DRIVER_AUTO" = "Автоматически";
-"SPLITSCREEN_DRIVER_LEFT" = "Слева";
-"SPLITSCREEN_DRIVER_RIGHT" = "Справа";
 "SPLITSCREEN_PINNED" = "Закреплённая панель";
-"SPLITSCREEN_DRIVER_FOOTER" = "Правый руль: текущее приложение открывается на правой панели, ближе к водителю. Автоматически = как сообщает автомобиль.\nЗакреплённая панель (обычно карта): это приложение остаётся на своей панели при смене раскладки или других приложений.";
+"SPLITSCREEN_PINNED_FOOTER" = "Закреплённая панель (обычно карта): это приложение остаётся на своей панели при смене раскладки или других приложений.";
 
 "SPLITSCREEN_PANEL_GROUP" = "Панель OmniCar в авто";
 "SPLITSCREEN_SHOW_RECENT" = "Недавние";
