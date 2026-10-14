@@ -19,9 +19,18 @@
 // Chi so SB_SOURCE_GPS: khong phai app (ma gia, khong app nao trung) - GPS iPhone do SpringBoard tu doc (SPPGPS.mm).
 // Khong mo / khong thoat app nay (SPPIsGPSSource).
 #define SPP_APP_GPS             @"com.anlai.omnicar.gps"
-#define SPP_NAV_APPS            (@[SPP_APP_VIETMAP, SPP_APP_GOFA, SPP_APP_GPS])
-#define SPP_NAV_APP_NAMES       (@[@"Vietmap", @"GOFA", @"GPS"])
-#define SPP_NAV_APP_COUNT       3
+// Ban do quoc te (ROADMAP-DEV: Nguon toc do toan cau): toc do tu GPS rieng trong app, gioi han quet tren man hinh
+// (vong do / ten anh / chu); chi quet khi app la nguon dang chon (SPP_DARWIN_SOURCE) vi gan nhu may nao cung co.
+#define SPP_APP_GOOGLE          @"com.google.Maps"
+#define SPP_APP_WAZE            @"com.waze.iphone"
+#define SPP_APP_APPLE_MAPS      @"com.apple.Maps"
+#define SPP_NAV_APPS            (@[SPP_APP_VIETMAP, SPP_APP_GOFA, SPP_APP_GPS, SPP_APP_GOOGLE, SPP_APP_WAZE, SPP_APP_APPLE_MAPS])
+#define SPP_NAV_APP_NAMES       (@[@"Vietmap", @"GOFA", @"GPS", @"Google Maps", @"Waze", @"Apple Maps"])
+#define SPP_NAV_APP_COUNT       6
+// Nguon dang chon de app quet biet (app sandbox khong doc duoc prefs): SpringBoard dat state = chi so SB_KEY_SOURCE,
+// 0xFF = Bong bong toc do dang tat. App tu index SPP_FIRST_GATED_APP tro di chi quet khi state = chinh no.
+#define SPP_DARWIN_SOURCE       "com.anlai.omnicar/speedbubble.source"
+#define SPP_FIRST_GATED_APP     3
 #define SPP_SOURCE_GPS          SB_SOURCE_GPS
 
 static inline BOOL SPPIsGPSSource(int i) { return i == SPP_SOURCE_GPS; }

@@ -201,7 +201,10 @@ xem trước ngay trong Cài đặt. Âm thanh phát qua loa xe khi CarPlay kế
 - [ ] **Nguồn tốc độ toàn cầu** · Vừa
   Thêm Google Maps, Waze, Apple Maps; dự phòng bằng giới hạn tốc độ OpenStreetMap tải sẵn theo vùng.
   Code: nguồn "GPS iPhone" (SPPGPS.mm, CoreLocation trong SpringBoard) dùng được mọi nơi nhưng không có biển giới hạn.
-  Còn thiếu: Google Maps / Waze / Apple Maps và giới hạn tốc độ OSM. Chờ thử: SpringBoard có lấy được vị trí không.
+  Google Maps / Waze / Apple Maps là nguồn 3–5 (NavApp.xm chạy trong app): tốc độ từ GPS riêng trong app, giới hạn quét
+  trên màn hình như Vietmap / GOFA (vòng đỏ, tên ảnh, chữ); chỉ quét khi là nguồn đang chọn (SPP_DARWIN_SOURCE). Chờ thử
+  trên xe: log "chan doan" của NavApp khi chưa thấy biển cho biết giao diện từng app để chỉnh cách đọc giới hạn.
+  Còn thiếu: giới hạn tốc độ OSM tải sẵn theo vùng.
 
 ### Cài đặt và hiệu năng
 

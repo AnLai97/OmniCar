@@ -16,10 +16,10 @@
 #define SB_KEY_SIZE_CAR      @"speedBubbleSizeCar"       // 60..220 %, default 100
 #define SB_KEY_UNIT          @"speedBubbleUnit"          // don vi: 0 tu dong theo vung, 1 km/h, 2 mph (app nguon luon gui km/h)
 #define SB_KEY_SIGN          @"speedBubbleSign"          // bien gioi han: 0 tu dong theo vung, 1 Vienna (tron vien do), 2 My (chu nhat "SPEED LIMIT")
-#define SB_KEY_SOURCE        @"speedBubbleSource"        // nguon toc do duy nhat: 0 Vietmap Live, 1 GOFA, 2 GPS iPhone (chi so SPP_NAV_APPS)
+#define SB_KEY_SOURCE        @"speedBubbleSource"        // nguon toc do duy nhat: 0 Vietmap Live, 1 GOFA, 2 GPS iPhone, 3 Google Maps, 4 Waze, 5 Apple Maps (chi so SPP_NAV_APPS)
 // Ten cac nguon cho danh sach "Nguon" trong Cai dat, cung thu tu SPP_NAV_APPS (common.h): them app dan duong moi
 // thi them ten vao CUOI ca hai. Ten GPS iPhone duoc Cai dat dich lai (SPEEDBUBBLE_SOURCE_GPS).
-#define SB_SOURCE_NAMES      (@[@"Vietmap Live", @"GOFA", @"iPhone GPS"])
+#define SB_SOURCE_NAMES      (@[@"Vietmap Live", @"GOFA", @"iPhone GPS", @"Google Maps", @"Waze", @"Apple Maps"])
 // Nguon "GPS iPhone": khong phai app - SpringBoard tu doc toc do bang CoreLocation (SPPGPS.mm) khi xe dang ket noi.
 // Chi co toc do, KHONG co gioi han (bien hien "--", khong canh bao qua toc do).
 #define SB_SOURCE_GPS        2

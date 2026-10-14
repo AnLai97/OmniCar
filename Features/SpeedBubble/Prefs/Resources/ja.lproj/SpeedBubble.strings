@@ -37,7 +37,7 @@
 "SPEEDBUBBLE_SIGN_1" = "円形（ウィーン条約）";
 "SPEEDBUBBLE_SIGN_2" = "長方形（米国）";
 "SPEEDBUBBLE_SOURCE_GPS" = "iPhoneのGPS";
-"SPEEDBUBBLE_SOURCE_FOOTER" = "Vietmap LiveとGOFAは速度と制限速度を提供します: Appを一度開き、バックグラウンドで動作させたままにしてください。iPhoneのGPSは速度のみで制限速度はなく（標識は--を表示、速度超過警告なし）、CarPlay接続中のみ動作します。";
+"SPEEDBUBBLE_SOURCE_FOOTER" = "Vietmap LiveとGOFAは速度と制限速度を提供します: Appを一度開き、バックグラウンドで動作させたままにしてください。iPhoneのGPSは速度のみで制限速度はなく（標識は--を表示、速度超過警告なし）、CarPlay接続中のみ動作します。 Google マップ、Waze、Apple マップ：速度は GPS から。制限速度はアプリが画面に標識を表示しているときのみ（テスト中）。";
 "SPEEDBUBBLE_GPS_UNAVAILABLE" = "iPhoneのGPSを使用できません: SpringBoardに位置情報の使用許可がありません。「設定」>「プライバシーとセキュリティ」>「位置情報サービス」を確認してから、リスプリングしてください。";
 "SPEEDBUBBLE_WARN" = "速度超過警告";
 "SPEEDBUBBLE_WARN_MODE" = "警告";

@@ -37,7 +37,7 @@
 "SPEEDBUBBLE_SIGN_1" = "Rund (Wien)";
 "SPEEDBUBBLE_SIGN_2" = "Rechteckig (USA)";
 "SPEEDBUBBLE_SOURCE_GPS" = "iPhone-GPS";
-"SPEEDBUBBLE_SOURCE_FOOTER" = "Vietmap Live und GOFA liefern Tempo und Tempolimit: Öffne die App einmal und lass sie im Hintergrund laufen. iPhone-GPS liefert nur das Tempo, ohne Tempolimit (das Schild zeigt --, keine Tempowarnung), und läuft nur, solange CarPlay verbunden ist.";
+"SPEEDBUBBLE_SOURCE_FOOTER" = "Vietmap Live und GOFA liefern Tempo und Tempolimit: Öffne die App einmal und lass sie im Hintergrund laufen. iPhone-GPS liefert nur das Tempo, ohne Tempolimit (das Schild zeigt --, keine Tempowarnung), und läuft nur, solange CarPlay verbunden ist. Google Maps, Waze, Apple Maps: Tempo per GPS; das Limit nur, wenn die App das Schild anzeigt (im Test).";
 "SPEEDBUBBLE_GPS_UNAVAILABLE" = "iPhone-GPS nicht verfügbar: SpringBoard darf deinen Standort nicht verwenden. Prüfe Einstellungen > Datenschutz > Ortungsdienste und führe dann einen Respring aus.";
 "SPEEDBUBBLE_WARN" = "Tempowarnung";
 "SPEEDBUBBLE_WARN_MODE" = "Warnung";

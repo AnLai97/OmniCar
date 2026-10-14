@@ -37,7 +37,7 @@
 "SPEEDBUBBLE_SIGN_1" = "圆形（维也纳公约）";
 "SPEEDBUBBLE_SIGN_2" = "矩形（美国）";
 "SPEEDBUBBLE_SOURCE_GPS" = "iPhone GPS";
-"SPEEDBUBBLE_SOURCE_FOOTER" = "Vietmap Live 和 GOFA 提供速度和限速：打开该 App 一次，然后让它在后台运行。iPhone GPS 仅提供速度，不含限速（标志显示 --，无超速警告），且仅在 CarPlay 连接时运行。";
+"SPEEDBUBBLE_SOURCE_FOOTER" = "Vietmap Live 和 GOFA 提供速度和限速：打开该 App 一次，然后让它在后台运行。iPhone GPS 仅提供速度，不含限速（标志显示 --，无超速警告），且仅在 CarPlay 连接时运行。 Google 地图、Waze、Apple 地图：速度来自 GPS；只有应用在屏幕上显示限速标志时才有限速（测试中）。";
 "SPEEDBUBBLE_GPS_UNAVAILABLE" = "iPhone GPS 不可用：SpringBoard 没有使用你位置的权限。请检查“设置”>“隐私与安全性”>“定位服务”，然后注销。";
 "SPEEDBUBBLE_WARN" = "超速警告";
 "SPEEDBUBBLE_WARN_MODE" = "警告";

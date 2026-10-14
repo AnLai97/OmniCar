@@ -23,6 +23,16 @@ static void SPPCarChangedSoon(void)
     }
 }
 
+// Nguon dang chon cho app dan duong (sandbox, khong doc prefs): SPP_DARWIN_SOURCE = chi so nguon, 0xFF = tinh nang tat
+static void SPPPublishSource(void)
+{
+    static int token = 0;
+    if (!token && notify_register_check(SPP_DARWIN_SOURCE, &token) != NOTIFY_STATUS_OK) { token = 0; return; }
+    uint64_t state = [SPPPrefs enabled] ? (uint64_t)[SPPPrefs source] : 0xFF;
+    notify_set_state(token, state);
+    notify_post(SPP_DARWIN_SOURCE);
+}
+
 %group SPRINGBOARD
 
 %hook SpringBoard
@@ -49,7 +59,9 @@ static void SPPCarChangedSoon(void)
         [[SPPBubble shared] refresh];
         [[SPPOverspeed shared] reloadPrefs];   // che do / nguong canh bao
         [[SPPPhoneGPS shared] update];         // nguon GPS iPhone bat / tat
+        SPPPublishSource();                    // Google Maps / Waze / Apple Maps chi quet khi la nguon dang chon
     });
+    SPPPublishSource();
     // Split Screen dang chia / mo bang chon tren man xe (state 1) -> bong bong tren xe tam an, 0 -> hien lai
     static int tokBusy = 0;
     notify_register_dispatch(OMC_DARWIN_CAR_BUSY, &tokBusy, dispatch_get_main_queue(), ^(int t) {

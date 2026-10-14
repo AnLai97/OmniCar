@@ -565,11 +565,15 @@ static int SPPSpeedFromFix(CLLocation *fix, double *outAge)
 
 static int SPPGPSSpeed(double *outAge) { return SPPSpeedFromFix([SPPSpeedGPS shared].last, outAge); }
 
-// App bat / tat GPS: chi ghi nhan. Bo qua manager rieng cua tweak.
+static BOOL SPPChosenSource(void);
+
+// App bat / tat GPS: chi ghi nhan. Bo qua manager rieng cua tweak. App ban do pho bien khong phai nguon dang chon:
+// khong bat GPS rieng (Google Maps / Apple Maps dan duong hang ngay ma khong dung cho bong bong).
 static void SPPAppGPSChanged(CLLocationManager *m, BOOL running)
 {
     void (^apply)(void) = ^{
         if (m == [SPPSpeedGPS shared].mgr) return;
+        if (running && !SPPChosenSource()) return;
         [[SPPSpeedGPS shared] appManager:m running:running];
     };
     if ([NSThread isMainThread]) apply(); else dispatch_async(dispatch_get_main_queue(), apply);
@@ -870,8 +874,23 @@ static void SPPScanSpeed(BOOL doLog)
 }
 
 // Nhip quet man hinh (SPP_TICK): lay gioi han (va toc do du phong khi khong co GPS)
+// App ban do pho bien (index >= SPP_FIRST_GATED_APP): chi lam viec khi la nguon dang chon (SpringBoard dat state)
+static BOOL SPPChosenSource(void)
+{
+    if (sAppIndex < SPP_FIRST_GATED_APP) return YES;
+    static int token = 0;
+    if (!token && notify_register_check(SPP_DARWIN_SOURCE, &token) != NOTIFY_STATUS_OK) { token = 0; return NO; }
+    uint64_t state = 0xFF;
+    notify_get_state(token, &state);
+    return state == (uint64_t)sAppIndex;
+}
+
 static void SPPSpeedTick(void)
 {
+    static BOOL wasChosen = YES;
+    BOOL chosen = SPPChosenSource();
+    if (chosen != wasChosen) { wasChosen = chosen; SPPLog("%@ %@ nguon toc do", SPPNavAppName(sAppIndex), chosen ? @"la" : @"khong con la"); }
+    if (!chosen) return;
     static CFAbsoluteTime lastLog = 0;
     CFAbsoluteTime now = CFAbsoluteTimeGetCurrent();
     BOOL doLog = (now - lastLog > 20);

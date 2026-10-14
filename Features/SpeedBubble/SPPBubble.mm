@@ -152,9 +152,11 @@ static UIImage *SPPAppIcon(int app)
         CGFloat d = 60;
         UIGraphicsImageRenderer *r = [[UIGraphicsImageRenderer alloc] initWithSize:CGSizeMake(d, d)];
         img = [r imageWithActions:^(UIGraphicsImageRendererContext *ctx) {
-            UIColor *bg = app == 1 ? [UIColor colorWithRed:0.0 green:0.6 blue:0.45 alpha:1] : [UIColor colorWithRed:0.1 green:0.4 blue:0.85 alpha:1];
+            UIColor *bg = app == 1 ? [UIColor colorWithRed:0.0 green:0.6 blue:0.45 alpha:1]
+                        : app == 4 ? [UIColor colorWithRed:0.2 green:0.75 blue:0.95 alpha:1] : [UIColor colorWithRed:0.1 green:0.4 blue:0.85 alpha:1];
             [bg setFill]; UIRectFill(CGRectMake(0, 0, d, d));
-            NSString *t = SPPIsGPSSource(app) ? @"GPS" : (app == 1 ? @"GO" : @"VM");
+            NSArray *abbr = @[@"VM", @"GO", @"GPS", @"G", @"WZ", @"AM"];
+            NSString *t = (app >= 0 && app < (int)abbr.count) ? abbr[app] : @"?";
             NSDictionary *a = @{NSFontAttributeName: [UIFont systemFontOfSize:26 weight:UIFontWeightHeavy], NSForegroundColorAttributeName: [UIColor whiteColor]};
             CGSize ts = [t sizeWithAttributes:a];
             [t drawAtPoint:CGPointMake((d - ts.width) / 2, (d - ts.height) / 2) withAttributes:a];

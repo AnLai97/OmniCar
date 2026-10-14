@@ -37,7 +37,7 @@
 "SPEEDBUBBLE_SIGN_1" = "دائرية (فيينا)";
 "SPEEDBUBBLE_SIGN_2" = "مستطيلة (الولايات المتحدة)";
 "SPEEDBUBBLE_SOURCE_GPS" = "نظام GPS في iPhone";
-"SPEEDBUBBLE_SOURCE_FOOTER" = "يوفّر Vietmap Live وGOFA السرعة والحد الأقصى للسرعة: افتح التطبيق مرة واحدة ثم اتركه يعمل في الخلفية. يوفّر نظام GPS في iPhone السرعة فقط دون حد السرعة (تعرض اللافتة -- ولا يوجد تحذير من تجاوز السرعة)، ولا يعمل إلا أثناء اتصال CarPlay.";
+"SPEEDBUBBLE_SOURCE_FOOTER" = "يوفّر Vietmap Live وGOFA السرعة والحد الأقصى للسرعة: افتح التطبيق مرة واحدة ثم اتركه يعمل في الخلفية. يوفّر نظام GPS في iPhone السرعة فقط دون حد السرعة (تعرض اللافتة -- ولا يوجد تحذير من تجاوز السرعة)، ولا يعمل إلا أثناء اتصال CarPlay. خرائط Google وWaze وخرائط Apple: السرعة من GPS؛ والحد فقط عندما يعرض التطبيق اللافتة على الشاشة (قيد الاختبار).";
 "SPEEDBUBBLE_GPS_UNAVAILABLE" = "نظام GPS في iPhone غير متاح: ليس لدى SpringBoard إذن باستخدام موقعك. تحقق من الإعدادات > الخصوصية > خدمات الموقع، ثم أجرِ Respring.";
 "SPEEDBUBBLE_WARN" = "تحذير تجاوز السرعة";
 "SPEEDBUBBLE_WARN_MODE" = "التحذير";

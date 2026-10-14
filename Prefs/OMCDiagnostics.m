@@ -820,12 +820,13 @@ NSArray<NSDictionary *> *OMCDiagChecks(void) {
 	else [features addObject:OMCCheck(bridgeName, @"ok", [NSString stringWithFormat:L(@"CHK_BRIDGE_APPS"), (unsigned long)chosen.count], nil, nil)];
 
 	NSString *bubbleName = OMCFeatureDisplayName(SB_FEATURE);
-	NSArray *sources = SB_SOURCE_NAMES, *sourceIDs = @[@"vn.vietmap.live", @"com.lumi.GOFA"];   // same order as SPP_NAV_APPS
+	// same order as SPP_NAV_APPS; "" = not an app (iPhone GPS)
+	NSArray *sources = SB_SOURCE_NAMES, *sourceIDs = @[@"vn.vietmap.live", @"com.lumi.GOFA", @"", @"com.google.Maps", @"com.waze.iphone", @"com.apple.Maps"];
 	NSInteger src = [OMCDiagPref(SB_KEY_SOURCE) integerValue];
 	if (src < 0 || src >= (NSInteger)sources.count) src = 0;
 	NSString *srcText = [NSString stringWithFormat:L(@"CHK_BUBBLE_SOURCE"), sources[src]];
 	if (OMC_FEATURE_OFF(SB_FEATURE)) [features addObject:OMCCheck(bubbleName, @"info", L(@"FEATURE_OFF"), nil, nil)];
-	else if (src < (NSInteger)sourceIDs.count && !OMCAppInstalled(sourceIDs[src]))
+	else if (src < (NSInteger)sourceIDs.count && [sourceIDs[src] length] && !OMCAppInstalled(sourceIDs[src]))
 		[features addObject:OMCCheck(bubbleName, @"warn", srcText, [NSString stringWithFormat:L(@"CHK_BUBBLE_MISSING"), sources[src]], nil)];
 	else [features addObject:OMCCheck(bubbleName, @"ok", srcText, nil, nil)];
 

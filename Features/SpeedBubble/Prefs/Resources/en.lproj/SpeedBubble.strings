@@ -37,7 +37,7 @@
 "SPEEDBUBBLE_SIGN_1" = "Round (Vienna)";
 "SPEEDBUBBLE_SIGN_2" = "Rectangle (US)";
 "SPEEDBUBBLE_SOURCE_GPS" = "iPhone GPS";
-"SPEEDBUBBLE_SOURCE_FOOTER" = "Vietmap Live and GOFA give the speed and the speed limit: open the app once, then leave it running in the background. iPhone GPS gives the speed only, with no speed limit (the sign shows --, no overspeed warning), and runs only while CarPlay is connected.";
+"SPEEDBUBBLE_SOURCE_FOOTER" = "Vietmap Live and GOFA give the speed and the speed limit: open the app once, then leave it running in the background. iPhone GPS gives the speed only, with no speed limit (the sign shows --, no overspeed warning), and runs only while CarPlay is connected. Google Maps, Waze, Apple Maps: speed from GPS; the limit only when the app shows its sign on screen (in testing).";
 "SPEEDBUBBLE_GPS_UNAVAILABLE" = "iPhone GPS is unavailable: SpringBoard has no permission to use your location. Check Settings > Privacy > Location Services, then respring.";
 "SPEEDBUBBLE_WARN" = "Overspeed warning";
 "SPEEDBUBBLE_WARN_MODE" = "Warning";

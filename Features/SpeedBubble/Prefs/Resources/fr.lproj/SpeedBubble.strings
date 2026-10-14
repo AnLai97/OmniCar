@@ -37,7 +37,7 @@
 "SPEEDBUBBLE_SIGN_1" = "Rond (Vienne)";
 "SPEEDBUBBLE_SIGN_2" = "Rectangulaire (États-Unis)";
 "SPEEDBUBBLE_SOURCE_GPS" = "GPS de l’iPhone";
-"SPEEDBUBBLE_SOURCE_FOOTER" = "Vietmap Live et GOFA fournissent la vitesse et la limitation : ouvrez l’app une fois, puis laissez-la tourner en arrière-plan. Le GPS de l’iPhone fournit seulement la vitesse, sans limitation (le panneau affiche --, pas d’alerte de survitesse), et ne fonctionne que lorsque CarPlay est connecté.";
+"SPEEDBUBBLE_SOURCE_FOOTER" = "Vietmap Live et GOFA fournissent la vitesse et la limitation : ouvrez l’app une fois, puis laissez-la tourner en arrière-plan. Le GPS de l’iPhone fournit seulement la vitesse, sans limitation (le panneau affiche --, pas d’alerte de survitesse), et ne fonctionne que lorsque CarPlay est connecté. Google Maps, Waze, Apple Maps : vitesse par GPS ; la limite seulement quand l'app affiche le panneau à l'écran (en test).";
 "SPEEDBUBBLE_GPS_UNAVAILABLE" = "GPS de l’iPhone indisponible : SpringBoard n’a pas l’autorisation d’utiliser votre position. Vérifiez Réglages > Confidentialité > Service de localisation, puis faites un respring.";
 "SPEEDBUBBLE_WARN" = "Alerte de survitesse";
 "SPEEDBUBBLE_WARN_MODE" = "Alerte";

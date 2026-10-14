@@ -37,7 +37,7 @@
 "SPEEDBUBBLE_SIGN_1" = "Tròn (Vienna)";
 "SPEEDBUBBLE_SIGN_2" = "Chữ nhật (Mỹ)";
 "SPEEDBUBBLE_SOURCE_GPS" = "GPS iPhone";
-"SPEEDBUBBLE_SOURCE_FOOTER" = "Vietmap Live và GOFA cho tốc độ và giới hạn tốc độ: mở app một lần rồi để app chạy nền. GPS iPhone chỉ cho tốc độ, không có giới hạn tốc độ (biển hiện --, không cảnh báo quá tốc độ), và chỉ chạy khi đang kết nối CarPlay.";
+"SPEEDBUBBLE_SOURCE_FOOTER" = "Vietmap Live và GOFA cho tốc độ và giới hạn tốc độ: mở app một lần rồi để app chạy nền. GPS iPhone chỉ cho tốc độ, không có giới hạn tốc độ (biển hiện --, không cảnh báo quá tốc độ), và chỉ chạy khi đang kết nối CarPlay. Google Maps, Waze, Apple Maps: tốc độ lấy từ GPS, giới hạn chỉ có khi app đang hiện biển trên màn hình (đang thử nghiệm).";
 "SPEEDBUBBLE_GPS_UNAVAILABLE" = "Không dùng được GPS iPhone: SpringBoard không có quyền dùng vị trí. Kiểm tra Cài đặt > Quyền riêng tư > Dịch vụ định vị rồi respring.";
 "SPEEDBUBBLE_WARN" = "Cảnh báo quá tốc độ";
 "SPEEDBUBBLE_WARN_MODE" = "Cảnh báo";

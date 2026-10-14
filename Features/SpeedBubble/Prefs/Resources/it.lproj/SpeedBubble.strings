@@ -37,7 +37,7 @@
 "SPEEDBUBBLE_SIGN_1" = "Rotondo (Vienna)";
 "SPEEDBUBBLE_SIGN_2" = "Rettangolare (USA)";
 "SPEEDBUBBLE_SOURCE_GPS" = "GPS di iPhone";
-"SPEEDBUBBLE_SOURCE_FOOTER" = "Vietmap Live e GOFA forniscono velocità e limite di velocità: apri l'app una volta, poi lasciala in esecuzione in background. GPS di iPhone fornisce solo la velocità, senza limite (il cartello mostra --, nessun avviso di eccesso di velocità), e funziona solo mentre CarPlay è connesso.";
+"SPEEDBUBBLE_SOURCE_FOOTER" = "Vietmap Live e GOFA forniscono velocità e limite di velocità: apri l'app una volta, poi lasciala in esecuzione in background. GPS di iPhone fornisce solo la velocità, senza limite (il cartello mostra --, nessun avviso di eccesso di velocità), e funziona solo mentre CarPlay è connesso. Google Maps, Waze, Apple Maps: velocità dal GPS; il limite solo quando l'app mostra il cartello sullo schermo (in prova).";
 "SPEEDBUBBLE_GPS_UNAVAILABLE" = "GPS di iPhone non disponibile: SpringBoard non ha il permesso di usare la tua posizione. Controlla Impostazioni > Privacy > Localizzazione, poi esegui il respring.";
 "SPEEDBUBBLE_WARN" = "Avviso eccesso di velocità";
 "SPEEDBUBBLE_WARN_MODE" = "Avviso";
