@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OmniCar Feature Settings</title>
+<!--
+  Ban xem truoc trang Cai dat moi cua Chia man hinh va Man hinh khoi dong, cung kieu voi trang Bong bong toc do
+  (tools/preview/speedbubble.html): xem truoc song o dau trang, cong tac tinh nang, lua chon bang nut / o hinh ngay tren
+  trang (it trang con), chi hien muc cua kieu dang chon, huong dan gap lai. Chua phai code that.
+-->
+<style>
+:root {
+  --page: #eceef7; --ink: #1f2233; --ink2: #6b7090; --line: rgba(31,34,51,.08);
+  --lav: #B7A6FF; --sky: #8FD3FF; --mint: #9DF2D8; --peach: #FFC2D6;
+  --aurora: conic-gradient(from 210deg, #A78BFA, #60C5FA, #5EDDB6, #F59AC0, #A78BFA);
+  --main: linear-gradient(135deg, #9B87F8, #5DB4F6);
+  --glass: rgba(255,255,255,.55); --glass-shadow: 0 10px 30px rgba(70,60,140,.16), 0 1px 2px rgba(70,60,140,.08);
+  --hm-spring: cubic-bezier(.25, 1.35, .45, 1);
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; color: var(--ink); font: 14px/1.45 "HarmonyOS Sans", -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif; }
+body { background: radial-gradient(1200px 600px at 10% -10%, #e4ddff, transparent 60%), radial-gradient(1000px 600px at 100% 10%, #d6f1ff, transparent 60%), var(--page);
+  padding: 22px 16px 60px; display: flex; flex-direction: column; align-items: center; gap: 16px; }
+h1 { margin: 0; font-size: 22px; }
+.sub { color: var(--ink2); margin: -6px 0 0; text-align: center; max-width: 980px; font-size: 13px; }
+.glass { background: var(--glass); -webkit-backdrop-filter: blur(22px) saturate(1.6); backdrop-filter: blur(22px) saturate(1.6);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.85), inset 0 0 0 1px rgba(255,255,255,.45), var(--glass-shadow); }
+.wrap { display: flex; gap: 28px; flex-wrap: wrap; justify-content: center; align-items: flex-start; }
+.col { display: flex; flex-direction: column; align-items: center; gap: 10px; width: 360px; max-width: 100%; }
+.col h2 { margin: 0; font-size: 15px; }
+.col .was { font-size: 12px; color: var(--ink2); text-align: center; }
+
+/* ---------- iPhone ---------- */
+.phone { width: 360px; height: 780px; max-width: 100%; border-radius: 46px; background: #0c0d12; padding: 10px; box-shadow: 0 24px 60px rgba(40,30,90,.3); }
+.scr { position: relative; width: 100%; height: 100%; border-radius: 37px; overflow: hidden; background: #f4f5fb; }
+.liquid { position: absolute; left: 0; right: 0; top: 0; height: 260px; overflow: hidden; background: #f1f0fb; }
+.liquid i { position: absolute; border-radius: 50%; filter: blur(40px); opacity: .9; }
+.liquid i:nth-child(1) { background: var(--lav); width: 60%; height: 80%; left: -12%; top: -25%; }
+.liquid i:nth-child(2) { background: var(--sky); width: 55%; height: 75%; right: -10%; top: -10%; }
+.liquid i:nth-child(3) { background: var(--mint); width: 50%; height: 70%; right: 5%; bottom: -35%; }
+.liquid i:nth-child(4) { background: var(--peach); width: 45%; height: 65%; left: 5%; bottom: -30%; }
+.liquid::after { content: ""; position: absolute; inset: 0; background: linear-gradient(transparent 40%, #f4f5fb); }
+.stbar { position: absolute; left: 0; right: 0; top: 0; height: 40px; display: flex; justify-content: space-between; align-items: center; padding: 6px 28px 0; font-size: 13px; font-weight: 600; z-index: 3; }
+.page { position: absolute; inset: 40px 0 0; overflow-y: auto; padding: 0 14px 30px; z-index: 2; scrollbar-width: none; }
+.page::-webkit-scrollbar { display: none; }
+.nav { height: 40px; display: flex; align-items: center; font-size: 15px; }
+.nav .back { width: 80px; } .nav .t { flex: 1; text-align: center; font-weight: 600; margin-right: 80px; }
+.lbl { font-size: 11.5px; font-weight: 600; letter-spacing: .4px; color: var(--ink2); margin: 0 10px 6px; text-transform: uppercase; }
+.foot { font-size: 11.5px; color: var(--ink2); margin: -8px 10px 14px; }
+.pc { border-radius: 20px; margin-bottom: 14px; overflow: hidden; }
+.pc.off { opacity: .45; pointer-events: none; }
+.r { display: flex; align-items: center; gap: 10px; padding: 9px 12px; min-height: 48px; position: relative; }
+.r + .r::before, .r + .fold::before, .fold + .r::before { content: ""; position: absolute; left: 12px; right: 0; top: 0; height: 1px; background: var(--line); }
+.r .lab { flex: 1; font-size: 14.5px; min-width: 0; } .r .lab small { display: block; font-size: 11px; color: var(--ink2); }
+.r .v { color: var(--ink2); font-size: 13.5px; font-variant-numeric: tabular-nums; min-width: 40px; text-align: right; }
+.r input[type=range] { flex: 1; accent-color: #8b7cff; min-width: 0; }
+.r input[type=text] { flex: 1; min-width: 0; border: 0; background: rgba(120,120,140,.12); border-radius: 9px; padding: 6px 9px; font: inherit; font-size: 13.5px; outline: none; text-align: right; }
+.r.col2 { flex-direction: column; align-items: stretch; gap: 8px; }
+.r .chev { color: #b4b8cc; font-size: 18px; }
+.r.tap { cursor: pointer; }
+.ptile { width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; color: #fff; font-size: 13px; font-weight: 700; flex: none; box-shadow: inset 0 1px 0 rgba(255,255,255,.6), 0 3px 8px rgba(90,80,170,.25); }
+.swi { width: 46px; height: 28px; border-radius: 14px; background: rgba(120,120,140,.22); position: relative; flex: none; cursor: pointer; transition: background .2s; }
+.swi::after { content: ""; position: absolute; top: 2px; left: 2px; width: 24px; height: 24px; border-radius: 12px; background: #fff; box-shadow: 0 2px 5px rgba(0,0,0,.2); transition: transform .3s var(--hm-spring); }
+.swi.on { background: #34C759; } .swi.on::after { transform: translateX(18px); }
+.seg { display: flex; background: rgba(120,120,140,.14); border-radius: 9px; padding: 2px; flex: none; }
+.r.col2 .seg { flex: 1; }
+.seg span { flex: 1; text-align: center; padding: 4px 8px; font-size: 12px; font-weight: 600; border-radius: 7px; cursor: pointer; white-space: nowrap; }
+.seg span.on { background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,.12); }
+.link { color: #5b6cf0; font-weight: 600; cursor: pointer; font-size: 14px; }
+.btns { display: flex; gap: 8px; }
+.pill { border: 0; border-radius: 10px; padding: 5px 10px; font: inherit; font-size: 12.5px; font-weight: 600; cursor: pointer; background: rgba(120,120,140,.14); color: var(--ink); }
+.pill.main { background: var(--main); color: #fff; }
+.pill.danger { color: #e5352b; }
+.app { width: 26px; height: 26px; border-radius: 7px; display: grid; place-items: center; color: #fff; font-weight: 700; font-size: 12px; flex: none; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; padding: 4px 12px 12px; }
+.chip { padding: 5px 10px; border-radius: 10px; font-size: 12px; font-weight: 600; cursor: pointer; background: rgba(255,255,255,.6); box-shadow: inset 0 0 0 1px #fff; color: var(--ink2); }
+.chip.on { color: #fff; background: var(--main); box-shadow: none; }
+.fold { padding: 10px 12px; position: relative; }
+.fold .h { display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 14.5px; }
+.fold .h .lab { flex: 1; }
+.fold .h .chev { transition: transform .2s; color: #b4b8cc; font-size: 18px; }
+.fold.open .h .chev { transform: rotate(90deg); }
+.fold .body { display: none; margin-top: 8px; font-size: 12.5px; color: var(--ink2); }
+.fold.open .body { display: block; }
+.gest { display: grid; grid-template-columns: 26px 1fr; gap: 6px 8px; align-items: center; }
+.gest i { font-style: normal; width: 26px; height: 26px; border-radius: 8px; display: grid; place-items: center; background: rgba(139,124,255,.14); color: #6b5cf0; font-size: 13px; }
+.url { display: flex; align-items: center; gap: 6px; margin-top: 6px; }
+.url code { flex: 1; font-size: 11px; background: rgba(120,120,140,.1); border-radius: 7px; padding: 4px 7px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.toast { position: absolute; left: 50%; bottom: 26px; transform: translateX(-50%); background: rgba(30,30,40,.9); color: #fff; font-size: 12.5px; padding: 8px 14px; border-radius: 16px; z-index: 9; white-space: nowrap; }
+
+/* ---------- xem truoc man xe thu nho ---------- */
+.live { position: relative; height: 128px; border-radius: 18px; overflow: hidden; margin-bottom: 12px; box-shadow: 0 6px 16px rgba(40,30,90,.2); background: #0e0f13; cursor: pointer; }
+.live .try { position: absolute; right: 8px; bottom: 8px; z-index: 5; border: 0; border-radius: 12px; padding: 6px 11px; font: inherit; font-size: 12px; font-weight: 600; color: #fff; background: var(--main); box-shadow: 0 4px 10px rgba(110,120,245,.35); cursor: pointer; }
+.live .dk { position: absolute; left: 0; top: 0; bottom: 0; width: 26px; background: #16171b; display: flex; flex-direction: column; align-items: center; gap: 5px; padding-top: 8px; }
+.live .dk i { width: 16px; height: 16px; border-radius: 5px; }
+.live .panes { position: absolute; left: 30px; right: 4px; top: 4px; bottom: 4px; display: flex; gap: 4px; }
+.live .pane { border-radius: 9px; display: grid; place-items: center; color: #fff; font-weight: 700; font-size: 20px; position: relative; transition: flex .3s var(--hm-spring); }
+.live .pane .pin { position: absolute; top: 4px; right: 5px; font-size: 10px; }
+.live .stack { display: flex; flex-direction: column; gap: 4px; }
+.live .off { position: absolute; inset: 0; display: grid; place-items: center; color: rgba(255,255,255,.55); font-size: 13px; }
+.su { position: absolute; inset: 0; display: grid; place-items: center; color: #fff; text-align: center; }
+.su b { display: block; font-size: 22px; }
+.su span { font-size: 11px; opacity: .75; }
+/* yeu thich: so do bo cuc thu nho co icon app */
+.lay { width: 54px; height: 30px; border-radius: 7px; background: rgba(120,120,140,.12); display: flex; gap: 2px; padding: 2px; flex: none; }
+.lay > div { border-radius: 5px; display: grid; place-items: center; color: #fff; font-size: 9px; font-weight: 700; }
+.lay .stk { display: flex; flex-direction: column; gap: 2px; }
+/* kieu khoi dong: dai cuon ngang */
+.styles { display: flex; gap: 8px; overflow-x: auto; padding: 12px; scrollbar-width: none; }
+.styles::-webkit-scrollbar { display: none; }
+.sopt { flex: none; width: 70px; cursor: pointer; text-align: center; font-size: 11px; font-weight: 600; color: var(--ink2); line-height: 1.2; }
+.sopt .box { position: relative; height: 56px; border-radius: 14px; margin-bottom: 5px; display: grid; place-items: center; color: #fff; font-size: 20px; box-shadow: inset 0 0 0 1px rgba(255,255,255,.5); }
+.sopt.on { color: var(--ink); }
+.sopt.on .box::after { content: ""; position: absolute; inset: -3px; border-radius: 16px; padding: 2.5px; background: var(--aurora);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); }
+.note { max-width: 980px; font-size: 12.5px; color: var(--ink2); }
+.note b { color: var(--ink); }
+</style>
+</head>
+<body>
+<h1>Cài đặt tính năng · bản sắp xếp lại</h1>
+<p class="sub">Cùng khuôn với trang Bong bóng tốc độ: <b>xem trước sống</b> ở đầu trang → <b>công tắc</b> tính năng → lựa chọn bằng <b>nút / ô hình</b> ngay trên trang
+  → chỉ hiện mục của <b>kiểu đang chọn</b> → hướng dẫn và URL Siri <b>gập lại</b> ở cuối. Bấm thử mọi thứ trong hai iPhone.</p>
+
+<div class="wrap">
+  <div class="col"><h2>Chia màn hình</h2>
+    <div class="phone"><div class="scr"><div class="liquid"><i></i><i></i><i></i><i></i></div><div class="stbar"><span>9:41</span><span>●●● 5G ▮</span></div><div class="page" id="split"></div></div></div>
+    <div class="was">Trước: 4 nhóm + trang Yêu thích 1 / 2 / 3 + trang Hướng dẫn riêng.</div></div>
+  <div class="col"><h2>Màn hình khởi động</h2>
+    <div class="phone"><div class="scr"><div class="liquid"><i></i><i></i><i></i><i></i></div><div class="stbar"><span>9:41</span><span>●●● 5G ▮</span></div><div class="page" id="startup"></div></div></div>
+    <div class="was">Trước: 12 nhóm dài; mục của nhiều kiểu chen nhau.</div></div>
+</div>
+<div class="note"><b>Giữ nguyên:</b> mọi cài đặt hiện có (không bỏ tính năng nào), key lưu trữ, Siri URL. <b>Đổi:</b> cách bày: tay lái / bảng trên xe thành nút chọn, ô ghim và
+  app trong yêu thích là ô có icon (chạm để chọn), yêu thích có sơ đồ bố cục thu nhỏ, hướng dẫn + URL Siri gập lại (có nút chép); Màn hình khởi động gom thành
+  Kiểu → Tuỳ chỉnh kiểu này → Chung → Âm thanh → Ngày đặc biệt, chỉ hiện mục của kiểu đang chọn.</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const APPS = { maps: ['➤', 'linear-gradient(160deg,#6fd36b,#2e9cf5)', 'Bản đồ'], vietmap: ['V', '#f07a12', 'Vietmap'], music: ['♫', 'linear-gradient(160deg,#ff6b81,#fa2d55)', 'Nhạc'],
+  spotify: ['S', '#1db954', 'Spotify'], youtube: ['▶', '#ff2a20', 'YouTube'], podcast: ['◉', 'linear-gradient(160deg,#d38bff,#8a3df0)', 'Podcast'], phone: ['✆', '#2fbf55', 'Điện thoại'] };
+const ORDER = Object.keys(APPS);
+const app = id => id ? `<span class="app" style="background:${APPS[id][1]}">${APPS[id][0]}</span>` : `<span class="app" style="background:rgba(120,120,140,.25)">+</span>`;
+const tile = (g, c) => `<span class="ptile" style="background:${c}">${g}</span>`;
+const sw = (st, k) => `<span class="swi ${st[k] ? 'on' : ''}" data-tog="${k}"></span>`;
+const seg = (st, k, opts) => `<span class="seg">${opts.map(([v, t]) => `<span class="${st[k] === v ? 'on' : ''}" data-set="${k}" data-v="${v}">${t}</span>`).join('')}</span>`;
+function bind(root, st, render) {
+  root.querySelectorAll('[data-tog]').forEach(e => e.onclick = ev => { ev.stopPropagation(); st[e.dataset.tog] = !st[e.dataset.tog]; render(); });
+  root.querySelectorAll('[data-set]').forEach(e => e.onclick = () => { const v = e.dataset.v; st[e.dataset.set] = isNaN(+v) ? v : +v; render(); });
+  root.querySelectorAll('[data-fold]').forEach(e => e.onclick = () => { const k = e.dataset.fold; st.open[k] = !st.open[k]; render(); });
+  root.querySelectorAll('[data-range]').forEach(e => e.oninput = () => { st[e.dataset.range] = +e.value; const v = root.querySelector('#v-' + e.dataset.range); if (v) v.textContent = e.value + (e.dataset.unit || ''); });
+}
+function keepScroll(pg, html) { const t = pg.scrollTop; pg.innerHTML = html; pg.scrollTop = t; }
+function flash(pg, text) { const d = document.createElement('div'); d.className = 'toast'; d.textContent = text; pg.parentNode.appendChild(d); setTimeout(() => d.remove(), 1600); }
+const nextApp = id => ORDER[(ORDER.indexOf(id) + 1) % ORDER.length];
+
+// =====================================================================  Chia man hinh
+const SP = { on: true, auto: true, driver: 'auto', pinned: 'maps', recent: true, favs: true, open: {},
+  fav: [{ name: 'Đi làm', layout: 2, apps: ['maps', 'spotify'] }, { name: 'Đi chơi', layout: 13, apps: ['vietmap', 'youtube', 'music'] }, { name: 'Đi xa', layout: 3, apps: ['maps', 'podcast', 'phone'] }] };
+const LAYOUTS = [[2, '2 ô'], [3, '3 ô'], [13, '1 lớn + 2'], [31, '2 + 1 lớn']];
+function layHtml(f, big) {
+  const box = (id, flex) => `<div style="flex:${flex};background:${id ? APPS[id][1] : 'rgba(120,120,140,.3)'}">${id ? APPS[id][0] : ''}</div>`;
+  const a = f.apps;
+  if (f.layout === 2) return `<div class="lay">${box(a[0], 1)}${box(a[1], 1)}</div>`;
+  if (f.layout === 3) return `<div class="lay">${box(a[0], 1)}${box(a[1], 1)}${box(a[2], 1)}</div>`;
+  if (f.layout === 13) return `<div class="lay">${box(a[0], 1.4)}<div class="stk" style="flex:1">${box(a[1], 1)}${box(a[2], 1)}</div></div>`;
+  return `<div class="lay"><div class="stk" style="flex:1">${box(a[0], 1)}${box(a[1], 1)}</div>${box(a[2], 1.4)}</div>`;
+}
+function renderSplit() {
+  const pg = $('split'), off = SP.on ? '' : 'off';
+  // xem truoc: bo cuc 2 o, o ghim theo phia tay lai
+  const rightHand = SP.driver === 'right';
+  const pin = `<div class="pane" style="flex:1.2;background:${APPS[SP.pinned][1]}">${APPS[SP.pinned][0]}<span class="pin">📌</span></div>`;
+  const other = `<div class="pane" style="flex:1;background:${APPS.spotify[1]}">S</div>`;
+  const live = SP.on ? `<div class="dk"><i style="background:#8b7cff"></i><i style="background:${APPS.maps[1]}"></i><i style="background:${APPS.music[1]}"></i></div>
+      <div class="panes">${rightHand ? pin + other : other + pin}</div>` : '<div class="off">Chia màn hình đang tắt</div>';
+  const favRows = SP.fav.map((f, i) => `<div class="r tap" data-fav="${i}">${layHtml(f)}<span class="lab">${f.name}<small>${LAYOUTS.find(l => l[0] === f.layout)[1]} · ${f.apps.slice(0, f.layout === 2 ? 2 : 3).map(a => APPS[a][2]).join(', ')}</small></span><span class="chev">›</span></div>`).join('');
+  const editing = SP.edit !== undefined ? SP.fav[SP.edit] : null;
+  const editor = editing ? `<div class="pc glass" style="box-shadow:inset 0 0 0 2px #8b7cff, var(--glass-shadow)">
+      <div class="r"><span class="lab" style="flex:none">Tên</span><input type="text" value="${editing.name}" id="favname"></div>
+      <div class="r col2">${`<span class="seg">${LAYOUTS.map(([v, t]) => `<span class="${editing.layout === v ? 'on' : ''}" data-flay="${v}">${t}</span>`).join('')}</span>`}</div>
+      <div class="r"><span class="lab">App<small>Chạm ô để đổi app</small></span>${editing.apps.slice(0, editing.layout === 2 ? 2 : 3).map((a, k) => `<span data-fapp="${k}" style="cursor:pointer">${app(a)}</span>`).join('')}</div>
+      <div class="r"><span class="link" data-done>Xong</span></div></div>` : '';
+  keepScroll(pg, `<div class="nav"><span class="back">‹ OmniCar</span><span class="t">Chia màn hình</span></div>
+    <div class="live">${live}${SP.on ? '<button class="try">Mở trên xe</button>' : ''}</div>
+    <div class="pc glass"><div class="r">${tile('▥', 'linear-gradient(135deg,#B7A6FF,#8B7CFF)')}<span class="lab">Chia màn hình<small>Nút OmniCar trên dock của CarPlay</small></span>${sw(SP, 'on')}</div>
+      <div class="r ${off}">${tile('⚡', 'linear-gradient(135deg,#9DF2D8,#2BC79A)')}<span class="lab">Tự mở khi cắm xe<small>Mở bố cục dùng lần trước</small></span>${sw(SP, 'auto')}</div></div>
+    <div class="lbl">Bố cục</div>
+    <div class="pc glass ${off}">
+      <div class="r">${tile('◐', 'linear-gradient(135deg,#8FD3FF,#5AB8FF)')}<span class="lab">Tay lái</span>${seg(SP, 'driver', [['auto', 'Tự động'], ['left', 'Trái'], ['right', 'Phải']])}</div>
+      <div class="r tap" data-pinapp>${tile('📌', 'linear-gradient(135deg,#FFD58A,#FFB340)')}<span class="lab">Ô ghim<small>Giữ nguyên ô khi đổi bố cục</small></span>${app(SP.pinned)}<span class="v" style="min-width:0">${APPS[SP.pinned][2]}</span><span class="chev">›</span></div></div>
+    <div class="foot">Tay lái phải: app đang dùng vào ô bên phải, gần ghế lái.</div>
+    <div class="lbl">Yêu thích</div>
+    <div class="pc glass ${off}">${favRows}</div>
+    ${editor}
+    <div class="foot">Mở bằng Siri: omnicar://splitscreen/fav?n=1</div>
+    <div class="lbl">Bảng OmniCar trên xe</div>
+    <div class="pc glass ${off}"><div class="r">${tile('☰', 'linear-gradient(135deg,#FFC2D6,#FF7FA8)')}<span class="lab">Hiện trong bảng</span>
+      <span class="chips" style="padding:0"><span class="chip ${SP.recent ? 'on' : ''}" data-tog="recent">Gần đây</span><span class="chip ${SP.favs ? 'on' : ''}" data-tog="favs">Yêu thích</span></span></div></div>
+    <div class="pc glass">
+      <div class="fold ${SP.open.g ? 'open' : ''}"><div class="h" data-fold="g">${tile('?', 'linear-gradient(135deg,#B7A6FF,#5AB8FF)')}<span class="lab">Cử chỉ trên xe</span><span class="chev">›</span></div>
+        <div class="body gest"><i>▥</i>Nút OmniCar: bố cục, Gần đây, Yêu thích, thoát<i>●</i>Chấm tròn: chạm chọn tỉ lệ · kéo đổi tỉ lệ · kéo sát mép đóng ô
+          <i>•••</i>Thanh •••: Đổi app / Cửa sổ nổi / Toàn màn / Đóng · kéo sang ô khác để đổi chỗ<i>⤢</i>Chạm 2 lần thanh •••: phóng to tạm<i>⇄</i>Chạm 2 lần vạch chia: đổi chỗ 2 ô<i>⌂</i>Nút Home: thoát chia màn</div></div>
+      <div class="fold ${SP.open.u ? 'open' : ''}"><div class="h" data-fold="u">${tile('⌘', 'linear-gradient(135deg,#8a8fb0,#4a4f80)')}<span class="lab">Siri / Phím tắt</span><span class="chev">›</span></div>
+        <div class="body">${['omnicar://splitscreen/open?left=com.apple.Maps&right=com.spotify.client', 'omnicar://splitscreen/fav?n=1', 'omnicar://splitscreen/close', 'omnicar://splitscreen/layout?id=3', 'omnicar://splitscreen/swap']
+          .map(u => `<div class="url"><code>${u}</code><button class="pill" data-copy>Chép</button></div>`).join('')}</div></div></div>
+    <div class="foot">Trước đây là CarDuo. Host app dựa trên carplay-cast (Ethan Arbuckle).</div>`);
+  bind(pg, SP, renderSplit);
+  pg.querySelectorAll('[data-pinapp]').forEach(e => e.onclick = () => { SP.pinned = nextApp(SP.pinned); renderSplit(); });
+  pg.querySelectorAll('[data-fav]').forEach(e => e.onclick = () => { SP.edit = SP.edit === +e.dataset.fav ? undefined : +e.dataset.fav; renderSplit(); });
+  pg.querySelectorAll('[data-flay]').forEach(e => e.onclick = () => { SP.fav[SP.edit].layout = +e.dataset.flay; renderSplit(); });
+  pg.querySelectorAll('[data-fapp]').forEach(e => e.onclick = () => { const f = SP.fav[SP.edit], k = +e.dataset.fapp; f.apps[k] = nextApp(f.apps[k]); renderSplit(); });
+  pg.querySelectorAll('[data-done]').forEach(e => e.onclick = () => { SP.edit = undefined; renderSplit(); });
+  if ($('favname')) $('favname').oninput = e => { SP.fav[SP.edit].name = e.target.value; };
+  pg.querySelectorAll('[data-copy]').forEach(e => e.onclick = () => flash(pg, 'Đã chép URL'));
+  pg.querySelectorAll('.try').forEach(e => e.onclick = ev => { ev.stopPropagation(); flash(pg, 'Đã mở bố cục trên xe'); });
+}
+
+// =====================================================================  Man hinh khoi dong
+const SS = { on: true, style: 9, video: 'xe-chao.mp4', fit: 0, full: false, vsound: false, logo: true, effect: 0, name: 'An', car: '', tempo: 1,
+  random: [1, 2, 5, 9], dur: 5, skip: true, sound: 'chime.m4a', vol: 80, nocall: true, occ: true, bday: '06-12', open: {} };
+const STY = [['Video', '▶', 'linear-gradient(160deg,#4a4f80,#1f2233)'], ['Logo', '◆', 'linear-gradient(160deg,#2a2e45,#0c0d14)'], ['Lời chào', '☀︎', 'linear-gradient(160deg,#FFD58A,#FF8A65)'],
+  ['Thời tiết', '☁︎', 'linear-gradient(160deg,#8FD3FF,#5AB8FF)'], ['Khởi động máy', '◔', 'linear-gradient(160deg,#ff8a65,#c0392b)'], ['Ánh sáng chào', '❖', 'linear-gradient(160deg,#5eddb6,#1f6f8b)'],
+  ['Hạt sáng', '✦', 'linear-gradient(160deg,#B7A6FF,#5b3c88)'], ['HUD tự kiểm tra', '◎', 'linear-gradient(160deg,#0f2027,#2c5364)'], ['Bảng tin', '▤', 'linear-gradient(160deg,#C9BAFC,#A6DDFD)'],
+  ['Chất lỏng', '◍', 'radial-gradient(circle at 20% 20%,#C9BAFC,transparent 60%),radial-gradient(circle at 80% 80%,#A0F1D9,transparent 60%),#FEC4D8'], ['Ngẫu nhiên', '⤨', 'conic-gradient(from 210deg,#A78BFA,#60C5FA,#5EDDB6,#F59AC0,#A78BFA)']];
+// Muc rieng cua tung kieu (chi hien muc cua kieu dang chon)
+function styleOptions() {
+  const nameRow = `<div class="r">${tile('A', 'linear-gradient(135deg,#FFC2D6,#FF7FA8)')}<span class="lab" style="flex:none">Tên của bạn</span><input type="text" value="${SS.name}" placeholder="Không bắt buộc"></div>`;
+  const carRow = `<div class="r">${tile('🚗', 'linear-gradient(135deg,#8FD3FF,#5AB8FF)')}<span class="lab" style="flex:none">Tên xe</span><input type="text" value="${SS.car}" placeholder="Theo CarPlay"></div>`;
+  switch (SS.style) {
+    case 0: return `<div class="r">${tile('▶', 'linear-gradient(135deg,#8a8fb0,#4a4f80)')}<span class="lab">${SS.video || 'Chưa có video'}<small>MP4, MOV · tối đa 60 giây</small></span><span class="btns"><button class="pill main" data-add>Đổi</button>${SS.video ? '<button class="pill danger" data-delv>Xoá</button>' : ''}</span></div>
+      <div class="r col2">${seg(SS, 'fit', [[0, 'Lấp đầy'], [1, 'Vừa khung']])}</div>
+      <div class="r"><span class="lab">Phát hết video</span>${sw(SS, 'full')}</div>
+      <div class="r"><span class="lab">Âm thanh của video<small>Thay cho âm thanh khởi động</small></span>${sw(SS, 'vsound')}</div>`;
+    case 1: return `<div class="r">${tile('◆', 'linear-gradient(135deg,#2a2e45,#0c0d14)')}<span class="lab">${SS.logo ? 'logo.png' : 'Chưa có logo'}<small>PNG nền trong suốt là đẹp nhất</small></span><span class="btns"><button class="pill main" data-logo>Chọn</button>${SS.logo ? '<button class="pill danger" data-dellogo>Xoá</button>' : ''}</span></div>
+      <div class="r col2">${seg(SS, 'effect', [[0, 'Hiện dần'], [1, 'Phóng to'], [2, 'Phát sáng']])}</div>`;
+    case 2: case 6: return nameRow;
+    case 3: return nameRow + `<div class="r"><span class="lab"><small>Lấy thời tiết theo vị trí gần nhất mỗi lần cắm xe · cập nhật 08:12</small></span></div>`;
+    case 4: case 7: return carRow;
+    case 5: return carRow + `<div class="r col2">${seg(SS, 'tempo', [[0, 'Chậm rãi'], [1, 'Vừa'], [2, 'Nhanh']])}</div>`;
+    case 8: return nameRow + `<div class="r"><span class="lab"><small>Thẻ lịch hẹn chỉ hiện khi đã cho phép truy cập Lịch.</small></span></div>`;
+    case 9: return `<div class="r"><span class="lab"><small>Bộ mặt OmniCar: nền pastel chảy chậm, logo kính nổi lên. Không cần chỉnh gì.</small></span></div>`;
+    case 10: return `<div class="r"><span class="lab">Chọn ngẫu nhiên từ</span></div><div class="chips">${STY.slice(0, 10).map(([n], i) => `<span class="chip ${SS.random.includes(i) ? 'on' : ''}" data-rand="${i}">${n}</span>`).join('')}</div>`;
+  }
+}
+function renderStartup() {
+  const pg = $('startup'), off = SS.on ? '' : 'off', [sn, sg, sc] = STY[SS.style];
+  keepScroll(pg, `<div class="nav"><span class="back">‹ OmniCar</span><span class="t">Màn hình khởi động</span></div>
+    <div class="live" style="background:${sc}">${SS.on ? `<div class="su"><div><b>${sg} ${SS.style === 2 || SS.style === 8 ? 'Chào buổi sáng, ' + (SS.name || 'bạn') : sn}</b><span>Chạm để xem lại</span></div></div><button class="try">Xem thử trên xe</button>` : '<div class="off">Đang tắt</div>'}</div>
+    <div class="pc glass"><div class="r">${tile('✦', 'linear-gradient(135deg,#B7A6FF,#8B7CFF)')}<span class="lab">Màn hình khởi động<small>Hiện khi cắm CarPlay</small></span>${sw(SS, 'on')}</div></div>
+    <div class="lbl">Kiểu</div>
+    <div class="pc glass ${off}"><div class="styles">${STY.map(([n, g, c], i) => `<div class="sopt ${SS.style === i ? 'on' : ''}" data-sty="${i}"><div class="box" style="background:${c}">${g}</div>${n}</div>`).join('')}</div></div>
+    <div class="lbl">${sn}</div>
+    <div class="pc glass ${off}">${styleOptions()}</div>
+    <div class="lbl">Chung</div>
+    <div class="pc glass ${off}">
+      <div class="r">${tile('⏱', 'linear-gradient(135deg,#9DF2D8,#2BC79A)')}<span class="lab" style="flex:none">Thời lượng</span><input type="range" min="1" max="30" value="${SS.dur}" data-range="dur" data-unit=" giây"><span class="v" id="v-dur" style="min-width:52px">${SS.dur} giây</span></div>
+      <div class="r">${tile('☝', 'linear-gradient(135deg,#8FD3FF,#5AB8FF)')}<span class="lab">Chạm để bỏ qua</span>${sw(SS, 'skip')}</div></div>
+    <div class="lbl">Âm thanh khởi động</div>
+    <div class="pc glass ${off}">
+      <div class="r">${tile('♪', 'linear-gradient(135deg,#FFC2D6,#FF7FA8)')}<span class="lab">${SS.sound || 'Chưa có âm thanh'}<small>Phát qua loa xe khi cắm CarPlay</small></span><span class="btns">${SS.sound ? '<button class="pill" data-play>▶</button>' : ''}<button class="pill main" data-snd>${SS.sound ? 'Đổi' : 'Chọn'}</button>${SS.sound ? '<button class="pill danger" data-delsnd>Xoá</button>' : ''}</span></div>
+      <div class="r">${tile('🔊', 'linear-gradient(135deg,#B7A6FF,#5AB8FF)')}<span class="lab" style="flex:none">Âm lượng</span><input type="range" min="0" max="100" value="${SS.vol}" data-range="vol" data-unit="%"><span class="v" id="v-vol">${SS.vol}%</span></div>
+      <div class="r">${tile('✆', 'linear-gradient(135deg,#9DF2D8,#2BC79A)')}<span class="lab">Im lặng khi đang gọi</span>${sw(SS, 'nocall')}</div></div>
+    <div class="lbl">Ngày đặc biệt</div>
+    <div class="pc glass ${off}">
+      <div class="r">${tile('🎉', 'linear-gradient(135deg,#FFD58A,#FFB340)')}<span class="lab">Màn hình ngày lễ<small>Tết, Trung thu, Giáng sinh, Năm mới</small></span>${sw(SS, 'occ')}</div>
+      <div class="r">${tile('🎂', 'linear-gradient(135deg,#FFC2D6,#FF7FA8)')}<span class="lab">Sinh nhật</span><span class="v" style="min-width:0">${SS.bday ? SS.bday.split('-').reverse().join('/') : 'Chưa đặt'}</span><button class="pill" data-bday>${SS.bday ? 'Đổi' : 'Đặt'}</button></div>
+      <div class="r"><span class="link" data-occprev>Xem thử ngày lễ tiếp theo</span></div></div>
+    <div class="foot">Ngày lễ hiện tối đa 3 lần trong ngày, thay cho kiểu đã chọn.</div>`);
+  bind(pg, SS, renderStartup);
+  pg.querySelectorAll('[data-sty]').forEach(e => e.onclick = () => { SS.style = +e.dataset.sty; renderStartup(); });
+  pg.querySelectorAll('[data-rand]').forEach(e => e.onclick = () => { const i = +e.dataset.rand; SS.random = SS.random.includes(i) ? (SS.random.length > 1 ? SS.random.filter(x => x !== i) : SS.random) : SS.random.concat(i); renderStartup(); });
+  const act = (sel, f) => pg.querySelectorAll(sel).forEach(e => e.onclick = () => { f(); renderStartup(); });
+  act('[data-add]', () => { SS.video = 'video-moi.mp4'; flash(pg, 'Từ Ảnh / Từ Tệp'); }); act('[data-delv]', () => SS.video = '');
+  act('[data-logo]', () => SS.logo = true); act('[data-dellogo]', () => SS.logo = false);
+  act('[data-snd]', () => SS.sound = 'am-thanh.m4a'); act('[data-delsnd]', () => SS.sound = '');
+  pg.querySelectorAll('[data-play]').forEach(e => e.onclick = () => flash(pg, 'Đang phát…'));
+  act('[data-bday]', () => SS.bday = SS.bday ? '' : '06-12');
+  pg.querySelectorAll('[data-occprev], .try').forEach(e => e.onclick = ev => { ev.stopPropagation(); flash(pg, 'Đang hiện trên xe'); });
+}
+renderSplit(); renderStartup();
+</script>
+</body>
+</html>
