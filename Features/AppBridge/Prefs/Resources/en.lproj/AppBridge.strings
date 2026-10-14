@@ -14,3 +14,5 @@
 "APPBRIDGE_APPS_SEARCH" = "Search apps";
 "APPBRIDGE_APPS_EMPTY" = "No iPhone apps found on this device.";
 "APPBRIDGE_APPS_NO_MATCH" = "No app matches.";
+"APPBRIDGE_DRIVE_MODE" = "Driving mode";
+"APPBRIDGE_DRIVE_FOOTER" = "Driving mode: above 10 km/h iPhone apps on the car play sound only (picture covered, touches locked); stop the car to watch again. Uses the Speed Bubble speed source.";

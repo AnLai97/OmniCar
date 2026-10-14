@@ -1,0 +1,18 @@
+/* OmniCar – App Bridge – 简体中文 */
+
+"APPBRIDGE" = "App Bridge";
+"APPBRIDGE_FOOTER" = "在车机屏幕上使用不支持 CarPlay 的 iPhone App（YouTube、TikTok…）。";
+"APPBRIDGE_ENABLE" = "在汽车上显示 iPhone App";
+"APPBRIDGE_APPS" = "车机屏幕上的 App";
+"APPBRIDGE_APPS_FOOTER" = "打开某个 App，即可将其图标放到 CarPlay 主屏幕上。";
+"APPBRIDGE_APPS_NONE" = "无";
+"APPBRIDGE_APPS_COUNT" = "%ld 个 App";
+"APPBRIDGE_APPS_ON_CAR" = "在车机屏幕上";
+"APPBRIDGE_APPS_USER" = "你的 App";
+"APPBRIDGE_APPS_SYSTEM" = "系统 App";
+"APPBRIDGE_APPS_OTHER_FOOTER" = "自带 CarPlay 界面的 App 不会列出。";
+"APPBRIDGE_APPS_SEARCH" = "搜索 App";
+"APPBRIDGE_APPS_EMPTY" = "此设备上未找到 iPhone App。";
+"APPBRIDGE_APPS_NO_MATCH" = "没有匹配的 App。";
+"APPBRIDGE_DRIVE_MODE" = "驾驶模式";
+"APPBRIDGE_DRIVE_FOOTER" = "驾驶模式：车速超过 10 km/h 时，汽车上的 iPhone App 仅播放声音（画面遮挡、触控锁定）；停车后即可继续观看。使用速度气泡的速度来源。";

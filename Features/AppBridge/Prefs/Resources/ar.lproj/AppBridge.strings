@@ -1,0 +1,18 @@
+/* OmniCar – App Bridge – العربية */
+
+"APPBRIDGE" = "App Bridge";
+"APPBRIDGE_FOOTER" = "تطبيقات iPhone التي لا تدعم CarPlay (YouTube، TikTok…) على شاشة السيارة.";
+"APPBRIDGE_ENABLE" = "عرض تطبيقات iPhone على السيارة";
+"APPBRIDGE_APPS" = "تطبيقات شاشة السيارة";
+"APPBRIDGE_APPS_FOOTER" = "شغّل تطبيقًا لوضع أيقونته على الشاشة الرئيسية لـ CarPlay.";
+"APPBRIDGE_APPS_NONE" = "لا شيء";
+"APPBRIDGE_APPS_COUNT" = "التطبيقات: %ld";
+"APPBRIDGE_APPS_ON_CAR" = "على شاشة السيارة";
+"APPBRIDGE_APPS_USER" = "تطبيقاتك";
+"APPBRIDGE_APPS_SYSTEM" = "تطبيقات النظام";
+"APPBRIDGE_APPS_OTHER_FOOTER" = "لا تظهر التطبيقات التي لها واجهة CarPlay خاصة بها.";
+"APPBRIDGE_APPS_SEARCH" = "البحث في التطبيقات";
+"APPBRIDGE_APPS_EMPTY" = "لم يُعثر على تطبيقات iPhone على هذا الجهاز.";
+"APPBRIDGE_APPS_NO_MATCH" = "لا يوجد تطبيق مطابق.";
+"APPBRIDGE_DRIVE_MODE" = "وضع القيادة";
+"APPBRIDGE_DRIVE_FOOTER" = "وضع القيادة: فوق 10 كم/س تُشغّل تطبيقات iPhone على السيارة الصوت فقط (الصورة مغطاة واللمس مقفل)؛ أوقف السيارة للمشاهدة مجددًا. يستخدم مصدر السرعة في فقاعة السرعة.";

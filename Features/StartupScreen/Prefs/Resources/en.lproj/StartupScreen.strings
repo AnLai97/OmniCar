@@ -14,13 +14,13 @@
 "STARTUPSCREEN_FROM_FILES" = "From Files";
 
 "STARTUPSCREEN_DURATION_GROUP" = "Duration (seconds)";
-"STARTUPSCREEN_DURATION_FOOTER" = "Shorter videos loop.";
+"STARTUPSCREEN_DURATION_FOOTER" = "How long it stays on the car screen. Shorter videos loop.";
 "STARTUPSCREEN_PLAY_FULL" = "Play full video";
 
 "STARTUPSCREEN_DISPLAY_GROUP" = "Display";
 "STARTUPSCREEN_SCALE_FILL" = "Fill";
 "STARTUPSCREEN_SCALE_FIT" = "Fit";
-"STARTUPSCREEN_SOUND" = "Sound";
+"STARTUPSCREEN_SOUND" = "Video sound";
 "STARTUPSCREEN_TAP_TO_SKIP" = "Tap to skip";
 
 "STARTUPSCREEN_PREPARING" = "Preparing video for CarPlay";
@@ -31,3 +31,77 @@
 "STARTUPSCREEN_DELETE_TITLE" = "Delete video";
 "STARTUPSCREEN_DELETE_CONFIRM" = "Delete \"%@\"?";
 "STARTUPSCREEN_DELETE_ACTION" = "Delete";
+
+"STARTUPSCREEN_STYLE_GROUP" = "Startup style";
+"STARTUPSCREEN_STYLE_FOOTER" = "The card at the top shows what the car screen will show. Tap it to replay the effect.";
+"STARTUPSCREEN_STYLE_VIDEO" = "Video";
+"STARTUPSCREEN_STYLE_LOGO" = "Logo";
+"STARTUPSCREEN_STYLE_GREETING" = "Greeting";
+"STARTUPSCREEN_STYLE_WEATHER" = "Weather";
+
+"STARTUPSCREEN_LOGO_GROUP" = "Logo";
+"STARTUPSCREEN_LOGO_FOOTER" = "A PNG with a transparent background looks best. No logo = a car icon.";
+"STARTUPSCREEN_LOGO_CHOOSE" = "Choose logo";
+"STARTUPSCREEN_LOGO_DELETE" = "Remove logo";
+"STARTUPSCREEN_LOGO_FAILED" = "Couldn't read this image.";
+"STARTUPSCREEN_LOGO_NONE" = "No logo yet.";
+"STARTUPSCREEN_EFFECT_GROUP" = "Effect";
+"STARTUPSCREEN_EFFECT_FADE" = "Fade in";
+"STARTUPSCREEN_EFFECT_ZOOM" = "Zoom";
+"STARTUPSCREEN_EFFECT_GLOW" = "Glow";
+
+"STARTUPSCREEN_GREETING_GROUP" = "Greeting";
+"STARTUPSCREEN_GREETING_FOOTER" = "\"Good morning, <name>\" with the time; colors follow the time of day.";
+"STARTUPSCREEN_NAME" = "Your name";
+"STARTUPSCREEN_NAME_PLACEHOLDER" = "Optional";
+
+"STARTUPSCREEN_WEATHER_FOOTER" = "The Weather style goes online: each time CarPlay connects it sends your last known location, rounded to 2 decimals (about 1 km), to Open-Meteo (open-meteo.com, no account). Offline it shows the last result with its time; without location access or data it shows the greeting.";
+"STARTUPSCREEN_WEATHER_LAST" = "Last update: %@";
+"STARTUPSCREEN_WEATHER_NONE" = "No weather data yet.";
+
+"STARTUPSCREEN_STARTUP_SOUND_GROUP" = "Startup sound";
+"STARTUPSCREEN_STARTUP_SOUND_FOOTER" = "Plays through the car speakers when CarPlay connects. M4A, MP3, WAV, CAF.";
+"STARTUPSCREEN_SOUND_CHOOSE" = "Choose sound";
+"STARTUPSCREEN_SOUND_PREVIEW" = "Play sound";
+"STARTUPSCREEN_SOUND_DELETE" = "Remove sound";
+"STARTUPSCREEN_SOUND_CURRENT" = "Current: %@";
+"STARTUPSCREEN_SOUND_NONE" = "No startup sound.";
+"STARTUPSCREEN_SOUND_FAILED" = "Couldn't play this sound: %@";
+"STARTUPSCREEN_VOLUME_GROUP" = "Volume";
+"STARTUPSCREEN_VOLUME_FOOTER" = "For the startup sound and the video's audio.";
+"STARTUPSCREEN_SOUND_SKIP_CALL" = "Silent during a call";
+
+/* Style gallery (table header) and the new styles */
+"STARTUPSCREEN_REPLAY_HINT" = "Tap the preview to replay";
+"STARTUPSCREEN_STYLE_ENGINE" = "Engine start";
+"STARTUPSCREEN_STYLE_WELCOME" = "Welcome light";
+"STARTUPSCREEN_STYLE_PARTICLES" = "Particles";
+"STARTUPSCREEN_STYLE_HUD" = "HUD check";
+"STARTUPSCREEN_STYLE_BRIEFING" = "Briefing";
+"STARTUPSCREEN_STYLE_LIQUID" = "Liquid";
+"STARTUPSCREEN_STYLE_RANDOM" = "Random";
+"STARTUPSCREEN_DISPLAY_FOOTER" = "With Video sound on, the video's audio replaces the startup sound.";
+"STARTUPSCREEN_PARTICLES_FOOTER" = "Glowing particles gather into your name (or OmniCar).";
+"STARTUPSCREEN_BRIEFING_FOOTER" = "The calendar card shows only when Calendar access is allowed.";
+"STARTUPSCREEN_CAR_NAME" = "Car name";
+"STARTUPSCREEN_CAR_NAME_FOOTER" = "Leave empty to use the car's own name.";
+"STARTUPSCREEN_TEMPO_FOOTER" = "How fast the light draws the car.";
+"STARTUPSCREEN_TEMPO_SLOW" = "Slow";
+"STARTUPSCREEN_TEMPO_NORMAL" = "Medium";
+"STARTUPSCREEN_TEMPO_FAST" = "Fast";
+"STARTUPSCREEN_RANDOM_GROUP" = "Pick from";
+"STARTUPSCREEN_RANDOM_FOOTER" = "A different style each time CarPlay connects. Video is skipped without a video.";
+"STARTUPSCREEN_RANDOM_KEEP_ONE" = "Keep at least one style.";
+
+/* Special days */
+"STARTUPSCREEN_OCCASIONS_GROUP" = "Special days";
+"STARTUPSCREEN_OCCASIONS" = "Festive screen";
+"STARTUPSCREEN_OCCASIONS_FOOTER" = "Tết, Mid-Autumn, Christmas, New Year, your birthday: up to 3 times that day instead of your style.";
+"STARTUPSCREEN_BIRTHDAY" = "Birthday";
+"STARTUPSCREEN_BIRTHDAY_CLEAR" = "Clear birthday";
+"STARTUPSCREEN_OCCASION_PREVIEW" = "Preview: %@";
+"STARTUPSCREEN_OCC_TET" = "Tết";
+"STARTUPSCREEN_OCC_BIRTHDAY" = "Birthday";
+"STARTUPSCREEN_OCC_XMAS" = "Christmas";
+"STARTUPSCREEN_OCC_MIDAUTUMN" = "Mid-Autumn";
+"STARTUPSCREEN_OCC_NEWYEAR" = "New Year";

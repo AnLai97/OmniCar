@@ -1,0 +1,46 @@
+/* OmniCar – แบ่งหน้าจอ – ภาษาไทย */
+
+"SPLITSCREEN" = "แบ่งหน้าจอ";
+"SPLITSCREEN_ENABLE" = "แบ่งหน้าจอ";
+"SPLITSCREEN_AUTO_LAUNCH" = "เปิดเมื่อเชื่อมต่อ";
+"SPLITSCREEN_DRIVER_SIDE" = "ฝั่งคนขับ";
+"SPLITSCREEN_DRIVER_AUTO" = "อัตโนมัติ";
+"SPLITSCREEN_DRIVER_LEFT" = "ซ้าย";
+"SPLITSCREEN_DRIVER_RIGHT" = "ขวา";
+"SPLITSCREEN_PINNED" = "ช่องที่ปักหมุด";
+"SPLITSCREEN_DRIVER_FOOTER" = "พวงมาลัยขวา: แอปปัจจุบันจะเปิดในช่องขวา ใกล้คนขับ อัตโนมัติ = ตามที่รถรายงาน\nช่องที่ปักหมุด (ปกติคือแผนที่): แอปนั้นจะคงอยู่ในช่องของตัวเองเมื่อเลย์เอาต์หรือแอปอื่นเปลี่ยน";
+
+"SPLITSCREEN_PANEL_GROUP" = "แผง OmniCar ในรถ";
+"SPLITSCREEN_SHOW_RECENT" = "ล่าสุด";
+"SPLITSCREEN_SHOW_FAVORITES" = "รายการโปรด";
+
+"SPLITSCREEN_FAV_GROUP" = "เลย์เอาต์โปรด";
+"SPLITSCREEN_FAV_FOOTER" = "Siri: omnicar://splitscreen/fav?n=1";
+"SPLITSCREEN_FAV1_PLACEHOLDER" = "ไปทำงาน";
+"SPLITSCREEN_FAV2_PLACEHOLDER" = "วันหยุด";
+"SPLITSCREEN_FAV3_PLACEHOLDER" = "เดินทางไกล";
+"SPLITSCREEN_PAIR_NAME" = "ชื่อ";
+"SPLITSCREEN_LAYOUT_GROUP" = "เลย์เอาต์";
+"SPLITSCREEN_APPS_GROUP" = "แอป";
+"SPLITSCREEN_LAYOUT_2" = "2 ช่อง";
+"SPLITSCREEN_LAYOUT_3" = "3 ช่อง";
+"SPLITSCREEN_LAYOUT_13" = "1 ใหญ่ + 2";
+"SPLITSCREEN_LAYOUT_31" = "2 + 1 ใหญ่";
+"SPLITSCREEN_BOX_1" = "ช่อง 1";
+"SPLITSCREEN_BOX_2" = "ช่อง 2";
+"SPLITSCREEN_BOX_3" = "ช่อง 3";
+
+"SPLITSCREEN_APP_NOT_SET" = "ยังไม่มีแอป";
+"SPLITSCREEN_PICKER_NONE" = "ไม่มี";
+"SPLITSCREEN_PICKER_CARPLAY_APPS" = "แอป CarPlay";
+"SPLITSCREEN_PICKER_PHONE_APPS" = "แอป iPhone (App Bridge)";
+"SPLITSCREEN_PICKER_GUESS_FOOTER" = "ยังไม่ได้เชื่อมต่อรถ: คาดเดาจากการรองรับ CarPlay";
+"SPLITSCREEN_PICKER_PHONE_FOOTER" = "แอปที่เลือกไว้ในแอปบนหน้าจอรถ";
+"SPLITSCREEN_PICKER_NO_PHONE_FOOTER" = "ยังไม่ได้เลือกแอป iPhone (แอปบนหน้าจอรถ)";
+
+"SPLITSCREEN_GUIDE" = "คู่มือ";
+"SPLITSCREEN_GUIDE_CAR" = "ในรถ";
+"SPLITSCREEN_GUIDE_CAR_TEXT" = "• ปุ่ม OmniCar บน Dock: เลย์เอาต์ ล่าสุด รายการโปรด ออกจากการแบ่ง\n• ปุ่มกลม: แตะเพื่อเลือกสัดส่วน · ลากเพื่อปรับขนาด · ลากไปที่ขอบเพื่อปิดช่อง\n• แถบ •••: แตะเพื่อ แทนที่ / ลอย / เต็มหน้าจอ / ปิด · ลากไปยังช่องอื่นเพื่อสลับ\n• แตะสองครั้งที่แถบ •••: ขยายช่องนั้นชั่วคราว แตะสองครั้งอีกครั้งเพื่อกลับ\n• แตะสองครั้งที่เส้นแบ่ง: สลับสองช่อง\n• ปุ่มโฮม: ออกจากการแบ่ง";
+"SPLITSCREEN_SHORTCUTS_GROUP" = "Siri / คำสั่งลัด (เปิด URL)";
+"SPLITSCREEN_SHORTCUTS_FOOTER" = "omnicar://splitscreen/open?left=com.apple.Maps&right=com.spotify.client\nomnicar://splitscreen/fav?n=1\nomnicar://splitscreen/close\nomnicar://splitscreen/layout?id=3 · ratio?r=70 · swap · zoom?pane=1\nomnicar://feature/speedBubble?on=toggle\nomnicar://lite?mode=auto\nomnicar://cleanram";
+"SPLITSCREEN_CREDITS_FOOTER" = "เดิมชื่อ CarDuo การโฮสต์แอปอ้างอิงจาก carplay-cast (Ethan Arbuckle)";

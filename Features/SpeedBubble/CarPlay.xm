@@ -14,16 +14,17 @@ static void SPPOpenAppOnCar(NSString *bid)
     }
     id dashboard = objcInvoke(app, @"_currentDashboard");
     id info = objcInvoke_1(objcInvoke(app, @"sharedApplicationLibrary"), @"applicationInfoForBundleIdentifier:", bid);
-    id launchInfo = info ? objcInvoke_1(objc_getClass("DBApplicationLaunchInfo"), @"launchInfoForApplication:", info) : nil;
+    id launchInfo = OMCCarLaunchInfo(info);
     if (!dashboard || !launchInfo) { SPPLog("CarPlay: khong mo duoc %@ (dashboard=%@ info=%@)", bid, dashboard, info); return; }
-    id ev = objcInvoke_2(objc_getClass("DBEvent"), @"eventWithType:context:", (unsigned long long)4, launchInfo);
-    if (ev) objcInvoke_1(dashboard, @"handleEvent:", ev);
+    id ev = objcInvoke_2(OMCCarClass("DBEvent"), @"eventWithType:context:", (unsigned long long)4, launchInfo);
+    if (ev) objcCall_1(dashboard, @"handleEvent:", ev);
     SPPLog("CarPlay: mo %@", bid);
 }
 
 %ctor
 {
     if (![[[NSBundle mainBundle] bundleIdentifier] isEqualToString:@"com.apple.CarPlayApp"]) return;
+    if (!OMCCrashGuard(SB_FEATURE)) return;
     SPPLog("loaded into CarPlay");
     int tok = 0;
     notify_register_dispatch(SPP_DARWIN_OPEN_CAR, &tok, dispatch_get_main_queue(), ^(int t) {

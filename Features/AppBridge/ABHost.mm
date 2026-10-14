@@ -1,5 +1,7 @@
 #import "ABHost.h"
+#import "ABKeyboard.h"
 #import "common.h"
+#import <notify.h>
 
 // =====================================================================
 //  ABHost - iPhone apps on the car screen, hosted by SpringBoard.
@@ -144,6 +146,7 @@ static void ABPostOrientation(NSString *bid, long long orientation)
 @property (nonatomic, strong) UIView *handleHit;       // vung cham cua thanh
 @property (nonatomic, strong) UIView *bar;             // thanh nut cua o (doi app / noi / toan man / dong) ve de len app
 @property (nonatomic, strong) UIButton *popButton;     // nut noi / ghim tren thanh (glyph doi theo "pop")
+@property (nonatomic, strong) UIButton *soloButton;    // nut "Chay 1 man hinh" / "Chia man hinh" (glyph doi theo "single")
 @property (nonatomic) CGFloat handleOffset;            // thanh "•••" lech ngang (hx tu CarPlay)
 @end
 @implementation ABPane
@@ -317,12 +320,16 @@ static void ABPostOrientation(NSString *bid, long long orientation)
 
     id sceneManager = objcInvoke(objc_getClass("SBSceneManagerCoordinator"), @"mainDisplaySceneManager");
     expectClass(sceneManager, "SBMainDisplaySceneManager");
-    id layoutStateManager = objcInvoke(sceneManager, @"layoutStateManager");
+    // iOS 16: layoutStateManager / sceneIdentityForApplication:...sceneSessionRole:; iOS 14-15 (carplay-cast): _layoutStateManager /
+    // _sceneIdentityForApplication:createPrimaryIfRequired: (log 12/10 21:23, iOS 15.8.4: "expected FBSSceneIdentity got (null)")
+    BOOL ios16 = [sceneManager respondsToSelector:NSSelectorFromString(@"sceneIdentityForApplication:createPrimaryIfRequired:sceneSessionRole:")];
+    id layoutStateManager = objcInvoke(sceneManager, ios16 ? @"layoutStateManager" : @"_layoutStateManager");
     id displayIdentity    = objcInvoke(sceneManager, @"displayIdentity");
     expectClass(displayIdentity, "FBSDisplayIdentity");
 
-    id sceneIdentity = objcInvoke_3(sceneManager, @"sceneIdentityForApplication:createPrimaryIfRequired:sceneSessionRole:",
-                                    pane.application, 1, UIWindowSceneSessionRoleApplication);
+    id sceneIdentity = ios16
+        ? objcInvoke_3(sceneManager, @"sceneIdentityForApplication:createPrimaryIfRequired:sceneSessionRole:", pane.application, YES, UIWindowSceneSessionRoleApplication)
+        : objcInvoke_2(sceneManager, @"_sceneIdentityForApplication:createPrimaryIfRequired:", pane.application, YES);
     expectClass(sceneIdentity, "FBSSceneIdentity");
     id request = objcInvoke_3(objc_getClass("SBApplicationSceneHandleRequest"),
                               @"defaultRequestForApplication:sceneIdentity:displayIdentity:",
@@ -369,14 +376,17 @@ static void ABPostOrientation(NSString *bid, long long orientation)
 
     id animFactory = objcInvoke(objc_getClass("SBApplicationSceneView"), @"defaultDisplayModeAnimationFactory");
     id appView = objcInvoke(appVC, @"appView");
-    ((void (*)(id, SEL, long long, id, id))objc_msgSend)(appView, NSSelectorFromString(@"setDisplayMode:animationFactory:completion:"), 4, animFactory, nil);
+    SEL setMode = NSSelectorFromString(@"setDisplayMode:animationFactory:completion:");
+    if ([appView respondsToSelector:setMode]) ((void (*)(id, SEL, long long, id, id))objc_msgSend)(appView, setMode, 4, animFactory, nil);
+    else ABMissingSelector(appView, @"setDisplayMode:animationFactory:completion:");
 
     UIView *v = [appVC view];
     v.backgroundColor = [UIColor clearColor];
     [pane.box insertSubview:v atIndex:0];
 
-    NSString *sceneID = objcInvoke_3(layoutStateManager, @"primarySceneIdentifierForBundleIdentifier:sceneSessionRole:displayIdentity:",
-                                     appID, UIWindowSceneSessionRoleApplication, displayIdentity);
+    NSString *sceneID = ios16
+        ? objcInvoke_3(layoutStateManager, @"primarySceneIdentifierForBundleIdentifier:sceneSessionRole:displayIdentity:", appID, UIWindowSceneSessionRoleApplication, displayIdentity)
+        : objcInvoke_1(layoutStateManager, @"primarySceneIdentifierForBundleIdentifier:", appID);
     if (sceneID) {
         pane.sceneMonitor = objcInvoke_1([objc_getClass("FBSceneMonitor") alloc], @"initWithSceneID:", sceneID);
         objcCall_1(pane.sceneMonitor, @"setDelegate:", self);
@@ -405,6 +415,7 @@ static void ABPostOrientation(NSString *bid, long long orientation)
 - (void)layoutPane:(ABPane *)pane
 {
     if (!pane.appViewController) return;
+    [self applyDriveOverlayToPane:pane];
     CGSize boxSize = pane.box.bounds.size;
     if (boxSize.width < 2 || boxSize.height < 2) return;
     CGFloat z = [self zoom];
@@ -450,6 +461,105 @@ static void ABPostOrientation(NSString *bid, long long orientation)
 
 // App bao vua doi yeu cau xoay (code: huong muon, 0 = ve huong o, 0xFF = chi doi mask -> suy ra tu mask): dat
 // requestedOrientation roi "lay" scene (khung lech 1pt, ngay sau do khung dung) de UIKit trong app tinh lai huong
+#pragma mark - Che do lai
+
+static BOOL sABDriving;
+static const NSInteger kABDriveOverlayTag = 0xD71E;
+
+// The toi phu o app iPhone khi xe chay: chi con tieng, chan cham (tru thanh ••• / thanh nut nam tren no)
+- (void)applyDriveOverlayToPane:(ABPane *)pane
+{
+    UIView *box = pane.box;
+    if (!box) return;
+    UIView *cover = [box viewWithTag:kABDriveOverlayTag];
+    if (!sABDriving) { [cover removeFromSuperview]; return; }
+    if (!cover) {
+        cover = [[UIView alloc] initWithFrame:box.bounds];
+        cover.tag = kABDriveOverlayTag;
+        cover.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+        cover.backgroundColor = [UIColor colorWithWhite:0.04 alpha:0.9];
+        UIImageSymbolConfiguration *cfg = [UIImageSymbolConfiguration configurationWithPointSize:34 weight:UIImageSymbolWeightSemibold];
+        UIImageView *icon = [[UIImageView alloc] initWithImage:[UIImage systemImageNamed:@"car.fill" withConfiguration:cfg]];
+        icon.tintColor = [UIColor colorWithWhite:1 alpha:0.9];
+        UILabel *title = [UILabel new];
+        title.text = OMCTr(@"Đang lái · chỉ còn tiếng", @"Driving · sound only");
+        title.font = [UIFont systemFontOfSize:20 weight:UIFontWeightSemibold];
+        title.textColor = [UIColor whiteColor];
+        title.adjustsFontSizeToFitWidth = YES;
+        UILabel *sub = [UILabel new];
+        sub.text = OMCTr(@"Dừng xe để xem tiếp", @"Stop the car to watch again");
+        sub.font = [UIFont systemFontOfSize:15];
+        sub.textColor = [UIColor colorWithWhite:1 alpha:0.6];
+        sub.adjustsFontSizeToFitWidth = YES;
+        UIStackView *stack = [[UIStackView alloc] initWithArrangedSubviews:@[icon, title, sub]];
+        stack.axis = UILayoutConstraintAxisVertical;
+        stack.alignment = UIStackViewAlignmentCenter;
+        stack.spacing = 8;
+        stack.translatesAutoresizingMaskIntoConstraints = NO;
+        [cover addSubview:stack];
+        [NSLayoutConstraint activateConstraints:@[
+            [stack.centerXAnchor constraintEqualToAnchor:cover.centerXAnchor],
+            [stack.centerYAnchor constraintEqualToAnchor:cover.centerYAnchor],
+            [stack.widthAnchor constraintLessThanOrEqualToAnchor:cover.widthAnchor constant:-24],
+        ]];
+        [box addSubview:cover];
+    }
+    cover.frame = box.bounds;
+    [box bringSubviewToFront:cover];
+    for (UIView *v in @[pane.bar ?: [NSNull null], pane.handleHit ?: [NSNull null], pane.handle ?: [NSNull null]])
+        if ([v isKindOfClass:[UIView class]] && v.superview == box) [box bringSubviewToFront:v];
+}
+
+- (void)setDriving:(BOOL)driving
+{
+    if (driving == sABDriving) return;
+    sABDriving = driving;
+    ABLog("che do lai: %@ (%lu o)", driving ? @"BAT" : @"tat", (unsigned long)self.panes.count);
+    [UIView animateWithDuration:0.3 animations:^{
+        for (ABPane *p in self.panes) [self applyDriveOverlayToPane:p];
+    }];
+}
+
+// Toc do tu Bong bong toc do: tren nguong 3 s lien -> bat; duoi 3 km/h 5 s lien (hoac mat toc do 20 s) -> tat
+- (void)startDriveMonitor
+{
+    static int token;
+    static NSUInteger generation;
+    notify_register_dispatch(AB_DARWIN_SPEED_NOW, &token, dispatch_get_main_queue(), ^(int t) {
+        uint64_t state = 0;
+        notify_get_state(t, &state);
+        OMCPrefsSync();
+        BOOL on = OMCFeatureEnabled(AB_FEATURE) && [OMCPref(AB_KEY_DRIVE_MODE, @YES) boolValue];
+        NSInteger limit = MAX(3, [OMCPref(AB_KEY_DRIVE_SPEED, @10) integerValue]);
+        BOOL known = state != 0xFFFF;
+        BOOL want = on && known && (NSInteger)state >= limit;
+        BOOL stop = !on || (known && state < 3);
+        NSUInteger g = ++generation;
+        if (want == sABDriving || (!want && !stop && known)) return;   // khong doi, hoac dang cham dan (giu nguyen)
+        double delay = want ? 3 : (known ? 5 : 20);
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delay * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            if (g == generation) [self setDriving:want];
+        });
+    });
+}
+
+- (UIWindow *)carWindow
+{
+    return [self ensureWindow] ? self.window : nil;
+}
+
+- (NSString *)bundleForHash:(unsigned long long)hash
+{
+    for (ABPane *p in self.panes) if (ABBundleHash(p.bundleID) == hash) return p.bundleID;
+    return nil;
+}
+
+- (CGRect)frameOfApp:(NSString *)bid
+{
+    ABPane *p = [self paneFor:bid];
+    return p ? p.box.frame : CGRectNull;
+}
+
 - (void)appWithHash:(unsigned long long)hash changedOrientation:(int)code supportedMask:(NSUInteger)mask
 {
     for (ABPane *p in self.panes) {
@@ -546,11 +656,41 @@ static void ABPostOrientation(NSString *bid, long long orientation)
 
 #pragma mark - Thanh nut cua o (ve de len app)
 
-// Cung hinh voi thanh nut cua Split Screen ben CarPlay (SCPCGlyph / SCPCRoundButton / SCPCPill trong SCPCarSplit.mm):
-// pill toi 42pt, nut tron 34pt, glyph kieu HyperOS luoi 24, net 1.8; nut dong mau do
-#define AB_BAR_H     42.0
-#define AB_BAR_BTN   34.0
+// Cung hinh voi thanh ••• cua Split Screen ben CarPlay (SCPCActionButton / SCPCActionBar trong SCPCarSplit.mm):
+// vien thuoc 58pt nen logo 4 mau, moi nut 50pt = o kinh tron 30pt + nhan ngan, glyph HarmonyOS 18pt; nut Tat do,
+// tach bang vach trang
+#define AB_BAR_H     58.0
+#define AB_ACT_W     50.0
+#define AB_ACT_ICON  7302
+#define AB_ACT_LABEL 7303
 #define AB_BAR_Y     (6 + 12 + 6 + AB_BAR_H / 2)   // duoi thanh "•••" nhu thanh nut cua CarPlay
+
+// Giao dien moi (DESIGN.md, = SCPCInk / SCPCShadow / SCPCAccentFill ben CarPlay): chu / icon mau cham diu, bong tim
+// nhat, nut chinh = gradient tim -> xanh troi
+static UIColor *ABInk(void) { return [UIColor colorWithRed:0x4A / 255.0 green:0x4F / 255.0 blue:0x80 / 255.0 alpha:1]; }
+static UIColor *ABShadow(void) { return [UIColor colorWithRed:110 / 255.0 green:100 / 255.0 blue:200 / 255.0 alpha:1]; }
+
+// Tay cam "•••" dang mo thanh nut: gradient + cham trang; dong: kinh trang + cham muc
+static void ABHandleOpen(UIView *pill, BOOL open)
+{
+    if (!pill) return;
+    CAGradientLayer *g = nil;
+    for (CALayer *l in pill.layer.sublayers) if ([l.name isEqualToString:@"omcAccent"]) g = (CAGradientLayer *)l;
+    if (open && !g) {
+        g = [CAGradientLayer layer];
+        g.name = @"omcAccent";
+        g.colors = @[(id)[UIColor colorWithRed:0x9B / 255.0 green:0x87 / 255.0 blue:0xF8 / 255.0 alpha:1].CGColor,
+                     (id)[UIColor colorWithRed:0x5D / 255.0 green:0xB4 / 255.0 blue:0xF6 / 255.0 alpha:1].CGColor];
+        g.startPoint = CGPointZero; g.endPoint = CGPointMake(1, 1);
+        g.frame = pill.bounds;
+        g.cornerRadius = pill.layer.cornerRadius;
+        [pill.layer insertSublayer:g atIndex:0];
+    } else if (!open) {
+        [g removeFromSuperlayer];
+    }
+    pill.backgroundColor = open ? [UIColor clearColor] : [UIColor colorWithWhite:1 alpha:0.35];
+    for (UIView *d in pill.subviews) d.backgroundColor = open ? [UIColor whiteColor] : [ABInk() colorWithAlphaComponent:0.85];
+}
 
 #define AB_M(x, y) [p moveToPoint:CGPointMake(x, y)]
 #define AB_L(x, y) [p addLineToPoint:CGPointMake(x, y)]
@@ -561,7 +701,7 @@ static UIImage *ABGlyph(NSString *name)
     static NSMutableDictionary<NSString *, UIImage *> *cache;
     if (!cache) cache = [NSMutableDictionary dictionary];
     if (cache[name]) return cache[name];
-    CGFloat pt = 20;
+    CGFloat pt = [name hasPrefix:@"hm_"] ? 18 : 20;   // hm_*: glyph trong o kinh tron 30pt cua thanh •••
     UIGraphicsImageRenderer *r = [[UIGraphicsImageRenderer alloc] initWithSize:CGSizeMake(pt, pt)];
     UIImage *img = [r imageWithActions:^(UIGraphicsImageRendererContext *rc) {
         CGContextScaleCTM(rc.CGContext, pt / 24.0, pt / 24.0);
@@ -586,6 +726,25 @@ static UIImage *ABGlyph(NSString *name)
             AB_RR(3.5, 4.5, 17, 15, 3);
             AB_M(12, 4.5); AB_L(12, 19.5);
             [f appendPath:[UIBezierPath bezierPathWithRoundedRect:CGRectMake(5.6, 6.6, 4.6, 10.8) cornerRadius:1.4]];
+        } else if ([name hasPrefix:@"hm_"]) {             // thanh ••• kieu HarmonyOS Symbol: net 1.5 (= SCPCGlyph hm_* ben CarPlay)
+            p.lineWidth = 1.5;
+            if ([name isEqualToString:@"hm_apps"]) {
+                AB_RR(4, 4, 7, 7, 2.2); AB_RR(13, 4, 7, 7, 2.2); AB_RR(4, 13, 7, 7, 2.2); AB_RR(13, 13, 7, 7, 2.2);
+            } else if ([name isEqualToString:@"hm_full"]) {
+                AB_M(4, 9.5); AB_L(4, 7.5); [p addArcWithCenter:CGPointMake(7.5, 7.5) radius:3.5 startAngle:M_PI endAngle:-M_PI_2 clockwise:YES]; AB_L(9.5, 4);
+                AB_M(14.5, 4); AB_L(16.5, 4); [p addArcWithCenter:CGPointMake(16.5, 7.5) radius:3.5 startAngle:-M_PI_2 endAngle:0 clockwise:YES]; AB_L(20, 9.5);
+                AB_M(20, 14.5); AB_L(20, 16.5); [p addArcWithCenter:CGPointMake(16.5, 16.5) radius:3.5 startAngle:0 endAngle:M_PI_2 clockwise:YES]; AB_L(14.5, 20);
+                AB_M(9.5, 20); AB_L(7.5, 20); [p addArcWithCenter:CGPointMake(7.5, 16.5) radius:3.5 startAngle:M_PI_2 endAngle:M_PI clockwise:YES]; AB_L(4, 14.5);
+            } else if ([name isEqualToString:@"hm_split"]) {
+                AB_RR(3.5, 4.5, 7.5, 15, 2.5); AB_RR(13, 4.5, 7.5, 15, 2.5);
+            } else if ([name isEqualToString:@"hm_float"]) {
+                AB_RR(3.5, 4.5, 17, 15, 3);
+                [f appendPath:[UIBezierPath bezierPathWithRoundedRect:CGRectMake(11.5, 11.5, 6.5, 5.5) cornerRadius:1.6]];
+            } else if ([name isEqualToString:@"hm_min"]) {
+                AB_M(5.5, 12); AB_L(18.5, 12);
+            } else if ([name isEqualToString:@"hm_close"]) {
+                AB_M(6.5, 6.5); AB_L(17.5, 17.5); AB_M(17.5, 6.5); AB_L(6.5, 17.5);
+            }
         }
         [p stroke];
         [f fill];
@@ -595,58 +754,97 @@ static UIImage *ABGlyph(NSString *name)
     return img;
 }
 
-static UIButton *ABRoundButton(NSString *glyph, id target, SEL action)
+static void ABActionSet(UIButton *b, NSString *glyph, NSString *title)
+{
+    ((UIImageView *)[b viewWithTag:AB_ACT_ICON]).image = ABGlyph(glyph);
+    UILabel *l = (UILabel *)[b viewWithTag:AB_ACT_LABEL];
+    l.text = title;
+    l.textColor = b.tintColor;
+    b.accessibilityLabel = title;
+}
+
+// Nut thanh •••: o kinh tron 30pt (trang trong + vien trang nhu dia trong logo) + nhan ngan duoi
+static UIButton *ABActionButton(NSString *glyph, NSString *title, UIColor *tint, id target, SEL action)
 {
     UIButton *b = [ABBarButton buttonWithType:UIButtonTypeCustom];
-    b.bounds = CGRectMake(0, 0, AB_BAR_BTN, AB_BAR_BTN);
-    b.layer.cornerRadius = AB_BAR_BTN / 2;
-    b.tintColor = [UIColor colorWithWhite:1 alpha:0.94];
-    [b setImage:ABGlyph(glyph) forState:UIControlStateNormal];
+    b.bounds = CGRectMake(0, 0, AB_ACT_W, 50);
+    b.tintColor = tint;
+    UIView *disc = [[UIView alloc] initWithFrame:CGRectMake((AB_ACT_W - 30) / 2, 3, 30, 30)];
+    disc.userInteractionEnabled = NO;
+    disc.backgroundColor = [UIColor colorWithWhite:1 alpha:0.5];
+    disc.layer.cornerRadius = 15;
+    disc.layer.borderWidth = 1;
+    disc.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.9].CGColor;
+    disc.layer.shadowColor = ABShadow().CGColor;
+    disc.layer.shadowOpacity = 0.12; disc.layer.shadowRadius = 3; disc.layer.shadowOffset = CGSizeMake(0, 2);
+    UIImageView *iv = [[UIImageView alloc] initWithFrame:CGRectInset(disc.bounds, 6, 6)];
+    iv.tag = AB_ACT_ICON;
+    iv.contentMode = UIViewContentModeCenter;
+    [disc addSubview:iv];
+    [b addSubview:disc];
+    UILabel *l = [[UILabel alloc] initWithFrame:CGRectMake(-3, 36, AB_ACT_W + 6, 11)];
+    l.tag = AB_ACT_LABEL;
+    l.font = [UIFont systemFontOfSize:9 weight:UIFontWeightMedium];
+    l.textAlignment = NSTextAlignmentCenter;
+    l.adjustsFontSizeToFitWidth = YES;
+    l.minimumScaleFactor = 0.75;
+    l.userInteractionEnabled = NO;
+    [b addSubview:l];
+    ABActionSet(b, glyph, title);
     [b addTarget:target action:action forControlEvents:UIControlEventTouchUpInside];
     return b;
 }
 
+// Thanh ••• (= setupBarForPane ben CarPlay, DESIGN.md): nen logo 4 mau, o kinh tron + nhan - Doi app ·
+// Toan man / Chia man · Cua so noi · Chay nen | Tat app (do)
 - (UIView *)buildBarForPane:(ABPane *)pane
 {
-    UIButton *replace = ABRoundButton(@"replace", self, @selector(barReplace:));
-    UIButton *pop = ABRoundButton(@"float", self, @selector(barPop:));
-    UIButton *full = ABRoundButton(@"fullscreen", self, @selector(barFull:));
-    UIButton *close = ABRoundButton(@"close", self, @selector(barClose:));
-    close.tintColor = [UIColor colorWithRed:1.0 green:0.36 blue:0.33 alpha:1];
+    UIButton *replace = ABActionButton(@"hm_apps", OMCTr(@"Đổi app", @"Change app"), ABInk(), self, @selector(barReplace:));
+    UIButton *full = ABActionButton(@"hm_full", OMCTr(@"Toàn màn", @"Full screen"), ABInk(), self, @selector(barFull:));
+    UIButton *pop = ABActionButton(@"hm_float", OMCTr(@"Cửa sổ nổi", @"Float"), ABInk(), self, @selector(barPop:));
+    UIButton *bg = ABActionButton(@"hm_min", OMCTr(@"Chạy nền", @"Background"), ABInk(), self, @selector(barBackground:));
+    UIButton *close = ABActionButton(@"hm_close", OMCTr(@"Tắt app", @"Quit app"),
+                                     [UIColor colorWithRed:1.0 green:0x5A / 255.0 blue:0x5F / 255.0 alpha:1], self, @selector(barClose:));
     pane.popButton = pop;
-    // SCPCPill: pad 4, buoc 36, khe 9 truoc nut dong (co vach mo)
-    CGFloat pad = (AB_BAR_H - AB_BAR_BTN) / 2, step = AB_BAR_BTN + 2, sep = 9;
-    CGFloat len = pad * 2 - 2 + 3 * step + sep + step;
-    // Kinh mo kieu HarmonyOS nhu SCPCGlass ben CarPlay: nhin xuyen, vien sang manh, bong mem
+    pane.soloButton = full;
+    NSArray *items = @[replace, full, pop, bg, [NSNull null], close];
+    CGFloat pad = 6, sep = 7, len = pad * 2;
+    for (id it in items) len += [it isKindOfClass:[UIButton class]] ? AB_ACT_W : sep;
     UIView *bar = [[UIView alloc] initWithFrame:CGRectMake(0, 0, len, AB_BAR_H)];
     bar.backgroundColor = [UIColor clearColor];
-    bar.layer.cornerRadius = AB_BAR_H / 2;
+    bar.layer.cornerRadius = 22;
     bar.layer.cornerCurve = kCACornerCurveContinuous;
-    bar.layer.shadowColor = [UIColor blackColor].CGColor;
-    bar.layer.shadowOpacity = 0.3; bar.layer.shadowRadius = 12; bar.layer.shadowOffset = CGSizeMake(0, 4);
-    UIVisualEffectView *glass = [[UIVisualEffectView alloc] initWithEffect:[UIBlurEffect effectWithStyle:UIBlurEffectStyleSystemUltraThinMaterialDark]];
+    bar.layer.shadowColor = ABShadow().CGColor;
+    bar.layer.shadowOpacity = 0.3; bar.layer.shadowRadius = 14; bar.layer.shadowOffset = CGSizeMake(0, 6);
+    UIVisualEffectView *glass = [[UIVisualEffectView alloc] initWithEffect:[UIBlurEffect effectWithStyle:UIBlurEffectStyleSystemUltraThinMaterialLight]];
     glass.frame = bar.bounds;
-    glass.contentView.backgroundColor = [UIColor colorWithWhite:0.1 alpha:0.2];
-    glass.layer.cornerRadius = AB_BAR_H / 2;
+    UIImageView *mesh = [[UIImageView alloc] initWithImage:OMCLogoMeshImage(NO)];   // nen logo 4 mau
+    mesh.frame = glass.contentView.bounds;
+    mesh.contentMode = UIViewContentModeScaleToFill;
+    mesh.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    [glass.contentView addSubview:mesh];
+    glass.layer.cornerRadius = 22;
     glass.layer.cornerCurve = kCACornerCurveContinuous;
-    glass.layer.borderWidth = 0.5;
-    glass.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.22].CGColor;
+    glass.layer.borderWidth = 1;
+    glass.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.85].CGColor;
     glass.clipsToBounds = YES;
     glass.userInteractionEnabled = NO;
     [bar addSubview:glass];
     CGFloat o = pad;
-    for (UIButton *b in @[replace, pop, full]) {
-        b.center = CGPointMake(o + AB_BAR_BTN / 2, AB_BAR_H / 2);
+    for (id it in items) {
+        if (![it isKindOfClass:[UIButton class]]) {   // vach trang tach nut Tat
+            UIView *line = [[UIView alloc] initWithFrame:CGRectMake(o + (sep - 1) / 2, (AB_BAR_H - 30) / 2, 1, 30)];
+            line.backgroundColor = [UIColor colorWithWhite:1 alpha:0.95];
+            line.userInteractionEnabled = NO;
+            [bar addSubview:line];
+            o += sep;
+            continue;
+        }
+        UIButton *b = it;
+        b.center = CGPointMake(o + AB_ACT_W / 2, AB_BAR_H / 2);
         [bar addSubview:b];
-        o += step;
+        o += AB_ACT_W;
     }
-    UIView *line = [[UIView alloc] initWithFrame:CGRectMake(o - 1 + sep / 2, (AB_BAR_H - 18) / 2, 1, 18)];
-    line.backgroundColor = [UIColor colorWithWhite:1 alpha:0.18];
-    line.userInteractionEnabled = NO;
-    [bar addSubview:line];
-    o += sep;
-    close.center = CGPointMake(o + AB_BAR_BTN / 2, AB_BAR_H / 2);
-    [bar addSubview:close];
     bar.hidden = YES;
     bar.alpha = 0;
     pane.bar = bar;
@@ -664,20 +862,22 @@ static UIButton *ABRoundButton(NSString *glyph, id target, SEL action)
     CGFloat avail = s.width - 10, bw = bar.bounds.size.width;
     CGFloat k = (bw > avail && avail > 40) ? avail / bw : 1;
     bar.transform = CGAffineTransformMakeScale(k, k);
-    bar.center = CGPointMake(s.width / 2, AB_BAR_Y);
+    bar.center = CGPointMake(s.width / 2, AB_BAR_Y - AB_BAR_H * (1 - k) / 2);   // thu nho: mep tren van ngay duoi tay cam
     [pane.box bringSubviewToFront:bar];
     [pane.box bringSubviewToFront:pane.handleHit];
 }
 
-- (void)setBarVisible:(BOOL)visible pop:(int)pop dim:(BOOL)dim forApp:(NSString *)bid
+- (void)setBarVisible:(BOOL)visible pop:(int)pop dim:(BOOL)dim single:(BOOL)single forApp:(NSString *)bid
 {
     ABPane *p = [self paneFor:bid];
     if (!p) return;
     if (!p.bar && !visible) return;
     UIView *bar = p.bar ?: [self buildBarForPane:p];
-    [p.popButton setImage:ABGlyph(pop == 2 ? @"dock" : @"float") forState:UIControlStateNormal];
+    ABActionSet(p.popButton, pop == 2 ? @"hm_split" : @"hm_float", pop == 2 ? OMCTr(@"Chia màn", @"Split") : OMCTr(@"Cửa sổ nổi", @"Float"));
     p.popButton.alpha = dim ? 0.35 : 1;
+    ABActionSet(p.soloButton, single ? @"hm_split" : @"hm_full", single ? OMCTr(@"Chia màn", @"Split") : OMCTr(@"Toàn màn", @"Full screen"));
     [self layoutBarForPane:p];
+    ABHandleOpen(p.handle, visible);   // tay cam "•••": gradient khi thanh dang mo
     if (visible == !bar.hidden) return;
     if (visible) {
         // Kieu HarmonyOS nhu SCPCDropIn: troi xuong nhe + phong tu 0.9, lo xo em
@@ -715,6 +915,7 @@ static UIButton *ABRoundButton(NSString *glyph, id target, SEL action)
 - (void)barReplace:(UIButton *)b { [self postBarAction:@"replace" from:b]; }
 - (void)barPop:(UIButton *)b     { [self postBarAction:@"pop" from:b]; }
 - (void)barFull:(UIButton *)b    { [self postBarAction:@"full" from:b]; }
+- (void)barBackground:(UIButton *)b { [self postBarAction:@"bg" from:b]; }
 - (void)barClose:(UIButton *)b   { [self postBarAction:@"close" from:b]; }
 
 #pragma mark - Thanh "•••" tren app
@@ -723,17 +924,22 @@ static UIButton *ABRoundButton(NSString *glyph, id target, SEL action)
 {
     UIView *hit = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 44, 24)];
     UIView *pill = [[UIView alloc] initWithFrame:CGRectMake(5, 6, 34, 12)];
-    pill.backgroundColor = [UIColor colorWithWhite:0 alpha:0.38];
+    pill.backgroundColor = [UIColor colorWithWhite:1 alpha:0.35];   // vien bau duc trong, 3 cham mau muc (= SCPCDotsHandle)
     pill.layer.cornerRadius = 6;
+    pill.layer.borderWidth = 0.5;
+    pill.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.55].CGColor;
     pill.userInteractionEnabled = NO;
     for (int i = 0; i < 3; i++) {
         UIView *d = [[UIView alloc] initWithFrame:CGRectMake(9 + i * 7, 4, 4, 4)];
-        d.backgroundColor = [UIColor colorWithWhite:1 alpha:0.9];
+        d.backgroundColor = [ABInk() colorWithAlphaComponent:0.85];
         d.layer.cornerRadius = 2;
         [pill addSubview:d];
     }
     [hit addSubview:pill];
     [hit addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapped:)]];
+    UIPanGestureRecognizer *pan = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handlePanned:)];   // keo doi cho / keo cua so noi
+    pan.maximumNumberOfTouches = 1;
+    [hit addGestureRecognizer:pan];
     hit.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin;
     pane.handle = pill;
     pane.handleHit = hit;
@@ -763,17 +969,25 @@ static ABKnobView *ABMakeKnob(void)
     v.layer.cornerRadius = pad / 2;
     UIView *k = [[UIView alloc] initWithFrame:CGRectMake(AB_KNOB_HIT, AB_KNOB_HIT, AB_KNOB, AB_KNOB)];
     k.userInteractionEnabled = NO;
-    k.backgroundColor = [UIColor colorWithWhite:0.12 alpha:0.88];
+    k.backgroundColor = [UIColor clearColor];   // kinh mo, cham mau muc (= SCPCKnobStyle / SCPCGlassFill)
     k.layer.cornerRadius = AB_KNOB / 2;
+    UIVisualEffectView *glass = [[UIVisualEffectView alloc] initWithEffect:[UIBlurEffect effectWithStyle:UIBlurEffectStyleSystemUltraThinMaterialLight]];
+    glass.frame = k.bounds;
+    glass.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    glass.contentView.backgroundColor = [UIColor colorWithWhite:1 alpha:0.35];
+    glass.layer.cornerRadius = AB_KNOB / 2;
+    glass.clipsToBounds = YES;
+    glass.userInteractionEnabled = NO;
+    [k addSubview:glass];
     k.layer.borderWidth = 1.5;
     k.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.95].CGColor;
-    k.layer.shadowColor = [UIColor blackColor].CGColor;
+    k.layer.shadowColor = ABShadow().CGColor;
     k.layer.shadowOpacity = 0.45; k.layer.shadowRadius = 3; k.layer.shadowOffset = CGSizeMake(0, 1);
     CALayer *dot = [CALayer layer];
     CGFloat ds = 4;
     dot.frame = CGRectMake((AB_KNOB - ds) / 2, (AB_KNOB - ds) / 2, ds, ds);
     dot.cornerRadius = ds / 2;
-    dot.backgroundColor = [UIColor whiteColor].CGColor;
+    dot.backgroundColor = ABInk().CGColor;
     [k.layer addSublayer:dot];
     [v addSubview:k];
     v.dot = k;
@@ -805,9 +1019,9 @@ static ABKnobView *ABMakeKnob(void)
         [UIView animateWithDuration:on ? 0.15 : 0.3 delay:0 usingSpringWithDamping:0.7 initialSpringVelocity:0
                             options:UIViewAnimationOptionBeginFromCurrentState animations:^{
             v.dot.transform = on ? CGAffineTransformMakeScale(AB_KNOB_GROW, AB_KNOB_GROW) : CGAffineTransformIdentity;
-            v.dot.backgroundColor = on ? [UIColor whiteColor] : [UIColor colorWithWhite:0.12 alpha:0.88];   // dang cham: trang sang nhu ben CarPlay
-            for (CALayer *l in v.dot.layer.sublayers) l.backgroundColor = (on ? [UIColor colorWithWhite:0.12 alpha:1] : [UIColor whiteColor]).CGColor;
-            v.dot.layer.shadowColor = (on ? [UIColor whiteColor] : [UIColor blackColor]).CGColor;
+            v.dot.backgroundColor = on ? [UIColor colorWithRed:0x8B / 255.0 green:0x7C / 255.0 blue:1 alpha:1] : [UIColor clearColor];   // dang cham: mau nhan tim nhu ben CarPlay; khong: lo kinh mo
+            for (CALayer *l in v.dot.layer.sublayers) l.backgroundColor = (on ? [UIColor whiteColor] : ABInk()).CGColor;
+            v.dot.layer.shadowColor = (on ? [UIColor colorWithRed:0x8B / 255.0 green:0x7C / 255.0 blue:1 alpha:1] : ABShadow()).CGColor;
         } completion:nil];
     }
 }
@@ -818,6 +1032,32 @@ static ABKnobView *ABMakeKnob(void)
     if (!p || p.handleOffset == dx) return;
     p.handleOffset = dx;
     [self setHandleVisible:!p.handleHit.hidden forPane:p];
+}
+
+// Keo "•••": CarPlay khong nhan duoc cham tren cua so nay -> gui tung pha cho CarPlay (AB_NOTIF_HANDLE_DRAG), ben do
+// keo doi cho / keo cua so noi nhu voi o CarPlay
+- (void)handlePanned:(UIPanGestureRecognizer *)g
+{
+    for (ABPane *p in self.panes) {
+        if (p.handleHit != g.view) continue;
+        int phase = g.state == UIGestureRecognizerStateBegan ? 0 : g.state == UIGestureRecognizerStateChanged ? 1
+                  : g.state == UIGestureRecognizerStateEnded ? 2 : 3;
+        CGPoint pt = [g locationInView:self.window];
+        if (phase != 1) ABLog("keo thanh ••• cua %@: pha %d tai %@", p.bundleID, phase, NSStringFromCGPoint(pt));
+        [[objc_getClass("NSDistributedNotificationCenter") defaultCenter]
+            postNotificationName:AB_NOTIF_HANDLE_DRAG object:nil
+                        userInfo:@{@"identifier": p.bundleID, @"phase": @(phase), @"x": @(pt.x), @"y": @(pt.y)}];
+        return;
+    }
+}
+
+// Cua so noi: o nay nam tren cac o app iPhone khac (cham tron van tren cung)
+- (void)setFront:(BOOL)front forApp:(NSString *)bid
+{
+    ABPane *p = [self paneFor:bid];
+    if (!p || !front || p.box.superview != self.window) return;
+    [self.window bringSubviewToFront:p.box];
+    [self raiseKnobs];
 }
 
 - (void)handleTapped:(UITapGestureRecognizer *)g
@@ -878,6 +1118,7 @@ static void ABTerminate(NSString *bid)
     ABPane *p = [self paneFor:bid];
     if (!p) return;
     ABLog("dong %@%@", bid, terminate ? @" (tat han)" : @"");
+    [[ABKeyboard shared] hideForApp:bid];
     [self teardownPane:p];
     [self.panes removeObject:p];
     [self dropWindowIfEmpty];

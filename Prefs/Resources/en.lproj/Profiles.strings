@@ -1,0 +1,8 @@
+/* OmniCar – Car profiles */
+"PROFILES" = "Car profiles";
+"PROFILES_ENABLE" = "A profile for each car";
+"PROFILES_FOOTER" = "Each car keeps its own split layout, pinned pane, driver side, Speed Bubble on the car, startup screen and iPhone app zoom. OmniCar switches to that car's settings when you connect it.";
+"PROFILES_CARS" = "Cars";
+"PROFILES_CARS_FOOTER" = "✓ marks the car in use. Swipe left to forget a car.";
+"PROFILES_NONE" = "No cars yet: turn it on and connect a car once";
+"PROFILES_LAST_SEEN" = "Last connected: %@";

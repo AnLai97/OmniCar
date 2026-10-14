@@ -1,0 +1,24 @@
+/* OmniCar – Guide de démarrage (Prefs/OMCOnboardingController.m) – Français */
+
+"ONB_SHOW_AGAIN" = "Revoir le guide";
+"ONB_SKIP" = "Passer";
+"ONB_NEXT" = "Suivant";
+"ONB_DONE" = "OK";
+
+"ONB_P1_TITLE" = "Bienvenue dans OmniCar";
+"ONB_P1_BODY" = "OmniCar rend CarPlay plus puissant. Commencez par choisir les apps iPhone à afficher sur l’écran de la voiture, même celles qui n’ont pas CarPlay.";
+"ONB_P1_BUTTON" = "Choisir des apps";
+"ONB_P1_NOTE" = "Vous pouvez les modifier à tout moment dans Apps sur l’écran de la voiture.";
+
+"ONB_P2_TITLE" = "Partagez l’écran de la voiture";
+"ONB_P2_BODY" = "• Dans la voiture, touchez le bouton OmniCar dans le Dock de CarPlay pour ouvrir le menu des dispositions.\n• Choisissez une disposition : 2 volets, 3 volets, 1 grand + 2 ou 2 + 1 grand. Puis choisissez les apps.\n• Ou maintenez le doigt sur l’icône d’une app sur l’écran d’accueil de la voiture pour partager avec cette app.\n• Faites glisser le bouton rond pour redimensionner. Le bouton principal quitte le partage.";
+"ONB_P2_NOTE" = "Enregistrez vos dispositions préférées dans Écran partagé > Dispositions favorites.";
+
+"ONB_P3_TITLE" = "Bulle de vitesse";
+"ONB_P3_BODY" = "Une petite bulle sur l’écran de la voiture affiche votre vitesse et la limitation de vitesse, pour les voir d’un coup d’œil.";
+"ONB_P3_SWITCH" = "Bulle de vitesse";
+"ONB_P3_NOTE" = "Nécessite Vietmap Live ou GOFA sur votre iPhone. Choisissez la source dans la page Bulle de vitesse.";
+
+"ONB_P4_TITLE" = "Astuces rapides";
+"ONB_P4_BODY" = "• Menu des dispositions : touchez le bouton OmniCar dans le Dock de CarPlay ou maintenez le doigt sur l’icône d’une app.\n• Récents et Favoris sont dans le même menu.\n• Un problème ? Ouvrez Assistance en bas de cette page : Diagnostic vérifie tout, Envoyer le journal envoie un rapport au développeur.";
+"ONB_P4_NOTE" = "Vous pouvez rouvrir ce guide depuis Assistance > Revoir le guide.";

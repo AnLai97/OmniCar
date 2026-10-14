@@ -41,10 +41,20 @@
 #define SCPC_LAYOUT_MAIN_STACK 13
 #define SCPC_LAYOUT_MAIN_RIGHT 31   // 2 + 1 lon: ban lat cua 13, o lon ben phai (man doc: o lon duoi)
 #define SCPC_FLOAT_SLOT        9    // so o gia cua cua so noi (pending / openApp / closeSlot)
+#define SCPC_BG_TOAST_TAG      0x5C9B   // thong bao "dang chay nen" (chi 1 cai mot luc)
 typedef NS_ENUM(NSInteger, SCPCLayoutKind) { SCPCLayoutColumns = 0, SCPCLayoutMainStack = 1, SCPCLayoutMainRight = 2 };
 
+// 2 o lech san: 70 = o 1 chiem 70 %, 30 = o 1 chiem 30 % (chon trong bang, sau do keo vach nhu 2 o thuong)
+#define SCPC_LAYOUT_70 70
+#define SCPC_LAYOUT_30 30
+static CGFloat SCPCPresetRatio(int layoutID) { return layoutID == SCPC_LAYOUT_70 ? 0.7 : (layoutID == SCPC_LAYOUT_30 ? 0.3 : 0); }
+
 static BOOL SCPCIsStackLayout(int layoutID) { return layoutID == SCPC_LAYOUT_MAIN_STACK || layoutID == SCPC_LAYOUT_MAIN_RIGHT; }
-static int SCPCPanesForLayout(int layoutID) { return SCPCIsStackLayout(layoutID) ? 3 : MAX(2, MIN(SCPC_MAX_PANES, layoutID)); }
+static int SCPCPanesForLayout(int layoutID)
+{
+    if (SCPCPresetRatio(layoutID) > 0) return 2;
+    return SCPCIsStackLayout(layoutID) ? 3 : MAX(2, MIN(SCPC_MAX_PANES, layoutID));
+}
 static NSInteger SCPCKindForLayout(int layoutID)
 {
     if (layoutID == SCPC_LAYOUT_MAIN_STACK) return SCPCLayoutMainStack;
@@ -91,7 +101,7 @@ static void SCPCAfter(double delay, dispatch_block_t block)
 }
 
 // Chu tren man xe: tieng Viet / tieng Anh theo Cai dat > OmniCar > ngon ngu
-static NSString *SCPCT(NSString *vi, NSString *en) { return [SCPPrefs english] ? en : vi; }
+static NSString *SCPCT(NSString *vi, NSString *en) { return OMCTr(vi, en); }   // ngon ngu khac: Car.strings
 
 // Bao SpringBoard (OMC_DARWIN_CAR_BUSY): dang chia man / bang bo cuc dang mo -> lop phu tren man xe (bong bong
 // toc do) tam an de khong de len cho dang cham. Chi gui khi trang thai doi.
@@ -156,7 +166,7 @@ static void SCPCSendEvent(unsigned long long type, id context)
 {
     id d = SCPCDashboard();
     if (!d) return;
-    id ev = objcInvoke_2(objc_getClass("DBEvent"), @"eventWithType:context:", type, context);
+    id ev = objcInvoke_2(OMCCarClass("DBEvent"), @"eventWithType:context:", type, context);
     if (ev) objcCall_1(d, @"handleEvent:", ev);
 }
 
@@ -261,8 +271,103 @@ static UIImage *SCPCAppIcon(NSString *bid)
 //  Kieu HyperOS: icon net tron deu tu ve (khong can asset), nen "kinh toi" bo goc lien tuc,
 //  nut gom trong thanh vien thuoc, cham thi nut lun nhe.
 // ---------------------------------------------------------------------
-static UIColor *SCPCInk(void) { return [UIColor colorWithWhite:1 alpha:0.94]; }
-static UIColor *SCPCDanger(void) { return [UIColor colorWithRed:1.0 green:0.36 blue:0.33 alpha:1]; }  // nut dong
+// Giao dien moi (DESIGN.md, tools/preview/theme.html): cac bang tren man xe nen phoi 4 mau nhu nen logo
+// (OMCLogoMeshImage), o kinh trang vien trang nhu dia trong logo, icon / chu mau cham diu, khong vien den;
+// dang chon = vien cau vong 4 mau logo (nen van trong), nut chinh = gradient tim -> xanh troi, dau X do.
+static UIColor *SCPCInk(void) { return [UIColor colorWithRed:0x4A / 255.0 green:0x4F / 255.0 blue:0x80 / 255.0 alpha:1]; }
+static UIColor *SCPCInk2(void) { return [SCPCInk() colorWithAlphaComponent:0.55]; }   // chu / icon phu
+static UIColor *SCPCDanger(void) { return [UIColor colorWithRed:1.0 green:0x5A / 255.0 blue:0x5F / 255.0 alpha:1]; }  // nut dong
+static UIColor *SCPCAccent(void) { return [UIColor colorWithRed:0x9B / 255.0 green:0x87 / 255.0 blue:0xF8 / 255.0 alpha:1]; }   // tim (dau gradient)
+static UIColor *SCPCAccent2(void) { return [UIColor colorWithRed:0x5D / 255.0 green:0xB4 / 255.0 blue:0xF6 / 255.0 alpha:1]; }  // xanh troi (cuoi gradient)
+static UIColor *SCPCShadow(void) { return [UIColor colorWithRed:110 / 255.0 green:100 / 255.0 blue:200 / 255.0 alpha:1]; }  // bong tim nhat
+static UIColor *SCPCPastel(void) { return [UIColor colorWithRed:0xEE / 255.0 green:0xF0 / 255.0 blue:0xFB / 255.0 alpha:1]; } // nen o cho
+
+// O lua chon trong cac bang (bo cuc trong khay): nen trong suot cung mau bang, chi khung trang manh tach tung o, bo 14.
+static void SCPCOptionTile(UIView *v)
+{
+    v.layer.cornerRadius = 14;
+    v.layer.cornerCurve = kCACornerCurveContinuous;
+    v.backgroundColor = [UIColor clearColor];
+    v.layer.borderWidth = 1;
+    v.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.75].CGColor;
+}
+
+// O kinh trang nho (nut X, nut cua thanh •••): trang trong + vien trang 1pt nhu dia trong logo, bong tim rat nhat
+static void SCPCTile(UIView *v, CGFloat radius)
+{
+    v.backgroundColor = [UIColor colorWithWhite:1 alpha:0.5];
+    v.layer.cornerRadius = radius;
+    v.layer.cornerCurve = kCACornerCurveContinuous;
+    v.layer.borderWidth = 1;
+    v.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.9].CGColor;
+    v.layer.shadowColor = SCPCShadow().CGColor;
+    v.layer.shadowOpacity = 0.12; v.layer.shadowRadius = 3; v.layer.shadowOffset = CGSizeMake(0, 2);
+}
+
+// Dang chon (bo cuc dang dung, ti le dang dung): nen giu trong, chi vien cau vong 2pt 4 mau logo (tim, xanh troi,
+// bac ha, hong) + quang tim nhat. Goi lai sau khi doi kich thuoc view.
+static void SCPCSelectRing(UIView *v, BOOL on)
+{
+    CAGradientLayer *g = nil;
+    for (CALayer *l in v.layer.sublayers) if ([l.name isEqualToString:@"omcRing"]) g = (CAGradientLayer *)l;
+    if (!on) { [g removeFromSuperlayer]; v.layer.shadowOpacity = 0; return; }
+    if (!g) {
+        g = [CAGradientLayer layer];
+        g.name = @"omcRing";
+        g.type = kCAGradientLayerConic;
+        g.startPoint = CGPointMake(0.5, 0.5); g.endPoint = CGPointMake(0, 1);
+        UIColor *(^hex)(uint32_t) = ^(uint32_t x) { return [UIColor colorWithRed:((x >> 16) & 0xFF) / 255.0 green:((x >> 8) & 0xFF) / 255.0 blue:(x & 0xFF) / 255.0 alpha:1]; };
+        g.colors = @[(id)hex(0xA78BFA).CGColor, (id)hex(0x60C5FA).CGColor, (id)hex(0x5EDDB6).CGColor, (id)hex(0xF59AC0).CGColor, (id)hex(0xA78BFA).CGColor];
+        CAShapeLayer *m = [CAShapeLayer layer];
+        m.fillColor = nil; m.strokeColor = [UIColor blackColor].CGColor; m.lineWidth = 2;
+        g.mask = m;
+        [v.layer insertSublayer:g atIndex:0];
+    }
+    [CATransaction begin]; [CATransaction setDisableActions:YES];
+    g.frame = v.bounds;
+    ((CAShapeLayer *)g.mask).path = [UIBezierPath bezierPathWithRoundedRect:CGRectInset(v.bounds, 1, 1) cornerRadius:MAX(0, v.layer.cornerRadius - 1)].CGPath;
+    [CATransaction commit];
+    v.layer.borderWidth = 0;
+    v.layer.shadowColor = SCPCAccent().CGColor;
+    v.layer.shadowOpacity = 0.3; v.layer.shadowRadius = 8; v.layer.shadowOffset = CGSizeMake(0, 4);
+}
+
+// Nen bang tren man xe = nen logo 4 mau trai len lop kinh mo (thay lop trang mo cu), vien trang 1pt
+static void SCPCMesh(UIVisualEffectView *glass)
+{
+    glass.contentView.backgroundColor = [UIColor clearColor];
+    UIImageView *mesh = [[UIImageView alloc] initWithImage:OMCLogoMeshImage(NO)];
+    mesh.frame = glass.contentView.bounds;
+    mesh.contentMode = UIViewContentModeScaleToFill;
+    mesh.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    mesh.userInteractionEnabled = NO;
+    [glass.contentView insertSubview:mesh atIndex:0];
+    glass.layer.borderWidth = 1;
+    glass.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.85].CGColor;
+}
+
+// Dang chon / nut chinh: lop gradient tim -> xanh troi (bo goc theo view) + quang mau tim; on = NO go ra.
+// Goi lai sau khi doi kich thuoc view de lop gradient theo kip.
+static void SCPCAccentFill(UIView *v, BOOL on)
+{
+    CAGradientLayer *g = nil;
+    for (CALayer *l in v.layer.sublayers) if ([l.name isEqualToString:@"omcAccent"]) g = (CAGradientLayer *)l;
+    if (!on) { [g removeFromSuperlayer]; v.layer.shadowColor = SCPCShadow().CGColor; v.layer.shadowOpacity = 0; return; }
+    if (!g) {
+        g = [CAGradientLayer layer];
+        g.name = @"omcAccent";
+        g.colors = @[(id)SCPCAccent().CGColor, (id)SCPCAccent2().CGColor];
+        g.startPoint = CGPointZero; g.endPoint = CGPointMake(1, 1);
+        [v.layer insertSublayer:g atIndex:0];
+    }
+    [CATransaction begin]; [CATransaction setDisableActions:YES];
+    g.frame = v.bounds;
+    g.cornerRadius = v.layer.cornerRadius;
+    g.cornerCurve = kCACornerCurveContinuous;
+    [CATransaction commit];
+    v.layer.shadowColor = [UIColor colorWithRed:110 / 255.0 green:120 / 255.0 blue:1.0 alpha:1].CGColor;
+    v.layer.shadowOpacity = 0.45; v.layer.shadowRadius = 9; v.layer.shadowOffset = CGSizeMake(0, 4);
+}
 
 // Icon kieu HyperOS: luoi 24x24, net 1.8 deu, dau net va goc bo tron; phan to dac (fill) ve rieng.
 // rot: xoay 90 do (trai -> tren) cho kieu chia tren/duoi
@@ -337,6 +442,25 @@ static UIImage *SCPCGlyph(NSString *name, CGFloat pt, BOOL rot)
         } else if ([name isEqualToString:@"swap"]) {     // 2 mui ten nguoc chieu
             SCPC_M(4.5, 8.5); SCPC_L(19, 8.5); SCPC_M(15.5, 5); SCPC_L(19, 8.5); SCPC_L(15.5, 12);
             SCPC_M(19.5, 15.5); SCPC_L(5, 15.5); SCPC_M(8.5, 12); SCPC_L(5, 15.5); SCPC_L(8.5, 19);
+        } else if ([name hasPrefix:@"hm_"]) {             // thanh ••• kieu HarmonyOS Symbol: net 1.5 (tools/preview/theme.html)
+            p.lineWidth = 1.5;
+            if ([name isEqualToString:@"hm_apps"]) {          // chon app moi: 4 o vuong bo tron
+                SCPC_RR(4, 4, 7, 7, 2.2); SCPC_RR(13, 4, 7, 7, 2.2); SCPC_RR(4, 13, 7, 7, 2.2); SCPC_RR(13, 13, 7, 7, 2.2);
+            } else if ([name isEqualToString:@"hm_full"]) {   // chay 1 man hinh: 4 goc khung bo tron
+                SCPC_M(4, 9.5); SCPC_L(4, 7.5); [p addArcWithCenter:CGPointMake(7.5, 7.5) radius:3.5 startAngle:M_PI endAngle:-M_PI_2 clockwise:YES]; SCPC_L(9.5, 4);
+                SCPC_M(14.5, 4); SCPC_L(16.5, 4); [p addArcWithCenter:CGPointMake(16.5, 7.5) radius:3.5 startAngle:-M_PI_2 endAngle:0 clockwise:YES]; SCPC_L(20, 9.5);
+                SCPC_M(20, 14.5); SCPC_L(20, 16.5); [p addArcWithCenter:CGPointMake(16.5, 16.5) radius:3.5 startAngle:0 endAngle:M_PI_2 clockwise:YES]; SCPC_L(14.5, 20);
+                SCPC_M(9.5, 20); SCPC_L(7.5, 20); [p addArcWithCenter:CGPointMake(7.5, 16.5) radius:3.5 startAngle:M_PI_2 endAngle:M_PI clockwise:YES]; SCPC_L(4, 14.5);
+            } else if ([name isEqualToString:@"hm_split"]) {  // chia man hinh: 2 khung dung canh nhau
+                SCPC_RR(3.5, 4.5, 7.5, 15, 2.5); SCPC_RR(13, 4.5, 7.5, 15, 2.5);
+            } else if ([name isEqualToString:@"hm_float"]) {  // anh trong anh: khung + o nho to dac goc duoi phai
+                SCPC_RR(3.5, 4.5, 17, 15, 3);
+                [f appendPath:[UIBezierPath bezierPathWithRoundedRect:CGRectMake(11.5, 11.5, 6.5, 5.5) cornerRadius:1.6]];
+            } else if ([name isEqualToString:@"hm_min"]) {    // chay nen: gach ngang (thu nho cua so)
+                SCPC_M(5.5, 12); SCPC_L(18.5, 12);
+            } else if ([name isEqualToString:@"hm_close"]) {  // tat han app
+                SCPC_M(6.5, 6.5); SCPC_L(17.5, 17.5); SCPC_M(17.5, 6.5); SCPC_L(6.5, 17.5);
+            }
         }
     });
     cache[key] = img;
@@ -369,6 +493,14 @@ static NSArray<NSValue *> *SCPCLayoutBoxes(int layoutID, BOOL vertical, CGSize s
         }
         return boxes;
     }
+    CGFloat preset = SCPCPresetRatio(layoutID);
+    if (preset > 0) {
+        CGFloat len = (vertical ? size.height : size.width) - gap, first = floor(len * preset);
+        [boxes addObject:[NSValue valueWithCGRect:vertical ? CGRectMake(0, 0, size.width, first) : CGRectMake(0, 0, first, size.height)]];
+        [boxes addObject:[NSValue valueWithCGRect:vertical ? CGRectMake(0, first + gap, size.width, len - first)
+                                                           : CGRectMake(first + gap, 0, len - first, size.height)]];
+        return boxes;
+    }
     int n = MAX(1, layoutID);
     CGFloat len = (vertical ? size.height : size.width) - gap * (n - 1), pos = 0;
     for (int i = 0; i < n; i++) {
@@ -383,9 +515,14 @@ static NSArray<NSValue *> *SCPCLayoutBoxes(int layoutID, BOOL vertical, CGSize s
 // moi o la icon cua app trong o do.
 // Hinh 1 bo cuc trong bang nut Split Screen. apps[i] = bundle cua app trong o i -> o hien icon app do;
 // NSNull / thieu (apps = nil: moi o) -> o trong vien mo + dau cong = cho chon app.
-static UIImage *SCPCLayoutImage(int layoutID, BOOL vertical, CGSize size, NSArray *apps)
+// selected: bo cuc dang dung (o vien cau vong) -> o sang hon mot chut. Moi o: kinh trang trong + vien trang 1.5pt
+// (nhu vanh trang cua logo), dau cong mau cham nhat; khong vien den / tim.
+static UIImage *SCPCLayoutImage(int layoutID, BOOL vertical, CGSize size, NSArray *apps, BOOL selected)
 {
     NSArray<NSValue *> *boxes = SCPCLayoutBoxes(layoutID, vertical, size);
+    UIColor *box = [UIColor colorWithWhite:1 alpha:selected ? 0.75 : 0.45];
+    UIColor *edgeColor = [UIColor colorWithWhite:1 alpha:0.95];
+    UIColor *plusColor = SCPCInk2();
     UIGraphicsImageRenderer *r = [[UIGraphicsImageRenderer alloc] initWithSize:size];
     return [r imageWithActions:^(UIGraphicsImageRendererContext *rc) {
         for (NSUInteger i = 0; i < boxes.count; i++) {
@@ -393,8 +530,12 @@ static UIImage *SCPCLayoutImage(int layoutID, BOOL vertical, CGSize size, NSArra
             NSString *bid = (i < apps.count && [apps[i] isKindOfClass:[NSString class]]) ? apps[i] : nil;
             UIImage *icon = bid ? SCPCAppIcon(bid) : nil;
             if (icon) {
-                [[UIColor colorWithWhite:1 alpha:0.14] setFill];
+                [box setFill];
                 [[UIBezierPath bezierPathWithRoundedRect:b cornerRadius:5] fill];
+                [edgeColor setStroke];
+                UIBezierPath *rim = [UIBezierPath bezierPathWithRoundedRect:CGRectInset(b, 0.75, 0.75) cornerRadius:4.4];
+                rim.lineWidth = 1.5;
+                [rim stroke];
                 CGFloat side = floor(MIN(b.size.width, b.size.height) - 4);
                 CGRect ir = CGRectMake(CGRectGetMidX(b) - side / 2, CGRectGetMidY(b) - side / 2, side, side);
                 CGContextSaveGState(rc.CGContext);
@@ -403,11 +544,11 @@ static UIImage *SCPCLayoutImage(int layoutID, BOOL vertical, CGSize size, NSArra
                 CGContextRestoreGState(rc.CGContext);
                 continue;
             }
-            [[UIColor colorWithWhite:1 alpha:0.12] setFill];
+            [box setFill];
             [[UIBezierPath bezierPathWithRoundedRect:b cornerRadius:5] fill];
-            [[UIColor colorWithWhite:1 alpha:0.55] setStroke];
-            UIBezierPath *edge = [UIBezierPath bezierPathWithRoundedRect:CGRectInset(b, 0.6, 0.6) cornerRadius:4.4];
-            edge.lineWidth = 1.2;
+            [edgeColor setStroke];
+            UIBezierPath *edge = [UIBezierPath bezierPathWithRoundedRect:CGRectInset(b, 0.75, 0.75) cornerRadius:4.4];
+            edge.lineWidth = 1.5;
             [edge stroke];
             CGFloat arm = MIN(4, floor(MIN(b.size.width, b.size.height) / 4));
             UIBezierPath *plus = [UIBezierPath bezierPath];
@@ -416,22 +557,22 @@ static UIImage *SCPCLayoutImage(int layoutID, BOOL vertical, CGSize size, NSArra
             [plus addLineToPoint:CGPointMake(CGRectGetMidX(b) + arm, CGRectGetMidY(b))];
             [plus moveToPoint:CGPointMake(CGRectGetMidX(b), CGRectGetMidY(b) - arm)];
             [plus addLineToPoint:CGPointMake(CGRectGetMidX(b), CGRectGetMidY(b) + arm)];
-            [[UIColor colorWithWhite:1 alpha:0.8] setStroke];
+            [plusColor setStroke];
             [plus stroke];
         }
     }];
 }
 
-// Nen "kinh toi": vien sang manh, bo goc lien tuc (squircle), bong mem
+// Nen kinh trang dac (khong blur): vien sang manh, bo goc lien tuc (squircle), bong tim nhat
 static void SCPCChrome(UIView *v, CGFloat radius)
 {
-    v.backgroundColor = [UIColor colorWithWhite:0.13 alpha:0.94];
+    v.backgroundColor = [UIColor colorWithWhite:1 alpha:0.9];
     v.layer.cornerRadius = radius;
     v.layer.cornerCurve = kCACornerCurveContinuous;
     v.layer.borderWidth = 0.5;
-    v.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.12].CGColor;
-    v.layer.shadowColor = [UIColor blackColor].CGColor;
-    v.layer.shadowOpacity = 0.35; v.layer.shadowRadius = 8; v.layer.shadowOffset = CGSizeMake(0, 2);
+    v.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.85].CGColor;
+    v.layer.shadowColor = SCPCShadow().CGColor;
+    v.layer.shadowOpacity = 0.25; v.layer.shadowRadius = 10; v.layer.shadowOffset = CGSizeMake(0, 4);
 }
 
 // Icon app: squircle kieu HarmonyOS
@@ -440,7 +581,7 @@ static void SCPCStyleIcon(UIImageView *iv)
     iv.layer.cornerRadius = iv.bounds.size.width * 0.27;
     iv.layer.cornerCurve = kCACornerCurveContinuous;
     iv.clipsToBounds = YES;
-    iv.backgroundColor = iv.image ? [UIColor clearColor] : [UIColor colorWithWhite:0.25 alpha:1];
+    iv.backgroundColor = iv.image ? [UIColor clearColor] : SCPCPastel();
 }
 
 // Nut cham thi lun nhe
@@ -478,7 +619,7 @@ static UIButton *SCPCRoundButton(UIImage *img, id target, SEL action)
     return b;
 }
 
-// Nut tron dung rieng (co nen kinh toi)
+// Nut tron dung rieng (nen kinh trang)
 static UIButton *SCPCCircleButton(UIImage *img, CGFloat size, id target, SEL action)
 {
     UIButton *b = SCPCRoundButton(img, target, action);
@@ -487,22 +628,51 @@ static UIButton *SCPCCircleButton(UIImage *img, CGFloat size, id target, SEL act
     return b;
 }
 
-// Nen kinh mo kieu HarmonyOS (thanh nut cua o, thanh ti le): nhin xuyen, vien sang manh, bong mem
+// Kinh trang mo cho thanh nut / bang; che do nhe (OMCLiteActive): nen trang dac, khong blur (blur tren ban do dang
+// chay ton GPU tung khung hinh)
+static UIVisualEffectView *SCPCGlassView(void)
+{
+    if (!OMCLiteActive())
+        return [[UIVisualEffectView alloc] initWithEffect:[UIBlurEffect effectWithStyle:UIBlurEffectStyleSystemUltraThinMaterialLight]];
+    UIVisualEffectView *v = [[UIVisualEffectView alloc] initWithEffect:nil];
+    v.backgroundColor = [UIColor colorWithWhite:1 alpha:0.92];
+    return v;
+}
+
+// Nen bang nho (thanh •••, thanh ti le, thong bao): kinh mo + nen logo 4 mau, vien trang, bong tim nhat
 static void SCPCGlass(UIView *v, CGFloat radius)
 {
     v.backgroundColor = [UIColor clearColor];
     v.layer.cornerRadius = radius;
     v.layer.cornerCurve = kCACornerCurveContinuous;
-    v.layer.shadowColor = [UIColor blackColor].CGColor;
-    v.layer.shadowOpacity = 0.3; v.layer.shadowRadius = 12; v.layer.shadowOffset = CGSizeMake(0, 4);
-    UIVisualEffectView *glass = [[UIVisualEffectView alloc] initWithEffect:[UIBlurEffect effectWithStyle:UIBlurEffectStyleSystemUltraThinMaterialDark]];
+    v.layer.shadowColor = SCPCShadow().CGColor;
+    v.layer.shadowOpacity = 0.3; v.layer.shadowRadius = 14; v.layer.shadowOffset = CGSizeMake(0, 6);
+    UIVisualEffectView *glass = SCPCGlassView();
     glass.frame = v.bounds;
     glass.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-    glass.contentView.backgroundColor = [UIColor colorWithWhite:0.1 alpha:0.2];
+    SCPCMesh(glass);
+    glass.layer.cornerRadius = radius;
+    glass.layer.cornerCurve = kCACornerCurveContinuous;
+    glass.clipsToBounds = YES;
+    glass.userInteractionEnabled = NO;
+    [v insertSubview:glass atIndex:0];
+}
+
+// O kinh mo nho (nut dock, cham tron keo vach): chi lop mo + trang 35% + vien sang, khong bong; lop nam duoi moi thu
+// da co trong view (nut dock: duoi hinh; cham tron: duoi cham giua)
+static void SCPCGlassFill(UIView *v, CGFloat radius)
+{
+    v.backgroundColor = [UIColor clearColor];
+    v.layer.cornerRadius = radius;
+    v.layer.cornerCurve = kCACornerCurveContinuous;
+    UIVisualEffectView *glass = SCPCGlassView();
+    glass.frame = v.bounds;
+    glass.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    glass.contentView.backgroundColor = [UIColor colorWithWhite:1 alpha:0.35];
     glass.layer.cornerRadius = radius;
     glass.layer.cornerCurve = kCACornerCurveContinuous;
     glass.layer.borderWidth = 0.5;
-    glass.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.22].CGColor;
+    glass.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.85].CGColor;
     glass.clipsToBounds = YES;
     glass.userInteractionEnabled = NO;
     [v insertSubview:glass atIndex:0];
@@ -520,7 +690,7 @@ static UIView *SCPCPill(NSArray *items, BOOL vertical)
     for (id it in items) {
         if (![it isKindOfClass:[UIButton class]]) {
             UIView *line = [[UIView alloc] init];
-            line.backgroundColor = [UIColor colorWithWhite:1 alpha:0.18];
+            line.backgroundColor = [UIColor colorWithWhite:1 alpha:0.95];
             line.userInteractionEnabled = NO;
             CGFloat c = o - 1 + sep / 2;   // giua khe (2pt sau nut truoc + sep)
             line.frame = vertical ? CGRectMake((SCPC_PILL - 18) / 2, c, 18, 1) : CGRectMake(c, (SCPC_PILL - 18) / 2, 1, 18);
@@ -531,6 +701,75 @@ static UIView *SCPCPill(NSArray *items, BOOL vertical)
         UIButton *b = it;
         b.center = vertical ? CGPointMake(SCPC_PILL / 2, o + SCPC_BTN / 2) : CGPointMake(o + SCPC_BTN / 2, SCPC_PILL / 2);
         o += step;
+        [v addSubview:b];
+    }
+    return v;
+}
+
+// Nut cua thanh •••: o kinh tron 30pt (nhu nut X cua khay) + nhan ngan ben duoi - man xe nhin luot, chi icon de nham
+// Chay nen / Cua so noi. tint: mau icon + nhan (nut Tat: do).
+#define SCPC_ACT_W     50.0
+#define SCPC_ACT_BAR   58.0    // be day thanh •••
+#define SCPC_ACT_DISC  7301
+#define SCPC_ACT_ICON  7302
+#define SCPC_ACT_LABEL 7303
+static void SCPCActionSet(UIButton *b, NSString *glyph, NSString *title)
+{
+    ((UIImageView *)[b viewWithTag:SCPC_ACT_ICON]).image = SCPCGlyph(glyph, 18, NO);
+    UILabel *l = (UILabel *)[b viewWithTag:SCPC_ACT_LABEL];
+    l.text = title;
+    l.textColor = b.tintColor;
+    b.accessibilityLabel = title;
+}
+
+static UIButton *SCPCActionButton(NSString *glyph, NSString *title, UIColor *tint, id target, SEL action)
+{
+    UIButton *b = [SCPCButton buttonWithType:UIButtonTypeCustom];
+    b.bounds = CGRectMake(0, 0, SCPC_ACT_W, 50);
+    b.tintColor = tint;
+    UIView *disc = [[UIView alloc] initWithFrame:CGRectMake((SCPC_ACT_W - 30) / 2, 3, 30, 30)];
+    disc.tag = SCPC_ACT_DISC;
+    disc.userInteractionEnabled = NO;
+    SCPCTile(disc, 15);
+    UIImageView *iv = [[UIImageView alloc] initWithFrame:CGRectInset(disc.bounds, 6, 6)];
+    iv.tag = SCPC_ACT_ICON;
+    iv.contentMode = UIViewContentModeCenter;
+    [disc addSubview:iv];
+    [b addSubview:disc];
+    UILabel *l = [[UILabel alloc] initWithFrame:CGRectMake(-3, 36, SCPC_ACT_W + 6, 11)];
+    l.tag = SCPC_ACT_LABEL;
+    l.font = [UIFont systemFontOfSize:9 weight:UIFontWeightMedium];
+    l.textAlignment = NSTextAlignmentCenter;
+    l.adjustsFontSizeToFitWidth = YES;
+    l.minimumScaleFactor = 0.75;
+    l.userInteractionEnabled = NO;
+    [b addSubview:l];
+    SCPCActionSet(b, glyph, title);
+    [b addTarget:target action:action forControlEvents:UIControlEventTouchUpInside];
+    return b;
+}
+
+// Thanh •••: vien thuoc nen logo, cac nut sat nhau; [NSNull null] = vach trang tach nut Tat khoi cac nut con lai
+static UIView *SCPCActionBar(NSArray *items)
+{
+    CGFloat pad = 6, sep = 7, len = pad * 2;
+    for (id it in items) len += [it isKindOfClass:[UIButton class]] ? SCPC_ACT_W : sep;
+    UIView *v = [[UIView alloc] initWithFrame:CGRectMake(0, 0, len, SCPC_ACT_BAR)];
+    SCPCGlass(v, 22);
+    CGFloat o = pad;
+    for (id it in items) {
+        if (![it isKindOfClass:[UIButton class]]) {
+            UIView *line = [[UIView alloc] initWithFrame:CGRectMake(o + (sep - 1) / 2, (SCPC_ACT_BAR - 30) / 2, 1, 30)];
+            line.backgroundColor = [UIColor colorWithWhite:1 alpha:0.95];
+            line.layer.cornerRadius = 0.5;
+            line.userInteractionEnabled = NO;
+            [v addSubview:line];
+            o += sep;
+            continue;
+        }
+        UIButton *b = it;
+        b.center = CGPointMake(o + SCPC_ACT_W / 2, SCPC_ACT_BAR / 2);
+        o += SCPC_ACT_W;
         [v addSubview:b];
     }
     return v;
@@ -613,6 +852,7 @@ static void SCPCFrame(UIView *v) { v.layer.borderWidth = 0; }
 @property (nonatomic, strong) UIView *cover;          // the toi + icon app luc keo vach / keo doi cho (HyperOS)
 @property (nonatomic, strong) UIView *loader;         // the "dang mo app" (icon phong ra + nhip tho) cho toi khi app hien
 @property (nonatomic, strong) UIButton *popButton;    // nut "dua ra cua so noi" tren thanh nut
+@property (nonatomic, strong) UIButton *soloButton;   // nut "chay 1 man hinh" / "chia man hinh" (dang chay 1 man hinh)
 @property (nonatomic, strong) NSTimer *barTimer;
 @property (nonatomic, strong) UIView *picker;         // bang chon app cho ngan nay
 @property (nonatomic) CGRect hostFrame;               // khung cua so host (App Bridge) da gui lan cuoi
@@ -647,6 +887,10 @@ static BOOL SCPCIsBridgedApp(NSString *bid);
 @property (nonatomic, strong) UIView *trayCover;      // the icon app che vung app toan man (App Bridge) khi bang bo cuc mo (cua so host an)
 @property (nonatomic, strong) UIWindow *trayWindow;    // cua so rieng cua bang bo cuc (tren cua so App Bridge), giu lai giua cac lan mo
 @property (nonatomic) BOOL trayOverlay;                // bang dang nam trong trayWindow (de len o app iPhone, khong can an o)
+@property (nonatomic, strong) NSNumber *zoomedSlot;    // phong to tam 1 o (cham dup "•••"): o do phu ca vung app, cac o khac an
+                                                       // nhung giu nguyen kich thuoc scene; nil = binh thuong
+@property (nonatomic, copy) NSString *lastBridgeTapBundle;   // cham "•••" cua app iPhone (SpringBoard ve) lan truoc ...
+@property (nonatomic) CFAbsoluteTime lastBridgeTapAt;        // ... va luc nao: 2 lan lien = cham dup
 @property (nonatomic, strong) UIView *pickerSheet;     // bang chon app toan man (trong trayWindow, hoac container neu khong tao duoc)
 @property (nonatomic, strong) UIView *pickerShield;    // lop phu duoi bang chon app
 @property (nonatomic, weak) SCPCarPane *pickerSheetPane;   // o dang chon app trong bang
@@ -668,6 +912,7 @@ static BOOL SCPCIsBridgedApp(NSString *bid);
 @property (nonatomic, copy) NSString *soloHostedBundle;   // app iPhone dang hien toan man qua App Bridge (khong chia)
 @property (nonatomic) CGRect soloHostedFrame;
 @property (nonatomic) BOOL ignoreHomeOnce;                // su kien Home do chinh split gui (tat split) -> khong dong app toan man
+@property (nonatomic, weak) UIViewController *soloReturnedVC;   // VC split vua tra DashBoard trinh bay toan man (Home sau do co the ket)
 @property (nonatomic) BOOL resizing;                 // dang keo vach / keo doi cho: moi o phu the icon, CBWindow an
 @property (nonatomic, strong) UIView *dragGhost;     // the icon theo tay khi keo "•••" de doi cho
 @property (nonatomic) int dragTarget;                // o dang duoc tha vao (-1 = khong)
@@ -860,10 +1105,27 @@ static BOOL SCPCIsBridgedApp(NSString *bid);
 }
 
 // Ngan cho app moi khi khong chi dinh: ngan trong truoc, het cho thi ngan dang duoc cham gan nhat
+// App ghim (SPL_KEY_PINNED_APP): o chua no khong bi thay / bo khi doi bo cuc hay chon app
+static NSString *SCPCPinnedApp(void)
+{
+    NSString *bid = OMCPref(SPL_KEY_PINNED_APP, nil);
+    return [bid isKindOfClass:[NSString class]] && bid.length ? bid : nil;
+}
+
+- (BOOL)slotIsPinned:(int)s
+{
+    NSString *pin = SCPCPinnedApp();
+    SCPCarPane *p = [self paneAtSlot:s];
+    return pin && p && [p.bundleID isEqualToString:pin];
+}
+
 - (int)autoSlot
 {
     for (int s = 0; s < [self paneCount]; s++) if (![self slotOccupied:s]) return s;
-    return MIN(self.focusedSlot, MAX(0, [self paneCount] - 1));
+    int s = MIN(self.focusedSlot, MAX(0, [self paneCount] - 1));
+    if ([self slotIsPinned:s])   // o dang chon la o ghim -> o khac
+        for (int t = 0; t < [self paneCount]; t++) if (![self slotIsPinned:t]) return t;
+    return s;
 }
 
 // ---------------------------------------------------------------------
@@ -878,6 +1140,7 @@ static BOOL SCPCIsBridgedApp(NSString *bid);
     int n = [self paneCount];
     if (s < 0 || s >= n) return none;
     if (n == 1) return a;
+    if (self.zoomedSlot && self.zoomedSlot.intValue == s) return a;   // o dang phong to tam
     if ([self mainStack]) return [self mainStackFrameForSlot:s inArea:a];
     BOOL v = [self vertical];
     CGFloat len = (v ? a.size.height : a.size.width) - SCPC_GAP * (n - 1);
@@ -895,6 +1158,7 @@ static BOOL SCPCIsBridgedApp(NSString *bid);
 // Goc sat mep man con lai / con 1 o thi vuong.
 - (CACornerMask)innerCornersForSlot:(int)s
 {
+    if (self.zoomedSlot) return 0;   // o phong to phu ca vung app nhu 1 o
     CACornerMask m = [self neighbourCornersForSlot:s];
     if (!m) return 0;
     CGRect f = [self frameForSlot:s], a = CGRectInset(self.container.bounds, SCPC_INSET, SCPC_INSET);
@@ -931,7 +1195,7 @@ static BOOL SCPCIsBridgedApp(NSString *bid);
 
 - (BOOL)dividersVisible
 {
-    return [self paneCount] >= 2;
+    return [self paneCount] >= 2 && !self.zoomedSlot;
 }
 
 - (CGRect)dividerFrameAt:(int)i
@@ -1060,11 +1324,11 @@ static BOOL SCPCIsBridgedApp(NSString *bid);
     return p;
 }
 
-// O vua thanh "o dang chon" (app tu dock / nut thoat dung o nay): vien trang sang loe len 1 giay
+// O vua thanh "o dang chon" (app tu dock / nut thoat dung o nay): vien tim sang loe len 1 giay
 - (void)flashFocusOnPane:(SCPCarPane *)p
 {
     if (!p.view || self.dragGhost) return;
-    p.view.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.95].CGColor;   // trang sang (truoc la xanh)
+    p.view.layer.borderColor = SCPCAccent().CGColor;   // mau nhan (gradient tim -> xanh troi)
     p.view.layer.borderWidth = 2.5;
     __weak SCPCarPane *weakPane = p;
     __weak SCPCarSplit *weakSelf = self;
@@ -1240,6 +1504,8 @@ static BOOL SCPCIsBridgedApp(NSString *bid);
             for (NSString *b in self.pending) if ([self pendingSlotForBundle:b] == q.slot) waiting = YES;
             if (!q.vc && !waiting) { drop = q; break; }
         }
+        if (!drop)   // o cuoi, tru o ghim
+            for (SCPCarPane *q in [self.slots reverseObjectEnumerator]) if (![self slotIsPinned:q.slot]) { drop = q; break; }
         if (!drop) drop = self.slots.lastObject;
         if (drop.bundleID) [dropped addObject:[self displayNameFor:drop.bundleID]];
         [self removePaneAt:drop.slot background:YES];
@@ -1366,15 +1632,14 @@ static BOOL SCPCIsBridgedApp(NSString *bid);
     if (![self activate]) return;
     [self purgePending];
     BOOL autoSlotRequested = ![self validSlot:slot];
-    // Cua so noi: khong nhan app CarBridge (CBWindow cua CarBridge luon nam tren moi view CarPlay)
-    if (slot == SCPC_FLOAT_SLOT && self.floatPane && SCPCIsBridgedApp(bid)) {
-        SCPLog("CarSplit: %@ la app CarBridge -> khong mo trong cua so noi", bid);
-        [self toast:[NSString stringWithFormat:SCPCT(@"%@ không mở được trong cửa sổ nổi", @"%@ can't open in the floating window"), [self displayNameFor:bid]]];
-        return;
-    }
-
     SCPCarPane *existing = [self paneForBundle:bid];
     if (autoSlotRequested) slot = existing ? existing.slot : [self autoSlot];
+    if (!existing && slot != SCPC_FLOAT_SLOT && [self slotIsPinned:slot]) {   // o ghim giu nguyen app cua no
+        int other = [self autoSlot];
+        if ([self slotIsPinned:other]) { [self toast:SCPCT(@"Ô này đang ghim", @"This pane is pinned")]; return; }
+        SCPLog("CarSplit: o %d dang ghim -> mo %@ vao o %d", slot, bid, other);
+        slot = other;
+    }
     // App dang o cua so noi ma chon cho o chia (hoac nguoc lai): khong doi cho giua 2 loai o
     if (existing && existing.slot != slot && (existing.slot == SCPC_FLOAT_SLOT || slot == SCPC_FLOAT_SLOT)) {
         [self toast:[NSString stringWithFormat:SCPCT(@"%@ đang mở ở %@", @"%@ is already open in %@"), [self displayNameFor:bid],
@@ -1412,7 +1677,7 @@ static BOOL SCPCIsBridgedApp(NSString *bid);
     [self relayoutAnimated:YES];
 
     id info = SCPCAppInfo(bid);
-    id launchInfo = objcInvoke_1(objc_getClass("DBApplicationLaunchInfo"), @"launchInfoForApplication:", info);
+    id launchInfo = OMCCarLaunchInfo(info);
     // Gian cach cac lan mo: DashBoard phai xong phien doi workspace cua lan truoc (va lan ve Home)
     CFAbsoluteTime now = CFAbsoluteTimeGetCurrent();
     double delay = MAX(0, self.nextLaunchAt - now);
@@ -1542,7 +1807,7 @@ static BOOL SCPCIsBridgedApp(NSString *bid);
 
 - (BOOL)isAdoptableViewController:(UIViewController *)vc
 {
-    Class cls = objc_getClass("DBApplicationSceneViewController");
+    Class cls = OMCCarClass("DBApplicationSceneViewController");
     if (!cls || ![vc isKindOfClass:cls]) return NO;
     id info = objcInvoke(vc, @"applicationInfo");
     if (SCPCBool(info, @"presentsFullScreen")) return NO;
@@ -1755,13 +2020,22 @@ static NSString *SCPCSceneID(id scene)
 {
     if (!self.container) return;
     if (self.pickerSheet) [self refreshPickerSheetSoon];   // o doi cho / bi bo / vung app doi -> bang chon app ve lai neu can
+    if (self.zoomedSlot) {   // o phong to da dong / doi bo cuc -> ve binh thuong
+        int z = self.zoomedSlot.intValue;
+        SCPCarPane *zp = (z >= 0 && z < (int)self.slots.count) ? self.slots[z] : nil;
+        if (!self.active || [self paneCount] < 2 || z >= [self paneCount] || !zp.vc) {
+            SCPLog("CarSplit: bo phong to o %d", z);
+            self.zoomedSlot = nil;
+        }
+    }
     BOOL showDividers = [self dividersVisible];
     if (self.floatPane) [self fitFloatFrame];
     SCPCarPane *fp = self.floatPane;
+    NSNumber *zoomed = self.zoomedSlot;
     void (^changes)(void) = ^{
         for (SCPCarPane *p in self.slots) {
             CGRect f = [self frameForSlot:p.slot];
-            BOOL visible = f.size.width > 1 && f.size.height > 1;
+            BOOL visible = f.size.width > 1 && f.size.height > 1 && (!zoomed || zoomed.intValue == p.slot);
             p.view.frame = f;
             p.view.alpha = visible ? 1 : 0;
             p.view.layer.cornerRadius = [self innerCornersForSlot:p.slot] ? SCPC_RADIUS : 0;
@@ -1788,6 +2062,8 @@ static NSString *SCPCSceneID(id scene)
             [self layoutBarForPane:fp];
             [self.container bringSubviewToFront:fp.view];
         }
+        if (zoomed && zoomed.intValue < (int)self.slots.count) [self.container bringSubviewToFront:self.slots[zoomed.intValue].view];
+        if (fp) [self.container bringSubviewToFront:fp.view];
         if (self.dragGhost) [self.container bringSubviewToFront:self.dragGhost];
         if (self.ratioMenu.superview == self.container) [self.container bringSubviewToFront:self.ratioMenu];
     };
@@ -1947,7 +2223,7 @@ static CGSize SCPCSceneSize(UIViewController *vc)
     if (closedBid && other && [activeBase isEqualToString:closedBid] && !SCPCIsBridgedApp(other.bundleID)) {
         NSString *ob = other.bundleID;
         self.pending[ob] = @[@(other.slot), [NSDate date]];
-        id launchInfo = objcInvoke_1(objc_getClass("DBApplicationLaunchInfo"), @"launchInfoForApplication:", SCPCAppInfo(ob));
+        id launchInfo = OMCCarLaunchInfo(SCPCAppInfo(ob));
         if (launchInfo) SCPCSendEvent(4, launchInfo);
         SCPCAfter(2.0, ^{
             [self.pending removeObjectForKey:ob];
@@ -1984,6 +2260,7 @@ static CGSize SCPCSceneSize(UIViewController *vc)
         [self detachVC:keepVC background:NO];
         [self closeGoingHome:NO];
         ((void (*)(id, SEL, id, BOOL, unsigned long long, id))objc_msgSend)(root, present, keepVC, YES, 0, nil);
+        self.soloReturnedVC = keepVC;
         SCPLog("CarSplit: tra %@ cho DashBoard trinh bay toan man", bid);
         // Scene van giu co o (DashBoard khong hoi lai kich thuoc cho scene da co): bao lai nhu luc doi co o
         // (foregroundSceneWithSettings: -> DashBoard lay frame qua hook sceneFrameForAppInfo, gio la ca man)
@@ -2003,7 +2280,7 @@ static CGSize SCPCSceneSize(UIViewController *vc)
         });
         return;
     }
-    id launchInfo = objcInvoke_1(objc_getClass("DBApplicationLaunchInfo"), @"launchInfoForApplication:", SCPCAppInfo(bid));
+    id launchInfo = OMCCarLaunchInfo(SCPCAppInfo(bid));
     if (launchInfo) [self showSoloCoverForBundle:bid];   // che man chinh nhay qua + app ve lai tu dau
     [self closeGoingHome:YES];
     if (!launchInfo) {
@@ -2036,19 +2313,15 @@ static CGSize SCPCSceneSize(UIViewController *vc)
     SCPCarPane *p = [self newPane];
     p.slot = SCPC_FLOAT_SLOT;
     p.view.layer.borderWidth = 1;
-    p.view.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.18].CGColor;
+    p.view.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.85].CGColor;   // cua so noi: vien kinh trang
     [self.container addSubview:p.view];
     self.floatPane = p;
     self.floatLarge = NO;
     CGSize c = self.container.bounds.size, fs = [self floatSizeLarge:NO];
     self.floatFrame = CGRectMake(c.width - fs.width - 8, c.height - fs.height - 8, fs.width, fs.height);
     [self fitFloatFrame];
-    // Cham 2 lan "•••" cua cua so noi: doi co nho <-> lon (man CarPlay thuong chi cham 1 ngon, khong pinch duoc)
-    UITapGestureRecognizer *dbl = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(floatHandleDoubleTapped:)];
-    dbl.numberOfTapsRequired = 2;
-    for (UIGestureRecognizer *g in p.handle.gestureRecognizers)
-        if ([g isKindOfClass:[UITapGestureRecognizer class]] && ((UITapGestureRecognizer *)g).numberOfTapsRequired == 1) [g requireGestureRecognizerToFail:dbl];
-    [p.handle addGestureRecognizer:dbl];
+    // Cham 2 lan "•••" cua cua so noi: doi co nho <-> lon (man CarPlay thuong chi cham 1 ngon, khong pinch duoc);
+    // nhan dien cham dup gan san o setupBarForPane, handleDoubleTapped chuyen sang floatHandleDoubleTapped
     p.view.frame = self.floatFrame;
     p.host.frame = p.view.bounds;
     p.view.alpha = 0;
@@ -2152,11 +2425,11 @@ static CGSize SCPCSceneSize(UIViewController *vc)
 - (NSString *)popOutBlockReason:(SCPCarPane *)p
 {
     if (!p || p == self.floatPane || !p.vc || !p.bundleID) return SCPCT(@"Ô chưa có app", @"This pane has no app");
-    if (SCPCIsBridgedApp(p.bundleID))
-        return [NSString stringWithFormat:SCPCT(@"%@ không dùng được hình trong hình", @"%@ can't go picture-in-picture"), [self displayNameFor:p.bundleID]];
     if (self.floatPane.vc) return nil;   // doi cho voi cua so noi
     if ([self paneCount] < 2) return SCPCT(@"Cần ít nhất 2 ô", @"Needs at least 2 panes");
-    // Cac o con lai deu la app CarBridge: CBWindow phu het vung app, cua so noi khong con cho -> app vua dua ra se mat
+    // App iPhone noi ra: cua so cua no duoc SpringBoard dua len tren cac o app iPhone khac (front) -> luon duoc
+    if (SCPCIsBridgedApp(p.bundleID)) return nil;
+    // Cac o con lai deu la app iPhone: cua so cua chung phu het vung app, cua so noi CarPlay khong con cho -> app vua dua ra se mat
     BOOL roomLeft = NO;
     for (SCPCarPane *o in self.slots) if (o != p && !(o.vc && SCPCIsBridgedApp(o.bundleID))) roomLeft = YES;
     if (!roomLeft) {
@@ -2257,7 +2530,7 @@ static CGSize SCPCSceneSize(UIViewController *vc)
     if (!parent) return;
     [self.soloCover removeFromSuperview];
     UIView *cover = [[UIView alloc] initWithFrame:[self appAreaInParent:parent]];
-    cover.backgroundColor = [UIColor colorWithWhite:0.1 alpha:1];
+    cover.backgroundColor = SCPCPastel();   // dang mo app: nen pastel sang
     cover.userInteractionEnabled = NO;
     UIImageView *iv = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 56, 56)];
     iv.image = SCPCAppIcon(bid);
@@ -2265,7 +2538,7 @@ static CGSize SCPCSceneSize(UIViewController *vc)
     iv.center = CGPointMake(cover.bounds.size.width / 2, cover.bounds.size.height / 2 - 6);
     [cover addSubview:iv];
     UIActivityIndicatorView *spin = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleMedium];
-    spin.color = [UIColor colorWithWhite:1 alpha:0.7];
+    spin.color = SCPCAccent();
     spin.center = CGPointMake(cover.bounds.size.width / 2, CGRectGetMaxY(iv.frame) + 18);
     [spin startAnimating];
     [cover addSubview:spin];
@@ -2368,16 +2641,17 @@ static CGSize SCPCSceneSize(UIViewController *vc)
 // ---------------------------------------------------------------------
 static UIView *SCPCDotsHandle(void)
 {
+    // Kinh trang, 3 cham mau muc; dang mo thanh nut: gradient + cham trang (SCPCHandleOpen)
     UIView *h = [[SCPCarTabView alloc] initWithFrame:CGRectMake(0, 0, SCPC_HANDLE_W, SCPC_HANDLE_H)];
-    h.backgroundColor = [UIColor colorWithWhite:0 alpha:0.38];
+    h.backgroundColor = [UIColor colorWithWhite:1 alpha:0.35];   // vien bau duc trong, chi 3 cham ro
     h.layer.cornerRadius = SCPC_HANDLE_H / 2;
     h.layer.cornerCurve = kCACornerCurveContinuous;
     h.layer.borderWidth = 0.5;
-    h.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.18].CGColor;
+    h.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.55].CGColor;
     for (int i = -1; i <= 1; i++) {
         UIView *d = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 4, 4)];
         d.center = CGPointMake(SCPC_HANDLE_W / 2 + i * 8, SCPC_HANDLE_H / 2);
-        d.backgroundColor = [UIColor colorWithWhite:1 alpha:0.92];
+        d.backgroundColor = [SCPCInk() colorWithAlphaComponent:0.85];
         d.layer.cornerRadius = 2;
         d.userInteractionEnabled = NO;
         [h addSubview:d];
@@ -2385,23 +2659,40 @@ static UIView *SCPCDotsHandle(void)
     return h;
 }
 
+// Tay cam "•••" dang mo thanh nut: gradient + cham trang; dong: kinh trang + cham muc
+static void SCPCHandleOpen(UIView *h, BOOL open)
+{
+    SCPCAccentFill(h, open);
+    h.backgroundColor = open ? [UIColor clearColor] : [UIColor colorWithWhite:1 alpha:0.35];
+    for (UIView *d in h.subviews) d.backgroundColor = open ? [UIColor whiteColor] : [SCPCInk() colorWithAlphaComponent:0.85];
+}
+
 - (void)setupBarForPane:(SCPCarPane *)p
 {
     UIView *h = SCPCDotsHandle();
-    [h addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapped:)]];
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapped:)];
+    // Cham dup "•••": o thuong -> phong to tam / ve lai; cua so noi -> doi co nho / lon
+    UITapGestureRecognizer *dbl = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleDoubleTapped:)];
+    dbl.numberOfTapsRequired = 2;
+    [tap requireGestureRecognizerToFail:dbl];
+    [h addGestureRecognizer:tap];
+    [h addGestureRecognizer:dbl];
     UIPanGestureRecognizer *pan = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handlePanned:)];
     pan.maximumNumberOfTouches = 1;
     [h addGestureRecognizer:pan];
     p.handle = h;
     [p.view addSubview:h];
 
-    UIButton *replace = SCPCRoundButton(SCPCGlyph(@"replace", 20, NO), self, @selector(paneChoose:));
-    UIButton *full = SCPCRoundButton(SCPCGlyph(@"fullscreen", 20, NO), self, @selector(paneSolo:));
-    UIButton *pop = SCPCRoundButton(SCPCGlyph(@"float", 20, NO), self, @selector(panePopOut:));
+    // Thanh ••• (DESIGN.md, tools/preview/theme.html): o kinh tron + nhan ngan - Doi app · Toan man / Chia man ·
+    // Cua so noi · Chay nen | Tat app (do, tach bang vach trang). Icon HarmonyOS Symbol giu nguyen.
+    UIButton *replace = SCPCActionButton(@"hm_apps", SCPCT(@"Đổi app", @"Change app"), SCPCInk(), self, @selector(paneChoose:));
+    UIButton *full = SCPCActionButton(@"hm_full", SCPCT(@"Toàn màn", @"Full screen"), SCPCInk(), self, @selector(paneSolo:));
+    p.soloButton = full;
+    UIButton *pop = SCPCActionButton(@"hm_float", SCPCT(@"Cửa sổ nổi", @"Float"), SCPCInk(), self, @selector(panePopOut:));
     p.popButton = pop;
-    UIButton *close = SCPCRoundButton(SCPCGlyph(@"close", 20, NO), self, @selector(paneClose:));
-    close.tintColor = SCPCDanger();
-    UIView *bar = SCPCPill(@[replace, pop, full, [NSNull null], close], NO);
+    UIButton *bg = SCPCActionButton(@"hm_min", SCPCT(@"Chạy nền", @"Background"), SCPCInk(), self, @selector(paneBackground:));
+    UIButton *close = SCPCActionButton(@"hm_close", SCPCT(@"Tắt app", @"Quit app"), SCPCDanger(), self, @selector(paneClose:));
+    UIView *bar = SCPCActionBar(@[replace, full, pop, bg, [NSNull null], close]);
     bar.hidden = YES;
     p.bar = bar;
     [p.view addSubview:bar];
@@ -2426,16 +2717,19 @@ static UIView *SCPCDotsHandle(void)
     CGSize s = p.view.bounds.size;
     p.handle.center = CGPointMake(s.width / 2 + [self handleShiftForPane:p], SCPC_HANDLE_Y + SCPC_HANDLE_H / 2);
     p.handle.hidden = (p.vc == nil);   // dang chon app thi khong can
-    p.bar.center = CGPointMake(s.width / 2, SCPC_HANDLE_Y + SCPC_HANDLE_H + 6 + SCPC_PILL / 2);
-    // O hep (3 o, ~150pt): thu nho ca thanh nut cho vua o thay vi bi cat mep
+    // O hep (3 o, ~150pt): thu nho ca thanh nut cho vua o thay vi bi cat mep; mep tren van ngay duoi tay cam
     CGFloat avail = s.width - 10, bw = p.bar.bounds.size.width;
     CGFloat k = (bw > avail && avail > 40) ? avail / bw : 1;
     p.bar.transform = CGAffineTransformMakeScale(k, k);
+    p.bar.center = CGPointMake(s.width / 2, SCPC_HANDLE_Y + SCPC_HANDLE_H + 6 + p.bar.bounds.size.height * k / 2);
     // "Hinh trong hinh": o chia co app thuong (khong phai CarBridge)
     BOOL isFloat = (p == self.floatPane);
     BOOL canPop = isFloat ? (p.vc && [self paneCount] < SCPC_MAX_PANES) : [self canPopOutPane:p];
-    [p.popButton setImage:SCPCGlyph(isFloat ? @"dock" : @"float", 20, NO) forState:UIControlStateNormal];
+    SCPCActionSet(p.popButton, isFloat ? @"hm_split" : @"hm_float", isFloat ? SCPCT(@"Chia màn", @"Split") : SCPCT(@"Cửa sổ nổi", @"Float"));
     p.popButton.alpha = canPop ? 1 : 0.35;   // van bam duoc: bam vao thi bao ly do
+    // Dang chay 1 man hinh (o nay phong to): nut doi thanh "Chia man hinh" -> ve lai bo cuc truoc
+    BOOL single = self.zoomedSlot && self.zoomedSlot.intValue == p.slot;
+    SCPCActionSet(p.soloButton, single ? @"hm_split" : @"hm_full", single ? SCPCT(@"Chia màn", @"Split") : SCPCT(@"Toàn màn", @"Full screen"));
     [p.view bringSubviewToFront:p.handle];
     [p.view bringSubviewToFront:p.bar];
 }
@@ -2449,6 +2743,7 @@ static UIView *SCPCDotsHandle(void)
         [self layoutBarForPane:p];
         BOOL wasHidden = p.bar.hidden;
         p.bar.hidden = NO;
+        SCPCHandleOpen(p.handle, YES);
         if (wasHidden) SCPCDropIn(p.bar);
         __weak SCPCarSplit *weakSelf = self;
         __weak SCPCarPane *weakPane = p;
@@ -2457,6 +2752,7 @@ static UIView *SCPCDotsHandle(void)
         }];
         if (wasHidden) [self sendHostFrameForPane:p live:NO];   // o app iPhone: cua so host nhuong cho thanh nut
     } else if (!p.bar.hidden) {
+        SCPCHandleOpen(p.handle, NO);
         UIView *bar = p.bar;
         __weak SCPCarSplit *weakSelf = self;
         __weak SCPCarPane *weakPane = p;
@@ -2469,6 +2765,59 @@ static UIView *SCPCDotsHandle(void)
             if (pp) [weakSelf sendHostFrameForPane:pp live:NO];   // o app iPhone: cua so host len lai khi thanh an xong
         }];
     }
+}
+
+// ---- Siri / Phim tat (omnicar://splitscreen/layout | ratio | swap | zoom) ----
+- (void)urlLayout:(int)layoutID
+{
+    if (layoutID != 2 && layoutID != 3 && layoutID != SCPC_LAYOUT_MAIN_STACK && layoutID != SCPC_LAYOUT_MAIN_RIGHT
+        && SCPCPresetRatio(layoutID) <= 0) return;
+    if (self.active) [self switchToLayout:layoutID];
+    else if ([self activateWithLayout:layoutID]) [self showPickersForEmptySlots];
+    if (SCPCPresetRatio(layoutID) > 0) [self urlRatio:SCPCPresetRatio(layoutID)];
+}
+
+- (void)urlRatio:(CGFloat)ratio
+{
+    if (!self.active || [self paneCount] != 2 || [self mainStack]) return;
+    ratio = MIN(0.8, MAX(0.2, ratio));
+    self.fractions = [NSMutableArray arrayWithObjects:@(ratio), @(1 - ratio), nil];
+    [self relayoutAnimated:YES];
+    [self rememberPair];
+}
+
+- (void)urlSwap
+{
+    if (!self.active || [self paneCount] < 2) return;
+    [self swapSlot:0 with:1];
+    [self relayoutAnimated:YES];
+}
+
+- (void)urlZoomPane:(int)pane
+{
+    SCPCarPane *p = [self paneAtSlot:pane - 1];
+    if (p) [self toggleZoomForPane:p];
+}
+
+- (void)handleDoubleTapped:(UITapGestureRecognizer *)g
+{
+    @try {
+        SCPCarPane *p = [self paneForView:g.view];
+        if (!p) return;
+        if (p == self.floatPane) { [self floatHandleDoubleTapped:g]; return; }
+        [self toggleZoomForPane:p];
+    } @catch (NSException *e) { SCPLog("CarSplit: loi cham dup thanh ••• %@", e); }
+}
+
+// Phong to tam 1 o (khac "toan man": cac o khac van mo, chi an di); goi lai -> ve bo cuc cu
+- (void)toggleZoomForPane:(SCPCarPane *)p
+{
+    if (!self.active || !p.vc || p.slot == SCPC_FLOAT_SLOT || [self paneCount] < 2) return;
+    BOOL zoomIn = !(self.zoomedSlot && self.zoomedSlot.intValue == p.slot);
+    self.zoomedSlot = zoomIn ? @(p.slot) : nil;
+    SCPLog("CarSplit: %@ o %d (%@)", zoomIn ? @"phong to" : @"thu nho", p.slot, p.bundleID);
+    [self setBarVisible:NO forPane:p];
+    [self relayoutAnimated:YES];
 }
 
 - (void)handleTapped:(UITapGestureRecognizer *)g
@@ -2507,8 +2856,8 @@ static UIView *SCPCDotsHandle(void)
     CGFloat w = MIN(180, MAX(96, ps.width * 0.4)), h = MIN(130, MAX(72, w * ps.height / MAX(1, ps.width)));
     UIView *ghost = [[UIView alloc] initWithFrame:CGRectMake(0, 0, w, h)];
     SCPCChrome(ghost, 16);
-    ghost.backgroundColor = [UIColor colorWithWhite:0.18 alpha:0.96];
-    ghost.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.95].CGColor;
+    ghost.backgroundColor = [UIColor colorWithWhite:1 alpha:0.92];   // the kinh trang theo tay, vien mau nhan
+    ghost.layer.borderColor = SCPCAccent().CGColor;
     ghost.layer.borderWidth = 1.5;
     ghost.userInteractionEnabled = NO;
     UIImageView *iv = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 44, 44)];
@@ -2516,8 +2865,10 @@ static UIView *SCPCDotsHandle(void)
     SCPCStyleIcon(iv);
     iv.center = CGPointMake(w / 2, h / 2);
     [ghost addSubview:iv];
-    ghost.center = pt;
-    [self.container addSubview:ghost];
+    // The theo tay nam trong cua so bang bo cuc (tren cac o app iPhone) khi co; khong thi trong container
+    UIWindow *tw = [self trayWindowForParent:self.container];
+    ghost.center = tw ? [self.container convertPoint:pt toView:nil] : pt;
+    [tw ?: self.container addSubview:ghost];
     self.dragGhost = ghost;
     self.dragTarget = -1;
     ghost.transform = CGAffineTransformMakeScale(0.6, 0.6);
@@ -2530,7 +2881,7 @@ static UIView *SCPCDotsHandle(void)
 - (void)movePaneDragTo:(CGPoint)pt from:(SCPCarPane *)src
 {
     if (!self.dragGhost) return;
-    self.dragGhost.center = pt;
+    self.dragGhost.center = (self.dragGhost.superview == self.container) ? pt : [self.container convertPoint:pt toView:nil];
     int target = -1;
     for (SCPCarPane *o in self.slots)
         if (o != src && o.view.alpha > 0 && CGRectContainsPoint(o.view.frame, pt)) target = o.slot;
@@ -2539,7 +2890,7 @@ static UIView *SCPCDotsHandle(void)
     for (SCPCarPane *o in self.slots) {
         if (o.slot != target) { SCPCFrame(o.view); continue; }
         o.view.layer.borderWidth = 3;
-        o.view.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.95].CGColor;
+        o.view.layer.borderColor = SCPCAccent().CGColor;   // o sap tha: vien mau nhan
     }
 }
 
@@ -2550,9 +2901,11 @@ static UIView *SCPCDotsHandle(void)
     if (!ghost) { [self cancelPaneDrag]; return; }
     [self clearPaneDragMarks];
     CGPoint to = (target >= 0 && target < [self paneCount]) ? self.slots[target].view.center : src.view.center;
+    if (ghost.superview != self.container) to = [self.container convertPoint:to toView:nil];
+    __weak SCPCarSplit *weakSelf = self;
     [UIView animateWithDuration:0.25 animations:^{
         ghost.center = to; ghost.alpha = 0; ghost.transform = CGAffineTransformMakeScale(0.7, 0.7);
-    } completion:^(BOOL f) { [ghost removeFromSuperview]; }];
+    } completion:^(BOOL f) { [ghost removeFromSuperview]; [weakSelf hideTrayWindowIfIdle]; }];
     src.cover.alpha = 1;
     if (target >= 0 && target != src.slot) [self swapSlot:src.slot with:target];
     [self endResize];
@@ -2570,19 +2923,150 @@ static UIView *SCPCDotsHandle(void)
     UIView *ghost = self.dragGhost;
     if (!ghost) return;
     [self clearPaneDragMarks];
-    [UIView animateWithDuration:0.15 animations:^{ ghost.alpha = 0; } completion:^(BOOL f) { [ghost removeFromSuperview]; }];
+    __weak SCPCarSplit *weakSelf = self;
+    [UIView animateWithDuration:0.15 animations:^{ ghost.alpha = 0; } completion:^(BOOL f) { [ghost removeFromSuperview]; [weakSelf hideTrayWindowIfIdle]; }];
     [self endResize];
 }
 
+// Cua so bang bo cuc khong con gi (bang, thanh ti le, bang chon app, the keo, thong bao) -> an (giu lai cho lan sau)
+- (void)hideTrayWindowIfIdle
+{
+    UIWindow *tw = self.trayWindow;
+    if (!tw || self.tray || self.ratioMenu || self.pickerSheet || self.dragGhost) return;
+    if ([tw viewWithTag:SCPC_BG_TOAST_TAG]) return;
+    tw.hidden = YES;
+}
+
+// SpringBoard bao keo thanh "•••" tren o app iPhone (AB_NOTIF_HANDLE_DRAG): keo doi cho nhu o CarPlay; cua so noi: di chuyen
+- (void)bridgeHandleDrag:(NSDictionary *)u
+{
+    SCPCarPane *p = [self paneForBundle:u[@"identifier"]];
+    if (!p || !self.container || !self.active) return;
+    int phase = [u[@"phase"] intValue];
+    CGPoint pt = [self.container convertPoint:CGPointMake([u[@"x"] doubleValue], [u[@"y"] doubleValue]) fromView:nil];
+    if (p == self.floatPane) { [self floatDragPhase:phase at:pt]; return; }
+    switch (phase) {
+        case 0:  [self beginPaneDrag:p at:pt]; break;
+        case 1:  [self movePaneDragTo:pt from:p]; break;
+        case 2:  [self endPaneDrag:p]; break;
+        default: [self cancelPaneDrag]; break;
+    }
+}
+
+// Keo cua so noi theo tung pha (cung viec voi floatPanned nhung khong co gesture: app iPhone trong cua so noi)
+- (void)floatDragPhase:(int)phase at:(CGPoint)pt
+{
+    static CGPoint startPt, startOrigin;
+    SCPCarPane *fp = self.floatPane;
+    if (!fp || !self.container) return;
+    if (phase == 0) {
+        startPt = pt; startOrigin = self.floatFrame.origin;
+        [self setBarVisible:NO forPane:fp];
+        [self hideRatioMenu];
+        return;
+    }
+    CGRect f = self.floatFrame;
+    f.origin = CGPointMake(startOrigin.x + pt.x - startPt.x, startOrigin.y + pt.y - startPt.y);
+    if (phase == 1) {
+        self.floatFrame = f;
+        [CATransaction begin]; [CATransaction setDisableActions:YES];
+        fp.view.frame = f;
+        [CATransaction commit];
+        [self pushHostFramesLive:YES];   // cua so app chay theo tay
+        return;
+    }
+    CGRect c = self.container.bounds;
+    f.origin.x = (CGRectGetMidX(f) < CGRectGetMidX(c)) ? 8 : c.size.width - f.size.width - 8;
+    self.floatFrame = f;
+    [self relayoutAnimated:YES];
+    SCPLog("CarSplit: tha cua so noi (app iPhone) o %@", NSStringFromCGRect(self.floatFrame));
+}
+
+// "Chay 1 man hinh": o nay phu ca vung app, cac o khac van chay phia sau (phong to tam); bam lai ("Chia man hinh")
+// -> ve dung bo cuc truoc. Chi con 1 o / cua so noi: thoat chia, app nay toan man nhu cu.
 - (void)paneSolo:(UIButton *)b
 {
-    @try {
-        SCPCarPane *p = [self paneForView:b];
-        if (!p) return;
-        [self setBarVisible:NO forPane:p];
-        SCPLog("CarSplit: [toan man hinh] o %d -> chi giu %@", p.slot, p.bundleID);
-        [self soloBundle:p.bundleID];
-    } @catch (NSException *e) { SCPLog("CarSplit: loi nut toan man hinh %@", e); }
+    @try { SCPCarPane *p = [self paneForView:b]; if (p) [self runSoloForPane:p]; }
+    @catch (NSException *e) { SCPLog("CarSplit: loi nut chay 1 man hinh %@", e); }
+}
+
+- (void)runSoloForPane:(SCPCarPane *)p
+{
+    [self setBarVisible:NO forPane:p];
+    if (p != self.floatPane && [self paneCount] >= 2) { [self toggleZoomForPane:p]; return; }
+    SCPLog("CarSplit: [chay 1 man hinh] o %d -> chi giu %@", p.slot, p.bundleID);
+    [self soloBundle:p.bundleID];
+}
+
+// "Chay nen": dong o nhung app van chay (nhac van phat, chi duong van tiep); thong bao co nut "Mo lai" dua app ve o cu
+- (void)paneBackground:(UIButton *)b
+{
+    @try { SCPCarPane *p = [self paneForView:b]; if (p) [self runBackgroundForPane:p]; }
+    @catch (NSException *e) { SCPLog("CarSplit: loi nut chay nen %@", e); }
+}
+
+- (void)runBackgroundForPane:(SCPCarPane *)p
+{
+    NSString *bid = p.bundleID;
+    int slot = p.slot;
+    [self setBarVisible:NO forPane:p];
+    SCPLog("CarSplit: [chay nen] o %d (%@)", slot, bid);
+    [self closeSlot:slot background:YES];
+    if (bid) [self showBackgroundToastFor:bid slot:slot];
+}
+
+// Thong bao "<App> dang chay nen  [Mo lai]" (kinh trang, nut gradient) o dau vung app, tu an sau 5 s
+- (void)showBackgroundToastFor:(NSString *)bid slot:(int)slot
+{
+    // Trong cua so bang bo cuc (tren cac o app iPhone, khong bi che) khi co; khong thi trong view goc CarPlay
+    UIView *root = SCPCRootVC().view;
+    UIView *host = root ? ([self trayWindowForParent:root] ?: root) : nil;
+    if (!host) return;
+    [[host viewWithTag:SCPC_BG_TOAST_TAG] removeFromSuperview];
+    UIView *t = [[UIView alloc] initWithFrame:CGRectZero];
+    t.tag = SCPC_BG_TOAST_TAG;
+    UIImageView *iv = [[UIImageView alloc] initWithFrame:CGRectMake(7, 6, 24, 24)];
+    iv.image = SCPCAppIcon(bid);
+    SCPCStyleIcon(iv);
+    [t addSubview:iv];
+    UILabel *l = [UILabel new];
+    l.text = [NSString stringWithFormat:SCPCT(@"%@ đang chạy nền", @"%@ is running in the background"), [self displayNameFor:bid]];
+    l.textColor = SCPCInk();
+    l.font = [UIFont systemFontOfSize:13 weight:UIFontWeightMedium];
+    [l sizeToFit];
+    CGFloat maxText = MAX(80, host.bounds.size.width - 200);
+    l.frame = CGRectMake(39, 0, MIN(maxText, l.bounds.size.width), 36);
+    [t addSubview:l];
+    UIButton *open = [SCPCButton buttonWithType:UIButtonTypeCustom];
+    [open setTitle:SCPCT(@"Mở lại", @"Reopen") forState:UIControlStateNormal];
+    [open setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    open.titleLabel.font = [UIFont systemFontOfSize:13 weight:UIFontWeightSemibold];
+    CGFloat ow = [open.titleLabel sizeThatFits:CGSizeZero].width + 24;
+    open.frame = CGRectMake(CGRectGetMaxX(l.frame) + 10, 5, ow, 26);
+    open.layer.cornerRadius = 13;
+    SCPCAccentFill(open, YES);
+    __weak SCPCarSplit *weakSelf = self;
+    __weak UIView *weakToast = t;
+    [open addAction:[UIAction actionWithHandler:^(UIAction *a) {
+        [weakToast removeFromSuperview];
+        SCPCarSplit *me = weakSelf;
+        if (!me) return;
+        [me hideTrayWindowIfIdle];
+        int at = me.active ? MIN(slot, [me paneCount]) : 0;
+        SCPLog("CarSplit: [mo lai] %@ vao o %d", bid, at);
+        [me openApp:bid slot:at];
+    }] forControlEvents:UIControlEventTouchUpInside];
+    [t addSubview:open];
+    t.bounds = CGRectMake(0, 0, CGRectGetMaxX(open.frame) + 5, 36);
+    SCPCGlass(t, 18);
+    t.center = CGPointMake(CGRectGetMidX(host.bounds), 26);
+    [host addSubview:t];
+    SCPCDropIn(t);
+    SCPCAfter(5, ^{
+        UIView *tt = weakToast;
+        if (!tt) return;
+        [UIView animateWithDuration:0.25 animations:^{ tt.alpha = 0; } completion:^(BOOL f) { [tt removeFromSuperview]; [weakSelf hideTrayWindowIfIdle]; }];
+    });
 }
 
 - (void)paneChoose:(UIButton *)b
@@ -2591,6 +3075,7 @@ static UIView *SCPCDotsHandle(void)
         SCPCarPane *p = [self paneForView:b];
         if (!p) return;
         [self setBarVisible:NO forPane:p];
+        if ([self slotIsPinned:p.slot]) { [self toast:SCPCT(@"Ô này đang ghim", @"This pane is pinned")]; return; }
         [self showPickerForSlot:p.slot];
         if (p.picker) { self.pickerSheetPane = p; [self refreshPickerSheetSoon]; }   // chon lai app cho o nay: bang chon cho o nay ngay
     } @catch (NSException *e) { SCPLog("CarSplit: loi nut doi app %@", e); }
@@ -2598,16 +3083,18 @@ static UIView *SCPCDotsHandle(void)
 
 - (void)paneClose:(UIButton *)b
 {
-    @try {
-        SCPCarPane *p = [self paneForView:b];
-        if (!p) return;
-        NSString *bid = p.bundleID;
-        [self setBarVisible:NO forPane:p];
-        [self closeSlot:p.slot background:YES];
-        // [x]: app CarBridge (YouTube / TikTok) tat han de khong phat tieng ngam; app khac chi ve nen
-        // (Maps / Waze giu chi duong, nhac van phat)
-        if (bid && SCPCIsBridgedApp(bid)) [self killAppSoon:bid];
-    } @catch (NSException *e) { SCPLog("CarSplit: loi nut dong %@", e); }
+    @try { SCPCarPane *p = [self paneForView:b]; if (p) [self runCloseForPane:p]; }
+    @catch (NSException *e) { SCPLog("CarSplit: loi nut dong %@", e); }
+}
+
+// "Tat han app": dong o va thoat luon app (muon giu app chay thi dung "Chay nen")
+- (void)runCloseForPane:(SCPCarPane *)p
+{
+    NSString *bid = p.bundleID;
+    [self setBarVisible:NO forPane:p];
+    [self closeSlot:p.slot background:YES];
+    SCPLog("CarSplit: [tat han app] %@", bid);
+    if (bid) [self killAppSoon:bid];
 }
 
 // ---------------------------------------------------------------------
@@ -2621,7 +3108,7 @@ static UIView *SCPCDotsHandle(void)
     if (p.cover || !p.vc) return;
     UIView *cover = [[UIView alloc] initWithFrame:p.view.bounds];
     cover.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-    cover.backgroundColor = [UIColor colorWithWhite:0.13 alpha:1];
+    cover.backgroundColor = SCPCPastel();
     cover.userInteractionEnabled = NO;
     UIImageView *iv = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 52, 52)];
     iv.image = SCPCAppIcon(p.bundleID);
@@ -2655,7 +3142,7 @@ static UIView *SCPCDotsHandle(void)
     [self removeLoaderFromPane:p animated:NO];
     UIView *card = [[UIView alloc] initWithFrame:p.view.bounds];
     card.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-    card.backgroundColor = [UIColor colorWithWhite:0.1 alpha:1];
+    card.backgroundColor = SCPCPastel();   // the dang mo app: nen pastel sang
     card.userInteractionEnabled = NO;
     card.accessibilityIdentifier = bid;
     card.userInteractionEnabled = YES;   // nut huy
@@ -2674,7 +3161,7 @@ static UIView *SCPCDotsHandle(void)
 
     UILabel *name = [[UILabel alloc] initWithFrame:CGRectMake(0, 62, 120, 16)];
     name.text = [self displayNameFor:bid];
-    name.textColor = [UIColor colorWithWhite:1 alpha:0.75];
+    name.textColor = SCPCInk2();
     name.font = [UIFont systemFontOfSize:12 weight:UIFontWeightMedium];
     name.textAlignment = NSTextAlignmentCenter;
     [group addSubview:name];
@@ -2684,7 +3171,7 @@ static UIView *SCPCDotsHandle(void)
     arc.frame = spin.bounds;
     arc.path = [UIBezierPath bezierPathWithArcCenter:CGPointMake(10, 10) radius:8 startAngle:-M_PI_2 endAngle:M_PI clockwise:YES].CGPath;
     arc.fillColor = nil;
-    arc.strokeColor = [UIColor colorWithWhite:1 alpha:0.95].CGColor;   // vong xoay trang sang
+    arc.strokeColor = SCPCAccent().CGColor;   // vong xoay mau nhan
     arc.lineWidth = 2;
     arc.lineCap = kCALineCapRound;
     [spin.layer addSublayer:arc];
@@ -2703,7 +3190,8 @@ static UIView *SCPCDotsHandle(void)
     p.loader = card;
     // Nut x: app mo lau / treo -> huy, o hien lai bang chon app
     UIButton *stop = SCPCCircleButton(SCPCGlyph(@"close", 16, NO), 32, self, @selector(loaderCancelTapped:));
-    stop.tintColor = SCPCDanger();   // moi dau x (tat / thoat) mau do
+    stop.tintColor = SCPCDanger();   // moi dau x (tat / thoat) mau do, nen do nhat
+    stop.backgroundColor = [SCPCDanger() colorWithAlphaComponent:0.14];
     stop.center = CGPointMake(card.bounds.size.width - 22, 22);
     stop.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleBottomMargin;
     stop.accessibilityLabel = SCPCT(@"Huỷ mở app", @"Cancel opening");
@@ -2761,13 +3249,13 @@ static UIView *SCPCDotsHandle(void)
     } completion:^(BOOL f) { [card removeFromSuperview]; }];
 }
 
-// O sap bi dong (keo vach sat mep): the toi han, icon mo + nho lai
+// O sap bi dong (keo vach sat mep): the dam hon, icon mo + nho lai
 - (void)markDismissSlot:(int)slot
 {
     for (SCPCarPane *p in self.slots) {
         BOOL on = (p.slot == slot);
         UIView *iv = [p.cover viewWithTag:SCPC_COVER_ICON_TAG];
-        p.cover.backgroundColor = [UIColor colorWithWhite:on ? 0.05 : 0.13 alpha:1];
+        p.cover.backgroundColor = on ? [UIColor colorWithRed:0xD9 / 255.0 green:0xD6 / 255.0 blue:0xEE / 255.0 alpha:1] : SCPCPastel();
         iv.alpha = on ? 0.35 : 1;
         iv.transform = on ? CGAffineTransformMakeScale(0.8, 0.8) : CGAffineTransformIdentity;
     }
@@ -2800,8 +3288,8 @@ static UIView *SCPCDotsHandle(void)
 //  Vach chia + tay nam (HyperOS): keo doi ti le (tha tay hit 1/3 · 1/2 · 2/3), keo sat mep -> dong o bi ep,
 //  cham 2 lan -> doi cho 2 o hai ben.
 // ---------------------------------------------------------------------
-// Mau cua cham tron: nen toi trong, vien trang, cham trang o giua (kieu nut joystick); dang cham / keo: nen trang sang, cham giua toi
-static UIColor *SCPCKnobFill(BOOL on) { return on ? [UIColor whiteColor] : [UIColor colorWithWhite:0.12 alpha:0.88]; }
+// Mau cua cham tron: kinh trang, vien sang, cham mau muc o giua (kieu nut joystick); dang cham / keo: mau nhan tim, cham trang, quang tim
+static UIColor *SCPCKnobFill(BOOL on) { return on ? SCPCAccent() : [UIColor clearColor]; }   // khong cham: lo kinh mo ben duoi
 
 static void SCPCKnobActive(UIView *knob, BOOL on)
 {
@@ -2810,8 +3298,8 @@ static void SCPCKnobActive(UIView *knob, BOOL on)
                      animations:^{
         knob.transform = on ? CGAffineTransformMakeScale(SCPC_KNOB_GROW, SCPC_KNOB_GROW) : CGAffineTransformIdentity;
         knob.backgroundColor = SCPCKnobFill(on);
-        for (CALayer *l in knob.layer.sublayers) l.backgroundColor = (on ? [UIColor colorWithWhite:0.12 alpha:1] : [UIColor whiteColor]).CGColor;   // cham giua
-        knob.layer.shadowColor = (on ? [UIColor whiteColor] : [UIColor blackColor]).CGColor;   // dang cham: quang sang trang
+        for (CALayer *l in knob.layer.sublayers) l.backgroundColor = (on ? [UIColor whiteColor] : SCPCInk()).CGColor;   // cham giua
+        knob.layer.shadowColor = (on ? SCPCAccent() : SCPCShadow()).CGColor;   // dang cham: quang tim
     } completion:nil];
     [[SCPCarSplit shared] publishKnobsSoon];   // o app iPhone (App Bridge) ve de len cham tron -> SpringBoard ve lai cham tron len tren
 }
@@ -2823,17 +3311,17 @@ static void SCPCKnobStyle(UIView *knob, NSInteger style)
     if (knob.tag == 3) return;
     knob.tag = 3;
     knob.bounds = CGRectMake(0, 0, SCPC_KNOB_DOT, SCPC_KNOB_DOT);
-    knob.layer.cornerRadius = SCPC_KNOB_DOT / 2;
+    SCPCGlassFill(knob, SCPC_KNOB_DOT / 2);   // cham tron kinh mo (nhu nut dock), cham giua mau muc; dang cham: mau nhan
     knob.backgroundColor = SCPCKnobFill(NO);
     knob.layer.borderWidth = 1.5;
     knob.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.95].CGColor;
-    knob.layer.shadowColor = [UIColor blackColor].CGColor;
+    knob.layer.shadowColor = SCPCShadow().CGColor;
     knob.layer.shadowOpacity = 0.45; knob.layer.shadowRadius = 3; knob.layer.shadowOffset = CGSizeMake(0, 1);
     CALayer *dot = [CALayer layer];
     CGFloat ds = 4;
     dot.frame = CGRectMake((SCPC_KNOB_DOT - ds) / 2, (SCPC_KNOB_DOT - ds) / 2, ds, ds);
     dot.cornerRadius = ds / 2;
-    dot.backgroundColor = [UIColor whiteColor].CGColor;
+    dot.backgroundColor = SCPCInk().CGColor;
     [knob.layer addSublayer:dot];
 }
 
@@ -2843,9 +3331,9 @@ static void SCPCKnobStyle(UIView *knob, NSInteger style)
     d.index = i;
     d.backgroundColor = [UIColor clearColor];
     UIView *knob = [[UIView alloc] initWithFrame:CGRectZero];
-    knob.backgroundColor = [UIColor whiteColor];
+    knob.backgroundColor = [UIColor clearColor];   // SCPCKnobStyle them kinh mo
     knob.layer.cornerCurve = kCACornerCurveContinuous;
-    knob.layer.shadowColor = [UIColor blackColor].CGColor;
+    knob.layer.shadowColor = SCPCShadow().CGColor;
     knob.layer.shadowOpacity = 0.4; knob.layer.shadowRadius = 3; knob.layer.shadowOffset = CGSizeZero;
     knob.userInteractionEnabled = NO;
     [d addSubview:knob];
@@ -3062,9 +3550,11 @@ static CGFloat SCPCSnap(CGFloat f, CGFloat pair, int n)
 static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mirror, BOOL rot, CGFloat pt)
 {
     return SCPCDraw(pt, rot, ^(UIBezierPath *p, UIBezierPath *f) {
+        // O vien net 1.5 bo 2 (kieu HarmonyOS, tools/preview/theme.html), khong to dac
         CGFloat x0 = 3, y0 = 5, W = 18, H = 14, gap = 1.6;
+        p.lineWidth = 1.5;
         void (^box)(CGFloat, CGFloat, CGFloat, CGFloat) = ^(CGFloat x, CGFloat y, CGFloat w, CGFloat h) {
-            [f appendPath:[UIBezierPath bezierPathWithRoundedRect:CGRectMake(x, y, MAX(1, w), MAX(1, h)) cornerRadius:MIN(1.8, MIN(w, h) / 2)]];
+            [p appendPath:[UIBezierPath bezierPathWithRoundedRect:CGRectMake(x, y, MAX(1, w), MAX(1, h)) cornerRadius:MIN(2, MIN(w, h) / 2)]];
         };
         if (mainStack && fr.count >= 2) {
             CGFloat mw = round((W - gap) * fr[0].doubleValue * 10) / 10, th = round((H - gap) * fr[1].doubleValue * 10) / 10;
@@ -3174,12 +3664,7 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
     for (NSUInteger k = 0; k < presets.count; k++) {
         UIButton *b = SCPCRoundButton(SCPCRatioGlyph(presets[k], [self mainStack], [self mainRight], v, 22), self, @selector(ratioPresetTapped:));
         b.tag = (NSInteger)k;
-        if ([self fractionsMatch:presets[k]]) {   // ti le dang dung
-            b.tintColor = [UIColor colorWithWhite:0.12 alpha:1];   // ti le dang dung: nut trang sang, hinh toi
-            b.backgroundColor = [UIColor colorWithWhite:1 alpha:0.95];
-            b.layer.shadowColor = [UIColor whiteColor].CGColor;
-            b.layer.shadowOpacity = 0.8; b.layer.shadowRadius = 6; b.layer.shadowOffset = CGSizeZero;
-        }
+        if ([self fractionsMatch:presets[k]]) SCPCSelectRing(b, YES);   // ti le dang dung: vien cau vong, nen van trong
         [btns addObject:b];
     }
     UIView *m = SCPCPill(btns, NO);
@@ -3272,17 +3757,17 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
     [self removePickerFromPane:p];
     [self removeLoaderFromPane:p animated:NO];
 
-    // The trong o: nen toi + dau "+" (o dang duoc chon trong bang toan man co vien xanh, xem markPickerPanes)
+    // The trong o: nen pastel sang + dau "+" (o dang duoc chon trong bang toan man co vien mau nhan, xem markPickerPanes)
     UIView *pv = [[UIView alloc] init];
     p.picker = pv;                     // dat truoc de bo cuc tinh ca ngan nay
     CGSize size = [self frameForSlot:slot].size;
     pv.frame = CGRectMake(0, 0, size.width, size.height);
-    pv.backgroundColor = [UIColor colorWithWhite:0.08 alpha:0.98];
+    pv.backgroundColor = SCPCPastel();
     pv.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-    pv.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.95].CGColor;   // vien trang (o dang chon), cung mau o sang trong so do
+    pv.layer.borderColor = SCPCAccent().CGColor;   // vien mau nhan (o dang chon), cung mau o sang trong so do
     UILabel *plus = [[UILabel alloc] initWithFrame:pv.bounds];
     plus.text = @"+";
-    plus.textColor = [UIColor colorWithWhite:1 alpha:0.35];
+    plus.textColor = [SCPCInk2() colorWithAlphaComponent:0.6];
     plus.font = [UIFont systemFontOfSize:40 weight:UIFontWeightLight];
     plus.textAlignment = NSTextAlignmentCenter;
     plus.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
@@ -3394,12 +3879,10 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
         b.tag = p.slot;
         b.layer.cornerRadius = 5;
         b.layer.cornerCurve = kCACornerCurveContinuous;
-        b.backgroundColor = (p == target) ? [UIColor whiteColor] : p.picker ? [UIColor colorWithWhite:1 alpha:0.22] : [UIColor colorWithWhite:1 alpha:0.1];
-        if (p == target) {   // o dang chon: trang phat sang
-            b.layer.shadowColor = [UIColor whiteColor].CGColor;
-            b.layer.shadowOpacity = 0.9; b.layer.shadowRadius = 7; b.layer.shadowOffset = CGSizeZero;
-        }
-        if (p == self.floatPane) { b.layer.borderWidth = 1; b.layer.borderColor = [UIColor colorWithWhite:0.1 alpha:1].CGColor; }
+        // O dang chon app: gradient nut chinh + quang; o khac: kinh trang trong + vien trang 1.5pt (nhu o bo cuc trong khay)
+        b.backgroundColor = (p == target) ? [UIColor clearColor] : [UIColor colorWithWhite:1 alpha:p.picker ? 0.6 : 0.45];
+        if (p == target) SCPCAccentFill(b, YES);
+        else { b.layer.borderWidth = 1.5; b.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.95].CGColor; }
         CGFloat side = MIN(r.size.width, r.size.height);
         if (bid) {
             CGFloat s = MIN(22, floor(side * 0.7));
@@ -3412,7 +3895,7 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
             UILabel *plus = [[UILabel alloc] initWithFrame:b.bounds];
             plus.text = @"+";
             plus.textAlignment = NSTextAlignmentCenter;
-            plus.textColor = (p == target) ? [UIColor colorWithWhite:0.1 alpha:0.9] : [UIColor colorWithWhite:1 alpha:0.55];   // o trang: dau + toi
+            plus.textColor = (p == target) ? [UIColor whiteColor] : SCPCInk2();   // o dang chon (gradient): dau + trang
             plus.font = [UIFont systemFontOfSize:MIN(22, floor(side * 0.8)) weight:(p == target) ? UIFontWeightBold : UIFontWeightRegular];
             plus.userInteractionEnabled = NO;
             [b addSubview:plus];
@@ -3450,7 +3933,7 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
     // Popup 2 phan: ben trai la luoi app dung het chieu cao (man xe thap van duoc nhieu hang); cot phai: "Ô N" + nut
     // dong o goc tren phai, so do bo cuc lon de cham chon o, "Còn N ô". App van cach nhau de
     // cham khi xe chay (o 78 x 68pt, icon 36pt); het cho thi chia trang vuot ngang co cham trang
-    CGFloat cellW = 78, cellH = 68, icon = 36, gridPad = 10, sideW = 150, pad = 14;
+    CGFloat cellW = 62, cellH = 56, icon = 38, gridPad = 10, sideW = 150, pad = 14;   // chi icon, khong ten (nguoi dung)
     CGSize cs = self.container.bounds.size;
     CGFloat mapW = sideW - pad * 2, mapH = (cs.width > 1) ? MIN(84, mapW * cs.height / cs.width) : 60;
     NSInteger cols = MAX(1, MIN((NSInteger)((area.size.width - 24 - sideW - gridPad * 2) / cellW), MAX((NSInteger)4, (NSInteger)apps.count)));
@@ -3464,23 +3947,22 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
     CGRect pf = CGRectMake(CGRectGetMidX(area) - w / 2, CGRectGetMidY(area) - h / 2, w, h);
 
     UIView *card = [[UIView alloc] initWithFrame:pf];
-    card.layer.cornerRadius = 22;
+    card.layer.cornerRadius = 24;
     card.layer.cornerCurve = kCACornerCurveContinuous;
-    card.layer.shadowColor = [UIColor blackColor].CGColor;
-    card.layer.shadowOpacity = 0.35; card.layer.shadowRadius = 24; card.layer.shadowOffset = CGSizeMake(0, 8);
-    UIVisualEffectView *glass = [[UIVisualEffectView alloc] initWithEffect:[UIBlurEffect effectWithStyle:UIBlurEffectStyleSystemUltraThinMaterialDark]];
+    card.layer.shadowColor = SCPCShadow().CGColor;
+    card.layer.shadowOpacity = 0.3; card.layer.shadowRadius = 24; card.layer.shadowOffset = CGSizeMake(0, 8);
+    UIVisualEffectView *glass = SCPCGlassView();
     glass.frame = card.bounds;
-    glass.contentView.backgroundColor = [UIColor colorWithWhite:0.1 alpha:0.18];
-    glass.layer.cornerRadius = 22;
+    // Cung nen logo / vien / bong voi khay bo cuc (showLayoutPanelForApp) de 2 bang nhin nhu mot
+    SCPCMesh(glass);
+    glass.layer.cornerRadius = 24;
     glass.layer.cornerCurve = kCACornerCurveContinuous;
-    glass.layer.borderWidth = 0.5;
-    glass.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.22].CGColor;
     glass.clipsToBounds = YES;
     [card addSubview:glass];
     UIView *sheet = glass.contentView;   // noi dung nam tren kinh; card la khung hien / an
 
-    UIView *side = [[UIView alloc] initWithFrame:CGRectMake(gridW, 0, sideW, h)];   // cot phai, nen sang hon chut
-    side.backgroundColor = [UIColor colorWithWhite:1 alpha:0.05];
+    UIView *side = [[UIView alloc] initWithFrame:CGRectMake(gridW, 0, sideW, h)];   // cot phai: nen trong, cung mau bang
+    side.backgroundColor = [UIColor clearColor];
     [sheet addSubview:side];
     UIView *map = [self pickerMapForPane:target height:mapH];
     if (map) { map.frame = CGRectMake(pad, pad + 32 + 8, map.bounds.size.width, mapH); [side addSubview:map]; }
@@ -3491,8 +3973,8 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
     UIButton *cancel = SCPCRoundButton(SCPCGlyph(@"close", 14, NO), self, @selector(pickerCancel:));
     cancel.bounds = CGRectMake(0, 0, 32, 32);
     cancel.layer.cornerRadius = 16;
-    cancel.backgroundColor = [UIColor colorWithWhite:1 alpha:0.12];
-    cancel.tintColor = SCPCDanger();   // moi dau x (tat / thoat) mau do
+    SCPCTile(cancel, 16);   // nut X: o kinh trang nhu cac nut khac, chi dau x mau do
+    cancel.tintColor = SCPCDanger();
     cancel.center = CGPointMake(sideW - pad - 16, pad + 16);   // goc tren phai cua popup
     [side addSubview:cancel];
 
@@ -3515,33 +3997,33 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
         b.frame = CGRectMake(page * gridW + gridPad + col * cellW, 2 + row * cellH, cellW, cellH);
         b.accessibilityIdentifier = app[@"id"];
         [b addTarget:self action:@selector(pickerAppTapped:) forControlEvents:UIControlEventTouchUpInside];
-        UIImageView *iv = [[UIImageView alloc] initWithFrame:CGRectMake((cellW - icon) / 2, 6, icon, icon)];
+        // Khong khung quanh app: icon tran nhu man Home, bong tim nhat de noi tren nen logo
+        b.accessibilityLabel = app[@"name"];   // khong hien ten, chi doc len
+        UIImageView *iv = [[UIImageView alloc] initWithFrame:CGRectMake((cellW - icon) / 2, (cellH - icon) / 2, icon, icon)];
         iv.image = SCPCAppIcon(app[@"id"]);
         SCPCStyleIcon(iv);
         iv.userInteractionEnabled = NO;
+        UIView *lift = [[UIView alloc] initWithFrame:iv.frame];   // giu bong (icon cat bo goc nen khong tu do bong duoc)
+        lift.userInteractionEnabled = NO;
+        lift.layer.shadowColor = SCPCShadow().CGColor;
+        lift.layer.shadowOpacity = 0.25; lift.layer.shadowRadius = 5; lift.layer.shadowOffset = CGSizeMake(0, 4);
+        lift.layer.shadowPath = [UIBezierPath bezierPathWithRoundedRect:lift.bounds cornerRadius:iv.layer.cornerRadius].CGPath;
+        [b addSubview:lift];
         [b addSubview:iv];
         BOOL used = [inUse containsObject:app[@"id"]];
-        if (used) {   // da o 1 o khac: dau tich trang, ca o mo di va khong cham duoc (khong chon trung app)
+        if (used) {   // da o 1 o khac: dau tich gradient, ca o mo di va khong cham duoc (khong chon trung app)
             UIImageView *tick = [[UIImageView alloc] initWithImage:SCPCGlyph(@"check", 10, NO)];
-            tick.tintColor = [UIColor colorWithWhite:0.12 alpha:1];
-            tick.backgroundColor = [UIColor whiteColor];   // dau tich trang sang, dau check toi
+            tick.tintColor = [UIColor whiteColor];
+            tick.backgroundColor = SCPCAccent();   // dau tich mau nhan, dau check trang
             tick.frame = CGRectMake(CGRectGetMaxX(iv.frame) - 10, CGRectGetMinY(iv.frame) - 4, 14, 14);
             tick.contentMode = UIViewContentModeCenter;
             tick.layer.cornerRadius = 7;
             tick.layer.borderWidth = 1;
-            tick.layer.borderColor = [UIColor colorWithWhite:0.09 alpha:1].CGColor;
+            tick.layer.borderColor = [UIColor whiteColor].CGColor;
             tick.clipsToBounds = YES;
             tick.userInteractionEnabled = NO;
             [b addSubview:tick];
         }
-        UILabel *l = [[UILabel alloc] initWithFrame:CGRectMake(3, 6 + icon + 6, cellW - 6, 14)];
-        l.text = app[@"name"];
-        l.textColor = [UIColor colorWithWhite:1 alpha:0.85];
-        l.font = [UIFont systemFontOfSize:11 weight:UIFontWeightMedium];
-        l.textAlignment = NSTextAlignmentCenter;
-        l.numberOfLines = 1;
-        l.userInteractionEnabled = NO;
-        [b addSubview:l];
         if (used) {   // mo noi dung (khong mo ca nut: hieu ung hien len dat alpha nut ve 1); cham xuyen xuong scroll de van vuot trang
             for (UIView *sv in b.subviews) sv.alpha = 0.3;
             b.userInteractionEnabled = NO;
@@ -3569,7 +4051,7 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
     if (i == 0) {   // khong co app nao: 1 dong chu giua luoi
         UILabel *none = [[UILabel alloc] initWithFrame:scroll.bounds];
         none.text = SCPCT(@"Không có app", @"No apps");
-        none.textColor = [UIColor colorWithWhite:1 alpha:0.6];
+        none.textColor = SCPCInk2();
         none.textAlignment = NSTextAlignmentCenter;
         [scroll addSubview:none];
     }
@@ -3698,7 +4180,8 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
 - (NSArray<NSArray<NSDictionary *> *> *)panelSections:(NSArray<NSString *> **)titles
 {
     NSMutableArray *sections = [NSMutableArray array], *names = [NSMutableArray array];
-    [sections addObject:@[@{@"layout": @2, @"name": SCPCT(@"2 ô", @"2 panes")}, @{@"layout": @3, @"name": SCPCT(@"3 ô", @"3 panes")},
+    [sections addObject:@[@{@"layout": @2, @"name": SCPCT(@"2 ô", @"2 panes")},
+                          @{@"layout": @3, @"name": SCPCT(@"3 ô", @"3 panes")},
                           @{@"layout": @(SCPC_LAYOUT_MAIN_STACK), @"name": SCPCT(@"1 lớn + 2", @"1 large + 2")},
                           @{@"layout": @(SCPC_LAYOUT_MAIN_RIGHT), @"name": SCPCT(@"2 + 1 lớn", @"2 + 1 large")}]];
     [names addObject:@"layouts"];
@@ -3834,15 +4317,13 @@ static void SCPCMakePassThrough(UIWindow *w)
     UIView *panel = [[UIView alloc] initWithFrame:pf];
     panel.layer.cornerRadius = 24;
     panel.layer.cornerCurve = kCACornerCurveContinuous;
-    panel.layer.shadowColor = [UIColor blackColor].CGColor;
-    panel.layer.shadowOpacity = 0.35; panel.layer.shadowRadius = 24; panel.layer.shadowOffset = CGSizeMake(0, 8);
-    UIVisualEffectView *glass = [[UIVisualEffectView alloc] initWithEffect:[UIBlurEffect effectWithStyle:UIBlurEffectStyleSystemUltraThinMaterialDark]];
+    panel.layer.shadowColor = SCPCShadow().CGColor;
+    panel.layer.shadowOpacity = 0.3; panel.layer.shadowRadius = 24; panel.layer.shadowOffset = CGSizeMake(0, 8);
+    UIVisualEffectView *glass = SCPCGlassView();
     glass.frame = panel.bounds;
-    glass.contentView.backgroundColor = [UIColor colorWithWhite:0.1 alpha:0.18];
+    SCPCMesh(glass);   // nen logo 4 mau tren kinh mo (nguoi dung: khong nen trang duc)
     glass.layer.cornerRadius = 24;
     glass.layer.cornerCurve = kCACornerCurveContinuous;
-    glass.layer.borderWidth = 0.5;
-    glass.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.22].CGColor;
     glass.clipsToBounds = YES;
     [panel addSubview:glass];
     UIScrollView *scroll = [[UIScrollView alloc] initWithFrame:panel.bounds];   // man xe thap: cuon duoc
@@ -3854,7 +4335,7 @@ static void SCPCMakePassThrough(UIWindow *w)
     CGFloat y = pad;
     for (NSUInteger si = 0; si < sections.count; si++) {
         UIImageView *head = [[UIImageView alloc] initWithImage:SCPCGlyph(titles[si], 18, NO)];
-        head.tintColor = [UIColor colorWithWhite:1 alpha:0.5];
+        head.tintColor = SCPCInk2();
         head.center = CGPointMake(pad + iconCol / 2, y + rowH / 2);
         head.accessibilityLabel = (si == 0 && self.active) ? SCPCT(@"Đổi bố cục", @"Change layout") : sectionName[titles[si]];
         [scroll addSubview:head];
@@ -3865,7 +4346,7 @@ static void SCPCMakePassThrough(UIWindow *w)
             CAShapeLayer *dash = [CAShapeLayer layer];
             dash.path = [UIBezierPath bezierPathWithRoundedRect:CGRectInset(ph.bounds, 0.5, 0.5) cornerRadius:6].CGPath;
             dash.fillColor = nil;
-            dash.strokeColor = [UIColor colorWithWhite:1 alpha:0.25].CGColor;
+            dash.strokeColor = [SCPCInk() colorWithAlphaComponent:0.25].CGColor;
             dash.lineWidth = 1; dash.lineDashPattern = @[@3, @3];
             [ph.layer addSublayer:dash];
             ph.accessibilityLabel = SCPCT(@"Chia màn xong sẽ hiện ở đây", @"Your splits will show up here");
@@ -3882,16 +4363,11 @@ static void SCPCMakePassThrough(UIWindow *w)
             b.accessibilityLabel = c[@"name"];
             [choices addObject:c];
             [b addTarget:self action:@selector(panelChoiceTapped:) forControlEvents:UIControlEventTouchUpInside];
-            if (si == 0 && layoutID == current) {   // bo cuc dang dung
-                b.backgroundColor = [UIColor colorWithWhite:1 alpha:0.16];   // trang sang: vien trang + quang sang, nen trang mo de hinh bo cuc van ro
-                b.layer.borderWidth = 1.5;
-                b.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.95].CGColor;
-                b.layer.shadowColor = [UIColor whiteColor].CGColor;
-                b.layer.shadowOpacity = 0.7; b.layer.shadowRadius = 6; b.layer.shadowOffset = CGSizeZero;
-                b.layer.cornerRadius = 12;
-            }
+            BOOL currentLayout = (si == 0 && layoutID == current);
+            SCPCOptionTile(b);   // nen trong + khung trang manh tach tung bo cuc
+            if (currentLayout) SCPCSelectRing(b, YES);   // bo cuc dang dung: vien cau vong + quang, nen van trong
             NSArray *picApps = c[@"apps"] ?: slotApps;
-            UIImageView *iv = [[UIImageView alloc] initWithImage:SCPCLayoutImage(layoutID, v, CGSizeMake(imgW, imgH), picApps)];
+            UIImageView *iv = [[UIImageView alloc] initWithImage:SCPCLayoutImage(layoutID, v, CGSizeMake(imgW, imgH), picApps, currentLayout)];
             iv.center = CGPointMake(cellW / 2, rowH / 2);
             iv.userInteractionEnabled = NO;
             [b addSubview:iv];
@@ -3901,10 +4377,11 @@ static void SCPCMakePassThrough(UIWindow *w)
         if (si == 0) {   // nut thoat chia man, tach khoi cac bo cuc bang 1 vach mo
             CGFloat px = pad + iconCol + cols * cellW;
             UIView *sep = [[UIView alloc] initWithFrame:CGRectMake(px + 2, y + 10, 1, rowH - 20)];
-            sep.backgroundColor = [UIColor colorWithWhite:1 alpha:0.15];
+            sep.backgroundColor = [UIColor colorWithWhite:1 alpha:0.95];
             [scroll addSubview:sep];
             UIButton *exitBtn = SCPCRoundButton(SCPCGlyph(@"exit", 20, NO), self, @selector(exitTapped));
             exitBtn.tintColor = SCPCDanger();
+            SCPCTile(exitBtn, exitBtn.bounds.size.width / 2);   // nut thoat: o kinh trang, chi hinh mau do
             exitBtn.center = CGPointMake(px + 4 + (exitW - 4) / 2, y + rowH / 2);
             exitBtn.accessibilityLabel = self.active ? SCPCT(@"Thoát chia màn", @"Exit split") : SCPCT(@"Đóng", @"Close");
             NSString *keep = [self exitKeepBundle];
@@ -3914,7 +4391,7 @@ static void SCPCMakePassThrough(UIWindow *w)
                 kv.image = keepIcon;
                 SCPCStyleIcon(kv);
                 kv.layer.borderWidth = 1;
-                kv.layer.borderColor = [UIColor colorWithWhite:0.12 alpha:1].CGColor;
+                kv.layer.borderColor = [UIColor whiteColor].CGColor;
                 kv.userInteractionEnabled = NO;
                 [exitBtn addSubview:kv];
             }
@@ -3937,7 +4414,7 @@ static void SCPCMakePassThrough(UIWindow *w)
     if (!host && !self.active && self.soloHostedBundle) {
         [self.trayCover removeFromSuperview];
         UIView *cover = [[UIView alloc] initWithFrame:area];
-        cover.backgroundColor = [UIColor colorWithWhite:0.1 alpha:1];
+        cover.backgroundColor = SCPCPastel();
         cover.userInteractionEnabled = NO;
         UIImageView *iv = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 56, 56)];
         iv.image = SCPCAppIcon(self.soloHostedBundle);
@@ -3964,8 +4441,10 @@ static void SCPCMakePassThrough(UIWindow *w)
                          animations:^{ c.alpha = 1; c.transform = CGAffineTransformIdentity; } completion:nil];
     }
     [self restartTrayTimer];
-    SCPLog("CarSplit: bang bo cuc cho %@ (%@, %lu lua chon)", app ?: (self.active ? @"doi bo cuc" : @"cap lan truoc"),
-           [titles componentsJoinedByString:@" / "], (unsigned long)choices.count);
+    NSMutableArray *shown = [NSMutableArray array];   // tung hang: ma bo cuc cua moi o (2 / 3 / 13 / 31 ...)
+    for (NSArray<NSDictionary *> *sec in sections) [shown addObject:[[sec valueForKey:@"layout"] componentsJoinedByString:@","]];
+    SCPLog("CarSplit: bang bo cuc cho %@ (%@, %lu lua chon: %@)", app ?: (self.active ? @"doi bo cuc" : @"cap lan truoc"),
+           [titles componentsJoinedByString:@" / "], (unsigned long)choices.count, [shown componentsJoinedByString:@" | "]);
 }
 
 - (void)panelChoiceTapped:(UIButton *)b
@@ -4078,7 +4557,7 @@ static void SCPCMakePassThrough(UIWindow *w)
     SCPCAfter(3.0, ^{ if (weakSelf.active) [weakSelf toast:tips[n] duration:4.5]; });
 }
 
-// Cham trang popup chon app: trang dang xem la vien dai 16pt trang, cac trang khac cham 6pt mo, can giua
+// Cham trang popup chon app: trang dang xem la vien dai 16pt mau nhan, cac trang khac cham 6pt mau muc mo, can giua
 - (void)layoutPickerDotsForPage:(NSInteger)page
 {
     UIView *dots = self.pickerDots;
@@ -4090,7 +4569,7 @@ static void SCPCMakePassThrough(UIWindow *w)
     for (NSUInteger k = 0; k < ds.count; k++) {
         CGFloat dw = (k == (NSUInteger)page) ? 16 : 6;
         ds[k].frame = CGRectMake(x, cy - 3, dw, 6);
-        ds[k].backgroundColor = [UIColor colorWithWhite:1 alpha:(k == (NSUInteger)page) ? 0.95 : 0.35];
+        ds[k].backgroundColor = (k == (NSUInteger)page) ? SCPCAccent() : [SCPCInk() colorWithAlphaComponent:0.2];
         x += dw + gap;
     }
 }
@@ -4155,21 +4634,45 @@ static void SCPCMakePassThrough(UIWindow *w)
 
 // Chon bo cuc mac dinh. Dang chia -> doi bo cuc. Dang mo 1 app toan man -> app do vao o 1, cac o con lai hien
 // bang chon. Man chinh -> moi o deu hien bang chon.
+// Xe lai tay phai: Cai dat (SPL_KEY_DRIVER_SIDE) hoac tu phien CarKit (Core ghi configuration vao diagCar)
+static BOOL SCPCRightHandDrive(void)
+{
+    NSInteger side = [OMCPref(SPL_KEY_DRIVER_SIDE, @0) integerValue];
+    if (side == 1 || side == 2) return side == 2;
+    NSDictionary *car = OMCPref(OMC_KEY_DIAG_CAR, nil);
+    NSDictionary *cfg = [car isKindOfClass:[NSDictionary class]] ? car[@"configuration"] : nil;
+    if (![cfg isKindOfClass:[NSDictionary class]]) return NO;
+    for (NSString *k in @[@"rightHandDrive", @"_rightHandDrive", @"isRightHandDrive"]) {
+        id v = cfg[k];
+        if ([v respondsToSelector:@selector(boolValue)]) return [v boolValue];
+    }
+    return NO;
+}
+
 - (void)layoutChosenID:(int)layoutID
 {
     NSString *app = self.layoutApp;
     self.layoutApp = nil;
     [self collapseAppTray];
-    if (self.active) { [self switchToLayout:layoutID]; return; }
+    CGFloat preset = SCPCPresetRatio(layoutID);
+    if (self.active) { [self switchToLayout:layoutID]; if (preset > 0) [self urlRatio:preset]; return; }
     SCPLog("CarSplit: chon bo cuc %d cho %@", layoutID, app ?: @"man chinh (moi o trong)");
     if (!app) {   // man chinh: moi o deu trong, hien bang chon app (dung nhu hinh dau cong trong bang)
         if (![self activateWithLayout:layoutID]) return;
+        if (preset > 0) [self urlRatio:preset];
         [self showPickersForEmptySlots];
         return;
     }
     if (![self activateWithLayout:layoutID]) return;   // app dang mo toan man: activate tu mo lai no vao o 1
-    [self openApp:app slot:0];
-    for (int s = 1; s < [self paneCount]; s++) if (![self slotOccupied:s]) [self showPickerForSlot:s];
+    // Lai tay phai: app dang dung vao o sat ghe lai (o cuoi ben phai) khi chia ngang deu
+    int first = (SCPCRightHandDrive() && ![self vertical] && ![self mainStack]) ? [self paneCount] - 1 : 0;
+    if (first != 0 && [self.slots[0].bundleID isEqualToString:app]) {
+        SCPLog("CarSplit: lai tay phai -> %@ vao o %d", app, first);
+        [self swapSlot:0 with:first];
+    }
+    [self openApp:app slot:first];
+    for (int s = 0; s < [self paneCount]; s++) if (![self slotOccupied:s]) [self showPickerForSlot:s];
+    if (preset > 0) [self urlRatio:preset];
 }
 
 // ---------------------------------------------------------------------
@@ -4268,12 +4771,14 @@ static NSArray<NSDictionary *> *SCPCPhoneApps(void)
 }
 
 // Thanh nut cua o app iPhone do SpringBoard ve de len app (thanh ve ben CarPlay nam duoi cua so host, khong thay):
-// bar = dang hien, pop = 1 nut "noi" / 2 nut "ghim" (cua so noi), popDim = khong noi ra duoc (bam thi bao ly do)
+// bar = dang hien, pop = 1 nut "noi" / 2 nut "ghim" (cua so noi), popDim = khong noi ra duoc (bam thi bao ly do),
+// single = o nay dang chay 1 man hinh (nut "Chay 1 man hinh" doi thanh "Chia man hinh")
 - (NSDictionary *)hostBarInfoForPane:(SCPCarPane *)p
 {
     BOOL isFloat = (p == self.floatPane);
     BOOL canPop = isFloat ? (p.vc && [self paneCount] < SCPC_MAX_PANES) : [self canPopOutPane:p];
-    return @{@"bar": @(!p.bar.hidden), @"pop": @(isFloat ? 2 : 1), @"popDim": @(!canPop)};
+    BOOL single = self.zoomedSlot && self.zoomedSlot.intValue == p.slot;
+    return @{@"bar": @(!p.bar.hidden), @"pop": @(isFloat ? 2 : 1), @"popDim": @(!canPop), @"single": @(single)};
 }
 
 // Dai sat mep cua so host cho cham xuyen xuong CarPlay (canh giap o khac: keo vach; canh giap mep vung app: 0)
@@ -4295,6 +4800,13 @@ static NSArray<NSDictionary *> *SCPCPhoneApps(void)
     if (p) { d[@"r"] = @(p.view.layer.cornerRadius); d[@"corners"] = @((unsigned long long)p.view.layer.maskedCorners); }
     // Thanh "•••" lech sang phai nhu thanh cua o CarPlay khi o nam duoi vach ngang (cham tron cua vach o giua)
     if (p) d[@"hx"] = @([self handleShiftForPane:p]);
+    if (p) d[@"front"] = @(p == self.floatPane);   // cua so noi app iPhone: SpringBoard dua len tren cac o app iPhone khac
+    // Vung app cua man xe (khong tinh dock): ban phim xe trai theo ca vung nay du app dang o 1 o chia
+    UIView *parent = [self tabParent];
+    if (parent) {
+        CGRect area = [parent convertRect:[self appAreaInParent:parent] toView:nil];
+        d[@"ax"] = @(area.origin.x); d[@"ay"] = @(area.origin.y); d[@"aw"] = @(area.size.width); d[@"ah"] = @(area.size.height);
+    }
     return d;
 }
 
@@ -4419,6 +4931,11 @@ static NSArray<NSDictionary *> *SCPCPhoneApps(void)
 {
     SCPCarPane *p = [self paneForBundle:bid];
     if (!self.active || !p) return;
+    CFAbsoluteTime now = CFAbsoluteTimeGetCurrent();
+    BOOL dbl = [self.lastBridgeTapBundle isEqualToString:bid] && now - self.lastBridgeTapAt < 0.35;
+    self.lastBridgeTapBundle = dbl ? nil : bid;
+    self.lastBridgeTapAt = now;
+    if (dbl && p != self.floatPane) { [self toggleZoomForPane:p]; return; }   // lan 1 da mo thanh nut: toggleZoom dong lai
     [self setBarVisible:p.bar.hidden forPane:p];
 }
 
@@ -4431,16 +4948,14 @@ static NSArray<NSDictionary *> *SCPCPhoneApps(void)
     if ([action isEqualToString:@"replace"]) {
         [self setBarVisible:NO forPane:p];
         [self showPickerForSlot:p.slot];
-    } else if ([action isEqualToString:@"full"]) {
-        [self setBarVisible:NO forPane:p];
-        SCPLog("CarSplit: [toan man hinh] o %d -> chi giu %@", p.slot, p.bundleID);
-        [self soloBundle:p.bundleID];
-    } else if ([action isEqualToString:@"pop"]) {
+    } else if ([action isEqualToString:@"full"]) {   // Chay 1 man hinh / Chia man hinh
+        [self runSoloForPane:p];
+    } else if ([action isEqualToString:@"pop"]) {    // Anh trong anh
         [self popOutPane:p];
-    } else if ([action isEqualToString:@"close"]) {
-        [self setBarVisible:NO forPane:p];
-        [self closeSlot:p.slot background:YES];
-        if (SCPCIsBridgedApp(bid)) [self killAppSoon:bid];   // nhu nut [x] cua thanh CarPlay: tat han de khong phat tieng ngam
+    } else if ([action isEqualToString:@"bg"]) {     // Chay nen
+        [self runBackgroundForPane:p];
+    } else if ([action isEqualToString:@"close"]) {  // Tat han app
+        [self runCloseForPane:p];
     }
 }
 
@@ -4489,9 +5004,13 @@ static NSArray<NSDictionary *> *SCPCPhoneApps(void)
     });
 }
 
-- (void)homePressed
+- (void)homePressedDuringSplit:(BOOL)split
 {
-    [self dismissStuckBaseSoon];
+    // Chi sau Home luc dang chia: 1 app toan man thuong thi DashBoard tu dong; iOS 15 thu app ve icon lau hon 0.35s,
+    // dismiss them lan nua lam logo app giat 1 lan (log 12/10 21:12)
+    UIViewController *cur = objcInvoke(SCPCRootVC(), @"currentBaseViewController");
+    if (split || (cur && cur == self.soloReturnedVC)) [self dismissStuckBaseSoon];
+    self.soloReturnedVC = nil;
     // Home do chinh split gui khi tat split (soloBundle app iPhone): man chinh ve ben duoi, app toan man giu nguyen
     if (self.ignoreHomeOnce) { self.ignoreHomeOnce = NO; return; }
     if (self.soloHostedBundle) [self endHostedSolo];
@@ -4526,13 +5045,36 @@ static UIImage *SCPCSplitImage(CGFloat side)
 {
     UIGraphicsImageRenderer *r = [[UIGraphicsImageRenderer alloc] initWithSize:CGSizeMake(side, side)];
     UIImage *img = [r imageWithActions:^(UIGraphicsImageRendererContext *rc) {
+        // Nhu nut dock trong tools/preview/theme.html: 2 o 6 x 10 cach nhau 2 trong nut 26 (hinh 54% rong, 38% cao,
+        // khe 14%), de o cho nho (22..30 pt) van thay 2 o chu khong thanh 1 cham
         CGContextScaleCTM(rc.CGContext, side / 1024.0, side / 1024.0);
-        UIBezierPath *panes = [UIBezierPath bezierPathWithRoundedRect:CGRectMake(60, 212, 422, 600) cornerRadius:90];
-        [panes appendPath:[UIBezierPath bezierPathWithRoundedRect:CGRectMake(542, 212, 422, 600) cornerRadius:90]];
+        UIBezierPath *panes = [UIBezierPath bezierPathWithRoundedRect:CGRectMake(236, 315, 236, 394) cornerRadius:78];
+        [panes appendPath:[UIBezierPath bezierPathWithRoundedRect:CGRectMake(552, 315, 236, 394) cornerRadius:78]];
         [[UIColor whiteColor] setFill];
         [panes fill];
     }];
     return [img imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+}
+
+// O cua nut Split Screen tren dock: nen logo 4 mau dac, vien trang 1pt, quang tim nhat de noi tren dock den
+static void SCPCDockTile(UIView *v, CGFloat radius)
+{
+    v.backgroundColor = [UIColor clearColor];
+    v.layer.cornerRadius = radius;
+    v.layer.cornerCurve = kCACornerCurveContinuous;
+    v.layer.shadowColor = SCPCAccent().CGColor;
+    v.layer.shadowOpacity = 0.35; v.layer.shadowRadius = 4; v.layer.shadowOffset = CGSizeMake(0, 1);
+    UIImageView *mesh = [[UIImageView alloc] initWithImage:OMCLogoMeshImage(YES)];
+    mesh.frame = v.bounds;
+    mesh.contentMode = UIViewContentModeScaleToFill;
+    mesh.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    mesh.layer.cornerRadius = radius;
+    mesh.layer.cornerCurve = kCACornerCurveContinuous;
+    mesh.layer.borderWidth = 1;
+    mesh.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.85].CGColor;
+    mesh.clipsToBounds = YES;
+    mesh.userInteractionEnabled = NO;
+    [v insertSubview:mesh atIndex:0];
 }
 
 // Mau luoi app cua nut Home (o vuong nho co backgroundColor, hoac anh template co tint) de nut Split Screen cung mau
@@ -4682,18 +5224,19 @@ static void SCPCStatusBottom(UIView *v, UIView *parent, CGRect strip, int depth,
     CGFloat size = SCPC_HOME_BTN, shift = 0;
     CGPoint c = [self launcherCenterInParent:parent size:&size shift:&shift];
     [self setDockShift:shift];
-    // Tren dock: hinh tran cung mau nut Home ngay duoi. Goc vung app (khong co dock doc): nut tron kinh toi cho noi tren app.
+    // Tren dock: o nen logo 4 mau (nhu cac bang tren xe), vien trang, glyph 2 o mau cham giong nut Chia man cua thanh •••
+    // (tools/preview/theme.html). Goc vung app (khong co dock doc): nut tron kinh trang cho noi tren app.
     BOOL bare = ![self.launcherWhere hasPrefix:@"goc"];
     if (!self.homeButton || fabs(self.homeButton.bounds.size.width - size) > 0.5 || self.launcherBare != bare) {
         [self.homeButton removeFromSuperview];
-        UIButton *b = bare ? SCPCRoundButton(SCPCSplitImage(size), self, @selector(homeButtonTapped))
-                           : SCPCCircleButton(SCPCSplitImage(size * 0.62), size, self, @selector(homeButtonTapped));
+        UIButton *b = bare ? SCPCRoundButton(SCPCGlyph(@"hm_split", round(size * 0.62), NO), self, @selector(homeButtonTapped))
+                           : SCPCCircleButton(SCPCSplitImage(size * 0.9), size, self, @selector(homeButtonTapped));
         b.bounds = CGRectMake(0, 0, size, size);
-        if (bare) { b.layer.cornerRadius = 0; b.backgroundColor = nil; }
+        if (bare) SCPCDockTile(b, size * 0.28);
         self.homeButton = b;
         self.launcherBare = bare;
     }
-    self.homeButton.tintColor = bare && self.homeInk ? self.homeInk : SCPCInk();
+    self.homeButton.tintColor = SCPCInk();
     // Nut nam tren dai dock: gan vao chinh view ve dai dock (status bar CarPlay nam tren baseContainerView,
     // gan vao tabParent thi nut bi dai dock che mat). Ngoai dock (goc vung app) thi van gan vao tabParent.
     CGRect r = CGRectMake(c.x - size / 2, c.y - size / 2, size, size);
@@ -4927,7 +5470,7 @@ static void SCPCDumpTree(UIView *v, UIView *root, int depth, NSMutableString *ou
     if (!host || !msg.length) return;
     UILabel *l = [[UILabel alloc] init];
     l.text = msg;
-    l.textColor = [UIColor whiteColor];
+    l.textColor = SCPCInk();
     l.font = [UIFont systemFontOfSize:14 weight:UIFontWeightMedium];
     l.textAlignment = NSTextAlignmentCenter;
     l.numberOfLines = 2;
@@ -4935,7 +5478,7 @@ static void SCPCDumpTree(UIView *v, UIView *root, int depth, NSMutableString *ou
     CGSize fit = [l sizeThatFits:CGSizeMake(maxW - 32, 60)];
     l.bounds = CGRectMake(0, 0, MIN(maxW, fit.width + 32), MAX(38, fit.height + 18));
     SCPCChrome(l, 19);
-    l.backgroundColor = [UIColor colorWithWhite:0.16 alpha:0.96];
+    l.backgroundColor = [UIColor colorWithWhite:1 alpha:0.94];   // kinh trang, chu mau muc
     CGPoint c = CGPointMake(CGRectGetMidX(host.bounds), host.bounds.size.height - 50);
     SCPCarPane *bp = [self bridgedPane];
     if (self.active && bp && self.container) {

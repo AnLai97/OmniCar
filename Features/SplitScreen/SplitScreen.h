@@ -21,6 +21,10 @@
 #define SPL_KEY_PANE_ORIENTATION @"splitScreenPaneOrientation"  // 1 portrait, 3 landscape
 #define SPL_KEY_SPLIT_RATIO      @"splitScreenSplitRatio"       // 0.2..0.8, width of the first pane
 #define SPL_KEY_SPLIT_DIRECTION  @"splitScreenSplitDirection"   // 0 left/right, 1 top/bottom
+#define SPL_KEY_PINNED_APP       @"splitScreenPinnedApp"        // bundle id kept in its pane: never replaced by a layout change,
+                                                                // the app picker or a pane dropped when there are fewer panes
+#define SPL_KEY_DRIVER_SIDE      @"splitScreenDriverSide"       // 0 auto (CarKit session), 1 left-hand drive, 2 right-hand drive:
+                                                                // right-hand drive opens the current app in the right pane
 #define SPL_KEY_LAST_LEFT        @"splitScreenLastLeft"         // last pair used on the car (reopened on connect)
 #define SPL_KEY_LAST_RIGHT       @"splitScreenLastRight"
 #define SPL_KEY_CARPLAY_APPS     @"splitScreenCarPlayApps"      // written by the CarPlay process for the app picker (iPhone apps come from AB_KEY_APPS)

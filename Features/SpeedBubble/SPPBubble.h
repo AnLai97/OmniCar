@@ -13,4 +13,26 @@
 - (void)hide;
 - (void)resetLayout;                                // Cai dat > Dat lai vi tri & kich thuoc
 - (void)runDemo;                                    // Cai dat > Xem thu: toc do gia 10 giay
+- (void)sourceStopped:(int)app;                     // nguon ngung han (GPS iPhone tat): bo so, an bong bong ngay
 @end
+
+// Cua so tren man xe, dung chung voi canh bao qua toc do (SPPWarn.mm)
+#ifdef __cplusplus
+extern "C" {
+#endif
+id SPPGetCarPlayCADisplay(void);                    // CADisplay man xe, nil = chua ket noi
+UIWindow *SPPMakeCarWindow(CGFloat *scale);         // UIRootSceneWindow tren man xe; *scale = diem anh / diem
+void SPPMakeWindowPassThrough(UIWindow *w);         // cham vao cho trong cua so -> xuyen xuong CarPlay
+#ifdef __cplusplus
+}
+#endif
+
+#if OMC_AUTOTEST
+#ifdef __cplusplus
+extern "C" {
+#endif
+void SPPAutoTestInstall(void);   // SpringBoard: bo test "speedBubble" (Core/OMCTest.h, chi ban dev)
+#ifdef __cplusplus
+}
+#endif
+#endif

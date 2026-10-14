@@ -1,5 +1,9 @@
 #import "OMCRootListController.h"
 #import "OMCTheme.h"
+#import "OMCDiagnostics.h"
+#import "OMCOnboardingController.h"
+#import "OMCWhatsNewController.h"
+#import "OMCBackup.h"
 #import <Preferences/PSTableCell.h>
 #import <dlfcn.h>
 #import <notify.h>
@@ -8,13 +12,14 @@
 
 #pragma mark - Header card
 
-// Dark glass card in the OmniCar look (DESIGN.md, same colors as the logo): logo, name, slogan, status line
-// ("● On", the dot glows white when on) and the master switch, so the enable row is gone. The version
-// lives in the footer card, not here.
+// Glass card in the OmniCar look (DESIGN.md, tools/preview/theme.html): frosted glass tinted with the pastel
+// liquid colors, logo, name, slogan, status line ("● On", the dot glows green when on) and the master switch,
+// so the enable row is gone. The version lives in the footer card, not here.
 @interface OMCHeaderCard : UIView
 @property (nonatomic, strong) UIView *card, *clip, *dot;
 @property (nonatomic, strong) CAGradientLayer *gradient, *sheen;
 @property (nonatomic, strong) UIImageView *logo;
+@property (nonatomic, strong) UIVisualEffectView *glass;
 @property (nonatomic, strong) UILabel *nameLabel, *taglineLabel, *statusLabel;
 @property (nonatomic, strong) UISwitch *toggle;
 - (void)updateWithTagline:(NSString *)tagline status:(NSString *)status enabled:(BOOL)enabled;
@@ -30,25 +35,31 @@
 	_card = [UIView new];
 	_card.layer.cornerRadius = 22;
 	_card.layer.cornerCurve = kCACornerCurveContinuous;
-	_card.layer.shadowColor = UIColor.blackColor.CGColor;
-	_card.layer.shadowOpacity = 0.18;
-	_card.layer.shadowRadius = 12;
-	_card.layer.shadowOffset = CGSizeMake(0, 5);
+	_card.layer.shadowColor = [UIColor colorWithRed:70 / 255.0 green:60 / 255.0 blue:140 / 255.0 alpha:1].CGColor;
+	_card.layer.shadowOpacity = 0.2;
+	_card.layer.shadowRadius = 16;
+	_card.layer.shadowOffset = CGSizeMake(0, 8);
 	[self addSubview:_card];
 
 	_clip = [UIView new];
 	_clip.layer.cornerRadius = 22;
 	_clip.layer.cornerCurve = kCACornerCurveContinuous;
 	_clip.layer.borderWidth = 0.5;
-	_clip.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.22].CGColor;
+	_clip.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.75].CGColor;
 	_clip.clipsToBounds = YES;
 	[_card addSubview:_clip];
+	_glass = [[UIVisualEffectView alloc] initWithEffect:[UIBlurEffect effectWithStyle:UIBlurEffectStyleSystemThinMaterial]];
+	[_clip addSubview:_glass];
 
 	_gradient = [CAGradientLayer layer];
-	_gradient.colors = @[(id)OMCColorFromHex(@"#353A43").CGColor, (id)OMCColorFromHex(@"#101216").CGColor];
+	// Pha mau chat long (oai huong -> xanh troi -> bac ha) len kinh
+	_gradient.colors = @[(id)[OMCColorFromHex(@"#B7A6FF") colorWithAlphaComponent:0.35].CGColor, (id)[OMCColorFromHex(@"#8FD3FF") colorWithAlphaComponent:0.28].CGColor,
+		(id)[OMCColorFromHex(@"#9DF2D8") colorWithAlphaComponent:0.25].CGColor];
+	_gradient.startPoint = CGPointZero;
+	_gradient.endPoint = CGPointMake(1, 1);
 	[_clip.layer addSublayer:_gradient];
 	_sheen = [CAGradientLayer layer];   // vet sang kinh nua tren
-	_sheen.colors = @[(id)[UIColor colorWithWhite:1 alpha:0.08].CGColor, (id)[UIColor colorWithWhite:1 alpha:0].CGColor];
+	_sheen.colors = @[(id)[UIColor colorWithWhite:1 alpha:0.35].CGColor, (id)[UIColor colorWithWhite:1 alpha:0].CGColor];
 	[_clip.layer addSublayer:_sheen];
 
 	NSBundle *bundle = [NSBundle bundleForClass:[self class]];
@@ -58,32 +69,30 @@
 	_nameLabel = [UILabel new];
 	_nameLabel.text = @"OmniCar";
 	_nameLabel.font = [UIFont systemFontOfSize:21 weight:UIFontWeightBold];
-	_nameLabel.textColor = UIColor.whiteColor;
+	_nameLabel.textColor = [UIColor labelColor];
 	[_clip addSubview:_nameLabel];
 
 	_taglineLabel = [UILabel new];
 	_taglineLabel.font = [UIFont systemFontOfSize:13 weight:UIFontWeightRegular];
-	_taglineLabel.textColor = [UIColor colorWithWhite:1 alpha:0.85];
+	_taglineLabel.textColor = [UIColor secondaryLabelColor];
 	_taglineLabel.adjustsFontSizeToFitWidth = YES;
 	_taglineLabel.minimumScaleFactor = 0.8;
 	[_clip addSubview:_taglineLabel];
 
 	_dot = [UIView new];
 	_dot.layer.cornerRadius = 3.5;
-	_dot.layer.shadowColor = UIColor.whiteColor.CGColor;
+	_dot.layer.shadowColor = UIColor.systemGreenColor.CGColor;
 	_dot.layer.shadowRadius = 4;
 	_dot.layer.shadowOffset = CGSizeZero;
 	[_clip addSubview:_dot];
 
 	_statusLabel = [UILabel new];
 	_statusLabel.font = [UIFont systemFontOfSize:12.5 weight:UIFontWeightMedium];
-	_statusLabel.textColor = [UIColor colorWithWhite:1 alpha:0.7];
+	_statusLabel.textColor = [UIColor secondaryLabelColor];
 	[_clip addSubview:_statusLabel];
 
 	_toggle = [UISwitch new];
-	_toggle.onTintColor = UIColor.whiteColor;
-	_toggle.backgroundColor = [UIColor colorWithWhite:1 alpha:0.18];   // ray khi tat tren nen toi
-	_toggle.layer.cornerRadius = 15.5;
+	_toggle.onTintColor = OMCSwitchColor();
 	[_clip addSubview:_toggle];
 	return self;
 }
@@ -91,11 +100,9 @@
 - (void)updateWithTagline:(NSString *)tagline status:(NSString *)status enabled:(BOOL)enabled {
 	_taglineLabel.text = tagline;
 	_statusLabel.text = status;
-	_dot.backgroundColor = [UIColor colorWithWhite:1 alpha:enabled ? 1 : 0.35];
+	_dot.backgroundColor = enabled ? UIColor.systemGreenColor : UIColor.tertiaryLabelColor;
 	_dot.layer.shadowOpacity = enabled ? 0.9 : 0;
 	_toggle.on = enabled;
-	// Ray trang khi bat -> nut tron toi cho noi; tat -> nut trang nhu thuong
-	_toggle.thumbTintColor = enabled ? OMCColorFromHex(@"#1B1D22") : UIColor.whiteColor;
 	[self setNeedsLayout];
 }
 
@@ -106,6 +113,7 @@
 	CGRect r = CGRectMake(m.left, 8, self.bounds.size.width - m.left - m.right, self.bounds.size.height - 24);
 	_card.frame = r;
 	_clip.frame = _card.bounds;
+	_glass.frame = _clip.bounds;
 	[CATransaction begin];
 	[CATransaction setDisableActions:YES];
 	_gradient.frame = _clip.bounds;
@@ -157,6 +165,7 @@
 
 @interface OMCRootListController ()
 @property (nonatomic, strong) OMCHeaderCard *headerCard;
+@property (nonatomic, copy) NSString *supportState;   // rescue + conflicts the rows were built for
 @end
 
 @implementation OMCRootListController
@@ -169,8 +178,57 @@
 		_specifiers = [self loadSpecifiersFromPlistName:@"Root" target:self];
 		[self insertFeatureSpecifiers];
 		OMCLocalizeSpecifiers(_specifiers);
+		[self applySupportState];
+#if OMC_AUTOTEST
+		[self insertAutoTestSpecifier];
+#endif
 	}
 	return _specifiers;
+}
+
+#if OMC_AUTOTEST
+// Developer builds only: Support > Auto test (Prefs/OMCAutoTestController.m), right after Send log.
+- (void)insertAutoTestSpecifier {
+	PSSpecifier *spec = [PSSpecifier preferenceSpecifierNamed:L(@"AUTOTEST") target:self set:NULL get:NULL
+		detail:NSClassFromString(@"OMCAutoTestController") cell:PSLinkCell edit:Nil];
+	UIImage *icon = OMCIcon(@"checklist", nil);
+	if (icon) [spec setProperty:icon forKey:@"iconImage"];
+	NSUInteger index = _specifiers.count;
+	for (NSUInteger i = 0; i < _specifiers.count; i++)
+		if ([[_specifiers[i] identifier] isEqualToString:@"sendLog"]) { index = i + 1; break; }
+	[_specifiers insertObject:spec atIndex:index];
+}
+#endif
+
+// Rescue and conflict cards (Root.plist rows tagged "omcGroup"): dropped when there is nothing to say,
+// otherwise filled with the feature / tweak names.
+- (NSString *)currentSupportState {
+	NSMutableArray *active = [NSMutableArray array];
+	for (NSDictionary *t in OMCConflictingTweaks()) if ([t[@"active"] boolValue]) [active addObject:t[@"name"]];
+	return [NSString stringWithFormat:@"%@|%@", [OMCRescueFeatures() componentsJoinedByString:@","], [active componentsJoinedByString:@", "]];
+}
+
+- (void)applySupportState {
+	self.supportState = [self currentSupportState];
+	NSArray *parts = [self.supportState componentsSeparatedByString:@"|"];
+	NSString *rescued = parts[0], *conflicts = parts[1];
+	NSMutableArray *names = [NSMutableArray array];
+	for (NSString *f in rescued.length ? [rescued componentsSeparatedByString:@","] : @[]) [names addObject:OMCFeatureDisplayName(f)];
+
+	for (PSSpecifier *spec in [_specifiers copy]) {
+		NSString *group = [spec propertyForKey:@"omcGroup"];
+		if (!group) continue;
+		if (([group isEqualToString:@"rescue"] && !names.count) || ([group isEqualToString:@"conflicts"] && !conflicts.length)) {
+			[_specifiers removeObject:spec];
+			continue;
+		}
+		if ([spec.identifier isEqualToString:@"rescueGroup"])
+			[spec setProperty:[NSString stringWithFormat:L(@"RESCUE_FOOTER"), [names componentsJoinedByString:@", "]] forKey:@"footerText"];
+		else if ([spec.identifier isEqualToString:@"conflictsGroup"])
+			[spec setProperty:L(@"CONFLICTS_FOOTER") forKey:@"footerText"];
+		else if ([spec.identifier isEqualToString:@"conflictsRow"])
+			spec.name = conflicts;
+	}
 }
 
 // One PSLinkCell per Feature*.plist in the bundle, after the "features" group cell of Root.plist.
@@ -223,7 +281,7 @@
 - (void)viewDidLoad {
 	[super viewDidLoad];
 	// Scoped to this controller so the rest of Settings keeps its own look.
-	[UISwitch appearanceWhenContainedInInstancesOfClasses:@[[self class]]].onTintColor = OMCAccentColor();
+	[UISwitch appearanceWhenContainedInInstancesOfClasses:@[[self class]]].onTintColor = OMCSwitchColor();
 	[UISlider appearanceWhenContainedInInstancesOfClasses:@[[self class]]].minimumTrackTintColor = OMCAccentColor();
 	[self applyLanguage];
 }
@@ -233,10 +291,32 @@
 	// Pick up values the tweak wrote from another process (e.g. SpringBoard) since last time, and the
 	// On / Off of the feature pages just left.
 	CFPreferencesAppSynchronize(kPrefsDomain);
+	if (![[self currentSupportState] isEqualToString:self.supportState ?: @""]) _specifiers = nil;   // rescue / conflict cards changed
 	[self reloadSpecifiers];
 	[self updateHeaderStatus];
-	self.table.backgroundColor = OMCBackgroundColor();
-	self.table.tintColor = OMCAccentColor();
+	OMCStyleTable(self.table);
+}
+
+// First open of Settings > OmniCar: the guide, once (Prefs/OMCOnboardingController.m, pref "onboardingDone").
+// After an update: What's new, once per version (Prefs/OMCWhatsNewController.m, pref "whatsNewSeen"). Never
+// both: when the guide is due, this version's What's new counts as seen.
+- (void)traitCollectionDidChange:(UITraitCollection *)previous {
+	[super traitCollectionDidChange:previous];
+	if (self.traitCollection.userInterfaceStyle != previous.userInterfaceStyle) OMCStyleTable(self.table);   // nen chat long sang / toi
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+	[super viewDidAppear:animated];
+	static BOOL offered;
+	if (offered || self.presentedViewController) return;
+	if ([OMCOnboardingController shouldShow]) {
+		offered = YES;
+		[OMCWhatsNewController markSeen];
+		[self showGuide];
+	} else if ([OMCWhatsNewController shouldShow]) {
+		offered = YES;
+		[self showWhatsNew];
+	}
 }
 
 - (void)applyLanguage {
@@ -311,7 +391,7 @@
 	container.preservesSuperviewLayoutMargins = YES;
 
 	UIView *card = [UIView new];
-	card.backgroundColor = OMCCardColor();
+	OMCStyleGlassCard(card);
 	card.layer.cornerRadius = 20;
 	card.layer.cornerCurve = kCACornerCurveContinuous;
 	card.translatesAutoresizingMaskIntoConstraints = NO;
@@ -394,6 +474,58 @@
 
 #pragma mark - Actions
 
+// Support > Send log: report + OmniCar.log straight into the share sheet (Zalo, Mail ...).
+- (void)sendLog {
+	OMCShareReport(self, nil);
+}
+
+// Support > Show guide again (also the first-run guide from viewDidAppear). Reload afterwards: page 3 can
+// turn Speed Bubble on / off, which the feature row shows.
+- (void)showGuide {
+	if (self.presentedViewController) return;
+	__weak typeof(self) weakSelf = self;
+	UINavigationController *guide = [OMCOnboardingController guideNavigationControllerWithCompletion:^{
+		[weakSelf reloadSpecifiers];
+		[weakSelf updateHeaderStatus];
+	}];
+	[self presentViewController:guide animated:YES completion:nil];
+}
+
+// Support > What's new (also shown once after an update from viewDidAppear).
+- (void)showWhatsNew {
+	if (self.presentedViewController) return;
+	[self presentViewController:[OMCWhatsNewController whatsNewNavigationController] animated:YES completion:nil];
+}
+
+// Support > Back up settings: one .omnicar file into the share sheet (Files, AirDrop, Zalo ...).
+- (void)backupSettings {
+	OMCBackupShare(self);
+}
+
+// Support > Restore from file: Files picker, confirm, write back, offer a respring. The language and every row
+// may have changed, so the page is rebuilt.
+- (void)restoreSettings {
+	__weak typeof(self) weakSelf = self;
+	OMCBackupPickAndRestore(self, ^{
+		[weakSelf rebuildPage];
+	});
+}
+
+- (void)rebuildPage {
+	[self applyLanguage];
+	_specifiers = nil;
+	[self reloadSpecifiers];
+	[self updateHeaderStatus];
+}
+
+// Rescue card: turn the features rescue mode switched off back on.
+- (void)rescueRestore {
+	OMCRescueRestore();
+	_specifiers = nil;
+	[self reloadSpecifiers];
+	[self showMessage:L(@"RESCUE_RESTORED")];
+}
+
 // Respring button (nav bar): confirm, then restart SpringBoard.
 - (void)respring {
 	UIAlertController *alert = [UIAlertController alertControllerWithTitle:L(@"RESPRING_CONFIRM") message:nil preferredStyle:UIAlertControllerStyleAlert];
@@ -405,29 +537,9 @@
 	[self presentViewController:alert animated:YES completion:nil];
 }
 
-// Userspace respring (FBSSystemService + SBSRelaunchAction, like other tweaks' Respring buttons);
-// falls back to killall SpringBoard.
+// Userspace respring (FBSSystemService + SBSRelaunchAction), falls back to killall SpringBoard: OMCRespring.
 - (void)performRespring {
-	dlopen("/System/Library/PrivateFrameworks/FrontBoardServices.framework/FrontBoardServices", RTLD_LAZY);
-	dlopen("/System/Library/PrivateFrameworks/SpringBoardServices.framework/SpringBoardServices", RTLD_LAZY);
-	Class relaunch = NSClassFromString(@"SBSRelaunchAction"), service = NSClassFromString(@"FBSSystemService");
-	if (relaunch && service) {
-		id action = ((id (*)(Class, SEL, NSString *, NSUInteger, NSURL *))objc_msgSend)(relaunch,
-			NSSelectorFromString(@"actionWithReason:options:targetURL:"), @"RestartRenderServer", 4 /* FadeToBlack */, nil);
-		id shared = ((id (*)(Class, SEL))objc_msgSend)(service, NSSelectorFromString(@"sharedService"));
-		if (action && shared) {
-			((void (*)(id, SEL, NSSet *, id))objc_msgSend)(shared, NSSelectorFromString(@"sendActions:withResult:"),
-				[NSSet setWithObject:action], nil);
-			return;
-		}
-	}
-	for (NSString *path in @[@"/var/jb/usr/bin/killall", @"/usr/bin/killall"]) {
-		if (![[NSFileManager defaultManager] isExecutableFileAtPath:path]) continue;
-		pid_t pid;
-		const char *argv[] = {path.fileSystemRepresentation, "-9", "SpringBoard", NULL};
-		posix_spawn(&pid, argv[0], NULL, NULL, (char *const *)argv, NULL);
-		return;
-	}
+	OMCRespring();
 }
 
 @end

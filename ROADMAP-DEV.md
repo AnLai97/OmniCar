@@ -1,174 +1,25 @@
-# OmniCar – Lộ trình
+# OmniCar – Lộ trình tính năng (dev)
 
-Mục tiêu: khai phá hết sức mạnh của CarPlay khi lái xe, vượt DuoDash, bán Pro qua Chariz cho người dùng
-toàn cầu (không chỉ Việt Nam); bản miễn phí phát trên repo riêng.
+Các mức tính năng và trạng thái code của từng mục. Kế hoạch phát hành, giá, Lite / Pro: **ROADMAP-RELEASE.md**.
 
 Cách dùng file này
-- Hai tuyến: **Phát hành** (giới thiệu → miễn phí trên repo riêng → quyết định → miễn phí kèm dùng thử Pro + bán Pro → cập nhật) và **Mức tính năng**.
 - Mức tính năng xếp theo **ưu tiên**: Mức 1 là thứ phải có ngay, mức sau làm khi mức trước đã xong.
 - Mỗi mức chia thành **nhóm** theo tính năng. Trong mỗi nhóm, mục xếp **từ dễ đến khó** (Thấp → Vừa → Cao);
   mục nào phụ thuộc mục khác thì đứng sau nó.
 - Mỗi mục là một ô `[ ]`. Làm xong thì đánh `[x]` và ghi phiên bản phát hành bên cạnh.
 - **Độ khó**: Thấp (vài ngày) · Vừa (1–2 tuần) · Cao (vài tuần, cần thử nghiệm nhiều trên xe).
 - **Xong khi**: tiêu chí kiểm tra được trên xe thật, không phải "code đã viết".
-- Sửa xong file này thì chạy `python tools/roadmap_html.py` để cập nhật ROADMAP.html.
+- **Code** / **Thử**: đã viết gì, ở file nào, thử thế nào (ghi khi bắt đầu code một mục).
 
 Đã có (1.0.0): Chia màn hình 2–3 ô (4 bố cục, chia dọc, kéo tỉ lệ, yêu thích, gần đây, Siri URL), App Bridge
 (app iPhone lên xe, icon trên màn chính CarPlay), Bong bóng tốc độ (18 kiểu, Vietmap Live / GOFA), Màn hình
 khởi động (một video MP4), Cài đặt vi / en.
 
----
+## Trước khi phát hành
 
-## Phát hành 0 – Chuẩn bị (làm song song Mức 1)
-
-Kế hoạch: ra **repo riêng** cho dùng miễn phí một thời gian để đo phản ứng thị trường, rồi bán **Pro qua Chariz**.
-Repo riêng chỉ phát gói miễn phí và dẫn link sang Chariz để mua; không tự thu tiền trên repo riêng.
-Mức 1 xong thì mở repo miễn phí; Mức 2 xong phần lớn thì bán Pro.
-
-- [ ] **Tên gói và định danh** · Thấp
-  OmniCar (miễn phí, có dùng thử Pro) và OmniCar Pro (gói mở khoá trả phí). Chốt bundle id trước khi mở repo để
-  người dùng thời kỳ miễn phí lên bản chính thức không mất cài đặt.
-- [ ] **Repo riêng** · Thấp
-  repo.<tên miền> (APT repo cho Sileo / Zebra): Release ký, ảnh bìa, trang mô tả (depiction) kiểu Sileo cho từng gói,
-  nhánh beta tách khỏi nhánh chính. Đặt sau Cloudflare / máy chủ có log để đếm lượt tải.
-  Xong khi: thêm repo trên Sileo và Zebra, cài / cập nhật / gỡ OmniCar chạy đúng trên rootless và roothide.
-- [ ] **Trang giới thiệu một trang** · Thấp
-  Video, ảnh màn xe, so sánh Lite / Pro, trang tương thích, FAQ, nút "Thêm repo", liên hệ hỗ trợ.
-- [ ] **Bộ nhận diện** · Thấp
-  Logo (đã có), ảnh bìa repo, mẫu ảnh chụp màn xe, mẫu thumbnail video; giữ đúng DESIGN.md.
-- [ ] **Kênh cộng đồng** · Thấp
-  Discord (quốc tế) + nhóm Facebook / Zalo (Việt Nam) + tài khoản X; một kênh hỗ trợ chính ghi trong Cài đặt.
-- [ ] **Chính sách riêng tư và điều khoản** · Thấp
-  Nói rõ: dữ liệu nào được gửi (chỉ khi người dùng đồng ý), quyền camera / vị trí dùng làm gì, chính sách hoàn tiền.
-- [ ] **Hỏi trước quy định của Chariz** · Thấp
-  Gói đã phát miễn phí trên repo riêng có được bán Pro trên Chariz sau đó không; gói OmniCar miễn phí để trên repo
-  riêng còn gói mở khoá Pro trên Chariz có được duyệt không; dẫn link mua từ repo riêng sang Chariz có được không.
-  Hỏi thêm Havoc nếu muốn bán cả ở đó. Có câu trả lời bằng văn bản trước khi mở repo.
-
-## Phát hành 1 – Giới thiệu (teaser)
-
-Mục tiêu: có người chờ trước khi mở repo. Chưa phát hành gì, chỉ cho xem.
-
-- [ ] **Video demo 60 giây** · Thấp
-  Quay trên xe thật: chia 3 ô, app iPhone trên xe, bong bóng tốc độ, màn hình khởi động. Không quay cảnh xem video khi xe chạy.
-- [ ] **Bài [Upcoming] trên r/jailbreak** · Thấp
-  Video + danh sách tính năng + ngày mở repo + link đăng ký nhận tin.
-- [ ] **Đăng ký nhận tin** · Thấp
-  Form: iOS, máy, jailbreak, hãng / đời xe, dây hay không dây. Dùng để biết thị trường gồm những ai, xe gì.
-- [ ] **Bộ tài liệu báo chí** · Thấp
-  Ảnh, video, mô tả ngắn, thông tin liên hệ; gửi iDownloadBlog, iDeviceCentral, các kênh YouTube về jailbreak.
-  Xong khi: có ít nhất 300 người đăng ký.
-
-## Phát hành 2 – Miễn phí trên repo riêng (đo phản ứng thị trường)
-
-Mục tiêu: nhiều người dùng thật trên nhiều đầu xe, biết họ thích gì, gặp lỗi gì, sẵn sàng trả bao nhiêu.
-Đủ tính năng Pro, miễn phí trong thời gian có hạn (đề xuất 6–8 tuần), ghi rõ ngày kết thúc ngay trên trang repo.
-
-- [ ] **Bản miễn phí có ngày kết thúc** · Thấp
-  Đủ tính năng, hết ngày X thì tự chuyển sang Lite + 7 ngày dùng thử Pro như bản chính thức (không tắt hẳn).
-  Thẻ đầu trang Cài đặt ghi "Miễn phí đến ngày X", có nút "Gửi log" và "Góp ý" nổi bật.
-- [ ] **Đo lượt dùng (chỉ khi đồng ý)** · Vừa
-  Lần đầu mở Cài đặt hỏi: "Gửi thống kê ẩn danh để giúp OmniCar?". Đồng ý thì mỗi ngày gửi một gói nhỏ: phiên bản,
-  iOS, độ phân giải màn xe, tính năng nào đang bật. Không vị trí, không tên app, không định danh máy.
-  Không đồng ý thì không gửi gì; vẫn có lượt tải từ log repo.
-- [ ] **Thu thập tương thích** · Vừa
-  Form trong Cài đặt: xe, đầu xe, iOS, cái gì chạy / không chạy. Gộp thành trang tương thích công khai.
-- [ ] **Khảo sát giá và tính năng** · Thấp
-  Sau 2 tuần dùng hiện một lần: tính năng dùng nhiều nhất, thiếu gì, sẵn sàng trả bao nhiêu (4 mức giá).
-- [ ] **Sửa lỗi theo mức độ** · Vừa
-  Ưu tiên: làm sập CarPlay > mất cài đặt > sai giao diện > ý kiến tính năng. Cập nhật qua repo ít nhất mỗi tuần.
-- [ ] **Quà cho người dùng sớm** · Thấp
-  Ai dùng trong thời kỳ miễn phí và gửi góp ý / log được mã giảm giá Pro (hoặc Pro miễn phí cho người đóng góp nhiều).
-
-## Điểm quyết định – Bán Pro hay chưa
-
-Cuối thời kỳ miễn phí, xem số liệu rồi mới quyết định. Chưa đạt thì kéo dài miễn phí, sửa tiếp, hoặc đổi hướng tính năng.
-
-- [ ] **Tổng hợp số liệu** · Thấp
-  Lượt tải, số máy đang dùng (từ thống kê đồng ý), số đầu xe đã thử, lỗi còn mở, kết quả khảo sát giá, tính năng dùng nhiều nhất.
-- [ ] **Tiêu chí đi tiếp** · Thấp
-  Đề xuất: ≥ 2.000 lượt tải, ≥ 30 đầu xe khác nhau, 2 tuần không có lỗi làm sập CarPlay, ≥ 20 % người trả lời khảo sát
-  sẵn sàng trả từ mức giá dự kiến. Chỉnh lại con số trước khi mở repo, không chỉnh sau khi đã có số liệu.
-- [ ] **Chốt giá và bảng Lite / Pro** · Thấp
-  Dựa trên khảo sát và tính năng dùng nhiều nhất: tính năng được dùng nhiều nhất nên nằm trong Pro, nhưng Lite vẫn
-  phải dùng được.
-
-## Phát hành 3 – Chính thức: OmniCar miễn phí, dùng thử đủ Pro
-
-Mục tiêu: người dùng thấy **hết** OmniCar làm được gì trên chính xe của họ, rồi mới quyết định mua.
-Một gói OmniCar miễn phí chứa toàn bộ mã; mới cài là chạy đủ Pro trong thời gian thử, hết hạn thì về Lite.
-
-- [ ] **Dùng thử đủ Pro 7 ngày lái xe** · Vừa
-  Đếm theo **ngày có cắm CarPlay**, không phải ngày lịch: cài xong để đó không mất lượt thử. Đủ mọi tính năng Pro.
-  Xong khi: cài mới, cắm xe 7 ngày khác nhau → ngày thứ 8 về Lite; không cắm xe thì không bị trừ ngày.
-- [ ] **Đếm ngược rõ ràng, nhắc nhẹ** · Thấp
-  Thẻ đầu trang Cài đặt hiện "Dùng thử Pro · còn 5 ngày". Nhắc một lần trên iPhone khi còn 2 ngày và khi hết hạn.
-  Không bao giờ hiện nhắc nhở trên màn xe khi đang lái.
-- [ ] **Hết hạn mềm** · Thấp
-  Về Lite nhưng giữ nguyên mọi cài đặt Pro (bố cục, hình nền, kiểu khởi động); mua Pro là có lại ngay, không phải cài lại.
-  Tính năng Pro đang dùng tự đổi về bản Lite tương ứng (3 ô → 2 ô 50/50…), không để màn xe trống hay lỗi.
-- [ ] **Chống thử lại vô hạn** · Vừa
-  Lưu trạng thái thử theo máy (băm định danh máy, lưu ở chỗ còn lại sau khi gỡ / cài lại tweak). Không gửi đi đâu.
-- [ ] **Xem thử không cần xe** · Vừa
-  Trang trong Cài đặt mô phỏng màn xe (như tools/preview): bấm thử chia màn, bong bóng tốc độ, kiểu khởi động
-  ngay trên iPhone, cho người chưa ra xe hoặc đang xem trước khi cài.
-- [ ] **Giới hạn tính năng theo bảng Lite / Pro** · Vừa
-  Khoá tính năng Pro sau khi hết thử. Cài đặt của Lite gọn: chỉ các mục Lite, cuối trang khối "Có trong Pro"
-  liệt kê ngắn (xem thử được, không bấm dùng được).
-- [ ] **Nút "Nâng cấp lên Pro"** · Thấp
-  Một dòng trong Cài đặt và trên mục Pro bị khoá, mở trang mua Pro trên Chariz. Không hiện quảng cáo trên màn xe.
-- [ ] **Phát hành OmniCar miễn phí trên repo riêng (và Chariz)** · Thấp
-  Mô tả ghi rõ: "Miễn phí, dùng thử đủ Pro 7 ngày lái xe", bảng so sánh Lite / Pro, link trang tương thích.
-  Xong khi: 1.000 lượt cài, đánh giá trung bình ≥ 4 sao, ít nhất 5 % người thử mua Pro.
-
-## Phát hành 4 – OmniCar Pro (trả phí)
-
-- [ ] **Gói mở khoá Pro trên Chariz** · Vừa
-  "OmniCar Pro" là gói trả phí nhỏ trên Chariz, chỉ chứa khoá bản quyền kiểm tra bằng DRM của Chariz; OmniCar miễn
-  phí (cài từ repo riêng hoặc Chariz) thấy khoá hợp lệ thì mở đủ Pro. Mua xong không phải gỡ / cài lại gì.
-  Xong khi: mua trên Chariz, Pro mở trong 1 phút; đăng nhập Chariz trên máy mới là khôi phục được Pro.
-- [ ] **Repo riêng dẫn sang Chariz** · Thấp
-  Trang mô tả OmniCar trên repo riêng và trang giới thiệu có nút "Mua Pro trên Chariz"; ghi rõ repo riêng không bán gì.
-- [ ] **Bán thêm trên Havoc (tuỳ chọn)** · Vừa
-  Chỉ khi Havoc chấp nhận và không đòi bán độc quyền; khoá phải nhận cả DRM của Havoc, cùng giá với Chariz.
-- [ ] **Giá và khuyến mãi ra mắt** · Thấp
-  Đề xuất 7,99–9,99 USD (DuoDash 12,99 USD), chốt lại theo khảo sát; giảm 30 % tuần đầu; người dùng thời kỳ miễn phí có mã giảm thêm;
-  giảm thêm trong 48 giờ sau khi hết dùng thử.
-- [ ] **Phát hành Pro trên Chariz** · Thấp
-  Mô tả nói rõ những gì có trong Pro và những gì không làm được (DRM), link trang tương thích.
-- [ ] **Hỗ trợ sau bán** · Thấp
-  Mẫu trả lời cho lỗi thường gặp, cam kết phản hồi trong 48 giờ, quy trình hoàn tiền.
-  Xong khi: tỉ lệ hoàn tiền dưới 3 % trong tháng đầu.
-
-## Phát hành 5 – Cập nhật và tăng trưởng
-
-Mỗi bản lớn đi kèm một video ngắn và một bài đăng; bản nhỏ sửa lỗi phát hành khi cần.
-
-- [ ] **1.1 – Màn chính và Khởi động** · Vừa
-  Phần Màn chính CarPlay và Màn hình khởi động mới của Mức 2.
-- [ ] **1.2 – Chia màn hình và Lái xe** · Vừa
-  Phần còn lại của Mức 2: 8 bố cục, chế độ lái, nút vô lăng, hồ sơ theo xe.
-- [ ] **2.0 – Vượt DuoDash** · Cao
-  Mức 3: bố cục tự do, tự phóng to bản đồ khi rẽ, ô tiện ích, cụm đồng hồ, widget màn chính.
-- [ ] **Gói thêm "OmniCar Drive" (camera / ADAS)** · Cao
-  Mức 4 bán riêng hoặc là gói nâng cấp, vì tốn nhiều công và chỉ dành cho người muốn dùng camera. Pro không bị mất tính năng đã có.
-- [ ] **Chương trình giới thiệu** · Thấp
-  Mã giới thiệu cho người dùng / YouTuber; giảm giá theo mùa (Black Friday, Tết).
-
-## Bảng Lite và Pro
-
-Áp dụng sau khi hết 7 ngày dùng thử. Nguyên tắc: Lite chỉ có tính năng đơn giản, đủ để người dùng thấy OmniCar làm được gì và muốn lên Pro; không
-có tuỳ chỉnh, không có tính năng nâng cao. Pro là toàn bộ sức mạnh. Bản sửa lỗi có cho cả hai.
-
-- **Chia màn hình**: Lite 2 ô 50/50 cố định, chọn app cho 2 ô · Pro kéo đổi tỉ lệ, 3 ô, đủ bố cục, yêu thích, gần đây, bố cục tự do, tự phóng to bản đồ, hồ sơ theo xe.
-- **App iPhone trên xe (App Bridge)**: Lite 1 app iPhone, chỉ mở toàn màn · Pro không giới hạn, app iPhone vào ô chia màn.
-- **Màn chính CarPlay**: Lite không có · Pro ẩn / sắp xếp app, cỡ icon, cột / hàng, dock, hình nền, gói icon, thư mục, widget.
-- **Màn hình khởi động**: Lite 1 video của bạn, không tuỳ chỉnh · Pro mọi kiểu (logo + âm thanh, lời chào, thời tiết, theo dịp, ngẫu nhiên, hiệu ứng, chia sẻ mẫu).
-- **Bong bóng tốc độ**: Lite 1 kiểu, 1 nguồn, cỡ mặc định · Pro đủ kiểu, mọi nguồn, chỉnh cỡ / vị trí, cảnh báo quá tốc độ tuỳ chỉnh.
-- **Lái xe an toàn**: Lite chế độ lái + cảnh báo quá tốc độ cơ bản (an toàn không khoá sau tiền; Lite chạy được video qua App Bridge nên bắt buộc có chế độ lái) · Pro nhắc nghỉ, nhật ký và điểm lái, HUD, giữ tốc độ trong hầm, nút vô lăng, lệnh giọng nói.
-- **Cài đặt**: Lite đủ ngôn ngữ, không sao lưu, không Phím tắt Siri · Pro sao lưu / khôi phục, Phím tắt Siri, hồ sơ theo xe.
-- **Hỗ trợ**: Lite qua cộng đồng · Pro hỗ trợ trực tiếp, ưu tiên sửa lỗi theo đầu xe.
-- **Camera / ADAS**: không có trong Lite · gói thêm "OmniCar Drive".
+- Đặt `OMC_AUTOTEST` = 0 (Core/OmniCar.h) hoặc build bằng `make package OMC_AUTOTEST=0`: bỏ hẳn phần tự kiểm tra.
+- Bản dịch 12 ngôn ngữ (ngoài vi / en) là dịch máy: cần người bản xứ đọc lại.
+- Xem lại các TODO trong docs/sales/ (giá, hoàn tiền, liên hệ).
 
 ---
 
@@ -178,49 +29,88 @@ Thiếu một trong các mục này thì khách quốc tế không mua, hoặc m
 
 ### Hỗ trợ và ổn định
 
-- [ ] **Gửi log một chạm** · Thấp
+- [x] **Gửi log một chạm** · Thấp
   Nút trong Cài đặt: gói OmniCar.log + phiên bản iOS, máy, đầu xe, danh sách tweak → share sheet.
   Xong khi: khách gửi được file qua Zalo / email trong 3 chạm.
-- [ ] **Màn chẩn đoán** · Thấp
+  Code: Hỗ trợ > Gửi log (OMCShareReport) → `OmniCar-log-<ngày>.txt`. Chờ thử gửi Zalo trên máy.
+- [x] **Màn chẩn đoán** · Thấp
   Độ phân giải màn xe, dây / không dây, nhiệt độ máy, FPS app iPhone, phiên bản từng tính năng.
-- [ ] **Thông tin đầu xe** · Thấp
+  Code: Hỗ trợ > Chẩn đoán là trang kiểm tra sức khoẻ cho người dùng: kết luận chung ở đầu, ~20 mục ✓ / ⚠ / ✗ kèm
+  cách sửa (điện thoại: iOS, jailbreak, trình nạp tweak, gói, OmniCar đang chạy đúng bản, bộ nhớ, pin, nhiệt, tweak
+  xung đột; CarPlay: kết nối, OmniCar trong CarPlay, tương thích iOS, lần sập gần nhất, chế độ cứu, màn xe; từng tính
+  năng), chạm để respring / bật lại; số liệu thô ở Chi tiết kỹ thuật. Chưa có FPS app iPhone (cần đo trong App
+  Bridge). Dây / không dây đọc từ CarKit: chờ thử trên xe.
+  Hiệu năng CarPlay: CarPlay tự đo trong lúc lái (khung hình trễ 10 s mỗi phút, khựng ≥ 0,5 s, CPU, RAM còn dư,
+  nhiệt, nguồn điện thấp, tweak khác nạp vào CarPlay), Chẩn đoán đọc lại, chấm ✓ / ⚠ / ✗ và gợi ý nguyên nhân
+  chính; chạm để đo lại / xoá log. Chờ thử trên xe để chỉnh ngưỡng.
+  Tối ưu: nút Tối ưu (tự làm được gì thì làm, còn lại liệt kê cho người dùng), Chế độ nhẹ tắt / tự động / luôn bật
+  (chia màn hình bỏ kính mờ + chỉ 2 app, bong bóng 1 s/lần không đổ bóng, bỏ video khởi động; tự động bật khi máy
+  nóng, khựng 3 lần / 2 phút hoặc ≥ 15% khung trễ, tắt sau 3 phút ổn), dọn RAM khi cắm xe / dọn ngay. App Bridge chỉ cài
+  hook khi app được đưa lên xe. Trang Chẩn đoán: Cần xử lý (nút sửa ngay) → Tối ưu → các nhóm thu gọn.
+- [x] **Thông tin đầu xe** · Thấp
   Độ phân giải, tỉ lệ màn, chất lượng video gợi ý (gộp vào Màn chẩn đoán).
-- [ ] **Phát hiện tweak xung đột** · Thấp
+  Code: CarPlay ghi màn xe + phiên CarKit mỗi lần cắm (OMCCrashGuard), Chẩn đoán > Màn xe. Chờ thử trên xe.
+- [x] **Phát hiện tweak xung đột** · Thấp
   Thấy CarBridge, DuoDash, TrueDash, CarPlayEnable… đang bật → cảnh báo trong Cài đặt (không tự gỡ tweak của người khác).
-- [ ] **Chế độ cứu (rescue)** · Vừa
+  Code: thẻ cảnh báo đầu trang chính khi dylib của tweak đó đang nạp; Chẩn đoán liệt kê cả gói đã cài.
+- [x] **Chế độ cứu (rescue)** · Vừa
   CarPlay sập 2 lần liền trong 60 giây sau khi cắm → tự tắt tính năng nghi gây lỗi, lần cắm sau báo cho người dùng.
   Xong khi: cố tình gây crash trong một tính năng, CarPlay tự phục hồi ở lần cắm thứ 3.
+  Code: OMCCrashGuard (Core) nghi tính năng theo backtrace, thông báo trên iPhone, thẻ "Bật lại" ở trang chính.
+  Thử: Chẩn đoán, nhấn giữ dòng OmniCar → chọn tính năng → cắm xe 3 lần.
+- [x] **Tự kiểm tra trên xe (chỉ bản dev)** · Vừa
+  Công cụ cho tác giả, không phát hành: macro `OMC_AUTOTEST` (Core/OmniCar.h, hoặc `make OMC_AUTOTEST=0`) bỏ hẳn
+  khỏi bản phát hành. Cài đặt > Hỗ trợ > Tự kiểm tra: chọn tính năng → mỗi tính năng tự chạy bộ test của nó trên xe,
+  mỗi bước ghi đạt / lỗi + lý do + trạng thái + ảnh màn xe → Gửi log. Process sập giữa chừng thì lần sau chạy tiếp.
+  Bộ test: Chia màn hình (bố cục, tỉ lệ, đổi chỗ, cửa sổ nổi, bảng chọn / bảng bố cục, toàn màn, lệnh URL, yêu thích,
+  gần đây, bấm nhanh), App Bridge (trong ô, tỉ lệ, đổi chỗ, 3 ô, chặn cửa sổ nổi, toàn màn, đóng, icon, 2 app cùng
+  lúc), Màn hình khởi động (phát, khung chạy, tự tắt, chạm bỏ qua, tắt tính năng), Bong bóng tốc độ (hiện trên xe,
+  số, gần / vượt giới hạn, ẩn khi Split Screen chiếm màn, 18 kiểu, cỡ, mất nguồn).
+  Xong khi: một lần chạy trên xe ra đủ kết quả từng bước, gửi log có ảnh, sửa lỗi không cần thử tay lại từng ca.
+  Code: Core/OMCTest.h (khung), Features/SplitScreen/SCPAutoTest.mm, cuối StartupScreen.x, cuối SPPBubble.mm,
+  Prefs/OMCAutoTestController.m. Chờ chạy thử trên xe.
 - [ ] **Thử với nhiều app hơn** · Vừa
   Danh sách tối thiểu: YouTube, TikTok, Facebook, Instagram, Chrome, Safari, Zalo, Grab, Shopee, X, Twitch, Plex.
   Xong khi: có bảng app chạy tốt / chạy được / không chạy kèm lý do, đưa lên trang tương thích.
-- [ ] **Chạy thật trên iOS 17 và 18** · Cao
+  Bảng ghi kết quả: COMPATIBILITY.md.
+- [ ] **Chạy thật trên iOS 15 16 17 và 18** · Cao
   App Bridge và Chia màn hình đang dựa selector iOS 16. Kiểm tra từng selector, có đường dự phòng khi thiếu.
   Kiểm tra lại luôn app có giao diện CarPlay riêng chạy trong ô.
   Xong khi: thử đủ 4 bố cục + YouTube / TikTok qua App Bridge trên iOS 15, 16, 17, 18 (rootless), ghi kết quả.
+  Chẩn đoán hiện hook thiếu trên từng iOS; ghi kết quả vào COMPATIBILITY.md.
 
 ### Bán quốc tế
 
-- [ ] **Đơn vị và quy chuẩn theo nước** · Thấp
+- [x] **Đơn vị và quy chuẩn theo nước** · Thấp
   km/h ↔ mph; biển tốc độ kiểu Viên (tròn viền đỏ) / kiểu Mỹ (chữ nhật trắng); lái tay phải → đảo bố cục mặc định.
-- [ ] **Hướng dẫn lần đầu** · Thấp
+  Code: Bong bóng tốc độ > Đơn vị (tự động theo vùng / km/h / mph) và Biển tốc độ (tự động / Viên / Mỹ), số vẫn so
+  bằng km/h nên cảnh báo vượt tốc không đổi. Chia màn hình > Vị trí tay lái (tự động theo CarKit / trái / phải): tay
+  lái phải thì app đang dùng vào ô bên phải. Chờ thử trên xe (tên trường rightHandDrive của CarKit).
+- [x] **Hướng dẫn lần đầu** · Thấp
   3–4 trang: chọn app lên xe, chọn bố cục đầu tiên, bật bong bóng tốc độ, cách gọi bảng bố cục trên xe.
-- [ ] **Nhiều ngôn ngữ** · Thấp (dịch) / Vừa (kiểm tra)
+  Code: Prefs/OMCOnboardingController.m, 4 trang, tự hiện lần đầu mở Cài đặt (onboardingDone), Hỗ trợ > Xem lại
+  hướng dẫn.
+- [x] **Nhiều ngôn ngữ** · Thấp (dịch) / Vừa (kiểm tra)
   Tối thiểu: en, vi, es, pt-BR, de, fr, it, ru, zh-Hans, ja, ko, ar (RTL), th, id.
   Xong khi: mọi trang Cài đặt và chữ trên xe không bị cắt ở ngôn ngữ dài nhất (de) và RTL (ar).
-- [ ] **Trang tương thích công khai** · Thấp
+  Code: 14 ngôn ngữ (OMCSupportedLanguages, Core/OMCCommon.m), theo ngôn ngữ máy hoặc chọn trong Cài đặt; thiếu câu
+  nào thì dùng tiếng Anh. Chữ trên xe: OMCTr(vi, en), ngôn ngữ khác tra `<lang>.lproj/Car.strings` (khoá = câu tiếng
+  Anh). Bản dịch máy: cần người bản xứ đọc lại; chưa kiểm tra chữ bị cắt (de) và RTL (ar) trên máy.
+- [x] **Trang tương thích công khai** · Thấp
   iOS, kiểu jailbreak (rootless / roothide), chip, đầu xe đã thử, app đã thử, giới hạn đã biết (DRM).
-- [ ] **Bộ tài liệu bán hàng** · Thấp
-  Video 60 giây, 6 ảnh chụp màn xe, mô tả ngắn / dài cho repo riêng và Chariz, FAQ, chính sách riêng tư.
-- [ ] **Bản quyền, Lite / Pro và dùng thử** · Vừa
-  Nền tảng kỹ thuật cho Phát hành 3 và 4: cờ Pro dùng chung cho mọi tính năng, đếm ngày dùng thử, đọc khoá của gói Pro.
+  Code: docs/compatibility.html (trang tĩnh, EN / VI), đồng bộ với COMPATIBILITY.md. Chưa có kết quả thử nào.
 
 ### Dùng hằng ngày
 
-- [ ] **Phóng to tạm một ô** · Thấp
+- [x] **Phóng to tạm một ô** · Thấp
   Chạm đúp thanh "•••" → ô to toàn vùng app, chạm lại → về bố cục cũ (khác "toàn màn" là không đóng các ô khác).
-- [ ] **Bàn phím trên màn xe** · Cao
+  Code: SCPCarSplit zoomedSlot (ô khác ẩn nhưng giữ kích thước scene), cả thanh ••• của app iPhone (SpringBoard vẽ).
+- [x] **Bàn phím trên màn xe** · Cao
   Một bàn phím chung cho mọi ô (kể cả app iPhone qua App Bridge), kiểu HarmonyOS, có tiếng Việt và các ngôn ngữ chính.
   Xong khi: gõ được tìm kiếm trong YouTube và ô địa chỉ của Safari trên xe.
+  Code: app iPhone qua App Bridge: App.xm chặn bàn phím iPhone khi app trên xe và báo SpringBoard; ABKeyboard.mm vẽ
+  bàn phím trên màn xe (chữ / số, EN / VI Telex), gửi phím về app. App CarPlay gốc dùng bàn phím của CarPlay.
+  Chờ thử YouTube / Safari trên xe.
 
 ## Mức 2 – Quan trọng (bằng DuoDash, làm ngay sau bản bán đầu tiên)
 
@@ -234,69 +124,106 @@ Mỗi thay đổi có xem trước trong Cài đặt (mô phỏng màn xe) trư�
 - [ ] **Ẩn và sắp xếp app** · Vừa
   Ẩn cả app CarPlay gốc không dùng (CarBridge có), kéo đổi thứ tự app iPhone và app CarPlay trong một danh sách.
   Xong khi: thứ tự và app ẩn giữ nguyên sau khi rút / cắm lại và sau respring.
+  Chưa làm: cần cấu trúc màn chính CarPlay. Bản dev có bộ dò (Features/CarProbe): cắm xe → Gửi log (kèm OmniCar-Probe.txt).
 - [ ] **Cỡ icon** · Vừa
   Thanh trượt cỡ icon trên màn chính (ví dụ 80–130 %), lưới tự tính lại để không tràn màn.
+  Chưa làm: chờ kết quả bộ dò (lưới icon của DashBoard).
 - [ ] **Số cột / hàng và tên app** · Vừa
   Chọn số cột × hàng mỗi trang, ẩn / hiện tên dưới icon, khoảng cách icon.
+  Chưa làm: chờ kết quả bộ dò.
 - [ ] **Hình nền màn chính** · Vừa
   Chọn ảnh từ Ảnh / Tệp, cắt theo tỉ lệ màn xe, chỉnh độ mờ và độ tối để icon vẫn dễ nhìn.
+  Chưa làm: chờ kết quả bộ dò (lớp hình nền của DashBoard).
 - [ ] **Dock tuỳ chỉnh** · Vừa
   Chọn app nào nằm cố định trên dock (kể cả app iPhone), ẩn mục gợi ý của CarPlay.
+  Chưa làm: chờ kết quả bộ dò (lớp dock).
 
 ### Màn hình khởi động mới
 
 Đổi từ "một video" sang nhiều **kiểu khởi động**. Mỗi kiểu là một mẫu có tham số; người dùng chọn kiểu,
 xem trước ngay trong Cài đặt. Âm thanh phát qua loa xe khi CarPlay kết nối.
 
-- [ ] **Khung chọn kiểu khởi động** · Vừa
+- [x] **Khung chọn kiểu khởi động** · Vừa
   Trang Cài đặt mới: danh sách kiểu (Video, Logo + âm thanh, Lời chào, Thời tiết…), xem trước, thời lượng, chạm để bỏ qua.
   Video MP4 hiện tại thành một kiểu trong danh sách, cài đặt cũ được giữ.
-- [ ] **Logo + âm thanh của bạn** · Thấp (sau khi có khung)
+  Code: startupScreenStyle (0 Video, 1 Logo, 2 Lời chào, 3 Thời tiết), SSStartupView.m vẽ chung cho xe và xem trước
+  trong Cài đặt (Prefs/SSStartupViewPrefs.m #import lại file đó). Chờ thử trên xe.
+- [x] **Logo + âm thanh của bạn** · Thấp (sau khi có khung)
   Chọn ảnh logo (PNG trong suốt) + âm thanh; vài hiệu ứng xuất hiện: hiện dần, phóng to, phát sáng.
-- [ ] **Âm thanh khởi động riêng** · Thấp
+  Code: logo PNG (Ảnh / Tệp, ≤ 1024 px) ở StartupScreen/Logo, hiệu ứng hiện dần / phóng to / phát sáng.
+- [x] **Âm thanh khởi động riêng** · Thấp
   Gắn âm thanh vào bất kỳ kiểu nào (tiếng máy nổ, chuông, lời chào ghi âm), chỉnh âm lượng, tắt khi đang có cuộc gọi.
-- [ ] **Lời chào theo giờ** · Thấp
+  Code: một file âm thanh (Tệp) ở StartupScreen/Sounds, âm lượng, SpringBoard phát; bỏ qua khi đang gọi (CXCallObserver
+  trong SpringBoard: chờ thử).
+- [x] **Lời chào theo giờ** · Thấp
   "Chào buổi sáng, An" + giờ, ngày; chữ và nền đổi theo sáng / chiều / tối.
-- [ ] **Thời tiết và nhiệt độ** · Vừa
+  Code: giờ, "Chào buổi sáng, <tên>", ngày; nền đổi theo sáng / chiều / tối / khuya.
+- [x] **Thời tiết và nhiệt độ** · Vừa
   Nhiệt độ hiện tại, cao / thấp trong ngày, khả năng mưa, biểu tượng thời tiết; lấy từ WeatherKit / dữ liệu Thời tiết của iOS, không có mạng thì dùng số đo gần nhất.
+  Code: Open-Meteo (cần mạng, toạ độ làm tròn 2 số, đã ghi trong Cài đặt), vị trí gần nhất của CarPlay, cache 12 h,
+  không có dữ liệu thì về Lời chào. Chờ thử: CarPlay có quyền vị trí / mạng không. Cập nhật docs/sales/privacy.md.
 
 ### Chia màn hình
 
-- [ ] **Ghim ô bản đồ** · Thấp
+- [x] **Ghim ô bản đồ** · Thấp
   Ô được ghim không bị thay khi chọn bố cục / app khác.
-- [ ] **Nhớ tỉ lệ theo cặp app** · Thấp
+  Code: splitScreenPinnedApp (Chia màn hình > Ô được ghim, hoặc omnicar://splitscreen/pin?app=): ô của app đó không bị
+  thay khi chọn app, đổi bố cục hay bớt ô.
+- [x] **Nhớ tỉ lệ theo cặp app** · Thấp
   Maps + Nhạc = 70/30, Maps + YouTube = 50/50… tự áp lại.
-- [ ] **Hồ sơ theo từng xe** · Thấp
+  Code: có từ trước (SCPPrefs ratioForPairLeft:right:, SPL_KEY_PAIR_RATIOS).
+- [x] **Hồ sơ theo từng xe** · Thấp
   Nhận xe qua tên / ID đầu xe → bố cục chia màn, màn chính CarPlay, kiểu khởi động, cỡ bong bóng riêng cho từng xe.
+  Code: Core OMCProfileSwitch khi cắm xe (khoá xe từ phiên CarKit), OMCProfileKeys() là các cài đặt theo xe;
+  Cài đặt > Hồ sơ theo xe (Prefs/OMCCarProfilesController.m). Chờ thử: tên trường định danh xe của CarKit.
 - [ ] **Đủ 8 bố cục trở lên** · Vừa
   Thêm 70/30, 30/70, 3 cột đều, 1 lớn trên + 2 dưới (màn dọc), lưới 2×2 (màn siêu rộng).
+  Code: thêm 70/30 và 30/70 trong bảng bố cục (SCPC_LAYOUT_70 / _30); 3 cột đều và 1 lớn + 2 (màn dọc) đã có.
+  Còn thiếu: lưới 2×2 (cần 4 ô, SCPC_MAX_PANES = 3).
 - [ ] **Chọn ô phát tiếng** · Vừa
   Hai ô cùng có âm thanh → chọn ô nào phát, ô kia tắt tiếng; tự giảm nhạc khi bản đồ đọc hướng dẫn.
+  Chưa làm: cần biết CarPlay chọn nguồn âm thanh thế nào (bộ dò liệt kê lớp NowPlaying / Audio).
 - [ ] **Gán nút giọng nói trên vô lăng** · Vừa
   Bấm giữ = Siri như cũ; bấm ngắn = mở bảng bố cục / một app / một lệnh OmniCar, người dùng chọn.
+  Chưa làm: cần đường sự kiện nút Siri của DashBoard (bộ dò liệt kê DBEvent).
 
 ### Lái xe
 
-- [ ] **Cảnh báo quá tốc độ** · Thấp
+- [x] **Cảnh báo quá tốc độ** · Thấp
   Vượt biển + ngưỡng tuỳ chọn → viền màn đổi màu, tiếng ngắn; có chế độ im lặng.
+  Code: SPPWarn.mm: viền đỏ nhấp nháy trên màn xe + tiếng bíp 1 lần mỗi lần vượt; ngưỡng 0–20, chế độ tắt / chỉ viền /
+  viền + tiếng (Bong bóng tốc độ > Cảnh báo quá tốc độ).
 - [ ] **Chế độ lái** · Vừa
   Trên tốc độ đặt trước: ô video chỉ còn tiếng / mờ đi, chữ và nút to hơn, khoá thao tác nhỏ; dừng xe → trở lại.
   Đây cũng là câu trả lời khi repo / người mua hỏi về an toàn.
+  Code: ABHost che ô app iPhone ("chỉ còn tiếng", khoá chạm) khi tốc độ ≥ 10 km/h 3 giây, dừng xe 5 giây là mở lại
+  (App trên màn xe > Chế độ lái; tốc độ từ com.anlai.omnicar/speed). Còn thiếu: chữ / nút to hơn khi chạy.
 - [ ] **Nguồn tốc độ toàn cầu** · Vừa
   Thêm Google Maps, Waze, Apple Maps; dự phòng bằng giới hạn tốc độ OpenStreetMap tải sẵn theo vùng.
+  Code: nguồn "GPS iPhone" (SPPGPS.mm, CoreLocation trong SpringBoard) dùng được mọi nơi nhưng không có biển giới hạn.
+  Còn thiếu: Google Maps / Waze / Apple Maps và giới hạn tốc độ OSM. Chờ thử: SpringBoard có lấy được vị trí không.
 
 ### Cài đặt và hiệu năng
 
-- [ ] **Sao lưu / khôi phục cài đặt** · Thấp
+- [x] **Sao lưu / khôi phục cài đặt** · Thấp
   Xuất một file `.omnicar`, mở file là nạp lại (bố cục, màn chính, kiểu khởi động, kiểu bong bóng, ảnh / video / âm thanh đã chọn).
-- [ ] **Có gì mới** · Thấp
+  Code: Prefs/OMCBackup.m: file .omnicar (plist: cài đặt + file dữ liệu ≤ 200 MB), Hỗ trợ > Sao lưu / Khôi phục.
+  Chưa làm: mở file .omnicar thẳng từ Tệp / AirDrop (cần khai báo UTI trong App/).
+- [x] **Có gì mới** · Thấp
   Sau mỗi bản cập nhật hiện một trang ngắn trong Cài đặt.
+  Code: Prefs/OMCWhatsNewController.m + Resources/WhatsNew.plist (theo phiên bản trong control), tự hiện 1 lần sau mỗi bản
+  mới, Hỗ trợ > Có gì mới. Thêm mục cho mỗi phiên bản mới vào WhatsNew.plist.
 - [ ] **Tinh chỉnh hiệu năng** · Vừa
   Giới hạn FPS app iPhone, tự giảm khi máy nóng, giữ app trong bộ nhớ hay không, giữ kết nối CarPlay khi khoá máy.
+  Code (một phần, Mức 1): Chế độ nhẹ tự giảm khi máy nóng, dọn RAM; App Bridge giữ app trên xe khi khoá máy.
+  Còn thiếu: giới hạn FPS app iPhone.
 - [ ] **Tối ưu CarPlay không dây** · Vừa
   Tự giảm chất lượng / FPS app iPhone khi kết nối không dây chập chờn.
-- [ ] **Phím tắt Siri đầy đủ** · Vừa
+  Chưa làm.
+- [x] **Phím tắt Siri đầy đủ** · Vừa
   Hành động cho app Phím tắt: mở bố cục, đặt app vào ô, đổi tỉ lệ, đổi hình nền / kiểu khởi động, bật / tắt từng tính năng.
+  Code: omnicar://splitscreen/layout | ratio | swap | zoom | pin, omnicar://feature/<tính năng>?on=, lite?mode=,
+  startup?style=, cleanram (Core.x, Features/SplitScreen/SpringBoard.xm). Chưa có: đổi hình nền (chưa có hình nền).
 
 ## Mức 3 – Vượt DuoDash (tạo khác biệt khi lái xe)
 

@@ -1,0 +1,72 @@
+/* OmniCar – Écran de démarrage – Français */
+
+"STARTUPSCREEN" = "Écran de démarrage";
+"STARTUPSCREEN_ENABLE" = "Écran de démarrage";
+
+"STARTUPSCREEN_VIDEO_GROUP" = "Vidéo";
+"STARTUPSCREEN_VIDEO_FOOTER" = "MP4, MOV, M4V · jusqu’à 60 secondes.";
+"STARTUPSCREEN_CURRENT_VIDEO" = "Vidéo";
+"STARTUPSCREEN_NO_VIDEO" = "(Aucune vidéo)";
+"STARTUPSCREEN_PREVIEW" = "Aperçu";
+"STARTUPSCREEN_DELETE" = "Supprimer la vidéo";
+"STARTUPSCREEN_ADD" = "Ajouter une vidéo";
+"STARTUPSCREEN_FROM_PHOTOS" = "Depuis Photos";
+"STARTUPSCREEN_FROM_FILES" = "Depuis Fichiers";
+
+"STARTUPSCREEN_DURATION_GROUP" = "Durée (secondes)";
+"STARTUPSCREEN_DURATION_FOOTER" = "Durée d’affichage de l’écran de démarrage sur l’écran de la voiture. Les vidéos plus courtes sont lues en boucle.";
+"STARTUPSCREEN_PLAY_FULL" = "Lire la vidéo en entier";
+
+"STARTUPSCREEN_DISPLAY_GROUP" = "Affichage";
+"STARTUPSCREEN_SCALE_FILL" = "Remplir";
+"STARTUPSCREEN_SCALE_FIT" = "Ajuster";
+"STARTUPSCREEN_SOUND" = "Son de la vidéo";
+"STARTUPSCREEN_TAP_TO_SKIP" = "Toucher pour passer";
+
+"STARTUPSCREEN_PREPARING" = "Préparation de la vidéo pour CarPlay";
+"STARTUPSCREEN_PROCESS_FAILED" = "Impossible de traiter la vidéo :\n%@";
+"STARTUPSCREEN_SAVE_FAILED" = "Impossible d’enregistrer la vidéo : %@";
+"STARTUPSCREEN_NO_VIDEO_PREVIEW" = "Aucune vidéo pour l’instant. Ajoutez-en une d’abord.";
+"STARTUPSCREEN_NO_VIDEO_DELETE" = "Il n’y a aucune vidéo à supprimer.";
+"STARTUPSCREEN_DELETE_TITLE" = "Supprimer la vidéo";
+"STARTUPSCREEN_DELETE_CONFIRM" = "Supprimer \"%@\" ?";
+"STARTUPSCREEN_DELETE_ACTION" = "Supprimer";
+
+"STARTUPSCREEN_STYLE_GROUP" = "Style de démarrage";
+"STARTUPSCREEN_STYLE_FOOTER" = "La carte en haut montre ce qu’affichera l’écran de la voiture. Touchez-la pour rejouer l’effet.";
+"STARTUPSCREEN_STYLE_VIDEO" = "Vidéo";
+"STARTUPSCREEN_STYLE_LOGO" = "Logo";
+"STARTUPSCREEN_STYLE_GREETING" = "Salutation";
+"STARTUPSCREEN_STYLE_WEATHER" = "Météo";
+
+"STARTUPSCREEN_LOGO_GROUP" = "Logo";
+"STARTUPSCREEN_LOGO_FOOTER" = "Un PNG à fond transparent rend mieux sur le fond sombre. Sans logo, une icône de voiture s’affiche.";
+"STARTUPSCREEN_LOGO_CHOOSE" = "Choisir un logo";
+"STARTUPSCREEN_LOGO_DELETE" = "Supprimer le logo";
+"STARTUPSCREEN_LOGO_FAILED" = "Impossible de lire cette image.";
+"STARTUPSCREEN_LOGO_NONE" = "Aucun logo pour l’instant.";
+"STARTUPSCREEN_EFFECT_GROUP" = "Effet";
+"STARTUPSCREEN_EFFECT_FADE" = "Fondu";
+"STARTUPSCREEN_EFFECT_ZOOM" = "Zoom";
+"STARTUPSCREEN_EFFECT_GLOW" = "Halo";
+
+"STARTUPSCREEN_GREETING_GROUP" = "Salutation";
+"STARTUPSCREEN_GREETING_FOOTER" = "\"Bonjour, <prénom>\" avec l’heure et la date. Le texte et les couleurs changent le matin, l’après-midi, le soir et la nuit.";
+"STARTUPSCREEN_NAME" = "Votre prénom";
+"STARTUPSCREEN_NAME_PLACEHOLDER" = "Facultatif";
+
+"STARTUPSCREEN_WEATHER_FOOTER" = "Le style Météo se connecte à Internet : à chaque connexion de CarPlay, il envoie votre dernière position connue, arrondie à 2 décimales (environ 1 km), à Open-Meteo (open-meteo.com, sans compte). Hors ligne, il affiche le dernier résultat avec son heure ; sans accès à la position ni données, il affiche la salutation.";
+"STARTUPSCREEN_WEATHER_LAST" = "Dernière mise à jour : %@";
+"STARTUPSCREEN_WEATHER_NONE" = "Aucune donnée météo pour l’instant.";
+
+"STARTUPSCREEN_STARTUP_SOUND_GROUP" = "Son de démarrage";
+"STARTUPSCREEN_STARTUP_SOUND_FOOTER" = "Joué sur les haut-parleurs de la voiture à la connexion de CarPlay, quel que soit le style. M4A, MP3, WAV, CAF. Avec le style Vidéo et Son de la vidéo activé, c’est le son de la vidéo qui est joué.";
+"STARTUPSCREEN_SOUND_CHOOSE" = "Choisir un son";
+"STARTUPSCREEN_SOUND_PREVIEW" = "Écouter le son";
+"STARTUPSCREEN_SOUND_DELETE" = "Supprimer le son";
+"STARTUPSCREEN_SOUND_CURRENT" = "Actuel : %@";
+"STARTUPSCREEN_SOUND_NONE" = "Aucun son de démarrage.";
+"STARTUPSCREEN_SOUND_FAILED" = "Impossible de lire ce son : %@";
+"STARTUPSCREEN_VOLUME_GROUP" = "Volume";
+"STARTUPSCREEN_VOLUME_FOOTER" = "Pour le son de démarrage et le son de la vidéo.";
+"STARTUPSCREEN_SOUND_SKIP_CALL" = "Silencieux pendant un appel";

@@ -32,7 +32,32 @@ static id value(NSString *key)
     CFPreferencesAppSynchronize(OMC_PREFS_DOMAIN);
 }
 
-// Index in SPP_NAV_APPS: Vietmap Live, GOFA. Chi 1 nguon. Chua chon lan nao: lay tu 2 cong tac cu
+// Canh bao qua toc do: 0 tat, 1 chi vien (im lang), 2 vien + tieng ngan (mac dinh)
++ (NSInteger)warnMode
+{
+    id v = value(SB_KEY_WARN_MODE);
+    NSInteger i = v ? [v integerValue] : 2;
+    return (i >= 0 && i <= 2) ? i : 2;
+}
+
+// Nguong 0..20 (mac dinh 5) theo don vi dang hien tren bong bong: mph -> doi ra km/h de so voi toc do goc
++ (double)warnMarginKmh
+{
+    id v = value(SB_KEY_WARN_OVER);
+    double m = v ? round([v doubleValue]) : 5;
+    m = MIN(20, MAX(0, m));
+    return [self useMph] ? m * 1.609344 : m;
+}
+
++ (void)setGPSStatus:(int)status
+{
+    id cur = value(SB_KEY_GPS_STATUS);
+    if (cur && [cur intValue] == status) return;
+    CFPreferencesSetAppValue((__bridge CFStringRef)SB_KEY_GPS_STATUS, (__bridge CFPropertyListRef)@(status), OMC_PREFS_DOMAIN);
+    CFPreferencesAppSynchronize(OMC_PREFS_DOMAIN);
+}
+
+// Index in SPP_NAV_APPS: Vietmap Live, GOFA, GPS iPhone (SPP_SOURCE_GPS). Chi 1 nguon. Chua chon lan nao: lay tu 2 cong tac cu
 // (chi tat Vietmap -> GOFA), giong OMCSpeedBubbleController ghi lai khi mo trang cai dat.
 + (int)source
 {
@@ -43,5 +68,34 @@ static id value(NSString *key)
 }
 
 + (BOOL)appEnabled:(int)appIndex { return appIndex == [self source]; }
+
+// Ma vung hien tai (vd "VN", "US"); rong neu khong biet
+static NSString *regionCode(void)
+{
+    NSString *cc = [[NSLocale currentLocale] countryCode];
+    return cc ? cc.uppercaseString : @"";
+}
+
+// Don vi: 0 tu dong (mph khi vung khong dung he met, hoac US/GB/LR/MM - Anh dung he met nhung bien duong ghi mph),
+// 1 km/h, 2 mph
++ (BOOL)useMph
+{
+    id v = value(SB_KEY_UNIT);
+    NSInteger i = v ? [v integerValue] : 0;
+    if (i == 1) return NO;
+    if (i == 2) return YES;
+    if (![[NSLocale currentLocale] usesMetricSystem]) return YES;
+    return [@[@"US", @"GB", @"LR", @"MM"] containsObject:regionCode()];
+}
+
+// Bien gioi han: 0 tu dong (kieu My o US/PR/LR/MM, con lai Vienna), 1 Vienna, 2 My
++ (BOOL)usSign
+{
+    id v = value(SB_KEY_SIGN);
+    NSInteger i = v ? [v integerValue] : 0;
+    if (i == 1) return NO;
+    if (i == 2) return YES;
+    return [@[@"US", @"PR", @"LR", @"MM"] containsObject:regionCode()];
+}
 
 @end

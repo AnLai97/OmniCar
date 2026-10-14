@@ -1,0 +1,24 @@
+/* OmniCar – Einführung (Prefs/OMCOnboardingController.m) – Deutsch */
+
+"ONB_SHOW_AGAIN" = "Einführung erneut zeigen";
+"ONB_SKIP" = "Überspringen";
+"ONB_NEXT" = "Weiter";
+"ONB_DONE" = "Fertig";
+
+"ONB_P1_TITLE" = "Willkommen bei OmniCar";
+"ONB_P1_BODY" = "OmniCar macht CarPlay leistungsfähiger. Wähle zuerst die iPhone-Apps, die du auf dem Autodisplay haben möchtest – auch Apps ohne CarPlay.";
+"ONB_P1_BUTTON" = "Apps wählen";
+"ONB_P1_NOTE" = "Du kannst sie jederzeit unter „Apps auf dem Autodisplay“ ändern.";
+
+"ONB_P2_TITLE" = "Autodisplay teilen";
+"ONB_P2_BODY" = "• Tippe im Auto auf die OmniCar-Taste im CarPlay-Dock, um das Layout-Menü zu öffnen.\n• Wähle ein Layout: 2 Bereiche, 3 Bereiche, 1 groß + 2 oder 2 + 1 groß. Wähle dann die Apps.\n• Oder lege den Finger auf ein App-Symbol auf dem Home-Bildschirm im Auto, um mit dieser App zu teilen.\n• Ziehe den runden Regler, um die Größe zu ändern. Die Home-Taste beendet die Teilung.";
+"ONB_P2_NOTE" = "Sichere deine Lieblingslayouts unter Geteilter Bildschirm > Favoriten-Layouts.";
+
+"ONB_P3_TITLE" = "Tempo-Blase";
+"ONB_P3_BODY" = "Eine kleine Blase auf dem Autodisplay zeigt dein Tempo und das Tempolimit, sodass du beides auf einen Blick siehst.";
+"ONB_P3_SWITCH" = "Tempo-Blase";
+"ONB_P3_NOTE" = "Erfordert Vietmap Live oder GOFA auf deinem iPhone. Wähle die Quelle auf der Seite „Tempo-Blase“.";
+
+"ONB_P4_TITLE" = "Kurze Tipps";
+"ONB_P4_BODY" = "• Layout-Menü: Tippe auf die OmniCar-Taste im CarPlay-Dock oder lege den Finger auf ein App-Symbol.\n• Zuletzt und Favoriten sind im selben Menü.\n• Stimmt etwas nicht? Öffne „Support“ unten auf dieser Seite: Diagnose prüft alles, „Protokoll senden“ schickt einen Bericht an den Entwickler.";
+"ONB_P4_NOTE" = "Du kannst diese Einführung unter Support > Einführung erneut zeigen wieder öffnen.";

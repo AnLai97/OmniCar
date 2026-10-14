@@ -1,0 +1,46 @@
+/* OmniCar – Split Screen – 简体中文 */
+
+"SPLITSCREEN" = "分屏";
+"SPLITSCREEN_ENABLE" = "分屏";
+"SPLITSCREEN_AUTO_LAUNCH" = "连接时打开";
+"SPLITSCREEN_DRIVER_SIDE" = "驾驶座位置";
+"SPLITSCREEN_DRIVER_AUTO" = "自动";
+"SPLITSCREEN_DRIVER_LEFT" = "左侧";
+"SPLITSCREEN_DRIVER_RIGHT" = "右侧";
+"SPLITSCREEN_PINNED" = "固定格";
+"SPLITSCREEN_DRIVER_FOOTER" = "右舵车：当前 App 在靠近驾驶员的右侧格中打开。自动 = 以汽车报告的为准。\n固定格（通常是地图）：更改布局或其他 App 时，该 App 保持在自己的格中。";
+
+"SPLITSCREEN_PANEL_GROUP" = "车内 OmniCar 面板";
+"SPLITSCREEN_SHOW_RECENT" = "最近";
+"SPLITSCREEN_SHOW_FAVORITES" = "常用";
+
+"SPLITSCREEN_FAV_GROUP" = "常用布局";
+"SPLITSCREEN_FAV_FOOTER" = "Siri: omnicar://splitscreen/fav?n=1";
+"SPLITSCREEN_FAV1_PLACEHOLDER" = "通勤";
+"SPLITSCREEN_FAV2_PLACEHOLDER" = "周末";
+"SPLITSCREEN_FAV3_PLACEHOLDER" = "自驾游";
+"SPLITSCREEN_PAIR_NAME" = "名称";
+"SPLITSCREEN_LAYOUT_GROUP" = "布局";
+"SPLITSCREEN_APPS_GROUP" = "App";
+"SPLITSCREEN_LAYOUT_2" = "2 格";
+"SPLITSCREEN_LAYOUT_3" = "3 格";
+"SPLITSCREEN_LAYOUT_13" = "1 大 + 2";
+"SPLITSCREEN_LAYOUT_31" = "2 + 1 大";
+"SPLITSCREEN_BOX_1" = "第 1 格";
+"SPLITSCREEN_BOX_2" = "第 2 格";
+"SPLITSCREEN_BOX_3" = "第 3 格";
+
+"SPLITSCREEN_APP_NOT_SET" = "尚无 App";
+"SPLITSCREEN_PICKER_NONE" = "无";
+"SPLITSCREEN_PICKER_CARPLAY_APPS" = "CarPlay App";
+"SPLITSCREEN_PICKER_PHONE_APPS" = "iPhone App (App Bridge)";
+"SPLITSCREEN_PICKER_GUESS_FOOTER" = "尚未连接汽车：根据 CarPlay 支持情况推测。";
+"SPLITSCREEN_PICKER_PHONE_FOOTER" = "在“车机屏幕上的 App”中选择的 App。";
+"SPLITSCREEN_PICKER_NO_PHONE_FOOTER" = "尚未选择 iPhone App（车机屏幕上的 App）。";
+
+"SPLITSCREEN_GUIDE" = "指南";
+"SPLITSCREEN_GUIDE_CAR" = "在车内";
+"SPLITSCREEN_GUIDE_CAR_TEXT" = "• 程序坞上的 OmniCar 按钮：布局、最近、常用、退出分屏。\n• 圆形旋钮：轻点选择比例 · 拖动调整大小 · 拖到边缘关闭该格。\n• ••• 条：轻点可替换 / 浮动 / 全屏 / 关闭 · 拖到另一格上可交换位置。\n• 轻点两下 ••• 条：临时放大该格，再轻点两下返回。\n• 轻点两下分隔线：交换两格。\n• 主屏幕按钮：退出分屏。";
+"SPLITSCREEN_SHORTCUTS_GROUP" = "Siri / 快捷指令（打开 URL）";
+"SPLITSCREEN_SHORTCUTS_FOOTER" = "omnicar://splitscreen/open?left=com.apple.Maps&right=com.spotify.client\nomnicar://splitscreen/fav?n=1\nomnicar://splitscreen/close\nomnicar://splitscreen/layout?id=3 · ratio?r=70 · swap · zoom?pane=1\nomnicar://feature/speedBubble?on=toggle\nomnicar://lite?mode=auto\nomnicar://cleanram";
+"SPLITSCREEN_CREDITS_FOOTER" = "前身为 CarDuo。App 托管基于 carplay-cast（Ethan Arbuckle）。";

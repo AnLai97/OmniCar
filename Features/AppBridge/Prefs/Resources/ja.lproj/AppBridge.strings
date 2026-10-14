@@ -1,0 +1,18 @@
+/* OmniCar – App Bridge – 日本語 */
+
+"APPBRIDGE" = "App Bridge";
+"APPBRIDGE_FOOTER" = "CarPlay非対応のiPhone App（YouTube、TikTok…）を車の画面で使えます。";
+"APPBRIDGE_ENABLE" = "iPhone Appを車に表示";
+"APPBRIDGE_APPS" = "車の画面のApp";
+"APPBRIDGE_APPS_FOOTER" = "Appをオンにすると、そのアイコンがCarPlayのホーム画面に追加されます。";
+"APPBRIDGE_APPS_NONE" = "なし";
+"APPBRIDGE_APPS_COUNT" = "%ld個のApp";
+"APPBRIDGE_APPS_ON_CAR" = "車の画面に表示中";
+"APPBRIDGE_APPS_USER" = "あなたのApp";
+"APPBRIDGE_APPS_SYSTEM" = "システムApp";
+"APPBRIDGE_APPS_OTHER_FOOTER" = "独自のCarPlay画面を持つAppは表示されません。";
+"APPBRIDGE_APPS_SEARCH" = "Appを検索";
+"APPBRIDGE_APPS_EMPTY" = "このデバイスにiPhone Appが見つかりません。";
+"APPBRIDGE_APPS_NO_MATCH" = "一致するAppはありません。";
+"APPBRIDGE_DRIVE_MODE" = "運転モード";
+"APPBRIDGE_DRIVE_FOOTER" = "運転モード: 10 km/hを超えると、車で使うiPhone Appは音声のみになります（映像は隠され、タッチはロック）。停車すると再び視聴できます。スピードバブルの速度取得元を使用します。";

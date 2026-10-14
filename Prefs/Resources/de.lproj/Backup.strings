@@ -1,0 +1,48 @@
+/* OmniCar – Einstellungen sichern / wiederherstellen (Prefs/OMCBackup.m) und Neuigkeiten (Prefs/OMCWhatsNewController.m) – Deutsch */
+
+"BAK_BACKUP" = "Einstellungen sichern";
+"BAK_RESTORE" = "Aus Datei wiederherstellen";
+"BAK_PREPARING" = "Backup wird vorbereitet…";
+"BAK_READING" = "Backup wird gelesen…";
+"BAK_RESTORING" = "Wird wiederhergestellt…";
+"BAK_FAILED" = "Backup fehlgeschlagen";
+"BAK_SKIPPED_TITLE" = "Einige Dateien wurden ausgelassen";
+"BAK_SKIPPED" = "Ein Backup enthält bis zu %lu MB an Dateien. Diese wurden nicht aufgenommen:\n%@";
+"BAK_CONTINUE" = "Weiter";
+"BAK_RESTORE_CONFIRM" = "Dieses Backup wiederherstellen?";
+"BAK_SUMMARY_HEAD" = "Backup vom %1$@ (OmniCar %2$@). Es ersetzt:";
+"BAK_SUMMARY_PREFS" = "• %lu Einstellungen auf allen Seiten";
+"BAK_SUMMARY_FILES" = "• %1$lu Dateien, %2$@ (%3$@)";
+"BAK_SUMMARY_FOOT" = "Einstellungen, die nicht im Backup sind, werden auf ihre Standardwerte zurückgesetzt.";
+"BAK_RESTORE_BUTTON" = "Wiederherstellen";
+"BAK_RESTORE_FAILED" = "Wiederherstellen fehlgeschlagen";
+"BAK_RESTORED" = "Einstellungen wiederhergestellt";
+"BAK_RESTORED_TEXT" = "Führe einen Respring aus, damit alle Funktionen die wiederhergestellten Einstellungen übernehmen.";
+"BAK_LATER" = "Später";
+"BAK_ERR_WRITE" = "Die Backup-Datei konnte nicht geschrieben werden.";
+"BAK_ERR_NOT_BACKUP" = "Diese Datei ist kein OmniCar-Backup (.omnicar).";
+"BAK_ERR_NEWER" = "Dieses Backup stammt von einer neueren OmniCar-Version. Aktualisiere zuerst OmniCar.";
+"BAK_ERR_FILES" = "Die Dateien des Backups konnten nicht geschrieben werden. Prüfe, ob auf dem iPhone genug Speicher frei ist.";
+
+"WN_ROW" = "Neuigkeiten";
+"WN_TITLE" = "Neu in OmniCar %@";
+"WN_CONTINUE" = "Weiter";
+
+"WN_DIAG_TITLE" = "CarPlay-Leistung";
+"WN_DIAG_TEXT" = "Die Diagnose zeigt jetzt, wie CarPlay auf deiner letzten Fahrt lief: Flüssigkeit, Hänger, Speicher und Wärme.";
+"WN_OPTIMIZE_TITLE" = "Optimieren, Lite-Modus, Speicher freigeben";
+"WN_OPTIMIZE_TEXT" = "Ein Tippen wendet die Korrekturen an, die die Diagnose findet. Der Lite-Modus hält alles flüssig, wenn das Telefon heiß ist, und OmniCar kann Hintergrund-Apps beenden, wenn das Auto verbindet.";
+"WN_KEYBOARD_TITLE" = "Tastatur auf dem Autodisplay";
+"WN_KEYBOARD_TEXT" = "Tippe in iPhone-Apps im Auto mit einer Tastatur direkt auf dem Autodisplay.";
+"WN_ZOOM_TITLE" = "Bereich-Zoom";
+"WN_ZOOM_TEXT" = "Doppeltippe auf die ••• eines Bereichs im geteilten Bildschirm, damit er den ganzen Bildschirm füllt; erneut doppeltippen zum Zurückkehren.";
+"WN_DRIVER_TITLE" = "Fahrerseite";
+"WN_DRIVER_TEXT" = "Geteilter Bildschirm folgt Links- oder Rechtslenkung: automatisch vom Auto oder selbst festgelegt.";
+"WN_UNITS_TITLE" = "km/h oder mph, US-Schilder";
+"WN_UNITS_TEXT" = "Die Tempo-Blase zeigt km/h oder mph und ein rundes Tempolimit-Schild oder eines im US-Stil, automatisch nach deiner Region.";
+"WN_LANG_TITLE" = "14 Sprachen";
+"WN_LANG_TEXT" = "Einstellungen, Texte auf dem Autodisplay und Hinweise in 14 Sprachen. Wähle eine über die Globus-Taste.";
+"WN_GUIDE_TITLE" = "Einführung";
+"WN_GUIDE_TEXT" = "Eine kurze Einführung für den Start. Jederzeit wieder zu öffnen unter Support > Einführung erneut zeigen.";
+"WN_BACKUP_TITLE" = "Sichern und wiederherstellen";
+"WN_BACKUP_TEXT" = "Sichere alle Einstellungen und deine Startvideos in einer .omnicar-Datei und stelle sie auf jedem iPhone wieder her.";

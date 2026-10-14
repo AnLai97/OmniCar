@@ -1,4 +1,5 @@
 #import "common.h"
+#import <notify.h>
 #import "SCPPrefs.h"
 #import "SCPCarSplit.h"
 #import <signal.h>
@@ -44,7 +45,8 @@ static void SCPPostNative(NSDictionary *info)
     [[objc_getClass("NSDistributedNotificationCenter") defaultCenter] postNotificationName:SPL_NOTIF_NATIVE object:nil userInfo:info];
 }
 
-// URL tu app OmniCar (Shortcuts / Siri): omnicar://splitscreen/open?left=..&right=.. | fav?n=1 | close | picker
+// URL tu app OmniCar (Shortcuts / Siri): omnicar://splitscreen/open?left=..&right=.. | fav?n=1 | close | picker |
+// layout?id=2|3|13|31 | ratio?r=0.7 (o 1, chia 2) | swap | zoom?pane=1 | pin?app=<bundle id> (trong = bo ghim)
 static void SCPHandleURL(NSString *urlString)
 {
     NSURL *url = [urlString isKindOfClass:[NSString class]] ? [NSURL URLWithString:urlString] : nil;
@@ -62,6 +64,21 @@ static void SCPHandleURL(NSString *urlString)
         SCPPostNative(@{@"action": @"picker"});
     } else if ([action isEqualToString:@"fav"]) {
         SCPPostNative(@{@"action": @"fav", @"index": @([q[@"n"] integerValue])});
+    } else if ([action isEqualToString:@"layout"]) {
+        SCPPostNative(@{@"action": @"layout", @"id": @([q[@"id"] intValue])});
+    } else if ([action isEqualToString:@"ratio"]) {
+        double r = [q[@"r"] doubleValue];
+        if (r > 1) r /= 100;   // ratio?r=70
+        SCPPostNative(@{@"action": @"ratio", @"r": @(r)});
+    } else if ([action isEqualToString:@"swap"]) {
+        SCPPostNative(@{@"action": @"swap"});
+    } else if ([action isEqualToString:@"zoom"]) {
+        SCPPostNative(@{@"action": @"zoom", @"pane": @(MAX(1, [q[@"pane"] intValue]))});
+    } else if ([action isEqualToString:@"pin"]) {   // ghi Cai dat, khong can CarPlay
+        NSString *app = q[@"app"];
+        CFPreferencesSetAppValue((__bridge CFStringRef)SPL_KEY_PINNED_APP, app.length ? (__bridge CFStringRef)app : NULL, OMC_PREFS_DOMAIN);
+        OMCPrefsSync();
+        notify_post("com.anlai.omnicar/prefschanged");
     } else {
         // open?left=..&right=..: chi mo dung app trong link (khong ghi de cap mac dinh, thieu ben nao thi
         // o do hien bang chon app)

@@ -14,3 +14,5 @@
 "APPBRIDGE_APPS_SEARCH" = "Tìm app";
 "APPBRIDGE_APPS_EMPTY" = "Không tìm thấy app iPhone nào trên máy.";
 "APPBRIDGE_APPS_NO_MATCH" = "Không có app nào khớp.";
+"APPBRIDGE_DRIVE_MODE" = "Chế độ lái";
+"APPBRIDGE_DRIVE_FOOTER" = "Chế độ lái: xe chạy trên 10 km/h thì app iPhone trên xe chỉ còn tiếng (che hình, khoá chạm), dừng xe là xem tiếp. Cần nguồn tốc độ của Bong bóng tốc độ.";

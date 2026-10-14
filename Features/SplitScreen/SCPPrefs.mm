@@ -102,7 +102,7 @@ static NSString *str(NSString *key)
     NSInteger layout = [value(SPL_KEY_FAV(index, @"Layout")) integerValue];
     if (layout != 3 && layout != 13 && layout != 31) { layout = 2; third = nil; }
     if (!left && !right && !third) return nil;
-    NSString *name = str(SPL_KEY_FAV(index, @"Name")) ?: [NSString stringWithFormat:@"%@ %ld", [self english] ? @"Layout" : @"Bố cục", (long)index];
+    NSString *name = str(SPL_KEY_FAV(index, @"Name")) ?: [NSString stringWithFormat:@"%@ %ld", OMCTr(@"Bố cục", @"Layout"), (long)index];
     NSMutableDictionary *d = [NSMutableDictionary dictionaryWithObject:name forKey:@"name"];
     if (left) d[@"left"] = left;
     if (right) d[@"right"] = right;

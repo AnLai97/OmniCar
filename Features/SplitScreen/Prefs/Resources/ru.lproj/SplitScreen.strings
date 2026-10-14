@@ -1,0 +1,46 @@
+/* OmniCar – Split Screen – Русский */
+
+"SPLITSCREEN" = "Разделённый экран";
+"SPLITSCREEN_ENABLE" = "Разделённый экран";
+"SPLITSCREEN_AUTO_LAUNCH" = "Открывать при подключении";
+"SPLITSCREEN_DRIVER_SIDE" = "Сторона водителя";
+"SPLITSCREEN_DRIVER_AUTO" = "Автоматически";
+"SPLITSCREEN_DRIVER_LEFT" = "Слева";
+"SPLITSCREEN_DRIVER_RIGHT" = "Справа";
+"SPLITSCREEN_PINNED" = "Закреплённая панель";
+"SPLITSCREEN_DRIVER_FOOTER" = "Правый руль: текущее приложение открывается на правой панели, ближе к водителю. Автоматически = как сообщает автомобиль.\nЗакреплённая панель (обычно карта): это приложение остаётся на своей панели при смене раскладки или других приложений.";
+
+"SPLITSCREEN_PANEL_GROUP" = "Панель OmniCar в авто";
+"SPLITSCREEN_SHOW_RECENT" = "Недавние";
+"SPLITSCREEN_SHOW_FAVORITES" = "Избранное";
+
+"SPLITSCREEN_FAV_GROUP" = "Избранные раскладки";
+"SPLITSCREEN_FAV_FOOTER" = "Siri: omnicar://splitscreen/fav?n=1";
+"SPLITSCREEN_FAV1_PLACEHOLDER" = "На работу";
+"SPLITSCREEN_FAV2_PLACEHOLDER" = "Выходные";
+"SPLITSCREEN_FAV3_PLACEHOLDER" = "Путешествие";
+"SPLITSCREEN_PAIR_NAME" = "Название";
+"SPLITSCREEN_LAYOUT_GROUP" = "Раскладка";
+"SPLITSCREEN_APPS_GROUP" = "Приложения";
+"SPLITSCREEN_LAYOUT_2" = "2 панели";
+"SPLITSCREEN_LAYOUT_3" = "3 панели";
+"SPLITSCREEN_LAYOUT_13" = "1 большая + 2";
+"SPLITSCREEN_LAYOUT_31" = "2 + 1 большая";
+"SPLITSCREEN_BOX_1" = "Панель 1";
+"SPLITSCREEN_BOX_2" = "Панель 2";
+"SPLITSCREEN_BOX_3" = "Панель 3";
+
+"SPLITSCREEN_APP_NOT_SET" = "Приложений пока нет";
+"SPLITSCREEN_PICKER_NONE" = "Нет";
+"SPLITSCREEN_PICKER_CARPLAY_APPS" = "Приложения CarPlay";
+"SPLITSCREEN_PICKER_PHONE_APPS" = "Приложения iPhone (App Bridge)";
+"SPLITSCREEN_PICKER_GUESS_FOOTER" = "Автомобиль ещё не подключался: предположение по поддержке CarPlay.";
+"SPLITSCREEN_PICKER_PHONE_FOOTER" = "Приложения, выбранные в разделе «Приложения на экране авто».";
+"SPLITSCREEN_PICKER_NO_PHONE_FOOTER" = "Приложения iPhone ещё не выбраны («Приложения на экране авто»).";
+
+"SPLITSCREEN_GUIDE" = "Руководство";
+"SPLITSCREEN_GUIDE_CAR" = "В автомобиле";
+"SPLITSCREEN_GUIDE_CAR_TEXT" = "• Кнопка OmniCar в доке: раскладки, Недавние, Избранное, выход из разделения.\n• Круглый ползунок: нажмите для выбора пропорций · перетащите для изменения размера · перетащите к краю, чтобы закрыть панель.\n• Полоса •••: нажмите для Заменить / Плавающее окно / Во весь экран / Закрыть · перетащите на другую панель, чтобы поменять их местами.\n• Двойное касание полосы •••: временно увеличить панель, ещё одно двойное касание — вернуть.\n• Двойное касание разделителя: поменять панели местами.\n• Кнопка «Домой»: выйти из разделения.";
+"SPLITSCREEN_SHORTCUTS_GROUP" = "Siri / Команды (Открыть URL)";
+"SPLITSCREEN_SHORTCUTS_FOOTER" = "omnicar://splitscreen/open?left=com.apple.Maps&right=com.spotify.client\nomnicar://splitscreen/fav?n=1\nomnicar://splitscreen/close\nomnicar://splitscreen/layout?id=3 · ratio?r=70 · swap · zoom?pane=1\nomnicar://feature/speedBubble?on=toggle\nomnicar://lite?mode=auto\nomnicar://cleanram";
+"SPLITSCREEN_CREDITS_FOOTER" = "Ранее CarDuo. Размещение приложений основано на carplay-cast (Ethan Arbuckle).";

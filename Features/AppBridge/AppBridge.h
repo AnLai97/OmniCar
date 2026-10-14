@@ -45,6 +45,9 @@
 #define AB_NOTIF_STATE       @"com.anlai.omnicar/appbridge.state"
 // SpringBoard -> CarPlay process: the "•••" pill over the hosted app was tapped (identifier)
 #define AB_NOTIF_HANDLE_TAP  @"com.anlai.omnicar/appbridge.handletap"
+// Dragging the "•••" handle SpringBoard draws over an iPhone app (swap panes / move the floating window): phase 0 began,
+// 1 moved, 2 ended, 3 cancelled; x / y in car-screen points. CarPlay runs the same drag as for its own panes.
+#define AB_NOTIF_HANDLE_DRAG @"com.anlai.omnicar/appbridge.handledrag"
 // CarPlay process -> SpringBoard: the split's divider knobs (knobs = array of @[x, y, active, dividerIndex] in car-screen points,
 // empty = none). The host window sits above CarPlay and would hide a knob next to an iPhone-app box, so SpringBoard
 // draws the same knobs on top of its window. A touch on such a knob lands in SpringBoard (never in CarPlay), so the
@@ -69,6 +72,23 @@
 //   code = the UIInterfaceOrientation the app asks for, 0 = back to the box's orientation, 0xFF = the supported mask
 //   changed, SpringBoard derives the orientation from the mask.
 #define AB_DARWIN_APP_ORIENT "com.anlai.omnicar/appbridge.apporient"
+// Car-screen keyboard: a hosted app's text field has no keyboard on the car (the system one belongs to the phone), so the
+// app side (App.xm) gives the focused field an empty inputView and tells SpringBoard, which draws its own keyboard on
+// the car screen (ABKeyboard.mm, Telex for Vietnamese) and sends the keys back.
+//   app -> SpringBoard (Darwin notify with state): state = (ABBundleHash(bundle id) << 24) | (returnKeyType << 8) |
+//   (keyboardType << 1) | show (1 = a field got focus, 0 = it lost it).
+//   SpringBoard -> app (distributed notification, object = bundle id): action = type (del = characters to delete
+//   first, text = characters to insert: Telex rewrites the word being typed) | return | dismiss.
+#define AB_DARWIN_APP_KEYBOARD "com.anlai.omnicar/appbridge.keyboard"
+#define AB_NOTIF_KEY         @"com.anlai.omnicar/appbridge.key"
+// Keyboard language on the car: 0 English, 1 Vietnamese (Telex). Remembered by SpringBoard.
+#define AB_KEY_KEYBOARD_LANG @"appBridgeKeyboardLang"
+// Driving mode (SpringBoard, ABHost): above AB_KEY_DRIVE_SPEED km/h for a few seconds every iPhone app box on the car is
+// covered ("sound only", touches blocked except the ••• bar), back once the car stops. Speed comes from the Speed Bubble's
+// Darwin notification AB_DARWIN_SPEED_NOW (state = km/h, 0xFFFF unknown), whatever its source (nav app or GPS).
+#define AB_KEY_DRIVE_MODE    @"appBridgeDriveMode"    // BOOL, default YES
+#define AB_KEY_DRIVE_SPEED   @"appBridgeDriveSpeed"   // km/h, default 10
+#define AB_DARWIN_SPEED_NOW  "com.anlai.omnicar/speed"
 // Base scene orientation for hosted apps: 1 portrait (default), 3 landscape.
 #define AB_KEY_ORIENTATION   @"appBridgeOrientation"
 static inline unsigned long long ABBundleHash(NSString *bid)

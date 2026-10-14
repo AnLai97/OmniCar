@@ -1,0 +1,72 @@
+/* OmniCar – شاشة البدء – العربية */
+
+"STARTUPSCREEN" = "شاشة البدء";
+"STARTUPSCREEN_ENABLE" = "شاشة البدء";
+
+"STARTUPSCREEN_VIDEO_GROUP" = "الفيديو";
+"STARTUPSCREEN_VIDEO_FOOTER" = "‏MP4، MOV، M4V · حتى 60 ثانية.";
+"STARTUPSCREEN_CURRENT_VIDEO" = "الفيديو";
+"STARTUPSCREEN_NO_VIDEO" = "(لا توجد فيديوهات)";
+"STARTUPSCREEN_PREVIEW" = "معاينة";
+"STARTUPSCREEN_DELETE" = "حذف الفيديو";
+"STARTUPSCREEN_ADD" = "إضافة فيديو";
+"STARTUPSCREEN_FROM_PHOTOS" = "من الصور";
+"STARTUPSCREEN_FROM_FILES" = "من الملفات";
+
+"STARTUPSCREEN_DURATION_GROUP" = "المدة (بالثواني)";
+"STARTUPSCREEN_DURATION_FOOTER" = "مدة بقاء شاشة البدء على شاشة السيارة. الفيديوهات الأقصر تتكرر.";
+"STARTUPSCREEN_PLAY_FULL" = "تشغيل الفيديو كاملًا";
+
+"STARTUPSCREEN_DISPLAY_GROUP" = "العرض";
+"STARTUPSCREEN_SCALE_FILL" = "ملء";
+"STARTUPSCREEN_SCALE_FIT" = "ملاءمة";
+"STARTUPSCREEN_SOUND" = "صوت الفيديو";
+"STARTUPSCREEN_TAP_TO_SKIP" = "اضغط للتخطي";
+
+"STARTUPSCREEN_PREPARING" = "جارٍ تجهيز الفيديو لـ CarPlay";
+"STARTUPSCREEN_PROCESS_FAILED" = "تعذّرت معالجة الفيديو:\n%@";
+"STARTUPSCREEN_SAVE_FAILED" = "تعذّر حفظ الفيديو: %@";
+"STARTUPSCREEN_NO_VIDEO_PREVIEW" = "لا توجد فيديوهات بعد. أضف واحدًا أولًا.";
+"STARTUPSCREEN_NO_VIDEO_DELETE" = "لا يوجد فيديو لحذفه.";
+"STARTUPSCREEN_DELETE_TITLE" = "حذف الفيديو";
+"STARTUPSCREEN_DELETE_CONFIRM" = "هل تريد حذف \"%@\"؟";
+"STARTUPSCREEN_DELETE_ACTION" = "حذف";
+
+"STARTUPSCREEN_STYLE_GROUP" = "نمط البدء";
+"STARTUPSCREEN_STYLE_FOOTER" = "تعرض البطاقة في الأعلى ما ستعرضه شاشة السيارة. اضغط عليها لإعادة تشغيل التأثير.";
+"STARTUPSCREEN_STYLE_VIDEO" = "فيديو";
+"STARTUPSCREEN_STYLE_LOGO" = "شعار";
+"STARTUPSCREEN_STYLE_GREETING" = "تحية";
+"STARTUPSCREEN_STYLE_WEATHER" = "الطقس";
+
+"STARTUPSCREEN_LOGO_GROUP" = "الشعار";
+"STARTUPSCREEN_LOGO_FOOTER" = "تبدو صورة PNG ذات الخلفية الشفافة أفضل على الخلفية الداكنة. بدون شعار تظهر أيقونة سيارة.";
+"STARTUPSCREEN_LOGO_CHOOSE" = "اختيار شعار";
+"STARTUPSCREEN_LOGO_DELETE" = "إزالة الشعار";
+"STARTUPSCREEN_LOGO_FAILED" = "تعذّرت قراءة هذه الصورة.";
+"STARTUPSCREEN_LOGO_NONE" = "لا يوجد شعار بعد.";
+"STARTUPSCREEN_EFFECT_GROUP" = "التأثير";
+"STARTUPSCREEN_EFFECT_FADE" = "ظهور تدريجي";
+"STARTUPSCREEN_EFFECT_ZOOM" = "تكبير";
+"STARTUPSCREEN_EFFECT_GLOW" = "توهّج";
+
+"STARTUPSCREEN_GREETING_GROUP" = "التحية";
+"STARTUPSCREEN_GREETING_FOOTER" = "\"صباح الخير، <الاسم>\" مع الوقت والتاريخ. يتغير النص والألوان في الصباح وبعد الظهر والمساء والليل.";
+"STARTUPSCREEN_NAME" = "اسمك";
+"STARTUPSCREEN_NAME_PLACEHOLDER" = "اختياري";
+
+"STARTUPSCREEN_WEATHER_FOOTER" = "يتصل نمط الطقس بالإنترنت: في كل مرة يتصل فيها CarPlay يرسل آخر موقع معروف لك، مقرّبًا إلى منزلتين عشريتين (نحو 1 كم)، إلى Open-Meteo (open-meteo.com، دون حساب). دون اتصال يعرض آخر نتيجة مع وقتها؛ ودون إذن الوصول إلى الموقع أو بيانات يعرض التحية.";
+"STARTUPSCREEN_WEATHER_LAST" = "آخر تحديث: %@";
+"STARTUPSCREEN_WEATHER_NONE" = "لا توجد بيانات طقس بعد.";
+
+"STARTUPSCREEN_STARTUP_SOUND_GROUP" = "صوت البدء";
+"STARTUPSCREEN_STARTUP_SOUND_FOOTER" = "يُشغَّل عبر سماعات السيارة عند اتصال CarPlay، مع أي نمط. M4A، MP3، WAV، CAF. مع نمط الفيديو وتشغيل صوت الفيديو، يُشغَّل صوت الفيديو نفسه بدلًا منه.";
+"STARTUPSCREEN_SOUND_CHOOSE" = "اختيار صوت";
+"STARTUPSCREEN_SOUND_PREVIEW" = "تشغيل الصوت";
+"STARTUPSCREEN_SOUND_DELETE" = "إزالة الصوت";
+"STARTUPSCREEN_SOUND_CURRENT" = "الحالي: %@";
+"STARTUPSCREEN_SOUND_NONE" = "لا يوجد صوت بدء.";
+"STARTUPSCREEN_SOUND_FAILED" = "تعذّر تشغيل هذا الصوت: %@";
+"STARTUPSCREEN_VOLUME_GROUP" = "مستوى الصوت";
+"STARTUPSCREEN_VOLUME_FOOTER" = "لصوت البدء وصوت الفيديو.";
+"STARTUPSCREEN_SOUND_SKIP_CALL" = "صامت أثناء المكالمة";

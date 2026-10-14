@@ -119,10 +119,82 @@ static long long ABOrientationFromMask(NSUInteger mask)
     return 0;
 }
 
+// ---- Ban phim tren man xe (AB_DARWIN_APP_KEYBOARD / AB_NOTIF_KEY, ve o SpringBoard: ABKeyboard.mm) ----
+// O nhap dang duoc chon trong luc app nam tren xe; ban phim iPhone bi thay bang inputView rong (danh dau de tra lai khi
+// o mat chon / app roi xe, iPhone lai co ban phim binh thuong)
+static __weak UIResponder *abField;
+static char kABEmptyInputKey;
+
+static BOOL ABHosted(void) { return orientationOverride > 0; }
+
+static void ABTellKeyboard(BOOL show, UIResponder *field)
+{
+    static int token = 0;
+    if (!token) notify_register_check(AB_DARWIN_APP_KEYBOARD, &token);
+    uint64_t flags = show ? 1 : 0;
+    id<UITextInputTraits> traits = (id<UITextInputTraits>)field;
+    if (show && [field respondsToSelector:@selector(keyboardType)]) flags |= ((uint64_t)traits.keyboardType & 0x7F) << 1;
+    if (show && [field respondsToSelector:@selector(returnKeyType)]) flags |= ((uint64_t)traits.returnKeyType & 0xFF) << 8;
+    notify_set_state(token, (ABBundleHash([[NSBundle mainBundle] bundleIdentifier]) << 24) | flags);
+    notify_post(AB_DARWIN_APP_KEYBOARD);
+    ABLog("ban phim xe: %@ (%@)", show ? @"hien" : @"an", field ? NSStringFromClass([field class]) : @"-");
+}
+
+// Truoc becomeFirstResponder: dang tren xe -> khong hien ban phim iPhone
+static void ABPrepareField(UIResponder *field)
+{
+    if (!ABHosted() || ![field respondsToSelector:@selector(setInputView:)] || [(id)field inputView]) return;
+    [(id)field setInputView:[[UIView alloc] initWithFrame:CGRectZero]];
+    objc_setAssociatedObject(field, &kABEmptyInputKey, @YES, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
+static void ABFieldFocused(UIResponder *field)
+{
+    if (!ABHosted()) return;
+    abField = field;
+    ABTellKeyboard(YES, field);
+}
+
+static void ABFieldResigned(UIResponder *field)
+{
+    if (objc_getAssociatedObject(field, &kABEmptyInputKey)) {
+        objc_setAssociatedObject(field, &kABEmptyInputKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        [(id)field setInputView:nil];
+    }
+    if (abField != field) return;
+    abField = nil;
+    ABTellKeyboard(NO, nil);
+}
+
+// Phim tu SpringBoard: type (xoa del ky tu roi chen text: Telex sua lai chu dang go) | return | dismiss
+static void ABHandleKey(NSDictionary *info)
+{
+    UIResponder<UIKeyInput> *f = (UIResponder<UIKeyInput> *)abField;
+    if (!f || !f.isFirstResponder || ![f conformsToProtocol:@protocol(UIKeyInput)]) return;
+    NSString *action = info[@"action"];
+    if ([action isEqualToString:@"type"]) {
+        for (int i = [info[@"del"] intValue]; i > 0; i--) [f deleteBackward];
+        NSString *text = info[@"text"];
+        if ([text isKindOfClass:[NSString class]] && text.length) [f insertText:text];
+    } else if ([action isEqualToString:@"return"]) {
+        if ([f isKindOfClass:[UITextField class]]) {
+            UITextField *tf = (UITextField *)f;
+            id<UITextFieldDelegate> d = tf.delegate;
+            BOOL go = ![d respondsToSelector:@selector(textFieldShouldReturn:)] || [d textFieldShouldReturn:tf];
+            if (go) [tf sendActionsForControlEvents:UIControlEventEditingDidEndOnExit];
+        } else {
+            [f insertText:@"\n"];
+        }
+    } else if ([action isEqualToString:@"dismiss"]) {
+        [f resignFirstResponder];
+    }
+}
+
 // SpringBoard gui huong cua o
 static void ABHandleOrientationRequest(NSDictionary *info)
 {
     int newOverride = [info[@"orientation"] intValue];
+    if (newOverride <= 0 && abField) [abField resignFirstResponder];   // roi xe: tra ban phim iPhone
     BOOL changed = (newOverride != orientationOverride);
     orientationOverride = newOverride;
     appWantsOrientation = 0;
@@ -161,33 +233,6 @@ static void ABHandleOrientationRequest(NSDictionary *info)
 
 %end
 
-// iOS 16: app xin xoay bang requestGeometryUpdateWithPreferences: (YouTube fullscreen)
-%hook UIWindowScene
-
-- (void)requestGeometryUpdateWithPreferences:(id)prefs errorHandler:(id)handler
-{
-    if (orientationOverride > 0 && [prefs respondsToSelector:@selector(interfaceOrientations)]) {
-        NSUInteger mask = ((NSUInteger (*)(id, SEL))objc_msgSend)(prefs, @selector(interfaceOrientations));
-        appWantsOrientation = ABOrientationFromMask(mask);
-        ABLog("app xin huong mask=%lu -> %lld", (unsigned long)mask, appWantsOrientation);
-        ABTellSpringBoard(appWantsOrientation);
-    }
-    %orig;
-}
-
-%end
-
-// App doi danh sach huong ho tro (iOS 16) -> SpringBoard lay lai scene
-%hook UIViewController
-
-- (void)setNeedsUpdateOfSupportedInterfaceOrientations
-{
-    %orig;
-    if (orientationOverride > 0) ABTellSpringBoard(0xFF);
-}
-
-%end
-
 // App cu: ep xoay bang [UIDevice setOrientation:]; app hoi huong thiet bi -> tra loi theo huong dang ap
 %hook UIDevice
 
@@ -216,7 +261,88 @@ static void ABHandleOrientationRequest(NSDictionary *info)
 
 %end
 
+// O nhap trong app tren xe: ban phim ve tren man xe thay cho ban phim iPhone
+%hook UITextField
+- (BOOL)becomeFirstResponder
+{
+    ABPrepareField(self);
+    BOOL ok = %orig;
+    if (ok) ABFieldFocused(self);
+    return ok;
+}
+- (BOOL)resignFirstResponder
+{
+    BOOL ok = %orig;
+    if (ok) ABFieldResigned(self);
+    return ok;
+}
+%end
+
+%hook UITextView
+- (BOOL)becomeFirstResponder
+{
+    if (self.editable) ABPrepareField(self);
+    BOOL ok = %orig;
+    if (ok && self.editable) ABFieldFocused(self);
+    return ok;
+}
+- (BOOL)resignFirstResponder
+{
+    BOOL ok = %orig;
+    if (ok) ABFieldResigned(self);
+    return ok;
+}
+%end
+
 %end // APPS
+
+// iOS 16+ only (iOS 15 has neither method; YouTube there rotates through [UIDevice setOrientation:]),
+// installed only when the method exists.
+%group APPS16
+
+// iOS 16: app xin xoay bang requestGeometryUpdateWithPreferences: (YouTube fullscreen)
+%hook UIWindowScene
+
+- (void)requestGeometryUpdateWithPreferences:(id)prefs errorHandler:(id)handler
+{
+    if (orientationOverride > 0 && [prefs respondsToSelector:@selector(interfaceOrientations)]) {
+        NSUInteger mask = ((NSUInteger (*)(id, SEL))objc_msgSend)(prefs, @selector(interfaceOrientations));
+        appWantsOrientation = ABOrientationFromMask(mask);
+        ABLog("app xin huong mask=%lu -> %lld", (unsigned long)mask, appWantsOrientation);
+        ABTellSpringBoard(appWantsOrientation);
+    }
+    %orig;
+}
+
+%end
+
+// App doi danh sach huong ho tro (iOS 16) -> SpringBoard lay lai scene
+%hook UIViewController
+
+- (void)setNeedsUpdateOfSupportedInterfaceOrientations
+{
+    %orig;
+    if (orientationOverride > 0) ABTellSpringBoard(0xFF);
+}
+
+%end
+
+%end // APPS16
+
+// iOS 15: the same signal before setNeedsUpdateOfSupportedInterfaceOrientations existed
+%group APPS15
+
+%hook UIViewController
+
++ (void)attemptRotationToDeviceOrientation
+{
+    %orig;
+    if (orientationOverride > 0) ABTellSpringBoard(0xFF);
+}
+
+%end
+
+%end // APPS15
 
 %ctor
 {
@@ -226,9 +352,23 @@ static void ABHandleOrientationRequest(NSDictionary *info)
     if (!bid.length || ![mb.bundlePath containsString:@".app"]) return;
     if ([@[@"com.apple.springboard", @"com.apple.CarPlayApp", @"com.apple.CarPlayTemplateUIHost", @"com.apple.CarPlaySettings",
            @"com.apple.InCallService", @"com.apple.Preferences"] containsObject:bid]) return;
-    %init(APPS);
+    // Hooks only once SpringBoard hosts this app on the car (its first orientation message): every hook above acts only
+    // while orientationOverride / fakeDeviceOrientation are set, which only that message does, so an app that is never
+    // put on the car screen (nearly all of them) runs without any OmniCar hook, just this observer.
     [[objc_getClass("NSDistributedNotificationCenter") defaultCenter]
         addObserverForName:AB_NOTIF_ORIENTATION object:bid queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *note) {
+        static BOOL hooked;
+        if (!hooked) {
+            hooked = YES;
+            %init(APPS);
+            if (OMCHasMethod("UIWindowScene", @"requestGeometryUpdateWithPreferences:errorHandler:")) %init(APPS16);
+            else %init(APPS15);
+            ABLog("%@: dua len xe, cai hook", bid);
+        }
         @try { ABHandleOrientationRequest(note.userInfo); } @catch (NSException *e) { ABLog("%@: xoay loi %@", bid, e); }
+    }];
+    [[objc_getClass("NSDistributedNotificationCenter") defaultCenter]
+        addObserverForName:AB_NOTIF_KEY object:bid queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *note) {
+        @try { ABHandleKey(note.userInfo); } @catch (NSException *e) { ABLog("%@: phim loi %@", bid, e); }
     }];
 }

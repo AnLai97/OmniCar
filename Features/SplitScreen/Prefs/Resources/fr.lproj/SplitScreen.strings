@@ -1,0 +1,46 @@
+/* OmniCar – Écran partagé – Français */
+
+"SPLITSCREEN" = "Écran partagé";
+"SPLITSCREEN_ENABLE" = "Écran partagé";
+"SPLITSCREEN_AUTO_LAUNCH" = "Ouvrir à la connexion";
+"SPLITSCREEN_DRIVER_SIDE" = "Côté conducteur";
+"SPLITSCREEN_DRIVER_AUTO" = "Automatique";
+"SPLITSCREEN_DRIVER_LEFT" = "Gauche";
+"SPLITSCREEN_DRIVER_RIGHT" = "Droite";
+"SPLITSCREEN_PINNED" = "Volet épinglé";
+"SPLITSCREEN_DRIVER_FOOTER" = "Conduite à droite : l’app actuelle s’ouvre dans le volet droit, à côté du conducteur. Automatique = ce qu’indique la voiture.\nVolet épinglé (souvent la carte) : cette app garde son volet quand la disposition ou les autres apps changent.";
+
+"SPLITSCREEN_PANEL_GROUP" = "Menu OmniCar dans la voiture";
+"SPLITSCREEN_SHOW_RECENT" = "Récents";
+"SPLITSCREEN_SHOW_FAVORITES" = "Favoris";
+
+"SPLITSCREEN_FAV_GROUP" = "Dispositions favorites";
+"SPLITSCREEN_FAV_FOOTER" = "Siri: omnicar://splitscreen/fav?n=1";
+"SPLITSCREEN_FAV1_PLACEHOLDER" = "Trajet quotidien";
+"SPLITSCREEN_FAV2_PLACEHOLDER" = "Week-end";
+"SPLITSCREEN_FAV3_PLACEHOLDER" = "Road trip";
+"SPLITSCREEN_PAIR_NAME" = "Nom";
+"SPLITSCREEN_LAYOUT_GROUP" = "Disposition";
+"SPLITSCREEN_APPS_GROUP" = "Apps";
+"SPLITSCREEN_LAYOUT_2" = "2 volets";
+"SPLITSCREEN_LAYOUT_3" = "3 volets";
+"SPLITSCREEN_LAYOUT_13" = "1 grand + 2";
+"SPLITSCREEN_LAYOUT_31" = "2 + 1 grand";
+"SPLITSCREEN_BOX_1" = "Volet 1";
+"SPLITSCREEN_BOX_2" = "Volet 2";
+"SPLITSCREEN_BOX_3" = "Volet 3";
+
+"SPLITSCREEN_APP_NOT_SET" = "Aucune app pour l’instant";
+"SPLITSCREEN_PICKER_NONE" = "Aucune";
+"SPLITSCREEN_PICKER_CARPLAY_APPS" = "Apps CarPlay";
+"SPLITSCREEN_PICKER_PHONE_APPS" = "Apps iPhone (App Bridge)";
+"SPLITSCREEN_PICKER_GUESS_FOOTER" = "Pas encore connecté à une voiture : estimation d’après la compatibilité CarPlay.";
+"SPLITSCREEN_PICKER_PHONE_FOOTER" = "Apps choisies dans Apps sur l’écran de la voiture.";
+"SPLITSCREEN_PICKER_NO_PHONE_FOOTER" = "Aucune app iPhone choisie pour l’instant (Apps sur l’écran de la voiture).";
+
+"SPLITSCREEN_GUIDE" = "Guide";
+"SPLITSCREEN_GUIDE_CAR" = "Dans la voiture";
+"SPLITSCREEN_GUIDE_CAR_TEXT" = "• Bouton OmniCar dans le Dock : dispositions, Récents, Favoris, quitter le partage.\n• Bouton rond : touchez pour les proportions · faites glisser pour redimensionner · faites glisser vers le bord pour fermer un volet.\n• Barre ••• : touchez pour Remplacer / Flottant / Plein écran / Fermer · faites glisser sur un autre volet pour échanger.\n• Touchez deux fois la barre ••• : agrandit ce volet un instant, touchez deux fois à nouveau pour revenir.\n• Touchez deux fois un séparateur : échange les deux volets.\n• Bouton principal : quitte le partage.";
+"SPLITSCREEN_SHORTCUTS_GROUP" = "Siri / Raccourcis (Ouvrir l’URL)";
+"SPLITSCREEN_SHORTCUTS_FOOTER" = "omnicar://splitscreen/open?left=com.apple.Maps&right=com.spotify.client\nomnicar://splitscreen/fav?n=1\nomnicar://splitscreen/close\nomnicar://splitscreen/layout?id=3 · ratio?r=70 · swap · zoom?pane=1\nomnicar://feature/speedBubble?on=toggle\nomnicar://lite?mode=auto\nomnicar://cleanram";
+"SPLITSCREEN_CREDITS_FOOTER" = "Anciennement CarDuo. L’hébergement des apps repose sur carplay-cast (Ethan Arbuckle).";

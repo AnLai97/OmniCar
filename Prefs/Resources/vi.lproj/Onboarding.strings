@@ -1,0 +1,24 @@
+/* OmniCar – Hướng dẫn lần đầu (Prefs/OMCOnboardingController.m) – Tiếng Việt */
+
+"ONB_SHOW_AGAIN" = "Xem lại hướng dẫn";
+"ONB_SKIP" = "Bỏ qua";
+"ONB_NEXT" = "Tiếp";
+"ONB_DONE" = "Xong";
+
+"ONB_P1_TITLE" = "Chào mừng đến OmniCar";
+"ONB_P1_BODY" = "OmniCar giúp CarPlay mạnh hơn. Trước hết, hãy chọn các app iPhone bạn muốn đưa lên màn xe, kể cả app không có CarPlay.";
+"ONB_P1_BUTTON" = "Chọn app";
+"ONB_P1_NOTE" = "Bạn đổi lại lúc nào cũng được trong App trên màn xe.";
+
+"ONB_P2_TITLE" = "Chia đôi màn xe";
+"ONB_P2_BODY" = "• Trên xe, chạm nút OmniCar ở dock CarPlay để mở bảng bố cục.\n• Chọn bố cục: 2 ô, 3 ô, 1 lớn + 2 hoặc 2 + 1 lớn. Rồi chọn app cho từng ô.\n• Hoặc giữ lâu một icon app trên màn hình chính của xe để chia màn với app đó.\n• Kéo chấm tròn để đổi tỉ lệ. Nút Home để thoát chia màn.";
+"ONB_P2_NOTE" = "Lưu bố cục hay dùng trong Chia màn hình > Bố cục yêu thích.";
+
+"ONB_P3_TITLE" = "Bong bóng tốc độ";
+"ONB_P3_BODY" = "Một bong bóng nhỏ trên màn xe hiện tốc độ của bạn và tốc độ giới hạn. Liếc là thấy ngay.";
+"ONB_P3_SWITCH" = "Bong bóng tốc độ";
+"ONB_P3_NOTE" = "Cần cài Vietmap Live hoặc GOFA trên iPhone. Chọn nguồn trong trang Bong bóng tốc độ.";
+
+"ONB_P4_TITLE" = "Mẹo nhanh";
+"ONB_P4_BODY" = "• Bảng bố cục: chạm nút OmniCar ở dock CarPlay, hoặc giữ lâu một icon app.\n• Gần đây và Yêu thích nằm ngay trong bảng đó.\n• Gặp lỗi? Kéo xuống mục Hỗ trợ cuối trang này: Chẩn đoán kiểm tra mọi thứ, Gửi log gửi báo cáo cho tác giả.";
+"ONB_P4_NOTE" = "Muốn xem lại hướng dẫn này, vào Hỗ trợ > Xem lại hướng dẫn.";

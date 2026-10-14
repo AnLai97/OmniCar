@@ -1,0 +1,24 @@
+/* OmniCar – 首次使用指南 (Prefs/OMCOnboardingController.m) – 简体中文 */
+
+"ONB_SHOW_AGAIN" = "再次显示指南";
+"ONB_SKIP" = "跳过";
+"ONB_NEXT" = "下一步";
+"ONB_DONE" = "完成";
+
+"ONB_P1_TITLE" = "欢迎使用 OmniCar";
+"ONB_P1_BODY" = "OmniCar 让 CarPlay 更强大。先选择你想在车机屏幕上使用的 iPhone App，即使是不支持 CarPlay 的 App 也可以。";
+"ONB_P1_BUTTON" = "选择 App";
+"ONB_P1_NOTE" = "你可以随时在“车机屏幕上的 App”中更改。";
+
+"ONB_P2_TITLE" = "分割车机屏幕";
+"ONB_P2_BODY" = "• 在车内，轻点 CarPlay 程序坞上的 OmniCar 按钮，打开布局面板。\n• 选择布局：2 格、3 格、1 大 + 2 或 2 + 1 大，然后选择 App。\n• 也可以在车机主屏幕上长按 App 图标，与该 App 分屏。\n• 拖动圆形旋钮调整大小。主屏幕按钮可退出分屏。";
+"ONB_P2_NOTE" = "可在“分屏”>“常用布局”中保存常用布局。";
+
+"ONB_P3_TITLE" = "速度气泡";
+"ONB_P3_BODY" = "车机屏幕上的小气泡显示当前车速和限速，一眼即可看到。";
+"ONB_P3_SWITCH" = "速度气泡";
+"ONB_P3_NOTE" = "需要 iPhone 上安装 Vietmap Live 或 GOFA。请在“速度气泡”页面选择来源。";
+
+"ONB_P4_TITLE" = "小贴士";
+"ONB_P4_BODY" = "• 布局面板：轻点 CarPlay 程序坞上的 OmniCar 按钮，或长按 App 图标。\n• “最近”和“常用”都在同一面板中。\n• 遇到问题？打开本页底部的“支持”：“诊断”会全面检查，“发送日志”会将报告发送给开发者。";
+"ONB_P4_NOTE" = "可在“支持”>“再次显示指南”中重新打开本指南。";

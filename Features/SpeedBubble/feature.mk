@@ -1,1 +1,1 @@
-OmniCarSpeedBubble_FRAMEWORKS += QuartzCore CoreLocation
+OmniCarSpeedBubble_FRAMEWORKS += QuartzCore CoreLocation AudioToolbox

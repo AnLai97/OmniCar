@@ -1,0 +1,9 @@
+/* OmniCar – Car profiles – 简体中文 */
+
+"PROFILES" = "车辆配置";
+"PROFILES_ENABLE" = "每辆车单独配置";
+"PROFILES_FOOTER" = "每辆车分别保存自己的分屏布局、固定格、驾驶座位置、车上的速度气泡、启动画面和 iPhone App 缩放。连接某辆车时，OmniCar 会切换到该车的设置。";
+"PROFILES_CARS" = "车辆";
+"PROFILES_CARS_FOOTER" = "✓ 标记正在使用的车辆。向左轻扫可忘记车辆。";
+"PROFILES_NONE" = "尚无车辆：打开此功能并连接一次汽车";
+"PROFILES_LAST_SEEN" = "上次连接：%@";

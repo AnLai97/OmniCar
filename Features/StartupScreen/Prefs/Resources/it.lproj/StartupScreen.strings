@@ -1,0 +1,67 @@
+/* OmniCar – Startup Screen – Italiano */
+
+"STARTUPSCREEN" = "Schermata di avvio";
+"STARTUPSCREEN_ENABLE" = "Schermata di avvio";
+
+"STARTUPSCREEN_VIDEO_GROUP" = "Video";
+"STARTUPSCREEN_VIDEO_FOOTER" = "MP4, MOV, M4V · fino a 60 secondi.";
+"STARTUPSCREEN_CURRENT_VIDEO" = "Video";
+"STARTUPSCREEN_NO_VIDEO" = "(Nessun video)";
+"STARTUPSCREEN_PREVIEW" = "Anteprima";
+"STARTUPSCREEN_DELETE" = "Elimina video";
+"STARTUPSCREEN_ADD" = "Aggiungi video";
+"STARTUPSCREEN_FROM_PHOTOS" = "Da Foto";
+"STARTUPSCREEN_FROM_FILES" = "Da File";
+
+"STARTUPSCREEN_DURATION_GROUP" = "Durata (secondi)";
+"STARTUPSCREEN_DURATION_FOOTER" = "Per quanto tempo la schermata di avvio resta sul display dell'auto. I video più brevi vengono ripetuti.";
+"STARTUPSCREEN_PLAY_FULL" = "Riproduci video intero";
+
+"STARTUPSCREEN_DISPLAY_GROUP" = "Visualizzazione";
+"STARTUPSCREEN_SCALE_FILL" = "Riempi";
+"STARTUPSCREEN_SCALE_FIT" = "Adatta";
+"STARTUPSCREEN_SOUND" = "Audio del video";
+"STARTUPSCREEN_TAP_TO_SKIP" = "Tocca per saltare";
+
+"STARTUPSCREEN_PREPARING" = "Preparazione del video per CarPlay";
+"STARTUPSCREEN_PROCESS_FAILED" = "Impossibile elaborare il video:\n%@";
+"STARTUPSCREEN_SAVE_FAILED" = "Impossibile salvare il video: %@";
+"STARTUPSCREEN_NO_VIDEO_PREVIEW" = "Ancora nessun video. Aggiungine prima uno.";
+"STARTUPSCREEN_NO_VIDEO_DELETE" = "Non ci sono video da eliminare.";
+"STARTUPSCREEN_DELETE_TITLE" = "Elimina video";
+"STARTUPSCREEN_DELETE_CONFIRM" = "Eliminare \"%@\"?";
+"STARTUPSCREEN_DELETE_ACTION" = "Elimina";
+"STARTUPSCREEN_STYLE_GROUP" = "Stile di avvio";
+"STARTUPSCREEN_STYLE_FOOTER" = "La scheda in alto mostra ciò che apparirà sullo schermo dell'auto. Toccala per rivedere l'effetto.";
+"STARTUPSCREEN_STYLE_VIDEO" = "Video";
+"STARTUPSCREEN_STYLE_LOGO" = "Logo";
+"STARTUPSCREEN_STYLE_GREETING" = "Saluto";
+"STARTUPSCREEN_STYLE_WEATHER" = "Meteo";
+"STARTUPSCREEN_LOGO_GROUP" = "Logo";
+"STARTUPSCREEN_LOGO_FOOTER" = "Un PNG con sfondo trasparente rende al meglio sullo sfondo scuro. Senza logo viene mostrata l'icona di un'auto.";
+"STARTUPSCREEN_LOGO_CHOOSE" = "Scegli logo";
+"STARTUPSCREEN_LOGO_DELETE" = "Rimuovi logo";
+"STARTUPSCREEN_LOGO_FAILED" = "Impossibile leggere questa immagine.";
+"STARTUPSCREEN_LOGO_NONE" = "Ancora nessun logo.";
+"STARTUPSCREEN_EFFECT_GROUP" = "Effetto";
+"STARTUPSCREEN_EFFECT_FADE" = "Dissolvenza";
+"STARTUPSCREEN_EFFECT_ZOOM" = "Zoom";
+"STARTUPSCREEN_EFFECT_GLOW" = "Bagliore";
+"STARTUPSCREEN_GREETING_GROUP" = "Saluto";
+"STARTUPSCREEN_GREETING_FOOTER" = "\"Buongiorno, <nome>\" con ora e data. Testo e colori cambiano per mattina, pomeriggio, sera e notte.";
+"STARTUPSCREEN_NAME" = "Il tuo nome";
+"STARTUPSCREEN_NAME_PLACEHOLDER" = "Facoltativo";
+"STARTUPSCREEN_WEATHER_FOOTER" = "Lo stile Meteo usa Internet: a ogni connessione di CarPlay invia la tua ultima posizione nota, arrotondata a 2 decimali (circa 1 km), a Open-Meteo (open-meteo.com, nessun account). Offline mostra l'ultimo risultato con il suo orario; senza accesso alla posizione o senza dati mostra il saluto.";
+"STARTUPSCREEN_WEATHER_LAST" = "Ultimo aggiornamento: %@";
+"STARTUPSCREEN_WEATHER_NONE" = "Ancora nessun dato meteo.";
+"STARTUPSCREEN_STARTUP_SOUND_GROUP" = "Suono di avvio";
+"STARTUPSCREEN_STARTUP_SOUND_FOOTER" = "Viene riprodotto dagli altoparlanti dell'auto quando CarPlay si connette, con qualsiasi stile. M4A, MP3, WAV, CAF. Con lo stile Video e Audio del video attivo, viene invece riprodotto l'audio del video.";
+"STARTUPSCREEN_SOUND_CHOOSE" = "Scegli suono";
+"STARTUPSCREEN_SOUND_PREVIEW" = "Riproduci suono";
+"STARTUPSCREEN_SOUND_DELETE" = "Rimuovi suono";
+"STARTUPSCREEN_SOUND_CURRENT" = "Attuale: %@";
+"STARTUPSCREEN_SOUND_NONE" = "Nessun suono di avvio.";
+"STARTUPSCREEN_SOUND_FAILED" = "Impossibile riprodurre questo suono: %@";
+"STARTUPSCREEN_VOLUME_GROUP" = "Volume";
+"STARTUPSCREEN_VOLUME_FOOTER" = "Per il suono di avvio e l'audio del video.";
+"STARTUPSCREEN_SOUND_SKIP_CALL" = "Silenzioso durante una chiamata";

@@ -1,5 +1,6 @@
 #import "common.h"
 #import "ABHost.h"
+#import "ABKeyboard.h"
 #import <substrate.h>
 #import <notify.h>
 
@@ -26,9 +27,11 @@ static int (*orig_BKSDisplayServicesSetScreenBlanked)(int) = NULL;
             [[ABHost shared] openApp:u[@"identifier"] frame:r];
             [[ABHost shared] setPassInsets:UIEdgeInsetsMake([u[@"pt"] doubleValue], [u[@"pl"] doubleValue], [u[@"pb"] doubleValue], [u[@"pr"] doubleValue])
                                     forApp:u[@"identifier"]];
-            [[ABHost shared] setBarVisible:[u[@"bar"] boolValue] pop:[u[@"pop"] intValue] dim:[u[@"popDim"] boolValue] forApp:u[@"identifier"]];
+            [[ABHost shared] setBarVisible:[u[@"bar"] boolValue] pop:[u[@"pop"] intValue] dim:[u[@"popDim"] boolValue] single:[u[@"single"] boolValue] forApp:u[@"identifier"]];
             [[ABHost shared] setCornerRadius:[u[@"r"] doubleValue] corners:(CACornerMask)[u[@"corners"] unsignedLongLongValue] forApp:u[@"identifier"]];
             [[ABHost shared] setHandleOffset:[u[@"hx"] doubleValue] forApp:u[@"identifier"]];
+            [[ABHost shared] setFront:[u[@"front"] boolValue] forApp:u[@"identifier"]];
+            if ([u[@"aw"] doubleValue] > 0) [ABHost shared].carAppArea = CGRectMake([u[@"ax"] doubleValue], [u[@"ay"] doubleValue], [u[@"aw"] doubleValue], [u[@"ah"] doubleValue]);
         } @catch (NSException *e) { ABLog("open loi %@\n%@", e, e.callStackSymbols); }
     }];
     [dnc addObserverForName:AB_NOTIF_FRAME object:nil queue:main usingBlock:^(NSNotification *note) {
@@ -37,9 +40,11 @@ static int (*orig_BKSDisplayServicesSetScreenBlanked)(int) = NULL;
         UIEdgeInsets pass = UIEdgeInsetsMake([u[@"pt"] doubleValue], [u[@"pl"] doubleValue], [u[@"pb"] doubleValue], [u[@"pr"] doubleValue]);
         @try {
             [[ABHost shared] setFrame:r forApp:u[@"identifier"] live:[u[@"live"] boolValue] handle:[u[@"handle"] boolValue] passInsets:pass];
-            [[ABHost shared] setBarVisible:[u[@"bar"] boolValue] pop:[u[@"pop"] intValue] dim:[u[@"popDim"] boolValue] forApp:u[@"identifier"]];
+            [[ABHost shared] setBarVisible:[u[@"bar"] boolValue] pop:[u[@"pop"] intValue] dim:[u[@"popDim"] boolValue] single:[u[@"single"] boolValue] forApp:u[@"identifier"]];
             [[ABHost shared] setCornerRadius:[u[@"r"] doubleValue] corners:(CACornerMask)[u[@"corners"] unsignedLongLongValue] forApp:u[@"identifier"]];
             [[ABHost shared] setHandleOffset:[u[@"hx"] doubleValue] forApp:u[@"identifier"]];
+            [[ABHost shared] setFront:[u[@"front"] boolValue] forApp:u[@"identifier"]];
+            if ([u[@"aw"] doubleValue] > 0) [ABHost shared].carAppArea = CGRectMake([u[@"ax"] doubleValue], [u[@"ay"] doubleValue], [u[@"aw"] doubleValue], [u[@"ah"] doubleValue]);
         } @catch (NSException *e) { ABLog("frame loi %@", e); }
     }];
     [dnc addObserverForName:AB_NOTIF_CLOSE object:nil queue:main usingBlock:^(NSNotification *note) {
@@ -64,11 +69,24 @@ static int (*orig_BKSDisplayServicesSetScreenBlanked)(int) = NULL;
         @try { [[ABHost shared] appWithHash:hash changedOrientation:code supportedMask:mask]; }
         @catch (NSException *e) { ABLog("apporient loi %@", e); }
     });
+    [[ABHost shared] startDriveMonitor];   // che do lai: toc do tu Bong bong toc do
+    // O nhap trong app dang host duoc chon / bo chon -> ban phim tren man xe (ABKeyboard)
+    static int tokKeyboard = 0;
+    notify_register_dispatch(AB_DARWIN_APP_KEYBOARD, &tokKeyboard, dispatch_get_main_queue(), ^(int t) {
+        uint64_t state = 0;
+        notify_get_state(t, &state);
+        @try {
+            NSString *bid = [[ABHost shared] bundleForHash:state >> 24];
+            if (!bid) { ABLog("ban phim: khong co o cho hash %llu", state >> 24); return; }
+            if (state & 1) [[ABKeyboard shared] showForApp:bid keyboardType:(NSInteger)((state >> 1) & 0x7F) returnType:(NSInteger)((state >> 8) & 0xFF)];
+            else [[ABKeyboard shared] hideForApp:bid];
+        } @catch (NSException *e) { ABLog("ban phim loi %@", e); }
+    });
     // Xe ngat -> bo moi o (app van chay nen)
     [[NSNotificationCenter defaultCenter] addObserverForName:@"CarPlayIsConnectedDidChange" object:nil queue:main
                                                   usingBlock:^(NSNotification *note) {
         id dev = objcInvoke(objc_getClass("AVExternalDevice"), @"currentCarPlayExternalDevice");
-        if (!dev) [[ABHost shared] carDisconnected];
+        if (!dev) { [[ABKeyboard shared] hideForApp:nil]; [[ABHost shared] carDisconnected]; }
     }];
 }
 
@@ -130,6 +148,8 @@ static int hook_BKSDisplayServicesSetScreenBlanked(int blanked)
     if (![[[NSBundle mainBundle] bundleIdentifier] isEqualToString:@"com.apple.springboard"]) return;
     ABLog("loaded into SpringBoard");
     %init(SPRINGBOARD);
+    OMCCheckHooks(@"AppBridge", @[@"SBSuspendedUnderLockManager -_shouldBeBackgroundUnderLockForScene:withSettings:",
+        @"FBScene -updateSettings:withTransitionContext:completion:", @"SBSceneView -_updateReferenceSize:andOrientation:"]);
     void *fn = dlsym(RTLD_DEFAULT, "BKSDisplayServicesSetScreenBlanked");
     if (fn) MSHookFunction(fn, (void *)hook_BKSDisplayServicesSetScreenBlanked, (void **)&orig_BKSDisplayServicesSetScreenBlanked);
     else ABLog("khong tim thay BKSDisplayServicesSetScreenBlanked");

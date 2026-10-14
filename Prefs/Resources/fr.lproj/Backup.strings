@@ -1,0 +1,48 @@
+/* OmniCar – Sauvegarde / restauration des réglages (Prefs/OMCBackup.m) et Nouveautés (Prefs/OMCWhatsNewController.m) – Français */
+
+"BAK_BACKUP" = "Sauvegarder les réglages";
+"BAK_RESTORE" = "Restaurer depuis un fichier";
+"BAK_PREPARING" = "Préparation de la sauvegarde…";
+"BAK_READING" = "Lecture de la sauvegarde…";
+"BAK_RESTORING" = "Restauration…";
+"BAK_FAILED" = "Échec de la sauvegarde";
+"BAK_SKIPPED_TITLE" = "Certains fichiers ont été exclus";
+"BAK_SKIPPED" = "Une sauvegarde contient jusqu’à %lu Mo de fichiers. Ceux-ci n’ont pas été inclus :\n%@";
+"BAK_CONTINUE" = "Continuer";
+"BAK_RESTORE_CONFIRM" = "Restaurer cette sauvegarde ?";
+"BAK_SUMMARY_HEAD" = "Sauvegarde du %1$@ (OmniCar %2$@). Elle remplace :";
+"BAK_SUMMARY_PREFS" = "• %lu réglages sur toutes les pages";
+"BAK_SUMMARY_FILES" = "• %1$lu fichiers, %2$@ (%3$@)";
+"BAK_SUMMARY_FOOT" = "Les réglages absents de la sauvegarde reprennent leur valeur par défaut.";
+"BAK_RESTORE_BUTTON" = "Restaurer";
+"BAK_RESTORE_FAILED" = "Impossible de restaurer";
+"BAK_RESTORED" = "Réglages restaurés";
+"BAK_RESTORED_TEXT" = "Faites un respring pour que chaque fonction prenne en compte les réglages restaurés.";
+"BAK_LATER" = "Plus tard";
+"BAK_ERR_WRITE" = "Impossible d’écrire le fichier de sauvegarde.";
+"BAK_ERR_NOT_BACKUP" = "Ce fichier n’est pas une sauvegarde OmniCar (.omnicar).";
+"BAK_ERR_NEWER" = "Cette sauvegarde a été créée par une version plus récente d’OmniCar. Mettez d’abord OmniCar à jour.";
+"BAK_ERR_FILES" = "Impossible d’écrire les fichiers de la sauvegarde. Vérifiez que l’iPhone dispose d’espace libre.";
+
+"WN_ROW" = "Nouveautés";
+"WN_TITLE" = "Nouveautés d’OmniCar %@";
+"WN_CONTINUE" = "Continuer";
+
+"WN_DIAG_TITLE" = "Performances de CarPlay";
+"WN_DIAG_TEXT" = "Diagnostic montre désormais comment CarPlay a fonctionné lors de votre dernier trajet : fluidité, blocages, mémoire et chaleur.";
+"WN_OPTIMIZE_TITLE" = "Optimiser, mode allégé, libérer la mémoire";
+"WN_OPTIMIZE_TEXT" = "Un toucher applique les corrections trouvées par Diagnostic. Le mode allégé garde tout fluide quand le téléphone chauffe, et OmniCar peut fermer les apps en arrière-plan à la connexion de la voiture.";
+"WN_KEYBOARD_TITLE" = "Clavier sur l’écran de la voiture";
+"WN_KEYBOARD_TEXT" = "Saisissez du texte dans les apps iPhone affichées dans la voiture avec un clavier directement sur l’écran de la voiture.";
+"WN_ZOOM_TITLE" = "Zoom de volet";
+"WN_ZOOM_TEXT" = "Touchez deux fois la barre ••• d’un volet de l’Écran partagé pour qu’il remplisse l’écran, touchez deux fois à nouveau pour revenir.";
+"WN_DRIVER_TITLE" = "Côté conducteur";
+"WN_DRIVER_TEXT" = "L’Écran partagé suit la conduite à gauche ou à droite : automatiquement selon la voiture, ou à régler vous-même.";
+"WN_UNITS_TITLE" = "km/h ou mph, panneaux US";
+"WN_UNITS_TEXT" = "La Bulle de vitesse affiche km/h ou mph et un panneau de limitation rond ou de style américain, automatiquement selon votre région.";
+"WN_LANG_TITLE" = "14 langues";
+"WN_LANG_TEXT" = "Réglages, textes de l’écran de la voiture et notifications en 14 langues. Choisissez-en une avec le bouton globe.";
+"WN_GUIDE_TITLE" = "Guide de démarrage";
+"WN_GUIDE_TEXT" = "Un petit guide pour bien commencer. Rouvrez-le à tout moment depuis Assistance > Revoir le guide.";
+"WN_BACKUP_TITLE" = "Sauvegarde et restauration";
+"WN_BACKUP_TEXT" = "Enregistrez tous les réglages et vos vidéos de démarrage dans un seul fichier .omnicar, et restaurez-le sur n’importe quel iPhone.";

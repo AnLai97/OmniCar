@@ -42,12 +42,19 @@
 - (void)publishCarPlayApps;          // ghi danh sach app CarPlay + app iPhone cho Settings loc app
 - (void)carScreenAppeared;            // man xe vua hien (cam xe) -> tu mo split neu bat
 - (void)baseViewControllerPresented;  // DashBoard vua trinh bay app toan man -> bo the che cua soloBundle, dong app iPhone toan man
-- (void)homePressed;                  // nut Home cua CarPlay: dong app iPhone toan man (App Bridge)
+- (void)homePressedDuringSplit:(BOOL)split;   // nut Home cua CarPlay: dong app iPhone toan man (App Bridge)
 - (BOOL)launchPhoneAppIfNeeded:(NSString *)bundleID;   // cham icon app iPhone tren man chinh -> App Bridge (YES = da xu ly)
-- (void)showPickerForFocusedPane;     // omnicar://splitscreen/picker khi dang chia: bang chon app cho o dang chon
+- (void)showPickerForFocusedPane;
+// Siri / Shortcuts (omnicar://splitscreen/...): layout 2 / 3 / 13 / 31, first pane's share 0.2..0.8 (2 panes), swap the first
+// two panes, enlarge pane n (1-based) for a moment / back
+- (void)urlLayout:(int)layoutID;
+- (void)urlRatio:(CGFloat)ratio;
+- (void)urlSwap;
+- (void)urlZoomPane:(int)pane;     // omnicar://splitscreen/picker khi dang chia: bang chon app cho o dang chon
 // App Bridge (SpringBoard) bao ve
 - (void)hostedApp:(NSString *)bundleID state:(NSString *)state;   // ready | failed | gone
 - (void)bridgeHandleTapped:(NSString *)bundleID;                   // cham thanh "•••" ve tren app -> hien thanh nut cua o
+- (void)bridgeHandleDrag:(NSDictionary *)info;                   // keo thanh "•••" tren o app iPhone (AB_NOTIF_HANDLE_DRAG): doi cho / keo cua so noi
 - (void)bridgeBarAction:(NSString *)action forBundle:(NSString *)bundleID;   // nut tren thanh nut SpringBoard ve: replace | pop | full | close
 @end
 

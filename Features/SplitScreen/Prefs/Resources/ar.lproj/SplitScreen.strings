@@ -1,0 +1,46 @@
+/* OmniCar – تقسيم الشاشة – العربية */
+
+"SPLITSCREEN" = "تقسيم الشاشة";
+"SPLITSCREEN_ENABLE" = "تقسيم الشاشة";
+"SPLITSCREEN_AUTO_LAUNCH" = "الفتح عند الاتصال";
+"SPLITSCREEN_DRIVER_SIDE" = "جهة السائق";
+"SPLITSCREEN_DRIVER_AUTO" = "تلقائي";
+"SPLITSCREEN_DRIVER_LEFT" = "يسار";
+"SPLITSCREEN_DRIVER_RIGHT" = "يمين";
+"SPLITSCREEN_PINNED" = "الجزء المثبّت";
+"SPLITSCREEN_DRIVER_FOOTER" = "المقود على اليمين: يُفتح التطبيق الحالي في الجزء الأيمن بجوار السائق. تلقائي = ما تُبلغ به السيارة.\nالجزء المثبّت (عادةً الخريطة): يحتفظ ذلك التطبيق بجزئه عند تغيير التخطيط أو التطبيقات الأخرى.";
+
+"SPLITSCREEN_PANEL_GROUP" = "لوحة OmniCar في السيارة";
+"SPLITSCREEN_SHOW_RECENT" = "الأخيرة";
+"SPLITSCREEN_SHOW_FAVORITES" = "المفضلة";
+
+"SPLITSCREEN_FAV_GROUP" = "التخطيطات المفضلة";
+"SPLITSCREEN_FAV_FOOTER" = "Siri: omnicar://splitscreen/fav?n=1";
+"SPLITSCREEN_FAV1_PLACEHOLDER" = "التنقل اليومي";
+"SPLITSCREEN_FAV2_PLACEHOLDER" = "عطلة نهاية الأسبوع";
+"SPLITSCREEN_FAV3_PLACEHOLDER" = "رحلة طويلة";
+"SPLITSCREEN_PAIR_NAME" = "الاسم";
+"SPLITSCREEN_LAYOUT_GROUP" = "التخطيط";
+"SPLITSCREEN_APPS_GROUP" = "التطبيقات";
+"SPLITSCREEN_LAYOUT_2" = "جزآن";
+"SPLITSCREEN_LAYOUT_3" = "3 أجزاء";
+"SPLITSCREEN_LAYOUT_13" = "1 كبير + 2";
+"SPLITSCREEN_LAYOUT_31" = "2 + 1 كبير";
+"SPLITSCREEN_BOX_1" = "الجزء 1";
+"SPLITSCREEN_BOX_2" = "الجزء 2";
+"SPLITSCREEN_BOX_3" = "الجزء 3";
+
+"SPLITSCREEN_APP_NOT_SET" = "لا توجد تطبيقات بعد";
+"SPLITSCREEN_PICKER_NONE" = "لا شيء";
+"SPLITSCREEN_PICKER_CARPLAY_APPS" = "تطبيقات CarPlay";
+"SPLITSCREEN_PICKER_PHONE_APPS" = "تطبيقات iPhone (App Bridge)";
+"SPLITSCREEN_PICKER_GUESS_FOOTER" = "لم يتم الاتصال بسيارة بعد: التخمين بناءً على دعم CarPlay.";
+"SPLITSCREEN_PICKER_PHONE_FOOTER" = "التطبيقات المختارة في تطبيقات شاشة السيارة.";
+"SPLITSCREEN_PICKER_NO_PHONE_FOOTER" = "لم يتم اختيار تطبيقات iPhone بعد (تطبيقات شاشة السيارة).";
+
+"SPLITSCREEN_GUIDE" = "الدليل";
+"SPLITSCREEN_GUIDE_CAR" = "في السيارة";
+"SPLITSCREEN_GUIDE_CAR_TEXT" = "• زر OmniCar في الشريط: التخطيطات، الأخيرة، المفضلة، إنهاء التقسيم.\n• المقبض الدائري: اضغط لاختيار النسب · اسحب لتغيير الحجم · اسحب إلى الحافة لإغلاق جزء.\n• شريط •••: اضغط للاستبدال / التعويم / ملء الشاشة / الإغلاق · اسحب إلى جزء آخر للتبديل.\n• اضغط مرتين على شريط •••: تكبير ذلك الجزء مؤقتًا، اضغط مرتين مجددًا للرجوع.\n• اضغط مرتين على الفاصل: تبديل الجزأين.\n• زر الشاشة الرئيسية: إنهاء التقسيم.";
+"SPLITSCREEN_SHORTCUTS_GROUP" = "‏Siri / الاختصارات (فتح URL)";
+"SPLITSCREEN_SHORTCUTS_FOOTER" = "omnicar://splitscreen/open?left=com.apple.Maps&right=com.spotify.client\nomnicar://splitscreen/fav?n=1\nomnicar://splitscreen/close\nomnicar://splitscreen/layout?id=3 · ratio?r=70 · swap · zoom?pane=1\nomnicar://feature/speedBubble?on=toggle\nomnicar://lite?mode=auto\nomnicar://cleanram";
+"SPLITSCREEN_CREDITS_FOOTER" = "كان اسمه سابقًا CarDuo. استضافة التطبيقات مبنية على carplay-cast (Ethan Arbuckle).";
