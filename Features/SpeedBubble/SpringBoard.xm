@@ -59,7 +59,8 @@ static void SPPPublishSource(void)
         SPPPublishSource();                    // Waze chi quet khi la nguon dang chon
     });
     SPPPublishSource();
-    // Split Screen dang chia / mo bang chon tren man xe (state 1) -> bong bong tren xe tam an, 0 -> hien lai
+    // Split Screen dang mo bang bo cuc / bang chon app tren man xe (state 1) -> bong bong tren xe tam an, 0 -> hien lai
+    // (dang chia man khong tinh: app dan duong chay nen thi bong bong van hien tren cac o)
     static int tokBusy = 0;
     notify_register_dispatch(OMC_DARWIN_CAR_BUSY, &tokBusy, dispatch_get_main_queue(), ^(int t) {
         uint64_t state = 0; notify_get_state(t, &state);

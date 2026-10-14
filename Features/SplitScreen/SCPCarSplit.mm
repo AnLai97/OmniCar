@@ -99,8 +99,9 @@ static void SCPCAfter(double delay, dispatch_block_t block)
 // Chu tren man xe: tieng Viet / tieng Anh theo Cai dat > OmniCar > ngon ngu
 static NSString *SCPCT(NSString *vi, NSString *en) { return OMCTr(vi, en); }   // ngon ngu khac: Car.strings
 
-// Bao SpringBoard (OMC_DARWIN_CAR_BUSY): dang chia man / bang bo cuc dang mo -> lop phu tren man xe (bong bong
-// toc do) tam an de khong de len cho dang cham. Chi gui khi trang thai doi.
+// Bao SpringBoard (OMC_DARWIN_CAR_BUSY): bang bo cuc / bang chon app dang mo -> lop phu tren man xe (bong bong toc do)
+// tam an de khong de len cho dang cham. Dang chia man thi KHONG ban: bong bong van hien neu app dan duong chay nen.
+// Chi gui khi trang thai doi.
 static void SCPCPublishBusy(BOOL busy)
 {
     static int token = 0, last = -1;
@@ -470,7 +471,9 @@ static UIImage *SCPCGlyph(NSString *name, CGFloat pt, BOOL rot)
                 SCPC_M(14.5, 4); SCPC_L(16.5, 4); [p addArcWithCenter:CGPointMake(16.5, 7.5) radius:3.5 startAngle:-M_PI_2 endAngle:0 clockwise:YES]; SCPC_L(20, 9.5);
                 SCPC_M(20, 14.5); SCPC_L(20, 16.5); [p addArcWithCenter:CGPointMake(16.5, 16.5) radius:3.5 startAngle:0 endAngle:M_PI_2 clockwise:YES]; SCPC_L(14.5, 20);
                 SCPC_M(9.5, 20); SCPC_L(7.5, 20); [p addArcWithCenter:CGPointMake(7.5, 16.5) radius:3.5 startAngle:M_PI_2 endAngle:M_PI clockwise:YES]; SCPC_L(4, 14.5);
-            } else if ([name isEqualToString:@"hm_split"]) {  // chia man hinh: 2 khung dung canh nhau
+            } else if ([name isEqualToString:@"hm_split"] || [name isEqualToString:@"hm_split_dock"]) {  // chia man hinh: 2 khung dung canh nhau
+                // Nut Split Screen tren dock (hm_split_dock): net 2.6 - net 1.5 chi con 1-2 px tren man xe, chim tren nen pastel
+                if ([name isEqualToString:@"hm_split_dock"]) p.lineWidth = 2.6;
                 SCPC_RR(3.5, 4.5, 7.5, 15, 2.5); SCPC_RR(13, 4.5, 7.5, 15, 2.5);
             } else if ([name isEqualToString:@"hm_float"]) {  // anh trong anh: khung + o nho to dac goc duoi phai
                 SCPC_RR(3.5, 4.5, 17, 15, 3);
@@ -1536,10 +1539,11 @@ static NSString *SCPCPinnedApp(void)
     if (stacked.superview == parent) [parent insertSubview:self.container belowSubview:stacked];
 }
 
-// Man xe dang "ban" (bong bong toc do tam an): dang chia man hoac bang bo cuc dang mo (bang chon app chi co khi dang chia)
+// Man xe dang "ban" (bong bong toc do tam an): bang bo cuc hoac bang chon app dang mo. Chi chia man thi khong ban:
+// app dan duong chay nen thi bong bong van hien tren cac o.
 - (void)publishBusy
 {
-    SCPCPublishBusy(self.active || self.tray != nil);
+    SCPCPublishBusy(self.tray != nil || self.pickerSheet != nil);
 }
 
 - (void)rootDidLayout
@@ -3841,6 +3845,7 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
     UIView *sheet = self.pickerSheet, *shield = self.pickerShield;
     BOOL overlay = self.pickerSheetOverlay;
     self.pickerSheet = nil; self.pickerShield = nil; self.pickerSheetKey = nil; self.pickerSheetOverlay = NO;
+    [self publishBusy];
     if (!sheet && !shield) return;
     __weak SCPCarSplit *weakSelf = self;
     UIWindow *tw = self.trayWindow;
@@ -4060,6 +4065,7 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
         [parent bringSubviewToFront:self.tray];
     }
     self.pickerSheet = card; self.pickerShield = nil; self.pickerSheetOverlay = overlay;
+    [self publishBusy];
     // Hien kieu HarmonyOS: popup troi len + phong nhe theo lo xo; doi o: popup cu mo, popup moi troi len it
     BOOL fresh = !oldSheet;
     if (oldSheet) [UIView animateWithDuration:0.15 animations:^{ oldSheet.alpha = 0; } completion:^(BOOL f) { [oldSheet removeFromSuperview]; }];
@@ -5203,7 +5209,7 @@ static void SCPCStatusBottom(UIView *v, UIView *parent, CGRect strip, int depth,
     BOOL bare = ![self.launcherWhere hasPrefix:@"goc"];
     if (!self.homeButton || fabs(self.homeButton.bounds.size.width - size) > 0.5 || self.launcherBare != bare) {
         [self.homeButton removeFromSuperview];
-        UIButton *b = bare ? SCPCRoundButton(SCPCGlyph(@"hm_split", round(size * 0.62), NO), self, @selector(homeButtonTapped))
+        UIButton *b = bare ? SCPCRoundButton(SCPCGlyph(@"hm_split_dock", round(size * 0.66), NO), self, @selector(homeButtonTapped))
                            : SCPCCircleButton(SCPCSplitImage(size * 0.9), size, self, @selector(homeButtonTapped));
         b.bounds = CGRectMake(0, 0, size, size);
         if (bare) SCPCDockTile(b, size * 0.28);

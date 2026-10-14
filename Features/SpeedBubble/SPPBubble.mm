@@ -170,7 +170,7 @@ static UIColor *SPPRed(void) { return [UIColor colorWithRed:1 green:69 / 255.0 b
 @property (nonatomic) CFAbsoluteTime speedAt, limitAt; // lan cuoi doc duoc toc do / gioi han
 @property (nonatomic) CFAbsoluteTime carLostAt;        // luc bat dau mat man xe (0 = dang co)
 @property (nonatomic) BOOL onPhone;
-@property (nonatomic) BOOL carBusy;                  // Split Screen dang chia / mo bang tren man xe -> an bong bong tren xe
+@property (nonatomic) BOOL carBusy;                  // Split Screen dang mo bang tren man xe -> an bong bong tren xe
 @property (nonatomic) CGFloat scale;                 // ti le dang ap = SPP_SCALE_BASE * % trong Cai dat (rieng iPhone / xe)
 @property (nonatomic) BOOL pinching;                 // dang chum 2 ngon: khong nap lai ti le tu Cai dat
 @property (nonatomic) int app;                       // chi so SPP_NAV_APPS cua app dang cap toc do (cham / X dung app nay)
@@ -367,7 +367,7 @@ static BOOL sSeenRunning[8];
     if (now - self.limitAt > SPP_SPEED_STALE) self.limit = -1;
     int run = (self.lastUpdate > 0 && !self.demoTimer) ? [self sourceAppState] : 1;
     BOOL alive = self.lastUpdate > 0 && (run == 1 || now - self.lastUpdate < SPP_SOURCE_GONE);
-    // Split Screen dang chiem man xe (bang chon app, dang chia): bong bong tren xe de len cho dang cham -> tam an
+    // Split Screen dang mo bang bo cuc / bang chon app: bong bong tren xe de len cho dang cham -> tam an (chia man thi van hien)
     BOOL carBusy = self.carBusy && SPPGetCarPlayCADisplay() != nil;
     BOOL show = alive && [SPPPrefs enabled] && ![self anyAppForeground] && !carBusy;
     // App vua bi tat (vuot khoi da nhiem / bi he thong dong) -> an ngay
