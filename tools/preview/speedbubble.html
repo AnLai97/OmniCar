@@ -32,7 +32,8 @@ h2 { margin: 0 0 4px; font-size: 16px; }
 .glass { background: var(--glass); -webkit-backdrop-filter: blur(22px) saturate(1.6); backdrop-filter: blur(22px) saturate(1.6);
   box-shadow: inset 0 1px 0 rgba(255,255,255,.85), inset 0 0 0 1px rgba(255,255,255,.45), var(--glass-shadow); }
 .wrap { width: 100%; max-width: 1240px; display: flex; flex-direction: column; gap: 16px; }
-.top { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 16px; align-items: start; }
+.top { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 18px; align-items: start; }
+.left { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
 @media (max-width: 900px) { .top { grid-template-columns: 1fr; } }
 
 /* ---------- man xe ---------- */
@@ -222,23 +223,96 @@ h2 { margin: 0 0 4px; font-size: 16px; }
 .s-dash .unit { font-size: 9px; color: rgba(255,255,255,.6); }
 .s-dash .sign { position: absolute; right: -24px; bottom: -18px; --sz: 66px; box-shadow: 0 4px 10px rgba(0,0,0,.3); }
 .s-dash .ico { position: absolute; left: 2px; top: 2px; --isz: 24px; }
+
+/* ---------- trang Cai dat moi (iPhone) ---------- */
+.phone { width: 360px; height: 780px; max-width: 100%; border-radius: 46px; background: #0c0d12; padding: 10px; box-shadow: 0 24px 60px rgba(40,30,90,.3); justify-self: center; }
+.scr { position: relative; width: 100%; height: 100%; border-radius: 37px; overflow: hidden; background: #f4f5fb; }
+.liquid { position: absolute; left: 0; right: 0; top: 0; height: 260px; overflow: hidden; background: #f1f0fb; }
+.liquid i { position: absolute; border-radius: 50%; filter: blur(40px); opacity: .9; }
+.liquid i:nth-child(1) { background: var(--lav); width: 60%; height: 80%; left: -12%; top: -25%; }
+.liquid i:nth-child(2) { background: var(--sky); width: 55%; height: 75%; right: -10%; top: -10%; }
+.liquid i:nth-child(3) { background: var(--mint); width: 50%; height: 70%; right: 5%; bottom: -35%; }
+.liquid i:nth-child(4) { background: var(--peach); width: 45%; height: 65%; left: 5%; bottom: -30%; }
+.liquid::after { content: ""; position: absolute; inset: 0; background: linear-gradient(transparent 40%, #f4f5fb); }
+.stbar { position: absolute; left: 0; right: 0; top: 0; height: 40px; display: flex; justify-content: space-between; align-items: center; padding: 6px 28px 0; font-size: 13px; font-weight: 600; z-index: 3; }
+.page { position: absolute; inset: 40px 0 0; overflow-y: auto; padding: 0 14px 30px; z-index: 2; scrollbar-width: none; }
+.page::-webkit-scrollbar { display: none; }
+.nav { height: 40px; display: flex; align-items: center; font-size: 15px; }
+.nav .back { color: var(--ink); width: 80px; } .nav .t { flex: 1; text-align: center; font-weight: 600; margin-right: 80px; }
+.lbl { font-size: 11.5px; font-weight: 600; letter-spacing: .4px; color: var(--ink2); margin: 0 10px 6px; text-transform: uppercase; }
+.foot { font-size: 11.5px; color: var(--ink2); margin: -8px 10px 14px; }
+.pc { border-radius: 20px; margin-bottom: 14px; overflow: hidden; }
+.pc.off { opacity: .45; pointer-events: none; }
+.r { display: flex; align-items: center; gap: 10px; padding: 9px 12px; min-height: 48px; position: relative; }
+.r + .r::before { content: ""; position: absolute; left: 12px; right: 0; top: 0; height: 1px; background: var(--line); }
+.r .lab { flex: 1; font-size: 14.5px; min-width: 0; } .r .lab small { display: block; font-size: 11px; color: var(--ink2); }
+.r .v { color: var(--ink2); font-size: 13.5px; font-variant-numeric: tabular-nums; min-width: 44px; text-align: right; }
+.r input[type=range] { flex: 1; accent-color: #8b7cff; min-width: 0; }
+.r .seg { flex: none; }
+.r.col { flex-direction: column; align-items: stretch; gap: 8px; }
+.r.col .seg { flex: 1; }
+.ptile { width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; color: #fff; font-size: 13px; font-weight: 700; flex: none; box-shadow: inset 0 1px 0 rgba(255,255,255,.6), 0 3px 8px rgba(90,80,170,.25); }
+.swi { width: 46px; height: 28px; border-radius: 14px; background: rgba(120,120,140,.22); position: relative; flex: none; cursor: pointer; transition: background .2s; }
+.swi::after { content: ""; position: absolute; top: 2px; left: 2px; width: 24px; height: 24px; border-radius: 12px; background: #fff; box-shadow: 0 2px 5px rgba(0,0,0,.2); transition: transform .3s var(--hm-spring); }
+.swi.on { background: #34C759; } .swi.on::after { transform: translateX(18px); }
+.link { color: #5b6cf0; font-weight: 600; cursor: pointer; font-size: 14.5px; }
+/* xem truoc song o dau trang */
+.live { position: relative; height: 128px; border-radius: 18px; overflow: hidden; margin-bottom: 12px; box-shadow: 0 6px 16px rgba(40,30,90,.2); }
+.live .map { transform: scale(.75); transform-origin: 0 0; width: 133.4%; height: 133.4%; }
+.live .lb { position: absolute; left: 50%; top: 50%; z-index: 2; width: max-content; transform-origin: center; }
+.live .try { position: absolute; right: 8px; bottom: 8px; z-index: 3; border: 0; border-radius: 12px; padding: 6px 11px; font: inherit; font-size: 12px; font-weight: 600; color: #fff; background: var(--main); box-shadow: 0 4px 10px rgba(110,120,245,.35); cursor: pointer; }
+/* chon kieu: dai cuon ngang, moi o la bong bong that thu nho */
+.styles { display: flex; gap: 8px; overflow-x: auto; padding: 12px; scrollbar-width: none; scroll-snap-type: x mandatory; }
+.styles::-webkit-scrollbar { display: none; }
+.sopt { flex: none; width: 86px; cursor: pointer; scroll-snap-align: start; text-align: center; font-size: 11.5px; font-weight: 600; color: var(--ink2); }
+.sopt .box { position: relative; height: 72px; border-radius: 14px; background: linear-gradient(160deg, #eef0ea, #dfe8e0); overflow: hidden; margin-bottom: 5px; box-shadow: inset 0 0 0 1px rgba(31,34,51,.06); }
+.sopt .box .in { position: absolute; left: 50%; top: 50%; width: max-content; transform-origin: center; }
+.sopt.on { color: var(--ink); }
+.sopt.on .box::after { content: ""; position: absolute; inset: 0; border-radius: 14px; padding: 2.5px; background: var(--aurora);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); }
+/* nguon toc do: o chon co icon app */
+.srcs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 12px 12px 4px; }
+.src { position: relative; border-radius: 14px; padding: 9px 4px 7px; display: flex; flex-direction: column; align-items: center; gap: 5px; font-size: 11.5px; font-weight: 600; cursor: pointer; text-align: center; line-height: 1.2;
+  background: rgba(255,255,255,.55); box-shadow: inset 0 0 0 1px rgba(255,255,255,.9); }
+.src .ico { --isz: 28px; border-radius: 8px; box-shadow: none; font-size: 14px; }
+.src.on::after { content: ""; position: absolute; inset: -2px; border-radius: 16px; padding: 2px; background: var(--aurora);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); }
+.hint { font-size: 12px; color: var(--ink2); padding: 6px 14px 12px; display: flex; gap: 6px; align-items: flex-start; }
+.hint b { color: var(--ink); font-weight: 600; }
+/* thanh mo phong duoi man xe */
+.sim { border-radius: 18px; padding: 10px 14px; display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; font-size: 13px; }
+.sim .ctl { display: flex; align-items: center; gap: 8px; }
+.sim .ctl > span:first-child { color: var(--ink2); }
+.sim input[type=range] { width: 160px; accent-color: #8b7cff; }
+.sim .seg { flex: none; }
+/* canh bao qua toc do: vien do nhap nhay quanh man xe */
+.carfit.warn::after { content: ""; position: absolute; inset: 0; border-radius: 12px; box-shadow: inset 0 0 0 4px #FF3B30, inset 0 0 26px rgba(255,59,48,.75); z-index: 9; animation: warn .7s ease-in-out infinite alternate; pointer-events: none; }
+@keyframes warn { from { opacity: .25; } }
 </style>
 </head>
 <body>
-<h1>Bong bóng tốc độ · bộ kiểu mới</h1>
+<h1>Bong bóng tốc độ · kiểu mới + trang Cài đặt mới</h1>
 <p class="sub">Bỏ hết 18 kiểu cũ, thay bằng <b>9 kiểu mới</b> cùng ngôn ngữ HarmonyOS + kính chất lỏng của OmniCar: viền / nền 4 màu logo khi bình thường,
   <b style="color:#d98a00">hổ phách</b> khi sắp chạm giới hạn (≥ 90 %), <b style="color:#f0323a">đỏ có nhịp sáng</b> khi vượt. Chạm một thẻ bên dưới để đặt lên màn xe,
   kéo thanh tốc độ hoặc bấm <b>Chạy thử</b>. Bong bóng trên màn xe kéo đi được.</p>
 
 <div class="wrap">
   <div class="top">
+    <div class="left">
     <div class="car"><div class="carfit" id="fit"><div class="cs" id="cs">
       <div class="map light" id="map"><div class="route"></div><div class="arrow"></div></div>
       <div class="navcard"><b>300 m</b>Rẽ phải vào Nguyễn Văn Linh</div>
       <div class="dock"><div class="t">9:41</div><div class="d" style="background:#f07a12"></div><div class="d" style="background:linear-gradient(160deg,#ff6b81,#fa2d55)"></div><div class="d" style="background:#ff2a20"></div></div>
       <div class="slot" id="slot" style="left:78px;top:182px"></div>
     </div></div></div>
-    <div class="panel glass" id="panel"></div>
+    <div class="sim glass" id="sim"></div>
+    <div class="note"><b>Trang Cài đặt mới</b> (khung iPhone): xem trước sống ở đầu trang, chọn kiểu bằng dải hình chạm là đổi, nguồn tốc độ là các ô có icon app
+      kèm một dòng giải thích, Đơn vị / Biển / Cảnh báo dùng nút chọn ngay trên trang (không mở trang con), cỡ và vị trí gom cuối trang.
+      Chỉnh trên iPhone → màn xe bên trái đổi theo; thanh <b>Mô phỏng</b> chỉ để thử tốc độ.</div>
+    </div>
+    <div class="phone"><div class="scr"><div class="liquid"><i></i><i></i><i></i><i></i></div>
+      <div class="stbar"><span>9:41</span><span>●●● 5G ▮</span></div>
+      <div class="page" id="page"></div></div></div>
   </div>
   <h2>9 kiểu · mỗi thẻ: dưới giới hạn · sắp chạm · vượt</h2>
   <div class="gallery" id="gallery"></div>
@@ -260,8 +334,14 @@ const STYLES = [
   { id: 'hud',   n: 'Dải HUD',    d: 'Thanh ngang mảnh: vạch sáng chạy dần tới biển giới hạn; đầy thanh = chạm giới hạn → đỏ, biển nhấp nháy.', ts: .5 },
   { id: 'dash',  n: 'Đồng hồ taplo', d: 'Mặt đồng hồ kim như taplo xe: vạch 0–160 km/h, vùng đỏ từ mức giới hạn, cung sáng theo tốc độ, số điện tử dưới kim.', ts: .7 },
 ];
-const SOURCES = { vietmap: ['V', '#f07a12'], gofa: ['G', '#1aa260'], gmaps: ['G', '#4285f4'], waze: ['W', '#33ccff'], gps: ['⌖', '#5b6cf0'] };
-const S = { style: 'drop', speed: 47, limit: 50, unit: 'kmh', sign: 'vi', icon: true, src: 'vietmap', size: 100, map: 'light' };
+const SOURCES = { vietmap: ['V', '#f07a12', 'Vietmap Live'], gofa: ['G', '#1aa260', 'GOFA'], gmaps: ['G', '#4285f4', 'Google Maps'], waze: ['W', '#33ccff', 'Waze'],
+  amaps: ['➤', 'linear-gradient(160deg,#6fd36b,#2e9cf5)', 'Apple Maps'], gps: ['⌖', '#5b6cf0', 'GPS iPhone'] };
+const SRC_HINT = {
+  vietmap: '<b>Tốc độ + biển giới hạn.</b> Mở Vietmap Live một lần rồi để chạy nền.', gofa: '<b>Tốc độ + biển giới hạn.</b> Mở GOFA một lần rồi để chạy nền.',
+  gmaps: '<b>Tốc độ từ GPS,</b> biển chỉ có khi Google Maps đang hiện biển (thử nghiệm).', waze: '<b>Tốc độ từ GPS,</b> biển chỉ có khi Waze đang hiện biển (thử nghiệm).',
+  amaps: '<b>Tốc độ từ GPS,</b> biển chỉ có khi Apple Maps đang hiện biển (thử nghiệm).', gps: '<b>Chỉ tốc độ,</b> không có biển giới hạn và không cảnh báo. Chạy khi cắm CarPlay.' };
+const S = { style: 'drop', speed: 47, limit: 50, unit: 'kmh', sign: 'vi', icon: true, src: 'vietmap', size: 100, map: 'light',
+  on: true, unitPref: 'auto', signPref: 'auto', warn: 2, over: 5, sizePhone: 100 };   // unitPref / signPref 'auto' = theo vung (VN: km/h, bien tron)
 
 const state = (v, lim) => !lim ? 'normal' : v > lim ? 'over' : v >= lim * .9 ? 'near' : 'normal';
 // Dai HUD: canh bao ngay khi cham gioi han
@@ -344,6 +424,9 @@ function renderCar() {
     hud.querySelector('.fill').style.width = hudFill(S.speed, S.limit) + '%';
   } else { $('slot').innerHTML = bubble(S.style, S.speed, S.limit); $('slot').dataset.key = key; }
   $('slot').style.transform = `scale(${S.size / 100})`;
+  $('slot').style.display = S.on ? '' : 'none';
+  const overBy = S.unit === 'mph' ? S.over * 1.609 : S.over;
+  $('fit').classList.toggle('warn', S.on && S.warn > 0 && S.limit > 0 && S.speed > S.limit + overBy);
   const st = (S.style === 'hud' ? hudState : state)(S.speed, S.limit);
   $('stateTxt') && ($('stateTxt').textContent = !S.limit ? 'Không có giới hạn (biển xám)' : st === 'over' ? (S.style === 'hud' ? 'Chạm / vượt giới hạn: cảnh báo' : 'Vượt giới hạn') : st === 'near' ? 'Sắp chạm giới hạn (≥ 90 %)' : 'Dưới giới hạn');
 }
@@ -364,31 +447,94 @@ function renderGallery() {
     w.style.transform = `translate(-50%, calc(-50% - 6px)) scale(${k})`;
   });
 }
-function renderPanel() {
-  const seg = (k, opts) => `<span class="seg">${opts.map(([v, t]) => `<span class="${S[k] === v ? 'on' : ''}" data-set="${k}" data-v="${v}">${t}</span>`).join('')}</span>`;
-  $('panel').innerHTML = `
-    <div class="ctl"><span>Tốc độ</span><input type="range" min="0" max="140" value="${S.speed}" id="spd"><span class="val" id="spdv">${conv(S.speed)} ${unitTxt()}</span></div>
-    <div class="ctl"><span>Giới hạn</span>${seg('limit', [[0, '—'], [40, '40'], [50, '50'], [60, '60'], [80, '80'], [100, '100'], [120, '120']])}</div>
-    <div class="ctl"><span>Đơn vị</span>${seg('unit', [['kmh', 'km/h'], ['mph', 'mph']])}</div>
-    <div class="ctl"><span>Biển</span>${seg('sign', [['vi', 'Viên (tròn)'], ['us', 'Mỹ']])}</div>
-    <div class="ctl"><span>Icon app</span>${seg('icon', [[true, 'Hiện'], [false, 'Ẩn']])}</div>
-    <div class="ctl"><span>Nguồn</span>${seg('src', [['vietmap', 'Vietmap'], ['gofa', 'GOFA'], ['gmaps', 'GMaps'], ['waze', 'Waze'], ['gps', 'GPS']])}</div>
-    <div class="ctl"><span>Cỡ</span><input type="range" min="60" max="160" value="${S.size}" id="size"><span class="val">${S.size}%</span></div>
+// Thanh mo phong (khong thuoc Cai dat): toc do, gioi han, ban do, chay thu
+function renderSim() {
+  const seg = (k, opts) => `<span class="seg">${opts.map(([v, t]) => `<span class="${S[k] === v ? 'on' : ''}" data-sim="${k}" data-v="${v}">${t}</span>`).join('')}</span>`;
+  $('sim').innerHTML = `<b>Mô phỏng</b>
+    <div class="ctl"><span>Tốc độ</span><input type="range" min="0" max="140" value="${S.speed}" id="spd"><span class="val" id="spdv" style="width:62px">${conv(S.speed)} ${unitTxt()}</span></div>
+    <div class="ctl"><span>Giới hạn</span>${seg('limit', [[0, '—'], [40, '40'], [50, '50'], [60, '60'], [80, '80'], [100, '100']])}</div>
     <div class="ctl"><span>Bản đồ</span>${seg('map', [['light', 'Sáng'], ['dark', 'Tối']])}</div>
-    <div class="state" id="stateTxt"></div>
-    <div style="display:flex;gap:8px"><button class="btn" id="drive">${driving ? '■ Dừng' : '▶ Chạy thử'}</button><button class="btn ghost" id="reset">Về chỗ cũ</button></div>`;
-  $('spd').oninput = e => { S.speed = +e.target.value; $('spdv').textContent = `${conv(S.speed)} ${unitTxt()}`; renderCar(); };
-  $('size').oninput = e => { S.size = +e.target.value; e.target.nextElementSibling.textContent = S.size + '%'; renderCar(); };
-  document.querySelectorAll('[data-set]').forEach(e => e.onclick = () => {
-    const k = e.dataset.set, raw = e.dataset.v;
-    S[k] = raw === 'true' ? true : raw === 'false' ? false : isNaN(+raw) ? raw : +raw;
-    if (k === 'src' && raw === 'gps') S.limit = 0;   // GPS iPhone: khong co gioi han
+    <button class="btn" id="drive">${driving ? '■ Dừng' : '▶ Chạy thử'}</button><span class="state" id="stateTxt"></span>`;
+  $('spd').oninput = e => { S.speed = +e.target.value; $('spdv').textContent = `${conv(S.speed)} ${unitTxt()}`; renderCar(); renderLive(); };
+  document.querySelectorAll('[data-sim]').forEach(e => e.onclick = () => { const k = e.dataset.sim, v = e.dataset.v; S[k] = isNaN(+v) ? v : +v; renderAll(); });
+  $('drive').onclick = toggleDrive;
+}
+
+// Trang Cai dat Bong bong toc do (ban moi)
+function renderSettings() {
+  const pg = $('page'), top = pg.scrollTop, sx = pg.querySelector('.styles') ? pg.querySelector('.styles').scrollLeft : 0;
+  const seg = (k, opts) => `<span class="seg">${opts.map(([v, t]) => `<span class="${S[k] === v ? 'on' : ''}" data-pref="${k}" data-v="${v}">${t}</span>`).join('')}</span>`;
+  const tile = (g, c) => `<span class="ptile" style="background:${c}">${g}</span>`;
+  const off = S.on ? '' : 'off';
+  const ou = S.unit === 'mph' ? 'mph' : 'km/h';
+  const warnFoot = () => S.warn ? `Chạy quá giới hạn + ${S.over} ${ou}: viền đỏ nhấp nháy quanh màn CarPlay${S.warn === 2 ? ', kêu một tiếng ngắn' : ''}. Cần nguồn có biển giới hạn.`
+    : 'Không cảnh báo, bong bóng vẫn đổi màu khi vượt.';
+  pg.innerHTML = `<div class="nav"><span class="back">‹ OmniCar</span><span class="t">Bong bóng tốc độ</span></div>
+    <div class="live"><div class="map ${S.map}"></div><div class="lb" id="live"></div><button class="try" id="try">Xem thử trên xe</button></div>
+    <div class="pc glass"><div class="r">${tile('⏱', 'linear-gradient(135deg,#B7A6FF,#8B7CFF)')}<span class="lab">Bong bóng tốc độ<small>Hiện khi app dẫn đường chạy nền</small></span>
+      <span class="swi ${S.on ? 'on' : ''}" data-tog="on"></span></div></div>
+    <div class="lbl">Kiểu</div>
+    <div class="pc glass ${off}"><div class="styles">${STYLES.map(st => `<div class="sopt ${S.style === st.id ? 'on' : ''}" data-pick="${st.id}"><div class="box"><div class="in">${bubble(st.id, 52, 60)}</div></div>${st.n}</div>`).join('')}</div>
+      <div class="r">${tile('◉', 'linear-gradient(135deg,#FFC2D6,#FF7FA8)')}<span class="lab">Icon app nguồn</span><span class="swi ${S.icon ? 'on' : ''}" data-tog="icon"></span></div></div>
+    <div class="lbl">Nguồn tốc độ</div>
+    <div class="pc glass ${off}"><div class="srcs">${Object.entries(SOURCES).map(([k, [g, c, n]]) => `<div class="src ${S.src === k ? 'on' : ''}" data-src="${k}"><span class="ico" style="background:${c}">${g}</span>${n.replace(' iPhone', '<br>iPhone').replace(' Live', '')}</div>`).join('')}</div>
+      <div class="hint">ⓘ <span>${SRC_HINT[S.src]}</span></div></div>
+    <div class="lbl">Hiển thị</div>
+    <div class="pc glass ${off}">
+      <div class="r">${tile('km', 'linear-gradient(135deg,#8FD3FF,#5AB8FF)')}<span class="lab">Đơn vị</span>${seg('unitPref', [['auto', 'Tự động'], ['kmh', 'km/h'], ['mph', 'mph']])}</div>
+      <div class="r">${tile('⊘', 'linear-gradient(135deg,#FF9A9E,#E5262D)')}<span class="lab">Biển</span>${seg('signPref', [['auto', 'Tự động'], ['vi', 'Tròn'], ['us', 'Mỹ']])}</div></div>
+    <div class="foot">Tự động: theo vùng của iPhone (Việt Nam: km/h, biển tròn).</div>
+    <div class="lbl">Cảnh báo quá tốc độ</div>
+    <div class="pc glass ${off}">
+      <div class="r col">${seg('warn', [[0, 'Tắt'], [1, 'Chỉ viền'], [2, 'Viền + tiếng']])}</div>
+      ${S.warn ? `<div class="r">${tile('!', 'linear-gradient(135deg,#FFD58A,#FFB340)')}<span class="lab" style="flex:none">Khi vượt</span><input type="range" min="0" max="20" value="${S.over}" data-range="over"><span class="v" id="v-over">+${S.over} ${ou}</span></div>` : ''}</div>
+    <div class="foot" id="warnfoot">${warnFoot()}</div>
+    <div class="lbl">Cỡ và vị trí</div>
+    <div class="pc glass ${off}">
+      <div class="r">${tile('▭', 'linear-gradient(135deg,#9DF2D8,#2BC79A)')}<span class="lab" style="flex:none;width:64px">CarPlay</span><input type="range" min="60" max="220" value="${S.size}" data-range="size"><span class="v" id="v-size">${S.size}%</span></div>
+      <div class="r">${tile('▯', 'linear-gradient(135deg,#9DF2D8,#2BC79A)')}<span class="lab" style="flex:none;width:64px">iPhone</span><input type="range" min="60" max="220" value="${S.sizePhone}" data-range="sizePhone"><span class="v" id="v-sizePhone">${S.sizePhone}%</span></div>
+      <div class="r"><span class="link" id="resetpos">Đặt lại vị trí và cỡ</span></div></div>
+    <div class="foot">Trên màn: kéo để dời · chụm 2 ngón đổi cỡ · chạm để mở app · giữ 2 giây để thoát app.</div>`;
+  pg.scrollTop = top;
+  if (pg.querySelector('.styles')) pg.querySelector('.styles').scrollLeft = sx;
+  pg.querySelectorAll('[data-tog]').forEach(e => e.onclick = () => { S[e.dataset.tog] = !S[e.dataset.tog]; renderAll(); });
+  pg.querySelectorAll('[data-pick]').forEach(e => e.onclick = () => { S.style = e.dataset.pick; renderAll(); });
+  pg.querySelectorAll('[data-src]').forEach(e => e.onclick = () => { S.src = e.dataset.src; if (S.src === 'gps') S.limit = 0; else if (!S.limit) S.limit = 50; renderAll(); });
+  pg.querySelectorAll('[data-pref]').forEach(e => e.onclick = () => {
+    const k = e.dataset.pref, v = e.dataset.v; S[k] = isNaN(+v) ? v : +v;
+    S.unit = S.unitPref === 'mph' ? 'mph' : 'kmh'; S.sign = S.signPref === 'us' ? 'us' : 'vi';
     renderAll();
   });
-  $('drive').onclick = toggleDrive;
-  $('reset').onclick = () => { Object.assign($('slot').style, { left: '78px', top: '182px' }); };
+  pg.querySelectorAll('[data-range]').forEach(e => e.oninput = () => {
+    const k = e.dataset.range; S[k] = +e.value;
+    $('v-' + k).textContent = k === 'over' ? `+${S.over} ${ou}` : S[k] + '%';
+    if (k === 'over') $('warnfoot').textContent = warnFoot();
+    renderCar();
+  });
+  $('resetpos').onclick = () => { S.size = 100; S.sizePhone = 100; Object.assign($('slot').style, { left: '78px', top: '182px' }); renderAll(); };
+  $('try').onclick = () => { if (!driving) toggleDrive(); };
+  // o chon kieu: bong bong that thu vua o
+  pg.querySelectorAll('.sopt .box').forEach(box => fitInto(box, box.querySelector('.in'), .9));
+  renderLive();
 }
-function renderAll() { renderPanel(); renderGallery(); renderCar(); }
+// Dat bong bong vua khung (tinh ca phan chom ra ngoai)
+function fitInto(box, w, max) {
+  const b = w.firstElementChild;
+  if (!b) return;
+  w.style.transform = 'translate(-50%, -50%)';
+  let r = b.getBoundingClientRect(), l = r.left, tp = r.top, rt = r.right, bt = r.bottom;
+  b.querySelectorAll('*').forEach(c => { const q = c.getBoundingClientRect(); if (!q.width) return; l = Math.min(l, q.left); tp = Math.min(tp, q.top); rt = Math.max(rt, q.right); bt = Math.max(bt, q.bottom); });
+  const k = Math.min(max, (box.clientWidth - 10) / (rt - l), (box.clientHeight - 10) / (bt - tp));
+  w.style.transform = `translate(-50%, -50%) scale(${k})`;
+}
+// Xem truoc song o dau trang Cai dat: cung toc do voi man xe
+function renderLive() {
+  const live = $('live');
+  if (!live) return;
+  live.innerHTML = S.on ? bubble(S.style, S.speed, S.limit) : '<span style="color:var(--ink2);font-size:13px">Đang tắt</span>';
+  fitInto(live.parentNode, live, .85);
+}
+function renderAll() { renderSettings(); renderSim(); renderGallery(); renderCar(); }
 
 // Chay thu: tang toc qua gioi han roi giam
 let driving = false, timer, t0;
@@ -402,10 +548,10 @@ function toggleDrive() {
       const t = (performance.now() - t0) / 1000, lim = S.limit;
       S.speed = Math.max(0, Math.round(lim * (0.55 + 0.65 * (0.5 - 0.5 * Math.cos(t * 0.45)))));
       $('spd').value = S.speed; $('spdv').textContent = `${conv(S.speed)} ${unitTxt()}`;
-      renderCar();
+      renderCar(); renderLive();
     }, 120);
   }
-  renderPanel(); renderCar();
+  renderSim(); renderCar(); renderLive();
 }
 
 // Keo bong bong tren man xe
