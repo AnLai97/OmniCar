@@ -74,3 +74,4 @@
 "Split" = "分割";
 "Your car is ready" = "車の準備ができました";
 "Your car is ready, %@" = "%@さん、車の準備ができました";
+"iPhone apps cannot float" = "iPhoneのAppはフローティングにできません";

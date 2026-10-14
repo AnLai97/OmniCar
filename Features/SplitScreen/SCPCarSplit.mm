@@ -916,6 +916,7 @@ static BOOL SCPCIsBridgedApp(NSString *bid);
 @property (nonatomic) CGRect soloHostedFrame;
 @property (nonatomic) BOOL ignoreHomeOnce;                // su kien Home do chinh split gui (tat split) -> khong dong app toan man
 @property (nonatomic, weak) UIViewController *soloReturnedVC;   // VC split vua tra DashBoard trinh bay toan man (Home sau do co the ket)
+@property (nonatomic) BOOL dismissStuckPending;                 // dismissStuckBaseSoon da hen, chua chay
 @property (nonatomic) BOOL resizing;                 // dang keo vach / keo doi cho: moi o phu the icon, CBWindow an
 @property (nonatomic, strong) UIView *dragGhost;     // the icon theo tay khi keo "•••" de doi cho
 @property (nonatomic) int dragTarget;                // o dang duoc tha vao (-1 = khong)
@@ -1693,14 +1694,29 @@ static NSString *SCPCPinnedApp(void)
         return;
     }
     __weak SCPCarSplit *weakSelf = self;
-    SCPCAfter(delay, ^{
-        SCPCarSplit *me = weakSelf;
-        if (!me.active || [me pendingSlotForBundle:bid] < 0) return;
-        SCPCSendEvent(4, launchInfo);
-        // App da la app chinh cua workspace (khong nam trong ngan) -> DashBoard khong trinh bay lai -> tu lay VC
-        SCPCAfter(2.0, ^{
-            [weakSelf recoverPending:bid attempt:1];
-        });
+    SCPCAfter(delay, ^{ [weakSelf sendLaunch:launchInfo bundle:bid tries:0]; });
+}
+
+// Chi gui lenh mo khi DashBoard khong con trinh bay app toan man nao khac (sau Home / dismiss). Gui dung luc DashBoard
+// dang dong VC cu (log 14/10 22:14: mo split tu Maps toan man -> Home + dismiss + mo Maps trong 0.5s) thi DashBoard bo
+// qua lenh mo va workspace ket luon: moi app sau do deu "chua toi" cho toi khi cam lai xe. Doi toi da 3s.
+- (void)sendLaunch:(id)launchInfo bundle:(NSString *)bid tries:(int)tries
+{
+    if (!self.active || [self pendingSlotForBundle:bid] < 0) return;
+    UIViewController *cur = objcInvoke(SCPCRootVC(), @"currentBaseViewController");
+    BOOL mine = NO;
+    for (SCPCarPane *p in [self allPanes]) if (p.vc && p.vc == cur) mine = YES;
+    __weak SCPCarSplit *weakSelf = self;
+    if (cur && !mine && tries < 12) {
+        if (tries == 0) SCPLog("CarSplit: DashBoard con trinh bay %@ -> doi ve Home xong roi moi mo %@", cur, bid);
+        SCPCAfter(0.25, ^{ [weakSelf sendLaunch:launchInfo bundle:bid tries:tries + 1]; });
+        return;
+    }
+    if (cur && !mine) SCPLog("CarSplit: DashBoard van trinh bay %@ sau 3s -> mo %@ luon", cur, bid);
+    SCPCSendEvent(4, launchInfo);
+    // App da la app chinh cua workspace (khong nam trong ngan) -> DashBoard khong trinh bay lai -> tu lay VC
+    SCPCAfter(2.0, ^{
+        [weakSelf recoverPending:bid attempt:1];
     });
 }
 
@@ -2431,8 +2447,9 @@ static CGSize SCPCSceneSize(UIViewController *vc)
     if (!p || p == self.floatPane || !p.vc || !p.bundleID) return SCPCT(@"Ô chưa có app", @"This pane has no app");
     if (self.floatPane.vc) return nil;   // doi cho voi cua so noi
     if ([self paneCount] < 2) return SCPCT(@"Cần ít nhất 2 ô", @"Needs at least 2 panes");
-    // App iPhone noi ra: cua so cua no duoc SpringBoard dua len tren cac o app iPhone khac (front) -> luon duoc
-    if (SCPCIsBridgedApp(p.bundleID)) return nil;
+    // App iPhone khong ra cua so noi: cua so host cua no phu ca vung app, cua so noi CarPlay mo ra bi che roi dong ngay
+    // (log 14/10 22:14: "cua so noi bi youtube che het cho -> dong" -> tat ca split)
+    if (SCPCIsBridgedApp(p.bundleID)) return SCPCT(@"App iPhone không đưa ra cửa sổ nổi được", @"iPhone apps cannot float");
     // Cac o con lai deu la app iPhone: cua so cua chung phu het vung app, cua so noi CarPlay khong con cho -> app vua dua ra se mat
     BOOL roomLeft = NO;
     for (SCPCarPane *o in self.slots) if (o != p && !(o.vc && SCPCIsBridgedApp(o.bundleID))) roomLeft = YES;
@@ -4991,9 +5008,12 @@ static NSArray<NSDictionary *> *SCPCPhoneApps(void)
 // Con VC do ma split khong dung -> bao DashBoard dong no that de man chinh hien ra.
 - (void)dismissStuckBaseSoon
 {
+    if (self.dismissStuckPending) return;   // activateWithCount + hook Home cung goi -> chi dismiss 1 lan (log 14/10: 2 lan lien)
+    self.dismissStuckPending = YES;
     __weak SCPCarSplit *weakSelf = self;
     SCPCAfter(0.35, ^{
         SCPCarSplit *me = weakSelf;
+        me.dismissStuckPending = NO;
         if (!me || me.soloHostedBundle) return;
         UIViewController *root = SCPCRootVC();
         UIViewController *cur = objcInvoke(root, @"currentBaseViewController");
