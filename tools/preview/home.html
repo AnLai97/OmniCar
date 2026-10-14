@@ -231,9 +231,9 @@ function settingsPage() {
     <div class="card glass">
       <div class="chips">${S.dock.map(id => `<span class="chip"><span class="ico" style="background:${byId[id].c}">${byId[id].g}</span>${byId[id].n}<span class="x" data-undock="${id}">✕</span></span>`).join('')}
         ${S.dock.length < 4 ? '<span class="chip add" data-act="adddock">+ Thêm</span>' : ''}</div>
-      <div class="r">${tile(ICON.sparkle, 'linear-gradient(135deg,#FFC2D6,#B7A6FF)')}<span class="lab">Gợi ý của CarPlay<small>App CarPlay tự đưa lên dock (vừa dùng, đang phát)</small></span>${sw('suggest')}</div>
+      <div class="r">${tile(ICON.sparkle, 'linear-gradient(135deg,#FFC2D6,#B7A6FF)')}<span class="lab">Gợi ý của CarPlay<small>Khi không ghim app nào: app CarPlay tự đưa lên dock</small></span>${sw('suggest')}</div>
     </div>
-    <div class="foot">Tối đa 4 app cố định trên dock, kể cả app iPhone. Ghim từ danh sách ứng dụng ở trên.</div>`;
+    <div class="foot">App ghim thay cho gợi ý của CarPlay (tối đa 4, kể cả app iPhone). Ghim từ danh sách ứng dụng ở trên.</div>`;
 }
 
 // ---------- man xe ----------
@@ -251,7 +251,8 @@ function carScreen() {
   const items = visible.slice(S.page * per, S.page * per + per);
   const cells = items.map(id => { const a = byId[id];
     return `<div class="cell" style="width:${base + gapX}px"><div class="ic" style="width:${base}px;height:${base}px;border-radius:${base * .26}px;background:${a.c};font-size:${base * .42}px">${a.g}</div>${S.names ? `<div class="nm">${a.n}</div>` : ''}</div>`; }).join('');
-  const dockApps = S.dock.slice(0, 4).concat(S.suggest ? ['music', 'phone'].filter(x => !S.dock.includes(x)).slice(0, Math.max(0, 4 - S.dock.length)) : []);
+  // = SCPHomeApplyDock: app ghim thay cho goi y; khong ghim -> goi y cua CarPlay (bat) hoac dock trong (tat)
+  const dockApps = S.dock.length ? S.dock.slice(0, 4) : (S.suggest ? ['music', 'phone'] : []);
   const w = WALLS[S.wall];
   $('cs').innerHTML = `<div class="wall ${w ? '' : 'blank'}" style="${w ? `background:${w};filter:blur(${S.blur / 3}px);transform:scale(${1 + S.blur / 200})` : ''}"></div>
     <div class="dim" style="opacity:${w ? S.dark / 100 : 0}"></div>
@@ -262,7 +263,7 @@ function carScreen() {
     ${pages > 1 ? `<div class="pdots">${Array.from({ length: pages }, (_, i) => `<i class="${i === S.page ? 'on' : ''}" data-page="${i}"></i>`).join('')}</div>` : ''}`;
   $('sum').innerHTML = `<b>Đang áp:</b> ${visible.length} app hiện (${S.hidden.size} ẩn) · lưới ${cols} × ${rows}${cols < S.cols || rows < S.rows ? ' (đã giới hạn theo màn xe)' : ''}, ${pages} trang ·
     icon ${S.size}% · ${S.names ? 'có' : 'không'} tên · hình nền ${w ? `#${S.wall}, mờ ${S.blur}, tối ${S.dark}%` : 'mặc định'} ·
-    dock: ${S.dock.map(id => byId[id].n).join(', ') || 'trống'}${S.suggest ? ' + gợi ý' : ''}`;
+    dock: ${S.dock.length ? S.dock.map(id => byId[id].n).join(', ') : (S.suggest ? 'gợi ý của CarPlay' : 'trống')}`;
   $('cs').querySelectorAll('[data-page]').forEach(e => e.onclick = () => { S.page = +e.dataset.page; carScreen(); });
 }
 

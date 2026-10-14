@@ -1,0 +1,29 @@
+/* OmniCar - CarPlay home screen (OMCHomeScreenController) */
+
+"HOMESCREEN_TITLE" = "หน้าโฮม CarPlay";
+"HOMESCREEN_ON" = "เปิด";
+"HOMESCREEN_OFF" = "ปิด";
+"HOMESCREEN_PREVIEW_OFF" = "หน้าโฮมเดิมของ CarPlay";
+"HOMESCREEN_ENABLE" = "หน้าโฮม OmniCar";
+"HOMESCREEN_FOOTER" = "OmniCar วาดตารางไอคอนและ Dock ของตัวเองทับของ CarPlay ปิดเพื่อกลับหน้าโฮมเดิม กำลังทดสอบ";
+"HOMESCREEN_APPS" = "แอป";
+"HOMESCREEN_APPS_FOOTER" = "ลากเพื่อเรียง · รูปตาเพื่อซ่อน (รวมแอป CarPlay) · หมุดเพื่อใส่ Dock ป้าย iPhone = แอปผ่าน App Bridge";
+"HOMESCREEN_APPS_EMPTY" = "ยังไม่มีรายการแอป: ต่อรถหนึ่งครั้งเพื่อให้ OmniCar อ่านแอปบนหน้าโฮม CarPlay";
+"HOMESCREEN_GRID" = "ตารางไอคอน";
+"HOMESCREEN_GRID_FOOTER" = "ถ้าไอคอนใหญ่เกินจอ ตารางจะลดคอลัมน์ / แถวเอง ไม่ล้นจอ แอปที่เหลือไปหน้าถัดไป";
+"HOMESCREEN_ICON_SIZE" = "ขนาดไอคอน";
+"HOMESCREEN_COLS" = "คอลัมน์";
+"HOMESCREEN_ROWS" = "แถว";
+"HOMESCREEN_GAP" = "ระยะห่าง";
+"HOMESCREEN_NAMES" = "ชื่อใต้ไอคอน";
+"HOMESCREEN_WALLPAPER" = "วอลเปเปอร์";
+"HOMESCREEN_WALLPAPER_FOOTER" = "ภาพจะถูกครอปให้พอดีจอรถ เพิ่มความมืดเพื่อให้ไอคอนและชื่ออ่านง่าย";
+"HOMESCREEN_FROM_PHOTOS" = "เลือกจากรูปภาพ";
+"HOMESCREEN_FROM_FILES" = "เลือกจากไฟล์";
+"HOMESCREEN_BLUR" = "เบลอ";
+"HOMESCREEN_DIM" = "ความมืด";
+"HOMESCREEN_WALLPAPER_REMOVE" = "ลบวอลเปเปอร์";
+"HOMESCREEN_DOCK" = "Dock";
+"HOMESCREEN_DOCK_FOOTER" = "แอปที่ปักหมุดจะแทนคำแนะนำของ CarPlay (สูงสุด 4 รวมแอป iPhone) ไม่ปักหมุด: ตามสวิตช์ด้านล่าง";
+"HOMESCREEN_DOCK_SUGGEST" = "คำแนะนำของ CarPlay";
+"HOMESCREEN_DOCK_FULL" = "Dock มีครบ 4 แอปแล้ว ถอนหมุดแอปหนึ่งก่อน";

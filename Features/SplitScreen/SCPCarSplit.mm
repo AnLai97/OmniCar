@@ -263,6 +263,29 @@ static UIImage *SCPCAppIcon(NSString *bid)
     return nil;
 }
 
+// Cho man chinh CarPlay cua OmniCar (SCPHomeScreen.mm)
+NSArray<NSString *> *SCPCarHomeBundles(void) { return SCPCHomeScreenBundles(); }
+UIImage *SCPCarAppIcon(NSString *bundleID) { return SCPCAppIcon(bundleID); }
+NSString *SCPCarAppName(NSString *bundleID)
+{
+    id info = SCPCAppInfo(bundleID);
+    NSString *n = info ? objcInvoke(info, @"displayName") : nil;
+    if (!n.length && bundleID.length) {   // app iPhone (khong co trong thu vien CarPlay)
+        Class lp = objc_getClass("LSApplicationProxy");
+        id proxy = lp ? objcInvoke_1(lp, @"applicationProxyForIdentifier:", bundleID) : nil;
+        n = proxy ? objcInvoke(proxy, @"localizedName") : nil;
+    }
+    return n.length ? n : bundleID;
+}
+void SCPCarLaunchApp(NSString *bundleID)
+{
+    if (!bundleID.length) return;
+    if ([[SCPCarSplit shared] launchPhoneAppIfNeeded:bundleID]) return;   // app iPhone: App Bridge
+    id info = SCPCAppInfo(bundleID), d = SCPCDashboard();
+    if (info && d) objcCall_2(d, @"_launchAppWithInfo:forURL:", info, (id)nil);
+    else SCPLog("HomeScreen: khong mo duoc %@ (info %@, dashboard %@)", bundleID, info, d);
+}
+
 // ---------------------------------------------------------------------
 //  Kieu HyperOS: icon net tron deu tu ve (khong can asset), nen "kinh toi" bo goc lien tuc,
 //  nut gom trong thanh vien thuoc, cham thi nut lun nhe.

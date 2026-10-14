@@ -1,0 +1,29 @@
+/* OmniCar - CarPlay home screen (OMCHomeScreenController) */
+
+"HOMESCREEN_TITLE" = "Màn chính CarPlay";
+"HOMESCREEN_ON" = "Bật";
+"HOMESCREEN_OFF" = "Tắt";
+"HOMESCREEN_PREVIEW_OFF" = "Màn chính gốc của CarPlay";
+"HOMESCREEN_ENABLE" = "Màn chính của OmniCar";
+"HOMESCREEN_FOOTER" = "OmniCar vẽ lưới icon và dock của riêng mình lên trên CarPlay; tắt là trả lại nguyên màn chính gốc. Đang thử nghiệm.";
+"HOMESCREEN_APPS" = "Ứng dụng";
+"HOMESCREEN_APPS_FOOTER" = "Kéo để sắp xếp · con mắt để ẩn (cả app CarPlay gốc) · ghim để đưa lên dock. Nhãn iPhone = app qua App Bridge.";
+"HOMESCREEN_APPS_EMPTY" = "Chưa có danh sách app: cắm xe một lần để OmniCar đọc các app trên màn chính CarPlay.";
+"HOMESCREEN_GRID" = "Lưới icon";
+"HOMESCREEN_GRID_FOOTER" = "Lưới tự bớt cột / hàng khi icon to hơn màn xe, không bao giờ tràn màn; nhiều app thì vuốt trang.";
+"HOMESCREEN_ICON_SIZE" = "Cỡ icon";
+"HOMESCREEN_COLS" = "Số cột";
+"HOMESCREEN_ROWS" = "Số hàng";
+"HOMESCREEN_GAP" = "Khoảng cách";
+"HOMESCREEN_NAMES" = "Tên dưới icon";
+"HOMESCREEN_WALLPAPER" = "Hình nền";
+"HOMESCREEN_WALLPAPER_FOOTER" = "Ảnh được cắt vừa màn xe. Tăng độ tối để icon và tên app luôn dễ nhìn.";
+"HOMESCREEN_FROM_PHOTOS" = "Chọn từ Ảnh";
+"HOMESCREEN_FROM_FILES" = "Chọn từ Tệp";
+"HOMESCREEN_BLUR" = "Độ mờ";
+"HOMESCREEN_DIM" = "Độ tối";
+"HOMESCREEN_WALLPAPER_REMOVE" = "Bỏ hình nền";
+"HOMESCREEN_DOCK" = "Dock";
+"HOMESCREEN_DOCK_FOOTER" = "App ghim thay cho gợi ý của CarPlay (tối đa 4, kể cả app iPhone). Không ghim app nào: dock theo công tắc bên dưới.";
+"HOMESCREEN_DOCK_SUGGEST" = "Gợi ý của CarPlay";
+"HOMESCREEN_DOCK_FULL" = "Dock đã đủ 4 app. Bỏ ghim một app trước.";

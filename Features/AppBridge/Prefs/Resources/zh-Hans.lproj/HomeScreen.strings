@@ -1,0 +1,29 @@
+/* OmniCar - CarPlay home screen (OMCHomeScreenController) */
+
+"HOMESCREEN_TITLE" = "CarPlay 主屏幕";
+"HOMESCREEN_ON" = "开";
+"HOMESCREEN_OFF" = "关";
+"HOMESCREEN_PREVIEW_OFF" = "CarPlay 原主屏幕";
+"HOMESCREEN_ENABLE" = "OmniCar 主屏幕";
+"HOMESCREEN_FOOTER" = "OmniCar 在 CarPlay 之上绘制自己的图标网格和程序坞；关闭即恢复原主屏幕。测试中。";
+"HOMESCREEN_APPS" = "应用";
+"HOMESCREEN_APPS_FOOTER" = "拖动排序 · 眼睛图标隐藏（也可隐藏 CarPlay 自带应用）· 图钉放到程序坞。iPhone 标签 = 通过 App Bridge 的应用。";
+"HOMESCREEN_APPS_EMPTY" = "还没有应用列表：连接一次车辆，让 OmniCar 读取 CarPlay 主屏幕上的应用。";
+"HOMESCREEN_GRID" = "图标网格";
+"HOMESCREEN_GRID_FOOTER" = "图标放不下时网格会减少列 / 行，绝不超出屏幕；更多应用放到下一页。";
+"HOMESCREEN_ICON_SIZE" = "图标大小";
+"HOMESCREEN_COLS" = "列数";
+"HOMESCREEN_ROWS" = "行数";
+"HOMESCREEN_GAP" = "间距";
+"HOMESCREEN_NAMES" = "图标下显示名称";
+"HOMESCREEN_WALLPAPER" = "壁纸";
+"HOMESCREEN_WALLPAPER_FOOTER" = "图片会按车机屏幕裁剪。调高暗度可让图标和名称更清楚。";
+"HOMESCREEN_FROM_PHOTOS" = "从照片选择";
+"HOMESCREEN_FROM_FILES" = "从文件选择";
+"HOMESCREEN_BLUR" = "模糊";
+"HOMESCREEN_DIM" = "暗度";
+"HOMESCREEN_WALLPAPER_REMOVE" = "移除壁纸";
+"HOMESCREEN_DOCK" = "程序坞";
+"HOMESCREEN_DOCK_FOOTER" = "固定的应用会替代 CarPlay 的建议（最多 4 个，含 iPhone 应用）。未固定时按下方开关。";
+"HOMESCREEN_DOCK_SUGGEST" = "CarPlay 建议";
+"HOMESCREEN_DOCK_FULL" = "程序坞已有 4 个应用。请先取消固定一个。";

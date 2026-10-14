@@ -13,6 +13,7 @@
 #import <notify.h>
 #import "OMCTheme.h"
 #import "../AppBridge.h"
+#import "OMCHomeScreenController.h"
 
 @interface PSViewController (OMCAppBridgeApps)
 - (PSSpecifier *)specifier;
@@ -176,6 +177,13 @@ enum { OMCABSectionSettings = 0, OMCABSectionChosen, OMCABSectionUser, OMCABSect
     self.definesPresentationContext = YES;
 }
 
+- (void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    // Ve tu trang Man chinh CarPlay: dong do hien Bat / Tat moi
+    if (![self searching]) [_table reloadSections:[NSIndexSet indexSetWithIndex:OMCABSectionSettings] withRowAnimation:UITableViewRowAnimationNone];
+}
+
 - (BOOL)searching { return _filter.length > 0; }
 
 - (void)rebuildRows
@@ -241,7 +249,7 @@ enum { OMCABSectionSettings = 0, OMCABSectionChosen, OMCABSectionUser, OMCABSect
 
 - (NSInteger)tableView:(UITableView *)tv numberOfRowsInSection:(NSInteger)section
 {
-    if (section == OMCABSectionSettings) return [self searching] ? 0 : 3;
+    if (section == OMCABSectionSettings) return [self searching] ? 0 : 4;
     return [self rowsInSection:section].count;
 }
 
@@ -300,6 +308,15 @@ static NSArray<NSNumber *> *OMCABFpsSteps(void) { return @[@0, @30, @24]; }
 - (UITableViewCell *)settingsCellForRow:(NSInteger)row inTable:(UITableView *)tv
 {
     if (row == 2) return [self fpsCellInTable:tv];
+    if (row == 3) {   // Man chinh CarPlay: trang rieng (OMCHomeScreenController)
+        UITableViewCell *c = [tv dequeueReusableCellWithIdentifier:@"home"] ?: [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:@"home"];
+        OMCStyleCell(c);
+        c.textLabel.text = L(@"HOMESCREEN_TITLE");
+        c.detailTextLabel.text = L([OMCABPref(HS_KEY_ENABLED) boolValue] ? @"HOMESCREEN_ON" : @"HOMESCREEN_OFF");
+        c.imageView.image = OMCIcon(@"square.grid.3x2.fill", OMCColorFromHex(@"#8B7CFF"));
+        c.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+        return c;
+    }
     UITableViewCell *c = [tv dequeueReusableCellWithIdentifier:row ? @"drive" : @"enable"];
     if (!c) {
         c = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:row ? @"drive" : @"enable"];
@@ -351,6 +368,10 @@ static NSArray<NSNumber *> *OMCABFpsSteps(void) { return @[@0, @30, @24]; }
 - (void)tableView:(UITableView *)tv didSelectRowAtIndexPath:(NSIndexPath *)ip
 {
     [tv deselectRowAtIndexPath:ip animated:YES];
+    if (ip.section == OMCABSectionSettings && ip.row == 3) {
+        [self.navigationController pushViewController:[OMCHomeScreenController new] animated:YES];
+        return;
+    }
     UISwitch *sw = (UISwitch *)[tv cellForRowAtIndexPath:ip].accessoryView;
     if (![sw isKindOfClass:[UISwitch class]]) return;
     [sw setOn:!sw.on animated:YES];

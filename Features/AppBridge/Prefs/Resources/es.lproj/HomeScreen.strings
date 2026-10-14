@@ -1,0 +1,29 @@
+/* OmniCar - CarPlay home screen (OMCHomeScreenController) */
+
+"HOMESCREEN_TITLE" = "Pantalla de inicio de CarPlay";
+"HOMESCREEN_ON" = "Sí";
+"HOMESCREEN_OFF" = "No";
+"HOMESCREEN_PREVIEW_OFF" = "Inicio original de CarPlay";
+"HOMESCREEN_ENABLE" = "Inicio de OmniCar";
+"HOMESCREEN_FOOTER" = "OmniCar dibuja su propia cuadrícula de iconos y dock sobre los de CarPlay; al desactivarlo vuelve el inicio original. En pruebas.";
+"HOMESCREEN_APPS" = "Apps";
+"HOMESCREEN_APPS_FOOTER" = "Arrastra para ordenar · ojo para ocultar (también apps de CarPlay) · chincheta para el dock. iPhone = app con App Bridge.";
+"HOMESCREEN_APPS_EMPTY" = "Aún no hay lista de apps: conecta el coche una vez para que OmniCar lea las apps de la pantalla de inicio.";
+"HOMESCREEN_GRID" = "Cuadrícula";
+"HOMESCREEN_GRID_FOOTER" = "Quita columnas / filas si los iconos no caben en la pantalla, nunca se desborda; más apps pasan a otra página.";
+"HOMESCREEN_ICON_SIZE" = "Tamaño de icono";
+"HOMESCREEN_COLS" = "Columnas";
+"HOMESCREEN_ROWS" = "Filas";
+"HOMESCREEN_GAP" = "Espaciado";
+"HOMESCREEN_NAMES" = "Nombres bajo los iconos";
+"HOMESCREEN_WALLPAPER" = "Fondo";
+"HOMESCREEN_WALLPAPER_FOOTER" = "La imagen se recorta a la pantalla del coche. Sube la oscuridad para que iconos y nombres se lean bien.";
+"HOMESCREEN_FROM_PHOTOS" = "Elegir de Fotos";
+"HOMESCREEN_FROM_FILES" = "Elegir de Archivos";
+"HOMESCREEN_BLUR" = "Desenfoque";
+"HOMESCREEN_DIM" = "Oscuridad";
+"HOMESCREEN_WALLPAPER_REMOVE" = "Quitar fondo";
+"HOMESCREEN_DOCK" = "Dock";
+"HOMESCREEN_DOCK_FOOTER" = "Las apps fijadas sustituyen a las sugerencias de CarPlay (hasta 4, también apps del iPhone). Sin apps fijadas: según el interruptor.";
+"HOMESCREEN_DOCK_SUGGEST" = "Sugerencias de CarPlay";
+"HOMESCREEN_DOCK_FULL" = "El dock ya tiene 4 apps. Quita una primero.";

@@ -1,0 +1,29 @@
+/* OmniCar - CarPlay home screen (OMCHomeScreenController) */
+
+"HOMESCREEN_TITLE" = "Layar utama CarPlay";
+"HOMESCREEN_ON" = "Nyala";
+"HOMESCREEN_OFF" = "Mati";
+"HOMESCREEN_PREVIEW_OFF" = "Layar utama asli CarPlay";
+"HOMESCREEN_ENABLE" = "Layar utama OmniCar";
+"HOMESCREEN_FOOTER" = "OmniCar menggambar kisi ikon dan dock sendiri di atas milik CarPlay; matikan untuk kembali ke layar asli. Sedang diuji.";
+"HOMESCREEN_APPS" = "App";
+"HOMESCREEN_APPS_FOOTER" = "Seret untuk mengurutkan · mata untuk menyembunyikan (app CarPlay juga) · pin untuk dock. iPhone = app lewat App Bridge.";
+"HOMESCREEN_APPS_EMPTY" = "Belum ada daftar app: hubungkan mobil sekali agar OmniCar membaca app di layar utama CarPlay.";
+"HOMESCREEN_GRID" = "Kisi ikon";
+"HOMESCREEN_GRID_FOOTER" = "Kisi mengurangi kolom / baris jika ikon tidak muat, tidak pernah meluber; app lainnya ke halaman berikut.";
+"HOMESCREEN_ICON_SIZE" = "Ukuran ikon";
+"HOMESCREEN_COLS" = "Kolom";
+"HOMESCREEN_ROWS" = "Baris";
+"HOMESCREEN_GAP" = "Jarak";
+"HOMESCREEN_NAMES" = "Nama di bawah ikon";
+"HOMESCREEN_WALLPAPER" = "Wallpaper";
+"HOMESCREEN_WALLPAPER_FOOTER" = "Gambar dipotong sesuai layar mobil. Naikkan kegelapan agar ikon dan nama tetap mudah dibaca.";
+"HOMESCREEN_FROM_PHOTOS" = "Pilih dari Foto";
+"HOMESCREEN_FROM_FILES" = "Pilih dari File";
+"HOMESCREEN_BLUR" = "Blur";
+"HOMESCREEN_DIM" = "Kegelapan";
+"HOMESCREEN_WALLPAPER_REMOVE" = "Hapus wallpaper";
+"HOMESCREEN_DOCK" = "Dock";
+"HOMESCREEN_DOCK_FOOTER" = "App yang dipin menggantikan saran CarPlay (maks. 4, app iPhone juga). Tanpa pin: mengikuti sakelar di bawah.";
+"HOMESCREEN_DOCK_SUGGEST" = "Saran CarPlay";
+"HOMESCREEN_DOCK_FULL" = "Dock sudah berisi 4 app. Lepas pin satu dulu.";

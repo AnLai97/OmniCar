@@ -1,6 +1,7 @@
 #import "common.h"
 #import "SCPAppIcons.h"
 #import "SCPCarSplit.h"
+#import "SCPHomeScreen.h"
 #import <notify.h>
 
 // Inject vao process CarPlay cung OmniCarSplitScreen.dylib: icon app iPhone da chon (App Bridge) tren man chinh
@@ -48,6 +49,13 @@ static void SCPIconsHookError(const char *where, NSException *e)
     return r;
 }
 
+// Man chinh CarPlay cua OmniCar (HS_KEY_ENABLED): luoi / hinh nen ve len tren, luoi goc chi an
+- (void)viewDidLayoutSubviews
+{
+    %orig;
+    @try { SCPHomeApply((UIViewController *)self); } @catch (NSException *e) { SCPIconsHookError("SCPHomeApply", e); }
+}
+
 %end
 
 // DashBoard sap mo app theo declaration gia (duong khac ngoai _launchAppWithInfo:, vi du mo lai app cuoi khi cam xe):
@@ -84,10 +92,13 @@ static void SCPIconsHookError(const char *where, NSException *e)
     if (!OMCCrashGuard(SPL_FEATURE)) return;
     %init(APPICONS, DashBoard = OMCCarClass("DashBoard"), DBApplicationInfo = OMCCarClass("DBApplicationInfo"), DBDashboardHomeViewController = OMCCarClass("DBDashboardHomeViewController"), DBApplicationLaunchInfo = OMCCarClass("DBApplicationLaunchInfo"));
     OMCCheckHooks(@"SplitScreen", @[@"DashBoard +_newApplicationLibrary", @"DBApplicationInfo -_loadFromProxy:",
-        @"DBDashboardHomeViewController -initWithEnvironment:", @"DBApplicationLaunchInfo +launchInfoForApplication:",
+        @"DBDashboardHomeViewController -initWithEnvironment:", @"DBDashboardHomeViewController -viewDidLayoutSubviews", @"DBApplicationLaunchInfo +launchInfoForApplication:",
         @"DBApplicationLaunchInfo +launchInfoForApplication:withActivationSettings:"]);
     if (!OMCCarClass("DashBoard")) SCPLog("AppIcons: khong co lop DashBoard, icon app iPhone khong chen duoc");
     // Settings doi danh sach app (hoac bat / tat App Bridge) -> cap nhat thu vien, ve lai man chinh
     static int token;
-    notify_register_dispatch("com.anlai.omnicar/prefschanged", &token, dispatch_get_main_queue(), ^(int t) { SCPRefreshAppIconsSoon(); });
+    notify_register_dispatch("com.anlai.omnicar/prefschanged", &token, dispatch_get_main_queue(), ^(int t) {
+        SCPRefreshAppIconsSoon();
+        @try { SCPHomeRefresh(); } @catch (NSException *e) { SCPIconsHookError("SCPHomeRefresh", e); }
+    });
 }

@@ -1,0 +1,29 @@
+/* OmniCar - CarPlay home screen (OMCHomeScreenController) */
+
+"HOMESCREEN_TITLE" = "CarPlay 홈 화면";
+"HOMESCREEN_ON" = "켬";
+"HOMESCREEN_OFF" = "끔";
+"HOMESCREEN_PREVIEW_OFF" = "CarPlay 원래 홈 화면";
+"HOMESCREEN_ENABLE" = "OmniCar 홈 화면";
+"HOMESCREEN_FOOTER" = "OmniCar가 CarPlay 위에 자체 아이콘 격자와 Dock을 그립니다. 끄면 원래 홈 화면으로 돌아갑니다. 테스트 중.";
+"HOMESCREEN_APPS" = "앱";
+"HOMESCREEN_APPS_FOOTER" = "드래그로 정렬 · 눈 아이콘으로 숨기기(기본 CarPlay 앱도) · 핀으로 Dock에 추가. iPhone = App Bridge 앱.";
+"HOMESCREEN_APPS_EMPTY" = "아직 앱 목록이 없습니다: 차에 한 번 연결하면 OmniCar가 홈 화면의 앱을 읽습니다.";
+"HOMESCREEN_GRID" = "아이콘 격자";
+"HOMESCREEN_GRID_FOOTER" = "아이콘이 화면에 맞지 않으면 열 / 행을 줄이며 화면을 넘지 않습니다. 남은 앱은 다음 페이지로.";
+"HOMESCREEN_ICON_SIZE" = "아이콘 크기";
+"HOMESCREEN_COLS" = "열";
+"HOMESCREEN_ROWS" = "행";
+"HOMESCREEN_GAP" = "간격";
+"HOMESCREEN_NAMES" = "아이콘 아래 이름";
+"HOMESCREEN_WALLPAPER" = "배경화면";
+"HOMESCREEN_WALLPAPER_FOOTER" = "이미지는 차 화면에 맞게 잘립니다. 어둡기를 높이면 아이콘과 이름이 잘 보입니다.";
+"HOMESCREEN_FROM_PHOTOS" = "사진에서 선택";
+"HOMESCREEN_FROM_FILES" = "파일에서 선택";
+"HOMESCREEN_BLUR" = "흐림";
+"HOMESCREEN_DIM" = "어둡기";
+"HOMESCREEN_WALLPAPER_REMOVE" = "배경화면 제거";
+"HOMESCREEN_DOCK" = "Dock";
+"HOMESCREEN_DOCK_FOOTER" = "고정한 앱이 CarPlay 제안을 대신합니다(최대 4개, iPhone 앱 포함). 고정한 앱이 없으면 아래 스위치를 따릅니다.";
+"HOMESCREEN_DOCK_SUGGEST" = "CarPlay 제안";
+"HOMESCREEN_DOCK_FULL" = "Dock에 이미 앱 4개가 있습니다. 먼저 하나를 고정 해제하세요.";

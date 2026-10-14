@@ -94,6 +94,24 @@
 // 0 = none); the app side (App.xm) caps the app's CADisplayLinks, which drive its animations / scrolling / games
 // (video playback runs at the video's own rate).
 #define AB_KEY_FPS           @"appBridgeFps"
+// CarPlay home screen (Settings: App on the car screen > CarPlay home screen, OMCHomeScreenController; car side:
+// Features/SplitScreen/SCPHomeScreen.mm). Off by default. When on, OmniCar draws its own icon grid over CarPlay's (which
+// is only hidden, never changed) and its own dock icons, so every option below is ours:
+#define HS_KEY_ENABLED       @"homeScreenEnabled"     // BOOL, default NO
+#define HS_KEY_ORDER         @"homeScreenOrder"       // [bundle id] user order; apps not in it follow in CarPlay's order
+#define HS_KEY_HIDDEN        @"homeScreenHidden"      // [bundle id] not shown on the home screen (CarPlay apps too)
+#define HS_KEY_ICON_SIZE     @"homeScreenIconSize"    // 80..130 %, default 100
+#define HS_KEY_COLS          @"homeScreenCols"        // 3..7, default 5 (fewer when the icons do not fit the car screen)
+#define HS_KEY_ROWS          @"homeScreenRows"        // 1..3, default 2
+#define HS_KEY_GAP           @"homeScreenGap"         // 60..140 % spacing, default 100
+#define HS_KEY_NAMES         @"homeScreenNames"       // BOOL, default YES: app names under the icons
+#define HS_KEY_WALLPAPER     @"homeScreenWallpaper"   // BOOL: use HS_WALLPAPER_PATH (picked in Settings) as the home wallpaper
+#define HS_KEY_BLUR          @"homeScreenBlur"        // 0..30, default 0
+#define HS_KEY_DIM           @"homeScreenDim"         // 0..70 %, default 25
+#define HS_KEY_DOCK          @"homeScreenDock"        // [bundle id] up to 4 apps pinned on the dock, in place of CarPlay's suggestions
+#define HS_KEY_DOCK_SUGGEST  @"homeScreenDockSuggest" // BOOL, default YES: no pinned app -> CarPlay's own dock suggestions
+#define HS_WALLPAPER_PATH    [OMC_DATA_ROOT stringByAppendingPathComponent:@"HomeScreen/wallpaper.jpg"]
+#define HS_DOCK_MAX          4
 // Base scene orientation for hosted apps: 1 portrait (default), 3 landscape.
 #define AB_KEY_ORIENTATION   @"appBridgeOrientation"
 static inline unsigned long long ABBundleHash(NSString *bid)

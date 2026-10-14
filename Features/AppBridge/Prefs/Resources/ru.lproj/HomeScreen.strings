@@ -1,0 +1,29 @@
+/* OmniCar - CarPlay home screen (OMCHomeScreenController) */
+
+"HOMESCREEN_TITLE" = "Экран «Домой» CarPlay";
+"HOMESCREEN_ON" = "Вкл.";
+"HOMESCREEN_OFF" = "Выкл.";
+"HOMESCREEN_PREVIEW_OFF" = "Исходный экран CarPlay";
+"HOMESCREEN_ENABLE" = "Экран OmniCar";
+"HOMESCREEN_FOOTER" = "OmniCar рисует свою сетку значков и док поверх CarPlay; выключите, чтобы вернуть исходный экран. Тестируется.";
+"HOMESCREEN_APPS" = "Приложения";
+"HOMESCREEN_APPS_FOOTER" = "Перетащите для сортировки · глаз — скрыть (и приложения CarPlay) · булавка — в док. iPhone — приложение через App Bridge.";
+"HOMESCREEN_APPS_EMPTY" = "Списка ещё нет: подключите машину один раз, чтобы OmniCar прочитал приложения экрана CarPlay.";
+"HOMESCREEN_GRID" = "Сетка значков";
+"HOMESCREEN_GRID_FOOTER" = "Если значки не помещаются, сетка убирает столбцы / ряды и не выходит за экран; остальные приложения — на следующей странице.";
+"HOMESCREEN_ICON_SIZE" = "Размер значков";
+"HOMESCREEN_COLS" = "Столбцы";
+"HOMESCREEN_ROWS" = "Ряды";
+"HOMESCREEN_GAP" = "Отступы";
+"HOMESCREEN_NAMES" = "Подписи под значками";
+"HOMESCREEN_WALLPAPER" = "Обои";
+"HOMESCREEN_WALLPAPER_FOOTER" = "Изображение обрезается под экран машины. Увеличьте затемнение, чтобы значки и подписи читались.";
+"HOMESCREEN_FROM_PHOTOS" = "Выбрать из Фото";
+"HOMESCREEN_FROM_FILES" = "Выбрать из Файлов";
+"HOMESCREEN_BLUR" = "Размытие";
+"HOMESCREEN_DIM" = "Затемнение";
+"HOMESCREEN_WALLPAPER_REMOVE" = "Убрать обои";
+"HOMESCREEN_DOCK" = "Док";
+"HOMESCREEN_DOCK_FOOTER" = "Закреплённые приложения заменяют подсказки CarPlay (до 4, и приложения iPhone). Ничего не закреплено — по переключателю ниже.";
+"HOMESCREEN_DOCK_SUGGEST" = "Подсказки CarPlay";
+"HOMESCREEN_DOCK_FULL" = "В доке уже 4 приложения. Сначала открепите одно.";

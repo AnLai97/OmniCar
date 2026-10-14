@@ -1,0 +1,29 @@
+/* OmniCar - CarPlay home screen (OMCHomeScreenController) */
+
+"HOMESCREEN_TITLE" = "CarPlay-Home-Bildschirm";
+"HOMESCREEN_ON" = "An";
+"HOMESCREEN_OFF" = "Aus";
+"HOMESCREEN_PREVIEW_OFF" = "Originaler CarPlay-Home-Bildschirm";
+"HOMESCREEN_ENABLE" = "OmniCar-Home-Bildschirm";
+"HOMESCREEN_FOOTER" = "OmniCar zeichnet ein eigenes Symbolraster und Dock über die von CarPlay; ausschalten bringt den Original-Bildschirm zurück. Im Test.";
+"HOMESCREEN_APPS" = "Apps";
+"HOMESCREEN_APPS_FOOTER" = "Ziehen zum Sortieren · Auge zum Ausblenden (auch CarPlay-Apps) · Pin fürs Dock. iPhone = App über App Bridge.";
+"HOMESCREEN_APPS_EMPTY" = "Noch keine App-Liste: Auto einmal verbinden, damit OmniCar die Apps des CarPlay-Home-Bildschirms liest.";
+"HOMESCREEN_GRID" = "Symbolraster";
+"HOMESCREEN_GRID_FOOTER" = "Das Raster entfernt Spalten / Zeilen, wenn Symbole nicht passen, und läuft nie über; weitere Apps auf der nächsten Seite.";
+"HOMESCREEN_ICON_SIZE" = "Symbolgröße";
+"HOMESCREEN_COLS" = "Spalten";
+"HOMESCREEN_ROWS" = "Zeilen";
+"HOMESCREEN_GAP" = "Abstand";
+"HOMESCREEN_NAMES" = "Namen unter Symbolen";
+"HOMESCREEN_WALLPAPER" = "Hintergrund";
+"HOMESCREEN_WALLPAPER_FOOTER" = "Das Bild wird auf den Autobildschirm zugeschnitten. Mehr Abdunklung hält Symbole und Namen lesbar.";
+"HOMESCREEN_FROM_PHOTOS" = "Aus Fotos wählen";
+"HOMESCREEN_FROM_FILES" = "Aus Dateien wählen";
+"HOMESCREEN_BLUR" = "Unschärfe";
+"HOMESCREEN_DIM" = "Abdunklung";
+"HOMESCREEN_WALLPAPER_REMOVE" = "Hintergrund entfernen";
+"HOMESCREEN_DOCK" = "Dock";
+"HOMESCREEN_DOCK_FOOTER" = "Angeheftete Apps ersetzen die CarPlay-Vorschläge (bis zu 4, auch iPhone-Apps). Nichts angeheftet: Schalter unten gilt.";
+"HOMESCREEN_DOCK_SUGGEST" = "CarPlay-Vorschläge";
+"HOMESCREEN_DOCK_FULL" = "Das Dock hat schon 4 Apps. Löse zuerst eine.";
