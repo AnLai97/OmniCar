@@ -25,3 +25,27 @@
 "HOMESCREEN_WALLPAPER_DEFAULT" = "افتراضي";
 "HOMESCREEN_DOCK_ADD" = "+ إضافة";
 "HOMESCREEN_DOCK_PICK" = "إضافة إلى الـ Dock";
+
+/* One page: Apps on the car screen */
+"APPS_TITLE" = "التطبيقات على السيارة";
+"APPS_HOME" = "شاشة OmniCar الرئيسية";
+"APPS_HOME_SUB" = "تعمل تلقائيًا عند ترتيب أو إخفاء تطبيقات CarPlay";
+"APPS_AUTO_HOME" = "تم تشغيل شاشة OmniCar لتطبيق التغيير";
+"APPS_CARD" = "التطبيقات";
+"APPS_SUMMARY" = "%ld / %ld ظاهرة";
+"APPS_ALL" = "الكل";
+"APPS_SYSTEM" = "النظام";
+"APPS_HINT" = "👁 إظهار / إخفاء · اسحب ≡ · 📌 Dock";
+"APPS_RESET" = "افتراضي";
+"APPS_LAYOUT" = "تخطيط الأيقونات";
+"APPS_DOCK_PINNED" = "%ld مثبتة";
+"APPS_DOCK_SUGGEST_SHORT" = "اقتراحات CarPlay";
+"APPS_DOCK_EMPTY" = "فارغ";
+"APPS_WALL_0" = "افتراضي";
+"APPS_WALL_1" = "محيط";
+"APPS_WALL_2" = "غروب";
+"APPS_WALL_3" = "OmniCar";
+"APPS_WALL_4" = "ليل";
+"APPS_WALL_5" = "فجر";
+"APPS_WALL_6" = "غابة";
+"APPS_WALL_7" = "صورتك";

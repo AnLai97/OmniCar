@@ -25,3 +25,27 @@
 "HOMESCREEN_WALLPAPER_DEFAULT" = "Bawaan";
 "HOMESCREEN_DOCK_ADD" = "+ Tambah";
 "HOMESCREEN_DOCK_PICK" = "Tambah ke dock";
+
+/* One page: Apps on the car screen */
+"APPS_TITLE" = "App di mobil";
+"APPS_HOME" = "Layar utama OmniCar";
+"APPS_HOME_SUB" = "Menyala sendiri saat Anda mengurutkan atau menyembunyikan app CarPlay";
+"APPS_AUTO_HOME" = "Layar utama OmniCar dinyalakan untuk menerapkan";
+"APPS_CARD" = "App";
+"APPS_SUMMARY" = "%ld / %ld tampil";
+"APPS_ALL" = "Semua";
+"APPS_SYSTEM" = "Sistem";
+"APPS_HINT" = "👁 tampil / sembunyi · seret ≡ · 📌 dock";
+"APPS_RESET" = "Bawaan";
+"APPS_LAYOUT" = "Tata letak ikon";
+"APPS_DOCK_PINNED" = "%ld dipin";
+"APPS_DOCK_SUGGEST_SHORT" = "Saran CarPlay";
+"APPS_DOCK_EMPTY" = "Kosong";
+"APPS_WALL_0" = "Bawaan";
+"APPS_WALL_1" = "Samudra";
+"APPS_WALL_2" = "Senja";
+"APPS_WALL_3" = "OmniCar";
+"APPS_WALL_4" = "Malam";
+"APPS_WALL_5" = "Fajar";
+"APPS_WALL_6" = "Hutan";
+"APPS_WALL_7" = "Foto Anda";

@@ -25,3 +25,27 @@
 "HOMESCREEN_WALLPAPER_DEFAULT" = "默认";
 "HOMESCREEN_DOCK_ADD" = "+ 添加";
 "HOMESCREEN_DOCK_PICK" = "添加到程序坞";
+
+/* One page: Apps on the car screen */
+"APPS_TITLE" = "车机上的应用";
+"APPS_HOME" = "OmniCar 主屏幕";
+"APPS_HOME_SUB" = "排序或隐藏 CarPlay 应用时会自动开启";
+"APPS_AUTO_HOME" = "已开启 OmniCar 主屏幕以应用更改";
+"APPS_CARD" = "应用";
+"APPS_SUMMARY" = "显示 %ld / %ld";
+"APPS_ALL" = "全部";
+"APPS_SYSTEM" = "系统";
+"APPS_HINT" = "👁 显示 / 隐藏 · 拖动 ≡ 排序 · 📌 程序坞";
+"APPS_RESET" = "默认";
+"APPS_LAYOUT" = "图标布局";
+"APPS_DOCK_PINNED" = "已固定 %ld 个";
+"APPS_DOCK_SUGGEST_SHORT" = "CarPlay 建议";
+"APPS_DOCK_EMPTY" = "空";
+"APPS_WALL_0" = "默认";
+"APPS_WALL_1" = "海洋";
+"APPS_WALL_2" = "日落";
+"APPS_WALL_3" = "OmniCar";
+"APPS_WALL_4" = "夜晚";
+"APPS_WALL_5" = "黎明";
+"APPS_WALL_6" = "森林";
+"APPS_WALL_7" = "你的照片";

@@ -122,8 +122,10 @@ Khách so sánh trực tiếp với DuoDash / CarBridge ở các mục này, và
 Trang Cài đặt "App trên màn xe" mở rộng thành "Màn chính CarPlay": app, bố cục, hình nền, dock.
 Mỗi thay đổi có xem trước trong Cài đặt (mô phỏng màn xe) trước khi áp lên xe.
 Bản xem trước giao diện: tools/preview/home.html (trang Cài đặt + màn xe mô phỏng đổi theo ngay).
-Code chung cho cả 5 mục (chưa thử trên xe, MẶC ĐỊNH TẮT): App trên màn xe > Màn chính CarPlay
-(Features/AppBridge/Prefs/OMCHomeScreenController.m, có màn xe xem trước ở đầu trang; key HS_KEY_* trong AppBridge.h).
+Code chung cho cả 5 mục (chưa thử trên xe, MẶC ĐỊNH TẮT): MỘT trang App trên màn xe gộp App Bridge + màn chính
+(Features/AppBridge/Prefs/OMCAppBridgeAppsController.m): xem trước màn xe, công tắc Màn chính OmniCar, các thẻ gập
+Ứng dụng (danh sách cuộn riêng) · Dock · Bố cục icon · Hình nền; key HS_KEY_* trong AppBridge.h. Bỏ công tắc App Bridge,
+Chế độ lái, Khung hình khỏi trang (đưa về mặc định một lần).
 Trên xe (Features/SplitScreen/SCPHomeScreen.mm): bật thì OmniCar vẽ lưới icon + dock + hình nền của riêng mình lên trên
 của CarPlay; lưới / icon dock gốc chỉ bị ẩn, tắt là trả lại nguyên vẹn. Thứ tự app đọc từ model *IconListView (cách bảng
 chọn app của Split Screen đã chạy trên xe), mở app qua DashBoard _launchAppWithInfo:forURL: (app iPhone → App Bridge),
@@ -133,9 +135,9 @@ chỉnh nếu khác. Thử chung: bật Màn chính CarPlay, cắm xe, Gửi log
 - [x] [ ] **Ẩn và sắp xếp app** · Vừa
   Ẩn cả app CarPlay gốc không dùng (CarBridge có), kéo đổi thứ tự app iPhone và app CarPlay trong một danh sách.
   Xong khi: thứ tự và app ẩn giữ nguyên sau khi rút / cắm lại và sau respring.
-  Code: một danh sách duy nhất ở App trên màn xe > mục Trên màn xe (app CarPlay xe đã đọc + app iPhone đã chọn): kéo để
-  sắp xếp, con mắt để ẩn, ghim lên dock, "−" để bỏ app iPhone khỏi xe → HS_KEY_ORDER / HS_KEY_HIDDEN / HS_KEY_DOCK /
-  AB_KEY_APPS; app mới nối theo thứ tự CarPlay. Trang Màn chính CarPlay chỉ còn giao diện (lưới, hình nền, dock).
+  Code: thẻ Ứng dụng = một danh sách mọi app (app hệ thống của CarPlay, app CarPlay, app iPhone), lọc Tất cả / CarPlay /
+  iPhone, tìm; con mắt hiện / ẩn trên xe (app CarPlay → HS_KEY_HIDDEN, app iPhone → AB_KEY_APPS), kéo để sắp xếp
+  (HS_KEY_ORDER), ghim dock. Ẩn / sắp xếp app CarPlay khi Màn chính OmniCar đang tắt thì tự bật và báo.
   Thử: ẩn 1 app CarPlay gốc, kéo YouTube lên đầu → cắm xe, rút / cắm lại, respring: vẫn đúng.
 - [x] [ ] **Cỡ icon** · Vừa
   Thanh trượt cỡ icon trên màn chính (ví dụ 80–130 %), lưới tự tính lại để không tràn màn.

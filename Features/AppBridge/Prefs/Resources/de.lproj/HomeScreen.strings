@@ -25,3 +25,27 @@
 "HOMESCREEN_WALLPAPER_DEFAULT" = "Standard";
 "HOMESCREEN_DOCK_ADD" = "+ Hinzufügen";
 "HOMESCREEN_DOCK_PICK" = "Zum Dock hinzufügen";
+
+/* One page: Apps on the car screen */
+"APPS_TITLE" = "Apps im Auto";
+"APPS_HOME" = "OmniCar-Home-Bildschirm";
+"APPS_HOME_SUB" = "Schaltet sich ein, wenn du CarPlay-Apps sortierst oder ausblendest";
+"APPS_AUTO_HOME" = "OmniCar-Home-Bildschirm dafür eingeschaltet";
+"APPS_CARD" = "Apps";
+"APPS_SUMMARY" = "%ld / %ld sichtbar";
+"APPS_ALL" = "Alle";
+"APPS_SYSTEM" = "System";
+"APPS_HINT" = "👁 ein- / ausblenden · ≡ ziehen · 📌 Dock";
+"APPS_RESET" = "Standard";
+"APPS_LAYOUT" = "Symbol-Layout";
+"APPS_DOCK_PINNED" = "%ld angeheftet";
+"APPS_DOCK_SUGGEST_SHORT" = "CarPlay-Vorschläge";
+"APPS_DOCK_EMPTY" = "Leer";
+"APPS_WALL_0" = "Standard";
+"APPS_WALL_1" = "Ozean";
+"APPS_WALL_2" = "Sonnenuntergang";
+"APPS_WALL_3" = "OmniCar";
+"APPS_WALL_4" = "Nacht";
+"APPS_WALL_5" = "Morgen";
+"APPS_WALL_6" = "Wald";
+"APPS_WALL_7" = "Dein Foto";

@@ -25,3 +25,27 @@
 "HOMESCREEN_WALLPAPER_DEFAULT" = "Mặc định";
 "HOMESCREEN_DOCK_ADD" = "+ Thêm";
 "HOMESCREEN_DOCK_PICK" = "Thêm vào dock";
+
+/* One page: Apps on the car screen */
+"APPS_TITLE" = "App trên màn xe";
+"APPS_HOME" = "Màn chính OmniCar";
+"APPS_HOME_SUB" = "Tự bật khi bạn sắp xếp hoặc ẩn app CarPlay";
+"APPS_AUTO_HOME" = "Đã bật Màn chính OmniCar để áp thay đổi";
+"APPS_CARD" = "Ứng dụng";
+"APPS_SUMMARY" = "%ld / %ld hiện";
+"APPS_ALL" = "Tất cả";
+"APPS_SYSTEM" = "Hệ thống";
+"APPS_HINT" = "👁 hiện / ẩn · kéo ≡ sắp xếp · 📌 dock";
+"APPS_RESET" = "Mặc định";
+"APPS_LAYOUT" = "Bố cục icon";
+"APPS_DOCK_PINNED" = "%ld app ghim";
+"APPS_DOCK_SUGGEST_SHORT" = "Gợi ý CarPlay";
+"APPS_DOCK_EMPTY" = "Trống";
+"APPS_WALL_0" = "Mặc định";
+"APPS_WALL_1" = "Đại dương";
+"APPS_WALL_2" = "Hoàng hôn";
+"APPS_WALL_3" = "OmniCar";
+"APPS_WALL_4" = "Đêm";
+"APPS_WALL_5" = "Bình minh";
+"APPS_WALL_6" = "Rừng";
+"APPS_WALL_7" = "Ảnh của bạn";

@@ -25,3 +25,27 @@
 "HOMESCREEN_WALLPAPER_DEFAULT" = "ค่าเริ่มต้น";
 "HOMESCREEN_DOCK_ADD" = "+ เพิ่ม";
 "HOMESCREEN_DOCK_PICK" = "เพิ่มลงใน Dock";
+
+/* One page: Apps on the car screen */
+"APPS_TITLE" = "แอปบนรถ";
+"APPS_HOME" = "หน้าโฮม OmniCar";
+"APPS_HOME_SUB" = "เปิดเองเมื่อคุณเรียงหรือซ่อนแอป CarPlay";
+"APPS_AUTO_HOME" = "เปิดหน้าโฮม OmniCar แล้วเพื่อใช้การเปลี่ยนแปลง";
+"APPS_CARD" = "แอป";
+"APPS_SUMMARY" = "แสดง %ld / %ld";
+"APPS_ALL" = "ทั้งหมด";
+"APPS_SYSTEM" = "ระบบ";
+"APPS_HINT" = "👁 แสดง / ซ่อน · ลาก ≡ · 📌 Dock";
+"APPS_RESET" = "ค่าเริ่มต้น";
+"APPS_LAYOUT" = "การจัดไอคอน";
+"APPS_DOCK_PINNED" = "ปักหมุด %ld";
+"APPS_DOCK_SUGGEST_SHORT" = "คำแนะนำ CarPlay";
+"APPS_DOCK_EMPTY" = "ว่าง";
+"APPS_WALL_0" = "ค่าเริ่มต้น";
+"APPS_WALL_1" = "มหาสมุทร";
+"APPS_WALL_2" = "พระอาทิตย์ตก";
+"APPS_WALL_3" = "OmniCar";
+"APPS_WALL_4" = "กลางคืน";
+"APPS_WALL_5" = "รุ่งอรุณ";
+"APPS_WALL_6" = "ป่า";
+"APPS_WALL_7" = "รูปของคุณ";

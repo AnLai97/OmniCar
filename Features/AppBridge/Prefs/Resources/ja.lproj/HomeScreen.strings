@@ -25,3 +25,27 @@
 "HOMESCREEN_WALLPAPER_DEFAULT" = "デフォルト";
 "HOMESCREEN_DOCK_ADD" = "+ 追加";
 "HOMESCREEN_DOCK_PICK" = "Dock に追加";
+
+/* One page: Apps on the car screen */
+"APPS_TITLE" = "車の画面のアプリ";
+"APPS_HOME" = "OmniCar ホーム画面";
+"APPS_HOME_SUB" = "CarPlay アプリを並べ替え・非表示にすると自動でオン";
+"APPS_AUTO_HOME" = "反映のため OmniCar ホーム画面をオンにしました";
+"APPS_CARD" = "アプリ";
+"APPS_SUMMARY" = "%ld / %ld 表示";
+"APPS_ALL" = "すべて";
+"APPS_SYSTEM" = "システム";
+"APPS_HINT" = "👁 表示 / 非表示 · ≡ で並べ替え · 📌 Dock";
+"APPS_RESET" = "デフォルト";
+"APPS_LAYOUT" = "アイコン配置";
+"APPS_DOCK_PINNED" = "%ld 個固定";
+"APPS_DOCK_SUGGEST_SHORT" = "CarPlay の提案";
+"APPS_DOCK_EMPTY" = "空";
+"APPS_WALL_0" = "デフォルト";
+"APPS_WALL_1" = "海";
+"APPS_WALL_2" = "夕焼け";
+"APPS_WALL_3" = "OmniCar";
+"APPS_WALL_4" = "夜";
+"APPS_WALL_5" = "夜明け";
+"APPS_WALL_6" = "森";
+"APPS_WALL_7" = "あなたの写真";

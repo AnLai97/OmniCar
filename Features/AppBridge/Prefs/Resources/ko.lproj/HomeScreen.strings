@@ -25,3 +25,27 @@
 "HOMESCREEN_WALLPAPER_DEFAULT" = "기본";
 "HOMESCREEN_DOCK_ADD" = "+ 추가";
 "HOMESCREEN_DOCK_PICK" = "Dock에 추가";
+
+/* One page: Apps on the car screen */
+"APPS_TITLE" = "차 화면의 앱";
+"APPS_HOME" = "OmniCar 홈 화면";
+"APPS_HOME_SUB" = "CarPlay 앱을 정렬하거나 숨기면 자동으로 켜짐";
+"APPS_AUTO_HOME" = "적용을 위해 OmniCar 홈 화면을 켰습니다";
+"APPS_CARD" = "앱";
+"APPS_SUMMARY" = "%ld / %ld 표시";
+"APPS_ALL" = "전체";
+"APPS_SYSTEM" = "시스템";
+"APPS_HINT" = "👁 표시 / 숨기기 · ≡ 드래그 · 📌 Dock";
+"APPS_RESET" = "기본";
+"APPS_LAYOUT" = "아이콘 배치";
+"APPS_DOCK_PINNED" = "%ld개 고정";
+"APPS_DOCK_SUGGEST_SHORT" = "CarPlay 제안";
+"APPS_DOCK_EMPTY" = "비어 있음";
+"APPS_WALL_0" = "기본";
+"APPS_WALL_1" = "바다";
+"APPS_WALL_2" = "노을";
+"APPS_WALL_3" = "OmniCar";
+"APPS_WALL_4" = "밤";
+"APPS_WALL_5" = "새벽";
+"APPS_WALL_6" = "숲";
+"APPS_WALL_7" = "내 사진";

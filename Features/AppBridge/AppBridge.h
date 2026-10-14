@@ -94,7 +94,7 @@
 // 0 = none); the app side (App.xm) caps the app's CADisplayLinks, which drive its animations / scrolling / games
 // (video playback runs at the video's own rate).
 #define AB_KEY_FPS           @"appBridgeFps"
-// CarPlay home screen (Settings: App on the car screen > CarPlay home screen, OMCHomeScreenController; car side:
+// CarPlay home screen (Settings: App on the car screen, one page in OMCAppBridgeAppsController.m; car side:
 // Features/SplitScreen/SCPHomeScreen.mm). Off by default. When on, OmniCar draws its own icon grid over CarPlay's (which
 // is only hidden, never changed) and its own dock icons, so every option below is ours:
 #define HS_KEY_ENABLED       @"homeScreenEnabled"     // BOOL, default NO
