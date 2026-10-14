@@ -1,6 +1,6 @@
 Package: com.anlai.omnicar
 Name: OmniCar
-Version: 1.0.0
+Version: 1.0.1
 Architecture: iphoneos-arm64
 Description: Unlock every limit of CarPlay.
  OmniCar takes CarPlay beyond what Apple allows - more freedom, more
