@@ -87,6 +87,9 @@ input[type=range] { flex: 1; accent-color: #8b7cff; min-width: 0; }
 .find { flex: 1; min-width: 0; border: 0; border-radius: 9px; background: rgba(120,120,140,.12); padding: 6px 9px; font: inherit; font-size: 12.5px; outline: none; }
 .app .eye.on { color: #5b6cf0; }
 .app.hid .grip { opacity: .35; }
+.scrolllist { max-height: 330px; overflow-y: auto; scrollbar-width: thin; border-top: 1px solid var(--line); }
+.hint { display: flex; justify-content: space-between; align-items: center; padding: 9px 12px; font-size: 11.5px; color: var(--ink2); border-top: 1px solid var(--line); }
+.hint a { color: #5b6cf0; cursor: pointer; font-weight: 600; }
 .fold .head { cursor: pointer; } .fold .chev { color: #b4b8cc; font-size: 18px; transition: transform .2s; }
 .fold.open .chev { transform: rotate(90deg); } .fold.open .head { border-bottom: 1px solid var(--line); }
 .scr .toast { position: absolute; left: 50%; bottom: 26px; transform: translateX(-50%); background: rgba(30,30,40,.9); color: #fff; font-size: 12.5px;
@@ -134,7 +137,8 @@ input[type=range] { flex: 1; accent-color: #8b7cff; min-width: 0; }
 <body>
 <h1>Màn chính CarPlay · bản xem trước</h1>
 <p class="sub"><b>Một trang "App trên màn xe"</b>: xem trước ở đầu, <b>một danh sách mọi app</b> (cả app hệ thống của CarPlay) với nút con mắt
-  hiện / ẩn trên xe, lọc CarPlay / iPhone, tìm, kéo để sắp xếp, ghim dock; rồi các thẻ gập Bố cục icon · Hình nền · Dock.
+  hiện / ẩn trên xe, lọc CarPlay / iPhone, tìm, kéo để sắp xếp, ghim dock. Các thẻ gập theo thứ tự Ứng dụng · Dock · Bố cục icon · Hình nền;
+  danh sách app cuộn bên trong thẻ.
   Bấm thử: tắt "Màn chính OmniCar" rồi bấm con mắt của Bản đồ.</p>
 
 <div class="wrap">
@@ -168,6 +172,7 @@ const ICON = {
   dock: I('<rect x="3.5" y="4" width="17" height="16" rx="3"/><path d="M8.5 4v16"/>', 2),
   sparkle: I('<path d="M12 4l1.8 4.7L18.5 10l-4.7 1.8L12 16.5l-1.8-4.7L5.5 10l4.7-1.3z"/>', 2),
   space: I('<path d="M4 12h16M7 9l-3 3 3 3M17 9l3 3-3 3"/>', 2),
+  apps: I('<rect x="4" y="4" width="6.5" height="6.5" rx="2"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="2"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="2"/><path d="M16.75 13.5v6.5M13.5 16.75H20"/>', 2),
   power: I('<path d="M12 3.5v8"/><path d="M7 6.5a7 7 0 1 0 10 0"/>', 2),
   car: I('<path d="M5 14l1.6-4.6A2 2 0 0 1 8.5 8h7a2 2 0 0 1 1.9 1.4L19 14v4h-2.5v-1.5h-9V18H5z"/>', 2),
   speedo: I('<path d="M4.5 16a7.5 7.5 0 1 1 15 0"/><path d="M12 16l3.5-4.5"/>', 2),
@@ -211,7 +216,7 @@ const WALLS = [
 ];
 
 const S = {
-  filter: 'all', q: '', open: new Set(['layout']), toast: '',   // bo loc muc Them vao xe, o tim, the dang mo, thong bao
+  filter: 'all', q: '', open: new Set(['apps']), toast: '',   // bo loc muc Them vao xe, o tim, the dang mo, thong bao
   onCar: new Set(['youtube', 'tiktok', 'zing']),  // app iPhone dang tren xe (AB_KEY_APPS); app CarPlay luon tren xe
   bridge: true, drive: true, fps: 0, home: true,
   order: APPS.map(a => a.id), hidden: new Set(['podcast', 'audible', 'settings']),
@@ -242,20 +247,22 @@ function settingsPage() {
       <span class="eye ${vis ? 'on' : ''}" data-car="${id}" title="${vis ? 'Ẩn khỏi xe' : 'Hiện trên xe'}">${vis ? ICON.eye : ICON.eyeOff}</span></div>`;
   }).join('');
   const shown = S.order.filter(onCar).length;
-  const seg = [['all', 'Tất cả'], ['cp', 'CarPlay'], ['ip', 'iPhone']].map(([k, t]) => `<span class="${S.filter === k ? 'on' : ''}" data-filter="${k}">${t}</span>`).join('');
   const fold = (id, ic, c, title, summary, body) => `<div class="card glass fold ${S.open.has(id) ? 'open' : ''}">
       <div class="r head" data-fold="${id}">${tile(ICON[ic], c)}<span class="lab">${title}</span><span class="val">${summary}</span><span class="chev">›</span></div>
       ${S.open.has(id) ? body : ''}</div>`;
+  const seg = [['all', 'Tất cả'], ['cp', 'CarPlay'], ['ip', 'iPhone']].map(([k, t]) => `<span class="${S.filter === k ? 'on' : ''}" data-filter="${k}">${t}</span>`).join('');
   const swRow = (k, label, ic, c, small) => `<div class="r">${tile(ICON[ic], c)}<span class="lab">${label}${small ? `<small>${small}</small>` : ''}</span>${sw(k)}</div>`;
   return `<div class="nav"><span class="back">${ICON.back}OmniCar</span><span class="t">App trên màn xe</span></div>
     <div class="mini"><div class="cs" id="cs2"></div></div>
     <div class="card glass">${swRow('home', 'Màn chính OmniCar', 'grid', '#8B7CFF', 'Tự bật khi bạn sắp xếp hoặc ẩn app CarPlay')}</div>
-    <div class="lbl"><span>Ứng dụng · ${shown} / ${APPS.length} hiện trên xe</span><a data-act="reset">Mặc định</a></div>
-    <div class="card glass">
+    ${fold('apps', 'apps', 'linear-gradient(135deg,#8FD3FF,#5AB8FF)', 'Ứng dụng', `${shown} / ${APPS.length} hiện`, `
       <div class="tools"><span class="seg">${seg}</span><input class="find" placeholder="Tìm app" value="${S.q}" data-find></div>
-      ${rows || '<div class="r"><span class="lab" style="color:var(--ink2)">Không có app nào khớp</span></div>'}
-    </div>
-    <div class="foot">Con mắt: hiện / ẩn trên xe (cả app hệ thống của CarPlay) · kéo ≡ để sắp xếp · ghim lên dock. App iPhone chạy qua App Bridge.</div>
+      <div class="scrolllist" id="applist">${rows || '<div class="r"><span class="lab" style="color:var(--ink2)">Không có app nào khớp</span></div>'}</div>
+      <div class="hint"><span>👁 hiện / ẩn · kéo ≡ sắp xếp · 📌 dock</span><a data-act="reset">Mặc định</a></div>`)}
+    ${fold('dock', 'dock', 'linear-gradient(135deg,#B7A6FF,#8B7CFF)', 'Dock', S.dock.length ? S.dock.length + ' app ghim' : (S.suggest ? 'Gợi ý CarPlay' : 'Trống'), `
+      <div class="chips">${S.dock.map(id => `<span class="chip"><span class="ico" style="background:${byId[id].c}">${byId[id].g}</span>${byId[id].n}<span class="x" data-undock="${id}">✕</span></span>`).join('')}
+        ${S.dock.length < 4 ? '<span class="chip add" data-act="adddock">+ Thêm</span>' : ''}</div>
+      <div class="r">${tile(ICON.sparkle, 'linear-gradient(135deg,#FFC2D6,#B7A6FF)')}<span class="lab">Gợi ý của CarPlay<small>Khi không ghim app nào</small></span>${sw('suggest')}</div>`)}
     ${fold('layout', 'grid', 'linear-gradient(135deg,#8FD3FF,#5AB8FF)', 'Bố cục icon', `${S.cols} × ${S.rows} · ${S.size}%`, `
       ${slider('size', 80, 130, '%', 'Cỡ icon', 'size', 'linear-gradient(135deg,#B7A6FF,#8B7CFF)')}
       ${step('cols', 3, 7, 'Số cột', 'grid', 'linear-gradient(135deg,#8FD3FF,#5AB8FF)')}
@@ -267,10 +274,6 @@ function settingsPage() {
       <div class="pair"><span data-act="photos">Từ Ảnh</span></div>
       ${slider('blur', 0, 30, '', 'Độ mờ', 'blur', 'linear-gradient(135deg,#B7A6FF,#5AB8FF)')}
       ${slider('dark', 0, 70, '%', 'Độ tối', 'moon', 'linear-gradient(135deg,#8a8fb0,#4a4f80)')}`)}
-    ${fold('dock', 'dock', 'linear-gradient(135deg,#B7A6FF,#8B7CFF)', 'Dock', S.dock.length ? S.dock.length + ' app ghim' : (S.suggest ? 'Gợi ý CarPlay' : 'Trống'), `
-      <div class="chips">${S.dock.map(id => `<span class="chip"><span class="ico" style="background:${byId[id].c}">${byId[id].g}</span>${byId[id].n}<span class="x" data-undock="${id}">✕</span></span>`).join('')}
-        ${S.dock.length < 4 ? '<span class="chip add" data-act="adddock">+ Thêm</span>' : ''}</div>
-      <div class="r">${tile(ICON.sparkle, 'linear-gradient(135deg,#FFC2D6,#B7A6FF)')}<span class="lab">Gợi ý của CarPlay<small>Khi không ghim app nào</small></span>${sw('suggest')}</div>`)}
     ${S.toast ? `<div class="toast">${S.toast}</div>` : ''}`;
 }
 
@@ -310,9 +313,10 @@ function carScreen() {
 // ---------- tuong tac ----------
 let dragId = null;
 function render() {
-  const pg = $('page'), top = pg.scrollTop;
+  const pg = $('page'), top = pg.scrollTop, lt = $('applist') ? $('applist').scrollTop : 0;
   pg.innerHTML = settingsPage();
   pg.scrollTop = top;
+  if ($('applist')) $('applist').scrollTop = lt;
   bind();
   carScreen();
 }
