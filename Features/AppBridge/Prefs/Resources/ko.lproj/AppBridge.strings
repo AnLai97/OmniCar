@@ -16,3 +16,6 @@
 "APPBRIDGE_APPS_NO_MATCH" = "일치하는 앱이 없습니다.";
 "APPBRIDGE_DRIVE_MODE" = "주행 모드";
 "APPBRIDGE_DRIVE_FOOTER" = "주행 모드: 시속 10km를 넘으면 차량의 iPhone 앱은 소리만 재생됩니다(화면 가림, 터치 잠금). 다시 보려면 차를 세우십시오. 속도 버블의 속도 출처를 사용합니다.";
+"APPBRIDGE_FPS" = "앱 프레임 속도";
+"APPBRIDGE_FPS_MAX" = "최대";
+"APPBRIDGE_FPS_FOOTER" = "앱 프레임 속도: 차 화면의 iPhone 앱 초당 프레임을 제한해 휴대폰 발열을 줄입니다(애니메이션, 스크롤; 동영상은 그대로). 최대로 두면 라이트 모드나 무선 CarPlay에서 자동으로 30으로 낮춥니다.";

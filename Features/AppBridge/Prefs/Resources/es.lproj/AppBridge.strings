@@ -16,3 +16,6 @@
 "APPBRIDGE_APPS_NO_MATCH" = "Ninguna app coincide.";
 "APPBRIDGE_DRIVE_MODE" = "Modo conducción";
 "APPBRIDGE_DRIVE_FOOTER" = "Modo conducción: a más de 10 km/h, las apps del iPhone en el coche solo reproducen el sonido (imagen tapada, toques bloqueados); detén el coche para volver a verlas. Usa el origen de velocidad de Burbuja de velocidad.";
+"APPBRIDGE_FPS" = "FPS de apps";
+"APPBRIDGE_FPS_MAX" = "Máx.";
+"APPBRIDGE_FPS_FOOTER" = "FPS de apps: limita los fotogramas por segundo de las apps del iPhone en el coche para que el teléfono se caliente menos (animaciones, desplazamiento; el vídeo no cambia). En Máx. baja a 30 solo con el modo ligero o CarPlay inalámbrico.";

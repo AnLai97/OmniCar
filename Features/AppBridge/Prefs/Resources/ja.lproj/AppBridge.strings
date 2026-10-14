@@ -16,3 +16,6 @@
 "APPBRIDGE_APPS_NO_MATCH" = "一致するAppはありません。";
 "APPBRIDGE_DRIVE_MODE" = "運転モード";
 "APPBRIDGE_DRIVE_FOOTER" = "運転モード: 10 km/hを超えると、車で使うiPhone Appは音声のみになります（映像は隠され、タッチはロック）。停車すると再び視聴できます。スピードバブルの速度取得元を使用します。";
+"APPBRIDGE_FPS" = "アプリのフレームレート";
+"APPBRIDGE_FPS_MAX" = "最大";
+"APPBRIDGE_FPS_FOOTER" = "アプリのフレームレート：車の画面の iPhone アプリの毎秒フレーム数を制限し、発熱を抑えます（アニメーション、スクロール。動画は変わりません）。「最大」では軽量モード中やワイヤレス CarPlay で自動的に 30 になります。";

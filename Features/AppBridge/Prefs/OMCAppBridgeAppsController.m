@@ -241,7 +241,7 @@ enum { OMCABSectionSettings = 0, OMCABSectionChosen, OMCABSectionUser, OMCABSect
 
 - (NSInteger)tableView:(UITableView *)tv numberOfRowsInSection:(NSInteger)section
 {
-    if (section == OMCABSectionSettings) return [self searching] ? 0 : 2;
+    if (section == OMCABSectionSettings) return [self searching] ? 0 : 3;
     return [self rowsInSection:section].count;
 }
 
@@ -256,7 +256,7 @@ enum { OMCABSectionSettings = 0, OMCABSectionChosen, OMCABSectionUser, OMCABSect
 
 - (NSString *)tableView:(UITableView *)tv titleForFooterInSection:(NSInteger)section
 {
-    if (section == OMCABSectionSettings) return [self searching] ? nil : [NSString stringWithFormat:@"%@\n%@", L(@"APPBRIDGE_FOOTER"), L(@"APPBRIDGE_DRIVE_FOOTER")];
+    if (section == OMCABSectionSettings) return [self searching] ? nil : [NSString stringWithFormat:@"%@\n%@\n%@", L(@"APPBRIDGE_FOOTER"), L(@"APPBRIDGE_DRIVE_FOOTER"), L(@"APPBRIDGE_FPS_FOOTER")];
     if (section == OMCABSectionChosen) return (_chosenRows.count || [self searching]) ? nil : L(@"APPBRIDGE_APPS_FOOTER");
     if (section != OMCABSectionSystem) return nil;
     if (!_apps.count) return L(@"APPBRIDGE_APPS_EMPTY");
@@ -267,8 +267,39 @@ enum { OMCABSectionSettings = 0, OMCABSectionChosen, OMCABSectionUser, OMCABSect
 - (void)tableView:(UITableView *)tv willDisplayHeaderView:(UIView *)view forSection:(NSInteger)section { OMCStyleHeaderFooter(view, YES); }
 - (void)tableView:(UITableView *)tv willDisplayFooterView:(UIView *)view forSection:(NSInteger)section { OMCStyleHeaderFooter(view, NO); }
 
+// Khung hinh app iPhone tren xe (AB_KEY_FPS): Toi da / 30 / 24
+static NSArray<NSNumber *> *OMCABFpsSteps(void) { return @[@0, @30, @24]; }
+
+- (void)fpsChanged:(UISegmentedControl *)seg
+{
+    OMCABStore(AB_KEY_FPS, OMCABFpsSteps()[MAX(0, seg.selectedSegmentIndex)]);
+}
+
+- (UITableViewCell *)fpsCellInTable:(UITableView *)tv
+{
+    UITableViewCell *c = [tv dequeueReusableCellWithIdentifier:@"fps"];
+    if (!c) {
+        c = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"fps"];
+        UISegmentedControl *seg = [[UISegmentedControl alloc] initWithItems:@[L(@"APPBRIDGE_FPS_MAX"), @"30", @"24"]];
+        [seg addTarget:self action:@selector(fpsChanged:) forControlEvents:UIControlEventValueChanged];
+        c.accessoryView = seg;
+        c.selectionStyle = UITableViewCellSelectionStyleNone;
+    }
+    OMCStyleCell(c);
+    c.textLabel.text = L(@"APPBRIDGE_FPS");
+    c.textLabel.adjustsFontSizeToFitWidth = YES;
+    c.imageView.image = OMCIcon(@"speedometer", OMCColorFromHex(@"#34C759"));
+    UISegmentedControl *seg = (UISegmentedControl *)c.accessoryView;
+    [seg setTitle:L(@"APPBRIDGE_FPS_MAX") forSegmentAtIndex:0];
+    [seg sizeToFit];
+    NSUInteger i = [OMCABFpsSteps() indexOfObject:@([OMCABPref(AB_KEY_FPS) intValue])];
+    seg.selectedSegmentIndex = i == NSNotFound ? 0 : (NSInteger)i;
+    return c;
+}
+
 - (UITableViewCell *)settingsCellForRow:(NSInteger)row inTable:(UITableView *)tv
 {
+    if (row == 2) return [self fpsCellInTable:tv];
     UITableViewCell *c = [tv dequeueReusableCellWithIdentifier:row ? @"drive" : @"enable"];
     if (!c) {
         c = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:row ? @"drive" : @"enable"];

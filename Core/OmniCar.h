@@ -121,6 +121,9 @@ BOOL OMCCrashGuard(NSString *feature);
 #define OMC_KEY_LITE_MODE    @"liteMode"
 #define OMC_DARWIN_LITE      "com.anlai.omnicar/lite"
 BOOL OMCLiteActive(void);
+// The car connection from the CarKit session CarPlay records on every connect (OMC_KEY_DIAG_CAR): 1 wireless, 0 wired,
+// -1 unknown (property names change between iOS versions; Diagnostics reads the same fields).
+int OMCCarWireless(void);
 // Free memory when the car connects (Diagnostics > Optimize, default off): SpringBoard (Core.x) quits the user apps
 // running in the background except music / navigation / CarPlay apps, the apps chosen for the car screen and the
 // Speed Bubble source. The CarPlay process posts OMC_DARWIN_CAR_CONNECTED when a car screen appears.

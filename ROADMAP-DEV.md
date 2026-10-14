@@ -176,10 +176,10 @@ xem trước ngay trong Cài đặt. Âm thanh phát qua loa xe khi CarPlay kế
   Nhận xe qua tên / ID đầu xe → bố cục chia màn, màn chính CarPlay, kiểu khởi động, cỡ bong bóng riêng cho từng xe.
   Code: Core OMCProfileSwitch khi cắm xe (khoá xe từ phiên CarKit), OMCProfileKeys() là các cài đặt theo xe;
   Cài đặt > Hồ sơ theo xe (Prefs/OMCCarProfilesController.m). Chờ thử: tên trường định danh xe của CarKit.
-- [ ] **Đủ 8 bố cục trở lên** · Vừa
-  Thêm 70/30, 30/70, 3 cột đều, 1 lớn trên + 2 dưới (màn dọc), lưới 2×2 (màn siêu rộng).
+- [x] **Đủ 8 bố cục trở lên** · Vừa
+  Thêm 70/30, 30/70, 3 cột đều, 1 lớn trên + 2 dưới (màn dọc).
   Code: thêm 70/30 và 30/70 trong bảng bố cục (SCPC_LAYOUT_70 / _30); 3 cột đều và 1 lớn + 2 (màn dọc) đã có.
-  Còn thiếu: lưới 2×2 (cần 4 ô, SCPC_MAX_PANES = 3).
+  Bỏ lưới 2×2 (4 ô): các bố cục hiện có là đủ.
 - [ ] **Chọn ô phát tiếng** · Vừa
   Hai ô cùng có âm thanh → chọn ô nào phát, ô kia tắt tiếng; tự giảm nhạc khi bản đồ đọc hướng dẫn.
   Chưa làm: cần biết CarPlay chọn nguồn âm thanh thế nào (bộ dò liệt kê lớp NowPlaying / Audio).
@@ -214,13 +214,15 @@ xem trước ngay trong Cài đặt. Âm thanh phát qua loa xe khi CarPlay kế
   Sau mỗi bản cập nhật hiện một trang ngắn trong Cài đặt.
   Code: Prefs/OMCWhatsNewController.m + Resources/WhatsNew.plist (theo phiên bản trong control), tự hiện 1 lần sau mỗi bản
   mới, Hỗ trợ > Có gì mới. Thêm mục cho mỗi phiên bản mới vào WhatsNew.plist.
-- [ ] **Tinh chỉnh hiệu năng** · Vừa
+- [x] **Tinh chỉnh hiệu năng** · Vừa
   Giới hạn FPS app iPhone, tự giảm khi máy nóng, giữ app trong bộ nhớ hay không, giữ kết nối CarPlay khi khoá máy.
   Code (một phần, Mức 1): Chế độ nhẹ tự giảm khi máy nóng, dọn RAM; App Bridge giữ app trên xe khi khoá máy.
-  Còn thiếu: giới hạn FPS app iPhone.
+  Giới hạn FPS: App trên màn xe > Khung hình app (Tối đa / 30 / 24, AB_KEY_FPS); SpringBoard gửi kèm thông báo hướng,
+  App.xm giới hạn CADisplayLink của app (hoạt ảnh, cuộn, game; video không đổi). Chờ thử trên xe.
 - [ ] **Tối ưu CarPlay không dây** · Vừa
   Tự giảm chất lượng / FPS app iPhone khi kết nối không dây chập chờn.
-  Chưa làm.
+  Code (một phần): Khung hình app để Tối đa thì tự giới hạn 30 khi CarPlay không dây (OMCCarWireless, đọc phiên CarKit)
+  hoặc Chế độ nhẹ bật. Còn thiếu: đo kết nối chập chờn (cần số liệu từ xe không dây).
 - [x] **Phím tắt Siri đầy đủ** · Vừa
   Hành động cho app Phím tắt: mở bố cục, đặt app vào ô, đổi tỉ lệ, đổi hình nền / kiểu khởi động, bật / tắt từng tính năng.
   Code: omnicar://splitscreen/layout | ratio | swap | zoom | pin, omnicar://feature/<tính năng>?on=, lite?mode=,

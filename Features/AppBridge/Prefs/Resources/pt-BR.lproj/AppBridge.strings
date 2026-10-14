@@ -16,3 +16,6 @@
 "APPBRIDGE_APPS_NO_MATCH" = "Nenhum app corresponde.";
 "APPBRIDGE_DRIVE_MODE" = "Modo direção";
 "APPBRIDGE_DRIVE_FOOTER" = "Modo direção: acima de 10 km/h, os apps do iPhone no carro só tocam o som (imagem coberta, toques bloqueados); pare o carro para assistir de novo. Usa a origem de velocidade da Bolha de velocidade.";
+"APPBRIDGE_FPS" = "FPS dos apps";
+"APPBRIDGE_FPS_MAX" = "Máx.";
+"APPBRIDGE_FPS_FOOTER" = "FPS dos apps: limita os quadros por segundo dos apps do iPhone no carro para o celular esquentar menos (animações, rolagem; o vídeo não muda). Em Máx. cai para 30 sozinho com o modo leve ou CarPlay sem fio.";

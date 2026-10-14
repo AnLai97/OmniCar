@@ -84,12 +84,22 @@ static void ABPostState(NSString *bid, NSString *state)
 
 // Bao app (App.xm trong app) huong goc cua o + huong "thiet bi" gia (CO DINH = huong cua o: doi theo hinh dang o thi
 // YouTube coi nhu may vua xoay, tu vao/ra fullscreen khi keo vach); -1 = thoi host (app ve lai binh thuong tren iPhone)
+// Gioi han khung hinh / giay cho app tren xe (AB_KEY_FPS): nguoi dung chon 30 / 24; khong gioi han thi tu ha 30 khi
+// Che do nhe dang bat hoac CarPlay khong day. 0 = khong gioi han.
+static int ABFpsCap(void)
+{
+    int fps = [OMCPref(AB_KEY_FPS, @0) intValue];
+    if (fps > 0) return fps;
+    return (OMCLiteActive() || OMCCarWireless() == 1) ? 30 : 0;
+}
+
 static void ABPostOrientation(NSString *bid, long long orientation)
 {
     if (!bid) return;
     long long device = orientation > 0 ? orientation : 0;
+    int fps = orientation > 0 ? ABFpsCap() : 0;   // thoi host: bo gioi han
     [[objc_getClass("NSDistributedNotificationCenter") defaultCenter]
-        postNotificationName:AB_NOTIF_ORIENTATION object:bid userInfo:@{@"orientation": @(orientation), @"device": @(device)}];
+        postNotificationName:AB_NOTIF_ORIENTATION object:bid userInfo:@{@"orientation": @(orientation), @"device": @(device), @"fps": @(fps)}];
 }
 
 // Khung o: cham trong dai passInsets sat mep (canh giap o khac) khong tinh la cham vao o -> cua so (pass-through)

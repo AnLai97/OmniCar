@@ -11,6 +11,7 @@
 //  - -1 = khong host nua: thoi moi can thiep.
 
 static int orientationOverride = -1;        // huong goc cua o SpringBoard gui, -1 = khong host
+static int fpsCap = 0;                      // khung hinh / giay toi da khi tren xe (SpringBoard gui, AB_KEY_FPS), 0 = khong gioi han
 static long long appWantsOrientation = 0;   // huong app TU XIN (fullscreen video -> ngang); 0 = theo huong cua o
 static int fakeDeviceOrientation = 0;       // huong "thiet bi" gia (SpringBoard gui), 0 = dung huong that
 static NSUInteger ABAppEffectiveMask(void);
@@ -214,7 +215,72 @@ static void ABHandleOrientationRequest(NSDictionary *info)
     if (key && [key respondsToSelector:sel]) ((void (*)(id, SEL, long long, double, BOOL))objc_msgSend)(key, sel, (long long)o, 0.0, YES);
 }
 
+// Gioi han khung hinh: nho gia tri app tu dat cho moi CADisplayLink (hoat anh, cuon, game), dat lai = min(app, fpsCap);
+// fpsCap = 0 tra lai dung gia tri cua app. Video phat theo khung hinh cua video, khong bi anh huong.
+static char kABWantFps, kABWantRange;
+static BOOL fpsApplying;
+
+static NSHashTable<CADisplayLink *> *ABDisplayLinks(void)
+{
+    static NSHashTable *t;
+    if (!t) t = [NSHashTable weakObjectsHashTable];
+    return t;
+}
+
+static void ABCapLink(CADisplayLink *l)
+{
+    fpsApplying = YES;
+    NSArray<NSNumber *> *range = objc_getAssociatedObject(l, &kABWantRange);
+    if (range.count == 3) {
+        float mn = range[0].floatValue, mx = range[1].floatValue, pr = range[2].floatValue;
+        if (fpsCap > 0) {
+            mx = mx > 0 ? MIN(mx, (float)fpsCap) : fpsCap;
+            pr = pr > 0 ? MIN(pr, mx) : 0;
+            mn = MIN(mn, mx);
+        }
+        l.preferredFrameRateRange = CAFrameRateRangeMake(mn, mx, pr);
+    } else {
+        NSInteger f = [objc_getAssociatedObject(l, &kABWantFps) integerValue];
+        if (fpsCap > 0) f = f > 0 ? MIN(f, (NSInteger)fpsCap) : fpsCap;
+        l.preferredFramesPerSecond = f;
+    }
+    fpsApplying = NO;
+}
+
+static void ABSetFpsCap(int fps)
+{
+    if (fps == fpsCap) return;
+    fpsCap = fps;
+    for (CADisplayLink *l in ABDisplayLinks().allObjects) ABCapLink(l);
+    ABLog("gioi han khung hinh: %d", fps);
+}
+
 %group APPS
+
+%hook CADisplayLink
++ (CADisplayLink *)displayLinkWithTarget:(id)target selector:(SEL)sel
+{
+    CADisplayLink *l = %orig;
+    if (l) {
+        [ABDisplayLinks() addObject:l];
+        if (fpsCap > 0) ABCapLink(l);
+    }
+    return l;
+}
+- (void)setPreferredFramesPerSecond:(NSInteger)fps
+{
+    if (fpsApplying) { %orig; return; }
+    objc_setAssociatedObject(self, &kABWantFps, @(fps), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    objc_setAssociatedObject(self, &kABWantRange, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    if (fpsCap > 0) ABCapLink(self); else %orig;
+}
+- (void)setPreferredFrameRateRange:(CAFrameRateRange)r
+{
+    if (fpsApplying) { %orig; return; }
+    objc_setAssociatedObject(self, &kABWantRange, @[@(r.minimum), @(r.maximum), @(r.preferred)], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    if (fpsCap > 0) ABCapLink(self); else %orig;
+}
+%end
 
 %hook UIWindow
 
@@ -366,6 +432,7 @@ static void ABHandleOrientationRequest(NSDictionary *info)
             ABLog("%@: dua len xe, cai hook", bid);
         }
         @try { ABHandleOrientationRequest(note.userInfo); } @catch (NSException *e) { ABLog("%@: xoay loi %@", bid, e); }
+        ABSetFpsCap([note.userInfo[@"orientation"] intValue] > 0 ? [note.userInfo[@"fps"] intValue] : 0);
     }];
     [[objc_getClass("NSDistributedNotificationCenter") defaultCenter]
         addObserverForName:AB_NOTIF_KEY object:bid queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *note) {

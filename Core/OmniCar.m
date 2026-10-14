@@ -55,6 +55,26 @@ BOOL OMCLiteActive(void) {
 	return cached = (state != 0);
 }
 
+int OMCCarWireless(void) {
+	NSDictionary *car = OMCPref(OMC_KEY_DIAG_CAR, nil);
+	if (![car isKindOfClass:[NSDictionary class]]) return -1;
+	for (NSString *group in @[@"session", @"configuration"]) {
+		NSDictionary *props = car[group];
+		if (![props isKindOfClass:[NSDictionary class]]) continue;
+		for (NSString *name in props) {
+			if (![name isKindOfClass:[NSString class]]) continue;
+			NSString *lower = name.lowercaseString, *v = [props[name] description].lowercaseString;
+			if ([lower containsString:@"wireless"] && ([v isEqualToString:@"1"] || [v isEqualToString:@"0"])) return [v isEqualToString:@"1"];
+			if ([lower containsString:@"wired"] && ([v isEqualToString:@"1"] || [v isEqualToString:@"0"])) return ![v isEqualToString:@"1"];
+			if ([lower containsString:@"transport"]) {
+				if ([v containsString:@"wifi"] || [v containsString:@"wireless"] || [v containsString:@"wi-fi"]) return 1;
+				if ([v containsString:@"usb"] || [v containsString:@"wired"]) return 0;
+			}
+		}
+	}
+	return -1;
+}
+
 #pragma mark - Logging
 
 // One file for every feature and process, readable with Filza. A process that cannot write it

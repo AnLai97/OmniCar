@@ -89,6 +89,11 @@
 #define AB_KEY_DRIVE_MODE    @"appBridgeDriveMode"    // BOOL, default YES
 #define AB_KEY_DRIVE_SPEED   @"appBridgeDriveSpeed"   // km/h, default 10
 #define AB_DARWIN_SPEED_NOW  "com.anlai.omnicar/speed"
+// Frame rate cap for iPhone apps on the car: 0 none (default), 30, 24. With none, the cap is 30 while Lite mode is on or
+// CarPlay is wireless (OMCCarWireless). SpringBoard sends the cap with every AB_NOTIF_ORIENTATION (userInfo "fps",
+// 0 = none); the app side (App.xm) caps the app's CADisplayLinks, which drive its animations / scrolling / games
+// (video playback runs at the video's own rate).
+#define AB_KEY_FPS           @"appBridgeFps"
 // Base scene orientation for hosted apps: 1 portrait (default), 3 landscape.
 #define AB_KEY_ORIENTATION   @"appBridgeOrientation"
 static inline unsigned long long ABBundleHash(NSString *bid)
