@@ -1,0 +1,15 @@
+/* OmniCar – What's new (Prefs/OMCWhatsNewController.m, keys named in WhatsNew.plist) */
+
+"WN_ROW" = "What's new";
+"WN_TITLE" = "What's new in OmniCar %@";
+"WN_CONTINUE" = "Continue";
+"WN_KEYBOARD_TITLE" = "Keyboard on the car screen";
+"WN_KEYBOARD_TEXT" = "Type in iPhone apps shown on the car screen with a keyboard right on the car display.";
+"WN_ZOOM_TITLE" = "Pane zoom";
+"WN_ZOOM_TEXT" = "Double-tap the ••• of a Split Screen pane to fill the screen with it, double-tap again to go back.";
+"WN_UNITS_TITLE" = "km/h or mph, US signs";
+"WN_UNITS_TEXT" = "Speed Bubble shows km/h or mph and a round or US-style speed limit sign, automatic for your region.";
+"WN_LANG_TITLE" = "14 languages";
+"WN_LANG_TEXT" = "Settings, car screen text and notices in 14 languages. Pick one with the globe button.";
+"WN_GUIDE_TITLE" = "First-run guide";
+"WN_GUIDE_TEXT" = "A short guide to get started. Open it any time from Support > Show guide again.";

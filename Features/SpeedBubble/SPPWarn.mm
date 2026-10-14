@@ -3,7 +3,7 @@
 #import "SPPPrefs.h"
 #import <AudioToolbox/AudioToolbox.h>
 
-#define SPP_WARN_REARM   5.0     // giay duoi gioi han lien tuc -> lan vuot sau lai keu
+#define SPP_WARN_REARM   5.0     // giay duoi nguong lien tuc -> lan vuot sau lai keu
 #define SPP_WARN_SOUND   1052    // SystemSoundID he thong: tieng bip ngan, nhe (SIMToolkitGeneralBeep)
 #define SPP_WARN_EDGE    36.0    // diem: be rong vung sang tinh tu mep man vao trong
 #define SPP_WARN_CORNER  18.0    // bo goc vien (gan bo goc man xe)
@@ -96,16 +96,17 @@ static UIImage *SPPWarnGlowImage(void)
     CFAbsoluteTime now = CFAbsoluteTimeGetCurrent();
     int speed = self.speed, limit = self.limit;
     BOOL known = speed >= 0 && limit > 0;
-    // Keu lai: chi sau khi o duoi gioi han lien tuc SPP_WARN_REARM giay (khong keu lien hoi khi dao dong quanh nguong)
-    if (known && speed <= limit) {
+    double threshold = limit + self.marginKmh;   // nguong canh bao (co the thap hon gioi han)
+    // Keu lai: chi sau khi o duoi nguong lien tuc SPP_WARN_REARM giay (khong keu lien hoi khi dao dong quanh nguong)
+    if (known && speed <= threshold) {
         if (self.belowSince <= 0) self.belowSince = now;
-        if (!self.armed && now - self.belowSince >= SPP_WARN_REARM) { self.armed = YES; SPPLog("canh bao: da cham lai duoi gioi han -> lan vuot sau se keu"); }
+        if (!self.armed && now - self.belowSince >= SPP_WARN_REARM) { self.armed = YES; SPPLog("canh bao: da cham lai duoi nguong -> lan vuot sau se keu"); }
     } else self.belowSince = 0;
 
     BOOL car = SPPGetCarPlayCADisplay() != nil;
-    BOOL over = self.enabled && self.mode > 0 && car && known && speed > limit + self.marginKmh;
+    BOOL over = self.enabled && self.mode > 0 && car && known && speed > threshold;
     if (over != self.over) {
-        if (over) SPPLog("canh bao: %d km/h > gioi han %d + %.0f -> vien do (che do %ld)", speed, limit, self.marginKmh, (long)self.mode);
+        if (over) SPPLog("canh bao: %d km/h > gioi han %d %+.0f -> vien do (che do %ld)", speed, limit, self.marginKmh, (long)self.mode);
         else SPPLog("canh bao: het vuot (toc do %d, gioi han %d)", speed, limit);
     }
     self.over = over;

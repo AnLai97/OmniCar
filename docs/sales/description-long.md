@@ -31,9 +31,8 @@ OmniCar takes CarPlay beyond what Apple allows: run several apps side by side, b
 - Add clips from Photos or Files, choose the duration, Fill or Fit, sound through the car speakers, tap to skip.
 
 **Built for support**
-- Diagnostics: a health check of the phone, CarPlay and every feature, with a fix for each problem it finds.
 - Rescue mode: if CarPlay crashes twice right after connecting, OmniCar turns off the feature that caused it and tells you.
-- Send log in one tap, conflict warning for other CarPlay tweaks, Lite mode for hot phones or stuttering screens.
+- Send log in one tap (with a health check of the phone, CarPlay and every feature), conflict warning for other CarPlay tweaks, Lite mode for hot phones or stuttering screens.
 - Settings in English and Vietnamese.
 
 ### Requirements
@@ -86,9 +85,8 @@ OmniCar đưa CarPlay vượt khỏi giới hạn của Apple: chạy nhiều ap
 - Thêm clip từ Ảnh hoặc Tệp, chọn thời lượng, Lấp đầy hoặc Vừa khung, tiếng qua loa xe, chạm để bỏ qua.
 
 **Dễ hỗ trợ**
-- Chẩn đoán: kiểm tra điện thoại, CarPlay và từng tính năng, chỉ cách sửa từng lỗi.
 - Chế độ cứu: CarPlay sập 2 lần ngay sau khi cắm thì OmniCar tự tắt tính năng gây lỗi và báo cho bạn.
-- Gửi log một chạm, cảnh báo tweak CarPlay xung đột, Chế độ nhẹ khi máy nóng hoặc màn xe khựng.
+- Gửi log một chạm (kèm kiểm tra sức khoẻ điện thoại, CarPlay và từng tính năng), cảnh báo tweak CarPlay xung đột, Chế độ nhẹ khi máy nóng hoặc màn xe khựng.
 - Cài đặt có tiếng Việt và tiếng Anh.
 
 ### Yêu cầu

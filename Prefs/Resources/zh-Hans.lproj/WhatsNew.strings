@@ -1,0 +1,15 @@
+/* OmniCar – What's new (Prefs/OMCWhatsNewController.m, keys named in WhatsNew.plist) */
+
+"WN_ROW" = "新功能";
+"WN_TITLE" = "OmniCar %@ 新功能";
+"WN_CONTINUE" = "继续";
+"WN_KEYBOARD_TITLE" = "车机屏幕上的键盘";
+"WN_KEYBOARD_TEXT" = "在车机屏幕上显示的 iPhone App 中，直接用车机显示屏上的键盘输入。";
+"WN_ZOOM_TITLE" = "格放大";
+"WN_ZOOM_TEXT" = "轻点两下分屏格的 •••，让该格铺满屏幕，再轻点两下返回。";
+"WN_UNITS_TITLE" = "km/h 或 mph、美式标志";
+"WN_UNITS_TEXT" = "速度气泡可显示 km/h 或 mph，以及圆形或美式限速标志，并根据你的地区自动选择。";
+"WN_LANG_TITLE" = "14 种语言";
+"WN_LANG_TEXT" = "设置、车机屏幕文字和通知支持 14 种语言。用地球按钮选择语言。";
+"WN_GUIDE_TITLE" = "首次使用指南";
+"WN_GUIDE_TEXT" = "一份简短的入门指南。随时可从“支持”>“再次显示指南”打开。";

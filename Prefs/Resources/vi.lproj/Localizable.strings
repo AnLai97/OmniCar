@@ -22,7 +22,6 @@
 
 "SUPPORT_GROUP" = "Hỗ trợ";
 "SUPPORT_FOOTER" = "Gặp lỗi? Bấm Gửi log rồi chọn Zalo hoặc Mail để gửi cho tác giả.";
-"DIAGNOSTICS" = "Chẩn đoán";
 "SEND_LOG" = "Gửi log";
 "SEND_LOG_FAILED" = "Không tạo được file log.";
 
@@ -74,11 +73,6 @@
 "DIAG_CONFLICTS_NONE" = "Không thấy";
 "DIAG_CONFLICTS_FOOTER" = "CarBridge, DuoDash, TrueDash, CarPlayEnable.";
 
-"CRASH_TEST_TITLE" = "Thử chế độ cứu";
-"CRASH_TEST_MESSAGE" = "Chọn tính năng sẽ làm CarPlay sập 5 giây sau khi mở. Chỉ dùng để kiểm tra.";
-"CRASH_TEST_STOP" = "Dừng thử";
-"CRASH_TEST_ARMED" = "Cắm xe 2 lần: CarPlay sẽ sập. Lần cắm thứ 3, chế độ cứu phải tắt tính năng này và CarPlay chạy lại bình thường.";
-
 /* Tự kiểm tra: chỉ bản dev (OMC_AUTOTEST) */
 "AUTOTEST" = "Tự kiểm tra (dev)";
 "AUTOTEST_SUITES" = "Tính năng cần kiểm tra";
@@ -100,14 +94,11 @@
 "AUTOTEST_STATE_STOPPED" = "Đã dừng";
 
 /* Chẩn đoán: kiểm tra sức khoẻ */
-"DIAG_DETAILS" = "Chi tiết kỹ thuật";
 "CHK_SUM_OK" = "Mọi thứ đều ổn";
 "CHK_SUM_WARN" = "%lu mục cần chú ý";
 "CHK_SUM_BAD" = "%lu lỗi cần sửa";
 "CHK_SUM_COUNTS" = "%lu ổn · %lu chú ý · %lu lỗi";
 "CHK_CHECKED_AT" = "kiểm tra lúc %@";
-"CHK_AGAIN" = "Kiểm tra lại";
-"CHK_FOOTER" = "Vẫn lỗi? Bấm nút chia sẻ ở góc trên để gửi kết quả này cùng log cho tác giả.";
 "CHK_IOS" = "Phiên bản iOS";
 "CHK_IOS_OLD" = "OmniCar cần iOS 15 trở lên.";
 "CHK_IOS_NEW" = "Cài được nhưng chưa thử kỹ trên bản này. Gặp lỗi hãy gửi log.";
@@ -177,9 +168,6 @@
 "CHK_PERF_NONE_FIX" = "Dùng CarPlay ít nhất 1 phút rồi mở lại trang này: OmniCar tự đo trong lúc lái.";
 "CHK_PERF_LIVE" = "Đang đo · %ld phút";
 "CHK_PERF_AT" = "Lúc %@ · %ld phút";
-"CHK_PERF_RESET" = "Chạm để xoá số liệu và đo lại từ lần lái sau (nên làm sau khi đã sửa theo gợi ý).";
-"CHK_PERF_RESET_CONFIRM" = "Xoá số liệu hiệu năng và đo lại?";
-"CHK_PERF_RESET_DO" = "Xoá và đo lại";
 "CHK_PERF_FEW" = "Chưa đủ dữ liệu";
 "CHK_PERF_SMOOTH" = "Độ mượt";
 "CHK_PERF_SMOOTH_VALUE" = "%.0f%% khung hình bị trễ (màn %@ fps) · chậm nhất %ld ms";
@@ -203,54 +191,3 @@
 "CHK_PERF_TWEAKS_FIX" = "Có %lu tweak khác nạp vào CarPlay, mỗi cái làm CarPlay mở chậm hơn và dễ giật hoặc sập. Dùng Choicy để tắt những tweak không cần cho CarPlay.";
 "CHK_PERF_GENERIC_FIX" = "Trước khi lái, đóng bớt app chạy nền và khởi động lại máy nếu đã lâu chưa khởi động lại.";
 "CHK_PERF_LOG" = "Log OmniCar";
-"CHK_PERF_LOG_FIX" = "Log khá lớn. Chạm để xoá (gửi log cho tác giả trước nếu đang báo lỗi).";
-"CHK_PERF_LOG_CONFIRM" = "Xoá log OmniCar?";
-"CHK_PERF_LOG_DO" = "Xoá log";
-
-/* Chẩn đoán: tối ưu */
-"ISSUES_GROUP" = "Cần xử lý";
-"ISSUES_FOOTER" = "Mục có nút bên phải thì chạm để sửa ngay. Các mục khác làm theo dòng chữ màu.";
-"ALL_CHECKS_GROUP" = "Tất cả mục kiểm tra";
-"ALL_CHECKS_FOOTER" = "Chạm từng nhóm để xem chi tiết.";
-"GROUP_BAD" = "%lu lỗi";
-"GROUP_WARN" = "%lu chú ý";
-"GROUP_OK" = "%lu ổn";
-"GROUP_INFO" = "Chưa có dữ liệu";
-"ACT_TURN_ON" = "Bật lại";
-"ACT_REMEASURE" = "Đo lại";
-"ACT_CLEAR" = "Xoá";
-"OPT_BUTTON" = "Tối ưu";
-"OPT_GROUP" = "Tối ưu hiệu năng";
-"OPT_FOOTER" = "Chế độ nhẹ: chia màn hình bỏ hiệu ứng kính mờ, bong bóng tốc độ vẽ chậm hơn và bỏ đổ bóng. Tự động = chỉ bật khi máy nóng hoặc CarPlay bị khựng, tự tắt khi ổn lại.\nDọn RAM: đóng các app chạy nền, giữ lại nhạc, bản đồ, app CarPlay, app đã chọn đưa lên xe và app cấp tốc độ.";
-"OPT_WILL" = "OmniCar sẽ:";
-"OPT_MANUAL" = "Bạn nên tự làm thêm:";
-"OPT_NOTHING" = "Không có gì cần tối ưu. Nếu CarPlay vẫn giật, lái một chuyến rồi mở lại trang này để xem số đo.";
-"OPT_APPLY" = "Tối ưu";
-"OPT_DONE" = "Đã tối ưu. Kết nối lại xe để áp dụng.";
-"OPT_LITE" = "Bật Chế độ nhẹ tự động";
-"OPT_CLEAN_NOW" = "Dọn RAM ngay";
-"OPT_CLEAN_ON" = "Tự dọn RAM mỗi khi cắm xe";
-"OPT_LOG" = "Xoá log (%.1f MB)";
-"OPT_RESET" = "Đo lại hiệu năng từ chuyến sau";
-"LITE_MODE" = "Chế độ nhẹ";
-"LITE_OFF" = "Tắt";
-"LITE_AUTO" = "Tự động";
-"LITE_ALWAYS" = "Luôn bật";
-"LITE_STATUS_OFF" = "Đang tắt: luôn dùng đầy đủ hiệu ứng";
-"LITE_STATUS_ALWAYS" = "Đang bật";
-"LITE_STATUS_AUTO" = "Đang tắt, tự bật khi máy nóng hoặc CarPlay khựng";
-"LITE_STATUS_ON_HEAT" = "Đang bật vì máy nóng";
-"LITE_STATUS_ON" = "Đang bật tự động%@";
-"LITE_REASON_HEAT" = " vì máy nóng";
-"LITE_REASON_HANGS" = " vì CarPlay khựng nhiều";
-"LITE_REASON_FRAMES" = " vì màn xe giật";
-"CLEAN_RAM" = "Dọn RAM khi cắm xe";
-"CLEAN_RAM_NEVER" = "Chưa dọn lần nào";
-"CLEAN_RAM_LAST" = "Lần gần nhất đóng %lu app lúc %@";
-"CLEAN_RAM_NOW" = "Dọn RAM ngay";
-"CLEAN_RAM_NOW_SUB" = "Đóng mọi app đang chạy nền, trừ app đang mở và app đang phát nhạc. Khi đang cắm xe thì giữ cả app cần cho xe.";
-"CLEAN_RAM_RESULT" = "Đã đóng %lu app.";
-"CLEAN_RAM_NOTHING" = "Không có app nào chạy nền để đóng.";
-"CLEAN_RAM_NO_REPLY" = "SpringBoard chưa phản hồi. Respring rồi thử lại; vẫn vậy thì gửi log cho tác giả.";
-"CLEAN_RAM_CONFIRM" = "Dọn RAM ngay?";
-"CLEAN_RAM_DO" = "Dọn";

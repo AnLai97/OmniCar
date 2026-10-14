@@ -1,0 +1,15 @@
+/* OmniCar – What's new (Prefs/OMCWhatsNewController.m, keys named in WhatsNew.plist) */
+
+"WN_ROW" = "새로운 기능";
+"WN_TITLE" = "OmniCar %@의 새로운 기능";
+"WN_CONTINUE" = "계속";
+"WN_KEYBOARD_TITLE" = "차량 화면 키보드";
+"WN_KEYBOARD_TEXT" = "차량 디스플레이에 바로 표시되는 키보드로 차량 화면의 iPhone 앱에 입력할 수 있습니다.";
+"WN_ZOOM_TITLE" = "창 확대";
+"WN_ZOOM_TEXT" = "화면 분할 창의 •••을 이중 탭하면 해당 창이 화면을 가득 채우고, 다시 이중 탭하면 원래대로 돌아갑니다.";
+"WN_UNITS_TITLE" = "km/h 또는 mph, 미국식 표지판";
+"WN_UNITS_TEXT" = "속도 버블이 km/h 또는 mph와 원형 또는 미국식 제한 속도 표지판을 지역에 맞게 자동으로 표시합니다.";
+"WN_LANG_TITLE" = "14개 언어";
+"WN_LANG_TEXT" = "설정, 차량 화면 텍스트 및 알림을 14개 언어로 제공합니다. 지구본 버튼으로 언어를 선택하십시오.";
+"WN_GUIDE_TITLE" = "첫 실행 안내";
+"WN_GUIDE_TEXT" = "시작을 돕는 간단한 안내입니다. 지원 > 안내 다시 보기에서 언제든지 열 수 있습니다.";

@@ -2,7 +2,6 @@
 #import "SPPBubbleView.h"
 #import "SPPPrefs.h"
 #import "SPPWarn.h"
-#import "SPPGPS.h"
 #import <notify.h>
 
 // Lite mode (OMCLiteActive): shadows without a path are drawn off screen on every frame; the card goes flat
@@ -131,31 +130,16 @@ static UIImage *SPPAppIcon(int app)
     if (!cache) cache = [NSMutableDictionary dictionary];
     UIImage *img = cache[@(app)];
     if (img) return img;
-    if (SPPIsGPSSource(app)) {
-        // GPS iPhone khong phai app: o xanh co mui ten vi tri (SF Symbol)
-        UIImageSymbolConfiguration *cfg = [UIImageSymbolConfiguration configurationWithPointSize:30 weight:UIImageSymbolWeightBold];
-        UIImage *glyph = [[UIImage systemImageNamed:@"location.fill" withConfiguration:cfg]
-                          imageWithTintColor:[UIColor whiteColor] renderingMode:UIImageRenderingModeAlwaysOriginal];
-        if (glyph) {
-            CGFloat d = 60;
-            UIGraphicsImageRenderer *r = [[UIGraphicsImageRenderer alloc] initWithSize:CGSizeMake(d, d)];
-            img = [r imageWithActions:^(UIGraphicsImageRendererContext *ctx) {
-                [[UIColor colorWithRed:10 / 255.0 green:132 / 255.0 blue:1 alpha:1] setFill];
-                UIRectFill(CGRectMake(0, 0, d, d));
-                CGSize gs = glyph.size;
-                [glyph drawInRect:CGRectMake((d - gs.width) / 2, (d - gs.height) / 2, gs.width, gs.height)];
-            }];
-        }
-    } else if ([UIImage respondsToSelector:@selector(_applicationIconImageForBundleIdentifier:format:scale:)])
+    if ([UIImage respondsToSelector:@selector(_applicationIconImageForBundleIdentifier:format:scale:)])
         img = [UIImage _applicationIconImageForBundleIdentifier:SPPNavAppBundle(app) format:2 scale:[UIScreen mainScreen].scale];
     if (!img) {
         CGFloat d = 60;
         UIGraphicsImageRenderer *r = [[UIGraphicsImageRenderer alloc] initWithSize:CGSizeMake(d, d)];
         img = [r imageWithActions:^(UIGraphicsImageRendererContext *ctx) {
             UIColor *bg = app == 1 ? [UIColor colorWithRed:0.0 green:0.6 blue:0.45 alpha:1]
-                        : app == 4 ? [UIColor colorWithRed:0.2 green:0.75 blue:0.95 alpha:1] : [UIColor colorWithRed:0.1 green:0.4 blue:0.85 alpha:1];
+                        : app == 2 ? [UIColor colorWithRed:0.2 green:0.75 blue:0.95 alpha:1] : [UIColor colorWithRed:0.1 green:0.4 blue:0.85 alpha:1];
             [bg setFill]; UIRectFill(CGRectMake(0, 0, d, d));
-            NSArray *abbr = @[@"VM", @"GO", @"GPS", @"G", @"WZ", @"AM"];
+            NSArray *abbr = @[@"VM", @"GO", @"WZ"];
             NSString *t = (app >= 0 && app < (int)abbr.count) ? abbr[app] : @"?";
             NSDictionary *a = @{NSFontAttributeName: [UIFont systemFontOfSize:26 weight:UIFontWeightHeavy], NSForegroundColorAttributeName: [UIColor whiteColor]};
             CGSize ts = [t sizeWithAttributes:a];
@@ -277,7 +261,7 @@ static void SPPPublishSpeed(int kmh)
     }];
 }
 
-// Nguon ngung han (GPS iPhone tat vi xe ngat / doi nguon / tat tinh nang): bo so, an ngay - khong cho SPP_SOURCE_GONE
+// Nguon ngung han (doi nguon / tat tinh nang): bo so, an ngay - khong cho SPP_SOURCE_GONE
 - (void)sourceStopped:(int)app
 {
     if ((app & 7) != (self.app & 7) || self.demoTimer) return;
@@ -319,7 +303,6 @@ static int sPreferredApp = -1;   // app mo gan nhat (nguon uu tien)
     if (fg != sAppFg[app]) SPPLog("bubble: %@ %@", SPPNavAppName(app), fg ? @"dang hien -> an bong bong" : @"chay nen -> hien bong bong");
     if (fg && !sAppFg[app]) sAppFgSince[app] = now;
     sAppFg[app] = fg; sAppSeenAt[app] = now;
-    if (SPPIsGPSSource(app)) sAppOpened[app] = YES;   // GPS iPhone: khong co app de mo, co so la hien
     // Chi tinh la "da mo" khi app hien lien tuc >= 1.5 giay (bo qua lan active thoang qua luc he thong khoi chay app)
     if (fg && !sAppOpened[app] && now - sAppFgSince[app] >= 1.5) {
         sAppOpened[app] = YES; SPPLog("bubble: %@ da duoc mo", SPPNavAppName(app));
@@ -360,7 +343,6 @@ static BOOL sSeenRunning[8];
 - (int)sourceAppState
 {
     int app = self.app & 7;
-    if (SPPIsGPSSource(app)) return [SPPPhoneGPS shared].running ? 1 : 0;   // GPS iPhone: theo CLLocationManager trong SpringBoard
     id ctl = objcInvoke(objc_getClass("SBApplicationController"), @"sharedInstance");
     id sbApp = ctl ? objcInvoke_1(ctl, @"applicationWithBundleIdentifier:", SPPNavAppBundle(app)) : nil;
     if (!sbApp) return -1;
@@ -520,7 +502,7 @@ static BOOL sSeenRunning[8];
     switch (g.state) {
     case UIGestureRecognizerStateBegan:
         self.holdStart = p; self.holdDragging = NO;
-        if (!SPPIsGPSSource(self.app)) [self startHold];   // GPS iPhone: khong co app de thoat, giu chi de keo
+        [self startHold];
         break;
     case UIGestureRecognizerStateChanged:
         if (!self.holdDragging && hypot(p.x - self.holdStart.x, p.y - self.holdStart.y) > 12) { self.holdDragging = YES; [self cancelHold]; }
@@ -576,7 +558,6 @@ static BOOL sSeenRunning[8];
 - (void)quitSourceApp
 {
     [self cancelHold];
-    if (SPPIsGPSSource(self.app)) return;
     NSString *bid = SPPNavAppBundle(self.app);
     SPPLog("bubble: giu %.0f giay -> thoat han %@", SPP_HOLD_QUIT, bid);
     [[[UINotificationFeedbackGenerator alloc] init] notificationOccurred:UINotificationFeedbackTypeSuccess];
@@ -622,7 +603,6 @@ static BOOL sSeenRunning[8];
 {
     [UIView animateWithDuration:0.1 animations:^{ self.card.transform = [self baseScaled:0.92]; }
                      completion:^(BOOL f) { [UIView animateWithDuration:0.15 animations:^{ self.card.transform = [self baseTransform]; }]; }];
-    if (SPPIsGPSSource(self.app)) return;   // GPS iPhone: khong co app de mo
     if (!self.onPhone) {
         SPPLog("bubble: cham -> mo %@ tren CarPlay", SPPNavAppName(self.app));
         static int tokOpen = 0;

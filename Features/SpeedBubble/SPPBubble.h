@@ -13,7 +13,7 @@
 - (void)hide;
 - (void)resetLayout;                                // Cai dat > Dat lai vi tri & kich thuoc
 - (void)runDemo;                                    // Cai dat > Xem thu: toc do gia 10 giay
-- (void)sourceStopped:(int)app;                     // nguon ngung han (GPS iPhone tat): bo so, an bong bong ngay
+- (void)sourceStopped:(int)app;                     // nguon ngung han: bo so, an bong bong ngay
 @end
 
 // Cua so tren man xe, dung chung voi canh bao qua toc do (SPPWarn.mm)

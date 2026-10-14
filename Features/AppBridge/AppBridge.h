@@ -89,9 +89,11 @@
 // (video playback runs at the video's own rate).
 #define AB_KEY_FPS           @"appBridgeFps"
 // CarPlay home screen (Settings: App on the car screen, one page in OMCAppBridgeAppsController.m; car side:
-// Features/SplitScreen/SCPHomeScreen.mm). Off by default. When on, OmniCar draws its own icon grid over CarPlay's (which
-// is only hidden, never changed) and its own dock icons, so every option below is ours:
-#define HS_KEY_ENABLED       @"homeScreenEnabled"     // BOOL, default NO
+// Features/SplitScreen/SCPHomeScreen.mm). There is no switch: as soon as one of the options below differs from CarPlay's
+// own look (an app hidden or sorted, a dock app pinned, the icon layout changed, a wallpaper picked) OmniCar draws its own
+// icon grid over CarPlay's (which is only hidden, never changed) and its own dock icons; with everything at its default
+// CarPlay's home screen is left untouched. HS_KEY_ENABLED of the first builds (a separate "OmniCar home screen" switch)
+// is no longer read.
 #define HS_KEY_ORDER         @"homeScreenOrder"       // [bundle id] user order; apps not in it follow in CarPlay's order
 #define HS_KEY_HIDDEN        @"homeScreenHidden"      // [bundle id] not shown on the home screen (CarPlay apps too)
 #define HS_KEY_ICON_SIZE     @"homeScreenIconSize"    // 80..130 %, default 100
@@ -109,25 +111,9 @@
 #define HS_PHOTO_PATH        [OMC_DATA_ROOT stringByAppendingPathComponent:@"HomeScreen/photo.jpg"]   // last photo picked (its own tile)
 #define HS_VIDEO_PATH        [OMC_DATA_ROOT stringByAppendingPathComponent:@"HomeScreen/video.mp4"]   // last video picked (≤ 20 s, 1280 px, no sound)
 #define HS_VIDEO_THUMB_PATH  [OMC_DATA_ROOT stringByAppendingPathComponent:@"HomeScreen/video.jpg"]   // its first frame (tile, preview)
-// Day / night wallpaper (ROADMAP-DEV 3.1.1): the styles above are the day wallpaper; a night one switches in by the car's
-// light / dark look or by sunrise / sunset (last known location, 6:00 / 18:00 without one). A video (style 8) plays muted
-// in a loop (3.1.2) and pauses while the phone is hot, Lite mode is on, the screen is split or the home screen is covered.
-#define HS_KEY_NIGHT_STYLE   @"homeScreenNightStyle"  // 0 none (day wallpaper all the time), 1..8 as HS_KEY_WALLPAPER_STYLE
-#define HS_KEY_NIGHT_BY      @"homeScreenNightBy"     // 0 the car's light / dark look (default), 1 sunrise / sunset
-#define HS_NIGHT_PATH        [OMC_DATA_ROOT stringByAppendingPathComponent:@"HomeScreen/wallpaper-night.jpg"]
-// Icon look (3.1.3). Icon packs follow IconBundles: <HS_THEMES_DIR>/<name>/IconBundles/<bundle id>-large.png (or <bundle id>.png,
-// @2x / @3x); apps without an icon in the pack keep their own.
-#define HS_KEY_ICON_SHAPE    @"homeScreenIconShape"   // 0 rounded like CarPlay (default), 1 square with small corners, 2 circle
-#define HS_KEY_ICON_GLASS    @"homeScreenIconGlass"   // BOOL, default NO: thin glass rim + highlight
-#define HS_KEY_ICON_SHADOW   @"homeScreenIconShadow"  // BOOL, default YES
-#define HS_KEY_ICON_THEME    @"homeScreenIconTheme"   // folder name under HS_THEMES_DIR (e.g. "Viola.theme"), "" = none
-#define HS_THEMES_DIR        ROOT_PATH_NS(@"/Library/Themes")
-// Folders and the iPhone page (3.1.4): a folder sits where its first app would be; tap opens it over the home screen.
-#define HS_KEY_FOLDERS       @"homeScreenFolders"     // [{name: string, apps: [bundle id]}], an app is in one folder at most
-#define HS_KEY_PHONE_PAGE    @"homeScreenPhonePage"   // BOOL, default NO: iPhone apps (App Bridge) start on their own page
-// Widgets (3.1.5): up to 2 cards in a column left of the icon grid, in this order.
-#define HS_KEY_WIDGETS       @"homeScreenWidgets"     // [clock | weather | music]
-#define HS_WIDGETS_MAX       2
+// A video (style 8) plays muted in a loop and pauses while the phone is hot, Lite mode is on, the screen is split or the
+// home screen is covered. (Day / night wallpaper, icon shape / glass / packs, folders, the iPhone page and widgets of the
+// first builds were dropped in 10/2026: their homeScreen* keys are no longer read.)
 #define HS_DOCK_MAX          4
 // Base scene orientation for hosted apps: 1 portrait (default), 3 landscape.
 #define AB_KEY_ORIENTATION   @"appBridgeOrientation"

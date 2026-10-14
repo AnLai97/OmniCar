@@ -9,7 +9,7 @@ trang cài đặt riêng trong Settings > OmniCar.
 Makefile              một Makefile: mỗi tính năng -> một dylib OmniCar<Tên>.dylib, cộng bundle settings
 control               thông tin gói Sileo (tên, version, mô tả)
 Core/OmniCar.h/.m     API chung cho hook: OMCPref, OMCFeatureEnabled, OMCLog, OMC_DATA_ROOT (biên dịch kèm vào từng dylib);
-                      OMCCrashGuard: ghi crash CarPlay + chế độ cứu + đọc màn xe cho trang Chẩn đoán
+                      OMCCrashGuard: ghi crash CarPlay + chế độ cứu + đọc màn xe cho báo cáo Gửi log
                       + đo hiệu năng CarPlay khi đang cắm xe (khung trễ, khựng, CPU, RAM, nhiệt, tweak khác)
                       OMCLiteActive: Chế độ nhẹ (tắt / tự động / luôn bật) cho các tính năng hỏi trước khi vẽ
 Core/OMCCommon.m      ngôn ngữ (OMCCurrentLanguage, OMCTr cho chữ trên xe);
@@ -21,7 +21,7 @@ Prefs/                bundle settings dùng chung
   OMCRootListController    trang chính: header card, Bật OmniCar, Respring, danh sách tính năng (tự quét Feature*.plist)
   OMCFeatureListController trang con chuẩn: nạp plist của tính năng, dịch key, vẽ icon
   OMCTheme                 ngôn ngữ (vi/en), màu HarmonyOS, icon dòng, style cell
-  OMCDiagnostics           dữ liệu Hỗ trợ: trang Chẩn đoán (OMCDiagnosticsController), Gửi log, tweak xung đột, chế độ cứu
+  OMCDiagnostics           dữ liệu Hỗ trợ: báo cáo Gửi log (kiểm tra sức khoẻ + chi tiết kỹ thuật + log), tweak xung đột, chế độ cứu
   OMCAutoTestController    trang Tự kiểm tra (dev): chọn tính năng, chạy / dừng, kết quả, thử chế độ cứu
   Resources/               Root.plist, Info.plist, icon/logo/avatar, <lang>.lproj/Localizable.strings
 layout/               entry PreferenceLoader
@@ -93,7 +93,7 @@ Quy ước:
 1. Tạo `Features/<Tên>/<Tên>.h` khai báo key, đường dẫn, notification.
 2. Viết hook trong `Features/<Tên>/<Tên>.x`: `%group <Tên>`, `%init(<Tên>)` trong `%ctor` của file,
    đọc prefs bằng `OMCPref()`, gate bằng `OMCFeatureEnabled()`. `%ctor` trong CarPlay mở đầu bằng
-   `if (!OMCCrashGuard(@"<tên>")) return;` (chế độ cứu), sau `%init` gọi `OMCCheckHooks()` (trang Chẩn đoán).
+   `if (!OMCCrashGuard(@"<tên>")) return;` (chế độ cứu), sau `%init` gọi `OMCCheckHooks()` (báo cáo Gửi log).
 3. `Features/<Tên>/Filter.plist`: process cần nạp. Cần framework thì thêm `Features/<Tên>/feature.mk`
    với `OmniCar<Tên>_FRAMEWORKS += ...` (bundle settings cần framework thì sửa `OmniCarPrefs_FRAMEWORKS`).
 4. Copy `Template/FeatureExample.plist` thành `Features/<Tên>/Prefs/Resources/Feature<Tên>.plist`,

@@ -28,7 +28,7 @@ logo: `tools/preview/logo.html`; bàn phím: `tools/preview/keyboard.html`. Th�
 
 ## Màn xe
 - **Nút ••• của mỗi ô**: tay cầm nhỏ giữa mép trên ô; chạm → tay cầm gradient, thanh nền logo thả xuống. Mỗi nút = ô
-  kính tròn 30pt + nhãn ngắn: Đổi app (4 ô vuông) · Toàn màn (4 góc khung) / Chia màn khi đang chạy 1 màn hình
+  kính tròn 40pt chỉ icon 22pt, không nhãn: Đổi app (4 ô vuông) · Toàn màn (4 góc khung) / Chia màn khi đang chạy 1 màn hình
   (2 khung) · Cửa sổ nổi (khung + ô nhỏ đặc) · Chạy nền (gạch ngang) | Tắt app (X đỏ, tách bằng vạch trắng).
   Icon HarmonyOS Symbol giữ nguyên. Thanh ••• của app iPhone (App Bridge, `ABHost.mm`) vẽ giống hệt.
 - **Bảng chọn app**: icon app không có khung (trần như màn Home), cột sơ đồ bên phải nền trong.

@@ -717,44 +717,33 @@ static UIView *SCPCPill(NSArray *items, BOOL vertical)
     return v;
 }
 
-// Nut cua thanh •••: o kinh tron 30pt (nhu nut X cua khay) + nhan ngan ben duoi - man xe nhin luot, chi icon de nham
-// Chay nen / Cua so noi. tint: mau icon + nhan (nut Tat: do).
-#define SCPC_ACT_W     50.0
-#define SCPC_ACT_BAR   58.0    // be day thanh •••
+// Nut cua thanh •••: o kinh tron 40pt (nhu nut X cua khay nhung to hon), chi icon 22pt, KHONG nhan - man xe nhin luot,
+// icon to de nham. tint: mau icon (nut Tat: do). title chi dung cho tro nang.
+#define SCPC_ACT_W     48.0
+#define SCPC_ACT_BAR   52.0    // be day thanh •••
 #define SCPC_ACT_DISC  7301
 #define SCPC_ACT_ICON  7302
-#define SCPC_ACT_LABEL 7303
+#define SCPC_ACT_SIDE  40.0    // o kinh tron
 static void SCPCActionSet(UIButton *b, NSString *glyph, NSString *title)
 {
-    ((UIImageView *)[b viewWithTag:SCPC_ACT_ICON]).image = SCPCGlyph(glyph, 18, NO);
-    UILabel *l = (UILabel *)[b viewWithTag:SCPC_ACT_LABEL];
-    l.text = title;
-    l.textColor = b.tintColor;
+    ((UIImageView *)[b viewWithTag:SCPC_ACT_ICON]).image = SCPCGlyph(glyph, 22, NO);
     b.accessibilityLabel = title;
 }
 
 static UIButton *SCPCActionButton(NSString *glyph, NSString *title, UIColor *tint, id target, SEL action)
 {
     UIButton *b = [SCPCButton buttonWithType:UIButtonTypeCustom];
-    b.bounds = CGRectMake(0, 0, SCPC_ACT_W, 50);
+    b.bounds = CGRectMake(0, 0, SCPC_ACT_W, SCPC_ACT_SIDE);
     b.tintColor = tint;
-    UIView *disc = [[UIView alloc] initWithFrame:CGRectMake((SCPC_ACT_W - 30) / 2, 3, 30, 30)];
+    UIView *disc = [[UIView alloc] initWithFrame:CGRectMake((SCPC_ACT_W - SCPC_ACT_SIDE) / 2, 0, SCPC_ACT_SIDE, SCPC_ACT_SIDE)];
     disc.tag = SCPC_ACT_DISC;
     disc.userInteractionEnabled = NO;
-    SCPCTile(disc, 15);
+    SCPCTile(disc, SCPC_ACT_SIDE / 2);
     UIImageView *iv = [[UIImageView alloc] initWithFrame:CGRectInset(disc.bounds, 6, 6)];
     iv.tag = SCPC_ACT_ICON;
     iv.contentMode = UIViewContentModeCenter;
     [disc addSubview:iv];
     [b addSubview:disc];
-    UILabel *l = [[UILabel alloc] initWithFrame:CGRectMake(-3, 36, SCPC_ACT_W + 6, 11)];
-    l.tag = SCPC_ACT_LABEL;
-    l.font = [UIFont systemFontOfSize:9 weight:UIFontWeightMedium];
-    l.textAlignment = NSTextAlignmentCenter;
-    l.adjustsFontSizeToFitWidth = YES;
-    l.minimumScaleFactor = 0.75;
-    l.userInteractionEnabled = NO;
-    [b addSubview:l];
     SCPCActionSet(b, glyph, title);
     [b addTarget:target action:action forControlEvents:UIControlEventTouchUpInside];
     return b;
@@ -2694,7 +2683,7 @@ static void SCPCHandleOpen(UIView *h, BOOL open)
     p.handle = h;
     [p.view addSubview:h];
 
-    // Thanh ••• (DESIGN.md, tools/preview/theme.html): o kinh tron + nhan ngan - Doi app · Toan man / Chia man ·
+    // Thanh ••• (DESIGN.md, tools/preview/theme.html): o kinh tron chi icon (khong nhan) - Doi app · Toan man / Chia man ·
     // Cua so noi · Chay nen | Tat app (do, tach bang vach trang). Icon HarmonyOS Symbol giu nguyen.
     UIButton *replace = SCPCActionButton(@"hm_apps", SCPCT(@"Đổi app", @"Change app"), SCPCInk(), self, @selector(paneChoose:));
     UIButton *full = SCPCActionButton(@"hm_full", SCPCT(@"Toàn màn", @"Full screen"), SCPCInk(), self, @selector(paneSolo:));

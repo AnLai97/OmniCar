@@ -4,7 +4,7 @@
 #import <CoreLocation/CoreLocation.h>
 
 // =====================================================================
-//  Inject vao app dan duong (SPP_NAV_APPS: Vietmap Live "Runner", GOFA): lay toc do + gioi han, gui sang SpringBoard.
+//  Inject vao app dan duong (SPP_NAV_APPS: Vietmap Live "Runner", GOFA, Waze): lay toc do + gioi han, gui sang SpringBoard.
 //  - Toc do: GPS rieng cua tweak (dung quyen vi tri cua app) khi app dang bat GPS; du phong = so tren man hinh
 //  - Gioi han: quet man hinh (view cua plugin dan duong / vong tron vien do / cay accessibility cua Flutter)
 //  Gui qua Darwin notify + state (qua duoc sandbox cua app).
@@ -568,7 +568,7 @@ static int SPPGPSSpeed(double *outAge) { return SPPSpeedFromFix([SPPSpeedGPS sha
 static BOOL SPPChosenSource(void);
 
 // App bat / tat GPS: chi ghi nhan. Bo qua manager rieng cua tweak. App ban do pho bien khong phai nguon dang chon:
-// khong bat GPS rieng (Google Maps / Apple Maps dan duong hang ngay ma khong dung cho bong bong).
+// khong bat GPS rieng (Waze dan duong hang ngay ma khong dung cho bong bong).
 static void SPPAppGPSChanged(CLLocationManager *m, BOOL running)
 {
     void (^apply)(void) = ^{

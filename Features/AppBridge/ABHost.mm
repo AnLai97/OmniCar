@@ -583,12 +583,12 @@ static void ABPostOrientation(NSString *bid, long long orientation)
 #pragma mark - Thanh nut cua o (ve de len app)
 
 // Cung hinh voi thanh ••• cua Split Screen ben CarPlay (SCPCActionButton / SCPCActionBar trong SCPCarSplit.mm):
-// vien thuoc 58pt nen logo 4 mau, moi nut 50pt = o kinh tron 30pt + nhan ngan, glyph HarmonyOS 18pt; nut Tat do,
-// tach bang vach trang
-#define AB_BAR_H     58.0
-#define AB_ACT_W     50.0
+// vien thuoc 52pt nen logo 4 mau, moi nut 48pt = o kinh tron 40pt chi icon (khong nhan), glyph HarmonyOS 22pt; nut Tat
+// do, tach bang vach trang
+#define AB_BAR_H     52.0
+#define AB_ACT_W     48.0
+#define AB_ACT_SIDE  40.0
 #define AB_ACT_ICON  7302
-#define AB_ACT_LABEL 7303
 #define AB_BAR_Y     (6 + 12 + 6 + AB_BAR_H / 2)   // duoi thanh "•••" nhu thanh nut cua CarPlay
 
 // Giao dien moi (DESIGN.md, = SCPCInk / SCPCShadow / SCPCAccentFill ben CarPlay): chu / icon mau cham diu, bong tim
@@ -627,7 +627,7 @@ static UIImage *ABGlyph(NSString *name)
     static NSMutableDictionary<NSString *, UIImage *> *cache;
     if (!cache) cache = [NSMutableDictionary dictionary];
     if (cache[name]) return cache[name];
-    CGFloat pt = [name hasPrefix:@"hm_"] ? 18 : 20;   // hm_*: glyph trong o kinh tron 30pt cua thanh •••
+    CGFloat pt = [name hasPrefix:@"hm_"] ? 22 : 20;   // hm_*: glyph trong o kinh tron 40pt cua thanh •••
     UIGraphicsImageRenderer *r = [[UIGraphicsImageRenderer alloc] initWithSize:CGSizeMake(pt, pt)];
     UIImage *img = [r imageWithActions:^(UIGraphicsImageRendererContext *rc) {
         CGContextScaleCTM(rc.CGContext, pt / 24.0, pt / 24.0);
@@ -683,22 +683,19 @@ static UIImage *ABGlyph(NSString *name)
 static void ABActionSet(UIButton *b, NSString *glyph, NSString *title)
 {
     ((UIImageView *)[b viewWithTag:AB_ACT_ICON]).image = ABGlyph(glyph);
-    UILabel *l = (UILabel *)[b viewWithTag:AB_ACT_LABEL];
-    l.text = title;
-    l.textColor = b.tintColor;
     b.accessibilityLabel = title;
 }
 
-// Nut thanh •••: o kinh tron 30pt (trang trong + vien trang nhu dia trong logo) + nhan ngan duoi
+// Nut thanh •••: o kinh tron 40pt (trang trong + vien trang nhu dia trong logo), chi icon - khong nhan
 static UIButton *ABActionButton(NSString *glyph, NSString *title, UIColor *tint, id target, SEL action)
 {
     UIButton *b = [ABBarButton buttonWithType:UIButtonTypeCustom];
-    b.bounds = CGRectMake(0, 0, AB_ACT_W, 50);
+    b.bounds = CGRectMake(0, 0, AB_ACT_W, AB_ACT_SIDE);
     b.tintColor = tint;
-    UIView *disc = [[UIView alloc] initWithFrame:CGRectMake((AB_ACT_W - 30) / 2, 3, 30, 30)];
+    UIView *disc = [[UIView alloc] initWithFrame:CGRectMake((AB_ACT_W - AB_ACT_SIDE) / 2, 0, AB_ACT_SIDE, AB_ACT_SIDE)];
     disc.userInteractionEnabled = NO;
     disc.backgroundColor = [UIColor colorWithWhite:1 alpha:0.5];
-    disc.layer.cornerRadius = 15;
+    disc.layer.cornerRadius = AB_ACT_SIDE / 2;
     disc.layer.borderWidth = 1;
     disc.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.9].CGColor;
     disc.layer.shadowColor = ABShadow().CGColor;
@@ -708,20 +705,12 @@ static UIButton *ABActionButton(NSString *glyph, NSString *title, UIColor *tint,
     iv.contentMode = UIViewContentModeCenter;
     [disc addSubview:iv];
     [b addSubview:disc];
-    UILabel *l = [[UILabel alloc] initWithFrame:CGRectMake(-3, 36, AB_ACT_W + 6, 11)];
-    l.tag = AB_ACT_LABEL;
-    l.font = [UIFont systemFontOfSize:9 weight:UIFontWeightMedium];
-    l.textAlignment = NSTextAlignmentCenter;
-    l.adjustsFontSizeToFitWidth = YES;
-    l.minimumScaleFactor = 0.75;
-    l.userInteractionEnabled = NO;
-    [b addSubview:l];
     ABActionSet(b, glyph, title);
     [b addTarget:target action:action forControlEvents:UIControlEventTouchUpInside];
     return b;
 }
 
-// Thanh ••• (= setupBarForPane ben CarPlay, DESIGN.md): nen logo 4 mau, o kinh tron + nhan - Doi app ·
+// Thanh ••• (= setupBarForPane ben CarPlay, DESIGN.md): nen logo 4 mau, o kinh tron chi icon - Doi app ·
 // Toan man / Chia man · Cua so noi · Chay nen | Tat app (do)
 - (UIView *)buildBarForPane:(ABPane *)pane
 {

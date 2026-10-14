@@ -8,13 +8,9 @@
 //   omnicar://splitscreen/layout?id=2|3|13|31 · ratio?r=70 · swap · zoom?pane=1 · pin?app=<bundle>
 //   omnicar://feature/<splitScreen|appBridge|speedBubble|startupScreen|all>?on=1|0|toggle   (Core.x)
 //   omnicar://lite?mode=off|auto|always · omnicar://cleanram                                 (Core.x)
-// It also owns the .omnicar backup type (Info.plist): a backup opened from Files / AirDrop / Zalo is copied to
-// OMC_BACKUP_INBOX and Settings > OmniCar opens, which offers to restore it (Prefs/OMCBackup.m).
 #import <UIKit/UIKit.h>
 #import "SplitScreen.h"
 #import "OmniCar.h"
-
-#define OMC_BACKUP_INBOX [OMC_DATA_ROOT stringByAppendingPathComponent:@"Inbox/Import.omnicar"]   // = Prefs/OMCBackup.h
 
 static BOOL OMCForwardURL(NSURL *url)
 {
@@ -69,27 +65,8 @@ static BOOL OMCForwardURL(NSURL *url)
     [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"prefs:root=OmniCar"] options:@{} completionHandler:nil];
 }
 
-// .omnicar from another app: copy it where the settings bundle can read it, then open Settings > OmniCar
-- (BOOL)importBackup:(NSURL *)url
-{
-    if (![url.pathExtension.lowercaseString isEqualToString:@"omnicar"]) return NO;
-    BOOL scoped = [url startAccessingSecurityScopedResource];
-    NSFileManager *fm = [NSFileManager defaultManager];
-    NSString *dest = OMC_BACKUP_INBOX;
-    [fm createDirectoryAtPath:dest.stringByDeletingLastPathComponent withIntermediateDirectories:YES attributes:nil error:nil];
-    [fm removeItemAtPath:dest error:nil];
-    NSError *error = nil;
-    BOOL ok = [fm copyItemAtURL:url toURL:[NSURL fileURLWithPath:dest] error:&error];
-    if (scoped) [url stopAccessingSecurityScopedResource];
-    if (!ok) { NSLog(@"[OmniCar] import backup %@: %@", url.lastPathComponent, error); return NO; }
-    [fm setAttributes:@{NSFilePosixPermissions: @0644} ofItemAtPath:dest error:nil];   // Settings runs as mobile too, keep readable
-    [self openSettings];
-    return YES;
-}
-
 - (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary<UIApplicationOpenURLOptionsKey, id> *)options
 {
-    if (url.isFileURL) return [self importBackup:url];
     BOOL ok = OMCForwardURL(url);
     // Quay ve man truoc (Shortcuts) sau khi gui lenh
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{

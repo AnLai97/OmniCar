@@ -22,7 +22,6 @@
 
 "SUPPORT_GROUP" = "Dukungan";
 "SUPPORT_FOOTER" = "Ada masalah? Ketuk Kirim log dan pilih Mail atau app chat untuk mengirimkannya ke pengembang.";
-"DIAGNOSTICS" = "Diagnostik";
 "SEND_LOG" = "Kirim log";
 "SEND_LOG_FAILED" = "Tidak dapat membuat file log.";
 
@@ -74,11 +73,6 @@
 "DIAG_CONFLICTS_NONE" = "Tidak ditemukan";
 "DIAG_CONFLICTS_FOOTER" = "CarBridge, DuoDash, TrueDash, CarPlayEnable.";
 
-"CRASH_TEST_TITLE" = "Uji mode penyelamatan";
-"CRASH_TEST_MESSAGE" = "Pilih fitur yang akan membuat CarPlay crash 5 detik setelah dibuka. Hanya untuk pengujian.";
-"CRASH_TEST_STOP" = "Hentikan uji";
-"CRASH_TEST_ARMED" = "Hubungkan mobil dua kali: CarPlay akan crash. Pada koneksi ke-3, mode penyelamatan seharusnya mematikan fitur ini dan CarPlay berfungsi lagi.";
-
 /* Auto test: dev builds only (OMC_AUTOTEST) */
 "AUTOTEST" = "Uji otomatis (dev)";
 "AUTOTEST_SUITES" = "Fitur yang diuji";
@@ -100,14 +94,11 @@
 "AUTOTEST_STATE_STOPPED" = "Dihentikan";
 
 /* Diagnostics: health check */
-"DIAG_DETAILS" = "Detail teknis";
 "CHK_SUM_OK" = "Semuanya tampak baik";
 "CHK_SUM_WARN" = "%lu hal perlu diperhatikan";
 "CHK_SUM_BAD" = "%lu masalah perlu diperbaiki";
 "CHK_SUM_COUNTS" = "%lu baik · %lu perhatian · %lu masalah";
 "CHK_CHECKED_AT" = "diperiksa pada %@";
-"CHK_AGAIN" = "Periksa lagi";
-"CHK_FOOTER" = "Masih tidak berfungsi? Ketuk tombol bagikan di atas untuk mengirim hasil ini dan log ke pengembang.";
 "CHK_IOS" = "Versi iOS";
 "CHK_IOS_OLD" = "OmniCar memerlukan iOS 15 atau lebih baru.";
 "CHK_IOS_NEW" = "Bisa diinstal tetapi belum sepenuhnya diuji di versi ini. Kirim log jika ada yang rusak.";
@@ -177,9 +168,6 @@
 "CHK_PERF_NONE_FIX" = "Gunakan CarPlay setidaknya satu menit, lalu buka lagi halaman ini: OmniCar mengukur saat Anda berkendara.";
 "CHK_PERF_LIVE" = "Mengukur · %ld mnt";
 "CHK_PERF_AT" = "Pada %@ · %ld mnt";
-"CHK_PERF_RESET" = "Ketuk untuk menghapus angka dan mengukur lagi pada perjalanan berikutnya (setelah menerapkan perbaikan).";
-"CHK_PERF_RESET_CONFIRM" = "Hapus angka performa dan ukur lagi?";
-"CHK_PERF_RESET_DO" = "Hapus dan ukur lagi";
 "CHK_PERF_FEW" = "Data belum cukup";
 "CHK_PERF_SMOOTH" = "Kelancaran";
 "CHK_PERF_SMOOTH_VALUE" = "%.0f%% frame terlambat (layar %@ fps) · paling lambat %ld ms";
@@ -203,54 +191,3 @@
 "CHK_PERF_TWEAKS_FIX" = "%lu tweak lain dimuat ke CarPlay; masing-masing membuatnya lebih lambat dimulai dan lebih sering tersendat atau crash. Gunakan Choicy untuk mematikan yang tidak dibutuhkan CarPlay.";
 "CHK_PERF_GENERIC_FIX" = "Sebelum berkendara, tutup app latar belakang, dan mulai ulang ponsel jika sudah lama tidak dilakukan.";
 "CHK_PERF_LOG" = "Log OmniCar";
-"CHK_PERF_LOG_FIX" = "Log berukuran besar. Ketuk untuk menghapusnya (kirim ke pengembang terlebih dahulu jika Anda melaporkan bug).";
-"CHK_PERF_LOG_CONFIRM" = "Hapus log OmniCar?";
-"CHK_PERF_LOG_DO" = "Hapus log";
-
-/* Diagnostics: optimize */
-"ISSUES_GROUP" = "Perlu perhatian";
-"ISSUES_FOOTER" = "Baris dengan tombol di kanan diperbaiki dengan satu ketukan. Untuk yang lain, ikuti baris berwarna.";
-"ALL_CHECKS_GROUP" = "Semua pemeriksaan";
-"ALL_CHECKS_FOOTER" = "Ketuk grup untuk melihat pemeriksaannya.";
-"GROUP_BAD" = "%lu galat";
-"GROUP_WARN" = "%lu perlu dicek";
-"GROUP_OK" = "%lu OK";
-"GROUP_INFO" = "Belum ada data";
-"ACT_TURN_ON" = "Nyalakan";
-"ACT_REMEASURE" = "Ukur lagi";
-"ACT_CLEAR" = "Hapus";
-"OPT_BUTTON" = "Optimalkan";
-"OPT_GROUP" = "Optimalkan performa";
-"OPT_FOOTER" = "Mode Ringan: Layar Terpisah menghilangkan efek kaca buram, Gelembung Kecepatan lebih jarang digambar ulang tanpa bayangan. Otomatis = hanya saat ponsel panas atau CarPlay tersendat, mati lagi setelah normal.\nKosongkan memori: menutup app yang berjalan di latar belakang, kecuali musik, peta, app CarPlay, app yang dipilih untuk mobil, dan app sumber kecepatan.";
-"OPT_WILL" = "OmniCar akan:";
-"OPT_MANUAL" = "Anda juga bisa:";
-"OPT_NOTHING" = "Tidak ada yang perlu dioptimalkan. Jika CarPlay masih tersendat, berkendaralah sekali lalu buka lagi halaman ini untuk melihat angkanya.";
-"OPT_APPLY" = "Optimalkan";
-"OPT_DONE" = "Sudah dioptimalkan. Hubungkan ulang mobil untuk menerapkan.";
-"OPT_LITE" = "Nyalakan Mode Ringan otomatis";
-"OPT_CLEAN_NOW" = "Kosongkan memori sekarang";
-"OPT_CLEAN_ON" = "Kosongkan memori setiap kali mobil terhubung";
-"OPT_LOG" = "Hapus log (%.1f MB)";
-"OPT_RESET" = "Ukur ulang performa mulai perjalanan berikutnya";
-"LITE_MODE" = "Mode Ringan";
-"LITE_OFF" = "Mati";
-"LITE_AUTO" = "Otomatis";
-"LITE_ALWAYS" = "Selalu";
-"LITE_STATUS_OFF" = "Mati: efek penuh sepanjang waktu";
-"LITE_STATUS_ALWAYS" = "Nyala";
-"LITE_STATUS_AUTO" = "Mati, menyala saat ponsel panas atau CarPlay tersendat";
-"LITE_STATUS_ON_HEAT" = "Nyala karena ponsel panas";
-"LITE_STATUS_ON" = "Nyala otomatis%@";
-"LITE_REASON_HEAT" = " karena ponsel panas";
-"LITE_REASON_HANGS" = " karena CarPlay terus macet";
-"LITE_REASON_FRAMES" = " karena layar mobil tersendat";
-"CLEAN_RAM" = "Kosongkan memori saat mobil terhubung";
-"CLEAN_RAM_NEVER" = "Belum pernah dijalankan";
-"CLEAN_RAM_LAST" = "Terakhir menutup %lu app pada %@";
-"CLEAN_RAM_NOW" = "Kosongkan memori sekarang";
-"CLEAN_RAM_NOW_SUB" = "Menutup semua app yang berjalan di latar belakang kecuali yang ada di layar dan yang sedang memutar. Saat mobil terhubung, app yang dibutuhkan mobil juga tetap dibiarkan.";
-"CLEAN_RAM_RESULT" = "%lu app ditutup.";
-"CLEAN_RAM_NOTHING" = "Tidak ada app di latar belakang untuk ditutup.";
-"CLEAN_RAM_NO_REPLY" = "SpringBoard tidak merespons. Lakukan Respring dan coba lagi; jika masih gagal, kirim log ke pengembang.";
-"CLEAN_RAM_CONFIRM" = "Kosongkan memori sekarang?";
-"CLEAN_RAM_DO" = "Kosongkan";

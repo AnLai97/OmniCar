@@ -1,8 +1,8 @@
 TARGET := iphone:clang:16.5:15.0
 ARCHS = arm64 arm64e
 THEOS_PACKAGE_SCHEME = rootless
-# "Runner" is Vietmap Live's process (Flutter), "GOFA" is com.lumi.GOFA (Speed Bubble sources).
-INSTALL_TARGET_PROCESSES = CarPlay SpringBoard Runner GOFA
+# "Runner" is Vietmap Live's process (Flutter), "GOFA" is com.lumi.GOFA, "Waze" is com.waze.iphone (Speed Bubble sources).
+INSTALL_TARGET_PROCESSES = CarPlay SpringBoard Runner GOFA Waze
 
 include $(THEOS)/makefiles/common.mk
 

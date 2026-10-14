@@ -1,21 +1,8 @@
 /* OmniCar – App Bridge – 日本語 */
 
 "APPBRIDGE" = "App Bridge";
-"APPBRIDGE_FOOTER" = "CarPlay非対応のiPhone App（YouTube、TikTok…）を車の画面で使えます。";
-"APPBRIDGE_ENABLE" = "iPhone Appを車に表示";
 "APPBRIDGE_APPS" = "車の画面のApp";
-"APPBRIDGE_APPS_FOOTER" = "Appをオンにすると、そのアイコンがCarPlayのホーム画面に追加されます。";
 "APPBRIDGE_APPS_NONE" = "なし";
 "APPBRIDGE_APPS_COUNT" = "%ld個のApp";
-"APPBRIDGE_APPS_ON_CAR" = "車の画面に表示中";
-"APPBRIDGE_APPS_USER" = "あなたのApp";
-"APPBRIDGE_APPS_SYSTEM" = "システムApp";
-"APPBRIDGE_APPS_OTHER_FOOTER" = "独自のCarPlay画面を持つAppは表示されません。";
 "APPBRIDGE_APPS_SEARCH" = "Appを検索";
-"APPBRIDGE_APPS_EMPTY" = "このデバイスにiPhone Appが見つかりません。";
 "APPBRIDGE_APPS_NO_MATCH" = "一致するAppはありません。";
-"APPBRIDGE_FPS" = "アプリのフレームレート";
-"APPBRIDGE_FPS_MAX" = "最大";
-"APPBRIDGE_FPS_FOOTER" = "アプリのフレームレート：車の画面の iPhone アプリの毎秒フレーム数を制限し、発熱を抑えます（アニメーション、スクロール。動画は変わりません）。「最大」では軽量モード中やワイヤレス CarPlay で自動的に 30 になります。";
-"APPBRIDGE_ONCAR_FOOTER" = "ドラッグで並べ替え · 目で非表示 · ピンで Dock へ · 「−」で iPhone アプリを車から外します。並べ替え・非表示・固定は CarPlay ホーム画面がオンのときに反映されます。";
-"APPBRIDGE_REMOVE" = "車から外す";

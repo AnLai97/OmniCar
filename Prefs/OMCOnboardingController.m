@@ -3,7 +3,7 @@
 //   1. Welcome + choose the iPhone apps for the car screen (pushes OMCAppBridgeAppsController in the sheet)
 //   2. How Split Screen works in the car (OmniCar button on the dock, long-press an app icon)
 //   3. Speed Bubble switch (speedBubbleEnabled, needs Vietmap Live or GOFA)
-//   4. Tips: the layout panel, and where Diagnostics / Send log are
+//   4. Tips: the layout panel, and where Send log is
 // Strings: <lang>.lproj/Onboarding.strings (ONB_*). The pref "onboardingDone" keeps it from showing again.
 #import "OMCOnboardingController.h"
 #import "OMCTheme.h"

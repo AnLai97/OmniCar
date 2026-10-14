@@ -27,16 +27,7 @@
 "SPEEDBUBBLE_SIGN_0" = "Автоматически (по региону)";
 "SPEEDBUBBLE_SIGN_1" = "Круглый (Вена)";
 "SPEEDBUBBLE_SIGN_2" = "Прямоугольный (США)";
-"SPEEDBUBBLE_SOURCE_GPS" = "GPS iPhone";
-"SPEEDBUBBLE_SOURCE_FOOTER" = "Vietmap Live и GOFA передают скорость и ограничение скорости: откройте приложение один раз и оставьте его работать в фоне. GPS iPhone даёт только скорость, без ограничения (знак показывает --, без предупреждения о превышении), и работает только при подключённом CarPlay. Google Maps, Waze, Apple Maps: скорость по GPS; ограничение — только когда приложение показывает знак на экране (тестируется).";
-"SPEEDBUBBLE_GPS_UNAVAILABLE" = "GPS iPhone недоступен: у SpringBoard нет разрешения на доступ к геопозиции. Проверьте Настройки > Конфиденциальность > Службы геолокации, затем выполните респринг.";
 "SPEEDBUBBLE_WARN" = "Предупреждение о превышении";
-"SPEEDBUBBLE_WARN_MODE" = "Предупреждение";
-"SPEEDBUBBLE_WARN_MODE_0" = "Выкл.";
-"SPEEDBUBBLE_WARN_MODE_1" = "Только рамка (без звука)";
-"SPEEDBUBBLE_WARN_MODE_2" = "Рамка и короткий звук";
-"SPEEDBUBBLE_WARN_OVER" = "Предупреждать при превышении на";
-"SPEEDBUBBLE_WARN_FOOTER" = "Когда скорость превышает ограничение плюс этот запас (в единицах, показанных на пузыре), по краю экрана CarPlay пульсирует светящаяся красная рамка. Звук играет один раз и повторяется, только если вы 5 секунд ехали без превышения. Нужно ограничение скорости из приложения-источника.";
 
 /* Settings page (OMCSpeedBubbleController) */
 "SPEEDBUBBLE_ENABLE_SUB" = "Показывается, пока навигатор работает в фоне";
@@ -51,17 +42,17 @@
 "SPEEDBUBBLE_DISPLAY_FOOTER" = "Авто: по региону iPhone.";
 "SPEEDBUBBLE_SRC_HINT_0" = "Скорость + знак ограничения. Откройте Vietmap Live один раз и оставьте в фоне.";
 "SPEEDBUBBLE_SRC_HINT_1" = "Скорость + знак ограничения. Откройте GOFA один раз и оставьте в фоне.";
-"SPEEDBUBBLE_SRC_HINT_2" = "Только скорость, без знака и предупреждения. Работает при подключённом CarPlay.";
-"SPEEDBUBBLE_SRC_HINT_3" = "Скорость по GPS; ограничение только когда Google Maps показывает знак (эксперимент).";
-"SPEEDBUBBLE_SRC_HINT_4" = "Скорость по GPS; ограничение только когда Waze показывает знак (эксперимент).";
-"SPEEDBUBBLE_SRC_HINT_5" = "Скорость по GPS; ограничение только когда Apple Maps показывает знак (эксперимент).";
+"SPEEDBUBBLE_SRC_HINT_2" = "Скорость по GPS; ограничение только когда Waze показывает знак (эксперимент).";
 "SPEEDBUBBLE_WARN_SHORT_0" = "Выкл";
-"SPEEDBUBBLE_WARN_SHORT_1" = "Только рамка";
-"SPEEDBUBBLE_WARN_SHORT_2" = "Рамка + звук";
+"SPEEDBUBBLE_WARN_SHORT_1" = "Предупреждение";
+"SPEEDBUBBLE_WARN_SHORT_2" = "Звук";
 "SPEEDBUBBLE_WARN_WHEN" = "Порог";
-"SPEEDBUBBLE_WARN_ON_FOOTER" = "Превышение %@: красная рамка мигает вокруг экрана CarPlay%@. Нужен источник со знаками ограничения.";
+"SPEEDBUBBLE_WARN_ON_FOOTER" = "Предупреждает, когда вы едете %@: красная рамка мигает вокруг экрана CarPlay%@. Нужен источник со знаками ограничения.";
 "SPEEDBUBBLE_WARN_SOUND_PART" = ", с коротким сигналом";
 "SPEEDBUBBLE_WARN_OFF_FOOTER" = "Без предупреждения; пузырь всё равно меняет цвет.";
+"SPEEDBUBBLE_WARN_TH_AT" = "на уровне лимита";
+"SPEEDBUBBLE_WARN_TH_OVER" = "на %@ выше лимита";
+"SPEEDBUBBLE_WARN_TH_UNDER" = "на %@ ниже лимита";
 "SPEEDBUBBLE_SIZE_GROUP" = "Размер и положение";
 "SPEEDBUBBLE_SIZE_CAR_SHORT" = "CarPlay";
 "SPEEDBUBBLE_SIZE_PHONE_SHORT" = "iPhone";

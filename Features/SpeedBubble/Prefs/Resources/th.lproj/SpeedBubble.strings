@@ -27,16 +27,7 @@
 "SPEEDBUBBLE_SIGN_0" = "อัตโนมัติ (ตามภูมิภาค)";
 "SPEEDBUBBLE_SIGN_1" = "วงกลม (เวียนนา)";
 "SPEEDBUBBLE_SIGN_2" = "สี่เหลี่ยม (สหรัฐฯ)";
-"SPEEDBUBBLE_SOURCE_GPS" = "GPS ของ iPhone";
-"SPEEDBUBBLE_SOURCE_FOOTER" = "Vietmap Live และ GOFA ให้ทั้งความเร็วและความเร็วจำกัด: เปิดแอปหนึ่งครั้ง แล้วปล่อยให้ทำงานเบื้องหลัง GPS ของ iPhone ให้เฉพาะความเร็ว ไม่มีความเร็วจำกัด (ป้ายแสดง -- ไม่มีการเตือนความเร็วเกิน) และทำงานเฉพาะขณะเชื่อมต่อ CarPlay Google Maps, Waze, Apple Maps: ความเร็วจาก GPS ส่วนขีดจำกัดจะมีเมื่อแอปแสดงป้ายบนหน้าจอเท่านั้น (กำลังทดสอบ)";
-"SPEEDBUBBLE_GPS_UNAVAILABLE" = "ใช้ GPS ของ iPhone ไม่ได้: SpringBoard ไม่มีสิทธิ์ใช้ตำแหน่งของคุณ ตรวจสอบ การตั้งค่า > ความเป็นส่วนตัว > บริการหาตำแหน่ง แล้ว Respring";
 "SPEEDBUBBLE_WARN" = "เตือนความเร็วเกิน";
-"SPEEDBUBBLE_WARN_MODE" = "การเตือน";
-"SPEEDBUBBLE_WARN_MODE_0" = "ปิด";
-"SPEEDBUBBLE_WARN_MODE_1" = "ขอบเท่านั้น (เงียบ)";
-"SPEEDBUBBLE_WARN_MODE_2" = "ขอบและเสียงสั้น";
-"SPEEDBUBBLE_WARN_OVER" = "เตือนเมื่อเกินความเร็วจำกัด";
-"SPEEDBUBBLE_WARN_FOOTER" = "เมื่อคุณขับเร็วกว่าความเร็วจำกัดบวกค่าเผื่อนี้ (ในหน่วยที่แสดงบนบับเบิล) ขอบสีแดงเรืองแสงจะกะพริบรอบหน้าจอ CarPlay เสียงจะเล่นหนึ่งครั้ง และจะเล่นอีกครั้งหลังจากคุณอยู่ต่ำกว่าความเร็วจำกัดครบ 5 วินาทีแล้วเท่านั้น ต้องมีความเร็วจำกัดจากแอปแหล่งข้อมูล";
 
 /* Settings page (OMCSpeedBubbleController) */
 "SPEEDBUBBLE_ENABLE_SUB" = "แสดงขณะแอปนำทางทำงานเบื้องหลัง";
@@ -51,17 +42,17 @@
 "SPEEDBUBBLE_DISPLAY_FOOTER" = "อัตโนมัติ: ตามภูมิภาคของ iPhone";
 "SPEEDBUBBLE_SRC_HINT_0" = "ความเร็ว + ป้ายจำกัด เปิด Vietmap Live หนึ่งครั้งแล้วปล่อยให้ทำงานเบื้องหลัง";
 "SPEEDBUBBLE_SRC_HINT_1" = "ความเร็ว + ป้ายจำกัด เปิด GOFA หนึ่งครั้งแล้วปล่อยให้ทำงานเบื้องหลัง";
-"SPEEDBUBBLE_SRC_HINT_2" = "ความเร็วอย่างเดียว ไม่มีป้ายจำกัดและไม่เตือน ทำงานขณะเชื่อม CarPlay";
-"SPEEDBUBBLE_SRC_HINT_3" = "ความเร็วจาก GPS; ป้ายจำกัดเฉพาะเมื่อ Google Maps แสดงป้าย (ทดลอง)";
-"SPEEDBUBBLE_SRC_HINT_4" = "ความเร็วจาก GPS; ป้ายจำกัดเฉพาะเมื่อ Waze แสดงป้าย (ทดลอง)";
-"SPEEDBUBBLE_SRC_HINT_5" = "ความเร็วจาก GPS; ป้ายจำกัดเฉพาะเมื่อ Apple Maps แสดงป้าย (ทดลอง)";
+"SPEEDBUBBLE_SRC_HINT_2" = "ความเร็วจาก GPS; ป้ายจำกัดเฉพาะเมื่อ Waze แสดงป้าย (ทดลอง)";
 "SPEEDBUBBLE_WARN_SHORT_0" = "ปิด";
-"SPEEDBUBBLE_WARN_SHORT_1" = "ขอบอย่างเดียว";
-"SPEEDBUBBLE_WARN_SHORT_2" = "ขอบ + เสียง";
-"SPEEDBUBBLE_WARN_WHEN" = "เตือนเมื่อเกิน";
-"SPEEDBUBBLE_WARN_ON_FOOTER" = "เกินขีดจำกัด %@: ขอบสีแดงกะพริบรอบจอ CarPlay%@ ต้องใช้แหล่งที่มีป้ายจำกัด";
+"SPEEDBUBBLE_WARN_SHORT_1" = "เตือน";
+"SPEEDBUBBLE_WARN_SHORT_2" = "เสียง";
+"SPEEDBUBBLE_WARN_WHEN" = "เกณฑ์";
+"SPEEDBUBBLE_WARN_ON_FOOTER" = "เตือนเมื่อขับ%@: ขอบสีแดงกะพริบรอบหน้าจอ CarPlay%@ ต้องมีแหล่งข้อมูลที่มีป้ายจำกัดความเร็ว";
 "SPEEDBUBBLE_WARN_SOUND_PART" = " และมีเสียงสั้นหนึ่งครั้ง";
 "SPEEDBUBBLE_WARN_OFF_FOOTER" = "ไม่เตือน บับเบิลยังเปลี่ยนสีเมื่อเกิน";
+"SPEEDBUBBLE_WARN_TH_AT" = "ถึงขีดจำกัด";
+"SPEEDBUBBLE_WARN_TH_OVER" = "เกินขีดจำกัด %@";
+"SPEEDBUBBLE_WARN_TH_UNDER" = "ต่ำกว่าขีดจำกัด %@";
 "SPEEDBUBBLE_SIZE_GROUP" = "ขนาดและตำแหน่ง";
 "SPEEDBUBBLE_SIZE_CAR_SHORT" = "CarPlay";
 "SPEEDBUBBLE_SIZE_PHONE_SHORT" = "iPhone";

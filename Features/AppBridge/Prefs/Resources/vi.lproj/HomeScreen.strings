@@ -1,21 +1,11 @@
-/* OmniCar - CarPlay home screen (OMCHomeScreenController) */
+/* OmniCar - CarPlay home screen (OMCAppBridgeAppsController) */
 
-"HOMESCREEN_TITLE" = "Màn chính CarPlay";
-"HOMESCREEN_ON" = "Bật";
-"HOMESCREEN_OFF" = "Tắt";
-"HOMESCREEN_PREVIEW_OFF" = "Màn chính gốc của CarPlay";
-"HOMESCREEN_ENABLE" = "Màn chính của OmniCar";
-"HOMESCREEN_FOOTER" = "OmniCar vẽ lưới icon và dock của riêng mình lên trên CarPlay; tắt là trả lại nguyên màn chính gốc. Đang thử nghiệm.";
-"HOMESCREEN_GRID" = "Lưới icon";
-"HOMESCREEN_GRID_FOOTER" = "Lưới tự bớt cột / hàng khi icon to hơn màn xe, không bao giờ tràn màn; nhiều app thì vuốt trang.";
 "HOMESCREEN_ICON_SIZE" = "Cỡ icon";
 "HOMESCREEN_COLS" = "Số cột";
 "HOMESCREEN_ROWS" = "Số hàng";
 "HOMESCREEN_GAP" = "Khoảng cách";
 "HOMESCREEN_NAMES" = "Tên dưới icon";
 "HOMESCREEN_WALLPAPER" = "Hình nền";
-"HOMESCREEN_WALLPAPER_FOOTER" = "Ảnh được cắt vừa màn xe. Tăng độ tối để icon và tên app luôn dễ nhìn.";
-"HOMESCREEN_FROM_PHOTOS" = "Từ Ảnh";
 "HOMESCREEN_BLUR" = "Độ mờ";
 "HOMESCREEN_DIM" = "Độ tối";
 "HOMESCREEN_DOCK" = "Dock";
@@ -28,9 +18,6 @@
 
 /* One page: Apps on the car screen */
 "APPS_TITLE" = "App trên màn xe";
-"APPS_HOME" = "Màn chính OmniCar";
-"APPS_HOME_SUB" = "Tự bật khi bạn sắp xếp hoặc ẩn app CarPlay";
-"APPS_AUTO_HOME" = "Đã bật Màn chính OmniCar để áp thay đổi";
 "APPS_CARD" = "Ứng dụng";
 "APPS_SUMMARY" = "%ld / %ld hiện";
 "APPS_ALL" = "Tất cả";
@@ -50,44 +37,9 @@
 "APPS_WALL_6" = "Rừng";
 "APPS_WALL_7" = "Ảnh của bạn";
 
-/* ROADMAP-DEV 3.1: folders, icon look, widgets, day / night and video wallpaper */
-"APPS_FOLDERS" = "Thư mục";
-"APPS_FOLDERS_COUNT" = "%ld thư mục";
-"APPS_NONE" = "Không có";
-"APPS_FOLDER_NEW" = "Thư mục mới";
-"APPS_FOLDER_NAME" = "Tên thư mục";
-"APPS_FOLDER_DEFAULT_NAME" = "Thư mục";
-"APPS_FOLDER_APPS" = "%ld app";
-"APPS_FOLDER_PICK" = "Chọn app";
-"APPS_FOLDER_RENAME" = "Đổi tên";
-"APPS_FOLDER_DELETE" = "Xoá thư mục";
-"APPS_FOLDERS_FOOTER" = "Thư mục nằm ở chỗ app đầu tiên của nó; chạm trên xe để mở. Mỗi app chỉ ở một thư mục.";
-"APPS_PHONE_PAGE" = "Trang riêng cho app iPhone";
-"APPS_PHONE_PAGE_SUB" = "App iPhone bắt đầu ở trang mới, sau app CarPlay";
-"APPS_SHAPE_0" = "Bo tròn";
-"APPS_SHAPE_1" = "Vuông";
-"APPS_SHAPE_2" = "Tròn";
-"APPS_ICON_GLASS" = "Viền kính";
-"APPS_ICON_SHADOW" = "Bóng";
-"APPS_ICON_PACK" = "Gói icon";
-"APPS_ICON_PACK_NONE" = "Không dùng";
-"APPS_ICON_PACK_EMPTY" = "Chưa có gói icon nào trong /Library/Themes. Cài từ Sileo (chuẩn IconBundles).";
-"APPS_LAYOUT_FOOTER" = "Lưới bớt cột / hàng khi icon quá to so với màn xe, app dư sang trang sau. App không có trong gói icon giữ icon gốc.";
-"APPS_WIDGETS" = "Widget";
-"APPS_WIDGET_CLOCK" = "Đồng hồ";
-"APPS_WIDGET_WEATHER" = "Thời tiết";
-"APPS_WIDGET_MUSIC" = "Đang phát";
-"APPS_WIDGETS_MAX" = "Tối đa 2 widget. Tắt một cái trước.";
-"APPS_WIDGETS_FOOTER" = "Widget nằm thành cột bên trái lưới icon. Thời tiết lấy từ Open-Meteo theo vị trí iOS biết gần nhất (CarPlay cần quyền vị trí).";
-"APPS_WALL_DAY" = "Ban ngày";
-"APPS_WALL_NIGHT" = "Ban đêm";
-"APPS_WALL_SAME" = "Như ban ngày";
+"APPS_LAYOUT_FOOTER" = "Lưới bớt cột / hàng khi icon quá to so với màn xe, app dư sang trang sau.";
 "APPS_WALL_8" = "Video của bạn";
-"APPS_WALL_NIGHT_SUMMARY" = "đêm: %@";
-"APPS_NIGHT_BY" = "Đổi sang đêm";
-"APPS_NIGHT_BY_CAR" = "Theo xe";
-"APPS_NIGHT_BY_SUN" = "Mặt trời";
 "APPS_FROM_PHOTOS" = "Từ Ảnh (ảnh hoặc video)";
 "APPS_VIDEO_WORKING" = "Đang chuẩn bị video…";
 "APPS_VIDEO_FAILED" = "Không dùng được video này.";
-"APPS_WALL_FOOTER" = "Ảnh được cắt theo màn xe; tăng độ tối để icon dễ đọc. Video lặp lại không tiếng (20 giây đầu), tự dừng khi máy nóng, bật chế độ nhẹ, đang chia màn hoặc có app che màn chính. Ban đêm: theo giao diện sáng / tối của xe hoặc giờ mặt trời mọc / lặn.";
+"APPS_WALL_FOOTER" = "Ảnh được cắt theo màn xe; tăng độ tối để icon dễ đọc. Video lặp lại không tiếng (20 giây đầu), tự dừng khi máy nóng, bật chế độ nhẹ, đang chia màn hoặc có app che màn chính.";

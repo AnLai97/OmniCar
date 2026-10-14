@@ -22,7 +22,6 @@
 
 "SUPPORT_GROUP" = "サポート";
 "SUPPORT_FOOTER" = "問題がありますか？「ログを送信」をタップし、メールまたはチャットAppを選んで開発者に送信してください。";
-"DIAGNOSTICS" = "診断";
 "SEND_LOG" = "ログを送信";
 "SEND_LOG_FAILED" = "ログファイルを作成できませんでした。";
 
@@ -74,11 +73,6 @@
 "DIAG_CONFLICTS_NONE" = "見つかりません";
 "DIAG_CONFLICTS_FOOTER" = "CarBridge, DuoDash, TrueDash, CarPlayEnable.";
 
-"CRASH_TEST_TITLE" = "レスキューモードをテスト";
-"CRASH_TEST_MESSAGE" = "開いてから5秒後にCarPlayをクラッシュさせる機能を選んでください。テスト専用です。";
-"CRASH_TEST_STOP" = "テストを停止";
-"CRASH_TEST_ARMED" = "車に2回接続してください: CarPlayがクラッシュします。3回目の接続でレスキューモードがこの機能をオフにし、CarPlayが再び動作するはずです。";
-
 /* Auto test: dev builds only (OMC_AUTOTEST) */
 "AUTOTEST" = "自動テスト（開発）";
 "AUTOTEST_SUITES" = "テストする機能";
@@ -100,14 +94,11 @@
 "AUTOTEST_STATE_STOPPED" = "停止済み";
 
 /* 診断: ヘルスチェック */
-"DIAG_DETAILS" = "技術的な詳細";
 "CHK_SUM_OK" = "すべて正常です";
 "CHK_SUM_WARN" = "%lu件の確認が必要です";
 "CHK_SUM_BAD" = "%lu件の問題を修正してください";
 "CHK_SUM_COUNTS" = "正常 %lu · 要確認 %lu · 問題 %lu";
 "CHK_CHECKED_AT" = "%@にチェック";
-"CHK_AGAIN" = "再チェック";
-"CHK_FOOTER" = "まだ動作しませんか？上部の共有ボタンをタップして、この結果とログを開発者に送信してください。";
 "CHK_IOS" = "iOSバージョン";
 "CHK_IOS_OLD" = "OmniCarにはiOS 15以降が必要です。";
 "CHK_IOS_NEW" = "インストールはできますが、このバージョンでは十分にテストされていません。問題があればログを送信してください。";
@@ -177,9 +168,6 @@
 "CHK_PERF_NONE_FIX" = "CarPlayを1分以上使ってから、このページをもう一度開いてください: OmniCarは運転中に測定します。";
 "CHK_PERF_LIVE" = "測定中 · %ld分";
 "CHK_PERF_AT" = "%@ · %ld分";
-"CHK_PERF_RESET" = "タップすると数値をクリアし、次回の運転で再測定します（修正を適用した後に）。";
-"CHK_PERF_RESET_CONFIRM" = "パフォーマンスの数値をクリアして再測定しますか？";
-"CHK_PERF_RESET_DO" = "クリアして再測定";
 "CHK_PERF_FEW" = "データがまだ不十分です";
 "CHK_PERF_SMOOTH" = "滑らかさ";
 "CHK_PERF_SMOOTH_VALUE" = "%.0f%%のフレームが遅延（%@ fps画面） · 最も遅い %ld ms";
@@ -203,54 +191,3 @@
 "CHK_PERF_TWEAKS_FIX" = "ほかに%lu個のTweakがCarPlayに読み込まれています。1つ増えるごとに起動が遅くなり、カクつきやクラッシュが増えます。Choicyを使って、CarPlayに不要なものをオフにしてください。";
 "CHK_PERF_GENERIC_FIX" = "運転前にバックグラウンドのAppを閉じ、しばらく再起動していない場合はiPhoneを再起動してください。";
 "CHK_PERF_LOG" = "OmniCarログ";
-"CHK_PERF_LOG_FIX" = "ログが大きくなっています。タップしてクリアしてください（不具合を報告する場合は、先に開発者に送信してください）。";
-"CHK_PERF_LOG_CONFIRM" = "OmniCarのログをクリアしますか？";
-"CHK_PERF_LOG_DO" = "ログをクリア";
-
-/* 診断: 最適化 */
-"ISSUES_GROUP" = "要確認";
-"ISSUES_FOOTER" = "右側にボタンがある行はワンタップで修正できます。そのほかは色付きの説明に従ってください。";
-"ALL_CHECKS_GROUP" = "すべてのチェック";
-"ALL_CHECKS_FOOTER" = "グループをタップするとチェック項目が表示されます。";
-"GROUP_BAD" = "エラー %lu件";
-"GROUP_WARN" = "要確認 %lu件";
-"GROUP_OK" = "OK %lu件";
-"GROUP_INFO" = "データがまだありません";
-"ACT_TURN_ON" = "オンにする";
-"ACT_REMEASURE" = "再測定";
-"ACT_CLEAR" = "クリア";
-"OPT_BUTTON" = "最適化";
-"OPT_GROUP" = "パフォーマンスを最適化";
-"OPT_FOOTER" = "軽量モード: 画面分割はすりガラス効果を外し、スピードバブルは影なしで更新頻度を下げます。自動 = iPhoneが高温のときやCarPlayがカクつくときだけオンになり、正常に戻るとオフになります。\nメモリを解放: バックグラウンドで動作しているAppを終了します。ミュージック、マップ、CarPlay App、車用に選んだApp、速度の取得元Appは残します。";
-"OPT_WILL" = "OmniCarが行うこと:";
-"OPT_MANUAL" = "ご自身でできること:";
-"OPT_NOTHING" = "最適化する項目はありません。CarPlayがまだカクつく場合は、一度運転してからこのページを開き、数値を確認してください。";
-"OPT_APPLY" = "最適化";
-"OPT_DONE" = "最適化しました。反映するには車に再接続してください。";
-"OPT_LITE" = "自動軽量モードをオンにする";
-"OPT_CLEAN_NOW" = "今すぐメモリを解放";
-"OPT_CLEAN_ON" = "車に接続するたびにメモリを解放";
-"OPT_LOG" = "ログをクリア（%.1f MB）";
-"OPT_RESET" = "次回の運転からパフォーマンスを再測定";
-"LITE_MODE" = "軽量モード";
-"LITE_OFF" = "オフ";
-"LITE_AUTO" = "自動";
-"LITE_ALWAYS" = "常にオン";
-"LITE_STATUS_OFF" = "オフ: 常にすべての効果を使用";
-"LITE_STATUS_ALWAYS" = "オン";
-"LITE_STATUS_AUTO" = "オフ。iPhoneが高温のときやCarPlayがカクつくときにオン";
-"LITE_STATUS_ON_HEAT" = "iPhoneが高温のためオン";
-"LITE_STATUS_ON" = "自動でオン%@";
-"LITE_REASON_HEAT" = "（iPhoneが高温のため）";
-"LITE_REASON_HANGS" = "（CarPlayのフリーズが続いたため）";
-"LITE_REASON_FRAMES" = "（車の画面がカクついたため）";
-"CLEAN_RAM" = "車の接続時にメモリを解放";
-"CLEAN_RAM_NEVER" = "まだ実行されていません";
-"CLEAN_RAM_LAST" = "前回: %lu個のAppを終了（%@）";
-"CLEAN_RAM_NOW" = "今すぐメモリを解放";
-"CLEAN_RAM_NOW_SUB" = "画面に表示中のAppと再生中のAppを除き、バックグラウンドで動作しているAppをすべて終了します。車の接続中は、車に必要なAppも残します。";
-"CLEAN_RAM_RESULT" = "%lu個のAppを終了しました。";
-"CLEAN_RAM_NOTHING" = "終了できるバックグラウンドのAppはありません。";
-"CLEAN_RAM_NO_REPLY" = "SpringBoardから応答がありません。リスプリングしてもう一度お試しください。それでも失敗する場合は、ログを開発者に送信してください。";
-"CLEAN_RAM_CONFIRM" = "今すぐメモリを解放しますか？";
-"CLEAN_RAM_DO" = "解放";

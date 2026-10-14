@@ -22,7 +22,6 @@
 
 "SUPPORT_GROUP" = "Suporte";
 "SUPPORT_FOOTER" = "Algo errado? Toque em Enviar registro e escolha o Mail ou um app de mensagens para enviá-lo ao desenvolvedor.";
-"DIAGNOSTICS" = "Diagnóstico";
 "SEND_LOG" = "Enviar registro";
 "SEND_LOG_FAILED" = "Não foi possível criar o arquivo de registro.";
 
@@ -74,11 +73,6 @@
 "DIAG_CONFLICTS_NONE" = "Nenhum encontrado";
 "DIAG_CONFLICTS_FOOTER" = "CarBridge, DuoDash, TrueDash, CarPlayEnable.";
 
-"CRASH_TEST_TITLE" = "Testar modo de resgate";
-"CRASH_TEST_MESSAGE" = "Escolha o recurso que vai derrubar o CarPlay 5 segundos depois de abrir. Somente para testes.";
-"CRASH_TEST_STOP" = "Parar teste";
-"CRASH_TEST_ARMED" = "Conecte o carro duas vezes: o CarPlay vai falhar. Na 3ª conexão, o modo de resgate deve desativar este recurso e o CarPlay deve voltar a funcionar.";
-
 /* Teste automático: somente builds de desenvolvimento (OMC_AUTOTEST) */
 "AUTOTEST" = "Teste automático (dev)";
 "AUTOTEST_SUITES" = "Recursos para testar";
@@ -100,14 +94,11 @@
 "AUTOTEST_STATE_STOPPED" = "Parado";
 
 /* Diagnóstico: verificação de saúde */
-"DIAG_DETAILS" = "Detalhes técnicos";
 "CHK_SUM_OK" = "Tudo certo";
 "CHK_SUM_WARN" = "%lu itens precisam de atenção";
 "CHK_SUM_BAD" = "%lu problemas para corrigir";
 "CHK_SUM_COUNTS" = "%lu ok · %lu atenção · %lu problemas";
 "CHK_CHECKED_AT" = "verificado às %@";
-"CHK_AGAIN" = "Verificar de novo";
-"CHK_FOOTER" = "Ainda não funciona? Toque no botão de compartilhar no topo para enviar estes resultados e o registro ao desenvolvedor.";
 "CHK_IOS" = "Versão do iOS";
 "CHK_IOS_OLD" = "O OmniCar requer iOS 15 ou posterior.";
 "CHK_IOS_NEW" = "Instala normalmente, mas não foi totalmente testado nesta versão. Envie o registro se algo der errado.";
@@ -177,9 +168,6 @@
 "CHK_PERF_NONE_FIX" = "Use o CarPlay por pelo menos um minuto e abra esta página de novo: o OmniCar mede enquanto você dirige.";
 "CHK_PERF_LIVE" = "Medindo · %ld min";
 "CHK_PERF_AT" = "Às %@ · %ld min";
-"CHK_PERF_RESET" = "Toque para apagar os números e medir de novo na próxima viagem (após aplicar uma correção).";
-"CHK_PERF_RESET_CONFIRM" = "Apagar os números de desempenho e medir de novo?";
-"CHK_PERF_RESET_DO" = "Apagar e medir de novo";
 "CHK_PERF_FEW" = "Ainda não há dados suficientes";
 "CHK_PERF_SMOOTH" = "Fluidez";
 "CHK_PERF_SMOOTH_VALUE" = "%.0f%% dos quadros atrasados (tela de %@ fps) · mais lento %ld ms";
@@ -203,54 +191,3 @@
 "CHK_PERF_TWEAKS_FIX" = "%lu outros tweaks são carregados no CarPlay; cada um faz ele iniciar mais devagar e travar ou falhar mais. Use o Choicy para desativar os que o CarPlay não precisa.";
 "CHK_PERF_GENERIC_FIX" = "Antes de dirigir, feche os apps em segundo plano e reinicie o telefone se faz tempo que não reinicia.";
 "CHK_PERF_LOG" = "Registro do OmniCar";
-"CHK_PERF_LOG_FIX" = "O registro está grande. Toque para apagá-lo (envie ao desenvolvedor antes se estiver relatando um bug).";
-"CHK_PERF_LOG_CONFIRM" = "Apagar o registro do OmniCar?";
-"CHK_PERF_LOG_DO" = "Apagar registro";
-
-/* Diagnóstico: otimizar */
-"ISSUES_GROUP" = "Precisa de atenção";
-"ISSUES_FOOTER" = "Linhas com um botão à direita são corrigidas com um toque. Para as outras, siga a linha colorida.";
-"ALL_CHECKS_GROUP" = "Todas as verificações";
-"ALL_CHECKS_FOOTER" = "Toque em um grupo para ver as verificações.";
-"GROUP_BAD" = "%lu erros";
-"GROUP_WARN" = "%lu para verificar";
-"GROUP_OK" = "%lu OK";
-"GROUP_INFO" = "Ainda sem dados";
-"ACT_TURN_ON" = "Ativar";
-"ACT_REMEASURE" = "Medir de novo";
-"ACT_CLEAR" = "Apagar";
-"OPT_BUTTON" = "Otimizar";
-"OPT_GROUP" = "Otimizar desempenho";
-"OPT_FOOTER" = "Modo leve: a Tela dividida tira o efeito de vidro fosco, a Bolha de velocidade é redesenhada com menos frequência e sem sombras. Auto = só enquanto o telefone está quente ou o CarPlay trava; desativa de novo quando tudo estiver bem.\nLiberar memória: fecha os apps em segundo plano, mantendo música, mapas, apps de CarPlay, os apps escolhidos para o carro e o app de origem da velocidade.";
-"OPT_WILL" = "O OmniCar vai:";
-"OPT_MANUAL" = "Você também pode:";
-"OPT_NOTHING" = "Nada para otimizar. Se o CarPlay ainda travar, dirija uma vez e abra esta página de novo para ver os números.";
-"OPT_APPLY" = "Otimizar";
-"OPT_DONE" = "Otimizado. Reconecte o carro para aplicar.";
-"OPT_LITE" = "Ativar o modo leve automático";
-"OPT_CLEAN_NOW" = "Liberar memória agora";
-"OPT_CLEAN_ON" = "Liberar memória sempre que o carro conectar";
-"OPT_LOG" = "Apagar o registro (%.1f MB)";
-"OPT_RESET" = "Medir o desempenho de novo a partir da próxima viagem";
-"LITE_MODE" = "Modo leve";
-"LITE_OFF" = "Desativado";
-"LITE_AUTO" = "Auto";
-"LITE_ALWAYS" = "Sempre";
-"LITE_STATUS_OFF" = "Desativado: todos os efeitos o tempo todo";
-"LITE_STATUS_ALWAYS" = "Ativado";
-"LITE_STATUS_AUTO" = "Desativado; ativa quando o telefone esquenta ou o CarPlay trava";
-"LITE_STATUS_ON_HEAT" = "Ativado porque o telefone está quente";
-"LITE_STATUS_ON" = "Ativado automaticamente%@";
-"LITE_REASON_HEAT" = " porque o telefone está quente";
-"LITE_REASON_HANGS" = " porque o CarPlay ficava congelando";
-"LITE_REASON_FRAMES" = " porque a tela do carro travou";
-"CLEAN_RAM" = "Liberar memória quando o carro conectar";
-"CLEAN_RAM_NEVER" = "Ainda não foi executado";
-"CLEAN_RAM_LAST" = "Da última vez fechou %lu apps às %@";
-"CLEAN_RAM_NOW" = "Liberar memória agora";
-"CLEAN_RAM_NOW_SUB" = "Fecha todos os apps em segundo plano, exceto o que está na tela e o que está tocando. Com um carro conectado, também mantém os apps de que o carro precisa.";
-"CLEAN_RAM_RESULT" = "%lu apps fechados.";
-"CLEAN_RAM_NOTHING" = "Nenhum app em segundo plano para fechar.";
-"CLEAN_RAM_NO_REPLY" = "O SpringBoard não respondeu. Faça respring e tente de novo; se ainda falhar, envie o registro ao desenvolvedor.";
-"CLEAN_RAM_CONFIRM" = "Liberar memória agora?";
-"CLEAN_RAM_DO" = "Liberar";

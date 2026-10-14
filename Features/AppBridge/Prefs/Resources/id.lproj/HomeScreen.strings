@@ -1,21 +1,11 @@
-/* OmniCar - CarPlay home screen (OMCHomeScreenController) */
+/* OmniCar - CarPlay home screen (OMCAppBridgeAppsController) */
 
-"HOMESCREEN_TITLE" = "Layar utama CarPlay";
-"HOMESCREEN_ON" = "Nyala";
-"HOMESCREEN_OFF" = "Mati";
-"HOMESCREEN_PREVIEW_OFF" = "Layar utama asli CarPlay";
-"HOMESCREEN_ENABLE" = "Layar utama OmniCar";
-"HOMESCREEN_FOOTER" = "OmniCar menggambar kisi ikon dan dock sendiri di atas milik CarPlay; matikan untuk kembali ke layar asli. Sedang diuji.";
-"HOMESCREEN_GRID" = "Kisi ikon";
-"HOMESCREEN_GRID_FOOTER" = "Kisi mengurangi kolom / baris jika ikon tidak muat, tidak pernah meluber; app lainnya ke halaman berikut.";
 "HOMESCREEN_ICON_SIZE" = "Ukuran ikon";
 "HOMESCREEN_COLS" = "Kolom";
 "HOMESCREEN_ROWS" = "Baris";
 "HOMESCREEN_GAP" = "Jarak";
 "HOMESCREEN_NAMES" = "Nama di bawah ikon";
 "HOMESCREEN_WALLPAPER" = "Wallpaper";
-"HOMESCREEN_WALLPAPER_FOOTER" = "Gambar dipotong sesuai layar mobil. Naikkan kegelapan agar ikon dan nama tetap mudah dibaca.";
-"HOMESCREEN_FROM_PHOTOS" = "Dari Foto";
 "HOMESCREEN_BLUR" = "Blur";
 "HOMESCREEN_DIM" = "Kegelapan";
 "HOMESCREEN_DOCK" = "Dock";
@@ -28,9 +18,6 @@
 
 /* One page: Apps on the car screen */
 "APPS_TITLE" = "App di mobil";
-"APPS_HOME" = "Layar utama OmniCar";
-"APPS_HOME_SUB" = "Menyala sendiri saat Anda mengurutkan atau menyembunyikan app CarPlay";
-"APPS_AUTO_HOME" = "Layar utama OmniCar dinyalakan untuk menerapkan";
 "APPS_CARD" = "App";
 "APPS_SUMMARY" = "%ld / %ld tampil";
 "APPS_ALL" = "Semua";
@@ -50,44 +37,9 @@
 "APPS_WALL_6" = "Hutan";
 "APPS_WALL_7" = "Foto Anda";
 
-/* ROADMAP-DEV 3.1: folders, icon look, widgets, day / night and video wallpaper */
-"APPS_FOLDERS" = "Folder";
-"APPS_FOLDERS_COUNT" = "%ld folder";
-"APPS_NONE" = "Tidak ada";
-"APPS_FOLDER_NEW" = "Folder baru";
-"APPS_FOLDER_NAME" = "Nama folder";
-"APPS_FOLDER_DEFAULT_NAME" = "Folder";
-"APPS_FOLDER_APPS" = "%ld app";
-"APPS_FOLDER_PICK" = "Pilih app";
-"APPS_FOLDER_RENAME" = "Ganti nama";
-"APPS_FOLDER_DELETE" = "Hapus folder";
-"APPS_FOLDERS_FOOTER" = "Folder berada di tempat app pertamanya; ketuk di mobil untuk membukanya. Satu app hanya bisa berada di satu folder.";
-"APPS_PHONE_PAGE" = "Halaman sendiri untuk app iPhone";
-"APPS_PHONE_PAGE_SUB" = "App iPhone mulai di halaman baru, setelah app CarPlay";
-"APPS_SHAPE_0" = "Membulat";
-"APPS_SHAPE_1" = "Persegi";
-"APPS_SHAPE_2" = "Lingkaran";
-"APPS_ICON_GLASS" = "Tepi kaca";
-"APPS_ICON_SHADOW" = "Bayangan";
-"APPS_ICON_PACK" = "Paket ikon";
-"APPS_ICON_PACK_NONE" = "Tidak ada";
-"APPS_ICON_PACK_EMPTY" = "Tidak ada paket ikon di /Library/Themes. Pasang dari Sileo (format IconBundles).";
-"APPS_LAYOUT_FOOTER" = "Kisi mengurangi kolom / baris saat ikon tidak muat di layar mobil; app lain pindah ke halaman berikutnya. App yang tidak ada di paket tetap memakai ikonnya sendiri.";
-"APPS_WIDGETS" = "Widget";
-"APPS_WIDGET_CLOCK" = "Jam";
-"APPS_WIDGET_WEATHER" = "Cuaca";
-"APPS_WIDGET_MUSIC" = "Sedang diputar";
-"APPS_WIDGETS_MAX" = "Maksimal 2 widget. Matikan satu dulu.";
-"APPS_WIDGETS_FOOTER" = "Widget berjajar di kolom kiri kisi ikon. Cuaca dari Open-Meteo menurut lokasi terakhir yang diketahui iOS (CarPlay perlu izin lokasi).";
-"APPS_WALL_DAY" = "Siang";
-"APPS_WALL_NIGHT" = "Malam";
-"APPS_WALL_SAME" = "Sama dengan siang";
+"APPS_LAYOUT_FOOTER" = "Kisi mengurangi kolom / baris saat ikon tidak muat di layar mobil; app lainnya pindah ke halaman berikutnya.";
 "APPS_WALL_8" = "Video Anda";
-"APPS_WALL_NIGHT_SUMMARY" = "malam: %@";
-"APPS_NIGHT_BY" = "Ganti ke malam";
-"APPS_NIGHT_BY_CAR" = "Mobil";
-"APPS_NIGHT_BY_SUN" = "Matahari";
 "APPS_FROM_PHOTOS" = "Dari Foto (gambar atau video)";
 "APPS_VIDEO_WORKING" = "Menyiapkan video…";
 "APPS_VIDEO_FAILED" = "Video ini tidak bisa dipakai.";
-"APPS_WALL_FOOTER" = "Gambar dipotong sesuai layar mobil; naikkan kegelapan agar ikon mudah dibaca. Video diputar berulang tanpa suara (20 detik pertama) dan berhenti saat ponsel panas, mode Lite aktif, layar dibagi, atau app menutupi layar utama. Malam: menurut tampilan terang / gelap mobil atau matahari terbit / terbenam.";
+"APPS_WALL_FOOTER" = "Gambar dipotong sesuai layar mobil; naikkan tingkat gelap agar ikon tetap mudah dibaca. Video berulang tanpa suara (20 detik pertama) dan berhenti saat iPhone panas, mode ringan aktif, layar terbagi, atau ada app yang menutupi layar utama.";

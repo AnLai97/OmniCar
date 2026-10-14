@@ -22,7 +22,6 @@
 
 "SUPPORT_GROUP" = "Support";
 "SUPPORT_FOOTER" = "Something wrong? Tap Send log and pick Mail or a chat app to send it to the developer.";
-"DIAGNOSTICS" = "Diagnostics";
 "SEND_LOG" = "Send log";
 "SEND_LOG_FAILED" = "Could not create the log file.";
 
@@ -74,11 +73,6 @@
 "DIAG_CONFLICTS_NONE" = "None found";
 "DIAG_CONFLICTS_FOOTER" = "CarBridge, DuoDash, TrueDash, CarPlayEnable.";
 
-"CRASH_TEST_TITLE" = "Test rescue mode";
-"CRASH_TEST_MESSAGE" = "Pick the feature that will crash CarPlay 5 seconds after it opens. For testing only.";
-"CRASH_TEST_STOP" = "Stop test";
-"CRASH_TEST_ARMED" = "Connect the car twice: CarPlay will crash. On the 3rd connection rescue mode should turn this feature off and CarPlay should work again.";
-
 /* Auto test: dev builds only (OMC_AUTOTEST) */
 "AUTOTEST" = "Auto test (dev)";
 "AUTOTEST_SUITES" = "Features to test";
@@ -100,14 +94,11 @@
 "AUTOTEST_STATE_STOPPED" = "Stopped";
 
 /* Diagnostics: health check */
-"DIAG_DETAILS" = "Technical details";
 "CHK_SUM_OK" = "Everything looks good";
 "CHK_SUM_WARN" = "%lu things need attention";
 "CHK_SUM_BAD" = "%lu problems to fix";
 "CHK_SUM_COUNTS" = "%lu fine · %lu attention · %lu problems";
 "CHK_CHECKED_AT" = "checked at %@";
-"CHK_AGAIN" = "Check again";
-"CHK_FOOTER" = "Still not working? Tap the share button at the top to send these results and the log to the developer.";
 "CHK_IOS" = "iOS version";
 "CHK_IOS_OLD" = "OmniCar needs iOS 15 or later.";
 "CHK_IOS_NEW" = "Installs fine but not fully tested on this version. Send the log if something breaks.";
@@ -177,9 +168,6 @@
 "CHK_PERF_NONE_FIX" = "Use CarPlay for at least a minute, then open this page again: OmniCar measures while you drive.";
 "CHK_PERF_LIVE" = "Measuring · %ld min";
 "CHK_PERF_AT" = "At %@ · %ld min";
-"CHK_PERF_RESET" = "Tap to clear the numbers and measure again on the next drive (after applying a fix).";
-"CHK_PERF_RESET_CONFIRM" = "Clear the performance numbers and measure again?";
-"CHK_PERF_RESET_DO" = "Clear and measure again";
 "CHK_PERF_FEW" = "Not enough data yet";
 "CHK_PERF_SMOOTH" = "Smoothness";
 "CHK_PERF_SMOOTH_VALUE" = "%.0f%% frames late (%@ fps screen) · slowest %ld ms";
@@ -203,54 +191,3 @@
 "CHK_PERF_TWEAKS_FIX" = "%lu other tweaks load into CarPlay; each one makes it start slower and stutter or crash more. Use Choicy to turn off the ones CarPlay does not need.";
 "CHK_PERF_GENERIC_FIX" = "Before driving, close background apps, and restart the phone if it has been a while.";
 "CHK_PERF_LOG" = "OmniCar log";
-"CHK_PERF_LOG_FIX" = "The log is large. Tap to clear it (send it to the developer first if you are reporting a bug).";
-"CHK_PERF_LOG_CONFIRM" = "Clear the OmniCar log?";
-"CHK_PERF_LOG_DO" = "Clear log";
-
-/* Diagnostics: optimize */
-"ISSUES_GROUP" = "Needs attention";
-"ISSUES_FOOTER" = "Rows with a button on the right are fixed with one tap. For the others, follow the colored line.";
-"ALL_CHECKS_GROUP" = "All checks";
-"ALL_CHECKS_FOOTER" = "Tap a group to see its checks.";
-"GROUP_BAD" = "%lu errors";
-"GROUP_WARN" = "%lu to check";
-"GROUP_OK" = "%lu OK";
-"GROUP_INFO" = "No data yet";
-"ACT_TURN_ON" = "Turn on";
-"ACT_REMEASURE" = "Measure again";
-"ACT_CLEAR" = "Clear";
-"OPT_BUTTON" = "Optimize";
-"OPT_GROUP" = "Optimize performance";
-"OPT_FOOTER" = "Lite mode: Split Screen drops the frosted-glass effect, Speed Bubble redraws less often without shadows. Auto = only while the phone is hot or CarPlay stutters, off again once it is fine.\nFree memory: quits apps running in the background, keeping music, maps, CarPlay apps, the apps chosen for the car and the speed source app.";
-"OPT_WILL" = "OmniCar will:";
-"OPT_MANUAL" = "You can also:";
-"OPT_NOTHING" = "Nothing to optimize. If CarPlay still stutters, drive once and open this page again to see the numbers.";
-"OPT_APPLY" = "Optimize";
-"OPT_DONE" = "Optimized. Reconnect the car to apply.";
-"OPT_LITE" = "Turn on automatic lite mode";
-"OPT_CLEAN_NOW" = "Free memory now";
-"OPT_CLEAN_ON" = "Free memory every time the car connects";
-"OPT_LOG" = "Clear the log (%.1f MB)";
-"OPT_RESET" = "Measure performance again from the next drive";
-"LITE_MODE" = "Lite mode";
-"LITE_OFF" = "Off";
-"LITE_AUTO" = "Auto";
-"LITE_ALWAYS" = "Always";
-"LITE_STATUS_OFF" = "Off: full effects all the time";
-"LITE_STATUS_ALWAYS" = "On";
-"LITE_STATUS_AUTO" = "Off, turns on while the phone is hot or CarPlay stutters";
-"LITE_STATUS_ON_HEAT" = "On because the phone is hot";
-"LITE_STATUS_ON" = "On automatically%@";
-"LITE_REASON_HEAT" = " because the phone is hot";
-"LITE_REASON_HANGS" = " because CarPlay kept freezing";
-"LITE_REASON_FRAMES" = " because the car screen stuttered";
-"CLEAN_RAM" = "Free memory when the car connects";
-"CLEAN_RAM_NEVER" = "Never run yet";
-"CLEAN_RAM_LAST" = "Last time quit %lu apps at %@";
-"CLEAN_RAM_NOW" = "Free memory now";
-"CLEAN_RAM_NOW_SUB" = "Quits every app running in the background except the one on screen and the one playing. With a car connected it also keeps the apps the car needs.";
-"CLEAN_RAM_RESULT" = "Closed %lu apps.";
-"CLEAN_RAM_NOTHING" = "No apps running in the background to close.";
-"CLEAN_RAM_NO_REPLY" = "SpringBoard did not answer. Respring and try again; if it still fails, send the log to the developer.";
-"CLEAN_RAM_CONFIRM" = "Free memory now?";
-"CLEAN_RAM_DO" = "Free";

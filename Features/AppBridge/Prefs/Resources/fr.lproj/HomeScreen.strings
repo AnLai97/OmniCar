@@ -1,21 +1,11 @@
-/* OmniCar - CarPlay home screen (OMCHomeScreenController) */
+/* OmniCar - CarPlay home screen (OMCAppBridgeAppsController) */
 
-"HOMESCREEN_TITLE" = "Écran d'accueil CarPlay";
-"HOMESCREEN_ON" = "Oui";
-"HOMESCREEN_OFF" = "Non";
-"HOMESCREEN_PREVIEW_OFF" = "Écran d'accueil d'origine de CarPlay";
-"HOMESCREEN_ENABLE" = "Écran d'accueil OmniCar";
-"HOMESCREEN_FOOTER" = "OmniCar dessine sa propre grille d'icônes et son dock par-dessus ceux de CarPlay ; désactivez pour retrouver l'écran d'origine. En test.";
-"HOMESCREEN_GRID" = "Grille d'icônes";
-"HOMESCREEN_GRID_FOOTER" = "La grille retire colonnes / lignes si les icônes ne tiennent pas, sans jamais déborder ; les autres apps passent à la page suivante.";
 "HOMESCREEN_ICON_SIZE" = "Taille des icônes";
 "HOMESCREEN_COLS" = "Colonnes";
 "HOMESCREEN_ROWS" = "Lignes";
 "HOMESCREEN_GAP" = "Espacement";
 "HOMESCREEN_NAMES" = "Noms sous les icônes";
 "HOMESCREEN_WALLPAPER" = "Fond d'écran";
-"HOMESCREEN_WALLPAPER_FOOTER" = "L'image est recadrée à l'écran de la voiture. Augmentez l'assombrissement pour garder icônes et noms lisibles.";
-"HOMESCREEN_FROM_PHOTOS" = "Depuis Photos";
 "HOMESCREEN_BLUR" = "Flou";
 "HOMESCREEN_DIM" = "Assombrissement";
 "HOMESCREEN_DOCK" = "Dock";
@@ -28,9 +18,6 @@
 
 /* One page: Apps on the car screen */
 "APPS_TITLE" = "Apps sur la voiture";
-"APPS_HOME" = "Accueil OmniCar";
-"APPS_HOME_SUB" = "S'active seul quand vous triez ou masquez des apps CarPlay";
-"APPS_AUTO_HOME" = "Accueil OmniCar activé pour l'appliquer";
 "APPS_CARD" = "Apps";
 "APPS_SUMMARY" = "%ld / %ld affichées";
 "APPS_ALL" = "Toutes";
@@ -50,44 +37,9 @@
 "APPS_WALL_6" = "Forêt";
 "APPS_WALL_7" = "Votre photo";
 
-/* ROADMAP-DEV 3.1: folders, icon look, widgets, day / night and video wallpaper */
-"APPS_FOLDERS" = "Dossiers";
-"APPS_FOLDERS_COUNT" = "%ld dossiers";
-"APPS_NONE" = "Aucun";
-"APPS_FOLDER_NEW" = "Nouveau dossier";
-"APPS_FOLDER_NAME" = "Nom du dossier";
-"APPS_FOLDER_DEFAULT_NAME" = "Dossier";
-"APPS_FOLDER_APPS" = "%ld apps";
-"APPS_FOLDER_PICK" = "Choisir les apps";
-"APPS_FOLDER_RENAME" = "Renommer";
-"APPS_FOLDER_DELETE" = "Supprimer le dossier";
-"APPS_FOLDERS_FOOTER" = "Un dossier prend la place de sa première app ; touchez-le dans la voiture pour l'ouvrir. Une app ne peut être que dans un dossier.";
-"APPS_PHONE_PAGE" = "Page dédiée aux apps iPhone";
-"APPS_PHONE_PAGE_SUB" = "Les apps iPhone commencent sur une nouvelle page, après les apps CarPlay";
-"APPS_SHAPE_0" = "Arrondi";
-"APPS_SHAPE_1" = "Carré";
-"APPS_SHAPE_2" = "Cercle";
-"APPS_ICON_GLASS" = "Bord en verre";
-"APPS_ICON_SHADOW" = "Ombre";
-"APPS_ICON_PACK" = "Pack d'icônes";
-"APPS_ICON_PACK_NONE" = "Aucun";
-"APPS_ICON_PACK_EMPTY" = "Aucun pack d'icônes dans /Library/Themes. Installez-en un depuis Sileo (format IconBundles).";
-"APPS_LAYOUT_FOOTER" = "La grille retire des colonnes / lignes si les icônes ne tiennent pas sur l'écran de la voiture ; les autres apps passent à la page suivante. Les apps absentes du pack gardent leur icône.";
-"APPS_WIDGETS" = "Widgets";
-"APPS_WIDGET_CLOCK" = "Horloge";
-"APPS_WIDGET_WEATHER" = "Météo";
-"APPS_WIDGET_MUSIC" = "À l'écoute";
-"APPS_WIDGETS_MAX" = "2 widgets au maximum. Désactivez-en un d'abord.";
-"APPS_WIDGETS_FOOTER" = "Les widgets forment une colonne à gauche des icônes. La météo vient d'Open-Meteo à la dernière position connue d'iOS (CarPlay doit avoir accès à la position).";
-"APPS_WALL_DAY" = "Jour";
-"APPS_WALL_NIGHT" = "Nuit";
-"APPS_WALL_SAME" = "Comme le jour";
+"APPS_LAYOUT_FOOTER" = "La grille retire des colonnes / lignes quand les icônes dépassent l’écran de la voiture ; les apps en plus passent à la page suivante.";
 "APPS_WALL_8" = "Votre vidéo";
-"APPS_WALL_NIGHT_SUMMARY" = "nuit : %@";
-"APPS_NIGHT_BY" = "Passer en nuit";
-"APPS_NIGHT_BY_CAR" = "Voiture";
-"APPS_NIGHT_BY_SUN" = "Soleil";
 "APPS_FROM_PHOTOS" = "Depuis Photos (image ou vidéo)";
 "APPS_VIDEO_WORKING" = "Préparation de la vidéo…";
 "APPS_VIDEO_FAILED" = "Impossible d'utiliser cette vidéo.";
-"APPS_WALL_FOOTER" = "Les images sont recadrées à l'écran de la voiture ; augmentez l'assombrissement pour garder les icônes lisibles. Une vidéo tourne en boucle sans son (20 premières s) et se met en pause quand le téléphone chauffe, que le mode Lite est actif, que l'écran est partagé ou qu'une app couvre l'écran d'accueil. Nuit : selon l'apparence claire / sombre de la voiture ou le lever / coucher du soleil.";
+"APPS_WALL_FOOTER" = "Les images sont recadrées à l’écran de la voiture ; augmentez l’assombrissement pour garder les icônes lisibles. Une vidéo tourne en boucle sans son (20 premières secondes) et se met en pause quand l’iPhone chauffe, que le mode léger est actif, que l’écran est partagé ou qu’une app couvre l’écran d’accueil.";

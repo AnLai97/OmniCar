@@ -1,21 +1,8 @@
 /* OmniCar – App Bridge – Español */
 
 "APPBRIDGE" = "App Bridge";
-"APPBRIDGE_FOOTER" = "Apps del iPhone sin CarPlay (YouTube, TikTok…) en la pantalla del coche.";
-"APPBRIDGE_ENABLE" = "Mostrar apps del iPhone en el coche";
 "APPBRIDGE_APPS" = "Apps en la pantalla del coche";
-"APPBRIDGE_APPS_FOOTER" = "Activa una app para poner su icono en la pantalla de inicio de CarPlay.";
 "APPBRIDGE_APPS_NONE" = "Ninguna";
 "APPBRIDGE_APPS_COUNT" = "%ld apps";
-"APPBRIDGE_APPS_ON_CAR" = "En la pantalla del coche";
-"APPBRIDGE_APPS_USER" = "Tus apps";
-"APPBRIDGE_APPS_SYSTEM" = "Apps del sistema";
-"APPBRIDGE_APPS_OTHER_FOOTER" = "No se muestran las apps que tienen su propia interfaz de CarPlay.";
 "APPBRIDGE_APPS_SEARCH" = "Buscar apps";
-"APPBRIDGE_APPS_EMPTY" = "No se encontraron apps del iPhone en este dispositivo.";
 "APPBRIDGE_APPS_NO_MATCH" = "Ninguna app coincide.";
-"APPBRIDGE_FPS" = "FPS de apps";
-"APPBRIDGE_FPS_MAX" = "Máx.";
-"APPBRIDGE_FPS_FOOTER" = "FPS de apps: limita los fotogramas por segundo de las apps del iPhone en el coche para que el teléfono se caliente menos (animaciones, desplazamiento; el vídeo no cambia). En Máx. baja a 30 solo con el modo ligero o CarPlay inalámbrico.";
-"APPBRIDGE_ONCAR_FOOTER" = "Arrastra para ordenar · ojo para ocultar · chincheta para el dock · \"−\" quita una app del iPhone del coche. Ordenar, ocultar y fijar se aplican con la pantalla de inicio de CarPlay activada.";
-"APPBRIDGE_REMOVE" = "Quitar del coche";

@@ -1,21 +1,8 @@
 /* OmniCar – App Bridge – 简体中文 */
 
 "APPBRIDGE" = "App Bridge";
-"APPBRIDGE_FOOTER" = "在车机屏幕上使用不支持 CarPlay 的 iPhone App（YouTube、TikTok…）。";
-"APPBRIDGE_ENABLE" = "在汽车上显示 iPhone App";
 "APPBRIDGE_APPS" = "车机屏幕上的 App";
-"APPBRIDGE_APPS_FOOTER" = "打开某个 App，即可将其图标放到 CarPlay 主屏幕上。";
 "APPBRIDGE_APPS_NONE" = "无";
 "APPBRIDGE_APPS_COUNT" = "%ld 个 App";
-"APPBRIDGE_APPS_ON_CAR" = "在车机屏幕上";
-"APPBRIDGE_APPS_USER" = "你的 App";
-"APPBRIDGE_APPS_SYSTEM" = "系统 App";
-"APPBRIDGE_APPS_OTHER_FOOTER" = "自带 CarPlay 界面的 App 不会列出。";
 "APPBRIDGE_APPS_SEARCH" = "搜索 App";
-"APPBRIDGE_APPS_EMPTY" = "此设备上未找到 iPhone App。";
 "APPBRIDGE_APPS_NO_MATCH" = "没有匹配的 App。";
-"APPBRIDGE_FPS" = "应用帧率";
-"APPBRIDGE_FPS_MAX" = "最高";
-"APPBRIDGE_FPS_FOOTER" = "应用帧率：限制车机上 iPhone 应用的每秒帧数，让手机少发热（动画、滚动；视频不受影响）。选“最高”时，轻量模式开启或无线 CarPlay 下会自动降到 30。";
-"APPBRIDGE_ONCAR_FOOTER" = "拖动排序 · 眼睛图标隐藏 · 图钉放到程序坞 · “−”将 iPhone 应用从车机移除。排序、隐藏和固定在开启 CarPlay 主屏幕时生效。";
-"APPBRIDGE_REMOVE" = "从车机移除";

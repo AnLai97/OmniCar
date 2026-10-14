@@ -9,10 +9,10 @@
 + (UIImage *)_applicationIconImageForBundleIdentifier:(NSString *)bid format:(int)format scale:(double)scale;
 @end
 
-// Cung thu tu SB_SOURCE_NAMES / SPP_NAV_APPS (GPS iPhone khong co app)
+// Cung thu tu SB_SOURCE_NAMES / SPP_NAV_APPS
 static NSArray<NSString *> *OMCSBSourceBundles(void)
 {
-    return @[@"vn.vietmap.live", @"com.lumi.GOFA", @"", @"com.google.Maps", @"com.waze.iphone", @"com.apple.Maps"];
+    return @[@"vn.vietmap.live", @"com.lumi.GOFA", @"com.waze.iphone"];
 }
 
 static UIImage *OMCSBRounded(UIImage *img, CGFloat side, CGFloat corner)
@@ -24,7 +24,7 @@ static UIImage *OMCSBRounded(UIImage *img, CGFloat side, CGFloat corner)
     }];
 }
 
-// Icon nguon: icon app that (neu da cai), GPS iPhone = o xanh mui ten vi tri, con lai o mau co chu viet tat
+// Icon nguon: icon app that (neu da cai), khong co thi o mau co chu viet tat
 static UIImage *OMCSBSourceIcon(NSInteger i)
 {
     static NSMutableDictionary *cache;
@@ -35,15 +35,10 @@ static UIImage *OMCSBSourceIcon(NSInteger i)
     if (bid.length && [UIImage respondsToSelector:@selector(_applicationIconImageForBundleIdentifier:format:scale:)])
         img = [UIImage _applicationIconImageForBundleIdentifier:bid format:2 scale:[UIScreen mainScreen].scale];
     if (!img) {
-        UIColor *bg = i == SB_SOURCE_GPS ? [UIColor colorWithRed:10 / 255.0 green:132 / 255.0 blue:1 alpha:1]
-                    : @[OMCColorFromHex(@"#F07A12"), OMCColorFromHex(@"#1AA260"), OMCColorFromHex(@"#0A84FF"), OMCColorFromHex(@"#4285F4"),
-                        OMCColorFromHex(@"#33CCFF"), OMCColorFromHex(@"#34C759")][MAX(0, MIN(5, i))];
-        UIImage *glyph = i == SB_SOURCE_GPS ? [[UIImage systemImageNamed:@"location.fill" withConfiguration:[UIImageSymbolConfiguration configurationWithPointSize:26 weight:UIImageSymbolWeightBold]]
-                                               imageWithTintColor:[UIColor whiteColor] renderingMode:UIImageRenderingModeAlwaysOriginal] : nil;
-        NSString *abbr = @[@"V", @"G", @"", @"G", @"W", @"➤"][MAX(0, MIN(5, i))];
+        UIColor *bg = @[OMCColorFromHex(@"#F07A12"), OMCColorFromHex(@"#1AA260"), OMCColorFromHex(@"#33CCFF")][MAX(0, MIN(2, i))];
+        NSString *abbr = @[@"V", @"G", @"W"][MAX(0, MIN(2, i))];
         img = [[[UIGraphicsImageRenderer alloc] initWithSize:CGSizeMake(60, 60)] imageWithActions:^(UIGraphicsImageRendererContext *ctx) {
             [bg setFill]; UIRectFill(CGRectMake(0, 0, 60, 60));
-            if (glyph) { CGSize g = glyph.size; [glyph drawInRect:CGRectMake((60 - g.width) / 2, (60 - g.height) / 2, g.width, g.height)]; return; }
             NSDictionary *a = @{NSFontAttributeName: [UIFont systemFontOfSize:28 weight:UIFontWeightHeavy], NSForegroundColorAttributeName: [UIColor whiteColor]};
             CGSize s = [abbr sizeWithAttributes:a];
             [abbr drawAtPoint:CGPointMake((60 - s.width) / 2, (60 - s.height) / 2) withAttributes:a];
@@ -126,16 +121,22 @@ static char kOMCSBIndex;
 @implementation OMCSpeedBubbleController
 
 // Chi con 1 nguon (SB_KEY_SOURCE). Lan dau mo sau ban cap nhat: chuyen 2 cong tac cu (chi tat Vietmap -> GOFA), cung
-// quy tac SPPPrefs dung cho toi khi gia tri nay duoc ghi.
+// quy tac SPPPrefs dung cho toi khi gia tri nay duoc ghi. Ban 6 nguon -> 3 nguon (SB_KEY_SOURCE_V2): 4 (Waze) -> 2, con lai
+// ngoai 0..1 -> 0.
 - (void)viewDidLoad
 {
     CFPreferencesAppSynchronize(kPrefsDomain);
-    if (![self prefForKey:SB_KEY_SOURCE def:nil]) {
+    id cur = [self prefForKey:SB_KEY_SOURCE def:nil];
+    if (!cur) {
         id vm = [self prefForKey:SB_KEY_APP_VIETMAP def:nil], gf = [self prefForKey:SB_KEY_APP_GOFA def:nil];
         BOOL gofa = vm && ![vm boolValue] && !(gf && ![gf boolValue]);
         CFPreferencesSetAppValue((__bridge CFStringRef)SB_KEY_SOURCE, (__bridge CFPropertyListRef)@(gofa ? 1 : 0), kPrefsDomain);
-        CFPreferencesAppSynchronize(kPrefsDomain);
+    } else if (![[self prefForKey:SB_KEY_SOURCE_V2 def:@NO] boolValue]) {
+        NSInteger i = [cur integerValue];
+        CFPreferencesSetAppValue((__bridge CFStringRef)SB_KEY_SOURCE, (__bridge CFPropertyListRef)@(i == 4 ? 2 : (i >= 0 && i <= 1) ? i : 0), kPrefsDomain);
     }
+    CFPreferencesSetAppValue((__bridge CFStringRef)SB_KEY_SOURCE_V2, kCFBooleanTrue, kPrefsDomain);
+    CFPreferencesAppSynchronize(kPrefsDomain);
     [super viewDidLoad];
     if (!self.title.length) self.title = L(@"SPEEDBUBBLE");
 }
@@ -183,19 +184,15 @@ static char kOMCSBIndex;
     return [@[@"US", @"PR", @"LR", @"MM"] containsObject:cc];
 }
 
-// Dong giai thich nguon dang chon (+ "GPS iPhone khong dung duoc" khi SpringBoard khong co quyen vi tri: 1 han che, 2 tu choi)
+// Dong giai thich nguon dang chon
 - (NSString *)sourceHint
 {
-    NSInteger src = [self source];
-    NSString *hint = [@"ⓘ  " stringByAppendingString:L([NSString stringWithFormat:@"SPEEDBUBBLE_SRC_HINT_%ld", (long)src])];
-    NSInteger gps = [self intForKey:SB_KEY_GPS_STATUS def:0];
-    if (src == SB_SOURCE_GPS && (gps == 1 || gps == 2)) hint = [NSString stringWithFormat:@"%@\n%@", hint, L(@"SPEEDBUBBLE_GPS_UNAVAILABLE")];
-    return hint;
+    return [@"ⓘ  " stringByAppendingString:L([NSString stringWithFormat:@"SPEEDBUBBLE_SRC_HINT_%ld", (long)[self source]])];
 }
 
 - (NSString *)sourceName:(NSInteger)i
 {
-    return i == SB_SOURCE_GPS ? L(@"SPEEDBUBBLE_SOURCE_GPS") : SB_SOURCE_NAMES[i];
+    return SB_SOURCE_NAMES[i];
 }
 
 // Bong bong theo cai dat hien tai (xem truoc song + o chon kieu)
@@ -211,8 +208,7 @@ static char kOMCSBIndex;
 - (void)tickLive
 {
     if (!self.live.window) return;
-    BOOL gps = [self source] == SB_SOURCE_GPS;
-    int limit = gps ? -1 : 60;
+    int limit = 60;
     CFTimeInterval t = CACurrentMediaTime() - self.liveStart;
     int speed = (int)lround(60 * (0.55 + 0.65 * (0.5 - 0.5 * cos(t * 0.45))));
     [self configure:self.live style:[self style] speed:speed limit:limit];
@@ -265,8 +261,12 @@ static char kOMCSBIndex;
         case SBWarn: {
             NSInteger m = [self warnMode];
             if (!m) return L(@"SPEEDBUBBLE_WARN_OFF_FOOTER");
-            NSString *over = [NSString stringWithFormat:@"+%ld %@", (long)[self intForKey:SB_KEY_WARN_OVER def:5], [self useMph] ? @"mph" : @"km/h"];
-            return [NSString stringWithFormat:L(@"SPEEDBUBBLE_WARN_ON_FOOTER"), over, m == 2 ? L(@"SPEEDBUBBLE_WARN_SOUND_PART") : @""];
+            // Nguong: +5 = qua gioi han 5, -5 = bao tu 5 duoi gioi han, 0 = ngay khi cham gioi han
+            NSInteger margin = [self intForKey:SB_KEY_WARN_OVER def:5];
+            NSString *amount = [NSString stringWithFormat:@"%ld %@", labs(margin), [self useMph] ? @"mph" : @"km/h"];
+            NSString *when = margin > 0 ? [NSString stringWithFormat:L(@"SPEEDBUBBLE_WARN_TH_OVER"), amount]
+                           : margin < 0 ? [NSString stringWithFormat:L(@"SPEEDBUBBLE_WARN_TH_UNDER"), amount] : L(@"SPEEDBUBBLE_WARN_TH_AT");
+            return [NSString stringWithFormat:L(@"SPEEDBUBBLE_WARN_ON_FOOTER"), when, m == 2 ? L(@"SPEEDBUBBLE_WARN_SOUND_PART") : @""];
         }
         case SBSize: return L(@"SPEEDBUBBLE_GESTURES_FOOTER");
     }
@@ -279,7 +279,7 @@ static char kOMCSBIndex;
     if (ip.section == SBPreview) return MAX(128, round(w * 0.4));
     if (ip.section == SBEnable) return 60;
     if (ip.section == SBStyle && ip.row == 0) return 112;
-    if (ip.section == SBSource && ip.row == 0) return 24 + 2 * 70 + 8;
+    if (ip.section == SBSource && ip.row == 0) return 24 + 70 + 8;
     if (ip.section == SBSource && ip.row == 1) {
         CGSize s = [[self sourceHint] boundingRectWithSize:CGSizeMake(w - 32, 400)
             options:NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName: [UIFont systemFontOfSize:12.5]} context:nil].size;
@@ -384,8 +384,9 @@ static char kOMCSBIndex;
             c = [self cellWithId:@"warnover"];
             c.textLabel.text = L(@"SPEEDBUBBLE_WARN_WHEN");
             c.imageView.image = OMCIcon(@"exclamationmark.triangle.fill", OMCColorFromHex(@"#FFB340"));
-            NSString *fmt = [NSString stringWithFormat:@"+%%ld %@", [self useMph] ? @"mph" : @"km/h"];
-            [self setAccessory:[self sliderForKey:SB_KEY_WARN_OVER min:0 max:20 def:5 format:fmt width:MIN(210, w - 140)] onCell:c];
+            // -10..10: am = canh bao tu truoc khi cham gioi han
+            NSString *fmt = [NSString stringWithFormat:@"%%+ld %@", [self useMph] ? @"mph" : @"km/h"];
+            [self setAccessory:[self sliderForKey:SB_KEY_WARN_OVER min:-10 max:10 def:5 format:fmt width:MIN(210, w - 140)] onCell:c];
         }
         break;
     case SBSize:
@@ -482,7 +483,7 @@ static char kOMCSBIndex;
 
 #pragma mark - Nguon
 
-// 6 o (3 cot): icon app + ten, o dang chon co vien cau vong
+// 3 o (1 hang): icon app + ten, o dang chon co vien cau vong
 - (void)layoutSourcesIn:(UIView *)box width:(CGFloat)w
 {
     for (UIView *v in [box.subviews copy]) [v removeFromSuperview];

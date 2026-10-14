@@ -49,7 +49,7 @@ static void SCPIconsHookError(const char *where, NSException *e)
     return r;
 }
 
-// Man chinh CarPlay cua OmniCar (HS_KEY_ENABLED): luoi / hinh nen ve len tren, luoi goc chi an
+// Man chinh CarPlay cua OmniCar (co tuy chinh trong App tren man xe): luoi / hinh nen ve len tren, luoi goc chi an
 - (void)viewDidLayoutSubviews
 {
     %orig;

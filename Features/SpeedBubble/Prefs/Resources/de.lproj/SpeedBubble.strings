@@ -27,16 +27,7 @@
 "SPEEDBUBBLE_SIGN_0" = "Automatisch (nach Region)";
 "SPEEDBUBBLE_SIGN_1" = "Rund (Wien)";
 "SPEEDBUBBLE_SIGN_2" = "Rechteckig (USA)";
-"SPEEDBUBBLE_SOURCE_GPS" = "iPhone-GPS";
-"SPEEDBUBBLE_SOURCE_FOOTER" = "Vietmap Live und GOFA liefern Tempo und Tempolimit: Öffne die App einmal und lass sie im Hintergrund laufen. iPhone-GPS liefert nur das Tempo, ohne Tempolimit (das Schild zeigt --, keine Tempowarnung), und läuft nur, solange CarPlay verbunden ist. Google Maps, Waze, Apple Maps: Tempo per GPS; das Limit nur, wenn die App das Schild anzeigt (im Test).";
-"SPEEDBUBBLE_GPS_UNAVAILABLE" = "iPhone-GPS nicht verfügbar: SpringBoard darf deinen Standort nicht verwenden. Prüfe Einstellungen > Datenschutz > Ortungsdienste und führe dann einen Respring aus.";
 "SPEEDBUBBLE_WARN" = "Tempowarnung";
-"SPEEDBUBBLE_WARN_MODE" = "Warnung";
-"SPEEDBUBBLE_WARN_MODE_0" = "Aus";
-"SPEEDBUBBLE_WARN_MODE_1" = "Nur Rahmen (lautlos)";
-"SPEEDBUBBLE_WARN_MODE_2" = "Rahmen und kurzer Ton";
-"SPEEDBUBBLE_WARN_OVER" = "Warnen bei Überschreitung um";
-"SPEEDBUBBLE_WARN_FOOTER" = "Fährst du schneller als das Tempolimit plus diese Toleranz (in der Einheit der Blase), pulsiert ein rot leuchtender Rahmen um den CarPlay-Bildschirm. Der Ton erklingt einmal und erst wieder, nachdem du 5 Sekunden unter dem Limit warst. Benötigt ein Tempolimit aus der Quell-App.";
 
 /* Settings page (OMCSpeedBubbleController) */
 "SPEEDBUBBLE_ENABLE_SUB" = "Erscheint, solange die Navi-App im Hintergrund läuft";
@@ -51,17 +42,17 @@
 "SPEEDBUBBLE_DISPLAY_FOOTER" = "Auto: richtet sich nach der Region des iPhone.";
 "SPEEDBUBBLE_SRC_HINT_0" = "Tempo + Limitschild. Vietmap Live einmal öffnen und im Hintergrund lassen.";
 "SPEEDBUBBLE_SRC_HINT_1" = "Tempo + Limitschild. GOFA einmal öffnen und im Hintergrund lassen.";
-"SPEEDBUBBLE_SRC_HINT_2" = "Nur Tempo, kein Limitschild und keine Warnung. Läuft bei verbundenem CarPlay.";
-"SPEEDBUBBLE_SRC_HINT_3" = "Tempo per GPS; Limit nur, wenn Google Maps das Schild zeigt (experimentell).";
-"SPEEDBUBBLE_SRC_HINT_4" = "Tempo per GPS; Limit nur, wenn Waze das Schild zeigt (experimentell).";
-"SPEEDBUBBLE_SRC_HINT_5" = "Tempo per GPS; Limit nur, wenn Apple Maps das Schild zeigt (experimentell).";
+"SPEEDBUBBLE_SRC_HINT_2" = "Tempo per GPS; Limit nur, wenn Waze das Schild zeigt (experimentell).";
 "SPEEDBUBBLE_WARN_SHORT_0" = "Aus";
-"SPEEDBUBBLE_WARN_SHORT_1" = "Nur Rand";
-"SPEEDBUBBLE_WARN_SHORT_2" = "Rand + Ton";
-"SPEEDBUBBLE_WARN_WHEN" = "Warnen ab";
-"SPEEDBUBBLE_WARN_ON_FOOTER" = "Über dem Limit %@: ein roter Rand blinkt um den CarPlay-Bildschirm%@. Braucht eine Quelle mit Limitschildern.";
+"SPEEDBUBBLE_WARN_SHORT_1" = "Warnung";
+"SPEEDBUBBLE_WARN_SHORT_2" = "Ton";
+"SPEEDBUBBLE_WARN_WHEN" = "Schwelle";
+"SPEEDBUBBLE_WARN_ON_FOOTER" = "Warnt, wenn du %@ fährst: ein roter Rand blinkt um den CarPlay-Bildschirm%@. Braucht eine Quelle mit Tempolimit-Schildern.";
 "SPEEDBUBBLE_WARN_SOUND_PART" = ", mit einem kurzen Ton";
 "SPEEDBUBBLE_WARN_OFF_FOOTER" = "Keine Warnung; die Blase wechselt trotzdem die Farbe.";
+"SPEEDBUBBLE_WARN_TH_AT" = "am Limit";
+"SPEEDBUBBLE_WARN_TH_OVER" = "%@ über dem Limit";
+"SPEEDBUBBLE_WARN_TH_UNDER" = "%@ unter dem Limit";
 "SPEEDBUBBLE_SIZE_GROUP" = "Größe und Position";
 "SPEEDBUBBLE_SIZE_CAR_SHORT" = "CarPlay";
 "SPEEDBUBBLE_SIZE_PHONE_SHORT" = "iPhone";

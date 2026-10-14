@@ -58,7 +58,7 @@ static NSDictionary<NSString *, NSString *> *OMCCleanKeep(BOOL forCar) {
 	for (NSString *bid in @[@"com.apple.mobilephone", @"com.apple.MobileSMS", @"com.apple.InCallService", @"com.apple.Preferences",
 		@"com.apple.facetime", @"com.anlai.omnicar"]) keep[bid] = @"system";
 	if (forCar) {
-		for (NSString *bid in @[@"com.apple.Music", @"com.apple.Maps", @"com.apple.podcasts", @"vn.vietmap.live", @"com.lumi.GOFA"]) keep[bid] = @"car";
+		for (NSString *bid in @[@"com.apple.Music", @"com.apple.Maps", @"com.apple.podcasts", @"vn.vietmap.live", @"com.lumi.GOFA", @"com.waze.iphone"]) keep[bid] = @"car";
 		for (NSString *key in @[@"splitScreenCarPlayApps", @"appBridgeApps"]) {
 			NSArray *ids = OMCPref(key, nil);
 			if ([ids isKindOfClass:[NSArray class]]) for (NSString *bid in ids) keep[bid] = key;

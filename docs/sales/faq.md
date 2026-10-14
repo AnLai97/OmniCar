@@ -10,7 +10,7 @@ Keep answers in sync with `docs/compatibility.html`. Items marked TODO need a de
 Add the repo `<TODO: repo URL>` in Sileo or Zebra, install OmniCar, then respring once. Connect your car: features apply each time CarPlay connects. Every feature has its own switch under Settings > OmniCar.
 
 **2. Which iOS versions are supported?**
-iOS 15 and 16. iOS 17 and 18 are not tested yet; OmniCar installs there, and Settings > OmniCar > Diagnostics shows any part that is missing on your iOS. iOS 14 and older are not supported.
+iOS 15 and 16. iOS 17 and 18 are not tested yet; OmniCar installs there, and Send log tells the developer which part is missing on your iOS. iOS 14 and older are not supported.
 
 **3. Which jailbreaks work? What about roothide?**
 Rootless jailbreaks only: Dopamine and palera1n in rootless mode. roothide and rootful jailbreaks are not supported at the moment.
@@ -34,7 +34,7 @@ That is rescue mode. If CarPlay crashes twice in a row within a minute of connec
 Settings > OmniCar > Send log, then pick Mail or a chat app. Please add your head unit model and what you were doing. The file is made on your phone and only leaves it when you share it (see Privacy).
 
 **10. I changed a setting but nothing changed in the car.**
-Most changes apply the next time CarPlay connects: unplug and reconnect (or turn wireless CarPlay off and on). After the first install, respring once. Diagnostics also checks that OmniCar is loaded in CarPlay.
+Most changes apply the next time CarPlay connects: unplug and reconnect (or turn wireless CarPlay off and on). After the first install, respring once.
 
 **11. The Speed Bubble shows nothing.**
 The bubble reads speed and the posted limit from Vietmap Live or GOFA. Pick your app as the speed source in Speed Bubble settings and keep that app running (it can be in the background).
@@ -43,7 +43,7 @@ The bubble reads speed and the posted limit from Vietmap Live or GOFA. Pick your
 Yes: when you tap a text field in an iPhone app shown through App Bridge, OmniCar shows its own keyboard on the car screen (English, or Vietnamese with Telex). Not tested on a car yet.
 
 **13. My phone gets hot or the car screen stutters.**
-Three live panes or two video apps at once are heavy. Turn on Lite mode (Auto or Always) in OmniCar settings: it drops blur effects and limits Split Screen to two apps. Diagnostics shows temperature and CarPlay performance with tips.
+Three live panes or two video apps at once are heavy. Lite mode turns on by itself while the phone is hot or CarPlay stutters: it drops blur effects and limits Split Screen to two apps.
 
 **14. Can I get a refund?**
 TODO: refund policy (time window, how to ask, what is needed – for example a log showing the problem).
@@ -59,7 +59,7 @@ No. OmniCar sends nothing to the developer. The only network request is the opti
 Thêm repo `<TODO: link repo>` vào Sileo hoặc Zebra, cài OmniCar, respring một lần. Cắm xe: tính năng áp dụng mỗi lần CarPlay kết nối. Mỗi tính năng có công tắc riêng trong Cài đặt > OmniCar.
 
 **2. Hỗ trợ iOS nào?**
-iOS 15 và 16. iOS 17, 18 chưa thử; vẫn cài được, và Cài đặt > OmniCar > Chẩn đoán sẽ hiện phần nào bị thiếu trên bản iOS của bạn. Không hỗ trợ iOS 14 trở xuống.
+iOS 15 và 16. iOS 17, 18 chưa thử; vẫn cài được, và Gửi log cho tác giả biết phần nào bị thiếu trên bản iOS của bạn. Không hỗ trợ iOS 14 trở xuống.
 
 **3. Jailbreak nào dùng được? Còn roothide?**
 Chỉ jailbreak rootless: Dopamine và palera1n chế độ rootless. Hiện chưa hỗ trợ roothide và rootful.
@@ -83,7 +83,7 @@ Không. App Bridge tự đưa app iPhone lên màn xe. Hãy tắt CarBridge, Duo
 Cài đặt > OmniCar > Gửi log, chọn Zalo hoặc Mail. Ghi kèm tên đầu xe và việc bạn đang làm. File tạo trên máy và chỉ rời máy khi bạn chia sẻ (xem Chính sách riêng tư).
 
 **10. Đổi cài đặt mà trên xe không thấy gì.**
-Đa số thay đổi có hiệu lực ở lần cắm sau: rút ra cắm lại (hoặc tắt / bật CarPlay không dây). Lần đầu cài thì respring một lần. Chẩn đoán cũng kiểm tra OmniCar đã nạp vào CarPlay chưa.
+Đa số thay đổi có hiệu lực ở lần cắm sau: rút ra cắm lại (hoặc tắt / bật CarPlay không dây). Lần đầu cài thì respring một lần.
 
 **11. Bong bóng tốc độ không hiện gì.**
 Bong bóng đọc tốc độ và biển giới hạn từ Vietmap Live hoặc GOFA. Chọn app đó làm nguồn trong cài đặt Bong bóng tốc độ và để app chạy (chạy nền cũng được).
@@ -92,7 +92,7 @@ Bong bóng đọc tốc độ và biển giới hạn từ Vietmap Live hoặc G
 Được: chạm vào ô nhập trong app iPhone (qua App Bridge), OmniCar hiện bàn phím riêng trên màn xe (tiếng Anh, hoặc tiếng Việt kiểu Telex). Chưa thử trên xe.
 
 **13. Máy nóng hoặc màn xe bị khựng.**
-Ba ô cùng chạy hoặc hai app video cùng lúc khá nặng. Bật Chế độ nhẹ (Tự động hoặc Luôn bật) trong cài đặt OmniCar: bỏ hiệu ứng kính mờ và giới hạn Chia màn hình còn 2 app. Chẩn đoán hiện nhiệt độ, hiệu năng CarPlay kèm gợi ý.
+Ba ô cùng chạy hoặc hai app video cùng lúc khá nặng. Chế độ nhẹ tự bật khi máy nóng hoặc CarPlay khựng: bỏ hiệu ứng kính mờ và giới hạn Chia màn hình còn 2 app.
 
 **14. Có hoàn tiền không?**
 TODO: chính sách hoàn tiền (thời hạn, cách yêu cầu, cần gì – ví dụ log cho thấy lỗi).

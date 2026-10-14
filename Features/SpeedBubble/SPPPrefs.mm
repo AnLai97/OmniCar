@@ -32,7 +32,7 @@ static id value(NSString *key)
     CFPreferencesAppSynchronize(OMC_PREFS_DOMAIN);
 }
 
-// Canh bao qua toc do: 0 tat, 1 chi vien (im lang), 2 vien + tieng ngan (mac dinh)
+// Canh bao qua toc do: 0 tat, 1 canh bao (vien do, im lang), 2 am thanh (vien + tieng ngan, mac dinh)
 + (NSInteger)warnMode
 {
     id v = value(SB_KEY_WARN_MODE);
@@ -40,29 +40,27 @@ static id value(NSString *key)
     return (i >= 0 && i <= 2) ? i : 2;
 }
 
-// Nguong 0..20 (mac dinh 5) theo don vi dang hien tren bong bong: mph -> doi ra km/h de so voi toc do goc
+// Nguong -10..10 (mac dinh 5) so voi gioi han, theo don vi dang hien tren bong bong (am = bao tu truoc khi cham gioi han):
+// mph -> doi ra km/h de so voi toc do goc
 + (double)warnMarginKmh
 {
     id v = value(SB_KEY_WARN_OVER);
     double m = v ? round([v doubleValue]) : 5;
-    m = MIN(20, MAX(0, m));
+    m = MIN(10, MAX(-10, m));
     return [self useMph] ? m * 1.609344 : m;
 }
 
-+ (void)setGPSStatus:(int)status
-{
-    id cur = value(SB_KEY_GPS_STATUS);
-    if (cur && [cur intValue] == status) return;
-    CFPreferencesSetAppValue((__bridge CFStringRef)SB_KEY_GPS_STATUS, (__bridge CFPropertyListRef)@(status), OMC_PREFS_DOMAIN);
-    CFPreferencesAppSynchronize(OMC_PREFS_DOMAIN);
-}
-
-// Index in SPP_NAV_APPS: Vietmap Live, GOFA, GPS iPhone (SPP_SOURCE_GPS). Chi 1 nguon. Chua chon lan nao: lay tu 2 cong tac cu
-// (chi tat Vietmap -> GOFA), giong OMCSpeedBubbleController ghi lai khi mo trang cai dat.
+// Index in SPP_NAV_APPS: Vietmap Live, GOFA, Waze. Chi 1 nguon. Gia tri cua ban 6 nguon (chua co SB_KEY_SOURCE_V2): 4 (Waze)
+// -> 2, con lai ngoai 0..1 -> 0 (OMCSpeedBubbleController ghi lai khi mo trang cai dat). Chua chon lan nao: lay tu 2 cong
+// tac cu (chi tat Vietmap -> GOFA).
 + (int)source
 {
     id v = value(SB_KEY_SOURCE);
-    if (v) { int i = [v intValue]; return (i >= 0 && i < SPP_NAV_APP_COUNT) ? i : 0; }
+    if (v) {
+        int i = [v intValue];
+        if (![value(SB_KEY_SOURCE_V2) boolValue]) i = (i == 4) ? 2 : (i >= 0 && i <= 1) ? i : 0;
+        return (i >= 0 && i < SPP_NAV_APP_COUNT) ? i : 0;
+    }
     id vm = value(SB_KEY_APP_VIETMAP), gf = value(SB_KEY_APP_GOFA);
     return (vm && ![vm boolValue] && !(gf && ![gf boolValue])) ? 1 : 0;
 }

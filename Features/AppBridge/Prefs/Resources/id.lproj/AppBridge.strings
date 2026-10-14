@@ -1,21 +1,8 @@
 /* OmniCar – App Bridge – Bahasa Indonesia */
 
 "APPBRIDGE" = "App Bridge";
-"APPBRIDGE_FOOTER" = "App iPhone tanpa CarPlay (YouTube, TikTok…) di layar mobil.";
-"APPBRIDGE_ENABLE" = "Tampilkan app iPhone di mobil";
 "APPBRIDGE_APPS" = "App di Layar Mobil";
-"APPBRIDGE_APPS_FOOTER" = "Nyalakan app untuk menaruh ikonnya di layar utama CarPlay.";
 "APPBRIDGE_APPS_NONE" = "Tidak ada";
 "APPBRIDGE_APPS_COUNT" = "%ld app";
-"APPBRIDGE_APPS_ON_CAR" = "Di layar mobil";
-"APPBRIDGE_APPS_USER" = "App Anda";
-"APPBRIDGE_APPS_SYSTEM" = "App sistem";
-"APPBRIDGE_APPS_OTHER_FOOTER" = "App yang memiliki antarmuka CarPlay sendiri tidak dicantumkan.";
 "APPBRIDGE_APPS_SEARCH" = "Cari app";
-"APPBRIDGE_APPS_EMPTY" = "Tidak ada app iPhone di perangkat ini.";
 "APPBRIDGE_APPS_NO_MATCH" = "Tidak ada app yang cocok.";
-"APPBRIDGE_FPS" = "Frame rate app";
-"APPBRIDGE_FPS_MAX" = "Maks";
-"APPBRIDGE_FPS_FOOTER" = "Frame rate app: membatasi frame per detik app iPhone di mobil agar ponsel tidak terlalu panas (animasi, gulir; video tidak berubah). Di Maks turun sendiri ke 30 saat mode ringan aktif atau CarPlay nirkabel.";
-"APPBRIDGE_ONCAR_FOOTER" = "Seret untuk mengurutkan · mata untuk menyembunyikan · pin untuk dock · \"−\" menghapus app iPhone dari mobil. Urutan, sembunyi, dan pin berlaku saat layar utama CarPlay aktif.";
-"APPBRIDGE_REMOVE" = "Hapus dari mobil";

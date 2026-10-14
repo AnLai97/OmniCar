@@ -136,14 +136,13 @@ section > p { margin: -6px 0 0; color: var(--ink2); font-size: 13px; }
 .handle i { width: 4px; height: 4px; border-radius: 2px; background: var(--ink); opacity: .85; }
 .handle.glass { background: rgba(255,255,255,.35); box-shadow: inset 0 0 0 .5px rgba(255,255,255,.55); }   /* vien bau duc trong */
 .handle.open { background: var(--main); box-shadow: var(--main-fx); } .handle.open i { background: #fff; opacity: 1; }
-/* Thanh hanh dong kieu HarmonyOS: vien kinh, chi icon (khong nhan, khong vong tron), cham = nen mo */
-.abar { position: absolute; height: 58px; border-radius: 22px; padding: 0 6px; display: flex; align-items: center; gap: 0; z-index: 6; animation: drop .4s var(--hm-spring) both; }
+/* Thanh hanh dong kieu HarmonyOS: vien kinh, o kinh tron 40pt chi icon 22pt (khong nhan), cham = nen mo */
+.abar { position: absolute; height: 52px; border-radius: 22px; padding: 0 6px; display: flex; align-items: center; gap: 0; z-index: 6; animation: drop .4s var(--hm-spring) both; }
 @keyframes drop { from { opacity: 0; translate: 0 -8px; scale: .94; } }
-.act { width: 50px; height: 50px; border-radius: 14px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; color: var(--mk); cursor: pointer; transition: transform .25s var(--hm-spring); }
-.act i { width: 30px; height: 30px; border-radius: 15px; display: grid; place-items: center; background: var(--tile); box-shadow: var(--tile-fx); transition: background .15s; }   /* o kinh tron nhu nut X cua khay */
-.act b { font-size: 8.5px; font-weight: 500; line-height: 1; white-space: nowrap; }
+.act { width: 48px; height: 40px; border-radius: 14px; display: flex; align-items: center; justify-content: center; color: var(--mk); cursor: pointer; transition: transform .25s var(--hm-spring); }
+.act i { width: 40px; height: 40px; border-radius: 20px; display: grid; place-items: center; background: var(--tile); box-shadow: var(--tile-fx); transition: background .15s; }   /* o kinh tron nhu nut X cua khay, to hon */
 .act:active, .act.press { transform: scale(.92); } .act:active i, .act.press i { background: #fff; }
-.act svg { width: 18px; height: 18px; }
+.act svg { width: 22px; height: 22px; }
 .act.x { color: var(--danger); }
 .abar .sep { width: 1px; height: 30px; margin: 0 3px; background: rgba(255,255,255,.95); border-radius: 1px; }   /* tach nut Tat khoi cac nut con lai */
 .legend { display: flex; flex-wrap: wrap; gap: 8px 18px; font-size: 12.5px; color: var(--ink); }
@@ -243,7 +242,7 @@ section > p { margin: -6px 0 0; color: var(--ink2); font-size: 13px; }
     · <b>Ô</b> trong bảng (ô bố cục, ô app, nút X, phím chức năng) = kính trắng trong + viền trắng 1px như đĩa trong logo; <b>khung từng ô</b> = viền trắng 1,5px như vành trắng của logo; không dùng viền đen.<br>
     · <b>Đang chọn</b> = nền trong cùng màu bảng + viền cầu vồng 4 màu logo (tím, xanh trời, bạc hà, hồng) + quầng tím nhạt (bố cục đang dùng, tỉ lệ đang dùng, app đang chọn). <b>Nút chính</b> = gradient tím → xanh trời, icon trắng (tay cầm ••• đang mở, Enter, Mở lại, ô đang chọn cho app).<br>
     · <b>Đóng / Tắt</b> = dấu X đỏ trên nền đỏ nhạt, luôn ở cuối, tách bằng vạch mảnh. <b>Công tắc bật</b> = xanh lá.<br>
-    · <b>Icon</b> màu chàm dịu #4A4F80 (icon phụ 55%), nét mảnh bo tròn 1,5, cỡ 22 trên thanh, 18 trong khay; trên màn xe nút có nhãn ngắn khi là hành động (thanh •••), chỉ icon khi là chọn nhanh (khay).<br>
+    · <b>Icon</b> màu chàm dịu #4A4F80 (icon phụ 55%), nét mảnh bo tròn 1,5, cỡ 22 trên thanh ••• (ô kính tròn 40pt, không nhãn), 18 trong khay; trên màn xe chỉ icon, không chữ chú thích.<br>
     · <b>Chuyển động</b>: hiện = lò xo HarmonyOS (thu 0,94 → 1, thả xuống 8 pt), ẩn = trượt / mờ 250 ms; bảng trên xe tự đóng sau 4 s không chạm.
   </div>
 </section>
@@ -311,7 +310,7 @@ section > p { margin: -6px 0 0; color: var(--ink2); font-size: 13px; }
 
 <section>
   <h2>3b · Nút ••• của mỗi ô: Chọn app mới · Chạy 1 màn hình / Chia màn hình · Ảnh trong ảnh · Chạy nền · Tắt hẳn app</h2>
-  <p>Như HarmonyOS: tay cầm ••• nhỏ ở giữa mép trên mỗi ô; chạm thì tay cầm chuyển gradient và một viên nền logo chỉ có icon thả xuống ngay dưới (lò xo), tự đóng sau 4 s. Mỗi nút = ô kính tròn + nhãn ngắn (Đổi app · Toàn màn / Chia màn · Cửa sổ nổi · Chạy nền · Tắt app), nút Tắt tách riêng bằng vạch trắng, X đỏ. Icon giữ HarmonyOS Symbol (lưới 24, nét 1,5).</p>
+  <p>Như HarmonyOS: tay cầm ••• nhỏ ở giữa mép trên mỗi ô; chạm thì tay cầm chuyển gradient và một viên nền logo chỉ có icon thả xuống ngay dưới (lò xo), tự đóng sau 4 s. Mỗi nút = ô kính tròn 40pt chỉ có icon 22pt, không nhãn (Đổi app · Toàn màn / Chia màn · Cửa sổ nổi · Chạy nền · Tắt app), nút Tắt tách riêng bằng vạch trắng, X đỏ. Icon giữ HarmonyOS Symbol (lưới 24, nét 1,5).</p>
   <div class="legend card glass" style="padding:10px 14px">${LEGEND}</div>
   <div class="row" style="gap:14px">
     <div style="width:100%;max-width:1120px">
@@ -452,11 +451,9 @@ function lay(kind, apps = [], sel = false) {
 const LAYS = lay(2, ['maps', 'music'], true) + lay(3) + lay(12) + lay(21);
 const RECENT = lay(2, ['maps', 'spot']) + lay(12, ['gofa', 'spot', 'phone']);
 const FAVS = lay(2, ['maps', 'music']) + lay(3, ['gofa', 'spot', 'phone']);   // Yeu thich: Di lam, Di choi
-// Thanh hanh dong cua o (nut •••), chi icon nhu HarmonyOS: Chon app moi · Chay 1 man hinh / Chia man hinh (dang chay 1
-// man hinh thi chia lai nhu truoc) · Anh trong anh · Chay nen · Tat han app
-const ACT = (icon, title, cls = '') => `<div class="act ${cls}" title="${title}"><i>${icon}</i><b>${ACTN[title]}</b></div>`;
-// nhan ngan duoi icon (man xe nhin luot, chi icon de nham Chay nen / Anh trong anh)
-const ACTN = { 'Chọn app mới': 'Đổi app', 'Chạy 1 màn hình': 'Toàn màn', 'Chia màn hình': 'Chia màn', 'Ảnh trong ảnh': 'Cửa sổ nổi', 'Chạy nền': 'Chạy nền', 'Tắt hẳn app': 'Tắt app' };
+// Thanh hanh dong cua o (nut •••), chi icon to nhu HarmonyOS, khong nhan: Chon app moi · Chay 1 man hinh / Chia man hinh
+// (dang chay 1 man hinh thi chia lai nhu truoc) · Anh trong anh · Chay nen · Tat han app
+const ACT = (icon, title, cls = '') => `<div class="act ${cls}" title="${title}"><i>${icon}</i></div>`;
 const abar = single => ACT(ICON.HM_APPS, 'Chọn app mới') + (single ? ACT(ICON.HM_SPLIT, 'Chia màn hình') : ACT(ICON.HM_FULL, 'Chạy 1 màn hình'))
   + ACT(ICON.HM_FLOAT, 'Ảnh trong ảnh') + ACT(ICON.HM_MIN, 'Chạy nền') + '<span class="sep"></span>' + ACT(ICON.HM_CLOSE, 'Tắt hẳn app', 'x');
 const ABAR = abar(false), ABAR_MAX = abar(true);

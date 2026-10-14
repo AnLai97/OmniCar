@@ -316,9 +316,9 @@ h2 { margin: 0 0 4px; font-size: 16px; }
   </div>
   <h2>9 kiểu · mỗi thẻ: dưới giới hạn · sắp chạm · vượt</h2>
   <div class="gallery" id="gallery"></div>
-  <div class="note"><b>Giữ nguyên từ bản cũ:</b> icon app nguồn (Vietmap Live / GOFA / Google Maps / Waze / Apple Maps / GPS iPhone, bật / tắt được), biển Viên / Mỹ tự theo vùng,
+  <div class="note"><b>Giữ nguyên từ bản cũ:</b> icon app nguồn (Vietmap Live / GOFA / Waze), biển Viên / Mỹ tự theo vùng,
     km/h / mph, cỡ trên iPhone và CarPlay (60–220 %), kéo để dời chỗ, chụm 2 ngón đổi cỡ, giữ 2 giây để thoát app, cảnh báo quá tốc độ (viền màn xe) chạy riêng.
-    Không có giới hạn (GPS iPhone): biển hiện “--” màu xám, không đổi màu theo trạng thái.</div>
+    Không có giới hạn: biển hiện “--” màu xám, không đổi màu theo trạng thái. Cảnh báo: Tắt / Cảnh báo / Âm thanh, ngưỡng −10…+10 so với giới hạn.</div>
 </div>
 
 <script>
@@ -334,12 +334,10 @@ const STYLES = [
   { id: 'hud',   n: 'Dải HUD',    d: 'Thanh ngang mảnh: vạch sáng chạy dần tới biển giới hạn; đầy thanh = chạm giới hạn → đỏ, biển nhấp nháy.', ts: .5 },
   { id: 'dash',  n: 'Đồng hồ taplo', d: 'Mặt đồng hồ kim như taplo xe: vạch 0–160 km/h, vùng đỏ từ mức giới hạn, cung sáng theo tốc độ, số điện tử dưới kim.', ts: .7 },
 ];
-const SOURCES = { vietmap: ['V', '#f07a12', 'Vietmap Live'], gofa: ['G', '#1aa260', 'GOFA'], gmaps: ['G', '#4285f4', 'Google Maps'], waze: ['W', '#33ccff', 'Waze'],
-  amaps: ['➤', 'linear-gradient(160deg,#6fd36b,#2e9cf5)', 'Apple Maps'], gps: ['⌖', '#5b6cf0', 'GPS iPhone'] };
+const SOURCES = { vietmap: ['V', '#f07a12', 'Vietmap Live'], gofa: ['G', '#1aa260', 'GOFA'], waze: ['W', '#33ccff', 'Waze'] };
 const SRC_HINT = {
   vietmap: '<b>Tốc độ + biển giới hạn.</b> Mở Vietmap Live một lần rồi để chạy nền.', gofa: '<b>Tốc độ + biển giới hạn.</b> Mở GOFA một lần rồi để chạy nền.',
-  gmaps: '<b>Tốc độ từ GPS,</b> biển chỉ có khi Google Maps đang hiện biển (thử nghiệm).', waze: '<b>Tốc độ từ GPS,</b> biển chỉ có khi Waze đang hiện biển (thử nghiệm).',
-  amaps: '<b>Tốc độ từ GPS,</b> biển chỉ có khi Apple Maps đang hiện biển (thử nghiệm).', gps: '<b>Chỉ tốc độ,</b> không có biển giới hạn và không cảnh báo. Chạy khi cắm CarPlay.' };
+  waze: '<b>Tốc độ từ GPS,</b> biển chỉ có khi Waze đang hiện biển (thử nghiệm).' };
 const S = { style: 'drop', speed: 47, limit: 50, unit: 'kmh', sign: 'vi', icon: true, src: 'vietmap', size: 100, map: 'light',
   on: true, unitPref: 'auto', signPref: 'auto', warn: 2, over: 5, sizePhone: 100 };   // unitPref / signPref 'auto' = theo vung (VN: km/h, bien tron)
 
@@ -467,7 +465,10 @@ function renderSettings() {
   const tile = (g, c) => `<span class="ptile" style="background:${c}">${g}</span>`;
   const off = S.on ? '' : 'off';
   const ou = S.unit === 'mph' ? 'mph' : 'km/h';
-  const warnFoot = () => S.warn ? `Chạy quá giới hạn + ${S.over} ${ou}: viền đỏ nhấp nháy quanh màn CarPlay${S.warn === 2 ? ', kêu một tiếng ngắn' : ''}. Cần nguồn có biển giới hạn.`
+  // Nguong -10..10 so voi gioi han: duong = qua gioi han, am = bao tu truoc khi cham, 0 = ngay khi cham
+  const thTxt = () => S.over > 0 ? `quá giới hạn ${S.over} ${ou}` : S.over < 0 ? `dưới giới hạn ${-S.over} ${ou}` : 'chạm giới hạn';
+  const thVal = () => `${S.over > 0 ? '+' : ''}${S.over} ${ou}`;
+  const warnFoot = () => S.warn ? `Cảnh báo khi chạy ${thTxt()}: viền đỏ nhấp nháy quanh màn CarPlay${S.warn === 2 ? ', kêu một tiếng ngắn' : ''}. Cần nguồn có biển giới hạn.`
     : 'Không cảnh báo, bong bóng vẫn đổi màu khi vượt.';
   pg.innerHTML = `<div class="nav"><span class="back">‹ OmniCar</span><span class="t">Bong bóng tốc độ</span></div>
     <div class="live"><div class="map ${S.map}"></div><div class="lb" id="live"></div><button class="try" id="try">Xem thử trên xe</button></div>
@@ -486,8 +487,8 @@ function renderSettings() {
     <div class="foot">Tự động: theo vùng của iPhone (Việt Nam: km/h, biển tròn).</div>
     <div class="lbl">Cảnh báo quá tốc độ</div>
     <div class="pc glass ${off}">
-      <div class="r col">${seg('warn', [[0, 'Tắt'], [1, 'Chỉ viền'], [2, 'Viền + tiếng']])}</div>
-      ${S.warn ? `<div class="r">${tile('!', 'linear-gradient(135deg,#FFD58A,#FFB340)')}<span class="lab" style="flex:none">Khi vượt</span><input type="range" min="0" max="20" value="${S.over}" data-range="over"><span class="v" id="v-over">+${S.over} ${ou}</span></div>` : ''}</div>
+      <div class="r col">${seg('warn', [[0, 'Tắt'], [1, 'Cảnh báo'], [2, 'Âm thanh']])}</div>
+      ${S.warn ? `<div class="r">${tile('!', 'linear-gradient(135deg,#FFD58A,#FFB340)')}<span class="lab" style="flex:none">Ngưỡng</span><input type="range" min="-10" max="10" value="${S.over}" data-range="over"><span class="v" id="v-over">${thVal()}</span></div>` : ''}</div>
     <div class="foot" id="warnfoot">${warnFoot()}</div>
     <div class="lbl">Cỡ và vị trí</div>
     <div class="pc glass ${off}">
@@ -499,7 +500,7 @@ function renderSettings() {
   if (pg.querySelector('.styles')) pg.querySelector('.styles').scrollLeft = sx;
   pg.querySelectorAll('[data-tog]').forEach(e => e.onclick = () => { S[e.dataset.tog] = !S[e.dataset.tog]; renderAll(); });
   pg.querySelectorAll('[data-pick]').forEach(e => e.onclick = () => { S.style = e.dataset.pick; renderAll(); });
-  pg.querySelectorAll('[data-src]').forEach(e => e.onclick = () => { S.src = e.dataset.src; if (S.src === 'gps') S.limit = 0; else if (!S.limit) S.limit = 50; renderAll(); });
+  pg.querySelectorAll('[data-src]').forEach(e => e.onclick = () => { S.src = e.dataset.src; if (!S.limit) S.limit = 50; renderAll(); });
   pg.querySelectorAll('[data-pref]').forEach(e => e.onclick = () => {
     const k = e.dataset.pref, v = e.dataset.v; S[k] = isNaN(+v) ? v : +v;
     S.unit = S.unitPref === 'mph' ? 'mph' : 'kmh'; S.sign = S.signPref === 'us' ? 'us' : 'vi';
@@ -507,7 +508,7 @@ function renderSettings() {
   });
   pg.querySelectorAll('[data-range]').forEach(e => e.oninput = () => {
     const k = e.dataset.range; S[k] = +e.value;
-    $('v-' + k).textContent = k === 'over' ? `+${S.over} ${ou}` : S[k] + '%';
+    $('v-' + k).textContent = k === 'over' ? thVal() : S[k] + '%';
     if (k === 'over') $('warnfoot').textContent = warnFoot();
     renderCar();
   });

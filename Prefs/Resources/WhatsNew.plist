@@ -2,27 +2,11 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <!-- What's new page (Prefs/OMCWhatsNewController.m): one array per version (the Version of control = TWEAK_VERSION),
      shown once after updating to that version. symbol = SF Symbol (iOS 15), titleKey / textKey = keys in
-     <lang>.lproj/Backup.strings. Add a new version on top for each release. -->
+     <lang>.lproj/WhatsNew.strings. Add a new version on top for each release. -->
 <plist version="1.0">
 <dict>
 	<key>1.0.0</key>
 	<array>
-		<dict>
-			<key>symbol</key>
-			<string>waveform.path.ecg</string>
-			<key>titleKey</key>
-			<string>WN_DIAG_TITLE</string>
-			<key>textKey</key>
-			<string>WN_DIAG_TEXT</string>
-		</dict>
-		<dict>
-			<key>symbol</key>
-			<string>wand.and.stars</string>
-			<key>titleKey</key>
-			<string>WN_OPTIMIZE_TITLE</string>
-			<key>textKey</key>
-			<string>WN_OPTIMIZE_TEXT</string>
-		</dict>
 		<dict>
 			<key>symbol</key>
 			<string>keyboard</string>
@@ -62,14 +46,6 @@
 			<string>WN_GUIDE_TITLE</string>
 			<key>textKey</key>
 			<string>WN_GUIDE_TEXT</string>
-		</dict>
-		<dict>
-			<key>symbol</key>
-			<string>externaldrive.fill</string>
-			<key>titleKey</key>
-			<string>WN_BACKUP_TITLE</string>
-			<key>textKey</key>
-			<string>WN_BACKUP_TEXT</string>
 		</dict>
 	</array>
 </dict>

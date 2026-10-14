@@ -64,14 +64,15 @@ h1 { font-size: 16px; font-weight: 600; margin: 0; letter-spacing: .2px; }
 #overlay { position: absolute; inset: 0; pointer-events: none; z-index: 20; }
 #overlay > * { pointer-events: auto; }
 .glass { background: rgba(26,26,26,.2); -webkit-backdrop-filter: blur(22px) saturate(170%); backdrop-filter: blur(22px) saturate(170%); border: .5px solid rgba(255,255,255,.22); }
-.pill { position: absolute; display: flex; align-items: center; height: 42px; padding: 0 4px; gap: 2px; border-radius: 21px; box-shadow: 0 4px 12px rgba(0,0,0,.3); }
-.pill .sep { width: 1px; height: 18px; background: rgba(255,255,255,.18); margin: 0 3.5px; }
-.rbtn { width: 34px; height: 34px; border-radius: 17px; display: grid; place-items: center; color: rgba(255,255,255,.94); cursor: pointer; transition: transform .3s var(--spring), background .2s; }
+/* Thanh ••• cua o: o kinh tron 40pt chi icon 22pt, khong nhan (SCPCActionButton) */
+.pill { position: absolute; display: flex; align-items: center; height: 52px; padding: 0 6px; gap: 2px; border-radius: 22px; box-shadow: 0 4px 12px rgba(0,0,0,.3); }
+.pill .sep { width: 1px; height: 30px; background: rgba(255,255,255,.18); margin: 0 3.5px; }
+.rbtn { width: 40px; height: 40px; border-radius: 20px; display: grid; place-items: center; color: rgba(255,255,255,.94); cursor: pointer; transition: transform .3s var(--spring), background .2s; }
 .rbtn:active { transform: scale(.9); }
 .rbtn.danger { color: #ff5c54; }
 .rbtn.dim { opacity: .35; }
 .rbtn.current { background: rgba(255,255,255,.95); color: #1f1f1f; box-shadow: 0 0 6px rgba(255,255,255,.8); }
-.rbtn svg { width: 20px; height: 20px; }
+.rbtn svg { width: 24px; height: 24px; }
 
 .pop-in { animation: popIn .45s var(--spring) both; }
 @keyframes popIn { from { opacity: 0; transform: translateY(-8px) scale(.9); } to { opacity: 1; transform: none; } }
@@ -209,7 +210,7 @@ select { background: #232834; color: var(--text); border: 1px solid #303746; bor
 // ---------------------------------------------------------------------------------------------
 //  Thong so dong bo voi code (SCPCarSplit.mm). Doi giao dien trong code -> doi o day cung luc.
 // ---------------------------------------------------------------------------------------------
-const C = { GAP: 1, RADIUS: 6, BTN: 34, PILL: 42, HANDLE_W: 34, HANDLE_H: 12, HANDLE_Y: 6, KNOB: 14,
+const C = { GAP: 1, RADIUS: 6, BTN: 34, PILL: 42, ACT_BAR: 52, HANDLE_W: 34, HANDLE_H: 12, HANDLE_Y: 6, KNOB: 14,
             DISMISS: .12, MIN_FRAC: .2, IDLE_MS: 4000, DOCK_W: 76 };
 const PICK = { cellW: 78, cellH: 68, icon: 36, gridPad: 10, sideW: 150, pad: 14, mapMaxH: 84 };      // buildPickerSheetForPane
 const TRAY = { pad: 10, iconCol: 32, rowH: 56, cellW: 84, imgW: 72, imgH: 40, rowGap: 6, exitW: 52 };  // showLayoutPanelForApp
@@ -547,8 +548,8 @@ function toggleBar(i) {
   const c = el('div', 'rbtn danger', bar, svg('close')); c.onclick = () => { hideBar(); closePane(i); };
   const w = bar.offsetWidth;
   let k = 1; const avail = f.w - 10; if (w > avail && avail > 40) k = avail / w;   // o hep: thu nho ca thanh
-  const cy = C.HANDLE_Y + C.HANDLE_H + 6 + C.PILL / 2;
-  Object.assign(bar.style, { left: C.DOCK_W + f.x + f.w / 2 - w / 2 + 'px', top: f.y + cy - C.PILL / 2 + 'px', scale: k });
+  const cy = C.HANDLE_Y + C.HANDLE_H + 6 + C.ACT_BAR / 2;
+  Object.assign(bar.style, { left: C.DOCK_W + f.x + f.w / 2 - w / 2 + 'px', top: f.y + cy - C.ACT_BAR / 2 + 'px', scale: k });
   S.barEl = bar; S.barIdx = i;
   S.barTimer = setTimeout(hideBar, C.IDLE_MS);
 }

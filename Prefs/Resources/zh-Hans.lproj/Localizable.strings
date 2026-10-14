@@ -22,7 +22,6 @@
 
 "SUPPORT_GROUP" = "支持";
 "SUPPORT_FOOTER" = "遇到问题？轻点“发送日志”，选择邮件或聊天 App 发送给开发者。";
-"DIAGNOSTICS" = "诊断";
 "SEND_LOG" = "发送日志";
 "SEND_LOG_FAILED" = "无法创建日志文件。";
 
@@ -74,11 +73,6 @@
 "DIAG_CONFLICTS_NONE" = "未发现";
 "DIAG_CONFLICTS_FOOTER" = "CarBridge, DuoDash, TrueDash, CarPlayEnable.";
 
-"CRASH_TEST_TITLE" = "测试救援模式";
-"CRASH_TEST_MESSAGE" = "选择一个功能，它将在打开 5 秒后让 CarPlay 崩溃。仅用于测试。";
-"CRASH_TEST_STOP" = "停止测试";
-"CRASH_TEST_ARMED" = "连接汽车两次：CarPlay 会崩溃。第 3 次连接时，救援模式应关闭此功能，CarPlay 应恢复正常。";
-
 /* Auto test: dev builds only (OMC_AUTOTEST) */
 "AUTOTEST" = "自动测试（开发）";
 "AUTOTEST_SUITES" = "要测试的功能";
@@ -100,14 +94,11 @@
 "AUTOTEST_STATE_STOPPED" = "已停止";
 
 /* 诊断：健康检查 */
-"DIAG_DETAILS" = "技术详情";
 "CHK_SUM_OK" = "一切正常";
 "CHK_SUM_WARN" = "%lu 项需要注意";
 "CHK_SUM_BAD" = "%lu 个问题需要修复";
 "CHK_SUM_COUNTS" = "%lu 正常 · %lu 注意 · %lu 问题";
 "CHK_CHECKED_AT" = "检查于 %@";
-"CHK_AGAIN" = "重新检查";
-"CHK_FOOTER" = "仍然无法使用？轻点顶部的共享按钮，将这些结果和日志发送给开发者。";
 "CHK_IOS" = "iOS 版本";
 "CHK_IOS_OLD" = "OmniCar 需要 iOS 15 或更高版本。";
 "CHK_IOS_NEW" = "可以安装，但尚未在此版本上充分测试。如有问题请发送日志。";
@@ -177,9 +168,6 @@
 "CHK_PERF_NONE_FIX" = "使用 CarPlay 至少一分钟后再打开此页面：OmniCar 会在驾驶时进行测量。";
 "CHK_PERF_LIVE" = "测量中 · %ld 分钟";
 "CHK_PERF_AT" = "%@ · %ld 分钟";
-"CHK_PERF_RESET" = "轻点以清除数据，并在下次驾驶时重新测量（应用修复后）。";
-"CHK_PERF_RESET_CONFIRM" = "清除性能数据并重新测量？";
-"CHK_PERF_RESET_DO" = "清除并重新测量";
 "CHK_PERF_FEW" = "数据尚不足";
 "CHK_PERF_SMOOTH" = "流畅度";
 "CHK_PERF_SMOOTH_VALUE" = "%.0f%% 帧延迟（%@ fps 屏幕）· 最慢 %ld 毫秒";
@@ -203,54 +191,3 @@
 "CHK_PERF_TWEAKS_FIX" = "有 %lu 个其他插件加载到 CarPlay 中；每一个都会让它启动更慢、更易卡顿或崩溃。请使用 Choicy 关闭 CarPlay 不需要的插件。";
 "CHK_PERF_GENERIC_FIX" = "驾驶前关闭后台 App；如果手机很久没有重启，请重启一次。";
 "CHK_PERF_LOG" = "OmniCar 日志";
-"CHK_PERF_LOG_FIX" = "日志较大。轻点以清除（如需报告问题，请先发送给开发者）。";
-"CHK_PERF_LOG_CONFIRM" = "清除 OmniCar 日志？";
-"CHK_PERF_LOG_DO" = "清除日志";
-
-/* 诊断：优化 */
-"ISSUES_GROUP" = "需要注意";
-"ISSUES_FOOTER" = "右侧带按钮的行轻点一下即可修复。其他项请按照彩色提示操作。";
-"ALL_CHECKS_GROUP" = "所有检查";
-"ALL_CHECKS_FOOTER" = "轻点分组以查看其检查项。";
-"GROUP_BAD" = "%lu 个错误";
-"GROUP_WARN" = "%lu 项待检查";
-"GROUP_OK" = "%lu 项正常";
-"GROUP_INFO" = "尚无数据";
-"ACT_TURN_ON" = "打开";
-"ACT_REMEASURE" = "重新测量";
-"ACT_CLEAR" = "清除";
-"OPT_BUTTON" = "优化";
-"OPT_GROUP" = "优化性能";
-"OPT_FOOTER" = "轻量模式：分屏取消毛玻璃效果，速度气泡降低刷新频率并去除阴影。自动 = 仅在手机发热或 CarPlay 卡顿时开启，恢复正常后再次关闭。\n释放内存：退出后台运行的 App，但保留音乐、地图、CarPlay App、为汽车选择的 App 以及速度来源 App。";
-"OPT_WILL" = "OmniCar 将会：";
-"OPT_MANUAL" = "你还可以：";
-"OPT_NOTHING" = "无需优化。如果 CarPlay 仍然卡顿，请驾驶一次后再打开此页面查看数据。";
-"OPT_APPLY" = "优化";
-"OPT_DONE" = "已优化。请重新连接汽车以生效。";
-"OPT_LITE" = "打开自动轻量模式";
-"OPT_CLEAN_NOW" = "立即释放内存";
-"OPT_CLEAN_ON" = "每次连接汽车时释放内存";
-"OPT_LOG" = "清除日志（%.1f MB）";
-"OPT_RESET" = "从下次驾驶起重新测量性能";
-"LITE_MODE" = "轻量模式";
-"LITE_OFF" = "关";
-"LITE_AUTO" = "自动";
-"LITE_ALWAYS" = "始终";
-"LITE_STATUS_OFF" = "关：始终使用完整效果";
-"LITE_STATUS_ALWAYS" = "开";
-"LITE_STATUS_AUTO" = "关，手机发热或 CarPlay 卡顿时自动开启";
-"LITE_STATUS_ON_HEAT" = "开，因为手机发热";
-"LITE_STATUS_ON" = "已自动开启%@";
-"LITE_REASON_HEAT" = "，因为手机发热";
-"LITE_REASON_HANGS" = "，因为 CarPlay 反复卡死";
-"LITE_REASON_FRAMES" = "，因为车机屏幕卡顿";
-"CLEAN_RAM" = "连接汽车时释放内存";
-"CLEAN_RAM_NEVER" = "尚未运行";
-"CLEAN_RAM_LAST" = "上次退出了 %lu 个 App，时间 %@";
-"CLEAN_RAM_NOW" = "立即释放内存";
-"CLEAN_RAM_NOW_SUB" = "退出所有在后台运行的 App，屏幕上的和正在播放的除外。连接汽车时，还会保留汽车需要的 App。";
-"CLEAN_RAM_RESULT" = "已关闭 %lu 个 App。";
-"CLEAN_RAM_NOTHING" = "没有可关闭的后台 App。";
-"CLEAN_RAM_NO_REPLY" = "SpringBoard 没有响应。请注销后重试；如果仍然失败，请将日志发送给开发者。";
-"CLEAN_RAM_CONFIRM" = "立即释放内存？";
-"CLEAN_RAM_DO" = "释放";

@@ -15,7 +15,7 @@ Cách dùng file này
 - **Code** / **Thử**: đã viết gì, ở file nào, thử thế nào (ghi khi bắt đầu code một mục).
 
 Đã có (1.0.0): Chia màn hình 2–3 ô (4 bố cục, chia dọc, kéo tỉ lệ, yêu thích, gần đây, Siri URL), App Bridge
-(app iPhone lên xe, icon trên màn chính CarPlay), Bong bóng tốc độ (18 kiểu, nay thay bằng 9 kiểu mới, Vietmap Live / GOFA), Màn hình
+(app iPhone lên xe, icon trên màn chính CarPlay), Bong bóng tốc độ (18 kiểu, nay thay bằng 9 kiểu mới, Vietmap Live / GOFA / Waze), Màn hình
 khởi động (một video MP4), Cài đặt vi / en.
 
 ## Trước khi phát hành
@@ -36,23 +36,12 @@ Thiếu một trong các mục này thì khách quốc tế không mua, hoặc m
   Nút trong Cài đặt: gói OmniCar.log + phiên bản iOS, máy, đầu xe, danh sách tweak → share sheet.
   Xong khi: khách gửi được file qua Zalo / email trong 3 chạm.
   Code: Hỗ trợ > Gửi log (OMCShareReport) → `OmniCar-log-<ngày>.txt`. Chờ thử gửi Zalo trên máy.
-- [x] [ ] **1.1.2 Màn chẩn đoán** · Thấp
-  Độ phân giải màn xe, dây / không dây, nhiệt độ máy, FPS app iPhone, phiên bản từng tính năng.
-  Code: Hỗ trợ > Chẩn đoán là trang kiểm tra sức khoẻ cho người dùng: kết luận chung ở đầu, ~20 mục ✓ / ⚠ / ✗ kèm
-  cách sửa (điện thoại: iOS, jailbreak, trình nạp tweak, gói, OmniCar đang chạy đúng bản, bộ nhớ, pin, nhiệt, tweak
-  xung đột; CarPlay: kết nối, OmniCar trong CarPlay, tương thích iOS, lần sập gần nhất, chế độ cứu, màn xe; từng tính
-  năng), chạm để respring / bật lại; số liệu thô ở Chi tiết kỹ thuật. Chưa có FPS app iPhone (cần đo trong App
-  Bridge). Dây / không dây đọc từ CarKit: chờ thử trên xe.
-  Hiệu năng CarPlay: CarPlay tự đo trong lúc lái (khung hình trễ 10 s mỗi phút, khựng ≥ 0,5 s, CPU, RAM còn dư,
-  nhiệt, nguồn điện thấp, tweak khác nạp vào CarPlay), Chẩn đoán đọc lại, chấm ✓ / ⚠ / ✗ và gợi ý nguyên nhân
-  chính; chạm để đo lại / xoá log. Chờ thử trên xe để chỉnh ngưỡng.
-  Tối ưu: nút Tối ưu (tự làm được gì thì làm, còn lại liệt kê cho người dùng), Chế độ nhẹ tắt / tự động / luôn bật
-  (chia màn hình bỏ kính mờ + chỉ 2 app, bong bóng 1 s/lần không đổ bóng, bỏ video khởi động; tự động bật khi máy
-  nóng, khựng 3 lần / 2 phút hoặc ≥ 15% khung trễ, tắt sau 3 phút ổn), dọn RAM khi cắm xe / dọn ngay. App Bridge chỉ cài
-  hook khi app được đưa lên xe. Trang Chẩn đoán: Cần xử lý (nút sửa ngay) → Tối ưu → các nhóm thu gọn.
+- ~~**1.1.2 Màn chẩn đoán**~~ · ĐÃ BỎ (10/2026): trang Chẩn đoán, nút Tối ưu, công tắc Chế độ nhẹ / dọn RAM trong Cài đặt bỏ hết
+  cho gọn. Phần còn giữ: báo cáo Gửi log vẫn chứa ~20 mục kiểm tra sức khoẻ ✓ / ⚠ / ✗ + số đo hiệu năng CarPlay của
+  chuyến gần nhất (Prefs/OMCDiagnostics.m), Chế độ nhẹ tự động (Core) vẫn chạy ngầm khi máy nóng / CarPlay khựng.
 - [x] [ ] **1.1.3 Thông tin đầu xe** · Thấp
-  Độ phân giải, tỉ lệ màn, chất lượng video gợi ý (gộp vào Màn chẩn đoán).
-  Code: CarPlay ghi màn xe + phiên CarKit mỗi lần cắm (OMCCrashGuard), Chẩn đoán > Màn xe. Chờ thử trên xe.
+  Độ phân giải, tỉ lệ màn, chất lượng video gợi ý (gộp vào báo cáo Gửi log).
+  Code: CarPlay ghi màn xe + phiên CarKit mỗi lần cắm (OMCCrashGuard), mục "Màn xe" trong báo cáo. Chờ thử trên xe.
 - [x] [ ] **1.1.4 Phát hiện tweak xung đột** · Thấp
   Thấy CarBridge, DuoDash, TrueDash, CarPlayEnable… đang bật → cảnh báo trong Cài đặt (không tự gỡ tweak của người khác).
   Code: thẻ cảnh báo đầu trang chính khi dylib của tweak đó đang nạp; Chẩn đoán liệt kê cả gói đã cài.
@@ -123,22 +112,23 @@ Khách so sánh trực tiếp với DuoDash / CarBridge ở các mục này, và
 Trang Cài đặt "App trên màn xe" mở rộng thành "Màn chính CarPlay": app, bố cục, hình nền, dock.
 Mỗi thay đổi có xem trước trong Cài đặt (mô phỏng màn xe) trước khi áp lên xe.
 Bản xem trước giao diện: tools/preview/home.html (trang Cài đặt + màn xe mô phỏng đổi theo ngay).
-Code chung cho cả 5 mục (chưa thử trên xe, MẶC ĐỊNH TẮT): MỘT trang App trên màn xe gộp App Bridge + màn chính
-(Features/AppBridge/Prefs/OMCAppBridgeAppsController.m): xem trước màn xe, công tắc Màn chính OmniCar, các thẻ gập
-Ứng dụng (danh sách cuộn riêng) · Dock · Bố cục icon · Hình nền; key HS_KEY_* trong AppBridge.h. Bỏ công tắc App Bridge,
-Khung hình khỏi trang (đưa về mặc định một lần); Chế độ lái bỏ hẳn.
-Trên xe (Features/SplitScreen/SCPHomeScreen.mm): bật thì OmniCar vẽ lưới icon + dock + hình nền của riêng mình lên trên
-của CarPlay; lưới / icon dock gốc chỉ bị ẩn, tắt là trả lại nguyên vẹn. Thứ tự app đọc từ model *IconListView (cách bảng
+Code chung cho cả 5 mục (chưa thử trên xe): MỘT trang App trên màn xe gộp App Bridge + màn chính
+(Features/AppBridge/Prefs/OMCAppBridgeAppsController.m): xem trước màn xe, các thẻ gập Ứng dụng (danh sách cuộn riêng) ·
+Dock · Bố cục icon · Hình nền; key HS_KEY_* trong AppBridge.h. Bỏ công tắc App Bridge, Khung hình khỏi trang (đưa về mặc
+định một lần); Chế độ lái bỏ hẳn. KHÔNG có công tắc "Màn chính OmniCar" (bỏ 10/2026, HS_KEY_ENABLED không đọc nữa):
+hễ có gì khác mặc định của CarPlay (SCPHCustomized: app ẩn / sắp xếp, dock, bố cục icon, hình nền) là xe vẽ theo.
+Trên xe (Features/SplitScreen/SCPHomeScreen.mm): có tuỳ chỉnh thì OmniCar vẽ lưới icon + dock + hình nền của riêng mình lên
+trên của CarPlay; lưới / icon dock gốc chỉ bị ẩn, về mặc định hết là trả lại nguyên vẹn. Thứ tự app đọc từ model *IconListView (cách bảng
 chọn app của Split Screen đã chạy trên xe), mở app qua DashBoard _launchAppWithInfo:forURL: (app iPhone → App Bridge),
 dock là appDockViewController của root (như nút Split Screen). Lần đầu bật ghi log "HomeScreen: DIAG cay man chinh" để
-chỉnh nếu khác. Thử chung: bật Màn chính CarPlay, cắm xe, Gửi log (dòng "HomeScreen:").
+chỉnh nếu khác. Thử chung: ẩn một app hoặc chọn hình nền, cắm xe, Gửi log (dòng "HomeScreen:").
 
 - [x] [ ] **2.1.1 Ẩn và sắp xếp app** · Vừa
   Ẩn cả app CarPlay gốc không dùng (CarBridge có), kéo đổi thứ tự app iPhone và app CarPlay trong một danh sách.
   Xong khi: thứ tự và app ẩn giữ nguyên sau khi rút / cắm lại và sau respring.
   Code: thẻ Ứng dụng = một danh sách mọi app (app hệ thống của CarPlay, app CarPlay, app iPhone), lọc Tất cả / CarPlay /
   iPhone, tìm; con mắt hiện / ẩn trên xe (app CarPlay → HS_KEY_HIDDEN, app iPhone → AB_KEY_APPS), kéo để sắp xếp
-  (HS_KEY_ORDER), ghim dock. Ẩn / sắp xếp app CarPlay khi Màn chính OmniCar đang tắt thì tự bật và báo.
+  (HS_KEY_ORDER), ghim dock.
   Thử: ẩn 1 app CarPlay gốc, kéo YouTube lên đầu → cắm xe, rút / cắm lại, respring: vẫn đúng.
 - [x] [ ] **2.1.2 Cỡ icon** · Vừa
   Thanh trượt cỡ icon trên màn chính (ví dụ 80–130 %), lưới tự tính lại để không tràn màn.
@@ -152,7 +142,7 @@ chỉnh nếu khác. Thử chung: bật Màn chính CarPlay, cắm xe, Gửi log
 - [x] [ ] **2.1.4 Hình nền màn chính** · Vừa
   Chọn hình dựng sẵn hoặc ảnh từ Ảnh (bỏ chọn từ Tệp), cắt theo tỉ lệ màn xe, chỉnh độ mờ và độ tối để icon vẫn dễ nhìn.
   Code: ô Mặc định + 6 hình dựng sẵn (gradient như bản xem trước, vẽ 1920 × 720) + ô ảnh của bạn, nút Từ Ảnh
-  → OmniCar/HomeScreen/wallpaper.jpg (≤ 1920 px, có trong bản sao lưu), lấp kín vùng app (cắt
+  → OmniCar/HomeScreen/wallpaper.jpg (≤ 1920 px), lấp kín vùng app (cắt
   theo tỉ lệ), Độ mờ 0–30 (CIGaussianBlur trên luồng phụ), Độ tối 0–70 %; Bỏ hình nền = dùng lại hình nền CarPlay.
   Thử: ảnh dọc và ảnh ngang đều phủ kín, không méo; đổi độ mờ / tối thấy ngay khi thả tay.
 - [x] [ ] **2.1.5 Dock tuỳ chỉnh** · Vừa
@@ -207,23 +197,21 @@ xem trước ngay trong Cài đặt. Âm thanh phát qua loa xe khi CarPlay kế
 
 - [x] [ ] **2.4.1 Cảnh báo quá tốc độ** · Thấp
   Vượt biển + ngưỡng tuỳ chọn → viền màn đổi màu, tiếng ngắn; có chế độ im lặng.
-  Code: SPPWarn.mm: viền đỏ nhấp nháy trên màn xe + tiếng bíp 1 lần mỗi lần vượt; ngưỡng 0–20, chế độ tắt / chỉ viền /
-  viền + tiếng (Bong bóng tốc độ > Cảnh báo quá tốc độ).
+  Code: SPPWarn.mm: viền đỏ nhấp nháy trên màn xe + tiếng bíp 1 lần mỗi lần vượt; ngưỡng −10…+10 so với giới hạn (âm = báo
+  từ trước khi chạm giới hạn), ba lựa chọn Tắt / Cảnh báo (chỉ viền) / Âm thanh (viền + tiếng) (Bong bóng tốc độ > Cảnh báo
+  quá tốc độ).
 - [ ] [ ] **2.4.2 Nguồn tốc độ toàn cầu** · Vừa
-  Thêm Google Maps, Waze, Apple Maps; dự phòng bằng giới hạn tốc độ OpenStreetMap tải sẵn theo vùng.
-  Code: nguồn "GPS iPhone" (SPPGPS.mm, CoreLocation trong SpringBoard) dùng được mọi nơi nhưng không có biển giới hạn.
-  Google Maps / Waze / Apple Maps là nguồn 3–5 (NavApp.xm chạy trong app): tốc độ từ GPS riêng trong app, giới hạn quét
-  trên màn hình như Vietmap / GOFA (vòng đỏ, tên ảnh, chữ); chỉ quét khi là nguồn đang chọn (SPP_DARWIN_SOURCE). Chờ thử
-  trên xe: log "chan doan" của NavApp khi chưa thấy biển cho biết giao diện từng app để chỉnh cách đọc giới hạn.
+  Chỉ còn 3 nguồn (10/2026): Vietmap Live, GOFA, Waze. Đã bỏ GPS iPhone (SPPGPS.mm xoá), Google Maps, Apple Maps; nguồn cũ
+  4 (Waze) tự đổi thành 2, các nguồn bỏ về Vietmap (SB_KEY_SOURCE_V2).
+  Code: Waze là nguồn 2 (NavApp.xm chạy trong app): tốc độ từ GPS riêng trong app, giới hạn quét trên màn hình như
+  Vietmap / GOFA (vòng đỏ, tên ảnh, chữ); chỉ quét khi là nguồn đang chọn (SPP_DARWIN_SOURCE). Chờ thử trên xe: log
+  "chan doan" của NavApp khi chưa thấy biển cho biết giao diện Waze để chỉnh cách đọc giới hạn.
   Còn thiếu: giới hạn tốc độ OSM tải sẵn theo vùng.
 
 ### 2.5 Cài đặt và hiệu năng
 
-- [x] [ ] **2.5.1 Sao lưu / khôi phục cài đặt** · Thấp
-  Xuất một file `.omnicar`, mở file là nạp lại (bố cục, màn chính, kiểu khởi động, kiểu bong bóng, ảnh / video / âm thanh đã chọn).
-  Code: Prefs/OMCBackup.m: file .omnicar (plist: cài đặt + file dữ liệu ≤ 200 MB), Hỗ trợ > Sao lưu / Khôi phục.
-  Mở file .omnicar thẳng từ Tệp / AirDrop / Zalo: app OmniCar khai báo kiểu com.anlai.omnicar.backup (App/Resources/Info.plist),
-  chép file vào OmniCar/Inbox rồi mở Cài đặt > OmniCar, trang chính hỏi khôi phục (OMCBackupOfferImported). Chờ thử trên máy.
+- ~~**2.5.1 Sao lưu / khôi phục cài đặt**~~ · ĐÃ BỎ (10/2026): bỏ Sao lưu / Khôi phục từ file và kiểu file .omnicar của app
+  OmniCar (code Prefs/OMCBackup.m đã xoá, lấy lại từ git nếu cần).
 - [x] [ ] **2.5.2 Có gì mới** · Thấp
   Sau mỗi bản cập nhật hiện một trang ngắn trong Cài đặt.
   Code: Prefs/OMCWhatsNewController.m + Resources/WhatsNew.plist (theo phiên bản trong control), tự hiện 1 lần sau mỗi bản
@@ -248,34 +236,35 @@ Những thứ DuoDash không có. Đây là nội dung chính cho video quảng 
 
 ### 3.1 Màn chính CarPlay
 
-Code chung (chưa thử trên xe): cùng trang App trên màn xe và SCPHomeScreen.mm như 2.1, key HS_KEY_* trong AppBridge.h;
-bản xem trước tools/preview/home.html (nút ☀︎ / ☾ trên màn xe mô phỏng). Chỉ có tác dụng khi bật Màn chính OmniCar.
+ĐÃ BỎ cả nhóm (10/2026): người dùng chỉ muốn chọn app lên xe + hình nền + bố cục icon; hình nền ngày / đêm, hình nền động
+vẫn còn dưới dạng "Video của bạn" trong thẻ Hình nền, còn hình dạng / gói icon, thư mục, trang riêng, widget bỏ hẳn
+(code cũ trong git trước commit này nếu cần lấy lại). Các mục dưới giữ lại để tham khảo.
 
-- [x] [ ] **3.1.1 Hình nền theo giờ** · Thấp
+- ~~**3.1.1 Hình nền theo giờ**~~ (đã bỏ) · Thấp
   Hai ảnh ngày / đêm, tự đổi theo giờ mặt trời mọc / lặn hoặc theo chế độ sáng / tối của xe.
   Code: thẻ Hình nền có Ban ngày / Ban đêm (HS_KEY_NIGHT_STYLE, ảnh đêm HomeScreen/wallpaper-night.jpg, "Như ban ngày" = tắt),
   Đổi sang đêm: Theo xe (traitCollection sáng / tối của màn xe) hoặc Mặt trời (giờ mọc / lặn tính từ vị trí iOS biết gần
   nhất, không có thì 6:00 / 18:00) (HS_KEY_NIGHT_BY). Trên xe kiểm tra lại mỗi 30 giây, ảnh đổi mờ dần.
   Thử: đêm chọn hình Đêm, Theo xe → bật / tắt đèn pha (hoặc giao diện tối của xe): hình đổi trong 30 giây; log "hinh nen dem".
-- [x] [ ] **3.1.2 Hình nền động** · Vừa
+- [x] [ ] **3.1.2 Hình nền động** (còn: ô "Video của bạn" trong Hình nền) · Vừa
   Video ngắn lặp hoặc ảnh động làm nền, tự dừng khi máy nóng hoặc khi đang chia màn.
   Code: Từ Ảnh nhận cả video → cắt 20 giây đầu, 1280 px, bỏ tiếng (HomeScreen/video.mp4 + khung đầu video.jpg), ô Video
   của bạn dùng được cho ngày hoặc đêm (kiểu 8). Trên xe AVPlayerLooper không tiếng; dừng khi máy nóng (thermal ≥ serious),
   chế độ nhẹ, đang chia màn, hoặc màn chính bị che (viewDidDisappear). Video không làm mờ, chỉ phủ độ tối.
   Thử: chọn một video 1 phút → còn 20 giây lặp; mở app toàn màn / chia màn → log "hinh nen dong dung", về màn chính → "chay".
-- [x] [ ] **3.1.3 Hình dạng và gói icon** · Vừa
+- ~~**3.1.3 Hình dạng và gói icon**~~ (đã bỏ) · Vừa
   Bo tròn / vuông / tròn hẳn, viền kính, bóng; dùng gói icon có sẵn trên máy (theo chuẩn IconBundles) cho màn xe.
   Code: thẻ Bố cục icon thêm Hình dạng (HS_KEY_ICON_SHAPE), Viền kính, Bóng, Gói icon (HS_KEY_ICON_THEME = thư mục trong
   /Library/Themes có IconBundles, đọc <bundle id>-large.png / <bundle id>.png @2x / @3x; app thiếu trong gói giữ icon gốc).
   Áp cho lưới, dock tuỳ chỉnh, thư mục; xem trước và chip trong Cài đặt cũng đổi theo.
   Thử: cài một gói IconBundles (vd. từ Sileo), chọn → icon trên xe đổi; nếu không đổi, xem CarPlay có đọc được /var/jb/Library/Themes không.
-- [x] [ ] **3.1.4 Thư mục và trang riêng** · Vừa
+- ~~**3.1.4 Thư mục và trang riêng**~~ (đã bỏ) · Vừa
   Gom app vào thư mục trên màn chính CarPlay; một trang riêng cho app iPhone (App Bridge).
   Code: thẻ Thư mục: Thư mục mới (tên + chọn app), chạm thư mục → Chọn app / Đổi tên / Xoá (HS_KEY_FOLDERS, mỗi app một
   thư mục). Trên xe thư mục nằm ở chỗ app đầu tiên của nó, ô kính 4 icon nhỏ; chạm mở thẻ kính giữa màn, chạm ngoài để đóng.
   Trang riêng cho app iPhone (HS_KEY_PHONE_PAGE): app iPhone bắt đầu ở trang mới sau app CarPlay.
   Thử: tạo thư mục 3 app → chạm mở, mở app trong thư mục; bật trang riêng → app iPhone sang trang sau; rút / cắm lại vẫn giữ.
-- [x] [ ] **3.1.5 Widget trên màn chính** · Vừa
+- ~~**3.1.5 Widget trên màn chính**~~ (đã bỏ) · Vừa
   Đặt đồng hồ, thời tiết, nhạc đang phát… thành ô lớn ngay trên màn chính CarPlay.
   Code: thẻ Widget: Đồng hồ / Thời tiết / Đang phát, tối đa 2 (HS_KEY_WIDGETS), thành cột thẻ kính bên trái lưới (200–280 pt).
   Thời tiết: Open-Meteo theo vị trí iOS biết gần nhất, 30 phút một lần, chung bộ nhớ với Màn hình khởi động. Đang phát:

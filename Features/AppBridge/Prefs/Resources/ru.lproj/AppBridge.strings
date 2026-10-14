@@ -1,21 +1,8 @@
 /* OmniCar – App Bridge – Русский */
 
 "APPBRIDGE" = "App Bridge";
-"APPBRIDGE_FOOTER" = "Приложения iPhone без CarPlay (YouTube, TikTok…) на экране авто.";
-"APPBRIDGE_ENABLE" = "Показывать приложения iPhone в авто";
 "APPBRIDGE_APPS" = "Приложения на экране авто";
-"APPBRIDGE_APPS_FOOTER" = "Включите приложение, чтобы его значок появился на главном экране CarPlay.";
 "APPBRIDGE_APPS_NONE" = "Нет";
 "APPBRIDGE_APPS_COUNT" = "Приложений: %ld";
-"APPBRIDGE_APPS_ON_CAR" = "На экране авто";
-"APPBRIDGE_APPS_USER" = "Ваши приложения";
-"APPBRIDGE_APPS_SYSTEM" = "Системные приложения";
-"APPBRIDGE_APPS_OTHER_FOOTER" = "Приложения со своим интерфейсом CarPlay не показаны.";
 "APPBRIDGE_APPS_SEARCH" = "Поиск приложений";
-"APPBRIDGE_APPS_EMPTY" = "На этом устройстве не найдено приложений iPhone.";
 "APPBRIDGE_APPS_NO_MATCH" = "Нет подходящих приложений.";
-"APPBRIDGE_FPS" = "Частота кадров";
-"APPBRIDGE_FPS_MAX" = "Макс.";
-"APPBRIDGE_FPS_FOOTER" = "Частота кадров: ограничивает кадры в секунду приложений iPhone в машине, чтобы телефон меньше грелся (анимации, прокрутка; видео не меняется). В режиме «Макс.» сама снижается до 30 при облегчённом режиме или беспроводном CarPlay.";
-"APPBRIDGE_ONCAR_FOOTER" = "Перетащите для сортировки · глаз — скрыть · булавка — в док · «−» убирает приложение iPhone из машины. Порядок, скрытие и закрепление работают при включённом экране «Домой» CarPlay.";
-"APPBRIDGE_REMOVE" = "Убрать из машины";

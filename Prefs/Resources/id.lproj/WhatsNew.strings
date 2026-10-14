@@ -1,0 +1,15 @@
+/* OmniCar – What's new (Prefs/OMCWhatsNewController.m, keys named in WhatsNew.plist) */
+
+"WN_ROW" = "Yang baru";
+"WN_TITLE" = "Yang baru di OmniCar %@";
+"WN_CONTINUE" = "Lanjutkan";
+"WN_KEYBOARD_TITLE" = "Keyboard di layar mobil";
+"WN_KEYBOARD_TEXT" = "Ketik di app iPhone yang tampil di layar mobil dengan keyboard langsung di layar mobil.";
+"WN_ZOOM_TITLE" = "Zoom panel";
+"WN_ZOOM_TEXT" = "Ketuk dua kali ••• pada panel Layar Terpisah agar memenuhi layar, ketuk dua kali lagi untuk kembali.";
+"WN_UNITS_TITLE" = "km/j atau mph, rambu AS";
+"WN_UNITS_TEXT" = "Gelembung Kecepatan menampilkan km/j atau mph dan rambu batas kecepatan bulat atau gaya AS, otomatis sesuai wilayah Anda.";
+"WN_LANG_TITLE" = "14 bahasa";
+"WN_LANG_TEXT" = "Pengaturan, teks layar mobil, dan pemberitahuan dalam 14 bahasa. Pilih dengan tombol bola dunia.";
+"WN_GUIDE_TITLE" = "Panduan awal";
+"WN_GUIDE_TEXT" = "Panduan singkat untuk memulai. Buka kapan saja dari Dukungan > Tampilkan panduan lagi.";

@@ -27,16 +27,7 @@
 "SPEEDBUBBLE_SIGN_0" = "Automatique (selon la région)";
 "SPEEDBUBBLE_SIGN_1" = "Rond (Vienne)";
 "SPEEDBUBBLE_SIGN_2" = "Rectangulaire (États-Unis)";
-"SPEEDBUBBLE_SOURCE_GPS" = "GPS de l’iPhone";
-"SPEEDBUBBLE_SOURCE_FOOTER" = "Vietmap Live et GOFA fournissent la vitesse et la limitation : ouvrez l’app une fois, puis laissez-la tourner en arrière-plan. Le GPS de l’iPhone fournit seulement la vitesse, sans limitation (le panneau affiche --, pas d’alerte de survitesse), et ne fonctionne que lorsque CarPlay est connecté. Google Maps, Waze, Apple Maps : vitesse par GPS ; la limite seulement quand l'app affiche le panneau à l'écran (en test).";
-"SPEEDBUBBLE_GPS_UNAVAILABLE" = "GPS de l’iPhone indisponible : SpringBoard n’a pas l’autorisation d’utiliser votre position. Vérifiez Réglages > Confidentialité > Service de localisation, puis faites un respring.";
 "SPEEDBUBBLE_WARN" = "Alerte de survitesse";
-"SPEEDBUBBLE_WARN_MODE" = "Alerte";
-"SPEEDBUBBLE_WARN_MODE_0" = "Désactivée";
-"SPEEDBUBBLE_WARN_MODE_1" = "Bordure seule (silencieux)";
-"SPEEDBUBBLE_WARN_MODE_2" = "Bordure et son bref";
-"SPEEDBUBBLE_WARN_OVER" = "Alerter au-delà de la limite de";
-"SPEEDBUBBLE_WARN_FOOTER" = "Lorsque vous dépassez la limitation de vitesse plus cette marge (dans l’unité affichée sur la bulle), une bordure rouge lumineuse pulse autour de l’écran CarPlay. Le son retentit une fois, puis seulement après 5 secondes passées sous la limite. Nécessite une limitation de vitesse fournie par l’app source.";
 
 /* Settings page (OMCSpeedBubbleController) */
 "SPEEDBUBBLE_ENABLE_SUB" = "Visible quand l'app de navigation tourne en arrière-plan";
@@ -51,17 +42,17 @@
 "SPEEDBUBBLE_DISPLAY_FOOTER" = "Auto : selon la région de l'iPhone.";
 "SPEEDBUBBLE_SRC_HINT_0" = "Vitesse + panneau de limite. Ouvrez Vietmap Live une fois puis laissez-la en arrière-plan.";
 "SPEEDBUBBLE_SRC_HINT_1" = "Vitesse + panneau de limite. Ouvrez GOFA une fois puis laissez-la en arrière-plan.";
-"SPEEDBUBBLE_SRC_HINT_2" = "Vitesse seule, sans panneau ni alerte. Fonctionne quand CarPlay est connecté.";
-"SPEEDBUBBLE_SRC_HINT_3" = "Vitesse par GPS ; la limite seulement quand Google Maps affiche le panneau (expérimental).";
-"SPEEDBUBBLE_SRC_HINT_4" = "Vitesse par GPS ; la limite seulement quand Waze affiche le panneau (expérimental).";
-"SPEEDBUBBLE_SRC_HINT_5" = "Vitesse par GPS ; la limite seulement quand Plans affiche le panneau (expérimental).";
+"SPEEDBUBBLE_SRC_HINT_2" = "Vitesse par GPS ; la limite seulement quand Waze affiche le panneau (expérimental).";
 "SPEEDBUBBLE_WARN_SHORT_0" = "Non";
-"SPEEDBUBBLE_WARN_SHORT_1" = "Bord seul";
-"SPEEDBUBBLE_WARN_SHORT_2" = "Bord + son";
-"SPEEDBUBBLE_WARN_WHEN" = "Alerter au-delà";
-"SPEEDBUBBLE_WARN_ON_FOOTER" = "Au-delà de la limite %@ : un bord rouge clignote autour de l'écran CarPlay%@. Nécessite une source avec panneaux.";
+"SPEEDBUBBLE_WARN_SHORT_1" = "Alerte";
+"SPEEDBUBBLE_WARN_SHORT_2" = "Son";
+"SPEEDBUBBLE_WARN_WHEN" = "Seuil";
+"SPEEDBUBBLE_WARN_ON_FOOTER" = "Alerte quand vous roulez %@ : un bord rouge clignote autour de l’écran CarPlay%@. Nécessite une source avec panneaux de limitation.";
 "SPEEDBUBBLE_WARN_SOUND_PART" = ", avec un bip court";
 "SPEEDBUBBLE_WARN_OFF_FOOTER" = "Pas d'alerte ; la bulle change quand même de couleur.";
+"SPEEDBUBBLE_WARN_TH_AT" = "à la limite";
+"SPEEDBUBBLE_WARN_TH_OVER" = "%@ au-dessus de la limite";
+"SPEEDBUBBLE_WARN_TH_UNDER" = "%@ sous la limite";
 "SPEEDBUBBLE_SIZE_GROUP" = "Taille et position";
 "SPEEDBUBBLE_SIZE_CAR_SHORT" = "CarPlay";
 "SPEEDBUBBLE_SIZE_PHONE_SHORT" = "iPhone";

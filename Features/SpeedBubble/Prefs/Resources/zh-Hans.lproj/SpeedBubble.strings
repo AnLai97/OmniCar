@@ -27,16 +27,7 @@
 "SPEEDBUBBLE_SIGN_0" = "自动（按地区）";
 "SPEEDBUBBLE_SIGN_1" = "圆形（维也纳公约）";
 "SPEEDBUBBLE_SIGN_2" = "矩形（美国）";
-"SPEEDBUBBLE_SOURCE_GPS" = "iPhone GPS";
-"SPEEDBUBBLE_SOURCE_FOOTER" = "Vietmap Live 和 GOFA 提供速度和限速：打开该 App 一次，然后让它在后台运行。iPhone GPS 仅提供速度，不含限速（标志显示 --，无超速警告），且仅在 CarPlay 连接时运行。 Google 地图、Waze、Apple 地图：速度来自 GPS；只有应用在屏幕上显示限速标志时才有限速（测试中）。";
-"SPEEDBUBBLE_GPS_UNAVAILABLE" = "iPhone GPS 不可用：SpringBoard 没有使用你位置的权限。请检查“设置”>“隐私与安全性”>“定位服务”，然后注销。";
 "SPEEDBUBBLE_WARN" = "超速警告";
-"SPEEDBUBBLE_WARN_MODE" = "警告";
-"SPEEDBUBBLE_WARN_MODE_0" = "关";
-"SPEEDBUBBLE_WARN_MODE_1" = "仅边框（静音）";
-"SPEEDBUBBLE_WARN_MODE_2" = "边框和短提示音";
-"SPEEDBUBBLE_WARN_OVER" = "超过限速多少时警告";
-"SPEEDBUBBLE_WARN_FOOTER" = "当车速超过限速加上此余量（单位与气泡上显示的一致）时，CarPlay 屏幕四周会有红色发光边框闪烁。提示音只响一次，之后需在限速以下保持 5 秒才会再次响起。需要来源 App 提供限速。";
 
 /* Settings page (OMCSpeedBubbleController) */
 "SPEEDBUBBLE_ENABLE_SUB" = "导航 App 在后台运行时显示";
@@ -51,17 +42,17 @@
 "SPEEDBUBBLE_DISPLAY_FOOTER" = "自动：跟随 iPhone 的地区设置。";
 "SPEEDBUBBLE_SRC_HINT_0" = "速度 + 限速标志。打开 Vietmap Live 一次后让它在后台运行。";
 "SPEEDBUBBLE_SRC_HINT_1" = "速度 + 限速标志。打开 GOFA 一次后让它在后台运行。";
-"SPEEDBUBBLE_SRC_HINT_2" = "仅速度，没有限速标志和警告。连接 CarPlay 时运行。";
-"SPEEDBUBBLE_SRC_HINT_3" = "速度来自 GPS；仅当 Google 地图显示限速标志时才有限速（试验）。";
-"SPEEDBUBBLE_SRC_HINT_4" = "速度来自 GPS；仅当 Waze 显示限速标志时才有限速（试验）。";
-"SPEEDBUBBLE_SRC_HINT_5" = "速度来自 GPS；仅当 Apple 地图显示限速标志时才有限速（试验）。";
+"SPEEDBUBBLE_SRC_HINT_2" = "速度来自 GPS；仅当 Waze 显示限速标志时才有限速（试验）。";
 "SPEEDBUBBLE_WARN_SHORT_0" = "关";
-"SPEEDBUBBLE_WARN_SHORT_1" = "仅边框";
-"SPEEDBUBBLE_WARN_SHORT_2" = "边框 + 声音";
-"SPEEDBUBBLE_WARN_WHEN" = "超出时";
-"SPEEDBUBBLE_WARN_ON_FOOTER" = "超过限速 %@：CarPlay 屏幕四周闪烁红色边框%@。需要有限速标志的来源。";
+"SPEEDBUBBLE_WARN_SHORT_1" = "警告";
+"SPEEDBUBBLE_WARN_SHORT_2" = "声音";
+"SPEEDBUBBLE_WARN_WHEN" = "阈值";
+"SPEEDBUBBLE_WARN_ON_FOOTER" = "当车速%@时发出警告：CarPlay 屏幕四周闪烁红色边框%@。需要能提供限速标志的来源。";
 "SPEEDBUBBLE_WARN_SOUND_PART" = "，并响一声";
 "SPEEDBUBBLE_WARN_OFF_FOOTER" = "不警告；超速时气泡仍会变色。";
+"SPEEDBUBBLE_WARN_TH_AT" = "达到限速";
+"SPEEDBUBBLE_WARN_TH_OVER" = "超过限速 %@";
+"SPEEDBUBBLE_WARN_TH_UNDER" = "低于限速 %@";
 "SPEEDBUBBLE_SIZE_GROUP" = "大小和位置";
 "SPEEDBUBBLE_SIZE_CAR_SHORT" = "CarPlay";
 "SPEEDBUBBLE_SIZE_PHONE_SHORT" = "iPhone";
