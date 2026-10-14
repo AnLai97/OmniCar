@@ -67,3 +67,11 @@
 "Your splits will show up here" = "Здесь появятся ваши разделения";
 "another pane" = "на другой панели";
 "the floating window" = "в плавающем окне";
+
+/* Split Screen: labels of the ••• bar buttons */
+"Change app" = "Сменить";
+"Full screen" = "Весь экран";
+"Float" = "Окно";
+"Background" = "Фон";
+"Quit app" = "Закрыть";
+"Split" = "Разделить";

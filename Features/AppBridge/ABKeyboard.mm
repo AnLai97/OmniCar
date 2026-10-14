@@ -179,19 +179,19 @@ NSString *ABTelexApply(NSString *word, NSString *key)
 static NSString *ABKT(NSString *vi, NSString *en) { return OMCTr(vi, en); }
 
 // Bo cuc ban phim HarmonyOS (hang so rieng, goi y nho goc phim, phim , . rieng), mau giao dien moi (DESIGN.md,
-// tools/preview/theme.html): kinh trang, phim trang, phim chuc nang tim nhat, Shift dang bat / Enter = gradient tim ->
-// xanh troi chu trang; cham phim chu -> bong bong phong to ky tu phia tren phim.
+// tools/preview/theme.html): nen logo 4 mau tren kinh mo, phim trang khong vien, phim chuc nang kinh trong vien trang,
+// chu mau cham diu, Shift dang bat / Enter = gradient tim -> xanh troi chu trang; cham phim chu -> bong bong phong to.
 static UIColor *ABKHex(uint32_t v, CGFloat a) { return [UIColor colorWithRed:((v >> 16) & 0xFF) / 255.0 green:((v >> 8) & 0xFF) / 255.0 blue:(v & 0xFF) / 255.0 alpha:a]; }
-#define ABK_KEY     ABKHex(0xFFFFFF, 0.92)
-#define ABK_FN      ABKHex(0xD6D2F0, 0.75)
-#define ABK_SOFT    ABKHex(0xD9D3FF, 1)
-#define ABK_DOWN    ABKHex(0xE4E2F2, 1)
-#define ABK_TEXT    ABKHex(0x1F2233, 1)
-#define ABK_FN_TEXT ABKHex(0x4A4F6A, 1)
-#define ABK_HINT    ABKHex(0x9AA0B8, 1)
-#define ABK_ACC1    ABKHex(0x8B7CFF, 1)
-#define ABK_ACC2    ABKHex(0x5AB8FF, 1)
-#define ABK_SHADOW  ABKHex(0x463C8C, 1)
+#define ABK_KEY     ABKHex(0xFFFFFF, 0.9)
+#define ABK_FN      ABKHex(0xFFFFFF, 0.5)
+#define ABK_SOFT    ABKHex(0xFFFFFF, 0.5)
+#define ABK_DOWN    ABKHex(0xFFFFFF, 1)
+#define ABK_TEXT    ABKHex(0x4A4F80, 1)
+#define ABK_FN_TEXT ABKHex(0x4A4F80, 1)
+#define ABK_HINT    ABKHex(0x4A4F80, 0.55)
+#define ABK_ACC1    ABKHex(0x9B87F8, 1)
+#define ABK_ACC2    ABKHex(0x5DB4F6, 1)
+#define ABK_SHADOW  ABKHex(0x6E64C8, 1)
 
 
 // Goi y goc phim: tieng Viet = chu / dau Telex phim do tao; tieng Anh = ky hieu nhu ban phim HarmonyOS
@@ -394,10 +394,16 @@ static NSString *ABKHint(NSString *c, BOOL vietnamese)
     p.layer.shadowOpacity = 0.3; p.layer.shadowRadius = 20; p.layer.shadowOffset = CGSizeMake(0, 6);
     p.autoresizingMask = UIViewAutoresizingNone;
     UIVisualEffectView *glass = [[UIVisualEffectView alloc] initWithEffect:[UIBlurEffect effectWithStyle:UIBlurEffectStyleSystemUltraThinMaterialLight]];
-    glass.contentView.backgroundColor = [UIColor colorWithWhite:1 alpha:0.38];   // cung kinh mo voi khay bo cuc / bang chon app
+    // Nen logo 4 mau tren kinh mo, cung nen voi khay bo cuc / bang chon app
+    glass.contentView.backgroundColor = [UIColor clearColor];
+    UIImageView *mesh = [[UIImageView alloc] initWithImage:OMCLogoMeshImage(NO)];
+    mesh.frame = glass.contentView.bounds;
+    mesh.contentMode = UIViewContentModeScaleToFill;
+    mesh.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    [glass.contentView addSubview:mesh];
     glass.layer.cornerRadius = 20;
     glass.layer.cornerCurve = kCACornerCurveContinuous;
-    glass.layer.borderWidth = 0.5;
+    glass.layer.borderWidth = 1;
     glass.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.85].CGColor;
     glass.clipsToBounds = YES;
     glass.userInteractionEnabled = NO;
@@ -406,11 +412,11 @@ static NSString *ABKHint(NSString *c, BOOL vietnamese)
 
     // Hang tren: o chu da go | chip VI / EN | nut an ban phim
     UIView *field = [UIView new];
-    field.backgroundColor = [UIColor colorWithWhite:1 alpha:0.7];
+    field.backgroundColor = [UIColor colorWithWhite:1 alpha:0.85];
     field.layer.cornerRadius = 12;
     field.layer.cornerCurve = kCACornerCurveContinuous;
-    field.layer.borderWidth = 0.5;
-    field.layer.borderColor = [ABK_TEXT colorWithAlphaComponent:0.06].CGColor;
+    field.layer.borderWidth = 1;
+    field.layer.borderColor = [UIColor whiteColor].CGColor;
     [p addSubview:field];
     self.field = field;
     UILabel *preview = [UILabel new];
@@ -457,10 +463,10 @@ static NSString *ABKHint(NSString *c, BOOL vietnamese)
     k.restTint = fn ? ABK_FN_TEXT : ABK_TEXT;
     k.layer.cornerRadius = 7;
     k.layer.cornerCurve = kCACornerCurveContinuous;
-    if (!k.lit) {   // phim trang noi tren kinh mo: vien manh + bong mong duoi phim
-        k.layer.borderWidth = 0.5;
-        k.layer.borderColor = [ABK_ACC1 colorWithAlphaComponent:0.55].CGColor;   // vien mau chu dao (tim) nhu khung o bo cuc
-        k.layer.shadowColor = ABK_TEXT.CGColor;
+    if (!k.lit) {   // phim trang noi tren nen logo: khong vien, bong tim mong duoi phim; phim chuc nang / , . = kinh trong vien trang
+        k.layer.borderWidth = (fn || soft) ? 1 : 0;
+        k.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.9].CGColor;
+        k.layer.shadowColor = ABK_SHADOW.CGColor;
         k.layer.shadowOpacity = 0.18; k.layer.shadowRadius = 1; k.layer.shadowOffset = CGSizeMake(0, 1);
     }
     if (symbol) {

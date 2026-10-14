@@ -109,3 +109,11 @@
 "iPhone battery %ld%% · charging" = "iPhone battery %ld%% · charging";
 "iPhone battery 82% · charging" = "iPhone battery 82% · charging";
 "the floating window" = "the floating window";
+
+/* Split Screen: labels of the ••• bar buttons */
+"Change app" = "Change app";
+"Full screen" = "Full screen";
+"Float" = "Float";
+"Background" = "Background";
+"Quit app" = "Quit app";
+"Split" = "Split";

@@ -1,6 +1,7 @@
 // Shared by every dylib and the settings bundle: languages (OMCCurrentLanguage, OMCTr). Only CFPreferences
 // directly: the settings bundle does not have Core/OmniCar.m.
 #import "OmniCar.h"
+#import <UIKit/UIKit.h>
 
 #pragma mark - Car profiles
 
@@ -55,4 +56,41 @@ NSString *OMCTr(NSString *vi, NSString *en) {
 	if ([lang isEqualToString:@"vi"]) return vi;
 	if ([lang isEqualToString:@"en"] || !en) return en;
 	return OMCCarTable(lang)[en] ?: en;
+}
+
+#pragma mark - Logo colors
+
+UIImage *OMCLogoMeshImage(BOOL solid) {
+	static UIImage *cache[2];
+	static dispatch_once_t once[2];
+	int i = solid ? 1 : 0;
+	dispatch_once(&once[i], ^{
+		// Corners sampled from assets/icon-1024.png; each a radial gradient to clear at 70% of the diagonal, like the CSS
+		const CGFloat side = 96, a = solid ? 1 : 0.95;
+		const uint32_t corners[4] = {0xA0F1D9, 0xFEC4D8, 0xA6DDFD, 0xC9BAFC};   // drawn bottom-up: TL lavender ends on top
+		const CGPoint at[4] = {{side, side}, {0, side}, {side, 0}, {0, 0}};
+		UIGraphicsImageRendererFormat *f = [UIGraphicsImageRendererFormat preferredFormat];
+		f.scale = 1;
+		f.opaque = solid;
+		UIGraphicsImageRenderer *r = [[UIGraphicsImageRenderer alloc] initWithSize:CGSizeMake(side, side) format:f];
+		cache[i] = [r imageWithActions:^(UIGraphicsImageRendererContext *rc) {
+			CGContextRef c = rc.CGContext;
+			UIColor *base = solid ? [UIColor colorWithRed:0xE2 / 255.0 green:0xE4 / 255.0 blue:0xF6 / 255.0 alpha:1]
+			                      : [UIColor colorWithRed:0xE8 / 255.0 green:0xEA / 255.0 blue:0xFA / 255.0 alpha:0.8];
+			[base setFill];
+			CGContextFillRect(c, CGRectMake(0, 0, side, side));
+			CGColorSpaceRef cs = CGColorSpaceCreateDeviceRGB();
+			for (int k = 0; k < 4; k++) {
+				uint32_t v = corners[k];
+				CGFloat R = ((v >> 16) & 0xFF) / 255.0, G = ((v >> 8) & 0xFF) / 255.0, B = (v & 0xFF) / 255.0;
+				CGFloat comps[8] = {R, G, B, a, R, G, B, 0};
+				CGFloat locs[2] = {0, 1};
+				CGGradientRef g = CGGradientCreateWithColorComponents(cs, comps, locs, 2);
+				CGContextDrawRadialGradient(c, g, at[k], 0, at[k], side * M_SQRT2 * 0.7, 0);
+				CGGradientRelease(g);
+			}
+			CGColorSpaceRelease(cs);
+		}];
+	});
+	return cache[i];
 }

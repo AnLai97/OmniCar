@@ -67,3 +67,11 @@
 "Your splits will show up here" = "你的分屏组合将显示在这里";
 "another pane" = "另一格";
 "the floating window" = "浮动窗口";
+
+/* Split Screen: labels of the ••• bar buttons */
+"Change app" = "换应用";
+"Full screen" = "全屏";
+"Float" = "悬浮窗";
+"Background" = "后台运行";
+"Quit app" = "关闭应用";
+"Split" = "分屏";

@@ -68,3 +68,11 @@
 "Your splits will show up here" = "분할 기록이 여기에 표시됨";
 "another pane" = "다른 창";
 "the floating window" = "플로팅 창";
+
+/* Split Screen: labels of the ••• bar buttons */
+"Change app" = "앱 변경";
+"Full screen" = "전체 화면";
+"Float" = "플로팅";
+"Background" = "백그라운드";
+"Quit app" = "앱 종료";
+"Split" = "분할";

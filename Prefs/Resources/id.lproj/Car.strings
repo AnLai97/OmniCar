@@ -68,3 +68,11 @@
 "Your splits will show up here" = "Layar terpisah Anda akan muncul di sini";
 "another pane" = "panel lain";
 "the floating window" = "jendela mengambang";
+
+/* Split Screen: labels of the ••• bar buttons */
+"Change app" = "Ganti app";
+"Full screen" = "Layar penuh";
+"Float" = "Mengambang";
+"Background" = "Latar";
+"Quit app" = "Tutup app";
+"Split" = "Bagi";

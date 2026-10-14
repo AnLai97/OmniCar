@@ -67,3 +67,11 @@
 "Your splits will show up here" = "分割した組み合わせがここに表示されます";
 "another pane" = "別の枠";
 "the floating window" = "フローティングウインドウ";
+
+/* Split Screen: labels of the ••• bar buttons */
+"Change app" = "アプリ変更";
+"Full screen" = "全画面";
+"Float" = "フロート";
+"Background" = "裏で実行";
+"Quit app" = "アプリ終了";
+"Split" = "分割";

@@ -7,10 +7,16 @@ logo: `tools/preview/logo.html`; bàn phím: `tools/preview/keyboard.html`. Th�
 ## Màu
 - Nền chất lỏng pastel: oải hương #B7A6FF, xanh trời #8FD3FF, bạc hà #9DF2D8, đào #FFC2D6 (chỉ làm nền: đầu
   trang Cài đặt, bảng chọn app, màn hình khởi động, logo).
-- **Đang chọn / nút chính = gradient tím #8B7CFF → xanh trời #5AB8FF có quầng màu**: bố cục đang dùng, tay cầm
-  ••• đang mở, tỉ lệ đang dùng, Enter / Shift của bàn phím, nút "Mở lại".
-- **Kính trắng** cho bảng / thanh / thẻ / phím: trắng 58–78%, mờ, viền sáng phía trên, bóng tím nhạt. Không nền xám đặc.
-- Chữ / icon: mực #1F2233 (phụ #6B7090).
+- **Bảng trên màn xe** (khay bố cục, thanh tỉ lệ, thanh •••, thông báo, bảng chọn app, bàn phím, ô nút Split Screen
+  trên dock) = **nền phối 4 màu như nền logo** (`OMCLogoMeshImage`): tím oải #C9BAFC trên trái, xanh trời #A6DDFD trên
+  phải, hồng #FEC4D8 dưới trái, bạc hà #A0F1D9 dưới phải; viền trắng 1pt, bóng tím nhạt. Không nền xám / trắng đặc.
+- **Ô trong bảng** (nút X, nút thanh •••, phím chức năng) = kính trắng trong 50% + viền trắng 1pt như đĩa trong logo.
+  **Khung từng ô bố cục** = viền trắng 1,5pt; ô bố cục chưa chọn nền trong suốt (cùng màu bảng). **Không dùng viền đen.**
+- **Đang chọn** (bố cục đang dùng, tỉ lệ đang dùng) = nền vẫn trong + **viền cầu vồng 2pt** 4 màu logo (#A78BFA,
+  #60C5FA, #5EDDB6, #F59AC0) + quầng tím nhạt.
+- **Nút chính = gradient tím #9B87F8 → xanh trời #5DB4F6**: tay cầm ••• đang mở, Enter / Shift của bàn phím, nút
+  "Mở lại", ô đang chọn app trong sơ đồ bảng chọn app.
+- Chữ / icon trên màn xe: chàm dịu #4A4F80 (phụ 55%).
 - **Công tắc bật: xanh lá** (`OMCSwitchColor`, systemGreen).
 - **Dấu X đóng / tắt: đỏ** #FF5A5F (nút tắt có nền đỏ nhạt), luôn ở cuối.
 - Logo tác giả "AL" (`Prefs/Resources/avatar*.png`) giữ nguyên, không vẽ lại.
@@ -21,12 +27,16 @@ logo: `tools/preview/logo.html`; bàn phím: `tools/preview/keyboard.html`. Th�
 - Icon kiểu HarmonyOS Symbol: lưới 24, nét 1,5–2, đầu và góc bo tròn, khung cửa sổ bo lớn.
 
 ## Màn xe
-- **Nút ••• của mỗi ô**: tay cầm nhỏ giữa mép trên ô; chạm → tay cầm gradient, viên kính chỉ có icon thả xuống:
-  Chọn app mới (4 ô vuông) · Chạy 1 màn hình (4 góc khung) / Chia màn hình khi đang chạy 1 màn hình (2 khung) ·
-  Ảnh trong ảnh (khung + ô nhỏ đặc) · Chạy nền (gạch ngang) · Tắt hẳn app (X đỏ).
+- **Nút ••• của mỗi ô**: tay cầm nhỏ giữa mép trên ô; chạm → tay cầm gradient, thanh nền logo thả xuống. Mỗi nút = ô
+  kính tròn 30pt + nhãn ngắn: Đổi app (4 ô vuông) · Toàn màn (4 góc khung) / Chia màn khi đang chạy 1 màn hình
+  (2 khung) · Cửa sổ nổi (khung + ô nhỏ đặc) · Chạy nền (gạch ngang) | Tắt app (X đỏ, tách bằng vạch trắng).
+  Icon HarmonyOS Symbol giữ nguyên. Thanh ••• của app iPhone (App Bridge, `ABHost.mm`) vẽ giống hệt.
+- **Bảng chọn app**: icon app không có khung (trần như màn Home), cột sơ đồ bên phải nền trong.
+- **Nút Split Screen trên dock**: ô nền logo 4 màu, viền trắng, glyph 2 ô màu chàm (giống nút Chia màn của thanh •••).
 - **Thanh tỉ lệ**: hình mô tả tỉ lệ (1/3 · 1/2 · 2/3), không dùng số.
 - **Bàn phím** theo bàn phím HarmonyOS: thẻ nổi bo tròn 4 góc (20) cách mép 6 pt, kín bề rộng ô app, hàng số riêng, gợi ý góc phím (Telex: dấu /
-  chữ phím đó tạo), bong bóng phóng to khi chạm; màu kính trắng, phím chức năng tím nhạt, Shift / Enter gradient.
+  chữ phím đó tạo), bong bóng phóng to khi chạm; nền logo 4 màu, phím trắng không viền, phím chức năng kính trong
+  viền trắng, Shift / Enter gradient.
 - **Màn hình khởi động**: kiểu "Chất lỏng" (`SS_STYLE_LIQUID`) là bộ mặt mới — 4 vệt pastel trôi chậm, logo kính nổi
   lên, chữ OmniCar gradient, thanh tải mảnh; tự thay cho Video khi chưa có video. Các kiểu khác giữ bản sắc riêng.
 - Không tô tối cả màn hình; không bao giờ che dock.

@@ -656,16 +656,19 @@ static const NSInteger kABDriveOverlayTag = 0xD71E;
 
 #pragma mark - Thanh nut cua o (ve de len app)
 
-// Cung hinh voi thanh nut cua Split Screen ben CarPlay (SCPCGlyph / SCPCRoundButton / SCPCPill trong SCPCarSplit.mm):
-// pill toi 42pt, nut tron 34pt, glyph kieu HyperOS luoi 24, net 1.8; nut dong mau do
-#define AB_BAR_H     42.0
-#define AB_BAR_BTN   34.0
+// Cung hinh voi thanh ••• cua Split Screen ben CarPlay (SCPCActionButton / SCPCActionBar trong SCPCarSplit.mm):
+// vien thuoc 58pt nen logo 4 mau, moi nut 50pt = o kinh tron 30pt + nhan ngan, glyph HarmonyOS 18pt; nut Tat do,
+// tach bang vach trang
+#define AB_BAR_H     58.0
+#define AB_ACT_W     50.0
+#define AB_ACT_ICON  7302
+#define AB_ACT_LABEL 7303
 #define AB_BAR_Y     (6 + 12 + 6 + AB_BAR_H / 2)   // duoi thanh "•••" nhu thanh nut cua CarPlay
 
-// Giao dien moi (DESIGN.md, = SCPCInk / SCPCShadow / SCPCAccentFill ben CarPlay): chu mau muc, bong tim nhat,
-// dang chon = gradient tim -> xanh troi
-static UIColor *ABInk(void) { return [UIColor colorWithRed:0x1F / 255.0 green:0x22 / 255.0 blue:0x33 / 255.0 alpha:1]; }
-static UIColor *ABShadow(void) { return [UIColor colorWithRed:70 / 255.0 green:60 / 255.0 blue:140 / 255.0 alpha:1]; }
+// Giao dien moi (DESIGN.md, = SCPCInk / SCPCShadow / SCPCAccentFill ben CarPlay): chu / icon mau cham diu, bong tim
+// nhat, nut chinh = gradient tim -> xanh troi
+static UIColor *ABInk(void) { return [UIColor colorWithRed:0x4A / 255.0 green:0x4F / 255.0 blue:0x80 / 255.0 alpha:1]; }
+static UIColor *ABShadow(void) { return [UIColor colorWithRed:110 / 255.0 green:100 / 255.0 blue:200 / 255.0 alpha:1]; }
 
 // Tay cam "•••" dang mo thanh nut: gradient + cham trang; dong: kinh trang + cham muc
 static void ABHandleOpen(UIView *pill, BOOL open)
@@ -676,8 +679,8 @@ static void ABHandleOpen(UIView *pill, BOOL open)
     if (open && !g) {
         g = [CAGradientLayer layer];
         g.name = @"omcAccent";
-        g.colors = @[(id)[UIColor colorWithRed:0x8B / 255.0 green:0x7C / 255.0 blue:1 alpha:1].CGColor,
-                     (id)[UIColor colorWithRed:0x5A / 255.0 green:0xB8 / 255.0 blue:1 alpha:1].CGColor];
+        g.colors = @[(id)[UIColor colorWithRed:0x9B / 255.0 green:0x87 / 255.0 blue:0xF8 / 255.0 alpha:1].CGColor,
+                     (id)[UIColor colorWithRed:0x5D / 255.0 green:0xB4 / 255.0 blue:0xF6 / 255.0 alpha:1].CGColor];
         g.startPoint = CGPointZero; g.endPoint = CGPointMake(1, 1);
         g.frame = pill.bounds;
         g.cornerRadius = pill.layer.cornerRadius;
@@ -698,7 +701,7 @@ static UIImage *ABGlyph(NSString *name)
     static NSMutableDictionary<NSString *, UIImage *> *cache;
     if (!cache) cache = [NSMutableDictionary dictionary];
     if (cache[name]) return cache[name];
-    CGFloat pt = [name hasPrefix:@"hm_"] ? 22 : 20;
+    CGFloat pt = [name hasPrefix:@"hm_"] ? 18 : 20;   // hm_*: glyph trong o kinh tron 30pt cua thanh •••
     UIGraphicsImageRenderer *r = [[UIGraphicsImageRenderer alloc] initWithSize:CGSizeMake(pt, pt)];
     UIImage *img = [r imageWithActions:^(UIGraphicsImageRendererContext *rc) {
         CGContextScaleCTM(rc.CGContext, pt / 24.0, pt / 24.0);
@@ -751,53 +754,96 @@ static UIImage *ABGlyph(NSString *name)
     return img;
 }
 
-static UIButton *ABRoundButton(NSString *glyph, id target, SEL action)
+static void ABActionSet(UIButton *b, NSString *glyph, NSString *title)
+{
+    ((UIImageView *)[b viewWithTag:AB_ACT_ICON]).image = ABGlyph(glyph);
+    UILabel *l = (UILabel *)[b viewWithTag:AB_ACT_LABEL];
+    l.text = title;
+    l.textColor = b.tintColor;
+    b.accessibilityLabel = title;
+}
+
+// Nut thanh •••: o kinh tron 30pt (trang trong + vien trang nhu dia trong logo) + nhan ngan duoi
+static UIButton *ABActionButton(NSString *glyph, NSString *title, UIColor *tint, id target, SEL action)
 {
     UIButton *b = [ABBarButton buttonWithType:UIButtonTypeCustom];
-    b.bounds = CGRectMake(0, 0, AB_BAR_BTN, AB_BAR_BTN);
-    b.layer.cornerRadius = AB_BAR_BTN / 2;
-    b.tintColor = ABInk();
-    [b setImage:ABGlyph(glyph) forState:UIControlStateNormal];
+    b.bounds = CGRectMake(0, 0, AB_ACT_W, 50);
+    b.tintColor = tint;
+    UIView *disc = [[UIView alloc] initWithFrame:CGRectMake((AB_ACT_W - 30) / 2, 3, 30, 30)];
+    disc.userInteractionEnabled = NO;
+    disc.backgroundColor = [UIColor colorWithWhite:1 alpha:0.5];
+    disc.layer.cornerRadius = 15;
+    disc.layer.borderWidth = 1;
+    disc.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.9].CGColor;
+    disc.layer.shadowColor = ABShadow().CGColor;
+    disc.layer.shadowOpacity = 0.12; disc.layer.shadowRadius = 3; disc.layer.shadowOffset = CGSizeMake(0, 2);
+    UIImageView *iv = [[UIImageView alloc] initWithFrame:CGRectInset(disc.bounds, 6, 6)];
+    iv.tag = AB_ACT_ICON;
+    iv.contentMode = UIViewContentModeCenter;
+    [disc addSubview:iv];
+    [b addSubview:disc];
+    UILabel *l = [[UILabel alloc] initWithFrame:CGRectMake(-3, 36, AB_ACT_W + 6, 11)];
+    l.tag = AB_ACT_LABEL;
+    l.font = [UIFont systemFontOfSize:9 weight:UIFontWeightMedium];
+    l.textAlignment = NSTextAlignmentCenter;
+    l.adjustsFontSizeToFitWidth = YES;
+    l.minimumScaleFactor = 0.75;
+    l.userInteractionEnabled = NO;
+    [b addSubview:l];
+    ABActionSet(b, glyph, title);
     [b addTarget:target action:action forControlEvents:UIControlEventTouchUpInside];
     return b;
 }
 
-// Thanh ••• kieu HarmonyOS (= setupBarForPane ben CarPlay, DESIGN.md): kinh trang, chi icon - Chon app moi ·
-// Chay 1 man hinh / Chia man hinh · Anh trong anh · Chay nen · Tat han app (X do)
+// Thanh ••• (= setupBarForPane ben CarPlay, DESIGN.md): nen logo 4 mau, o kinh tron + nhan - Doi app ·
+// Toan man / Chia man · Cua so noi · Chay nen | Tat app (do)
 - (UIView *)buildBarForPane:(ABPane *)pane
 {
-    UIButton *replace = ABRoundButton(@"hm_apps", self, @selector(barReplace:));
-    UIButton *full = ABRoundButton(@"hm_full", self, @selector(barFull:));
-    UIButton *pop = ABRoundButton(@"hm_float", self, @selector(barPop:));
-    UIButton *bg = ABRoundButton(@"hm_min", self, @selector(barBackground:));
-    UIButton *close = ABRoundButton(@"hm_close", self, @selector(barClose:));
-    close.tintColor = [UIColor colorWithRed:1.0 green:0x5A / 255.0 blue:0x5F / 255.0 alpha:1];
+    UIButton *replace = ABActionButton(@"hm_apps", OMCTr(@"Đổi app", @"Change app"), ABInk(), self, @selector(barReplace:));
+    UIButton *full = ABActionButton(@"hm_full", OMCTr(@"Toàn màn", @"Full screen"), ABInk(), self, @selector(barFull:));
+    UIButton *pop = ABActionButton(@"hm_float", OMCTr(@"Cửa sổ nổi", @"Float"), ABInk(), self, @selector(barPop:));
+    UIButton *bg = ABActionButton(@"hm_min", OMCTr(@"Chạy nền", @"Background"), ABInk(), self, @selector(barBackground:));
+    UIButton *close = ABActionButton(@"hm_close", OMCTr(@"Tắt app", @"Quit app"),
+                                     [UIColor colorWithRed:1.0 green:0x5A / 255.0 blue:0x5F / 255.0 alpha:1], self, @selector(barClose:));
     pane.popButton = pop;
     pane.soloButton = full;
-    NSArray<UIButton *> *buttons = @[replace, full, pop, bg, close];
-    CGFloat pad = (AB_BAR_H - AB_BAR_BTN) / 2, step = AB_BAR_BTN + 2;
-    CGFloat len = pad * 2 - 2 + buttons.count * step;
+    NSArray *items = @[replace, full, pop, bg, [NSNull null], close];
+    CGFloat pad = 6, sep = 7, len = pad * 2;
+    for (id it in items) len += [it isKindOfClass:[UIButton class]] ? AB_ACT_W : sep;
     UIView *bar = [[UIView alloc] initWithFrame:CGRectMake(0, 0, len, AB_BAR_H)];
     bar.backgroundColor = [UIColor clearColor];
-    bar.layer.cornerRadius = AB_BAR_H / 2;
+    bar.layer.cornerRadius = 22;
     bar.layer.cornerCurve = kCACornerCurveContinuous;
     bar.layer.shadowColor = ABShadow().CGColor;
-    bar.layer.shadowOpacity = 0.28; bar.layer.shadowRadius = 14; bar.layer.shadowOffset = CGSizeMake(0, 6);
+    bar.layer.shadowOpacity = 0.3; bar.layer.shadowRadius = 14; bar.layer.shadowOffset = CGSizeMake(0, 6);
     UIVisualEffectView *glass = [[UIVisualEffectView alloc] initWithEffect:[UIBlurEffect effectWithStyle:UIBlurEffectStyleSystemUltraThinMaterialLight]];
     glass.frame = bar.bounds;
-    glass.contentView.backgroundColor = [UIColor colorWithWhite:1 alpha:0.45];
-    glass.layer.cornerRadius = AB_BAR_H / 2;
+    UIImageView *mesh = [[UIImageView alloc] initWithImage:OMCLogoMeshImage(NO)];   // nen logo 4 mau
+    mesh.frame = glass.contentView.bounds;
+    mesh.contentMode = UIViewContentModeScaleToFill;
+    mesh.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    [glass.contentView addSubview:mesh];
+    glass.layer.cornerRadius = 22;
     glass.layer.cornerCurve = kCACornerCurveContinuous;
-    glass.layer.borderWidth = 0.5;
+    glass.layer.borderWidth = 1;
     glass.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.85].CGColor;
     glass.clipsToBounds = YES;
     glass.userInteractionEnabled = NO;
     [bar addSubview:glass];
     CGFloat o = pad;
-    for (UIButton *b in buttons) {
-        b.center = CGPointMake(o + AB_BAR_BTN / 2, AB_BAR_H / 2);
+    for (id it in items) {
+        if (![it isKindOfClass:[UIButton class]]) {   // vach trang tach nut Tat
+            UIView *line = [[UIView alloc] initWithFrame:CGRectMake(o + (sep - 1) / 2, (AB_BAR_H - 30) / 2, 1, 30)];
+            line.backgroundColor = [UIColor colorWithWhite:1 alpha:0.95];
+            line.userInteractionEnabled = NO;
+            [bar addSubview:line];
+            o += sep;
+            continue;
+        }
+        UIButton *b = it;
+        b.center = CGPointMake(o + AB_ACT_W / 2, AB_BAR_H / 2);
         [bar addSubview:b];
-        o += step;
+        o += AB_ACT_W;
     }
     bar.hidden = YES;
     bar.alpha = 0;
@@ -816,7 +862,7 @@ static UIButton *ABRoundButton(NSString *glyph, id target, SEL action)
     CGFloat avail = s.width - 10, bw = bar.bounds.size.width;
     CGFloat k = (bw > avail && avail > 40) ? avail / bw : 1;
     bar.transform = CGAffineTransformMakeScale(k, k);
-    bar.center = CGPointMake(s.width / 2, AB_BAR_Y);
+    bar.center = CGPointMake(s.width / 2, AB_BAR_Y - AB_BAR_H * (1 - k) / 2);   // thu nho: mep tren van ngay duoi tay cam
     [pane.box bringSubviewToFront:bar];
     [pane.box bringSubviewToFront:pane.handleHit];
 }
@@ -827,9 +873,9 @@ static UIButton *ABRoundButton(NSString *glyph, id target, SEL action)
     if (!p) return;
     if (!p.bar && !visible) return;
     UIView *bar = p.bar ?: [self buildBarForPane:p];
-    [p.popButton setImage:ABGlyph(pop == 2 ? @"hm_split" : @"hm_float") forState:UIControlStateNormal];
+    ABActionSet(p.popButton, pop == 2 ? @"hm_split" : @"hm_float", pop == 2 ? OMCTr(@"Chia màn", @"Split") : OMCTr(@"Cửa sổ nổi", @"Float"));
     p.popButton.alpha = dim ? 0.35 : 1;
-    [p.soloButton setImage:ABGlyph(single ? @"hm_split" : @"hm_full") forState:UIControlStateNormal];
+    ABActionSet(p.soloButton, single ? @"hm_split" : @"hm_full", single ? OMCTr(@"Chia màn", @"Split") : OMCTr(@"Toàn màn", @"Full screen"));
     [self layoutBarForPane:p];
     ABHandleOpen(p.handle, visible);   // tay cam "•••": gradient khi thanh dang mo
     if (visible == !bar.hidden) return;

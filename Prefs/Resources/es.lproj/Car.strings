@@ -68,3 +68,11 @@
 "Your splits will show up here" = "Tus divisiones aparecerán aquí";
 "another pane" = "otro panel";
 "the floating window" = "la ventana flotante";
+
+/* Split Screen: labels of the ••• bar buttons */
+"Change app" = "Cambiar app";
+"Full screen" = "Completa";
+"Float" = "Flotante";
+"Background" = "Segundo plano";
+"Quit app" = "Cerrar app";
+"Split" = "Dividir";
