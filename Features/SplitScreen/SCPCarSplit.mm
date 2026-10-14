@@ -5219,7 +5219,6 @@ static void SCPCStatusBottom(UIView *v, UIView *parent, CGRect strip, int depth,
             // Ca o (nen, vien, glyph) la mot anh goc -> khong qua tint / lop con cua UIButton
             b = [SCPCButton buttonWithType:UIButtonTypeCustom];
             [b setImage:SCPCDockTileImage(size, size * 0.28) forState:UIControlStateNormal];
-            b.adjustsImageWhenHighlighted = NO;
             [b addTarget:self action:@selector(homeButtonTapped) forControlEvents:UIControlEventTouchUpInside];
             b.bounds = CGRectMake(0, 0, size, size);
             b.layer.cornerRadius = size * 0.28;
