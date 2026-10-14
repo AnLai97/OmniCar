@@ -120,13 +120,13 @@ h2 { margin: 0 0 4px; font-size: 16px; }
   box-shadow: inset 0 1px 0 rgba(255,255,255,.18), inset 0 0 0 1px rgba(255,255,255,.08), 0 8px 22px rgba(0,0,0,.35); }
 
 /* 1 Giot kinh: dia kinh tron, vien cau vong (vang / do khi gan / vuot), bien nho chom goc tren phai */
-.s-drop { position: relative; width: 92px; height: 92px; border-radius: 50%; display: grid; place-items: center; }
+.s-drop { position: relative; width: 100px; height: 100px; border-radius: 50%; display: grid; place-items: center; }
 .s-drop::before { content: ""; position: absolute; inset: 0; border-radius: 50%; padding: 3px; background: var(--aurora);
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); }
 .s-drop.near::before, .s-drop.over::before { background: var(--st); }
 .s-drop .in { display: flex; flex-direction: column; align-items: center; gap: 2px; margin-top: 4px; }
-.s-drop .num { font-size: 34px; }
-.s-drop .sign { position: absolute; right: -8px; top: -8px; --sz: 36px; box-shadow: 0 3px 8px rgba(0,0,0,.2); }
+.s-drop .num { font-size: 36px; }
+.s-drop .sign { position: absolute; right: -16px; top: -16px; --sz: 50px; box-shadow: 0 3px 8px rgba(0,0,0,.2); }
 .s-drop .ico { position: absolute; left: -4px; bottom: -2px; --isz: 22px; }
 .s-drop .shine { position: absolute; left: 16%; top: 9%; width: 46%; height: 26%; border-radius: 50%; background: linear-gradient(rgba(255,255,255,.75), transparent); pointer-events: none; }
 
@@ -153,18 +153,18 @@ h2 { margin: 0 0 4px; font-size: 16px; }
 .s-arc svg { position: absolute; inset: 0; transform: rotate(135deg); }
 .s-arc .in { display: flex; flex-direction: column; align-items: center; gap: 1px; margin-top: -6px; }
 .s-arc .num { font-size: 34px; }
-.s-arc .sign { position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%); --sz: 32px; box-shadow: 0 3px 8px rgba(0,0,0,.2); }
+.s-arc .sign { position: absolute; bottom: -18px; left: 50%; transform: translateX(-50%); --sz: 46px; box-shadow: 0 3px 8px rgba(0,0,0,.2); }
 .s-arc .ico { position: absolute; left: 0; top: 2px; --isz: 20px; }
 
 /* 5 The Harmony: the vuong nen 4 mau logo, so to, thanh tien do, bien goc tren phai */
-.s-tile { position: relative; width: 112px; height: 112px; border-radius: 28px; padding: 12px; display: flex; flex-direction: column; justify-content: space-between; overflow: hidden;
+.s-tile { position: relative; width: 124px; height: 124px; border-radius: 28px; padding: 12px; display: flex; flex-direction: column; justify-content: space-between; overflow: hidden;
   background: radial-gradient(circle at 0 0, rgba(201,186,252,.97), transparent 70%), radial-gradient(circle at 100% 0, rgba(166,221,253,.97), transparent 70%),
     radial-gradient(circle at 0 100%, rgba(254,196,216,.97), transparent 70%), radial-gradient(circle at 100% 100%, rgba(160,241,217,.97), transparent 70%), #fff;
   box-shadow: inset 0 0 0 1px #fff, 0 10px 24px rgba(80,70,160,.28); }
 .s-tile.near { background: linear-gradient(150deg, #FFD58A, #FFB340); } .s-tile.over { background: linear-gradient(150deg, #FF8A8D, #FF4F55); }
 .s-tile.near .num, .s-tile.over .num, .s-tile.near .unit, .s-tile.over .unit { color: #fff; }
 .s-tile .hd { display: flex; justify-content: space-between; align-items: flex-start; }
-.s-tile .sign { --sz: 34px; }
+.s-tile .sign { --sz: 48px; }
 .s-tile .num { font-size: 40px; }
 .s-tile .unit { margin-top: 2px; }
 .s-tile .prog { height: 6px; border-radius: 3px; background: rgba(255,255,255,.55); overflow: hidden; }
@@ -198,7 +198,7 @@ h2 { margin: 0 0 4px; font-size: 16px; }
 .s-night .ico { --isz: 18px; }
 
 /* 8 Dai HUD: thanh ngang mong, 12 vach sang dan theo toc do, vach do o muc gioi han */
-.s-hud { display: flex; align-items: center; gap: 12px; height: 50px; padding: 0 8px 0 14px; border-radius: 25px; }
+.s-hud { display: flex; align-items: center; gap: 12px; height: 58px; padding: 0 4px 0 14px; border-radius: 29px; }
 .s-hud .sp { display: flex; align-items: baseline; gap: 4px; min-width: 70px; }
 .s-hud .num { font-size: 30px; }
 .s-hud .ticks { display: flex; gap: 3px; align-items: flex-end; height: 22px; }
@@ -206,13 +206,24 @@ h2 { margin: 0 0 4px; font-size: 16px; }
 .s-hud .ticks i.on { background: linear-gradient(var(--a2), var(--a1)); }
 .s-hud.near .ticks i.on { background: var(--near); } .s-hud.over .ticks i.on { background: var(--over); }
 .s-hud .ticks i.lim { box-shadow: 0 0 0 1.5px var(--sign); }
-.s-hud .sign { --sz: 38px; }
+.s-hud .sign { --sz: 50px; }
 .s-hud .ico { --isz: 22px; margin-left: -4px; }
+
+/* 9 Dong ho taplo: mat dong ho kim 240 do nhu cum dong ho xe, vach / so 0-160 km/h (0-100 mph), vung do tu muc gioi han, so dien tu duoi tam */
+.s-dash { position: relative; width: 140px; height: 140px; border-radius: 50%; }
+.s-dash svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.s-dash .rd { position: absolute; left: 0; right: 0; top: 88px; display: flex; flex-direction: column; align-items: center; gap: 1px; }
+.s-dash .num { font-size: 24px; color: #fff; text-shadow: 0 0 8px rgba(140,190,255,.6); }
+.s-dash.near .num { color: #FFD58A; text-shadow: 0 0 8px rgba(255,179,64,.8); }
+.s-dash.over .num { color: #FF8A8D; text-shadow: 0 0 10px rgba(255,90,95,.9); }
+.s-dash .unit { font-size: 9px; color: rgba(255,255,255,.6); }
+.s-dash .sign { position: absolute; right: -14px; bottom: -10px; --sz: 50px; box-shadow: 0 4px 10px rgba(0,0,0,.3); }
+.s-dash .ico { position: absolute; left: 2px; top: 2px; --isz: 24px; }
 </style>
 </head>
 <body>
 <h1>Bong bóng tốc độ · bộ kiểu mới</h1>
-<p class="sub">Bỏ hết 18 kiểu cũ, thay bằng <b>8 kiểu mới</b> cùng ngôn ngữ HarmonyOS + kính chất lỏng của OmniCar: viền / nền 4 màu logo khi bình thường,
+<p class="sub">Bỏ hết 18 kiểu cũ, thay bằng <b>9 kiểu mới</b> cùng ngôn ngữ HarmonyOS + kính chất lỏng của OmniCar: viền / nền 4 màu logo khi bình thường,
   <b style="color:#d98a00">hổ phách</b> khi sắp chạm giới hạn (≥ 90 %), <b style="color:#f0323a">đỏ có nhịp sáng</b> khi vượt. Chạm một thẻ bên dưới để đặt lên màn xe,
   kéo thanh tốc độ hoặc bấm <b>Chạy thử</b>. Bong bóng trên màn xe kéo đi được.</p>
 
@@ -226,7 +237,7 @@ h2 { margin: 0 0 4px; font-size: 16px; }
     </div></div></div>
     <div class="panel glass" id="panel"></div>
   </div>
-  <h2>8 kiểu · mỗi thẻ: dưới giới hạn · sắp chạm · vượt</h2>
+  <h2>9 kiểu · mỗi thẻ: dưới giới hạn · sắp chạm · vượt</h2>
   <div class="gallery" id="gallery"></div>
   <div class="note"><b>Giữ nguyên từ bản cũ:</b> icon app nguồn (Vietmap Live / GOFA / Google Maps / Waze / Apple Maps / GPS iPhone, bật / tắt được), biển Viên / Mỹ tự theo vùng,
     km/h / mph, cỡ trên iPhone và CarPlay (60–220 %), kéo để dời chỗ, chụm 2 ngón đổi cỡ, giữ 2 giây để thoát app, cảnh báo quá tốc độ (viền màn xe) chạy riêng.
@@ -244,6 +255,7 @@ const STYLES = [
   { id: 'min',   n: 'Tối giản',   d: 'Không nền: số lớn có quầng sáng để đọc trên mọi bản đồ, gạch mảnh theo tốc độ, biển bên cạnh.', ts: .66 },
   { id: 'night', n: 'Kính đêm',   d: 'Viên thuốc dọc kính khói, viền neon cầu vồng; hợp bản đồ tối, chiếm ít chỗ ngang.', ts: .62 },
   { id: 'hud',   n: 'Dải HUD',    d: 'Thanh ngang mảnh: số, 12 vạch sáng dần theo tốc độ (vạch viền đỏ = giới hạn), biển.', ts: .5 },
+  { id: 'dash',  n: 'Đồng hồ taplo', d: 'Mặt đồng hồ kim như taplo xe: vạch 0–160 km/h, vùng đỏ từ mức giới hạn, cung sáng theo tốc độ, số điện tử dưới kim.', ts: .7 },
 ];
 const SOURCES = { vietmap: ['V', '#f07a12'], gofa: ['G', '#1aa260'], gmaps: ['G', '#4285f4'], waze: ['W', '#33ccff'], gps: ['⌖', '#5b6cf0'] };
 const S = { style: 'drop', speed: 47, limit: 50, unit: 'kmh', sign: 'vi', icon: true, src: 'vietmap', size: 100, map: 'light' };
@@ -282,6 +294,34 @@ function bubble(style, v, lim) {
       const n = 12, on = Math.round(Math.min(1, v / 160) * n), limTick = lim ? Math.round(Math.min(1, lim / 160) * n) - 1 : -1;
       const ticks = Array.from({ length: n }, (_, i) => `<i class="${i < on ? 'on' : ''} ${i === limTick ? 'lim' : ''}" style="height:${8 + i * 1.2}px"></i>`).join('');
       return `<div class="bub s-hud lglass ${st} ${st === 'over' ? 'pulse' : ''}">${icoHtml()}<div class="sp">${S_}${U}</div><div class="ticks">${ticks}</div>${signHtml(lim)}</div>`;
+    }
+    case 'dash': {
+      // goc 150 do (duoi trai) -> 390 do (duoi phai), quet 240 do theo chieu kim dong ho; truc y man hinh huong xuong
+      const mph = S.unit === 'mph', MAX = mph ? 100 : 160, MINOR = 10, MAJOR = 20;
+      const ang = x => 150 + 240 * Math.min(1.04, x / MAX);
+      const pt = (r, a) => `${(70 + r * Math.cos(a * Math.PI / 180)).toFixed(2)} ${(70 + r * Math.sin(a * Math.PI / 180)).toFixed(2)}`;
+      const arcD = (r, a1, a2) => `M${pt(r, a1)} A${r} ${r} 0 ${a2 - a1 > 180 ? 1 : 0} 1 ${pt(r, a2)}`;
+      let marks = '';
+      for (let x = 0; x <= MAX; x += MINOR) {
+        const a = ang(x), big = x % MAJOR === 0;
+        marks += `<path d="M${pt(big ? 53 : 57, a)} L${pt(61, a)}" stroke="rgba(255,255,255,${big ? .9 : .45})" stroke-width="${big ? 2 : 1.2}" stroke-linecap="round"/>`;
+        if (big) { const [tx, ty] = pt(43, a).split(' '); marks += `<text x="${tx}" y="${ty}" dy="3.2" text-anchor="middle" font-size="9" font-weight="700" fill="rgba(255,255,255,.85)">${x}</text>`; }
+      }
+      const cv = conv(v), cl = lim ? conv(lim) : 0;
+      const col = st === 'over' ? '#FF5A5F' : st === 'near' ? '#FFB340' : 'url(#dg)';
+      const red = cl && cl < MAX ? `<path d="${arcD(63, ang(cl), ang(MAX))}" fill="none" stroke="#FF5A5F" stroke-width="3.5" opacity=".9"/>
+        <path d="M${pt(52, ang(cl))} L${pt(65, ang(cl))}" stroke="#FF5A5F" stroke-width="2.5" stroke-linecap="round"/>` : '';
+      const prog = cv > 0 ? `<path d="${arcD(49, 150, ang(cv))}" fill="none" stroke="${col}" stroke-width="3" stroke-linecap="round" opacity=".95"/>` : '';
+      return `<div class="bub s-dash ${st} ${st === 'over' ? 'pulse' : ''}"><svg viewBox="0 0 140 140"><defs>
+          <radialGradient id="dface" cx=".5" cy=".42" r=".6"><stop offset="0" stop-color="#2a2e45"/><stop offset="1" stop-color="#0c0d14"/></radialGradient>
+          <linearGradient id="dring" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#A78BFA"/><stop offset=".35" stop-color="#60C5FA"/><stop offset=".7" stop-color="#5EDDB6"/><stop offset="1" stop-color="#F59AC0"/></linearGradient>
+          <linearGradient id="dg" x1="0" x2="1" y1="1" y2="0"><stop offset="0" stop-color="#A78BFA"/><stop offset=".5" stop-color="#60C5FA"/><stop offset="1" stop-color="#5EDDB6"/></linearGradient></defs>
+        <circle cx="70" cy="70" r="67" fill="url(#dface)" stroke="url(#dring)" stroke-width="3"/>
+        <circle cx="70" cy="70" r="64" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="1"/>
+        ${red}${marks}${prog}
+        <g transform="rotate(${ang(cv).toFixed(1)} 70 70)"><polygon points="58,67.8 117,70 58,72.2" fill="#FF5A36" style="filter:drop-shadow(0 0 3px rgba(255,90,54,.8))"/></g>
+        <circle cx="70" cy="70" r="7" fill="#23263a" stroke="rgba(255,255,255,.85)" stroke-width="1.5"/></svg>
+        <div class="rd">${S_}${U}</div>${signHtml(lim)}${icoHtml()}</div>`;
     }
   }
 }
