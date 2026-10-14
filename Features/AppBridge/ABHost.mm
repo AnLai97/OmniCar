@@ -899,6 +899,7 @@ static ABKnobView *ABMakeKnob(void)
     k.layer.shadowColor = ABShadow().CGColor;
     k.layer.shadowOpacity = 0.45; k.layer.shadowRadius = 3; k.layer.shadowOffset = CGSizeMake(0, 1);
     CALayer *dot = [CALayer layer];
+    dot.name = @"omcDot";
     CGFloat ds = 4;
     dot.frame = CGRectMake((AB_KNOB - ds) / 2, (AB_KNOB - ds) / 2, ds, ds);
     dot.cornerRadius = ds / 2;
@@ -907,6 +908,38 @@ static ABKnobView *ABMakeKnob(void)
     [v addSubview:k];
     v.dot = k;
     return v;
+}
+
+// Dang cham / keo / thanh ti le dang mo: nhu tay cam ••• dang mo (= SCPCKnobActive ben CarPlay) - gradient tim -> xanh troi
+// tren lop kinh mo, duoi cham giua; cham trang; quang tim; phong to AB_KNOB_GROW
+static void ABKnobActive(UIView *k, BOOL on)
+{
+    CALayer *dot = nil; CAGradientLayer *g = nil;
+    for (CALayer *l in k.layer.sublayers) {
+        if ([l.name isEqualToString:@"omcDot"]) dot = l;
+        else if ([l.name isEqualToString:@"omcAccent"]) g = (CAGradientLayer *)l;
+    }
+    if (on && !g) {
+        g = [CAGradientLayer layer];
+        g.name = @"omcAccent";
+        g.colors = @[(id)[UIColor colorWithRed:0x9B / 255.0 green:0x87 / 255.0 blue:0xF8 / 255.0 alpha:1].CGColor,
+                     (id)[UIColor colorWithRed:0x5D / 255.0 green:0xB4 / 255.0 blue:0xF6 / 255.0 alpha:1].CGColor];
+        g.startPoint = CGPointZero; g.endPoint = CGPointMake(1, 1);
+        g.frame = k.bounds;
+        g.cornerRadius = k.bounds.size.width / 2;
+        g.opacity = 0;
+        if (dot) [k.layer insertSublayer:g below:dot]; else [k.layer addSublayer:g];
+    }
+    [UIView animateWithDuration:on ? 0.15 : 0.3 delay:0 usingSpringWithDamping:0.7 initialSpringVelocity:0
+                        options:UIViewAnimationOptionBeginFromCurrentState animations:^{
+        k.transform = on ? CGAffineTransformMakeScale(AB_KNOB_GROW, AB_KNOB_GROW) : CGAffineTransformIdentity;
+        g.opacity = on ? 1 : 0;
+        dot.backgroundColor = (on ? [UIColor whiteColor] : ABInk()).CGColor;
+        k.layer.borderColor = [UIColor colorWithWhite:1 alpha:on ? 1 : 0.95].CGColor;
+        k.layer.shadowColor = (on ? [UIColor colorWithRed:110 / 255.0 green:120 / 255.0 blue:1.0 alpha:1] : ABShadow()).CGColor;
+        k.layer.shadowOpacity = on ? 0.5 : 0.45;
+        k.layer.shadowRadius = on ? 7 : 3;
+    } completion:^(BOOL f) { if (!on && g.opacity == 0) [g removeFromSuperlayer]; }];
 }
 
 // Cham tron luon nam tren moi o (o them sau bang addSubview se de len)
@@ -931,13 +964,7 @@ static ABKnobView *ABMakeKnob(void)
         v.index = k.count > 3 ? [k[3] intValue] : (int)i;
         BOOL on = [k[2] boolValue];
         v.center = CGPointMake([k[0] doubleValue], [k[1] doubleValue]);
-        [UIView animateWithDuration:on ? 0.15 : 0.3 delay:0 usingSpringWithDamping:0.7 initialSpringVelocity:0
-                            options:UIViewAnimationOptionBeginFromCurrentState animations:^{
-            v.dot.transform = on ? CGAffineTransformMakeScale(AB_KNOB_GROW, AB_KNOB_GROW) : CGAffineTransformIdentity;
-            v.dot.backgroundColor = on ? [UIColor colorWithRed:0x8B / 255.0 green:0x7C / 255.0 blue:1 alpha:1] : [UIColor clearColor];   // dang cham: mau nhan tim nhu ben CarPlay; khong: lo kinh mo
-            for (CALayer *l in v.dot.layer.sublayers) l.backgroundColor = (on ? [UIColor whiteColor] : ABInk()).CGColor;
-            v.dot.layer.shadowColor = (on ? [UIColor colorWithRed:0x8B / 255.0 green:0x7C / 255.0 blue:1 alpha:1] : ABShadow()).CGColor;
-        } completion:nil];
+        ABKnobActive(v.dot, on);
     }
 }
 

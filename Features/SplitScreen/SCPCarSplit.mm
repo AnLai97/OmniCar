@@ -3290,19 +3290,39 @@ static void SCPCHandleOpen(UIView *h, BOOL open)
 //  Vach chia + tay nam (HyperOS): keo doi ti le (tha tay hit 1/3 · 1/2 · 2/3), keo sat mep -> dong o bi ep,
 //  cham 2 lan -> doi cho 2 o hai ben.
 // ---------------------------------------------------------------------
-// Mau cua cham tron: kinh trang, vien sang, cham mau muc o giua (kieu nut joystick); dang cham / keo: mau nhan tim, cham trang, quang tim
-static UIColor *SCPCKnobFill(BOOL on) { return on ? SCPCAccent() : [UIColor clearColor]; }   // khong cham: lo kinh mo ben duoi
+// Mau cua cham tron: kinh trang, vien sang, cham mau muc o giua (kieu nut joystick); dang cham / keo / thanh ti le dang mo:
+// nhu tay cam ••• dang mo (SCPCHandleOpen) - gradient tim -> xanh troi, cham trang, quang tim; phong to SCPC_KNOB_GROW.
+static CALayer *SCPCKnobLayer(UIView *knob, NSString *name)
+{
+    for (CALayer *l in knob.layer.sublayers) if ([l.name isEqualToString:name]) return l;
+    return nil;
+}
 
 static void SCPCKnobActive(UIView *knob, BOOL on)
 {
+    CALayer *dot = SCPCKnobLayer(knob, @"omcDot");
+    CAGradientLayer *g = (CAGradientLayer *)SCPCKnobLayer(knob, @"omcAccent");
+    if (on && !g) {   // gradient nam tren lop kinh mo, duoi cham giua (= SCPCAccentFill nhung khong bi kinh mo che)
+        g = [CAGradientLayer layer];
+        g.name = @"omcAccent";
+        g.colors = @[(id)SCPCAccent().CGColor, (id)SCPCAccent2().CGColor];
+        g.startPoint = CGPointZero; g.endPoint = CGPointMake(1, 1);
+        g.frame = knob.bounds;
+        g.cornerRadius = knob.bounds.size.width / 2;
+        g.opacity = 0;
+        if (dot) [knob.layer insertSublayer:g below:dot]; else [knob.layer addSublayer:g];
+    }
     [UIView animateWithDuration:on ? 0.15 : 0.3 delay:0 usingSpringWithDamping:0.7 initialSpringVelocity:0
                         options:UIViewAnimationOptionAllowUserInteraction | UIViewAnimationOptionBeginFromCurrentState
                      animations:^{
         knob.transform = on ? CGAffineTransformMakeScale(SCPC_KNOB_GROW, SCPC_KNOB_GROW) : CGAffineTransformIdentity;
-        knob.backgroundColor = SCPCKnobFill(on);
-        for (CALayer *l in knob.layer.sublayers) l.backgroundColor = (on ? [UIColor whiteColor] : SCPCInk()).CGColor;   // cham giua
-        knob.layer.shadowColor = (on ? SCPCAccent() : SCPCShadow()).CGColor;   // dang cham: quang tim
-    } completion:nil];
+        g.opacity = on ? 1 : 0;
+        dot.backgroundColor = (on ? [UIColor whiteColor] : SCPCInk()).CGColor;   // cham giua
+        knob.layer.borderColor = [UIColor colorWithWhite:1 alpha:on ? 1 : 0.95].CGColor;
+        knob.layer.shadowColor = (on ? [UIColor colorWithRed:110 / 255.0 green:120 / 255.0 blue:1.0 alpha:1] : SCPCShadow()).CGColor;   // dang cham: quang tim
+        knob.layer.shadowOpacity = on ? 0.5 : 0.45;
+        knob.layer.shadowRadius = on ? 7 : 3;
+    } completion:^(BOOL f) { if (!on && g.opacity == 0) [g removeFromSuperlayer]; }];
     [[SCPCarSplit shared] publishKnobsSoon];   // o app iPhone (App Bridge) ve de len cham tron -> SpringBoard ve lai cham tron len tren
 }
 
@@ -3313,13 +3333,14 @@ static void SCPCKnobStyle(UIView *knob, NSInteger style)
     if (knob.tag == 3) return;
     knob.tag = 3;
     knob.bounds = CGRectMake(0, 0, SCPC_KNOB_DOT, SCPC_KNOB_DOT);
-    SCPCGlassFill(knob, SCPC_KNOB_DOT / 2);   // cham tron kinh mo (nhu nut dock), cham giua mau muc; dang cham: mau nhan
-    knob.backgroundColor = SCPCKnobFill(NO);
+    SCPCGlassFill(knob, SCPC_KNOB_DOT / 2);   // cham tron kinh mo (nhu nut dock), cham giua mau muc; dang cham: gradient nhan
+    knob.backgroundColor = [UIColor clearColor];
     knob.layer.borderWidth = 1.5;
     knob.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.95].CGColor;
     knob.layer.shadowColor = SCPCShadow().CGColor;
     knob.layer.shadowOpacity = 0.45; knob.layer.shadowRadius = 3; knob.layer.shadowOffset = CGSizeMake(0, 1);
     CALayer *dot = [CALayer layer];
+    dot.name = @"omcDot";   // SCPCKnobActive doi mau cham + chen gradient duoi no
     CGFloat ds = 4;
     dot.frame = CGRectMake((SCPC_KNOB_DOT - ds) / 2, (SCPC_KNOB_DOT - ds) / 2, ds, ds);
     dot.cornerRadius = ds / 2;
