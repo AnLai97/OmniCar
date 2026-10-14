@@ -19,3 +19,5 @@
 "APPBRIDGE_FPS" = "App-Bildrate";
 "APPBRIDGE_FPS_MAX" = "Max.";
 "APPBRIDGE_FPS_FOOTER" = "App-Bildrate: begrenzt die Bilder pro Sekunde der iPhone-Apps im Auto, damit das iPhone kühler bleibt (Animationen, Scrollen; Video bleibt gleich). Bei Max. sinkt sie im Lite-Modus oder bei kabellosem CarPlay automatisch auf 30.";
+"APPBRIDGE_ONCAR_FOOTER" = "Ziehen zum Sortieren · Auge zum Ausblenden · Pin fürs Dock · \"−\" entfernt eine iPhone-App aus dem Auto. Sortieren, Ausblenden und Anheften gelten bei eingeschaltetem CarPlay-Home-Bildschirm.";
+"APPBRIDGE_REMOVE" = "Aus dem Auto entfernen";

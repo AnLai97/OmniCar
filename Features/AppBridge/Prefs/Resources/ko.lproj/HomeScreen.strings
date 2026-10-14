@@ -6,9 +6,6 @@
 "HOMESCREEN_PREVIEW_OFF" = "CarPlay 원래 홈 화면";
 "HOMESCREEN_ENABLE" = "OmniCar 홈 화면";
 "HOMESCREEN_FOOTER" = "OmniCar가 CarPlay 위에 자체 아이콘 격자와 Dock을 그립니다. 끄면 원래 홈 화면으로 돌아갑니다. 테스트 중.";
-"HOMESCREEN_APPS" = "앱";
-"HOMESCREEN_APPS_FOOTER" = "드래그로 정렬 · 눈 아이콘으로 숨기기(기본 CarPlay 앱도) · 핀으로 Dock에 추가. iPhone = App Bridge 앱.";
-"HOMESCREEN_APPS_EMPTY" = "아직 앱 목록이 없습니다: 차에 한 번 연결하면 OmniCar가 홈 화면의 앱을 읽습니다.";
 "HOMESCREEN_GRID" = "아이콘 격자";
 "HOMESCREEN_GRID_FOOTER" = "아이콘이 화면에 맞지 않으면 열 / 행을 줄이며 화면을 넘지 않습니다. 남은 앱은 다음 페이지로.";
 "HOMESCREEN_ICON_SIZE" = "아이콘 크기";

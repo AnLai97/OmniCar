@@ -19,3 +19,5 @@
 "APPBRIDGE_FPS" = "Frame rate app";
 "APPBRIDGE_FPS_MAX" = "Maks";
 "APPBRIDGE_FPS_FOOTER" = "Frame rate app: membatasi frame per detik app iPhone di mobil agar ponsel tidak terlalu panas (animasi, gulir; video tidak berubah). Di Maks turun sendiri ke 30 saat mode ringan aktif atau CarPlay nirkabel.";
+"APPBRIDGE_ONCAR_FOOTER" = "Seret untuk mengurutkan · mata untuk menyembunyikan · pin untuk dock · \"−\" menghapus app iPhone dari mobil. Urutan, sembunyi, dan pin berlaku saat layar utama CarPlay aktif.";
+"APPBRIDGE_REMOVE" = "Hapus dari mobil";

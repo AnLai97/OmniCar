@@ -19,3 +19,5 @@
 "APPBRIDGE_FPS" = "Khung hình app";
 "APPBRIDGE_FPS_MAX" = "Tối đa";
 "APPBRIDGE_FPS_FOOTER" = "Khung hình app: giới hạn số khung hình / giây của app iPhone trên xe cho đỡ nóng máy (hoạt ảnh, cuộn; video không đổi). Để Tối đa thì tự giảm còn 30 khi Chế độ nhẹ bật hoặc CarPlay không dây.";
+"APPBRIDGE_ONCAR_FOOTER" = "Kéo để sắp xếp · con mắt để ẩn · ghim để đưa lên dock · \"−\" để bỏ app iPhone khỏi xe. Sắp xếp, ẩn và ghim áp dụng khi bật Màn chính CarPlay.";
+"APPBRIDGE_REMOVE" = "Bỏ khỏi xe";

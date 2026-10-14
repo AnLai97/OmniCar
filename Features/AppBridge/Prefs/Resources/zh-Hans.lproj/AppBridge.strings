@@ -19,3 +19,5 @@
 "APPBRIDGE_FPS" = "应用帧率";
 "APPBRIDGE_FPS_MAX" = "最高";
 "APPBRIDGE_FPS_FOOTER" = "应用帧率：限制车机上 iPhone 应用的每秒帧数，让手机少发热（动画、滚动；视频不受影响）。选“最高”时，轻量模式开启或无线 CarPlay 下会自动降到 30。";
+"APPBRIDGE_ONCAR_FOOTER" = "拖动排序 · 眼睛图标隐藏 · 图钉放到程序坞 · “−”将 iPhone 应用从车机移除。排序、隐藏和固定在开启 CarPlay 主屏幕时生效。";
+"APPBRIDGE_REMOVE" = "从车机移除";

@@ -6,9 +6,6 @@
 "HOMESCREEN_PREVIEW_OFF" = "الشاشة الرئيسية الأصلية لـ CarPlay";
 "HOMESCREEN_ENABLE" = "الشاشة الرئيسية لـ OmniCar";
 "HOMESCREEN_FOOTER" = "يرسم OmniCar شبكة أيقونات وشريط Dock خاصين به فوق CarPlay؛ أوقفه لاستعادة الشاشة الأصلية. قيد الاختبار.";
-"HOMESCREEN_APPS" = "التطبيقات";
-"HOMESCREEN_APPS_FOOTER" = "اسحب للترتيب · العين للإخفاء (حتى تطبيقات CarPlay) · الدبوس للـ Dock. وسم iPhone = تطبيق عبر App Bridge.";
-"HOMESCREEN_APPS_EMPTY" = "لا توجد قائمة تطبيقات بعد: وصّل السيارة مرة ليقرأ OmniCar تطبيقات الشاشة الرئيسية.";
 "HOMESCREEN_GRID" = "شبكة الأيقونات";
 "HOMESCREEN_GRID_FOOTER" = "تقلّل الشبكة الأعمدة / الصفوف إذا لم تتسع الأيقونات ولا تتجاوز الشاشة؛ باقي التطبيقات في الصفحة التالية.";
 "HOMESCREEN_ICON_SIZE" = "حجم الأيقونات";

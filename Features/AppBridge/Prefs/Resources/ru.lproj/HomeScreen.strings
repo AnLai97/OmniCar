@@ -6,9 +6,6 @@
 "HOMESCREEN_PREVIEW_OFF" = "Исходный экран CarPlay";
 "HOMESCREEN_ENABLE" = "Экран OmniCar";
 "HOMESCREEN_FOOTER" = "OmniCar рисует свою сетку значков и док поверх CarPlay; выключите, чтобы вернуть исходный экран. Тестируется.";
-"HOMESCREEN_APPS" = "Приложения";
-"HOMESCREEN_APPS_FOOTER" = "Перетащите для сортировки · глаз — скрыть (и приложения CarPlay) · булавка — в док. iPhone — приложение через App Bridge.";
-"HOMESCREEN_APPS_EMPTY" = "Списка ещё нет: подключите машину один раз, чтобы OmniCar прочитал приложения экрана CarPlay.";
 "HOMESCREEN_GRID" = "Сетка значков";
 "HOMESCREEN_GRID_FOOTER" = "Если значки не помещаются, сетка убирает столбцы / ряды и не выходит за экран; остальные приложения — на следующей странице.";
 "HOMESCREEN_ICON_SIZE" = "Размер значков";

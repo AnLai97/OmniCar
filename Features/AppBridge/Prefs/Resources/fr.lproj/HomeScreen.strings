@@ -6,9 +6,6 @@
 "HOMESCREEN_PREVIEW_OFF" = "Écran d'accueil d'origine de CarPlay";
 "HOMESCREEN_ENABLE" = "Écran d'accueil OmniCar";
 "HOMESCREEN_FOOTER" = "OmniCar dessine sa propre grille d'icônes et son dock par-dessus ceux de CarPlay ; désactivez pour retrouver l'écran d'origine. En test.";
-"HOMESCREEN_APPS" = "Apps";
-"HOMESCREEN_APPS_FOOTER" = "Glisser pour trier · œil pour masquer (apps CarPlay aussi) · épingle pour le dock. iPhone = app via App Bridge.";
-"HOMESCREEN_APPS_EMPTY" = "Pas encore de liste : connectez la voiture une fois pour qu'OmniCar lise les apps de l'écran d'accueil.";
 "HOMESCREEN_GRID" = "Grille d'icônes";
 "HOMESCREEN_GRID_FOOTER" = "La grille retire colonnes / lignes si les icônes ne tiennent pas, sans jamais déborder ; les autres apps passent à la page suivante.";
 "HOMESCREEN_ICON_SIZE" = "Taille des icônes";

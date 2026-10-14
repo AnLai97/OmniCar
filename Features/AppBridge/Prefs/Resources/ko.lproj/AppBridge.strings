@@ -19,3 +19,5 @@
 "APPBRIDGE_FPS" = "앱 프레임 속도";
 "APPBRIDGE_FPS_MAX" = "최대";
 "APPBRIDGE_FPS_FOOTER" = "앱 프레임 속도: 차 화면의 iPhone 앱 초당 프레임을 제한해 휴대폰 발열을 줄입니다(애니메이션, 스크롤; 동영상은 그대로). 최대로 두면 라이트 모드나 무선 CarPlay에서 자동으로 30으로 낮춥니다.";
+"APPBRIDGE_ONCAR_FOOTER" = "드래그로 정렬 · 눈으로 숨기기 · 핀으로 Dock에 추가 · \"−\"로 iPhone 앱을 차에서 제거. 정렬, 숨기기, 고정은 CarPlay 홈 화면을 켰을 때 적용됩니다.";
+"APPBRIDGE_REMOVE" = "차에서 제거";

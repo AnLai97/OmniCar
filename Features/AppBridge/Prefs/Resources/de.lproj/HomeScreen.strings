@@ -6,9 +6,6 @@
 "HOMESCREEN_PREVIEW_OFF" = "Originaler CarPlay-Home-Bildschirm";
 "HOMESCREEN_ENABLE" = "OmniCar-Home-Bildschirm";
 "HOMESCREEN_FOOTER" = "OmniCar zeichnet ein eigenes Symbolraster und Dock über die von CarPlay; ausschalten bringt den Original-Bildschirm zurück. Im Test.";
-"HOMESCREEN_APPS" = "Apps";
-"HOMESCREEN_APPS_FOOTER" = "Ziehen zum Sortieren · Auge zum Ausblenden (auch CarPlay-Apps) · Pin fürs Dock. iPhone = App über App Bridge.";
-"HOMESCREEN_APPS_EMPTY" = "Noch keine App-Liste: Auto einmal verbinden, damit OmniCar die Apps des CarPlay-Home-Bildschirms liest.";
 "HOMESCREEN_GRID" = "Symbolraster";
 "HOMESCREEN_GRID_FOOTER" = "Das Raster entfernt Spalten / Zeilen, wenn Symbole nicht passen, und läuft nie über; weitere Apps auf der nächsten Seite.";
 "HOMESCREEN_ICON_SIZE" = "Symbolgröße";

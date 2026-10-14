@@ -6,9 +6,6 @@
 "HOMESCREEN_PREVIEW_OFF" = "Màn chính gốc của CarPlay";
 "HOMESCREEN_ENABLE" = "Màn chính của OmniCar";
 "HOMESCREEN_FOOTER" = "OmniCar vẽ lưới icon và dock của riêng mình lên trên CarPlay; tắt là trả lại nguyên màn chính gốc. Đang thử nghiệm.";
-"HOMESCREEN_APPS" = "Ứng dụng";
-"HOMESCREEN_APPS_FOOTER" = "Kéo để sắp xếp · con mắt để ẩn (cả app CarPlay gốc) · ghim để đưa lên dock. Nhãn iPhone = app qua App Bridge.";
-"HOMESCREEN_APPS_EMPTY" = "Chưa có danh sách app: cắm xe một lần để OmniCar đọc các app trên màn chính CarPlay.";
 "HOMESCREEN_GRID" = "Lưới icon";
 "HOMESCREEN_GRID_FOOTER" = "Lưới tự bớt cột / hàng khi icon to hơn màn xe, không bao giờ tràn màn; nhiều app thì vuốt trang.";
 "HOMESCREEN_ICON_SIZE" = "Cỡ icon";

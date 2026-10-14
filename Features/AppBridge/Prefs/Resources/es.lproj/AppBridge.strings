@@ -19,3 +19,5 @@
 "APPBRIDGE_FPS" = "FPS de apps";
 "APPBRIDGE_FPS_MAX" = "Máx.";
 "APPBRIDGE_FPS_FOOTER" = "FPS de apps: limita los fotogramas por segundo de las apps del iPhone en el coche para que el teléfono se caliente menos (animaciones, desplazamiento; el vídeo no cambia). En Máx. baja a 30 solo con el modo ligero o CarPlay inalámbrico.";
+"APPBRIDGE_ONCAR_FOOTER" = "Arrastra para ordenar · ojo para ocultar · chincheta para el dock · \"−\" quita una app del iPhone del coche. Ordenar, ocultar y fijar se aplican con la pantalla de inicio de CarPlay activada.";
+"APPBRIDGE_REMOVE" = "Quitar del coche";

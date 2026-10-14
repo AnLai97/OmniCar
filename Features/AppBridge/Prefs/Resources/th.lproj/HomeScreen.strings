@@ -6,9 +6,6 @@
 "HOMESCREEN_PREVIEW_OFF" = "หน้าโฮมเดิมของ CarPlay";
 "HOMESCREEN_ENABLE" = "หน้าโฮม OmniCar";
 "HOMESCREEN_FOOTER" = "OmniCar วาดตารางไอคอนและ Dock ของตัวเองทับของ CarPlay ปิดเพื่อกลับหน้าโฮมเดิม กำลังทดสอบ";
-"HOMESCREEN_APPS" = "แอป";
-"HOMESCREEN_APPS_FOOTER" = "ลากเพื่อเรียง · รูปตาเพื่อซ่อน (รวมแอป CarPlay) · หมุดเพื่อใส่ Dock ป้าย iPhone = แอปผ่าน App Bridge";
-"HOMESCREEN_APPS_EMPTY" = "ยังไม่มีรายการแอป: ต่อรถหนึ่งครั้งเพื่อให้ OmniCar อ่านแอปบนหน้าโฮม CarPlay";
 "HOMESCREEN_GRID" = "ตารางไอคอน";
 "HOMESCREEN_GRID_FOOTER" = "ถ้าไอคอนใหญ่เกินจอ ตารางจะลดคอลัมน์ / แถวเอง ไม่ล้นจอ แอปที่เหลือไปหน้าถัดไป";
 "HOMESCREEN_ICON_SIZE" = "ขนาดไอคอน";

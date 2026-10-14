@@ -19,3 +19,5 @@
 "APPBRIDGE_FPS" = "App frame rate";
 "APPBRIDGE_FPS_MAX" = "Max";
 "APPBRIDGE_FPS_FOOTER" = "App frame rate: caps the frames per second of iPhone apps on the car to keep the phone cooler (animations, scrolling; video is unchanged). On Max it drops to 30 by itself while Lite mode is on or CarPlay is wireless.";
+"APPBRIDGE_ONCAR_FOOTER" = "Drag to sort · eye to hide · pin for the dock · \"−\" removes an iPhone app from the car. Sorting, hiding and pinning apply when CarPlay home screen is on.";
+"APPBRIDGE_REMOVE" = "Remove from car";

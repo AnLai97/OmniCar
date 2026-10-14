@@ -6,9 +6,6 @@
 "HOMESCREEN_PREVIEW_OFF" = "CarPlay's own home screen";
 "HOMESCREEN_ENABLE" = "OmniCar home screen";
 "HOMESCREEN_FOOTER" = "OmniCar draws its own icon grid and dock over CarPlay's; turn it off to get the original home screen back. In testing.";
-"HOMESCREEN_APPS" = "Apps";
-"HOMESCREEN_APPS_FOOTER" = "Drag to sort · eye to hide (built-in CarPlay apps too) · pin to put on the dock. iPhone tag = app through App Bridge.";
-"HOMESCREEN_APPS_EMPTY" = "No app list yet: connect the car once so OmniCar can read the apps on the CarPlay home screen.";
 "HOMESCREEN_GRID" = "Icon grid";
 "HOMESCREEN_GRID_FOOTER" = "The grid drops columns / rows when the icons outgrow the car screen, it never overflows; more apps go to the next page.";
 "HOMESCREEN_ICON_SIZE" = "Icon size";

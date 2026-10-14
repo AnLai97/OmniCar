@@ -1,9 +1,10 @@
 // "Man chinh CarPlay" (ROADMAP-DEV Muc 2, xem truoc giao dien: tools/preview/home.html). Mo tu trang App tren man xe
 // (OMCAppBridgeAppsController, dong "Man chinh CarPlay"). Cac key HS_KEY_* trong ../AppBridge.h; phia xe:
 // Features/SplitScreen/SCPHomeScreen.mm ve luoi / dock / hinh nen cua OmniCar len tren cua CarPlay.
-//   0 Xem truoc (man xe mo phong, doi theo ngay)   1 Cong tac   2 Ung dung (keo sap xep, an, ghim dock)
-//   3 Luoi icon   4 Hinh nen (o mau: Mac dinh + 6 hinh dung san + anh tu Anh)   5 Dock (chip app ghim, + Them)
-// Danh sach app: app CarPlay ma xe da doc (SPL_KEY_CARPLAY_APPS, theo thu tu man chinh) + app iPhone (AB_KEY_APPS).
+// Trang nay chi lo GIAO DIEN: 0 Xem truoc (man xe mo phong, doi theo ngay)   1 Cong tac   2 Luoi icon
+//   3 Hinh nen (o mau: Mac dinh + 6 hinh dung san + anh tu Anh)   4 Dock (chip app ghim, + Them)
+// App nao tren xe, thu tu, an, ghim: chi o trang App tren man xe (OMCAppBridgeAppsController, muc Tren man xe);
+// trang nay doc lai cac key do cho xem truoc va chip + Them cua dock.
 #import <Preferences/PSViewController.h>
 #import <Preferences/PSSpecifier.h>
 #import <UIKit/UIKit.h>
@@ -229,7 +230,7 @@ static UIImage *OMCHSPresetImage(NSInteger i, CGSize size, CGFloat scale)
 // ---------------------------------------------------------------------
 //  Controller
 // ---------------------------------------------------------------------
-enum { OMCHSPreviewSection = 0, OMCHSSwitchSection, OMCHSAppsSection, OMCHSGridSection, OMCHSWallSection, OMCHSDockSection, OMCHSSectionCount };
+enum { OMCHSPreviewSection = 0, OMCHSSwitchSection, OMCHSGridSection, OMCHSWallSection, OMCHSDockSection, OMCHSSectionCount };
 enum { OMCHSGridSize = 0, OMCHSGridCols, OMCHSGridRows, OMCHSGridGap, OMCHSGridNames, OMCHSGridCount };
 enum { OMCHSWallTiles = 0, OMCHSWallPhotos, OMCHSWallBlur, OMCHSWallDim, OMCHSWallCount };
 enum { OMCHSDockChips = 0, OMCHSDockSuggest, OMCHSDockCount };
@@ -255,8 +256,6 @@ static char kOMCHSBundleKey;
     _table = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStyleInsetGrouped];
     _table.dataSource = self;
     _table.delegate = self;
-    _table.editing = YES;                     // keo sap xep app; o khac khong co nut xoa (editingStyle none)
-    _table.allowsSelectionDuringEditing = YES;
     self.view = _table;
 }
 
@@ -321,7 +320,6 @@ static char kOMCHSBundleKey;
     switch (s) {
         case OMCHSPreviewSection: return 1;
         case OMCHSSwitchSection: return 1;
-        case OMCHSAppsSection: return _order.count;
         case OMCHSGridSection: return OMCHSGridCount;
         case OMCHSWallSection: return OMCHSWallCount;
         case OMCHSDockSection: return OMCHSDockCount;
@@ -332,7 +330,6 @@ static char kOMCHSBundleKey;
 - (NSString *)tableView:(UITableView *)tv titleForHeaderInSection:(NSInteger)s
 {
     switch (s) {
-        case OMCHSAppsSection: return L(@"HOMESCREEN_APPS");
         case OMCHSGridSection: return L(@"HOMESCREEN_GRID");
         case OMCHSWallSection: return L(@"HOMESCREEN_WALLPAPER");
         case OMCHSDockSection: return L(@"HOMESCREEN_DOCK");
@@ -344,7 +341,6 @@ static char kOMCHSBundleKey;
 {
     switch (s) {
         case OMCHSSwitchSection: return L(@"HOMESCREEN_FOOTER");
-        case OMCHSAppsSection: return _order.count ? L(@"HOMESCREEN_APPS_FOOTER") : L(@"HOMESCREEN_APPS_EMPTY");
         case OMCHSGridSection: return L(@"HOMESCREEN_GRID_FOOTER");
         case OMCHSWallSection: return L(@"HOMESCREEN_WALLPAPER_FOOTER");
         case OMCHSDockSection: return L(@"HOMESCREEN_DOCK_FOOTER");
@@ -362,26 +358,6 @@ static char kOMCHSBundleKey;
     if (ip.section == OMCHSWallSection && ip.row == OMCHSWallPhotos) return 58;
     if (ip.section == OMCHSDockSection && ip.row == OMCHSDockChips) return [self layoutChipsIn:nil width:tv.bounds.size.width - 40];
     return 52;
-}
-
-- (UITableViewCellEditingStyle)tableView:(UITableView *)tv editingStyleForRowAtIndexPath:(NSIndexPath *)ip { return UITableViewCellEditingStyleNone; }
-- (BOOL)tableView:(UITableView *)tv shouldIndentWhileEditingRowAtIndexPath:(NSIndexPath *)ip { return NO; }
-- (BOOL)tableView:(UITableView *)tv canMoveRowAtIndexPath:(NSIndexPath *)ip { return ip.section == OMCHSAppsSection; }
-
-- (NSIndexPath *)tableView:(UITableView *)tv targetIndexPathForMoveFromRowAtIndexPath:(NSIndexPath *)from toProposedIndexPath:(NSIndexPath *)to
-{
-    if (to.section < OMCHSAppsSection) return [NSIndexPath indexPathForRow:0 inSection:OMCHSAppsSection];
-    if (to.section > OMCHSAppsSection) return [NSIndexPath indexPathForRow:_order.count - 1 inSection:OMCHSAppsSection];
-    return to;
-}
-
-- (void)tableView:(UITableView *)tv moveRowAtIndexPath:(NSIndexPath *)from toIndexPath:(NSIndexPath *)to
-{
-    NSString *b = _order[from.row];
-    [_order removeObjectAtIndex:from.row];
-    [_order insertObject:b atIndex:to.row];
-    OMCHSStore(HS_KEY_ORDER, [_order copy]);
-    [self updatePreview];
 }
 
 // Cell co accessory dung ca khi bang dang o che do sap xep (editingAccessoryView)
@@ -506,24 +482,6 @@ static char kOMCHSBundleKey;
         c.textLabel.text = L(@"HOMESCREEN_ENABLE");
         c.imageView.image = OMCIcon(@"square.grid.3x2.fill", OMCColorFromHex(@"#8B7CFF"));
         [self setAccessory:[self switchFor:HS_KEY_ENABLED def:NO] onCell:c];
-        return c;
-    }
-    if (ip.section == OMCHSAppsSection) {
-        NSString *bid = _order[ip.row];
-        BOOL hid = [_hidden containsObject:bid], docked = [_dock containsObject:bid];
-        UITableViewCell *c = [self cellWithId:@"app" inTable:tv];
-        c.showsReorderControl = YES;
-        c.textLabel.text = OMCHSName(bid);
-        c.textLabel.textColor = hid ? [UIColor tertiaryLabelColor] : [UIColor labelColor];
-        c.detailTextLabel.text = [_iphoneApps containsObject:bid] ? @"iPhone" : nil;
-        c.imageView.image = OMCHSIcon(bid, 32);
-        c.imageView.alpha = hid ? 0.35 : 1;
-        UIStackView *acc = [[UIStackView alloc] initWithArrangedSubviews:@[
-            [self smallButton:docked ? @"pin.fill" : @"pin" tint:docked ? OMCAccentColor() : [UIColor secondaryLabelColor] action:@selector(pinTapped:) bundle:bid],
-            [self smallButton:hid ? @"eye.slash" : @"eye" tint:[UIColor secondaryLabelColor] action:@selector(eyeTapped:) bundle:bid]]];
-        acc.frame = CGRectMake(0, 0, 76, 36);
-        acc.spacing = 4;
-        [self setAccessory:acc onCell:c];
         return c;
     }
     if (ip.section == OMCHSGridSection) {
@@ -746,14 +704,12 @@ static char kOMCHSBundleKey;
 {
     UIAlertController *sheet = [UIAlertController alertControllerWithTitle:L(@"HOMESCREEN_DOCK_PICK") message:nil preferredStyle:UIAlertControllerStyleActionSheet];
     for (NSString *bid in _order) {
-        if ([_dock containsObject:bid]) continue;
+        if ([_dock containsObject:bid] || [_hidden containsObject:bid]) continue;
         [sheet addAction:[UIAlertAction actionWithTitle:OMCHSName(bid) style:UIAlertActionStyleDefault handler:^(UIAlertAction *a) {
             if (self.dock.count >= HS_DOCK_MAX || [self.dock containsObject:bid]) return;
             [self.dock addObject:bid];
             OMCHSStore(HS_KEY_DOCK, [self.dock copy]);
-            NSMutableIndexSet *secs = [NSMutableIndexSet indexSetWithIndex:OMCHSAppsSection];
-            [secs addIndex:OMCHSDockSection];
-            [self.table reloadSections:secs withRowAnimation:UITableViewRowAnimationAutomatic];
+            [self.table reloadSections:[NSIndexSet indexSetWithIndex:OMCHSDockSection] withRowAnimation:UITableViewRowAnimationAutomatic];
             [self updatePreview];
         }]];
     }
@@ -764,15 +720,6 @@ static char kOMCHSBundleKey;
 }
 
 #pragma mark - Actions
-
-- (void)eyeTapped:(UIButton *)b
-{
-    NSString *bid = objc_getAssociatedObject(b, &kOMCHSBundleKey);
-    if ([_hidden containsObject:bid]) [_hidden removeObject:bid]; else [_hidden addObject:bid];
-    OMCHSStore(HS_KEY_HIDDEN, _hidden.allObjects);
-    [_table reloadSections:[NSIndexSet indexSetWithIndex:OMCHSAppsSection] withRowAnimation:UITableViewRowAnimationNone];
-    [self updatePreview];
-}
 
 - (void)pinTapped:(UIButton *)b
 {
@@ -786,9 +733,7 @@ static char kOMCHSBundleKey;
         return;
     }
     OMCHSStore(HS_KEY_DOCK, [_dock copy]);
-    NSMutableIndexSet *secs = [NSMutableIndexSet indexSetWithIndex:OMCHSAppsSection];
-    [secs addIndex:OMCHSDockSection];
-    [_table reloadSections:secs withRowAnimation:UITableViewRowAnimationAutomatic];
+    [_table reloadSections:[NSIndexSet indexSetWithIndex:OMCHSDockSection] withRowAnimation:UITableViewRowAnimationAutomatic];
     [self updatePreview];
 }
 

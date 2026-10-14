@@ -133,8 +133,9 @@ chỉnh nếu khác. Thử chung: bật Màn chính CarPlay, cắm xe, Gửi log
 - [x] [ ] **Ẩn và sắp xếp app** · Vừa
   Ẩn cả app CarPlay gốc không dùng (CarBridge có), kéo đổi thứ tự app iPhone và app CarPlay trong một danh sách.
   Xong khi: thứ tự và app ẩn giữ nguyên sau khi rút / cắm lại và sau respring.
-  Code: danh sách app trong trang (kéo để sắp xếp, con mắt để ẩn) → HS_KEY_ORDER / HS_KEY_HIDDEN; app mới cài nối theo thứ
-  tự CarPlay. Danh sách lấy từ app CarPlay xe đã đọc (splitScreenCarPlayApps) + app iPhone đã chọn.
+  Code: một danh sách duy nhất ở App trên màn xe > mục Trên màn xe (app CarPlay xe đã đọc + app iPhone đã chọn): kéo để
+  sắp xếp, con mắt để ẩn, ghim lên dock, "−" để bỏ app iPhone khỏi xe → HS_KEY_ORDER / HS_KEY_HIDDEN / HS_KEY_DOCK /
+  AB_KEY_APPS; app mới nối theo thứ tự CarPlay. Trang Màn chính CarPlay chỉ còn giao diện (lưới, hình nền, dock).
   Thử: ẩn 1 app CarPlay gốc, kéo YouTube lên đầu → cắm xe, rút / cắm lại, respring: vẫn đúng.
 - [x] [ ] **Cỡ icon** · Vừa
   Thanh trượt cỡ icon trên màn chính (ví dụ 80–130 %), lưới tự tính lại để không tràn màn.
