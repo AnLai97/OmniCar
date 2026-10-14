@@ -1,0 +1,370 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OmniCar Speed Bubble</title>
+<!--
+  Ban xem truoc bo kieu Bong bong toc do MOI (thay het 18 kieu cu trong Features/SpeedBubble/SPPBubble.mm). Theo DESIGN.md:
+  HarmonyOS sang + kinh chat long, 4 mau logo (tim #A78BFA, xanh troi #60C5FA, bac ha #5EDDB6, hong #F59AC0), chu cham #4A4F80.
+  Trang thai: binh thuong (mau logo) / sap cham gioi han >= 90 % (ho phach #FFB340) / vuot (do #FF5A5F, nhip sang).
+  Khong co gioi han: bien hien "--" mo. Chua phai code that: duyet o day roi moi viet lai SPPBubble.mm.
+-->
+<style>
+:root {
+  --page: #eceef7; --ink: #1f2233; --ink2: #6b7090; --line: rgba(31,34,51,.08);
+  --lav: #B7A6FF; --sky: #8FD3FF; --mint: #9DF2D8; --peach: #FFC2D6;
+  --mk: #4a4f80; --mk2: rgba(74,79,128,.55);
+  --a1: #A78BFA; --a2: #60C5FA; --a3: #5EDDB6; --a4: #F59AC0;
+  --aurora: conic-gradient(from 210deg, var(--a1), var(--a2), var(--a3), var(--a4), var(--a1));
+  --main: linear-gradient(135deg, #9B87F8, #5DB4F6);
+  --near: #FFB340; --over: #FF5A5F; --sign: #E5262D;
+  --glass: rgba(255,255,255,.55); --glass-shadow: 0 10px 30px rgba(70,60,140,.16), 0 1px 2px rgba(70,60,140,.08);
+  --hm-spring: cubic-bezier(.25, 1.35, .45, 1);
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; color: var(--ink); font: 14px/1.45 "HarmonyOS Sans", -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif; }
+body { background: radial-gradient(1200px 600px at 10% -10%, #e4ddff, transparent 60%), radial-gradient(1000px 600px at 100% 10%, #d6f1ff, transparent 60%), var(--page);
+  padding: 22px 16px 60px; display: flex; flex-direction: column; align-items: center; gap: 18px; }
+h1 { margin: 0; font-size: 22px; }
+h2 { margin: 0 0 4px; font-size: 16px; }
+.sub { color: var(--ink2); margin: -8px 0 0; text-align: center; max-width: 960px; font-size: 13px; }
+.glass { background: var(--glass); -webkit-backdrop-filter: blur(22px) saturate(1.6); backdrop-filter: blur(22px) saturate(1.6);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.85), inset 0 0 0 1px rgba(255,255,255,.45), var(--glass-shadow); }
+.wrap { width: 100%; max-width: 1240px; display: flex; flex-direction: column; gap: 16px; }
+.top { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 16px; align-items: start; }
+@media (max-width: 900px) { .top { grid-template-columns: 1fr; } }
+
+/* ---------- man xe ---------- */
+.car { border-radius: 22px; background: #050506; padding: 12px; box-shadow: 0 24px 60px rgba(40,30,90,.3); }
+.carfit { position: relative; width: 100%; aspect-ratio: 800 / 300; border-radius: 12px; overflow: hidden; }
+.cs { position: absolute; left: 0; top: 0; width: 800px; height: 300px; transform-origin: 0 0; transform: scale(var(--k, 1)); }
+.map { position: absolute; inset: 0; }
+.map.light { background:
+  linear-gradient(115deg, transparent 47%, #fff 47%, #fff 50.5%, transparent 50.5%),
+  linear-gradient(20deg, transparent 60%, #fff 60%, #fff 62%, transparent 62%),
+  linear-gradient(170deg, transparent 30%, #ffe9a8 30%, #ffe9a8 33%, transparent 33%),
+  radial-gradient(circle at 75% 30%, #cdeccf 0 60px, transparent 61px),
+  radial-gradient(circle at 20% 80%, #c8e4f7 0 70px, transparent 71px),
+  #eef0ea; }
+.map.dark { background:
+  linear-gradient(115deg, transparent 47%, #4a5363 47%, #4a5363 50.5%, transparent 50.5%),
+  linear-gradient(20deg, transparent 60%, #3b4250 60%, #3b4250 62%, transparent 62%),
+  linear-gradient(170deg, transparent 30%, #6b5a2c 30%, #6b5a2c 33%, transparent 33%),
+  radial-gradient(circle at 75% 30%, #233a2b 0 60px, transparent 61px),
+  radial-gradient(circle at 20% 80%, #1c2c3c 0 70px, transparent 71px),
+  #1d2129; }
+.route { position: absolute; left: 330px; top: -10px; width: 14px; height: 340px; background: #3d8bff; border-radius: 7px; transform: rotate(25deg); box-shadow: 0 0 0 3px rgba(255,255,255,.7); }
+.arrow { position: absolute; left: 380px; top: 150px; width: 26px; height: 26px; border-radius: 50%; background: #3d8bff; box-shadow: 0 0 0 4px #fff, 0 4px 10px rgba(0,0,0,.3); }
+.dock { position: absolute; left: 0; top: 0; bottom: 0; width: 64px; background: rgba(16,17,20,.92); display: flex; flex-direction: column; align-items: center; padding: 8px 0; gap: 8px; z-index: 3; }
+.dock .t { color: #fff; font-size: 12px; font-weight: 700; }
+.dock .d { width: 42px; height: 42px; border-radius: 11px; }
+.navcard { position: absolute; left: 76px; top: 10px; width: 210px; border-radius: 14px; background: rgba(28,30,36,.9); color: #fff; padding: 10px 12px; z-index: 2; font-size: 12px; }
+.navcard b { display: block; font-size: 20px; }
+.slot { position: absolute; z-index: 5; transform-origin: 0 100%; cursor: grab; }
+
+/* ---------- bang dieu khien ---------- */
+.panel { border-radius: 20px; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+.ctl { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+.ctl > span:first-child { width: 86px; color: var(--ink2); flex: none; }
+.ctl input[type=range] { flex: 1; accent-color: #8b7cff; min-width: 0; }
+.ctl .val { width: 54px; text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+.seg { display: flex; background: rgba(120,120,140,.14); border-radius: 9px; padding: 2px; flex: 1; flex-wrap: wrap; }
+.seg span { flex: 1; text-align: center; padding: 4px 6px; font-size: 12px; font-weight: 600; border-radius: 7px; cursor: pointer; white-space: nowrap; }
+.seg span.on { background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,.12); }
+.btn { border: 0; border-radius: 12px; padding: 9px 12px; font: inherit; font-weight: 600; color: #fff; background: var(--main); cursor: pointer; box-shadow: 0 5px 14px rgba(110,120,245,.35); }
+.btn.ghost { background: rgba(120,120,140,.14); color: var(--ink); box-shadow: none; }
+.state { font-size: 12px; color: var(--ink2); }
+
+/* ---------- bo suu tap ---------- */
+.gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+.card { border-radius: 20px; padding: 12px; cursor: pointer; position: relative; transition: transform .25s var(--hm-spring); }
+.card:hover { transform: translateY(-2px); }
+.card.sel::after { content: ""; position: absolute; inset: -3px; border-radius: 23px; padding: 2.5px; background: var(--aurora);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); }
+.card h3 { margin: 0; font-size: 14.5px; display: flex; justify-content: space-between; align-items: baseline; }
+.card h3 small { font-size: 11px; color: var(--ink2); font-weight: 500; }
+.card p { margin: 2px 0 8px; font-size: 12px; color: var(--ink2); min-height: 34px; }
+.trio { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.tile { position: relative; height: 112px; border-radius: 12px; overflow: hidden; display: grid; place-items: center; }
+.tile .bub-wrap { position: absolute; inset: 0; z-index: 2; }
+.tile .bub-scale { position: absolute; left: 50%; top: 50%; width: max-content; transform-origin: center; }
+.tile .lab { position: absolute; left: 6px; bottom: 4px; font-size: 10px; font-weight: 600; color: var(--ink2); background: rgba(255,255,255,.7); border-radius: 6px; padding: 0 5px; z-index: 3; }
+.note { font-size: 12.5px; color: var(--ink2); }
+.note b { color: var(--ink); }
+
+/* =====================================================================
+   Thanh phan chung cua bong bong
+   ===================================================================== */
+.bub { --st: var(--mk); --stx: var(--mk); font-variant-numeric: tabular-nums; color: var(--mk); line-height: 1; user-select: none; }
+.bub.near { --st: var(--near); --stx: #d98a00; }
+.bub.over { --st: var(--over); --stx: #f0323a; }
+.num { font-weight: 700; letter-spacing: -.5px; color: var(--stx); }
+.unit { font-size: 10px; font-weight: 600; color: var(--mk2); letter-spacing: .3px; }
+.dark .unit { color: rgba(255,255,255,.6); }
+/* bien gioi han: Vienna (tron vien do) / My (chu nhat "SPEED LIMIT") */
+.sign { display: grid; place-items: center; background: #fff; color: #111; font-weight: 800; flex: none; }
+.sign.vi { border-radius: 50%; border: calc(var(--sz) * .12) solid var(--sign); width: var(--sz); height: var(--sz); font-size: calc(var(--sz) * .42); }
+.sign.us { width: calc(var(--sz) * .82); height: var(--sz); border-radius: calc(var(--sz) * .1); border: calc(var(--sz) * .045) solid #111; outline: calc(var(--sz) * .035) solid #fff;
+  font-size: calc(var(--sz) * .4); grid-template-rows: auto 1fr; padding-top: calc(var(--sz) * .08); }
+.sign.us i { font-style: normal; font-size: calc(var(--sz) * .13); line-height: 1.05; text-align: center; font-weight: 700; letter-spacing: .2px; }
+.sign.none { color: #9aa0ad; }
+.sign.vi.none { border-color: #c4c8d2; }
+.ico { width: var(--isz, 22px); height: var(--isz, 22px); border-radius: 50%; display: grid; place-items: center; color: #fff; font-weight: 800; font-size: calc(var(--isz, 22px) * .5); flex: none;
+  box-shadow: 0 0 0 1.5px rgba(255,255,255,.9); }
+.over .pulse { animation: pulse 1s ease-in-out infinite; }
+@keyframes pulse { 50% { box-shadow: 0 0 0 6px rgba(255,90,95,.0), 0 0 22px 4px rgba(255,90,95,.55); } }
+.lglass { background: rgba(255,255,255,.62); -webkit-backdrop-filter: blur(18px) saturate(1.7); backdrop-filter: blur(18px) saturate(1.7);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.95), inset 0 0 0 1px rgba(255,255,255,.6), 0 8px 22px rgba(60,50,130,.22); }
+.dglass { background: rgba(18,20,30,.62); -webkit-backdrop-filter: blur(18px) saturate(1.5); backdrop-filter: blur(18px) saturate(1.5);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.18), inset 0 0 0 1px rgba(255,255,255,.08), 0 8px 22px rgba(0,0,0,.35); }
+
+/* 1 Giot kinh: dia kinh tron, vien cau vong (vang / do khi gan / vuot), bien nho chom goc tren phai */
+.s-drop { position: relative; width: 92px; height: 92px; border-radius: 50%; display: grid; place-items: center; }
+.s-drop::before { content: ""; position: absolute; inset: 0; border-radius: 50%; padding: 3px; background: var(--aurora);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); }
+.s-drop.near::before, .s-drop.over::before { background: var(--st); }
+.s-drop .in { display: flex; flex-direction: column; align-items: center; gap: 2px; margin-top: 4px; }
+.s-drop .num { font-size: 34px; }
+.s-drop .sign { position: absolute; right: -8px; top: -8px; --sz: 36px; box-shadow: 0 3px 8px rgba(0,0,0,.2); }
+.s-drop .ico { position: absolute; left: -4px; bottom: -2px; --isz: 22px; }
+.s-drop .shine { position: absolute; left: 16%; top: 9%; width: 46%; height: 26%; border-radius: 50%; background: linear-gradient(rgba(255,255,255,.75), transparent); pointer-events: none; }
+
+/* 2 Vien kinh: [icon] so / don vi | bien */
+.s-pill { display: flex; align-items: center; gap: 10px; height: 60px; padding: 0 8px 0 10px; border-radius: 30px; }
+.s-pill .num { font-size: 32px; }
+.s-pill .sp { display: flex; flex-direction: column; align-items: center; gap: 1px; min-width: 52px; }
+.s-pill .bar { width: 1.5px; height: 32px; background: rgba(74,79,128,.18); border-radius: 1px; }
+.s-pill .sign { --sz: 44px; }
+.s-pill .dot { width: 8px; height: 8px; border-radius: 4px; background: var(--st); margin-right: -4px; }
+.s-pill.normal .dot { background: var(--a3); }
+
+/* 3 Cap doi: dia toc do kinh + bien cung co, xep chong nhu hai giot nuoc */
+.s-twin { position: relative; width: 128px; height: 76px; }
+.s-twin .sp { position: absolute; left: 0; top: 0; width: 76px; height: 76px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; z-index: 2; }
+.s-twin .num { font-size: 30px; }
+.s-twin.over .sp { background: var(--over); } .s-twin.over .num, .s-twin.over .unit { color: #fff; }
+.s-twin.near .sp { box-shadow: inset 0 0 0 3px var(--near), 0 8px 22px rgba(60,50,130,.22); }
+.s-twin .sign { position: absolute; right: 0; top: 6px; --sz: 64px; box-shadow: 0 6px 16px rgba(0,0,0,.18); }
+.s-twin .ico { position: absolute; left: 54px; top: -2px; z-index: 3; --isz: 20px; }
+
+/* 4 Vong cung: cung 270 do = toc do / gioi han (cau vong -> ho phach -> do), bien o khe duoi */
+.s-arc { position: relative; width: 104px; height: 104px; border-radius: 50%; display: grid; place-items: center; }
+.s-arc svg { position: absolute; inset: 0; transform: rotate(135deg); }
+.s-arc .in { display: flex; flex-direction: column; align-items: center; gap: 1px; margin-top: -6px; }
+.s-arc .num { font-size: 34px; }
+.s-arc .sign { position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%); --sz: 32px; box-shadow: 0 3px 8px rgba(0,0,0,.2); }
+.s-arc .ico { position: absolute; left: 0; top: 2px; --isz: 20px; }
+
+/* 5 The Harmony: the vuong nen 4 mau logo, so to, thanh tien do, bien goc tren phai */
+.s-tile { position: relative; width: 112px; height: 112px; border-radius: 28px; padding: 12px; display: flex; flex-direction: column; justify-content: space-between; overflow: hidden;
+  background: radial-gradient(circle at 0 0, rgba(201,186,252,.97), transparent 70%), radial-gradient(circle at 100% 0, rgba(166,221,253,.97), transparent 70%),
+    radial-gradient(circle at 0 100%, rgba(254,196,216,.97), transparent 70%), radial-gradient(circle at 100% 100%, rgba(160,241,217,.97), transparent 70%), #fff;
+  box-shadow: inset 0 0 0 1px #fff, 0 10px 24px rgba(80,70,160,.28); }
+.s-tile.near { background: linear-gradient(150deg, #FFD58A, #FFB340); } .s-tile.over { background: linear-gradient(150deg, #FF8A8D, #FF4F55); }
+.s-tile.near .num, .s-tile.over .num, .s-tile.near .unit, .s-tile.over .unit { color: #fff; }
+.s-tile .hd { display: flex; justify-content: space-between; align-items: flex-start; }
+.s-tile .sign { --sz: 34px; }
+.s-tile .num { font-size: 40px; }
+.s-tile .unit { margin-top: 2px; }
+.s-tile .prog { height: 6px; border-radius: 3px; background: rgba(255,255,255,.55); overflow: hidden; }
+.s-tile .prog i { display: block; height: 100%; border-radius: 3px; background: var(--main); }
+.s-tile.near .prog i, .s-tile.over .prog i { background: #fff; }
+
+/* 6 Toi gian: khong nen, so lon co quang trang de doc tren ban do, gach cau vong mong = toc do / gioi han */
+.s-min { display: flex; align-items: flex-end; gap: 8px; }
+.s-min .sp { display: flex; flex-direction: column; gap: 3px; }
+.s-min .row { display: flex; align-items: baseline; gap: 4px; }
+.s-min .num { font-size: 48px; text-shadow: 0 0 2px #fff, 0 0 6px #fff, 0 0 12px rgba(255,255,255,.9); }
+.s-min .unit { font-size: 12px; color: var(--mk); text-shadow: 0 0 4px #fff; }
+.s-min .line { height: 5px; width: 92px; border-radius: 3px; background: rgba(255,255,255,.8); box-shadow: 0 1px 4px rgba(0,0,0,.15); overflow: hidden; }
+.s-min .line i { display: block; height: 100%; background: linear-gradient(90deg, var(--a1), var(--a2), var(--a3)); border-radius: 3px; }
+.s-min.near .line i { background: var(--near); } .s-min.over .line i { background: var(--over); }
+.s-min .sign { --sz: 40px; margin-bottom: 8px; box-shadow: 0 3px 10px rgba(0,0,0,.2); }
+.mapdark .s-min .num { text-shadow: 0 0 2px #000, 0 0 8px rgba(0,0,0,.8); }
+.mapdark .s-min .unit { color: #fff; text-shadow: 0 0 4px #000; }
+
+/* 7 Kinh dem: vien thuoc dung kinh khoi, vien neon cau vong, bien tren, so duoi */
+.s-night { position: relative; width: 70px; padding: 8px 0 12px; border-radius: 35px; display: flex; flex-direction: column; align-items: center; gap: 8px; color: #fff; }
+.s-night::before { content: ""; position: absolute; inset: 0; border-radius: 35px; padding: 1.5px; background: var(--aurora);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  filter: drop-shadow(0 0 4px rgba(167,139,250,.9)); }
+.s-night.near::before, .s-night.over::before { background: var(--st); filter: drop-shadow(0 0 6px var(--st)); }
+.s-night .sign { --sz: 50px; }
+.s-night .num { font-size: 30px; color: #fff; text-shadow: 0 0 10px rgba(140,190,255,.7); }
+.s-night.near .num { color: #FFD58A; text-shadow: 0 0 10px rgba(255,179,64,.8); }
+.s-night.over .num { color: #FF8A8D; text-shadow: 0 0 12px rgba(255,90,95,.9); }
+.s-night .sp { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.s-night .ico { --isz: 18px; }
+
+/* 8 Dai HUD: thanh ngang mong, 12 vach sang dan theo toc do, vach do o muc gioi han */
+.s-hud { display: flex; align-items: center; gap: 12px; height: 50px; padding: 0 8px 0 14px; border-radius: 25px; }
+.s-hud .sp { display: flex; align-items: baseline; gap: 4px; min-width: 70px; }
+.s-hud .num { font-size: 30px; }
+.s-hud .ticks { display: flex; gap: 3px; align-items: flex-end; height: 22px; }
+.s-hud .ticks i { width: 5px; border-radius: 2px; background: rgba(74,79,128,.16); }
+.s-hud .ticks i.on { background: linear-gradient(var(--a2), var(--a1)); }
+.s-hud.near .ticks i.on { background: var(--near); } .s-hud.over .ticks i.on { background: var(--over); }
+.s-hud .ticks i.lim { box-shadow: 0 0 0 1.5px var(--sign); }
+.s-hud .sign { --sz: 38px; }
+.s-hud .ico { --isz: 22px; margin-left: -4px; }
+</style>
+</head>
+<body>
+<h1>Bong bóng tốc độ · bộ kiểu mới</h1>
+<p class="sub">Bỏ hết 18 kiểu cũ, thay bằng <b>8 kiểu mới</b> cùng ngôn ngữ HarmonyOS + kính chất lỏng của OmniCar: viền / nền 4 màu logo khi bình thường,
+  <b style="color:#d98a00">hổ phách</b> khi sắp chạm giới hạn (≥ 90 %), <b style="color:#f0323a">đỏ có nhịp sáng</b> khi vượt. Chạm một thẻ bên dưới để đặt lên màn xe,
+  kéo thanh tốc độ hoặc bấm <b>Chạy thử</b>. Bong bóng trên màn xe kéo đi được.</p>
+
+<div class="wrap">
+  <div class="top">
+    <div class="car"><div class="carfit" id="fit"><div class="cs" id="cs">
+      <div class="map light" id="map"><div class="route"></div><div class="arrow"></div></div>
+      <div class="navcard"><b>300 m</b>Rẽ phải vào Nguyễn Văn Linh</div>
+      <div class="dock"><div class="t">9:41</div><div class="d" style="background:#f07a12"></div><div class="d" style="background:linear-gradient(160deg,#ff6b81,#fa2d55)"></div><div class="d" style="background:#ff2a20"></div></div>
+      <div class="slot" id="slot" style="left:78px;top:182px"></div>
+    </div></div></div>
+    <div class="panel glass" id="panel"></div>
+  </div>
+  <h2>8 kiểu · mỗi thẻ: dưới giới hạn · sắp chạm · vượt</h2>
+  <div class="gallery" id="gallery"></div>
+  <div class="note"><b>Giữ nguyên từ bản cũ:</b> icon app nguồn (Vietmap Live / GOFA / Google Maps / Waze / Apple Maps / GPS iPhone, bật / tắt được), biển Viên / Mỹ tự theo vùng,
+    km/h / mph, cỡ trên iPhone và CarPlay (60–220 %), kéo để dời chỗ, chụm 2 ngón đổi cỡ, giữ 2 giây để thoát app, cảnh báo quá tốc độ (viền màn xe) chạy riêng.
+    Không có giới hạn (GPS iPhone): biển hiện “--” màu xám, không đổi màu theo trạng thái.</div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const STYLES = [
+  { id: 'drop',  n: 'Giọt kính',  d: 'Đĩa kính tròn như giọt nước, viền cầu vồng 4 màu logo; biển nhỏ chồm góc trên. Mặc định.', ts: .78 },
+  { id: 'pill',  n: 'Viên kính',  d: 'Viên thuốc ngang: chấm trạng thái, số + đơn vị, vạch mảnh, biển. Gọn khi để mép trên / dưới.', ts: .66 },
+  { id: 'twin',  n: 'Cặp đôi',    d: 'Đĩa tốc độ và biển cùng cỡ chồng nhau; vượt thì đĩa tốc độ đỏ đặc — nhìn liếc là thấy.', ts: .7 },
+  { id: 'arc',   n: 'Vòng cung',  d: 'Cung 270° lấp đầy theo tốc độ / giới hạn, cầu vồng → hổ phách → đỏ; biển ở khe dưới.', ts: .74 },
+  { id: 'tile',  n: 'Thẻ Harmony', d: 'Thẻ vuông bo lớn nền 4 màu logo, số to, thanh tiến độ; gần / vượt thì cả thẻ đổi màu.', ts: .68 },
+  { id: 'min',   n: 'Tối giản',   d: 'Không nền: số lớn có quầng sáng để đọc trên mọi bản đồ, gạch mảnh theo tốc độ, biển bên cạnh.', ts: .66 },
+  { id: 'night', n: 'Kính đêm',   d: 'Viên thuốc dọc kính khói, viền neon cầu vồng; hợp bản đồ tối, chiếm ít chỗ ngang.', ts: .62 },
+  { id: 'hud',   n: 'Dải HUD',    d: 'Thanh ngang mảnh: số, 12 vạch sáng dần theo tốc độ (vạch viền đỏ = giới hạn), biển.', ts: .5 },
+];
+const SOURCES = { vietmap: ['V', '#f07a12'], gofa: ['G', '#1aa260'], gmaps: ['G', '#4285f4'], waze: ['W', '#33ccff'], gps: ['⌖', '#5b6cf0'] };
+const S = { style: 'drop', speed: 47, limit: 50, unit: 'kmh', sign: 'vi', icon: true, src: 'vietmap', size: 100, map: 'light' };
+
+const state = (v, lim) => !lim ? 'normal' : v > lim ? 'over' : v >= lim * .9 ? 'near' : 'normal';
+const conv = v => S.unit === 'mph' ? Math.round(v * 0.621371) : v;
+const unitTxt = () => S.unit === 'mph' ? 'mph' : 'km/h';
+function signHtml(lim) {
+  const t = lim ? conv(lim) : '--', none = lim ? '' : 'none';
+  return S.sign === 'us' ? `<span class="sign us ${none}"><i>SPEED<br>LIMIT</i>${t}</span>` : `<span class="sign vi ${none}">${t}</span>`;
+}
+const icoHtml = () => S.icon ? `<span class="ico" style="background:${SOURCES[S.src][1]}">${SOURCES[S.src][0]}</span>` : '';
+
+// Ve 1 bong bong: style, toc do (km/h), gioi han (km/h, 0 = khong co)
+function bubble(style, v, lim) {
+  const st = state(v, lim), num = conv(v), u = unitTxt(), ratio = lim ? Math.min(1.25, v / lim) : Math.min(1, v / 160);
+  const S_ = `<span class="num">${num}</span>`, U = `<span class="unit">${u}</span>`;
+  switch (style) {
+    case 'drop': return `<div class="bub s-drop lglass ${st} ${st === 'over' ? 'pulse' : ''}"><span class="shine"></span><div class="in">${S_}${U}</div>${signHtml(lim)}${icoHtml()}</div>`;
+    case 'pill': return `<div class="bub s-pill lglass ${st} ${st === 'over' ? 'pulse' : ''}">${S.icon ? icoHtml() : `<span class="dot"></span>`}<div class="sp">${S_}${U}</div><span class="bar"></span>${signHtml(lim)}</div>`;
+    case 'twin': return `<div class="bub s-twin ${st}">${signHtml(lim)}<div class="sp lglass ${st === 'over' ? 'pulse' : ''}">${S_}${U}</div>${icoHtml()}</div>`;
+    case 'arc': {
+      const r = 46, c = 2 * Math.PI * r, arc = c * .75, fill = arc * Math.min(1, ratio);
+      const col = st === 'over' ? 'var(--over)' : st === 'near' ? 'var(--near)' : 'url(#ag)';
+      return `<div class="bub s-arc lglass ${st} ${st === 'over' ? 'pulse' : ''}"><svg viewBox="0 0 104 104"><defs><linearGradient id="ag" x1="0" x2="1" y1="0" y2="1">
+        <stop offset="0" stop-color="#A78BFA"/><stop offset=".5" stop-color="#60C5FA"/><stop offset="1" stop-color="#5EDDB6"/></linearGradient></defs>
+        <circle cx="52" cy="52" r="${r}" fill="none" stroke="rgba(74,79,128,.12)" stroke-width="7" stroke-linecap="round" stroke-dasharray="${arc} ${c}"/>
+        <circle cx="52" cy="52" r="${r}" fill="none" stroke="${col}" stroke-width="7" stroke-linecap="round" stroke-dasharray="${fill} ${c}"/></svg>
+        <div class="in">${S_}${U}</div>${signHtml(lim)}${icoHtml()}</div>`;
+    }
+    case 'tile': return `<div class="bub s-tile ${st} ${st === 'over' ? 'pulse' : ''}"><div class="hd">${S.icon ? icoHtml() : '<span></span>'}${signHtml(lim)}</div>
+      <div><div style="display:flex;align-items:baseline;gap:4px">${S_}${U}</div></div><div class="prog"><i style="width:${Math.min(100, ratio * 100)}%"></i></div></div>`;
+    case 'min': return `<div class="bub s-min ${st}"><div class="sp">${S.icon ? `<div class="row" style="gap:6px">${icoHtml()}</div>` : ''}<div class="row">${S_}${U}</div><div class="line"><i style="width:${Math.min(100, ratio * 100)}%"></i></div></div>${signHtml(lim)}</div>`;
+    case 'night': return `<div class="bub s-night dark dglass ${st} ${st === 'over' ? 'pulse' : ''}">${signHtml(lim)}<div class="sp">${S_}${U}</div>${icoHtml()}</div>`;
+    case 'hud': {
+      const n = 12, on = Math.round(Math.min(1, v / 160) * n), limTick = lim ? Math.round(Math.min(1, lim / 160) * n) - 1 : -1;
+      const ticks = Array.from({ length: n }, (_, i) => `<i class="${i < on ? 'on' : ''} ${i === limTick ? 'lim' : ''}" style="height:${8 + i * 1.2}px"></i>`).join('');
+      return `<div class="bub s-hud lglass ${st} ${st === 'over' ? 'pulse' : ''}">${icoHtml()}<div class="sp">${S_}${U}</div><div class="ticks">${ticks}</div>${signHtml(lim)}</div>`;
+    }
+  }
+}
+
+function renderCar() {
+  $('map').className = 'map ' + S.map;
+  $('cs').classList.toggle('mapdark', S.map === 'dark');
+  $('slot').innerHTML = bubble(S.style, S.speed, S.limit);
+  $('slot').style.transform = `scale(${S.size / 100})`;
+  const st = state(S.speed, S.limit);
+  $('stateTxt') && ($('stateTxt').textContent = !S.limit ? 'Không có giới hạn (biển xám)' : st === 'over' ? 'Vượt giới hạn' : st === 'near' ? 'Sắp chạm giới hạn (≥ 90 %)' : 'Dưới giới hạn');
+}
+function renderGallery() {
+  const lim = S.limit || 60;
+  const cases = [['Dưới', Math.round(lim * .7)], ['Sắp chạm', Math.round(lim * .95)], ['Vượt', Math.round(lim * 1.2)]];
+  $('gallery').innerHTML = STYLES.map(s => `<div class="card glass ${S.style === s.id ? 'sel' : ''}" data-style="${s.id}">
+      <h3>${s.n}<small>${STYLES.indexOf(s) + 1} / ${STYLES.length}</small></h3><p>${s.d}</p>
+      <div class="trio ${S.map === 'dark' ? 'mapdark' : ''}">${cases.map(([l, v]) => `<div class="tile"><div class="map ${S.map}"></div><div class="bub-wrap" style="--ts:${s.ts}"><div class="bub-scale" style="transform:scale(${s.ts})">${bubble(s.id, v, S.limit === 0 ? 0 : lim)}</div></div><span class="lab">${l}</span></div>`).join('')}</div></div>`).join('');
+  document.querySelectorAll('[data-style]').forEach(e => e.onclick = () => { S.style = e.dataset.style; renderAll(); });
+  // moi bong bong tu co vua o (tinh ca bien / icon chom ra ngoai)
+  document.querySelectorAll('.tile').forEach(t => {
+    const w = t.querySelector('.bub-scale'), b = w.firstElementChild;
+    w.style.transform = 'translate(-50%, -50%)';
+    let r = b.getBoundingClientRect(), l = r.left, tp = r.top, rt = r.right, bt = r.bottom;
+    b.querySelectorAll('*').forEach(c => { const q = c.getBoundingClientRect(); if (!q.width) return; l = Math.min(l, q.left); tp = Math.min(tp, q.top); rt = Math.max(rt, q.right); bt = Math.max(bt, q.bottom); });
+    const k = Math.min(.8, (t.clientWidth - 12) / (rt - l), (t.clientHeight - 30) / (bt - tp));
+    w.style.transform = `translate(-50%, calc(-50% - 6px)) scale(${k})`;
+  });
+}
+function renderPanel() {
+  const seg = (k, opts) => `<span class="seg">${opts.map(([v, t]) => `<span class="${S[k] === v ? 'on' : ''}" data-set="${k}" data-v="${v}">${t}</span>`).join('')}</span>`;
+  $('panel').innerHTML = `
+    <div class="ctl"><span>Tốc độ</span><input type="range" min="0" max="140" value="${S.speed}" id="spd"><span class="val" id="spdv">${conv(S.speed)} ${unitTxt()}</span></div>
+    <div class="ctl"><span>Giới hạn</span>${seg('limit', [[0, '—'], [40, '40'], [50, '50'], [60, '60'], [80, '80'], [100, '100'], [120, '120']])}</div>
+    <div class="ctl"><span>Đơn vị</span>${seg('unit', [['kmh', 'km/h'], ['mph', 'mph']])}</div>
+    <div class="ctl"><span>Biển</span>${seg('sign', [['vi', 'Viên (tròn)'], ['us', 'Mỹ']])}</div>
+    <div class="ctl"><span>Icon app</span>${seg('icon', [[true, 'Hiện'], [false, 'Ẩn']])}</div>
+    <div class="ctl"><span>Nguồn</span>${seg('src', [['vietmap', 'Vietmap'], ['gofa', 'GOFA'], ['gmaps', 'GMaps'], ['waze', 'Waze'], ['gps', 'GPS']])}</div>
+    <div class="ctl"><span>Cỡ</span><input type="range" min="60" max="160" value="${S.size}" id="size"><span class="val">${S.size}%</span></div>
+    <div class="ctl"><span>Bản đồ</span>${seg('map', [['light', 'Sáng'], ['dark', 'Tối']])}</div>
+    <div class="state" id="stateTxt"></div>
+    <div style="display:flex;gap:8px"><button class="btn" id="drive">${driving ? '■ Dừng' : '▶ Chạy thử'}</button><button class="btn ghost" id="reset">Về chỗ cũ</button></div>`;
+  $('spd').oninput = e => { S.speed = +e.target.value; $('spdv').textContent = `${conv(S.speed)} ${unitTxt()}`; renderCar(); };
+  $('size').oninput = e => { S.size = +e.target.value; e.target.nextElementSibling.textContent = S.size + '%'; renderCar(); };
+  document.querySelectorAll('[data-set]').forEach(e => e.onclick = () => {
+    const k = e.dataset.set, raw = e.dataset.v;
+    S[k] = raw === 'true' ? true : raw === 'false' ? false : isNaN(+raw) ? raw : +raw;
+    if (k === 'src' && raw === 'gps') S.limit = 0;   // GPS iPhone: khong co gioi han
+    renderAll();
+  });
+  $('drive').onclick = toggleDrive;
+  $('reset').onclick = () => { Object.assign($('slot').style, { left: '78px', top: '182px' }); };
+}
+function renderAll() { renderPanel(); renderGallery(); renderCar(); }
+
+// Chay thu: tang toc qua gioi han roi giam
+let driving = false, timer, t0;
+function toggleDrive() {
+  driving = !driving;
+  clearInterval(timer);
+  if (driving) {
+    t0 = performance.now();
+    if (!S.limit) S.limit = 60;
+    timer = setInterval(() => {
+      const t = (performance.now() - t0) / 1000, lim = S.limit;
+      S.speed = Math.max(0, Math.round(lim * (0.55 + 0.65 * (0.5 - 0.5 * Math.cos(t * 0.9)))));
+      $('spd').value = S.speed; $('spdv').textContent = `${conv(S.speed)} ${unitTxt()}`;
+      renderCar();
+    }, 120);
+  }
+  renderPanel(); renderCar();
+}
+
+// Keo bong bong tren man xe
+(() => {
+  const slot = $('slot'); let sx, sy, ox, oy, k;
+  slot.onpointerdown = e => { k = $('fit').clientWidth / 800; sx = e.clientX; sy = e.clientY; ox = slot.offsetLeft; oy = slot.offsetTop; slot.setPointerCapture(e.pointerId); };
+  slot.onpointermove = e => { if (sx === undefined) return; slot.style.left = Math.max(64, Math.min(760, ox + (e.clientX - sx) / k)) + 'px'; slot.style.top = Math.max(0, Math.min(280, oy + (e.clientY - sy) / k)) + 'px'; };
+  slot.onpointerup = () => { sx = undefined; };
+})();
+function fit() { $('cs').style.setProperty('--k', $('fit').clientWidth / 800); }
+window.addEventListener('resize', fit);
+renderAll(); fit();
+</script>
+</body>
+</html>
