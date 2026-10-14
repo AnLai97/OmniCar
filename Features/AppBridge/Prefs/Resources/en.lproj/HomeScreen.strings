@@ -18,12 +18,13 @@
 "HOMESCREEN_NAMES" = "Names under icons";
 "HOMESCREEN_WALLPAPER" = "Wallpaper";
 "HOMESCREEN_WALLPAPER_FOOTER" = "The picture is cropped to the car screen. Raise the darkness so icons and names stay easy to read.";
-"HOMESCREEN_FROM_PHOTOS" = "Choose from Photos";
-"HOMESCREEN_FROM_FILES" = "Choose from Files";
+"HOMESCREEN_FROM_PHOTOS" = "From Photos";
 "HOMESCREEN_BLUR" = "Blur";
 "HOMESCREEN_DIM" = "Darkness";
-"HOMESCREEN_WALLPAPER_REMOVE" = "Remove wallpaper";
 "HOMESCREEN_DOCK" = "Dock";
 "HOMESCREEN_DOCK_FOOTER" = "Pinned apps replace CarPlay's suggestions (up to 4, iPhone apps too). Nothing pinned: the dock follows the switch below.";
 "HOMESCREEN_DOCK_SUGGEST" = "CarPlay suggestions";
 "HOMESCREEN_DOCK_FULL" = "The dock already has 4 apps. Unpin one first.";
+"HOMESCREEN_WALLPAPER_DEFAULT" = "Default";
+"HOMESCREEN_DOCK_ADD" = "+ Add";
+"HOMESCREEN_DOCK_PICK" = "Add to the dock";

@@ -18,12 +18,13 @@
 "HOMESCREEN_NAMES" = "图标下显示名称";
 "HOMESCREEN_WALLPAPER" = "壁纸";
 "HOMESCREEN_WALLPAPER_FOOTER" = "图片会按车机屏幕裁剪。调高暗度可让图标和名称更清楚。";
-"HOMESCREEN_FROM_PHOTOS" = "从照片选择";
-"HOMESCREEN_FROM_FILES" = "从文件选择";
+"HOMESCREEN_FROM_PHOTOS" = "从照片";
 "HOMESCREEN_BLUR" = "模糊";
 "HOMESCREEN_DIM" = "暗度";
-"HOMESCREEN_WALLPAPER_REMOVE" = "移除壁纸";
 "HOMESCREEN_DOCK" = "程序坞";
 "HOMESCREEN_DOCK_FOOTER" = "固定的应用会替代 CarPlay 的建议（最多 4 个，含 iPhone 应用）。未固定时按下方开关。";
 "HOMESCREEN_DOCK_SUGGEST" = "CarPlay 建议";
 "HOMESCREEN_DOCK_FULL" = "程序坞已有 4 个应用。请先取消固定一个。";
+"HOMESCREEN_WALLPAPER_DEFAULT" = "默认";
+"HOMESCREEN_DOCK_ADD" = "+ 添加";
+"HOMESCREEN_DOCK_PICK" = "添加到程序坞";

@@ -222,7 +222,7 @@ function settingsPage() {
     <div class="lbl"><span>Hình nền</span></div>
     <div class="card glass">
       <div class="wps">${WALLS.map((w, i) => `<div class="${w ? '' : 'none'} ${S.wall === i ? 'sel' : ''}" data-wall="${i}" style="${w ? 'background:' + w : ''}">${w ? '' : 'Mặc định'}</div>`).join('')}</div>
-      <div class="pair"><span data-act="photos">Từ Ảnh</span><span data-act="files">Từ Tệp</span></div>
+      <div class="pair"><span data-act="photos">Từ Ảnh</span></div>
       ${slider('blur', 0, 30, '', 'Độ mờ', 'blur', 'linear-gradient(135deg,#B7A6FF,#5AB8FF)')}
       ${slider('dark', 0, 70, '%', 'Độ tối', 'moon', 'linear-gradient(135deg,#8a8fb0,#4a4f80)')}
     </div>
@@ -299,7 +299,7 @@ function bind() {
     const a = e.dataset.act;
     if (a === 'reset') { S.order = APPS.map(x => x.id); S.hidden.clear(); }
     if (a === 'adddock') { const next = S.order.find(id => !S.dock.includes(id) && !S.hidden.has(id)); if (next) S.dock.push(next); }
-    if (a === 'photos' || a === 'files') { S.wall = 1 + Math.floor(Math.random() * (WALLS.length - 1)); }
+    if (a === 'photos') { S.wall = 1 + Math.floor(Math.random() * (WALLS.length - 1)); }
     render();
   });
   // keo tha doi thu tu (chuot / cam ung qua HTML5 drag)

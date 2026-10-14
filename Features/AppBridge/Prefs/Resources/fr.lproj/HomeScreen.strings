@@ -18,12 +18,13 @@
 "HOMESCREEN_NAMES" = "Noms sous les icônes";
 "HOMESCREEN_WALLPAPER" = "Fond d'écran";
 "HOMESCREEN_WALLPAPER_FOOTER" = "L'image est recadrée à l'écran de la voiture. Augmentez l'assombrissement pour garder icônes et noms lisibles.";
-"HOMESCREEN_FROM_PHOTOS" = "Choisir dans Photos";
-"HOMESCREEN_FROM_FILES" = "Choisir dans Fichiers";
+"HOMESCREEN_FROM_PHOTOS" = "Depuis Photos";
 "HOMESCREEN_BLUR" = "Flou";
 "HOMESCREEN_DIM" = "Assombrissement";
-"HOMESCREEN_WALLPAPER_REMOVE" = "Supprimer le fond";
 "HOMESCREEN_DOCK" = "Dock";
 "HOMESCREEN_DOCK_FOOTER" = "Les apps épinglées remplacent les suggestions de CarPlay (4 max, apps iPhone aussi). Aucune épinglée : selon l'interrupteur.";
 "HOMESCREEN_DOCK_SUGGEST" = "Suggestions CarPlay";
 "HOMESCREEN_DOCK_FULL" = "Le dock a déjà 4 apps. Désépinglez-en une d'abord.";
+"HOMESCREEN_WALLPAPER_DEFAULT" = "Par défaut";
+"HOMESCREEN_DOCK_ADD" = "+ Ajouter";
+"HOMESCREEN_DOCK_PICK" = "Ajouter au dock";

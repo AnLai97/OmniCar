@@ -146,13 +146,14 @@ chỉnh nếu khác. Thử chung: bật Màn chính CarPlay, cắm xe, Gửi log
   đổi trang, chấm trang.
   Thử: 4 × 2 không tên → mỗi trang 8 icon; bật tên → tên không chồng icon hàng dưới.
 - [x] [ ] **Hình nền màn chính** · Vừa
-  Chọn ảnh từ Ảnh / Tệp, cắt theo tỉ lệ màn xe, chỉnh độ mờ và độ tối để icon vẫn dễ nhìn.
-  Code: Chọn từ Ảnh / Tệp → OmniCar/HomeScreen/wallpaper.jpg (≤ 1920 px, có trong bản sao lưu), lấp kín vùng app (cắt
+  Chọn hình dựng sẵn hoặc ảnh từ Ảnh (bỏ chọn từ Tệp), cắt theo tỉ lệ màn xe, chỉnh độ mờ và độ tối để icon vẫn dễ nhìn.
+  Code: ô Mặc định + 6 hình dựng sẵn (gradient như bản xem trước, vẽ 1920 × 720) + ô ảnh của bạn, nút Từ Ảnh
+  → OmniCar/HomeScreen/wallpaper.jpg (≤ 1920 px, có trong bản sao lưu), lấp kín vùng app (cắt
   theo tỉ lệ), Độ mờ 0–30 (CIGaussianBlur trên luồng phụ), Độ tối 0–70 %; Bỏ hình nền = dùng lại hình nền CarPlay.
   Thử: ảnh dọc và ảnh ngang đều phủ kín, không méo; đổi độ mờ / tối thấy ngay khi thả tay.
 - [x] [ ] **Dock tuỳ chỉnh** · Vừa
   Chọn app nào nằm cố định trên dock (kể cả app iPhone), ẩn mục gợi ý của CarPlay.
-  Code: ghim (tối đa 4, kể cả app iPhone) thay cho gợi ý của CarPlay; không ghim + tắt "Gợi ý của CarPlay" = dock trống.
+  Code: chip app ghim (✕ để bỏ) + chip "+ Thêm" (chọn app), hoặc ghim từ danh sách app; tối đa 4, kể cả app iPhone, thay cho gợi ý của CarPlay; không ghim + tắt "Gợi ý của CarPlay" = dock trống.
   Nút Split Screen trên dock giữ nguyên. Dock ngắn hơn số app ghim thì chỉ hiện số vừa (ghi log).
   Thử: ghim Bản đồ + YouTube → dock chỉ còn 2 app đó, chạm mở đúng app; bỏ ghim hết → gợi ý của CarPlay trở lại.
 

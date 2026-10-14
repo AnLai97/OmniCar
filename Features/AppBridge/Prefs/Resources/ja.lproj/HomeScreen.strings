@@ -18,12 +18,13 @@
 "HOMESCREEN_NAMES" = "アイコンの下に名前";
 "HOMESCREEN_WALLPAPER" = "壁紙";
 "HOMESCREEN_WALLPAPER_FOOTER" = "画像は車の画面に合わせて切り抜かれます。暗さを上げるとアイコンと名前が読みやすくなります。";
-"HOMESCREEN_FROM_PHOTOS" = "写真から選択";
-"HOMESCREEN_FROM_FILES" = "ファイルから選択";
+"HOMESCREEN_FROM_PHOTOS" = "写真から";
 "HOMESCREEN_BLUR" = "ぼかし";
 "HOMESCREEN_DIM" = "暗さ";
-"HOMESCREEN_WALLPAPER_REMOVE" = "壁紙を削除";
 "HOMESCREEN_DOCK" = "Dock";
 "HOMESCREEN_DOCK_FOOTER" = "固定したアプリが CarPlay の提案の代わりに入ります（最大 4、iPhone アプリも可）。固定なしなら下のスイッチに従います。";
 "HOMESCREEN_DOCK_SUGGEST" = "CarPlay の提案";
 "HOMESCREEN_DOCK_FULL" = "Dock にはすでに 4 個あります。先に 1 個の固定を外してください。";
+"HOMESCREEN_WALLPAPER_DEFAULT" = "デフォルト";
+"HOMESCREEN_DOCK_ADD" = "+ 追加";
+"HOMESCREEN_DOCK_PICK" = "Dock に追加";

@@ -106,11 +106,13 @@
 #define HS_KEY_GAP           @"homeScreenGap"         // 60..140 % spacing, default 100
 #define HS_KEY_NAMES         @"homeScreenNames"       // BOOL, default YES: app names under the icons
 #define HS_KEY_WALLPAPER     @"homeScreenWallpaper"   // BOOL: use HS_WALLPAPER_PATH (picked in Settings) as the home wallpaper
+#define HS_KEY_WALLPAPER_STYLE @"homeScreenWallpaperStyle" // Settings only: 0 default, 1..6 built-in picture, 7 the user's photo
 #define HS_KEY_BLUR          @"homeScreenBlur"        // 0..30, default 0
 #define HS_KEY_DIM           @"homeScreenDim"         // 0..70 %, default 25
 #define HS_KEY_DOCK          @"homeScreenDock"        // [bundle id] up to 4 apps pinned on the dock, in place of CarPlay's suggestions
 #define HS_KEY_DOCK_SUGGEST  @"homeScreenDockSuggest" // BOOL, default YES: no pinned app -> CarPlay's own dock suggestions
 #define HS_WALLPAPER_PATH    [OMC_DATA_ROOT stringByAppendingPathComponent:@"HomeScreen/wallpaper.jpg"]
+#define HS_PHOTO_PATH        [OMC_DATA_ROOT stringByAppendingPathComponent:@"HomeScreen/photo.jpg"]   // last photo picked (its own tile)
 #define HS_DOCK_MAX          4
 // Base scene orientation for hosted apps: 1 portrait (default), 3 landscape.
 #define AB_KEY_ORIENTATION   @"appBridgeOrientation"

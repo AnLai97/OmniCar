@@ -18,12 +18,13 @@
 "HOMESCREEN_NAMES" = "Nama di bawah ikon";
 "HOMESCREEN_WALLPAPER" = "Wallpaper";
 "HOMESCREEN_WALLPAPER_FOOTER" = "Gambar dipotong sesuai layar mobil. Naikkan kegelapan agar ikon dan nama tetap mudah dibaca.";
-"HOMESCREEN_FROM_PHOTOS" = "Pilih dari Foto";
-"HOMESCREEN_FROM_FILES" = "Pilih dari File";
+"HOMESCREEN_FROM_PHOTOS" = "Dari Foto";
 "HOMESCREEN_BLUR" = "Blur";
 "HOMESCREEN_DIM" = "Kegelapan";
-"HOMESCREEN_WALLPAPER_REMOVE" = "Hapus wallpaper";
 "HOMESCREEN_DOCK" = "Dock";
 "HOMESCREEN_DOCK_FOOTER" = "App yang dipin menggantikan saran CarPlay (maks. 4, app iPhone juga). Tanpa pin: mengikuti sakelar di bawah.";
 "HOMESCREEN_DOCK_SUGGEST" = "Saran CarPlay";
 "HOMESCREEN_DOCK_FULL" = "Dock sudah berisi 4 app. Lepas pin satu dulu.";
+"HOMESCREEN_WALLPAPER_DEFAULT" = "Bawaan";
+"HOMESCREEN_DOCK_ADD" = "+ Tambah";
+"HOMESCREEN_DOCK_PICK" = "Tambah ke dock";

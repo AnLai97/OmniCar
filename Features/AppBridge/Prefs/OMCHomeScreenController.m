@@ -2,7 +2,7 @@
 // (OMCAppBridgeAppsController, dong "Man chinh CarPlay"). Cac key HS_KEY_* trong ../AppBridge.h; phia xe:
 // Features/SplitScreen/SCPHomeScreen.mm ve luoi / dock / hinh nen cua OmniCar len tren cua CarPlay.
 //   0 Xem truoc (man xe mo phong, doi theo ngay)   1 Cong tac   2 Ung dung (keo sap xep, an, ghim dock)
-//   3 Luoi icon   4 Hinh nen   5 Dock
+//   3 Luoi icon   4 Hinh nen (o mau: Mac dinh + 6 hinh dung san + anh tu Anh)   5 Dock (chip app ghim, + Them)
 // Danh sach app: app CarPlay ma xe da doc (SPL_KEY_CARPLAY_APPS, theo thu tu man chinh) + app iPhone (AB_KEY_APPS).
 #import <Preferences/PSViewController.h>
 #import <Preferences/PSSpecifier.h>
@@ -67,6 +67,62 @@ static UIImage *OMCHSIcon(NSString *bid, CGFloat side)
     }];
     [cache setObject:out forKey:key];
     return out;
+}
+
+// ---------------------------------------------------------------------
+//  Hinh nen dung san: 6 mau gradient giong tools/preview/home.html (WALLS 1..6). Ve bang Core Graphics theo cach CSS:
+//  linear-gradient(<goc>deg) va radial-gradient(circle at x y, mau, trong suot R%) (ban kinh = goc xa nhat).
+// ---------------------------------------------------------------------
+#define OMCHS_PRESETS 6
+#define OMCHS_STYLE_PHOTO 7   // HS_KEY_WALLPAPER_STYLE: 0 mac dinh, 1..6 hinh dung san, 7 anh nguoi dung
+
+static UIColor *OMCHSHex(uint32_t v, CGFloat a) { return [UIColor colorWithRed:((v >> 16) & 0xFF) / 255.0 green:((v >> 8) & 0xFF) / 255.0 blue:(v & 0xFF) / 255.0 alpha:a]; }
+
+static void OMCHSLinear(CGContextRef c, CGSize s, CGFloat deg, NSArray<UIColor *> *colors, const CGFloat *locs)
+{
+    CGFloat a = deg * M_PI / 180.0, dx = sin(a), dy = -cos(a);   // CSS: 0deg huong len, 90deg sang phai
+    CGFloat len = fabs(s.width * dx) + fabs(s.height * dy);
+    CGPoint mid = CGPointMake(s.width / 2, s.height / 2);
+    NSMutableArray *cg = [NSMutableArray array];
+    for (UIColor *col in colors) [cg addObject:(id)col.CGColor];
+    CGColorSpaceRef cs = CGColorSpaceCreateDeviceRGB();
+    CGGradientRef g = CGGradientCreateWithColors(cs, (__bridge CFArrayRef)cg, locs);
+    CGContextDrawLinearGradient(c, g, CGPointMake(mid.x - dx * len / 2, mid.y + dy * len / 2), CGPointMake(mid.x + dx * len / 2, mid.y - dy * len / 2),
+                                kCGGradientDrawsBeforeStartLocation | kCGGradientDrawsAfterEndLocation);
+    CGGradientRelease(g);
+    CGColorSpaceRelease(cs);
+}
+
+static void OMCHSRadial(CGContextRef c, CGSize s, CGFloat fx, CGFloat fy, uint32_t color, CGFloat stop)
+{
+    CGPoint at = CGPointMake(s.width * fx, s.height * fy);
+    CGFloat far = 0;
+    for (int i = 0; i < 4; i++) far = MAX(far, hypot(at.x - (i & 1 ? s.width : 0), at.y - (i & 2 ? s.height : 0)));
+    CGColorSpaceRef cs = CGColorSpaceCreateDeviceRGB();
+    CGGradientRef g = CGGradientCreateWithColors(cs, (__bridge CFArrayRef)@[(id)OMCHSHex(color, 1).CGColor, (id)OMCHSHex(color, 0).CGColor], (CGFloat[]){0, 1});
+    CGContextDrawRadialGradient(c, g, at, 0, at, far * stop, 0);
+    CGGradientRelease(g);
+    CGColorSpaceRelease(cs);
+}
+
+static UIImage *OMCHSPresetImage(NSInteger i, CGSize size, CGFloat scale)
+{
+    UIGraphicsImageRendererFormat *f = [UIGraphicsImageRendererFormat preferredFormat];
+    f.scale = scale; f.opaque = YES;
+    return [[[UIGraphicsImageRenderer alloc] initWithSize:size format:f] imageWithActions:^(UIGraphicsImageRendererContext *rc) {
+        CGContextRef c = rc.CGContext;
+        switch (i) {
+            case 1: OMCHSLinear(c, size, 160, @[OMCHSHex(0x1e3c72, 1), OMCHSHex(0x2a5298, 1), OMCHSHex(0x6dd5ed, 1)], (CGFloat[]){0, 0.45, 1}); break;
+            case 2: OMCHSLinear(c, size, 160, @[OMCHSHex(0xff9a8b, 1), OMCHSHex(0xa18cd1, 1), OMCHSHex(0x2b1055, 1)], (CGFloat[]){0, 0.55, 1});
+                    OMCHSRadial(c, size, 0.3, 0.2, 0xf9d29d, 0.5); break;
+            case 3: OMCHSLinear(c, size, 135, @[OMCHSHex(0xa6ddfd, 1), OMCHSHex(0xfec4d8, 1)], (CGFloat[]){0, 1});
+                    OMCHSRadial(c, size, 0.2, 0.8, 0xa0f1d9, 0.45); OMCHSRadial(c, size, 0.7, 0.3, 0xc9baff, 0.45); break;
+            case 4: OMCHSLinear(c, size, 180, @[OMCHSHex(0x0f2027, 1), OMCHSHex(0x203a43, 1), OMCHSHex(0x2c5364, 1)], (CGFloat[]){0, 0.5, 1}); break;
+            case 5: OMCHSLinear(c, size, 180, @[OMCHSHex(0x0b1026, 1), OMCHSHex(0x2a1a4a, 1)], (CGFloat[]){0, 1});
+                    OMCHSRadial(c, size, 0.5, 1.2, 0xff7e5f, 0.55); break;
+            default: OMCHSLinear(c, size, 160, @[OMCHSHex(0x134e5e, 1), OMCHSHex(0x71b280, 1)], (CGFloat[]){0, 1}); break;
+        }
+    }];
 }
 
 // ---------------------------------------------------------------------
@@ -175,11 +231,12 @@ static UIImage *OMCHSIcon(NSString *bid, CGFloat side)
 // ---------------------------------------------------------------------
 enum { OMCHSPreviewSection = 0, OMCHSSwitchSection, OMCHSAppsSection, OMCHSGridSection, OMCHSWallSection, OMCHSDockSection, OMCHSSectionCount };
 enum { OMCHSGridSize = 0, OMCHSGridCols, OMCHSGridRows, OMCHSGridGap, OMCHSGridNames, OMCHSGridCount };
-enum { OMCHSWallPhotos = 0, OMCHSWallFiles, OMCHSWallBlur, OMCHSWallDim, OMCHSWallRemove };
+enum { OMCHSWallTiles = 0, OMCHSWallPhotos, OMCHSWallBlur, OMCHSWallDim, OMCHSWallCount };
+enum { OMCHSDockChips = 0, OMCHSDockSuggest, OMCHSDockCount };
 static char kOMCHSBundleKey;
 
 @interface OMCHomeScreenController () <UITableViewDataSource, UITableViewDelegate, UIImagePickerControllerDelegate,
-    UINavigationControllerDelegate, UIDocumentPickerDelegate>
+    UINavigationControllerDelegate>
 @property (nonatomic, strong) UITableView *table;
 @property (nonatomic, strong) OMCHSPreview *preview;
 @property (nonatomic, strong) NSMutableArray<NSString *> *order;   // moi app (ca app an), theo thu tu nguoi dung
@@ -187,6 +244,8 @@ static char kOMCHSBundleKey;
 @property (nonatomic, strong) NSMutableArray<NSString *> *dock;
 @property (nonatomic, strong) NSSet<NSString *> *iphoneApps;
 @property (nonatomic, strong) UIImage *wallpaper;
+@property (nonatomic) NSInteger wallStyle;          // HS_KEY_WALLPAPER_STYLE
+@property (nonatomic, strong) UIImage *photo;       // anh nguoi dung chon gan nhat (o "anh cua ban")
 @end
 
 @implementation OMCHomeScreenController
@@ -226,6 +285,8 @@ static char kOMCHSBundleKey;
     _dock = [NSMutableArray array];
     for (NSString *b in OMCHSArray(HS_KEY_DOCK)) if ([all containsObject:b] && _dock.count < HS_DOCK_MAX) [_dock addObject:b];
     _wallpaper = [OMCHSPref(HS_KEY_WALLPAPER, @NO) boolValue] ? [UIImage imageWithContentsOfFile:HS_WALLPAPER_PATH] : nil;
+    _photo = [UIImage imageWithContentsOfFile:HS_PHOTO_PATH];
+    _wallStyle = _wallpaper ? [self num:HS_KEY_WALLPAPER_STYLE def:OMCHS_STYLE_PHOTO] : 0;
 }
 
 - (NSInteger)num:(NSString *)key def:(NSInteger)def
@@ -262,8 +323,8 @@ static char kOMCHSBundleKey;
         case OMCHSSwitchSection: return 1;
         case OMCHSAppsSection: return _order.count;
         case OMCHSGridSection: return OMCHSGridCount;
-        case OMCHSWallSection: return _wallpaper ? 5 : 2;
-        case OMCHSDockSection: return _dock.count + 1;
+        case OMCHSWallSection: return OMCHSWallCount;
+        case OMCHSDockSection: return OMCHSDockCount;
     }
     return 0;
 }
@@ -297,6 +358,9 @@ static char kOMCHSBundleKey;
 - (CGFloat)tableView:(UITableView *)tv heightForRowAtIndexPath:(NSIndexPath *)ip
 {
     if (ip.section == OMCHSPreviewSection) return floor((tv.bounds.size.width - 60) * 300.0 / 800.0) + 20;   // = khung xem truoc + le 10
+    if (ip.section == OMCHSWallSection && ip.row == OMCHSWallTiles) return [self layoutTilesIn:nil width:tv.bounds.size.width - 40];
+    if (ip.section == OMCHSWallSection && ip.row == OMCHSWallPhotos) return 58;
+    if (ip.section == OMCHSDockSection && ip.row == OMCHSDockChips) return [self layoutChipsIn:nil width:tv.bounds.size.width - 40];
     return 52;
 }
 
@@ -494,22 +558,29 @@ static char kOMCHSBundleKey;
         return c;
     }
     if (ip.section == OMCHSWallSection) {
-        UITableViewCell *c = [self cellWithId:@"wall" inTable:tv];
+        UITableViewCell *c = [self cellWithId:(ip.row == OMCHSWallTiles ? @"tiles" : @"wall") inTable:tv];
         switch (ip.row) {
-            case OMCHSWallPhotos:
-            case OMCHSWallFiles:
-                c.textLabel.text = L(ip.row == OMCHSWallPhotos ? @"HOMESCREEN_FROM_PHOTOS" : @"HOMESCREEN_FROM_FILES");
-                c.imageView.image = OMCIcon(ip.row == OMCHSWallPhotos ? @"photo.fill" : @"folder.fill", OMCColorFromHex(ip.row == OMCHSWallPhotos ? @"#FF9500" : @"#0A84FF"));
-                c.selectionStyle = UITableViewCellSelectionStyleDefault;
-                c.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-                c.editingAccessoryType = UITableViewCellAccessoryDisclosureIndicator;
-                if (ip.row == OMCHSWallPhotos && _wallpaper) {   // anh dang dung: thumbnail nho ben phai
-                    UIImageView *th = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 54, 32)];
-                    th.image = _wallpaper; th.contentMode = UIViewContentModeScaleAspectFill;
-                    th.layer.cornerRadius = 6; th.clipsToBounds = YES;
-                    [self setAccessory:th onCell:c];
-                }
+            case OMCHSWallTiles:
+                [self layoutTilesIn:[self boxInCell:c] width:tv.bounds.size.width - 40];
                 break;
+            case OMCHSWallPhotos: {   // nut xam rong "Tu Anh" (nhu ban xem truoc)
+                UIButton *b = (UIButton *)[c.contentView viewWithTag:0x50];
+                if (!b) {
+                    b = [UIButton buttonWithType:UIButtonTypeSystem];
+                    b.tag = 0x50;
+                    b.titleLabel.font = [UIFont systemFontOfSize:15 weight:UIFontWeightSemibold];
+                    [b setTitleColor:[UIColor labelColor] forState:UIControlStateNormal];
+                    b.backgroundColor = [UIColor colorWithWhite:0.5 alpha:0.12];
+                    b.layer.cornerRadius = 11;
+                    b.layer.cornerCurve = kCACornerCurveContinuous;
+                    b.autoresizingMask = UIViewAutoresizingFlexibleWidth;
+                    [b addTarget:self action:@selector(pickPhoto) forControlEvents:UIControlEventTouchUpInside];
+                    [c.contentView addSubview:b];
+                }
+                [b setTitle:L(@"HOMESCREEN_FROM_PHOTOS") forState:UIControlStateNormal];
+                b.frame = CGRectMake(12, 4, tv.bounds.size.width - 40 - 24, 42);
+                break;
+            }
             case OMCHSWallBlur:
                 c.textLabel.text = L(@"HOMESCREEN_BLUR");
                 c.imageView.image = OMCIcon(@"drop.fill", OMCColorFromHex(@"#5AB8FF"));
@@ -520,28 +591,176 @@ static char kOMCHSBundleKey;
                 c.imageView.image = OMCIcon(@"moon.fill", OMCColorFromHex(@"#4A4F80"));
                 [self setAccessory:[self sliderFor:HS_KEY_DIM min:0 max:70 def:25 unit:@"%"] onCell:c];
                 break;
-            case OMCHSWallRemove:
-                c.textLabel.text = L(@"HOMESCREEN_WALLPAPER_REMOVE");
-                c.textLabel.textColor = [UIColor systemRedColor];
-                c.imageView.image = OMCIcon(@"trash.fill", [UIColor systemRedColor]);
-                c.selectionStyle = UITableViewCellSelectionStyleDefault;
-                break;
         }
         return c;
     }
-    // Dock: app ghim (cham X de bo), cuoi cung la cong tac goi y cua CarPlay
-    UITableViewCell *c = [self cellWithId:@"dock" inTable:tv];
-    if (ip.row < (NSInteger)_dock.count) {
-        NSString *bid = _dock[ip.row];
-        c.textLabel.text = OMCHSName(bid);
-        c.imageView.image = OMCHSIcon(bid, 32);
-        [self setAccessory:[self smallButton:@"xmark.circle.fill" tint:[UIColor tertiaryLabelColor] action:@selector(pinTapped:) bundle:bid] onCell:c];
+    // Dock: chip app ghim (X de bo) + "+ Them", roi cong tac goi y cua CarPlay
+    UITableViewCell *c = [self cellWithId:(ip.row == OMCHSDockChips ? @"chips" : @"dock") inTable:tv];
+    if (ip.row == OMCHSDockChips) {
+        [self layoutChipsIn:[self boxInCell:c] width:tv.bounds.size.width - 40];
     } else {
         c.textLabel.text = L(@"HOMESCREEN_DOCK_SUGGEST");
+        c.textLabel.numberOfLines = 2;
         c.imageView.image = OMCIcon(@"sparkles", OMCColorFromHex(@"#B7A6FF"));
         [self setAccessory:[self switchFor:HS_KEY_DOCK_SUGGEST def:YES] onCell:c];
     }
     return c;
+}
+
+#pragma mark - Wallpaper tiles / dock chips
+
+// Khung rieng trong cell cho o hinh nen / chip (ve lai thi chi xoa trong khung nay)
+- (UIView *)boxInCell:(UITableViewCell *)c
+{
+    UIView *box = [c.contentView viewWithTag:0x4258];
+    if (!box) {
+        box = [[UIView alloc] initWithFrame:c.contentView.bounds];
+        box.tag = 0x4258;
+        box.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+        [c.contentView addSubview:box];
+    }
+    return box;
+}
+
+// O hinh nen: Mac dinh + 6 hinh dung san (+ anh cua ban neu da chon), 4 cot, ti le 1.6; dang chon = vien cau vong.
+// view nil: chi tinh chieu cao.
+- (CGFloat)layoutTilesIn:(UIView *)v width:(CGFloat)w
+{
+    NSInteger n = 1 + OMCHS_PRESETS + (_photo ? 1 : 0), cols = 4;
+    CGFloat pad = 12, gap = 8, tw = floor((w - pad * 2 - gap * (cols - 1)) / cols), th = floor(tw / 1.6);
+    NSInteger rows = (n + cols - 1) / cols;
+    CGFloat h = pad * 2 + rows * th + (rows - 1) * gap;
+    if (!v) return h;
+    for (UIView *old in [v.subviews copy]) [old removeFromSuperview];
+    for (NSInteger k = 0; k < n; k++) {
+        NSInteger style = k <= OMCHS_PRESETS ? k : OMCHS_STYLE_PHOTO;
+        UIButton *b = [UIButton buttonWithType:UIButtonTypeCustom];
+        b.frame = CGRectMake(pad + (k % cols) * (tw + gap), pad + (k / cols) * (th + gap), tw, th);
+        b.tag = style;
+        b.layer.cornerRadius = 10;
+        b.layer.cornerCurve = kCACornerCurveContinuous;
+        b.clipsToBounds = YES;
+        if (style == 0) {
+            b.backgroundColor = [UIColor systemBackgroundColor];
+            b.layer.borderWidth = 1;
+            b.layer.borderColor = [UIColor colorWithWhite:0.5 alpha:0.2].CGColor;
+            [b setTitle:L(@"HOMESCREEN_WALLPAPER_DEFAULT") forState:UIControlStateNormal];
+            [b setTitleColor:[UIColor secondaryLabelColor] forState:UIControlStateNormal];
+            b.titleLabel.font = [UIFont systemFontOfSize:12];
+            b.titleLabel.adjustsFontSizeToFitWidth = YES;
+        } else {
+            UIImage *img = style == OMCHS_STYLE_PHOTO ? _photo : OMCHSPresetImage(style, CGSizeMake(tw, th), [UIScreen mainScreen].scale);
+            [b setBackgroundImage:img forState:UIControlStateNormal];
+            b.imageView.contentMode = UIViewContentModeScaleAspectFill;
+            b.contentMode = UIViewContentModeScaleAspectFill;
+        }
+        [b addTarget:self action:@selector(tileTapped:) forControlEvents:UIControlEventTouchUpInside];
+        [v addSubview:b];
+        if (style == _wallStyle) {   // vien cau vong 4 mau logo quanh o dang chon (nam ngoai o 3pt)
+            CGRect r = CGRectInset(b.frame, -3, -3);
+            CAGradientLayer *g = [CAGradientLayer layer];
+            g.type = kCAGradientLayerConic;
+            g.frame = r;
+            g.startPoint = CGPointMake(0.5, 0.5); g.endPoint = CGPointMake(0, 1);
+            g.colors = @[(id)OMCHSHex(0xA78BFA, 1).CGColor, (id)OMCHSHex(0x60C5FA, 1).CGColor, (id)OMCHSHex(0x5EDDB6, 1).CGColor,
+                         (id)OMCHSHex(0xF59AC0, 1).CGColor, (id)OMCHSHex(0xA78BFA, 1).CGColor];
+            CAShapeLayer *m = [CAShapeLayer layer];
+            m.path = [UIBezierPath bezierPathWithRoundedRect:CGRectInset(CGRectMake(0, 0, r.size.width, r.size.height), 1, 1) cornerRadius:12].CGPath;
+            m.fillColor = nil; m.strokeColor = [UIColor blackColor].CGColor; m.lineWidth = 2;
+            g.mask = m;
+            UIView *ring = [[UIView alloc] initWithFrame:r];
+            ring.userInteractionEnabled = NO;
+            g.frame = ring.bounds;
+            [ring.layer addSublayer:g];
+            [v addSubview:ring];
+        }
+    }
+    return h;
+}
+
+// Chip: icon + ten + X (bo ghim); cuoi cung chip "+ Them" (khi chua du 4). Tu xuong dong. view nil: chi tinh chieu cao.
+- (CGFloat)layoutChipsIn:(UIView *)v width:(CGFloat)w
+{
+    CGFloat pad = 12, gap = 8, ch = 30, x = pad, y = pad;
+    UIFont *font = [UIFont systemFontOfSize:13 weight:UIFontWeightMedium];
+    if (v) for (UIView *old in [v.subviews copy]) [old removeFromSuperview];
+    NSMutableArray *items = [_dock mutableCopy];
+    if (_dock.count < HS_DOCK_MAX) [items addObject:[NSNull null]];
+    for (id it in items) {
+        BOOL add = ![it isKindOfClass:[NSString class]];
+        NSString *title = add ? L(@"HOMESCREEN_DOCK_ADD") : OMCHSName(it);
+        CGFloat tw = MIN(140, ceil([title sizeWithAttributes:@{NSFontAttributeName: font}].width));
+        CGFloat cw = add ? tw + 24 : 4 + 22 + 6 + tw + 4 + 22;
+        if (x + cw > w - pad && x > pad) { x = pad; y += ch + gap; }
+        if (v) {
+            UIView *chip = [[UIView alloc] initWithFrame:CGRectMake(x, y, cw, ch)];
+            chip.backgroundColor = [UIColor colorWithWhite:1 alpha:0.7];
+            chip.layer.cornerRadius = 12;
+            chip.layer.borderWidth = 1;
+            chip.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.95].CGColor;
+            UIButton *tap = [UIButton buttonWithType:UIButtonTypeSystem];
+            tap.frame = chip.bounds;
+            if (add) {
+                [tap setTitle:title forState:UIControlStateNormal];
+                tap.titleLabel.font = [UIFont systemFontOfSize:13 weight:UIFontWeightSemibold];
+                [tap addTarget:self action:@selector(addDockApp:) forControlEvents:UIControlEventTouchUpInside];
+                [chip addSubview:tap];
+            } else {
+                UIImageView *iv = [[UIImageView alloc] initWithFrame:CGRectMake(4, 4, 22, 22)];
+                iv.image = OMCHSIcon(it, 22);
+                [chip addSubview:iv];
+                UILabel *l = [[UILabel alloc] initWithFrame:CGRectMake(32, 0, tw, ch)];
+                l.text = title; l.font = font; l.textColor = [UIColor labelColor];
+                [chip addSubview:l];
+                UIButton *rm = [self smallButton:@"xmark" tint:[UIColor secondaryLabelColor] action:@selector(pinTapped:) bundle:it];
+                rm.frame = CGRectMake(cw - 26, 0, 26, ch);
+                [rm setPreferredSymbolConfiguration:[UIImageSymbolConfiguration configurationWithPointSize:11 weight:UIImageSymbolWeightSemibold] forImageInState:UIControlStateNormal];
+                [chip addSubview:rm];
+            }
+            [v addSubview:chip];
+        }
+        x += cw + gap;
+    }
+    return y + ch + pad;
+}
+
+// Mac dinh: bo hinh nen (dung lai hinh nen CarPlay); hinh dung san: ve 1920 x 720 roi luu; anh cua ban: dung lai anh do
+- (void)tileTapped:(UIButton *)b
+{
+    NSInteger style = b.tag;
+    if (style == 0) {
+        [[NSFileManager defaultManager] removeItemAtPath:HS_WALLPAPER_PATH error:nil];
+        _wallpaper = nil;
+        _wallStyle = 0;
+        OMCHSStore(HS_KEY_WALLPAPER_STYLE, @0);
+        OMCHSStore(HS_KEY_WALLPAPER, @NO);
+    } else {
+        UIImage *img = style == OMCHS_STYLE_PHOTO ? _photo : OMCHSPresetImage(style, CGSizeMake(1920, 720), 1);
+        if (![self saveWallpaper:img style:style]) return;
+    }
+    [_table reloadRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:OMCHSWallTiles inSection:OMCHSWallSection]] withRowAnimation:UITableViewRowAnimationNone];
+    [self updatePreview];
+}
+
+- (void)addDockApp:(UIButton *)sender
+{
+    UIAlertController *sheet = [UIAlertController alertControllerWithTitle:L(@"HOMESCREEN_DOCK_PICK") message:nil preferredStyle:UIAlertControllerStyleActionSheet];
+    for (NSString *bid in _order) {
+        if ([_dock containsObject:bid]) continue;
+        [sheet addAction:[UIAlertAction actionWithTitle:OMCHSName(bid) style:UIAlertActionStyleDefault handler:^(UIAlertAction *a) {
+            if (self.dock.count >= HS_DOCK_MAX || [self.dock containsObject:bid]) return;
+            [self.dock addObject:bid];
+            OMCHSStore(HS_KEY_DOCK, [self.dock copy]);
+            NSMutableIndexSet *secs = [NSMutableIndexSet indexSetWithIndex:OMCHSAppsSection];
+            [secs addIndex:OMCHSDockSection];
+            [self.table reloadSections:secs withRowAnimation:UITableViewRowAnimationAutomatic];
+            [self updatePreview];
+        }]];
+    }
+    [sheet addAction:[UIAlertAction actionWithTitle:L(@"CANCEL") style:UIAlertActionStyleCancel handler:nil]];
+    sheet.popoverPresentationController.sourceView = sender;
+    sheet.popoverPresentationController.sourceRect = sender.bounds;
+    [self presentViewController:sheet animated:YES completion:nil];
 }
 
 #pragma mark - Actions
@@ -576,52 +795,59 @@ static char kOMCHSBundleKey;
 - (void)tableView:(UITableView *)tv didSelectRowAtIndexPath:(NSIndexPath *)ip
 {
     [tv deselectRowAtIndexPath:ip animated:YES];
-    if (ip.section != OMCHSWallSection) return;
-    if (ip.row == OMCHSWallPhotos) {
-        if (![UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypePhotoLibrary]) return;
-        UIImagePickerController *picker = [UIImagePickerController new];
-        picker.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
-        picker.mediaTypes = @[UTTypeImage.identifier];
-        picker.delegate = self;
-        [self presentViewController:picker animated:YES completion:nil];
-    } else if (ip.row == OMCHSWallFiles) {
-        UIDocumentPickerViewController *picker = [[UIDocumentPickerViewController alloc] initForOpeningContentTypes:@[UTTypeImage] asCopy:YES];
-        picker.delegate = self;
-        [self presentViewController:picker animated:YES completion:nil];
-    } else if (ip.row == OMCHSWallRemove) {
-        [[NSFileManager defaultManager] removeItemAtPath:HS_WALLPAPER_PATH error:nil];
-        _wallpaper = nil;
-        OMCHSStore(HS_KEY_WALLPAPER, @NO);
-        [_table reloadSections:[NSIndexSet indexSetWithIndex:OMCHSWallSection] withRowAnimation:UITableViewRowAnimationAutomatic];
-        [self updatePreview];
-    }
 }
 
-// Luu anh: thu nho canh dai toi da 1920 px, JPEG, vao HS_WALLPAPER_PATH (xe doc lai khi prefschanged)
+- (void)pickPhoto
+{
+    if (![UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypePhotoLibrary]) return;
+    UIImagePickerController *picker = [UIImagePickerController new];
+    picker.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
+    picker.mediaTypes = @[UTTypeImage.identifier];
+    picker.delegate = self;
+    [self presentViewController:picker animated:YES completion:nil];
+}
+
+// Ghi JPEG vao path (thu muc HomeScreen, 0644 de CarPlay doc duoc). NO + bao loi neu khong ghi duoc.
+- (BOOL)writeJPEG:(UIImage *)img to:(NSString *)path
+{
+    NSData *jpg = UIImageJPEGRepresentation(img, 0.85);
+    [[NSFileManager defaultManager] createDirectoryAtPath:path.stringByDeletingLastPathComponent withIntermediateDirectories:YES attributes:nil error:nil];
+    NSError *err = nil;
+    if (!jpg || ![jpg writeToFile:path options:NSDataWritingAtomic error:&err]) {
+        UIAlertController *a = [UIAlertController alertControllerWithTitle:nil message:err.localizedDescription ?: @"JPEG" preferredStyle:UIAlertControllerStyleAlert];
+        [a addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleCancel handler:nil]];
+        [self presentViewController:a animated:YES completion:nil];
+        return NO;
+    }
+    [[NSFileManager defaultManager] setAttributes:@{NSFilePosixPermissions: @0644} ofItemAtPath:path error:nil];
+    return YES;
+}
+
+- (BOOL)saveWallpaper:(UIImage *)img style:(NSInteger)style
+{
+    if (!img || ![self writeJPEG:img to:HS_WALLPAPER_PATH]) return NO;
+    _wallpaper = img;
+    _wallStyle = style;
+    OMCHSStore(HS_KEY_WALLPAPER_STYLE, @(style));
+    OMCHSStore(HS_KEY_WALLPAPER, @YES);
+    return YES;
+}
+
+// Anh tu Anh: thu nho canh dai toi da 1920 px, giu ban sao (o "anh cua ban") roi dung lam hinh nen
 - (void)useWallpaper:(UIImage *)img
 {
     if (!img) return;
-    CGFloat maxSide = 1920, k = MIN(1, maxSide / MAX(img.size.width * img.scale, img.size.height * img.scale));
+    CGFloat k = MIN(1, 1920 / MAX(img.size.width * img.scale, img.size.height * img.scale));
     CGSize px = CGSizeMake(round(img.size.width * img.scale * k), round(img.size.height * img.scale * k));
     UIGraphicsImageRendererFormat *f = [UIGraphicsImageRendererFormat preferredFormat];
     f.scale = 1; f.opaque = YES;
     UIImage *small = [[[UIGraphicsImageRenderer alloc] initWithSize:px format:f] imageWithActions:^(UIGraphicsImageRendererContext *ctx) {
         [img drawInRect:CGRectMake(0, 0, px.width, px.height)];
     }];
-    NSData *jpg = UIImageJPEGRepresentation(small, 0.85);
-    NSString *path = HS_WALLPAPER_PATH;
-    [[NSFileManager defaultManager] createDirectoryAtPath:path.stringByDeletingLastPathComponent withIntermediateDirectories:YES attributes:nil error:nil];
-    NSError *err = nil;
-    if (![jpg writeToFile:path options:NSDataWritingAtomic error:&err]) {
-        UIAlertController *a = [UIAlertController alertControllerWithTitle:nil message:err.localizedDescription preferredStyle:UIAlertControllerStyleAlert];
-        [a addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleCancel handler:nil]];
-        [self presentViewController:a animated:YES completion:nil];
-        return;
-    }
-    [[NSFileManager defaultManager] setAttributes:@{NSFilePosixPermissions: @0644} ofItemAtPath:path error:nil];   // CarPlay doc duoc
-    _wallpaper = small;
-    OMCHSStore(HS_KEY_WALLPAPER, @YES);
-    [_table reloadSections:[NSIndexSet indexSetWithIndex:OMCHSWallSection] withRowAnimation:UITableViewRowAnimationAutomatic];
+    if (![self writeJPEG:small to:HS_PHOTO_PATH]) return;
+    _photo = small;
+    if (![self saveWallpaper:small style:OMCHS_STYLE_PHOTO]) return;
+    [_table reloadRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:OMCHSWallTiles inSection:OMCHSWallSection]] withRowAnimation:UITableViewRowAnimationAutomatic];
     [self updatePreview];
 }
 
@@ -632,14 +858,5 @@ static char kOMCHSBundleKey;
 }
 
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker { [picker dismissViewControllerAnimated:YES completion:nil]; }
-
-- (void)documentPicker:(UIDocumentPickerViewController *)controller didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls
-{
-    NSURL *url = urls.firstObject;
-    BOOL scoped = [url startAccessingSecurityScopedResource];
-    UIImage *img = url ? [UIImage imageWithContentsOfFile:url.path] : nil;
-    if (scoped) [url stopAccessingSecurityScopedResource];
-    [self useWallpaper:img];
-}
 
 @end

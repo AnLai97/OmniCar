@@ -18,12 +18,13 @@
 "HOMESCREEN_NAMES" = "الأسماء تحت الأيقونات";
 "HOMESCREEN_WALLPAPER" = "الخلفية";
 "HOMESCREEN_WALLPAPER_FOOTER" = "تُقص الصورة على شاشة السيارة. زد التعتيم لتبقى الأيقونات والأسماء واضحة.";
-"HOMESCREEN_FROM_PHOTOS" = "اختيار من الصور";
-"HOMESCREEN_FROM_FILES" = "اختيار من الملفات";
+"HOMESCREEN_FROM_PHOTOS" = "من الصور";
 "HOMESCREEN_BLUR" = "التمويه";
 "HOMESCREEN_DIM" = "التعتيم";
-"HOMESCREEN_WALLPAPER_REMOVE" = "إزالة الخلفية";
 "HOMESCREEN_DOCK" = "Dock";
 "HOMESCREEN_DOCK_FOOTER" = "التطبيقات المثبتة تحل محل اقتراحات CarPlay (حتى 4، تشمل تطبيقات iPhone). بلا تثبيت: حسب المفتاح أدناه.";
 "HOMESCREEN_DOCK_SUGGEST" = "اقتراحات CarPlay";
 "HOMESCREEN_DOCK_FULL" = "يحتوي الـ Dock على 4 تطبيقات. ألغِ تثبيت واحد أولًا.";
+"HOMESCREEN_WALLPAPER_DEFAULT" = "افتراضي";
+"HOMESCREEN_DOCK_ADD" = "+ إضافة";
+"HOMESCREEN_DOCK_PICK" = "إضافة إلى الـ Dock";

@@ -18,12 +18,13 @@
 "HOMESCREEN_NAMES" = "Namen unter Symbolen";
 "HOMESCREEN_WALLPAPER" = "Hintergrund";
 "HOMESCREEN_WALLPAPER_FOOTER" = "Das Bild wird auf den Autobildschirm zugeschnitten. Mehr Abdunklung hält Symbole und Namen lesbar.";
-"HOMESCREEN_FROM_PHOTOS" = "Aus Fotos wählen";
-"HOMESCREEN_FROM_FILES" = "Aus Dateien wählen";
+"HOMESCREEN_FROM_PHOTOS" = "Aus Fotos";
 "HOMESCREEN_BLUR" = "Unschärfe";
 "HOMESCREEN_DIM" = "Abdunklung";
-"HOMESCREEN_WALLPAPER_REMOVE" = "Hintergrund entfernen";
 "HOMESCREEN_DOCK" = "Dock";
 "HOMESCREEN_DOCK_FOOTER" = "Angeheftete Apps ersetzen die CarPlay-Vorschläge (bis zu 4, auch iPhone-Apps). Nichts angeheftet: Schalter unten gilt.";
 "HOMESCREEN_DOCK_SUGGEST" = "CarPlay-Vorschläge";
 "HOMESCREEN_DOCK_FULL" = "Das Dock hat schon 4 Apps. Löse zuerst eine.";
+"HOMESCREEN_WALLPAPER_DEFAULT" = "Standard";
+"HOMESCREEN_DOCK_ADD" = "+ Hinzufügen";
+"HOMESCREEN_DOCK_PICK" = "Zum Dock hinzufügen";

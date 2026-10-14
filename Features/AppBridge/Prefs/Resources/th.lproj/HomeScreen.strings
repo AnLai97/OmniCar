@@ -18,12 +18,13 @@
 "HOMESCREEN_NAMES" = "ชื่อใต้ไอคอน";
 "HOMESCREEN_WALLPAPER" = "วอลเปเปอร์";
 "HOMESCREEN_WALLPAPER_FOOTER" = "ภาพจะถูกครอปให้พอดีจอรถ เพิ่มความมืดเพื่อให้ไอคอนและชื่ออ่านง่าย";
-"HOMESCREEN_FROM_PHOTOS" = "เลือกจากรูปภาพ";
-"HOMESCREEN_FROM_FILES" = "เลือกจากไฟล์";
+"HOMESCREEN_FROM_PHOTOS" = "จากรูปภาพ";
 "HOMESCREEN_BLUR" = "เบลอ";
 "HOMESCREEN_DIM" = "ความมืด";
-"HOMESCREEN_WALLPAPER_REMOVE" = "ลบวอลเปเปอร์";
 "HOMESCREEN_DOCK" = "Dock";
 "HOMESCREEN_DOCK_FOOTER" = "แอปที่ปักหมุดจะแทนคำแนะนำของ CarPlay (สูงสุด 4 รวมแอป iPhone) ไม่ปักหมุด: ตามสวิตช์ด้านล่าง";
 "HOMESCREEN_DOCK_SUGGEST" = "คำแนะนำของ CarPlay";
 "HOMESCREEN_DOCK_FULL" = "Dock มีครบ 4 แอปแล้ว ถอนหมุดแอปหนึ่งก่อน";
+"HOMESCREEN_WALLPAPER_DEFAULT" = "ค่าเริ่มต้น";
+"HOMESCREEN_DOCK_ADD" = "+ เพิ่ม";
+"HOMESCREEN_DOCK_PICK" = "เพิ่มลงใน Dock";

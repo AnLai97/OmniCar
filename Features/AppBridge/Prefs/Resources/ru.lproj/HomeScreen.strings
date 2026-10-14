@@ -18,12 +18,13 @@
 "HOMESCREEN_NAMES" = "Подписи под значками";
 "HOMESCREEN_WALLPAPER" = "Обои";
 "HOMESCREEN_WALLPAPER_FOOTER" = "Изображение обрезается под экран машины. Увеличьте затемнение, чтобы значки и подписи читались.";
-"HOMESCREEN_FROM_PHOTOS" = "Выбрать из Фото";
-"HOMESCREEN_FROM_FILES" = "Выбрать из Файлов";
+"HOMESCREEN_FROM_PHOTOS" = "Из Фото";
 "HOMESCREEN_BLUR" = "Размытие";
 "HOMESCREEN_DIM" = "Затемнение";
-"HOMESCREEN_WALLPAPER_REMOVE" = "Убрать обои";
 "HOMESCREEN_DOCK" = "Док";
 "HOMESCREEN_DOCK_FOOTER" = "Закреплённые приложения заменяют подсказки CarPlay (до 4, и приложения iPhone). Ничего не закреплено — по переключателю ниже.";
 "HOMESCREEN_DOCK_SUGGEST" = "Подсказки CarPlay";
 "HOMESCREEN_DOCK_FULL" = "В доке уже 4 приложения. Сначала открепите одно.";
+"HOMESCREEN_WALLPAPER_DEFAULT" = "Стандарт";
+"HOMESCREEN_DOCK_ADD" = "+ Добавить";
+"HOMESCREEN_DOCK_PICK" = "Добавить в док";
