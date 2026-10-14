@@ -269,14 +269,20 @@ static void ABSetFpsCap(int fps)
 }
 - (void)setPreferredFramesPerSecond:(NSInteger)fps
 {
-    if (fpsApplying) { %orig; return; }
+    if (fpsApplying) {
+        %orig;
+        return;
+    }
     objc_setAssociatedObject(self, &kABWantFps, @(fps), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     objc_setAssociatedObject(self, &kABWantRange, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     if (fpsCap > 0) ABCapLink(self); else %orig;
 }
 - (void)setPreferredFrameRateRange:(CAFrameRateRange)r
 {
-    if (fpsApplying) { %orig; return; }
+    if (fpsApplying) {
+        %orig;
+        return;
+    }
     objc_setAssociatedObject(self, &kABWantRange, @[@(r.minimum), @(r.maximum), @(r.preferred)], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     if (fpsCap > 0) ABCapLink(self); else %orig;
 }
