@@ -139,14 +139,14 @@ h2 { margin: 0 0 4px; font-size: 16px; }
 .s-pill .dot { width: 8px; height: 8px; border-radius: 4px; background: var(--st); margin-right: -4px; }
 .s-pill.normal .dot { background: var(--a3); }
 
-/* 3 Cap doi: dia toc do kinh + bien cung co, xep chong nhu hai giot nuoc */
-.s-twin { position: relative; width: 128px; height: 76px; }
-.s-twin .sp { position: absolute; left: 0; top: 0; width: 76px; height: 76px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; z-index: 2; }
+/* 3 Cap doi: dia toc do kinh + bien cung co dat canh nhau, khong de len nhau */
+.s-twin { position: relative; display: flex; align-items: center; gap: 8px; }
+.s-twin .sp { position: relative; width: 76px; height: 76px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; z-index: 2; }
 .s-twin .num { font-size: 30px; }
 .s-twin.over .sp { background: var(--over); } .s-twin.over .num, .s-twin.over .unit { color: #fff; }
 .s-twin.near .sp { box-shadow: inset 0 0 0 3px var(--near), 0 8px 22px rgba(60,50,130,.22); }
-.s-twin .sign { position: absolute; right: 0; top: 6px; --sz: 64px; box-shadow: 0 6px 16px rgba(0,0,0,.18); }
-.s-twin .ico { position: absolute; left: 54px; top: -2px; z-index: 3; --isz: 20px; }
+.s-twin .sign { --sz: 72px; box-shadow: 0 6px 16px rgba(0,0,0,.18); }
+.s-twin .ico { position: absolute; left: -4px; top: -4px; z-index: 3; --isz: 20px; }
 
 /* 4 Vong cung: cung 270 do = toc do / gioi han (cau vong -> ho phach -> do), bien o khe duoi */
 .s-arc { position: relative; width: 104px; height: 104px; border-radius: 50%; display: grid; place-items: center; }
@@ -217,7 +217,7 @@ h2 { margin: 0 0 4px; font-size: 16px; }
 .s-dash.near .num { color: #FFD58A; text-shadow: 0 0 8px rgba(255,179,64,.8); }
 .s-dash.over .num { color: #FF8A8D; text-shadow: 0 0 10px rgba(255,90,95,.9); }
 .s-dash .unit { font-size: 9px; color: rgba(255,255,255,.6); }
-.s-dash .sign { position: absolute; right: -14px; bottom: -10px; --sz: 50px; box-shadow: 0 4px 10px rgba(0,0,0,.3); }
+.s-dash .sign { position: absolute; right: -24px; bottom: -18px; --sz: 66px; box-shadow: 0 4px 10px rgba(0,0,0,.3); }
 .s-dash .ico { position: absolute; left: 2px; top: 2px; --isz: 24px; }
 </style>
 </head>
@@ -249,7 +249,7 @@ const $ = id => document.getElementById(id);
 const STYLES = [
   { id: 'drop',  n: 'Giọt kính',  d: 'Đĩa kính tròn như giọt nước, viền cầu vồng 4 màu logo; biển nhỏ chồm góc trên. Mặc định.', ts: .78 },
   { id: 'pill',  n: 'Viên kính',  d: 'Viên thuốc ngang: chấm trạng thái, số + đơn vị, vạch mảnh, biển. Gọn khi để mép trên / dưới.', ts: .66 },
-  { id: 'twin',  n: 'Cặp đôi',    d: 'Đĩa tốc độ và biển cùng cỡ chồng nhau; vượt thì đĩa tốc độ đỏ đặc — nhìn liếc là thấy.', ts: .7 },
+  { id: 'twin',  n: 'Cặp đôi',    d: 'Đĩa tốc độ và biển cùng cỡ đặt cạnh nhau, không đè lên nhau; vượt thì đĩa tốc độ đỏ đặc — nhìn liếc là thấy.', ts: .7 },
   { id: 'arc',   n: 'Vòng cung',  d: 'Cung 270° lấp đầy theo tốc độ / giới hạn, cầu vồng → hổ phách → đỏ; biển ở khe dưới.', ts: .74 },
   { id: 'tile',  n: 'Thẻ Harmony', d: 'Thẻ vuông bo lớn nền 4 màu logo, số to, thanh tiến độ; gần / vượt thì cả thẻ đổi màu.', ts: .68 },
   { id: 'min',   n: 'Tối giản',   d: 'Không nền: số lớn có quầng sáng để đọc trên mọi bản đồ, gạch mảnh theo tốc độ, biển bên cạnh.', ts: .66 },
@@ -276,7 +276,7 @@ function bubble(style, v, lim) {
   switch (style) {
     case 'drop': return `<div class="bub s-drop lglass ${st} ${st === 'over' ? 'pulse' : ''}"><span class="shine"></span><div class="in">${S_}${U}</div>${signHtml(lim)}${icoHtml()}</div>`;
     case 'pill': return `<div class="bub s-pill lglass ${st} ${st === 'over' ? 'pulse' : ''}">${S.icon ? icoHtml() : `<span class="dot"></span>`}<div class="sp">${S_}${U}</div><span class="bar"></span>${signHtml(lim)}</div>`;
-    case 'twin': return `<div class="bub s-twin ${st}">${signHtml(lim)}<div class="sp lglass ${st === 'over' ? 'pulse' : ''}">${S_}${U}</div>${icoHtml()}</div>`;
+    case 'twin': return `<div class="bub s-twin ${st}"><div class="sp lglass ${st === 'over' ? 'pulse' : ''}">${S_}${U}${icoHtml()}</div>${signHtml(lim)}</div>`;
     case 'arc': {
       const r = 46, c = 2 * Math.PI * r, arc = c * .75, fill = arc * Math.min(1, ratio);
       const col = st === 'over' ? 'var(--over)' : st === 'near' ? 'var(--near)' : 'url(#ag)';
