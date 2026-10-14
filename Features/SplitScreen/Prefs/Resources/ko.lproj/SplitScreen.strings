@@ -40,3 +40,15 @@
 "SPLITSCREEN_SHORTCUTS_GROUP" = "Siri / 단축어(URL 열기)";
 "SPLITSCREEN_SHORTCUTS_FOOTER" = "omnicar://splitscreen/open?left=com.apple.Maps&right=com.spotify.client\nomnicar://splitscreen/fav?n=1\nomnicar://splitscreen/close\nomnicar://splitscreen/layout?id=3 · ratio?r=70 · swap · zoom?pane=1\nomnicar://feature/speedBubble?on=toggle\nomnicar://lite?mode=auto\nomnicar://cleanram";
 "SPLITSCREEN_CREDITS_FOOTER" = "이전 이름은 CarDuo. 앱 호스팅은 carplay-cast(Ethan Arbuckle)를 기반으로 합니다.";
+
+/* Settings page (OMCSplitScreenController) */
+"SPLITSCREEN_ENABLE_SUB" = "CarPlay Dock의 OmniCar 버튼";
+"SPLITSCREEN_AUTO_LAUNCH_SUB" = "마지막 레이아웃을 엽니다";
+"SPLITSCREEN_OFF" = "화면 분할이 꺼져 있습니다";
+"SPLITSCREEN_PANEL_SHOW" = "패널에 표시";
+"SPLITSCREEN_GESTURES" = "차량 제스처";
+"SPLITSCREEN_SIRI" = "Siri / 단축어";
+"SPLITSCREEN_COPY" = "복사";
+"SPLITSCREEN_COPIED" = "URL 복사됨";
+"SPLITSCREEN_FAV_APPS_HINT" = "칸을 탭하여 앱 변경";
+"SPLITSCREEN_FAV_DONE" = "완료";

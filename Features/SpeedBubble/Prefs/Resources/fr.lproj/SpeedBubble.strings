@@ -37,3 +37,31 @@
 "SPEEDBUBBLE_WARN_MODE_2" = "Bordure et son bref";
 "SPEEDBUBBLE_WARN_OVER" = "Alerter au-delà de la limite de";
 "SPEEDBUBBLE_WARN_FOOTER" = "Lorsque vous dépassez la limitation de vitesse plus cette marge (dans l’unité affichée sur la bulle), une bordure rouge lumineuse pulse autour de l’écran CarPlay. Le son retentit une fois, puis seulement après 5 secondes passées sous la limite. Nécessite une limitation de vitesse fournie par l’app source.";
+
+/* Settings page (OMCSpeedBubbleController) */
+"SPEEDBUBBLE_ENABLE_SUB" = "Visible quand l'app de navigation tourne en arrière-plan";
+"SPEEDBUBBLE_TRY" = "Essayer dans la voiture";
+"SPEEDBUBBLE_TRY_SENT" = "Bulle affichée 10 secondes dans la voiture";
+"SPEEDBUBBLE_DISPLAY" = "Affichage";
+"SPEEDBUBBLE_UNIT_SHORT" = "Unité";
+"SPEEDBUBBLE_SIGN_SHORT" = "Panneau";
+"SPEEDBUBBLE_AUTO" = "Auto";
+"SPEEDBUBBLE_SIGN_ROUND" = "Rond";
+"SPEEDBUBBLE_SIGN_US" = "US";
+"SPEEDBUBBLE_DISPLAY_FOOTER" = "Auto : selon la région de l'iPhone.";
+"SPEEDBUBBLE_SRC_HINT_0" = "Vitesse + panneau de limite. Ouvrez Vietmap Live une fois puis laissez-la en arrière-plan.";
+"SPEEDBUBBLE_SRC_HINT_1" = "Vitesse + panneau de limite. Ouvrez GOFA une fois puis laissez-la en arrière-plan.";
+"SPEEDBUBBLE_SRC_HINT_2" = "Vitesse seule, sans panneau ni alerte. Fonctionne quand CarPlay est connecté.";
+"SPEEDBUBBLE_SRC_HINT_3" = "Vitesse par GPS ; la limite seulement quand Google Maps affiche le panneau (expérimental).";
+"SPEEDBUBBLE_SRC_HINT_4" = "Vitesse par GPS ; la limite seulement quand Waze affiche le panneau (expérimental).";
+"SPEEDBUBBLE_SRC_HINT_5" = "Vitesse par GPS ; la limite seulement quand Plans affiche le panneau (expérimental).";
+"SPEEDBUBBLE_WARN_SHORT_0" = "Non";
+"SPEEDBUBBLE_WARN_SHORT_1" = "Bord seul";
+"SPEEDBUBBLE_WARN_SHORT_2" = "Bord + son";
+"SPEEDBUBBLE_WARN_WHEN" = "Alerter au-delà";
+"SPEEDBUBBLE_WARN_ON_FOOTER" = "Au-delà de la limite %@ : un bord rouge clignote autour de l'écran CarPlay%@. Nécessite une source avec panneaux.";
+"SPEEDBUBBLE_WARN_SOUND_PART" = ", avec un bip court";
+"SPEEDBUBBLE_WARN_OFF_FOOTER" = "Pas d'alerte ; la bulle change quand même de couleur.";
+"SPEEDBUBBLE_SIZE_GROUP" = "Taille et position";
+"SPEEDBUBBLE_SIZE_CAR_SHORT" = "CarPlay";
+"SPEEDBUBBLE_SIZE_PHONE_SHORT" = "iPhone";

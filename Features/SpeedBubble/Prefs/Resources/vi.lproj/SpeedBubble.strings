@@ -37,3 +37,31 @@
 "SPEEDBUBBLE_WARN_MODE_2" = "Viền và tiếng ngắn";
 "SPEEDBUBBLE_WARN_OVER" = "Cảnh báo khi vượt giới hạn quá";
 "SPEEDBUBBLE_WARN_FOOTER" = "Khi chạy nhanh hơn giới hạn tốc độ cộng mức này (theo đơn vị đang hiện trên bong bóng), viền đỏ phát sáng nhấp nháy quanh màn CarPlay. Tiếng chỉ kêu một lần, lần sau chỉ kêu lại khi đã chạy dưới giới hạn liên tục 5 giây. Cần nguồn có giới hạn tốc độ.";
+
+/* Settings page (OMCSpeedBubbleController) */
+"SPEEDBUBBLE_ENABLE_SUB" = "Hiện khi app dẫn đường chạy nền";
+"SPEEDBUBBLE_TRY" = "Xem thử trên xe";
+"SPEEDBUBBLE_TRY_SENT" = "Đang hiện bong bóng trên xe 10 giây";
+"SPEEDBUBBLE_DISPLAY" = "Hiển thị";
+"SPEEDBUBBLE_UNIT_SHORT" = "Đơn vị";
+"SPEEDBUBBLE_SIGN_SHORT" = "Biển";
+"SPEEDBUBBLE_AUTO" = "Tự động";
+"SPEEDBUBBLE_SIGN_ROUND" = "Tròn";
+"SPEEDBUBBLE_SIGN_US" = "Mỹ";
+"SPEEDBUBBLE_DISPLAY_FOOTER" = "Tự động: theo vùng của iPhone (Việt Nam: km/h, biển tròn).";
+"SPEEDBUBBLE_SRC_HINT_0" = "Tốc độ + biển giới hạn. Mở Vietmap Live một lần rồi để chạy nền.";
+"SPEEDBUBBLE_SRC_HINT_1" = "Tốc độ + biển giới hạn. Mở GOFA một lần rồi để chạy nền.";
+"SPEEDBUBBLE_SRC_HINT_2" = "Chỉ tốc độ, không có biển giới hạn và không cảnh báo. Chạy khi đang cắm CarPlay.";
+"SPEEDBUBBLE_SRC_HINT_3" = "Tốc độ từ GPS; biển chỉ có khi Google Maps đang hiện biển (thử nghiệm).";
+"SPEEDBUBBLE_SRC_HINT_4" = "Tốc độ từ GPS; biển chỉ có khi Waze đang hiện biển (thử nghiệm).";
+"SPEEDBUBBLE_SRC_HINT_5" = "Tốc độ từ GPS; biển chỉ có khi Apple Maps đang hiện biển (thử nghiệm).";
+"SPEEDBUBBLE_WARN_SHORT_0" = "Tắt";
+"SPEEDBUBBLE_WARN_SHORT_1" = "Chỉ viền";
+"SPEEDBUBBLE_WARN_SHORT_2" = "Viền + tiếng";
+"SPEEDBUBBLE_WARN_WHEN" = "Khi vượt";
+"SPEEDBUBBLE_WARN_ON_FOOTER" = "Chạy quá giới hạn %@: viền đỏ nhấp nháy quanh màn CarPlay%@. Cần nguồn có biển giới hạn.";
+"SPEEDBUBBLE_WARN_SOUND_PART" = ", kêu một tiếng ngắn";
+"SPEEDBUBBLE_WARN_OFF_FOOTER" = "Không cảnh báo; bong bóng vẫn đổi màu khi vượt.";
+"SPEEDBUBBLE_SIZE_GROUP" = "Cỡ và vị trí";
+"SPEEDBUBBLE_SIZE_CAR_SHORT" = "CarPlay";
+"SPEEDBUBBLE_SIZE_PHONE_SHORT" = "iPhone";

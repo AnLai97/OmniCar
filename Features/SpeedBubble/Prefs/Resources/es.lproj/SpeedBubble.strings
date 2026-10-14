@@ -37,3 +37,31 @@
 "SPEEDBUBBLE_WARN_MODE_2" = "Borde y sonido corto";
 "SPEEDBUBBLE_WARN_OVER" = "Avisar al superar el límite en";
 "SPEEDBUBBLE_WARN_FOOTER" = "Cuando vas más rápido que el límite de velocidad más este margen (en la unidad que muestra la burbuja), un borde rojo luminoso parpadea alrededor de la pantalla de CarPlay. El sonido suena una vez y solo vuelve a sonar después de que hayas estado 5 segundos por debajo del límite. Necesita un límite de velocidad de la app de origen.";
+
+/* Settings page (OMCSpeedBubbleController) */
+"SPEEDBUBBLE_ENABLE_SUB" = "Se muestra mientras la app de navegación está en segundo plano";
+"SPEEDBUBBLE_TRY" = "Probar en el coche";
+"SPEEDBUBBLE_TRY_SENT" = "Mostrando la burbuja en el coche 10 segundos";
+"SPEEDBUBBLE_DISPLAY" = "Visualización";
+"SPEEDBUBBLE_UNIT_SHORT" = "Unidad";
+"SPEEDBUBBLE_SIGN_SHORT" = "Señal";
+"SPEEDBUBBLE_AUTO" = "Auto";
+"SPEEDBUBBLE_SIGN_ROUND" = "Redonda";
+"SPEEDBUBBLE_SIGN_US" = "EE. UU.";
+"SPEEDBUBBLE_DISPLAY_FOOTER" = "Auto: según la región del iPhone.";
+"SPEEDBUBBLE_SRC_HINT_0" = "Velocidad + señal de límite. Abre Vietmap Live una vez y déjala en segundo plano.";
+"SPEEDBUBBLE_SRC_HINT_1" = "Velocidad + señal de límite. Abre GOFA una vez y déjala en segundo plano.";
+"SPEEDBUBBLE_SRC_HINT_2" = "Solo velocidad, sin señal de límite ni aviso. Funciona con CarPlay conectado.";
+"SPEEDBUBBLE_SRC_HINT_3" = "Velocidad por GPS; el límite solo cuando Google Maps muestra la señal (experimental).";
+"SPEEDBUBBLE_SRC_HINT_4" = "Velocidad por GPS; el límite solo cuando Waze muestra la señal (experimental).";
+"SPEEDBUBBLE_SRC_HINT_5" = "Velocidad por GPS; el límite solo cuando Apple Maps muestra la señal (experimental).";
+"SPEEDBUBBLE_WARN_SHORT_0" = "No";
+"SPEEDBUBBLE_WARN_SHORT_1" = "Solo borde";
+"SPEEDBUBBLE_WARN_SHORT_2" = "Borde + sonido";
+"SPEEDBUBBLE_WARN_WHEN" = "Avisar al pasar";
+"SPEEDBUBBLE_WARN_ON_FOOTER" = "Al superar el límite %@: un borde rojo parpadea en la pantalla de CarPlay%@. Requiere una fuente con señales de límite.";
+"SPEEDBUBBLE_WARN_SOUND_PART" = ", con un pitido corto";
+"SPEEDBUBBLE_WARN_OFF_FOOTER" = "Sin aviso; la burbuja cambia de color al superar el límite.";
+"SPEEDBUBBLE_SIZE_GROUP" = "Tamaño y posición";
+"SPEEDBUBBLE_SIZE_CAR_SHORT" = "CarPlay";
+"SPEEDBUBBLE_SIZE_PHONE_SHORT" = "iPhone";

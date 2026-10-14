@@ -37,3 +37,31 @@
 "SPEEDBUBBLE_WARN_MODE_2" = "Rahmen und kurzer Ton";
 "SPEEDBUBBLE_WARN_OVER" = "Warnen bei Überschreitung um";
 "SPEEDBUBBLE_WARN_FOOTER" = "Fährst du schneller als das Tempolimit plus diese Toleranz (in der Einheit der Blase), pulsiert ein rot leuchtender Rahmen um den CarPlay-Bildschirm. Der Ton erklingt einmal und erst wieder, nachdem du 5 Sekunden unter dem Limit warst. Benötigt ein Tempolimit aus der Quell-App.";
+
+/* Settings page (OMCSpeedBubbleController) */
+"SPEEDBUBBLE_ENABLE_SUB" = "Erscheint, solange die Navi-App im Hintergrund läuft";
+"SPEEDBUBBLE_TRY" = "Im Auto testen";
+"SPEEDBUBBLE_TRY_SENT" = "Die Blase erscheint 10 Sekunden im Auto";
+"SPEEDBUBBLE_DISPLAY" = "Anzeige";
+"SPEEDBUBBLE_UNIT_SHORT" = "Einheit";
+"SPEEDBUBBLE_SIGN_SHORT" = "Schild";
+"SPEEDBUBBLE_AUTO" = "Auto";
+"SPEEDBUBBLE_SIGN_ROUND" = "Rund";
+"SPEEDBUBBLE_SIGN_US" = "USA";
+"SPEEDBUBBLE_DISPLAY_FOOTER" = "Auto: richtet sich nach der Region des iPhone.";
+"SPEEDBUBBLE_SRC_HINT_0" = "Tempo + Limitschild. Vietmap Live einmal öffnen und im Hintergrund lassen.";
+"SPEEDBUBBLE_SRC_HINT_1" = "Tempo + Limitschild. GOFA einmal öffnen und im Hintergrund lassen.";
+"SPEEDBUBBLE_SRC_HINT_2" = "Nur Tempo, kein Limitschild und keine Warnung. Läuft bei verbundenem CarPlay.";
+"SPEEDBUBBLE_SRC_HINT_3" = "Tempo per GPS; Limit nur, wenn Google Maps das Schild zeigt (experimentell).";
+"SPEEDBUBBLE_SRC_HINT_4" = "Tempo per GPS; Limit nur, wenn Waze das Schild zeigt (experimentell).";
+"SPEEDBUBBLE_SRC_HINT_5" = "Tempo per GPS; Limit nur, wenn Apple Maps das Schild zeigt (experimentell).";
+"SPEEDBUBBLE_WARN_SHORT_0" = "Aus";
+"SPEEDBUBBLE_WARN_SHORT_1" = "Nur Rand";
+"SPEEDBUBBLE_WARN_SHORT_2" = "Rand + Ton";
+"SPEEDBUBBLE_WARN_WHEN" = "Warnen ab";
+"SPEEDBUBBLE_WARN_ON_FOOTER" = "Über dem Limit %@: ein roter Rand blinkt um den CarPlay-Bildschirm%@. Braucht eine Quelle mit Limitschildern.";
+"SPEEDBUBBLE_WARN_SOUND_PART" = ", mit einem kurzen Ton";
+"SPEEDBUBBLE_WARN_OFF_FOOTER" = "Keine Warnung; die Blase wechselt trotzdem die Farbe.";
+"SPEEDBUBBLE_SIZE_GROUP" = "Größe und Position";
+"SPEEDBUBBLE_SIZE_CAR_SHORT" = "CarPlay";
+"SPEEDBUBBLE_SIZE_PHONE_SHORT" = "iPhone";

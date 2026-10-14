@@ -37,3 +37,31 @@
 "SPEEDBUBBLE_WARN_MODE_2" = "枠と短い音";
 "SPEEDBUBBLE_WARN_OVER" = "警告する超過速度";
 "SPEEDBUBBLE_WARN_FOOTER" = "制限速度にこの余裕分（バブルに表示される単位）を加えた速度を超えると、CarPlay画面の周囲で赤く光る枠が点滅します。音は一度だけ鳴り、制限速度以下で5秒間走行した後にのみ再び鳴ります。取得元Appからの制限速度が必要です。";
+
+/* Settings page (OMCSpeedBubbleController) */
+"SPEEDBUBBLE_ENABLE_SUB" = "ナビ App がバックグラウンドで動作中に表示";
+"SPEEDBUBBLE_TRY" = "車で試す";
+"SPEEDBUBBLE_TRY_SENT" = "車に 10 秒間バブルを表示中";
+"SPEEDBUBBLE_DISPLAY" = "表示";
+"SPEEDBUBBLE_UNIT_SHORT" = "単位";
+"SPEEDBUBBLE_SIGN_SHORT" = "標識";
+"SPEEDBUBBLE_AUTO" = "自動";
+"SPEEDBUBBLE_SIGN_ROUND" = "丸形";
+"SPEEDBUBBLE_SIGN_US" = "米国式";
+"SPEEDBUBBLE_DISPLAY_FOOTER" = "自動：iPhone の地域に合わせます。";
+"SPEEDBUBBLE_SRC_HINT_0" = "速度 + 制限標識。Vietmap Live を一度開いてバックグラウンドのままにします。";
+"SPEEDBUBBLE_SRC_HINT_1" = "速度 + 制限標識。GOFA を一度開いてバックグラウンドのままにします。";
+"SPEEDBUBBLE_SRC_HINT_2" = "速度のみ。制限標識と警告はありません。CarPlay 接続中に動作します。";
+"SPEEDBUBBLE_SRC_HINT_3" = "速度は GPS から。制限は Google マップが標識を表示しているときのみ（試験的）。";
+"SPEEDBUBBLE_SRC_HINT_4" = "速度は GPS から。制限は Waze が標識を表示しているときのみ（試験的）。";
+"SPEEDBUBBLE_SRC_HINT_5" = "速度は GPS から。制限は Apple マップが標識を表示しているときのみ（試験的）。";
+"SPEEDBUBBLE_WARN_SHORT_0" = "オフ";
+"SPEEDBUBBLE_WARN_SHORT_1" = "枠のみ";
+"SPEEDBUBBLE_WARN_SHORT_2" = "枠 + 音";
+"SPEEDBUBBLE_WARN_WHEN" = "超過時";
+"SPEEDBUBBLE_WARN_ON_FOOTER" = "制限を %@ 超えると CarPlay 画面の周りに赤い枠が点滅します%@。制限標識のある取得元が必要です。";
+"SPEEDBUBBLE_WARN_SOUND_PART" = "（短い音 1 回）";
+"SPEEDBUBBLE_WARN_OFF_FOOTER" = "警告しません。超過時もバブルの色は変わります。";
+"SPEEDBUBBLE_SIZE_GROUP" = "サイズと位置";
+"SPEEDBUBBLE_SIZE_CAR_SHORT" = "CarPlay";
+"SPEEDBUBBLE_SIZE_PHONE_SHORT" = "iPhone";

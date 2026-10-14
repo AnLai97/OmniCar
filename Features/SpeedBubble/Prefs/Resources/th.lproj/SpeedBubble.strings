@@ -37,3 +37,31 @@
 "SPEEDBUBBLE_WARN_MODE_2" = "ขอบและเสียงสั้น";
 "SPEEDBUBBLE_WARN_OVER" = "เตือนเมื่อเกินความเร็วจำกัด";
 "SPEEDBUBBLE_WARN_FOOTER" = "เมื่อคุณขับเร็วกว่าความเร็วจำกัดบวกค่าเผื่อนี้ (ในหน่วยที่แสดงบนบับเบิล) ขอบสีแดงเรืองแสงจะกะพริบรอบหน้าจอ CarPlay เสียงจะเล่นหนึ่งครั้ง และจะเล่นอีกครั้งหลังจากคุณอยู่ต่ำกว่าความเร็วจำกัดครบ 5 วินาทีแล้วเท่านั้น ต้องมีความเร็วจำกัดจากแอปแหล่งข้อมูล";
+
+/* Settings page (OMCSpeedBubbleController) */
+"SPEEDBUBBLE_ENABLE_SUB" = "แสดงขณะแอปนำทางทำงานเบื้องหลัง";
+"SPEEDBUBBLE_TRY" = "ลองบนรถ";
+"SPEEDBUBBLE_TRY_SENT" = "กำลังแสดงบับเบิลบนรถ 10 วินาที";
+"SPEEDBUBBLE_DISPLAY" = "การแสดงผล";
+"SPEEDBUBBLE_UNIT_SHORT" = "หน่วย";
+"SPEEDBUBBLE_SIGN_SHORT" = "ป้าย";
+"SPEEDBUBBLE_AUTO" = "อัตโนมัติ";
+"SPEEDBUBBLE_SIGN_ROUND" = "วงกลม";
+"SPEEDBUBBLE_SIGN_US" = "แบบสหรัฐฯ";
+"SPEEDBUBBLE_DISPLAY_FOOTER" = "อัตโนมัติ: ตามภูมิภาคของ iPhone";
+"SPEEDBUBBLE_SRC_HINT_0" = "ความเร็ว + ป้ายจำกัด เปิด Vietmap Live หนึ่งครั้งแล้วปล่อยให้ทำงานเบื้องหลัง";
+"SPEEDBUBBLE_SRC_HINT_1" = "ความเร็ว + ป้ายจำกัด เปิด GOFA หนึ่งครั้งแล้วปล่อยให้ทำงานเบื้องหลัง";
+"SPEEDBUBBLE_SRC_HINT_2" = "ความเร็วอย่างเดียว ไม่มีป้ายจำกัดและไม่เตือน ทำงานขณะเชื่อม CarPlay";
+"SPEEDBUBBLE_SRC_HINT_3" = "ความเร็วจาก GPS; ป้ายจำกัดเฉพาะเมื่อ Google Maps แสดงป้าย (ทดลอง)";
+"SPEEDBUBBLE_SRC_HINT_4" = "ความเร็วจาก GPS; ป้ายจำกัดเฉพาะเมื่อ Waze แสดงป้าย (ทดลอง)";
+"SPEEDBUBBLE_SRC_HINT_5" = "ความเร็วจาก GPS; ป้ายจำกัดเฉพาะเมื่อ Apple Maps แสดงป้าย (ทดลอง)";
+"SPEEDBUBBLE_WARN_SHORT_0" = "ปิด";
+"SPEEDBUBBLE_WARN_SHORT_1" = "ขอบอย่างเดียว";
+"SPEEDBUBBLE_WARN_SHORT_2" = "ขอบ + เสียง";
+"SPEEDBUBBLE_WARN_WHEN" = "เตือนเมื่อเกิน";
+"SPEEDBUBBLE_WARN_ON_FOOTER" = "เกินขีดจำกัด %@: ขอบสีแดงกะพริบรอบจอ CarPlay%@ ต้องใช้แหล่งที่มีป้ายจำกัด";
+"SPEEDBUBBLE_WARN_SOUND_PART" = " และมีเสียงสั้นหนึ่งครั้ง";
+"SPEEDBUBBLE_WARN_OFF_FOOTER" = "ไม่เตือน บับเบิลยังเปลี่ยนสีเมื่อเกิน";
+"SPEEDBUBBLE_SIZE_GROUP" = "ขนาดและตำแหน่ง";
+"SPEEDBUBBLE_SIZE_CAR_SHORT" = "CarPlay";
+"SPEEDBUBBLE_SIZE_PHONE_SHORT" = "iPhone";

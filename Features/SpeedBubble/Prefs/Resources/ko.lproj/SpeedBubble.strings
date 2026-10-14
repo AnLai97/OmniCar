@@ -37,3 +37,31 @@
 "SPEEDBUBBLE_WARN_MODE_2" = "테두리 및 짧은 소리";
 "SPEEDBUBBLE_WARN_OVER" = "제한 속도 초과 허용치";
 "SPEEDBUBBLE_WARN_FOOTER" = "제한 속도에 이 허용치를 더한 속도(버블에 표시된 단위)보다 빨리 달리면 CarPlay 화면 둘레에 빛나는 빨간색 테두리가 깜박입니다. 소리는 한 번 재생되며, 제한 속도 아래로 5초 동안 유지한 후에만 다시 재생됩니다. 출처 앱의 제한 속도가 필요합니다.";
+
+/* Settings page (OMCSpeedBubbleController) */
+"SPEEDBUBBLE_ENABLE_SUB" = "내비게이션 앱이 백그라운드에서 실행 중일 때 표시";
+"SPEEDBUBBLE_TRY" = "차량에서 테스트";
+"SPEEDBUBBLE_TRY_SENT" = "차량에 버블을 10초간 표시 중";
+"SPEEDBUBBLE_DISPLAY" = "표시";
+"SPEEDBUBBLE_UNIT_SHORT" = "단위";
+"SPEEDBUBBLE_SIGN_SHORT" = "표지판";
+"SPEEDBUBBLE_AUTO" = "자동";
+"SPEEDBUBBLE_SIGN_ROUND" = "원형";
+"SPEEDBUBBLE_SIGN_US" = "미국식";
+"SPEEDBUBBLE_DISPLAY_FOOTER" = "자동: iPhone 지역 설정을 따릅니다.";
+"SPEEDBUBBLE_SRC_HINT_0" = "속도 + 제한 표지판. Vietmap Live를 한 번 열고 백그라운드에 두십시오.";
+"SPEEDBUBBLE_SRC_HINT_1" = "속도 + 제한 표지판. GOFA를 한 번 열고 백그라운드에 두십시오.";
+"SPEEDBUBBLE_SRC_HINT_2" = "속도만, 제한 표지판과 경고 없음. CarPlay 연결 중에 작동합니다.";
+"SPEEDBUBBLE_SRC_HINT_3" = "GPS 속도; Google 지도가 표지판을 표시할 때만 제한 표시(실험적).";
+"SPEEDBUBBLE_SRC_HINT_4" = "GPS 속도; Waze가 표지판을 표시할 때만 제한 표시(실험적).";
+"SPEEDBUBBLE_SRC_HINT_5" = "GPS 속도; Apple 지도가 표지판을 표시할 때만 제한 표시(실험적).";
+"SPEEDBUBBLE_WARN_SHORT_0" = "끔";
+"SPEEDBUBBLE_WARN_SHORT_1" = "테두리만";
+"SPEEDBUBBLE_WARN_SHORT_2" = "테두리 + 소리";
+"SPEEDBUBBLE_WARN_WHEN" = "초과 시";
+"SPEEDBUBBLE_WARN_ON_FOOTER" = "제한 속도 %@ 초과 시 CarPlay 화면 둘레에 빨간 테두리가 깜박입니다%@. 제한 표지판이 있는 소스가 필요합니다.";
+"SPEEDBUBBLE_WARN_SOUND_PART" = ", 짧은 소리 1회";
+"SPEEDBUBBLE_WARN_OFF_FOOTER" = "경고하지 않음; 초과 시 버블 색은 바뀝니다.";
+"SPEEDBUBBLE_SIZE_GROUP" = "크기 및 위치";
+"SPEEDBUBBLE_SIZE_CAR_SHORT" = "CarPlay";
+"SPEEDBUBBLE_SIZE_PHONE_SHORT" = "iPhone";

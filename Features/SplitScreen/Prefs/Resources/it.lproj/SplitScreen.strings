@@ -40,3 +40,15 @@
 "SPLITSCREEN_SHORTCUTS_GROUP" = "Siri / Comandi Rapidi (Apri URL)";
 "SPLITSCREEN_SHORTCUTS_FOOTER" = "omnicar://splitscreen/open?left=com.apple.Maps&right=com.spotify.client\nomnicar://splitscreen/fav?n=1\nomnicar://splitscreen/close\nomnicar://splitscreen/layout?id=3 · ratio?r=70 · swap · zoom?pane=1\nomnicar://feature/speedBubble?on=toggle\nomnicar://lite?mode=auto\nomnicar://cleanram";
 "SPLITSCREEN_CREDITS_FOOTER" = "In precedenza CarDuo. L'hosting delle app si basa su carplay-cast (Ethan Arbuckle).";
+
+/* Settings page (OMCSplitScreenController) */
+"SPLITSCREEN_ENABLE_SUB" = "Pulsante OmniCar nel dock di CarPlay";
+"SPLITSCREEN_AUTO_LAUNCH_SUB" = "Riapre l'ultimo layout";
+"SPLITSCREEN_OFF" = "Schermo diviso disattivato";
+"SPLITSCREEN_PANEL_SHOW" = "Mostra nel pannello";
+"SPLITSCREEN_GESTURES" = "Gesti in auto";
+"SPLITSCREEN_SIRI" = "Siri / Comandi rapidi";
+"SPLITSCREEN_COPY" = "Copia";
+"SPLITSCREEN_COPIED" = "URL copiato";
+"SPLITSCREEN_FAV_APPS_HINT" = "Tocca un riquadro per cambiare app";
+"SPLITSCREEN_FAV_DONE" = "Fine";

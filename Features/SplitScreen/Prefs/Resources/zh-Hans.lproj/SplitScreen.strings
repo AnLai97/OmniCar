@@ -40,3 +40,15 @@
 "SPLITSCREEN_SHORTCUTS_GROUP" = "Siri / 快捷指令（打开 URL）";
 "SPLITSCREEN_SHORTCUTS_FOOTER" = "omnicar://splitscreen/open?left=com.apple.Maps&right=com.spotify.client\nomnicar://splitscreen/fav?n=1\nomnicar://splitscreen/close\nomnicar://splitscreen/layout?id=3 · ratio?r=70 · swap · zoom?pane=1\nomnicar://feature/speedBubble?on=toggle\nomnicar://lite?mode=auto\nomnicar://cleanram";
 "SPLITSCREEN_CREDITS_FOOTER" = "前身为 CarDuo。App 托管基于 carplay-cast（Ethan Arbuckle）。";
+
+/* Settings page (OMCSplitScreenController) */
+"SPLITSCREEN_ENABLE_SUB" = "CarPlay 程序坞上的 OmniCar 按钮";
+"SPLITSCREEN_AUTO_LAUNCH_SUB" = "打开上次的布局";
+"SPLITSCREEN_OFF" = "分屏已关闭";
+"SPLITSCREEN_PANEL_SHOW" = "在面板中显示";
+"SPLITSCREEN_GESTURES" = "车上的手势";
+"SPLITSCREEN_SIRI" = "Siri / 快捷指令";
+"SPLITSCREEN_COPY" = "拷贝";
+"SPLITSCREEN_COPIED" = "已拷贝 URL";
+"SPLITSCREEN_FAV_APPS_HINT" = "轻点格子更换 App";
+"SPLITSCREEN_FAV_DONE" = "完成";

@@ -6,7 +6,9 @@
      "ssStyles" lists the startup styles (SS_STYLE_*) a row shows for; rows without it always show.
      Groups with an "id" get their header / footer from code (style name, weather status, current sound...).
      "ssRandomStyle" rows are the Random style's checklist (toggleRandomStyle: flips them).
-     "Add video" / "Choose logo" ask Photos or Files; "Choose sound" opens Files. -->
+     "Add video" / "Choose logo" ask Photos or Files; "Choose sound" opens Files.
+     Order (tools/preview/feature-settings.html): on/off, the chosen style's rows, duration, startup sound + volume,
+     special days. -->
 <plist version="1.0">
 <dict>
 	<key>featureLabel</key>
@@ -510,6 +512,80 @@
 			<string>com.anlai.omnicar/prefschanged</string>
 		</dict>
 
+		<!-- Startup sound (any style); the footer shows the current file (added in code) -->
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>id</key>
+			<string>soundGroup</string>
+			<key>label</key>
+			<string>STARTUPSCREEN_STARTUP_SOUND_GROUP</string>
+			<key>footerText</key>
+			<string>STARTUPSCREEN_STARTUP_SOUND_FOOTER</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSButtonCell</string>
+			<key>label</key>
+			<string>STARTUPSCREEN_SOUND_CHOOSE</string>
+			<key>action</key>
+			<string>chooseSound</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSButtonCell</string>
+			<key>label</key>
+			<string>STARTUPSCREEN_SOUND_PREVIEW</string>
+			<key>action</key>
+			<string>previewSound</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSButtonCell</string>
+			<key>label</key>
+			<string>STARTUPSCREEN_SOUND_DELETE</string>
+			<key>action</key>
+			<string>deleteSound</string>
+			<key>isDestructive</key>
+			<true/>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSliderCell</string>
+			<key>key</key>
+			<string>startupScreenSoundVolume</string>
+			<key>default</key>
+			<real>100</real>
+			<key>min</key>
+			<real>0</real>
+			<key>max</key>
+			<real>100</real>
+			<key>showValue</key>
+			<true/>
+			<key>isSegmented</key>
+			<true/>
+			<key>segmentCount</key>
+			<integer>20</integer>
+			<key>defaults</key>
+			<string>com.anlai.omnicar</string>
+			<key>PostNotification</key>
+			<string>com.anlai.omnicar/prefschanged</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>label</key>
+			<string>STARTUPSCREEN_SOUND_SKIP_CALL</string>
+			<key>key</key>
+			<string>startupScreenSoundSkipCall</string>
+			<key>default</key>
+			<true/>
+			<key>defaults</key>
+			<string>com.anlai.omnicar</string>
+			<key>PostNotification</key>
+			<string>com.anlai.omnicar/prefschanged</string>
+		</dict>
+
 		<!-- Special days (any style); the preview row's label names the next occasion (in code) -->
 		<dict>
 			<key>cell</key>
@@ -550,88 +626,6 @@
 			<string>STARTUPSCREEN_PREVIEW</string>
 			<key>action</key>
 			<string>previewOccasion</string>
-		</dict>
-
-		<!-- Startup sound (any style); the footer shows the current file (added in code) -->
-		<dict>
-			<key>cell</key>
-			<string>PSGroupCell</string>
-			<key>id</key>
-			<string>soundGroup</string>
-			<key>label</key>
-			<string>STARTUPSCREEN_STARTUP_SOUND_GROUP</string>
-			<key>footerText</key>
-			<string>STARTUPSCREEN_STARTUP_SOUND_FOOTER</string>
-		</dict>
-		<dict>
-			<key>cell</key>
-			<string>PSButtonCell</string>
-			<key>label</key>
-			<string>STARTUPSCREEN_SOUND_CHOOSE</string>
-			<key>action</key>
-			<string>chooseSound</string>
-		</dict>
-		<dict>
-			<key>cell</key>
-			<string>PSButtonCell</string>
-			<key>label</key>
-			<string>STARTUPSCREEN_SOUND_PREVIEW</string>
-			<key>action</key>
-			<string>previewSound</string>
-		</dict>
-		<dict>
-			<key>cell</key>
-			<string>PSButtonCell</string>
-			<key>label</key>
-			<string>STARTUPSCREEN_SOUND_DELETE</string>
-			<key>action</key>
-			<string>deleteSound</string>
-			<key>isDestructive</key>
-			<true/>
-		</dict>
-		<dict>
-			<key>cell</key>
-			<string>PSGroupCell</string>
-			<key>label</key>
-			<string>STARTUPSCREEN_VOLUME_GROUP</string>
-			<key>footerText</key>
-			<string>STARTUPSCREEN_VOLUME_FOOTER</string>
-		</dict>
-		<dict>
-			<key>cell</key>
-			<string>PSSliderCell</string>
-			<key>key</key>
-			<string>startupScreenSoundVolume</string>
-			<key>default</key>
-			<real>100</real>
-			<key>min</key>
-			<real>0</real>
-			<key>max</key>
-			<real>100</real>
-			<key>showValue</key>
-			<true/>
-			<key>isSegmented</key>
-			<true/>
-			<key>segmentCount</key>
-			<integer>20</integer>
-			<key>defaults</key>
-			<string>com.anlai.omnicar</string>
-			<key>PostNotification</key>
-			<string>com.anlai.omnicar/prefschanged</string>
-		</dict>
-		<dict>
-			<key>cell</key>
-			<string>PSSwitchCell</string>
-			<key>label</key>
-			<string>STARTUPSCREEN_SOUND_SKIP_CALL</string>
-			<key>key</key>
-			<string>startupScreenSoundSkipCall</string>
-			<key>default</key>
-			<true/>
-			<key>defaults</key>
-			<string>com.anlai.omnicar</string>
-			<key>PostNotification</key>
-			<string>com.anlai.omnicar/prefschanged</string>
 		</dict>
 	</array>
 </dict>

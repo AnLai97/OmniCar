@@ -40,3 +40,15 @@
 "SPLITSCREEN_SHORTCUTS_GROUP" = "‏Siri / الاختصارات (فتح URL)";
 "SPLITSCREEN_SHORTCUTS_FOOTER" = "omnicar://splitscreen/open?left=com.apple.Maps&right=com.spotify.client\nomnicar://splitscreen/fav?n=1\nomnicar://splitscreen/close\nomnicar://splitscreen/layout?id=3 · ratio?r=70 · swap · zoom?pane=1\nomnicar://feature/speedBubble?on=toggle\nomnicar://lite?mode=auto\nomnicar://cleanram";
 "SPLITSCREEN_CREDITS_FOOTER" = "كان اسمه سابقًا CarDuo. استضافة التطبيقات مبنية على carplay-cast (Ethan Arbuckle).";
+
+/* Settings page (OMCSplitScreenController) */
+"SPLITSCREEN_ENABLE_SUB" = "زر OmniCar في شريط CarPlay";
+"SPLITSCREEN_AUTO_LAUNCH_SUB" = "يفتح آخر تخطيط";
+"SPLITSCREEN_OFF" = "تقسيم الشاشة متوقف";
+"SPLITSCREEN_PANEL_SHOW" = "إظهار في اللوحة";
+"SPLITSCREEN_GESTURES" = "الإيماءات في السيارة";
+"SPLITSCREEN_SIRI" = "Siri / الاختصارات";
+"SPLITSCREEN_COPY" = "نسخ";
+"SPLITSCREEN_COPIED" = "تم نسخ الرابط";
+"SPLITSCREEN_FAV_APPS_HINT" = "اضغط مربعًا لتغيير تطبيقه";
+"SPLITSCREEN_FAV_DONE" = "تم";

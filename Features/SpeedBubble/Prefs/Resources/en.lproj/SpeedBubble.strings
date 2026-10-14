@@ -37,3 +37,31 @@
 "SPEEDBUBBLE_WARN_MODE_2" = "Border and short sound";
 "SPEEDBUBBLE_WARN_OVER" = "Warn when over the limit by";
 "SPEEDBUBBLE_WARN_FOOTER" = "When you go faster than the speed limit plus this margin (in the unit shown on the bubble), a red glowing border pulses around the CarPlay screen. The sound plays once, then again only after you have stayed under the limit for 5 seconds. Needs a speed limit from the source app.";
+
+/* Settings page (OMCSpeedBubbleController) */
+"SPEEDBUBBLE_ENABLE_SUB" = "Shows while the navigation app runs in the background";
+"SPEEDBUBBLE_TRY" = "Try on the car";
+"SPEEDBUBBLE_TRY_SENT" = "Showing the bubble on the car for 10 seconds";
+"SPEEDBUBBLE_DISPLAY" = "Display";
+"SPEEDBUBBLE_UNIT_SHORT" = "Unit";
+"SPEEDBUBBLE_SIGN_SHORT" = "Sign";
+"SPEEDBUBBLE_AUTO" = "Auto";
+"SPEEDBUBBLE_SIGN_ROUND" = "Round";
+"SPEEDBUBBLE_SIGN_US" = "US";
+"SPEEDBUBBLE_DISPLAY_FOOTER" = "Auto: follows the iPhone's region.";
+"SPEEDBUBBLE_SRC_HINT_0" = "Speed + limit sign. Open Vietmap Live once, then leave it in the background.";
+"SPEEDBUBBLE_SRC_HINT_1" = "Speed + limit sign. Open GOFA once, then leave it in the background.";
+"SPEEDBUBBLE_SRC_HINT_2" = "Speed only, no limit sign and no warning. Works while CarPlay is connected.";
+"SPEEDBUBBLE_SRC_HINT_3" = "Speed from GPS; the limit only when Google Maps shows its sign (experimental).";
+"SPEEDBUBBLE_SRC_HINT_4" = "Speed from GPS; the limit only when Waze shows its sign (experimental).";
+"SPEEDBUBBLE_SRC_HINT_5" = "Speed from GPS; the limit only when Apple Maps shows its sign (experimental).";
+"SPEEDBUBBLE_WARN_SHORT_0" = "Off";
+"SPEEDBUBBLE_WARN_SHORT_1" = "Rim only";
+"SPEEDBUBBLE_WARN_SHORT_2" = "Rim + sound";
+"SPEEDBUBBLE_WARN_WHEN" = "Warn above";
+"SPEEDBUBBLE_WARN_ON_FOOTER" = "Driving over the limit %@: a red rim flashes around the CarPlay screen%@. Needs a source with limit signs.";
+"SPEEDBUBBLE_WARN_SOUND_PART" = ", with one short beep";
+"SPEEDBUBBLE_WARN_OFF_FOOTER" = "No warning; the bubble still changes colour when over.";
+"SPEEDBUBBLE_SIZE_GROUP" = "Size and position";
+"SPEEDBUBBLE_SIZE_CAR_SHORT" = "CarPlay";
+"SPEEDBUBBLE_SIZE_PHONE_SHORT" = "iPhone";

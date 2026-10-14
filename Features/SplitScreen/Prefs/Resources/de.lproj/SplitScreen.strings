@@ -40,3 +40,15 @@
 "SPLITSCREEN_SHORTCUTS_GROUP" = "Siri / Kurzbefehle (URL öffnen)";
 "SPLITSCREEN_SHORTCUTS_FOOTER" = "omnicar://splitscreen/open?left=com.apple.Maps&right=com.spotify.client\nomnicar://splitscreen/fav?n=1\nomnicar://splitscreen/close\nomnicar://splitscreen/layout?id=3 · ratio?r=70 · swap · zoom?pane=1\nomnicar://feature/speedBubble?on=toggle\nomnicar://lite?mode=auto\nomnicar://cleanram";
 "SPLITSCREEN_CREDITS_FOOTER" = "Ehemals CarDuo. Das App-Hosting basiert auf carplay-cast (Ethan Arbuckle).";
+
+/* Settings page (OMCSplitScreenController) */
+"SPLITSCREEN_ENABLE_SUB" = "OmniCar-Taste im CarPlay-Dock";
+"SPLITSCREEN_AUTO_LAUNCH_SUB" = "Öffnet das letzte Layout";
+"SPLITSCREEN_OFF" = "Geteilter Bildschirm ist aus";
+"SPLITSCREEN_PANEL_SHOW" = "Im Panel zeigen";
+"SPLITSCREEN_GESTURES" = "Gesten im Auto";
+"SPLITSCREEN_SIRI" = "Siri / Kurzbefehle";
+"SPLITSCREEN_COPY" = "Kopieren";
+"SPLITSCREEN_COPIED" = "URL kopiert";
+"SPLITSCREEN_FAV_APPS_HINT" = "Feld antippen, um die App zu ändern";
+"SPLITSCREEN_FAV_DONE" = "Fertig";

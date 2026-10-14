@@ -1,74 +1,548 @@
 #import "OMCSpeedBubbleController.h"
 #import "OMCTheme.h"
 #import "../SpeedBubble.h"
+#import "../SPPBubbleView.h"
 #import <notify.h>
+#import <objc/runtime.h>
 
-@interface PSSpecifier (SpeedBubble)
-- (void)setValues:(NSArray *)values titles:(NSArray *)titles;
+@interface UIImage (OMCSpeedBubblePrivate)
++ (UIImage *)_applicationIconImageForBundleIdentifier:(NSString *)bid format:(int)format scale:(double)scale;
+@end
+
+// Cung thu tu SB_SOURCE_NAMES / SPP_NAV_APPS (GPS iPhone khong co app)
+static NSArray<NSString *> *OMCSBSourceBundles(void)
+{
+    return @[@"vn.vietmap.live", @"com.lumi.GOFA", @"", @"com.google.Maps", @"com.waze.iphone", @"com.apple.Maps"];
+}
+
+static UIImage *OMCSBRounded(UIImage *img, CGFloat side, CGFloat corner)
+{
+    UIGraphicsImageRenderer *r = [[UIGraphicsImageRenderer alloc] initWithSize:CGSizeMake(side, side)];
+    return [r imageWithActions:^(UIGraphicsImageRendererContext *ctx) {
+        [[UIBezierPath bezierPathWithRoundedRect:CGRectMake(0, 0, side, side) cornerRadius:corner] addClip];
+        [img drawInRect:CGRectMake(0, 0, side, side)];
+    }];
+}
+
+// Icon nguon: icon app that (neu da cai), GPS iPhone = o xanh mui ten vi tri, con lai o mau co chu viet tat
+static UIImage *OMCSBSourceIcon(NSInteger i)
+{
+    static NSMutableDictionary *cache;
+    if (!cache) cache = [NSMutableDictionary dictionary];
+    if (cache[@(i)]) return cache[@(i)];
+    NSString *bid = i >= 0 && i < (NSInteger)OMCSBSourceBundles().count ? OMCSBSourceBundles()[i] : @"";
+    UIImage *img = nil;
+    if (bid.length && [UIImage respondsToSelector:@selector(_applicationIconImageForBundleIdentifier:format:scale:)])
+        img = [UIImage _applicationIconImageForBundleIdentifier:bid format:2 scale:[UIScreen mainScreen].scale];
+    if (!img) {
+        UIColor *bg = i == SB_SOURCE_GPS ? [UIColor colorWithRed:10 / 255.0 green:132 / 255.0 blue:1 alpha:1]
+                    : @[OMCColorFromHex(@"#F07A12"), OMCColorFromHex(@"#1AA260"), OMCColorFromHex(@"#0A84FF"), OMCColorFromHex(@"#4285F4"),
+                        OMCColorFromHex(@"#33CCFF"), OMCColorFromHex(@"#34C759")][MAX(0, MIN(5, i))];
+        UIImage *glyph = i == SB_SOURCE_GPS ? [[UIImage systemImageNamed:@"location.fill" withConfiguration:[UIImageSymbolConfiguration configurationWithPointSize:26 weight:UIImageSymbolWeightBold]]
+                                               imageWithTintColor:[UIColor whiteColor] renderingMode:UIImageRenderingModeAlwaysOriginal] : nil;
+        NSString *abbr = @[@"V", @"G", @"", @"G", @"W", @"➤"][MAX(0, MIN(5, i))];
+        img = [[[UIGraphicsImageRenderer alloc] initWithSize:CGSizeMake(60, 60)] imageWithActions:^(UIGraphicsImageRendererContext *ctx) {
+            [bg setFill]; UIRectFill(CGRectMake(0, 0, 60, 60));
+            if (glyph) { CGSize g = glyph.size; [glyph drawInRect:CGRectMake((60 - g.width) / 2, (60 - g.height) / 2, g.width, g.height)]; return; }
+            NSDictionary *a = @{NSFontAttributeName: [UIFont systemFontOfSize:28 weight:UIFontWeightHeavy], NSForegroundColorAttributeName: [UIColor whiteColor]};
+            CGSize s = [abbr sizeWithAttributes:a];
+            [abbr drawAtPoint:CGPointMake((60 - s.width) / 2, (60 - s.height) / 2) withAttributes:a];
+        }];
+    }
+    cache[@(i)] = img;
+    return img;
+}
+
+// Nen ban do sang cho o xem truoc / o chon kieu (giong tools/preview/speedbubble.html)
+static UIImage *OMCSBMapImage(CGSize size)
+{
+    UIGraphicsImageRendererFormat *f = [UIGraphicsImageRendererFormat preferredFormat];
+    f.opaque = YES;
+    return [[[UIGraphicsImageRenderer alloc] initWithSize:size format:f] imageWithActions:^(UIGraphicsImageRendererContext *rc) {
+        CGContextRef c = rc.CGContext;
+        [OMCColorFromHex(@"#EEF0EA") setFill]; UIRectFill(CGRectMake(0, 0, size.width, size.height));
+        [OMCColorFromHex(@"#CDECCF") setFill];
+        [[UIBezierPath bezierPathWithOvalInRect:CGRectMake(size.width * 0.68, -size.height * 0.15, size.height * 0.9, size.height * 0.9)] fill];
+        [OMCColorFromHex(@"#C8E4F7") setFill];
+        [[UIBezierPath bezierPathWithOvalInRect:CGRectMake(-size.height * 0.2, size.height * 0.45, size.height, size.height)] fill];
+        CGContextSetLineCap(c, kCGLineCapRound);
+        [OMCColorFromHex(@"#FFE9A8") setStroke];
+        UIBezierPath *p = [UIBezierPath bezierPath]; p.lineWidth = size.height * 0.07;
+        [p moveToPoint:CGPointMake(-10, size.height * 0.62)]; [p addLineToPoint:CGPointMake(size.width + 10, size.height * 0.2)]; [p stroke];
+        [[UIColor whiteColor] setStroke];
+        p = [UIBezierPath bezierPath]; p.lineWidth = size.height * 0.1;
+        [p moveToPoint:CGPointMake(size.width * 0.38, size.height + 10)]; [p addLineToPoint:CGPointMake(size.width * 0.62, -10)]; [p stroke];
+        [OMCColorFromHex(@"#3D8BFF") setStroke];
+        p = [UIBezierPath bezierPath]; p.lineWidth = size.height * 0.045;
+        [p moveToPoint:CGPointMake(size.width * 0.33, size.height + 10)]; [p addLineToPoint:CGPointMake(size.width * 0.56, -10)]; [p stroke];
+    }];
+}
+
+// Dat bong bong vao giua khung, thu nho cho vua (khong phong to qua maxScale)
+static void OMCSBFit(SPPBubbleView *bv, CGRect box, CGFloat maxScale)
+{
+    CGSize s = [bv render];
+    if (s.width < 1 || s.height < 1) return;
+    CGFloat k = MIN(maxScale, MIN((box.size.width - 12) / s.width, (box.size.height - 12) / s.height));
+    bv.transform = CGAffineTransformIdentity;
+    bv.bounds = CGRectMake(0, 0, s.width, s.height);
+    bv.center = CGPointMake(CGRectGetMidX(box), CGRectGetMidY(box));
+    bv.transform = CGAffineTransformMakeScale(k, k);
+}
+
+// Vien cau vong 4 mau logo quanh o dang chon
+static void OMCSBRing(UIView *v, BOOL on, CGFloat corner)
+{
+    CALayer *old = nil;
+    for (CALayer *l in v.layer.sublayers) if ([l.name isEqualToString:@"omcRing"]) old = l;
+    [old removeFromSuperlayer];
+    if (!on) return;
+    CAGradientLayer *g = [CAGradientLayer layer];
+    g.name = @"omcRing";
+    g.type = kCAGradientLayerConic;
+    g.frame = CGRectInset(v.bounds, -2.5, -2.5);
+    g.startPoint = CGPointMake(0.5, 0.5); g.endPoint = CGPointMake(0, 1);
+    g.colors = @[(id)OMCColorFromHex(@"#A78BFA").CGColor, (id)OMCColorFromHex(@"#60C5FA").CGColor, (id)OMCColorFromHex(@"#5EDDB6").CGColor,
+                 (id)OMCColorFromHex(@"#F59AC0").CGColor, (id)OMCColorFromHex(@"#A78BFA").CGColor];
+    CAShapeLayer *m = [CAShapeLayer layer];
+    m.path = [UIBezierPath bezierPathWithRoundedRect:CGRectInset(g.bounds, 1.25, 1.25) cornerRadius:corner + 1.25].CGPath;
+    m.fillColor = nil; m.strokeColor = [UIColor blackColor].CGColor; m.lineWidth = 2.5;
+    g.mask = m;
+    [v.layer addSublayer:g];
+}
+
+enum { SBPreview = 0, SBEnable, SBStyle, SBSource, SBDisplay, SBWarn, SBSize, SBCount };
+static char kOMCSBIndex;
+
+@interface OMCSpeedBubbleController ()
+@property (nonatomic, strong) SPPBubbleView *live;       // xem truoc song
+@property (nonatomic, strong) UIImageView *liveMap;
+@property (nonatomic, strong) NSTimer *liveTimer;
+@property (nonatomic) CFTimeInterval liveStart;
+@property (nonatomic, strong) UIScrollView *styleStrip;
+@property (nonatomic) CGFloat stripOffset;
 @end
 
 @implementation OMCSpeedBubbleController
 
-// Only one speed source now (SB_KEY_SOURCE). First visit after the update: carry over the old
-// per-app switches (only Vietmap off -> GOFA), the same rule SPPPrefs uses until this is written.
-- (void)viewDidLoad {
-	CFPreferencesAppSynchronize(kPrefsDomain);
-	CFPropertyListRef cur = CFPreferencesCopyAppValue((__bridge CFStringRef)SB_KEY_SOURCE, kPrefsDomain);
-	if (cur) CFRelease(cur);
-	else {
-		id vm = CFBridgingRelease(CFPreferencesCopyAppValue((__bridge CFStringRef)SB_KEY_APP_VIETMAP, kPrefsDomain));
-		id gf = CFBridgingRelease(CFPreferencesCopyAppValue((__bridge CFStringRef)SB_KEY_APP_GOFA, kPrefsDomain));
-		BOOL gofa = vm && ![vm boolValue] && !(gf && ![gf boolValue]);
-		CFPreferencesSetAppValue((__bridge CFStringRef)SB_KEY_SOURCE, (__bridge CFPropertyListRef)@(gofa ? 1 : 0), kPrefsDomain);
-		CFPreferencesAppSynchronize(kPrefsDomain);
-	}
-	[super viewDidLoad];
+// Chi con 1 nguon (SB_KEY_SOURCE). Lan dau mo sau ban cap nhat: chuyen 2 cong tac cu (chi tat Vietmap -> GOFA), cung
+// quy tac SPPPrefs dung cho toi khi gia tri nay duoc ghi.
+- (void)viewDidLoad
+{
+    CFPreferencesAppSynchronize(kPrefsDomain);
+    if (![self prefForKey:SB_KEY_SOURCE def:nil]) {
+        id vm = [self prefForKey:SB_KEY_APP_VIETMAP def:nil], gf = [self prefForKey:SB_KEY_APP_GOFA def:nil];
+        BOOL gofa = vm && ![vm boolValue] && !(gf && ![gf boolValue]);
+        CFPreferencesSetAppValue((__bridge CFStringRef)SB_KEY_SOURCE, (__bridge CFPropertyListRef)@(gofa ? 1 : 0), kPrefsDomain);
+        CFPreferencesAppSynchronize(kPrefsDomain);
+    }
+    [super viewDidLoad];
+    if (!self.title.length) self.title = L(@"SPEEDBUBBLE");
 }
 
-// "Source" list from SB_SOURCE_NAMES (index = SPP_NAV_APPS index), so new navigation apps show up here.
-// iPhone GPS (SB_SOURCE_GPS) is read by SpringBoard itself; its name is localized, and the source footer says
-// when SpringBoard has no location permission (SB_KEY_GPS_STATUS, written by SpringBoard: 1 restricted, 2 denied).
-- (NSArray *)specifiers {
-	if (!_specifiers) {
-		[super specifiers];
-		for (PSSpecifier *spec in _specifiers) {
-			if ([spec.identifier isEqualToString:@"speedBubbleSourceGroup"]) {
-				id status = CFBridgingRelease(CFPreferencesCopyAppValue((__bridge CFStringRef)SB_KEY_GPS_STATUS, kPrefsDomain));
-				if ([status respondsToSelector:@selector(intValue)] && ([status intValue] == 1 || [status intValue] == 2)) {
-					NSString *footer = [spec propertyForKey:@"footerText"] ?: @"";
-					[spec setProperty:[NSString stringWithFormat:@"%@\n\n%@", footer, L(@"SPEEDBUBBLE_GPS_UNAVAILABLE")] forKey:@"footerText"];
-				}
-				continue;
-			}
-			if (![[spec propertyForKey:@"key"] isEqualToString:SB_KEY_SOURCE]) continue;
-			NSMutableArray *names = [SB_SOURCE_NAMES mutableCopy];
-			if ((NSUInteger)SB_SOURCE_GPS < names.count) names[SB_SOURCE_GPS] = L(@"SPEEDBUBBLE_SOURCE_GPS");
-			NSMutableArray *values = [NSMutableArray array];
-			for (NSUInteger i = 0; i < names.count; i++) [values addObject:@(i)];
-			[spec setValues:values titles:names];
-		}
-	}
-	return _specifiers;
+- (void)viewDidAppear:(BOOL)animated
+{
+    [super viewDidAppear:animated];
+    [self.liveTimer invalidate];
+    self.liveStart = CACurrentMediaTime();
+    __weak OMCSpeedBubbleController *weakSelf = self;
+    self.liveTimer = [NSTimer scheduledTimerWithTimeInterval:0.15 repeats:YES block:^(NSTimer *t) { [weakSelf tickLive]; }];
 }
 
-#pragma mark - Actions
-// Darwin notifications handled by SpringBoard (../SpringBoard.xm).
-
-// Show the bubble for 10 seconds.
-- (void)bubbleDemo {
-	notify_post(SB_DARWIN_DEMO);
-	[[[UIImpactFeedbackGenerator alloc] initWithStyle:UIImpactFeedbackStyleLight] impactOccurred];
+- (void)viewWillDisappear:(BOOL)animated
+{
+    [super viewWillDisappear:animated];
+    [self.liveTimer invalidate];
+    self.liveTimer = nil;
 }
 
-// Default position, 100% size. SpringBoard writes the sizes back to 100, so re-read the sliders.
-- (void)resetLayout {
-	notify_post(SB_DARWIN_RESET);
-	[[[UIImpactFeedbackGenerator alloc] initWithStyle:UIImpactFeedbackStyleLight] impactOccurred];
-	__weak typeof(self) weakSelf = self;
-	dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.4 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-		CFPreferencesAppSynchronize(kPrefsDomain);
-		[weakSelf reloadSpecifiers];
-	});
+#pragma mark - Gia tri
+
+- (BOOL)on { return [[self prefForKey:SB_KEY_ENABLED def:@YES] boolValue]; }
+- (NSInteger)style { NSInteger s = [self intForKey:SB_KEY_STYLE def:0]; return (s >= 0 && s < SB_STYLE_COUNT) ? s : 0; }
+- (NSInteger)source { NSInteger s = [self intForKey:SB_KEY_SOURCE def:0]; return (s >= 0 && s < (NSInteger)SB_SOURCE_NAMES.count) ? s : 0; }
+- (BOOL)showIcon { return [[self prefForKey:SB_KEY_SHOW_APP_ICON def:@YES] boolValue]; }
+- (NSInteger)warnMode { NSInteger m = [self intForKey:SB_KEY_WARN_MODE def:2]; return (m >= 0 && m <= 2) ? m : 2; }
+
+// Cung quy tac SPPPrefs: tu dong = mph / bien My o vung dung
+- (BOOL)useMph
+{
+    NSInteger u = [self intForKey:SB_KEY_UNIT def:0];
+    if (u == 1) return NO;
+    if (u == 2) return YES;
+    NSString *cc = [[NSLocale currentLocale] countryCode].uppercaseString ?: @"";
+    return ![[NSLocale currentLocale] usesMetricSystem] || [@[@"US", @"GB", @"LR", @"MM"] containsObject:cc];
+}
+
+- (BOOL)usSign
+{
+    NSInteger s = [self intForKey:SB_KEY_SIGN def:0];
+    if (s == 1) return NO;
+    if (s == 2) return YES;
+    NSString *cc = [[NSLocale currentLocale] countryCode].uppercaseString ?: @"";
+    return [@[@"US", @"PR", @"LR", @"MM"] containsObject:cc];
+}
+
+// Dong giai thich nguon dang chon (+ "GPS iPhone khong dung duoc" khi SpringBoard khong co quyen vi tri: 1 han che, 2 tu choi)
+- (NSString *)sourceHint
+{
+    NSInteger src = [self source];
+    NSString *hint = [@"ⓘ  " stringByAppendingString:L([NSString stringWithFormat:@"SPEEDBUBBLE_SRC_HINT_%ld", (long)src])];
+    NSInteger gps = [self intForKey:SB_KEY_GPS_STATUS def:0];
+    if (src == SB_SOURCE_GPS && (gps == 1 || gps == 2)) hint = [NSString stringWithFormat:@"%@\n%@", hint, L(@"SPEEDBUBBLE_GPS_UNAVAILABLE")];
+    return hint;
+}
+
+- (NSString *)sourceName:(NSInteger)i
+{
+    return i == SB_SOURCE_GPS ? L(@"SPEEDBUBBLE_SOURCE_GPS") : SB_SOURCE_NAMES[i];
+}
+
+// Bong bong theo cai dat hien tai (xem truoc song + o chon kieu)
+- (void)configure:(SPPBubbleView *)bv style:(NSInteger)style speed:(int)speed limit:(int)limit
+{
+    bv.style = style;
+    bv.speed = speed; bv.limit = limit;
+    bv.showIcon = [self showIcon];
+    bv.mph = [self useMph]; bv.usSign = [self usSign];
+    bv.iconImage = OMCSBSourceIcon([self source]);
+}
+
+- (void)tickLive
+{
+    if (!self.live.window) return;
+    BOOL gps = [self source] == SB_SOURCE_GPS;
+    int limit = gps ? -1 : 60;
+    CFTimeInterval t = CACurrentMediaTime() - self.liveStart;
+    int speed = (int)lround(60 * (0.55 + 0.65 * (0.5 - 0.5 * cos(t * 0.45))));
+    [self configure:self.live style:[self style] speed:speed limit:limit];
+    OMCSBFit(self.live, self.liveMap.frame, 0.95);
+}
+
+- (void)prefChanged:(NSString *)key
+{
+    if ([key isEqualToString:SB_KEY_ENABLED]) { [self.table reloadData]; return; }
+    if ([key isEqualToString:SB_KEY_SHOW_APP_ICON] || [key isEqualToString:SB_KEY_UNIT] || [key isEqualToString:SB_KEY_SIGN]) {
+        self.stripOffset = self.styleStrip.contentOffset.x;
+        [self reloadSection:SBStyle];
+        [self reloadSection:SBWarn];   // nguong theo don vi
+    }
+    if ([key isEqualToString:SB_KEY_WARN_MODE]) [self reloadSection:SBWarn];
+    if ([key isEqualToString:SB_KEY_WARN_OVER]) [self reloadSection:SBWarn];   // chu thich theo nguong moi (tha tay)
+    [self tickLive];
+}
+
+#pragma mark - Bang
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tv { return SBCount; }
+
+- (NSInteger)tableView:(UITableView *)tv numberOfRowsInSection:(NSInteger)s
+{
+    switch (s) {
+        case SBStyle: case SBSource: case SBDisplay: return 2;
+        case SBWarn: return [self warnMode] ? 2 : 1;
+        case SBSize: return 3;
+        default: return 1;
+    }
+}
+
+- (NSString *)tableView:(UITableView *)tv titleForHeaderInSection:(NSInteger)s
+{
+    switch (s) {
+        case SBStyle: return L(@"SPEEDBUBBLE_STYLE");
+        case SBSource: return L(@"SPEEDBUBBLE_SOURCE");
+        case SBDisplay: return L(@"SPEEDBUBBLE_DISPLAY");
+        case SBWarn: return L(@"SPEEDBUBBLE_WARN");
+        case SBSize: return L(@"SPEEDBUBBLE_SIZE_GROUP");
+    }
+    return nil;
+}
+
+- (NSString *)tableView:(UITableView *)tv titleForFooterInSection:(NSInteger)s
+{
+    switch (s) {
+        case SBDisplay: return L(@"SPEEDBUBBLE_DISPLAY_FOOTER");
+        case SBWarn: {
+            NSInteger m = [self warnMode];
+            if (!m) return L(@"SPEEDBUBBLE_WARN_OFF_FOOTER");
+            NSString *over = [NSString stringWithFormat:@"+%ld %@", (long)[self intForKey:SB_KEY_WARN_OVER def:5], [self useMph] ? @"mph" : @"km/h"];
+            return [NSString stringWithFormat:L(@"SPEEDBUBBLE_WARN_ON_FOOTER"), over, m == 2 ? L(@"SPEEDBUBBLE_WARN_SOUND_PART") : @""];
+        }
+        case SBSize: return L(@"SPEEDBUBBLE_GESTURES_FOOTER");
+    }
+    return nil;
+}
+
+- (CGFloat)tableView:(UITableView *)tv heightForRowAtIndexPath:(NSIndexPath *)ip
+{
+    CGFloat w = tv.bounds.size.width - 40;
+    if (ip.section == SBPreview) return MAX(128, round(w * 0.4));
+    if (ip.section == SBEnable) return 60;
+    if (ip.section == SBStyle && ip.row == 0) return 112;
+    if (ip.section == SBSource && ip.row == 0) return 24 + 2 * 70 + 8;
+    if (ip.section == SBSource && ip.row == 1) {
+        CGSize s = [[self sourceHint] boundingRectWithSize:CGSizeMake(w - 32, 400)
+            options:NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName: [UIFont systemFontOfSize:12.5]} context:nil].size;
+        return ceil(s.height) + 20;
+    }
+    if (ip.section == SBWarn && ip.row == 0) return 50;
+    return 52;
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tv cellForRowAtIndexPath:(NSIndexPath *)ip
+{
+    CGFloat w = tv.bounds.size.width - 40;
+    BOOL on = [self on];
+    UITableViewCell *c = nil;
+    switch (ip.section) {
+    case SBPreview: {
+        c = [self cellWithId:@"preview"];
+        UIView *box = [self boxInCell:c];
+        CGFloat h = [self tableView:tv heightForRowAtIndexPath:ip];
+        if (!self.liveMap || self.liveMap.superview != box) {
+            for (UIView *v in [box.subviews copy]) [v removeFromSuperview];
+            self.liveMap = [UIImageView new];
+            self.liveMap.layer.cornerRadius = 14; self.liveMap.layer.cornerCurve = kCACornerCurveContinuous;
+            self.liveMap.clipsToBounds = YES;
+            [box addSubview:self.liveMap];
+            self.live = [[SPPBubbleView alloc] initWithFrame:CGRectZero];
+            [box addSubview:self.live];
+            UIButton *tryBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+            tryBtn.tag = 0x54;
+            tryBtn.titleLabel.font = [UIFont systemFontOfSize:12.5 weight:UIFontWeightSemibold];
+            [tryBtn setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+            tryBtn.layer.cornerRadius = 13;
+            CAGradientLayer *g = [CAGradientLayer layer];
+            g.startPoint = CGPointMake(0, 0); g.endPoint = CGPointMake(1, 1);
+            g.colors = @[(id)OMCColorFromHex(@"#9B87F8").CGColor, (id)OMCColorFromHex(@"#5DB4F6").CGColor];
+            g.cornerRadius = 13;
+            [tryBtn.layer insertSublayer:g atIndex:0];
+            [tryBtn addTarget:self action:@selector(tryOnCar) forControlEvents:UIControlEventTouchUpInside];
+            [box addSubview:tryBtn];
+        }
+        self.liveMap.frame = CGRectMake(8, 8, w - 16, h - 16);
+        self.liveMap.image = OMCSBMapImage(self.liveMap.bounds.size);
+        self.liveMap.alpha = on ? 1 : 0.4;
+        self.live.hidden = !on;
+        UIButton *tryBtn = (UIButton *)[box viewWithTag:0x54];
+        NSString *tt = L(@"SPEEDBUBBLE_TRY");
+        [tryBtn setTitle:tt forState:UIControlStateNormal];
+        CGFloat bw = ceil([tt sizeWithAttributes:@{NSFontAttributeName: tryBtn.titleLabel.font}].width) + 24;
+        tryBtn.frame = CGRectMake(CGRectGetMaxX(self.liveMap.frame) - bw - 8, CGRectGetMaxY(self.liveMap.frame) - 26 - 8, bw, 26);
+        ((CALayer *)tryBtn.layer.sublayers.firstObject).frame = tryBtn.bounds;
+        tryBtn.hidden = !on;
+        [self tickLive];
+        return c;
+    }
+    case SBEnable:
+        c = [self cellWithId:@"enable"];
+        c.textLabel.text = L(@"SPEEDBUBBLE_ENABLE");
+        c.detailTextLabel.text = L(@"SPEEDBUBBLE_ENABLE_SUB");
+        c.imageView.image = OMCIcon(@"speedometer", OMCColorFromHex(@"#8B7CFF"));
+        [self setAccessory:[self switchForKey:SB_KEY_ENABLED def:YES] onCell:c];
+        return c;
+    case SBStyle:
+        if (ip.row == 0) { c = [self cellWithId:@"styles"]; [self layoutStylesIn:[self boxInCell:c] width:w]; }
+        else {
+            c = [self cellWithId:@"icon"];
+            c.textLabel.text = L(@"SPEEDBUBBLE_SHOW_APP_ICON");
+            c.imageView.image = OMCIcon(@"app.badge.fill", OMCColorFromHex(@"#FF7FA8"));
+            [self setAccessory:[self switchForKey:SB_KEY_SHOW_APP_ICON def:YES] onCell:c];
+        }
+        break;
+    case SBSource:
+        if (ip.row == 0) { c = [self cellWithId:@"sources"]; [self layoutSourcesIn:[self boxInCell:c] width:w]; }
+        else {
+            c = [self cellWithId:@"hint"];
+            UIView *box = [self boxInCell:c];
+            UILabel *l = (UILabel *)[box viewWithTag:0x48];
+            if (!l) { l = [UILabel new]; l.tag = 0x48; l.numberOfLines = 0; l.font = [UIFont systemFontOfSize:12.5]; l.textColor = [UIColor secondaryLabelColor]; [box addSubview:l]; }
+            l.text = [self sourceHint];
+            l.frame = CGRectMake(16, 8, w - 32, [self tableView:tv heightForRowAtIndexPath:ip] - 16);
+        }
+        break;
+    case SBDisplay: {
+        BOOL unit = ip.row == 0;
+        c = [self cellWithId:unit ? @"unit" : @"sign"];
+        c.textLabel.text = L(unit ? @"SPEEDBUBBLE_UNIT_SHORT" : @"SPEEDBUBBLE_SIGN_SHORT");
+        c.imageView.image = OMCIcon(unit ? @"speedometer" : @"nosign", OMCColorFromHex(unit ? @"#5AB8FF" : @"#E5262D"));
+        UISegmentedControl *seg = unit ? [self segmentForKey:SB_KEY_UNIT titles:@[L(@"SPEEDBUBBLE_AUTO"), @"km/h", @"mph"] def:0]
+                                       : [self segmentForKey:SB_KEY_SIGN titles:@[L(@"SPEEDBUBBLE_AUTO"), L(@"SPEEDBUBBLE_SIGN_ROUND"), L(@"SPEEDBUBBLE_SIGN_US")] def:0];
+        [seg sizeToFit];
+        [self setAccessory:seg onCell:c];
+        break;
+    }
+    case SBWarn:
+        if (ip.row == 0) {
+            c = [self cellWithId:@"warnmode"];
+            UIView *box = [self boxInCell:c];
+            for (UIView *v in [box.subviews copy]) [v removeFromSuperview];
+            UISegmentedControl *seg = [self segmentForKey:SB_KEY_WARN_MODE titles:@[L(@"SPEEDBUBBLE_WARN_SHORT_0"), L(@"SPEEDBUBBLE_WARN_SHORT_1"), L(@"SPEEDBUBBLE_WARN_SHORT_2")] def:2];
+            seg.frame = CGRectMake(12, 9, w - 24, 32);
+            [box addSubview:seg];
+        } else {
+            c = [self cellWithId:@"warnover"];
+            c.textLabel.text = L(@"SPEEDBUBBLE_WARN_WHEN");
+            c.imageView.image = OMCIcon(@"exclamationmark.triangle.fill", OMCColorFromHex(@"#FFB340"));
+            NSString *fmt = [NSString stringWithFormat:@"+%%ld %@", [self useMph] ? @"mph" : @"km/h"];
+            [self setAccessory:[self sliderForKey:SB_KEY_WARN_OVER min:0 max:20 def:5 format:fmt width:MIN(210, w - 140)] onCell:c];
+        }
+        break;
+    case SBSize:
+    default:
+        if (ip.row == 2) {
+            c = [self cellWithId:@"reset"];
+            c.textLabel.text = L(@"SPEEDBUBBLE_RESET_LAYOUT");
+            c.textLabel.textColor = OMCAccentColor();
+            c.selectionStyle = UITableViewCellSelectionStyleDefault;
+        } else {
+            BOOL car = ip.row == 0;
+            c = [self cellWithId:car ? @"sizecar" : @"sizephone"];
+            c.textLabel.text = L(car ? @"SPEEDBUBBLE_SIZE_CAR_SHORT" : @"SPEEDBUBBLE_SIZE_PHONE_SHORT");
+            c.imageView.image = OMCIcon(car ? @"car.fill" : @"iphone", OMCColorFromHex(@"#2BC79A"));
+            [self setAccessory:[self sliderForKey:car ? SB_KEY_SIZE_CAR : SB_KEY_SIZE_PHONE min:60 max:220 def:100 format:@"%ld%%" width:MIN(210, w - 140)] onCell:c];
+        }
+        break;
+    }
+    // Tat tinh nang: cac the ben duoi mo di, khong cham duoc
+    BOOL dim = !on && ip.section > SBEnable;
+    c.contentView.alpha = dim ? 0.4 : 1;
+    c.accessoryView.alpha = dim ? 0.4 : 1;
+    c.userInteractionEnabled = !dim;
+    return c;
+}
+
+- (void)tableView:(UITableView *)tv didSelectRowAtIndexPath:(NSIndexPath *)ip
+{
+    [tv deselectRowAtIndexPath:ip animated:YES];
+    if (ip.section == SBSize && ip.row == 2) [self resetLayout];
+}
+
+#pragma mark - Kieu
+
+// Dai cuon ngang: moi o la bong bong that (52 / 60 km/h) thu vua o + ten
+- (void)layoutStylesIn:(UIView *)box width:(CGFloat)w
+{
+    if (!self.styleStrip || self.styleStrip.superview != box) {
+        for (UIView *v in [box.subviews copy]) [v removeFromSuperview];
+        self.styleStrip = [UIScrollView new];
+        self.styleStrip.showsHorizontalScrollIndicator = NO;
+        self.styleStrip.alwaysBounceHorizontal = YES;
+        [box addSubview:self.styleStrip];
+    }
+    UIScrollView *sc = self.styleStrip;
+    for (UIView *v in [sc.subviews copy]) [v removeFromSuperview];
+    sc.frame = CGRectMake(0, 0, w, 112);
+    CGFloat tw = 86, th = 72, gap = 8, x = 12;
+    UIImage *map = OMCSBMapImage(CGSizeMake(tw, th));
+    NSInteger chosen = [self style];
+    for (NSInteger i = 0; i < SB_STYLE_COUNT; i++) {
+        UIControl *tile = [[UIControl alloc] initWithFrame:CGRectMake(x, 10, tw, th + 22)];
+        objc_setAssociatedObject(tile, &kOMCSBIndex, @(i), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        [tile addTarget:self action:@selector(styleTapped:) forControlEvents:UIControlEventTouchUpInside];
+        UIImageView *bg = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, tw, th)];
+        bg.image = map;
+        bg.layer.cornerRadius = 14; bg.layer.cornerCurve = kCACornerCurveContinuous; bg.clipsToBounds = YES;
+        bg.userInteractionEnabled = NO;
+        [tile addSubview:bg];
+        SPPBubbleView *bv = [[SPPBubbleView alloc] initWithFrame:CGRectZero];
+        [self configure:bv style:i speed:52 limit:60];
+        [tile addSubview:bv];
+        OMCSBFit(bv, bg.frame, 0.9);
+        UILabel *name = [[UILabel alloc] initWithFrame:CGRectMake(-4, th + 4, tw + 8, 16)];
+        name.text = L([NSString stringWithFormat:@"SPEEDBUBBLE_LOOK_%ld", (long)i]);
+        name.font = [UIFont systemFontOfSize:11.5 weight:UIFontWeightSemibold];
+        name.textColor = i == chosen ? [UIColor labelColor] : [UIColor secondaryLabelColor];
+        name.textAlignment = NSTextAlignmentCenter;
+        name.adjustsFontSizeToFitWidth = YES; name.minimumScaleFactor = 0.75;
+        [tile addSubview:name];
+        [sc addSubview:tile];
+        if (i == chosen) {   // vien cau vong nam ngoai o hinh (o hinh cat goc nen ve tren tile)
+            UIView *ring = [[UIView alloc] initWithFrame:bg.frame];
+            ring.userInteractionEnabled = NO;
+            [tile addSubview:ring];
+            OMCSBRing(ring, YES, 14);
+        }
+        x += tw + gap;
+    }
+    sc.contentSize = CGSizeMake(x + 4, 112);
+    if (self.stripOffset > 0) sc.contentOffset = CGPointMake(MIN(self.stripOffset, MAX(0, sc.contentSize.width - w)), 0);
+    else if (chosen > 2) sc.contentOffset = CGPointMake(MIN(12 + chosen * (tw + gap) - (w - tw) / 2, MAX(0, sc.contentSize.width - w)), 0);
+}
+
+- (void)styleTapped:(UIControl *)tile
+{
+    NSInteger i = [objc_getAssociatedObject(tile, &kOMCSBIndex) integerValue];
+    [[UISelectionFeedbackGenerator new] selectionChanged];
+    self.stripOffset = self.styleStrip.contentOffset.x;
+    [self storeValue:@(i) forKey:SB_KEY_STYLE];
+    [self reloadSection:SBStyle];
+    [self tickLive];
+}
+
+#pragma mark - Nguon
+
+// 6 o (3 cot): icon app + ten, o dang chon co vien cau vong
+- (void)layoutSourcesIn:(UIView *)box width:(CGFloat)w
+{
+    for (UIView *v in [box.subviews copy]) [v removeFromSuperview];
+    NSInteger n = SB_SOURCE_NAMES.count, cols = 3, chosen = [self source];
+    CGFloat pad = 12, gap = 8, cw = floor((w - pad * 2 - gap * (cols - 1)) / cols), ch = 70;
+    for (NSInteger i = 0; i < n; i++) {
+        UIControl *t = [[UIControl alloc] initWithFrame:CGRectMake(pad + (i % cols) * (cw + gap), 12 + (i / cols) * (ch + gap), cw, ch)];
+        t.backgroundColor = [UIColor colorWithWhite:0.5 alpha:0.1];
+        t.layer.cornerRadius = 14; t.layer.cornerCurve = kCACornerCurveContinuous;
+        objc_setAssociatedObject(t, &kOMCSBIndex, @(i), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        [t addTarget:self action:@selector(sourceTapped:) forControlEvents:UIControlEventTouchUpInside];
+        UIImageView *iv = [[UIImageView alloc] initWithFrame:CGRectMake((cw - 30) / 2, 10, 30, 30)];
+        iv.image = OMCSBRounded(OMCSBSourceIcon(i), 30, 8);
+        iv.userInteractionEnabled = NO;
+        [t addSubview:iv];
+        UILabel *l = [[UILabel alloc] initWithFrame:CGRectMake(4, 44, cw - 8, 18)];
+        l.text = [self sourceName:i];
+        l.font = [UIFont systemFontOfSize:11.5 weight:UIFontWeightSemibold];
+        l.textAlignment = NSTextAlignmentCenter;
+        l.adjustsFontSizeToFitWidth = YES; l.minimumScaleFactor = 0.7;
+        l.textColor = i == chosen ? [UIColor labelColor] : [UIColor secondaryLabelColor];
+        [t addSubview:l];
+        [box addSubview:t];
+        OMCSBRing(t, i == chosen, 14);
+    }
+}
+
+- (void)sourceTapped:(UIControl *)t
+{
+    NSInteger i = [objc_getAssociatedObject(t, &kOMCSBIndex) integerValue];
+    [[UISelectionFeedbackGenerator new] selectionChanged];
+    [self storeValue:@(i) forKey:SB_KEY_SOURCE];
+    [self.table beginUpdates];
+    [self reloadSection:SBSource];
+    [self.table endUpdates];
+    self.stripOffset = self.styleStrip.contentOffset.x;
+    [self reloadSection:SBStyle];   // icon nguon trong cac o kieu
+    [self tickLive];
+}
+
+#pragma mark - Hanh dong (SpringBoard xu ly, ../SpringBoard.xm)
+
+// Hien bong bong tren xe 10 giay
+- (void)tryOnCar
+{
+    notify_post(SB_DARWIN_DEMO);
+    [[[UIImpactFeedbackGenerator alloc] initWithStyle:UIImpactFeedbackStyleLight] impactOccurred];
+    [self toast:L(@"SPEEDBUBBLE_TRY_SENT")];
+}
+
+// Vi tri mac dinh, co 100%. SpringBoard ghi lai co 100 nen doc lai thanh keo.
+- (void)resetLayout
+{
+    notify_post(SB_DARWIN_RESET);
+    [[[UIImpactFeedbackGenerator alloc] initWithStyle:UIImpactFeedbackStyleLight] impactOccurred];
+    __weak OMCSpeedBubbleController *weakSelf = self;
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.4 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        CFPreferencesAppSynchronize(kPrefsDomain);
+        [weakSelf reloadSection:SBSize];
+    });
 }
 
 @end
