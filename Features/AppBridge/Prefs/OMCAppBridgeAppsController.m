@@ -1131,7 +1131,7 @@ static NSArray *OMCABArray(NSString *key)
         case OMCABWidgets: {
             UITableViewCell *c = [self cellWithId:@"widget" inTable:tv];
             NSString *kind = OMCABWidgetKinds()[ip.row - 1];
-            NSDictionary *look = @{@"clock": @[@"clock.fill", @"#8B7CFF"], @"weather": @[@"cloud.sun.fill", @"#5AB8FF"], @"music": @[@"music.note", @"#FF5A7A"]}[kind];
+            NSArray *look = @{@"clock": @[@"clock.fill", @"#8B7CFF"], @"weather": @[@"cloud.sun.fill", @"#5AB8FF"], @"music": @[@"music.note", @"#FF5A7A"]}[kind];
             c.textLabel.text = L([@"APPS_WIDGET_" stringByAppendingString:kind.uppercaseString]);
             c.imageView.image = OMCIcon(look[0], OMCColorFromHex(look[1]));
             UISwitch *sw = [UISwitch new];
