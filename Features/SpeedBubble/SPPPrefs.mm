@@ -13,7 +13,7 @@ static id value(NSString *key)
 }
 
 + (BOOL)enabled    { OMCPrefsSync(); return OMCFeatureEnabled(SB_FEATURE); }
-+ (NSInteger)style { id v = value(SB_KEY_STYLE); NSInteger i = v ? [v integerValue] : 0; return (i >= 0 && i < 18) ? i : 0; }
++ (NSInteger)style { id v = value(SB_KEY_STYLE); NSInteger i = v ? [v integerValue] : 0; return (i >= 0 && i < SB_STYLE_COUNT) ? i : 0; }
 
 + (BOOL)showAppIcon { id v = value(SB_KEY_SHOW_APP_ICON); return v ? [v boolValue] : YES; }
 

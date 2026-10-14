@@ -10,7 +10,10 @@
 // Key prefix: OMCFeatureEnabled(SB_FEATURE) reads the master switch + speedBubbleEnabled.
 #define SB_FEATURE           @"speedBubble"
 #define SB_KEY_ENABLED       @"speedBubbleEnabled"       // BOOL, default YES
-#define SB_KEY_STYLE         @"speedBubbleStyle"         // 0..17, see SPPBubble.mm
+// Kieu bong bong 0..SB_STYLE_COUNT-1 (SPPStyle trong SPPBubble.mm, ban duyet tools/preview/speedbubble.html). Key moi tu bo
+// 9 kieu nay: so cua 18 kieu cu (speedBubbleStyle) khong con nghia, ai cung ve kieu mac dinh Giot kinh.
+#define SB_KEY_STYLE         @"speedBubbleLook"
+#define SB_STYLE_COUNT       9
 #define SB_KEY_SHOW_APP_ICON @"speedBubbleShowAppIcon"   // BOOL, default YES
 #define SB_KEY_SIZE_PHONE    @"speedBubbleSizePhone"     // 60..220 %, default 100
 #define SB_KEY_SIZE_CAR      @"speedBubbleSizeCar"       // 60..220 %, default 100

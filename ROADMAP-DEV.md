@@ -15,7 +15,7 @@ Cách dùng file này
 - **Code** / **Thử**: đã viết gì, ở file nào, thử thế nào (ghi khi bắt đầu code một mục).
 
 Đã có (1.0.0): Chia màn hình 2–3 ô (4 bố cục, chia dọc, kéo tỉ lệ, yêu thích, gần đây, Siri URL), App Bridge
-(app iPhone lên xe, icon trên màn chính CarPlay), Bong bóng tốc độ (18 kiểu, Vietmap Live / GOFA), Màn hình
+(app iPhone lên xe, icon trên màn chính CarPlay), Bong bóng tốc độ (18 kiểu, nay thay bằng 9 kiểu mới, Vietmap Live / GOFA), Màn hình
 khởi động (một video MP4), Cài đặt vi / en.
 
 ## Trước khi phát hành
@@ -68,7 +68,7 @@ Thiếu một trong các mục này thì khách quốc tế không mua, hoặc m
   Bộ test: Chia màn hình (bố cục, tỉ lệ, đổi chỗ, cửa sổ nổi, bảng chọn / bảng bố cục, toàn màn, lệnh URL, yêu thích,
   gần đây, bấm nhanh), App Bridge (trong ô, tỉ lệ, đổi chỗ, 3 ô, chặn cửa sổ nổi, toàn màn, đóng, icon, 2 app cùng
   lúc), Màn hình khởi động (phát, khung chạy, tự tắt, chạm bỏ qua, tắt tính năng), Bong bóng tốc độ (hiện trên xe,
-  số, gần / vượt giới hạn, ẩn khi Split Screen chiếm màn, 18 kiểu, cỡ, mất nguồn).
+  số, gần / vượt giới hạn, ẩn khi Split Screen chiếm màn, mọi kiểu, cỡ, mất nguồn).
   Xong khi: một lần chạy trên xe ra đủ kết quả từng bước, gửi log có ảnh, sửa lỗi không cần thử tay lại từng ca.
   Code: Core/OMCTest.h (khung), Features/SplitScreen/SCPAutoTest.mm, cuối StartupScreen.x, cuối SPPBubble.mm,
   Prefs/OMCAutoTestController.m. Chờ chạy thử trên xe.
