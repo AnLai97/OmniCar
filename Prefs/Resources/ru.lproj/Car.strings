@@ -25,7 +25,6 @@
 "Couldn't reopen %@" = "Не удалось снова открыть %@";
 "Couldn't show %@ on the car" = "Не удалось показать %@ в авто";
 "Done" = "Готово";
-"Driving · sound only" = "В движении · только звук";
 "Drizzle" = "Морось";
 "Exit split" = "Выйти из разделения";
 "Favorites" = "Избранное";
@@ -52,7 +51,6 @@
 "Speed Bubble" = "Пузырь скорости";
 "Split Screen" = "Разделённый экран";
 "Startup Screen" = "Заставка";
-"Stop the car to watch again" = "Остановите автомобиль, чтобы смотреть снова";
 "This app can't be split" = "Это приложение нельзя разделить";
 "This app doesn't support CarPlay" = "Это приложение не поддерживает CarPlay";
 "This pane has no app" = "На этой панели нет приложения";

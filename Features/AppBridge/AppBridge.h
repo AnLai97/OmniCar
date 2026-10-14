@@ -83,12 +83,6 @@
 #define AB_NOTIF_KEY         @"com.anlai.omnicar/appbridge.key"
 // Keyboard language on the car: 0 English, 1 Vietnamese (Telex). Remembered by SpringBoard.
 #define AB_KEY_KEYBOARD_LANG @"appBridgeKeyboardLang"
-// Driving mode (SpringBoard, ABHost): above AB_KEY_DRIVE_SPEED km/h for a few seconds every iPhone app box on the car is
-// covered ("sound only", touches blocked except the ••• bar), back once the car stops. Speed comes from the Speed Bubble's
-// Darwin notification AB_DARWIN_SPEED_NOW (state = km/h, 0xFFFF unknown), whatever its source (nav app or GPS).
-#define AB_KEY_DRIVE_MODE    @"appBridgeDriveMode"    // BOOL, default YES
-#define AB_KEY_DRIVE_SPEED   @"appBridgeDriveSpeed"   // km/h, default 10
-#define AB_DARWIN_SPEED_NOW  "com.anlai.omnicar/speed"
 // Frame rate cap for iPhone apps on the car: 0 none (default), 30, 24. With none, the cap is 30 while Lite mode is on or
 // CarPlay is wireless (OMCCarWireless). SpringBoard sends the cap with every AB_NOTIF_ORIENTATION (userInfo "fps",
 // 0 = none); the app side (App.xm) caps the app's CADisplayLinks, which drive its animations / scrolling / games

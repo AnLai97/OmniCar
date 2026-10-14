@@ -491,7 +491,7 @@ typedef NS_ENUM(NSInteger, SPPIconShape) {
 }
 - (CGAffineTransform)baseScaled:(CGFloat)k { return CGAffineTransformMakeScale(self.scale * k, self.scale * k); }
 
-// Toc do hien tai cho tinh nang khac (vd Che do lai): Darwin SB_DARWIN_SPEED_NOW, state = km/h, SB_SPEED_UNKNOWN = khong
+// Toc do hien tai cho tinh nang khac: Darwin SB_DARWIN_SPEED_NOW, state = km/h, SB_SPEED_UNKNOWN = khong
 // biet. Chi gui khi doi.
 static void SPPPublishSpeed(int kmh)
 {

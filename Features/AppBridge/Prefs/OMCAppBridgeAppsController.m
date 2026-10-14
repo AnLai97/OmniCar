@@ -337,10 +337,10 @@ static UIImage *OMCHSPresetImage(NSInteger i, CGSize size, CGFloat scale)
 //      keo de sap xep (HS_KEY_ORDER), ghim dock (HS_KEY_DOCK)
 //    3 Dock   4 Bo cuc icon   5 Hinh nen (the gap, dong thi hien tom tat)
 //  An / sap xep app CarPlay can OmniCar ve man chinh: Man chinh OmniCar dang tat thi tu bat + bao.
-//  Cai dat App Bridge khac (cong tac, Che do lai, Khung hinh) khong con tren trang: ve mac dinh mot lan (OMCAB_KEY_RESET).
+//  Cai dat App Bridge khac (cong tac, Khung hinh) khong con tren trang: ve mac dinh mot lan (OMCAB_KEY_RESET).
 // ---------------------------------------------------------------------
 #define OMCAB_KEY_CARPLAY_APPS @"splitScreenCarPlayApps"   // = SPL_KEY_CARPLAY_APPS (Split Screen ghi khi cam xe)
-#define OMCAB_KEY_RESET        @"appBridgeAdvancedReset"   // da dua cong tac / Che do lai / Khung hinh ve mac dinh
+#define OMCAB_KEY_RESET        @"appBridgeAdvancedReset"   // da dua cong tac / Khung hinh ve mac dinh
 #define OMCAB_LIST_ROWS        6                           // danh sach app cao toi da 6 dong, cuon ben trong
 #define OMCAB_ROW_H            52.0
 enum { OMCABPreview = 0, OMCABHome, OMCABApps, OMCABDock, OMCABLayout, OMCABWall, OMCABSectionCount };
@@ -404,12 +404,12 @@ static NSArray *OMCABArray(NSString *key)
     [_table reloadData];
 }
 
-// Cong tac App Bridge, Che do lai, Khung hinh app da bo khoi trang: dua ve mac dinh (bat, bat, toi da) mot lan,
+// Cong tac App Bridge, Khung hinh app da bo khoi trang: dua ve mac dinh (bat, toi da) mot lan,
 // khong thi ai da tat truoc day se ket o trang thai tat ma khong con cho bat lai
 - (void)resetAdvancedOnce
 {
     if ([OMCABPref(OMCAB_KEY_RESET) boolValue]) return;
-    for (NSString *k in @[AB_KEY_ENABLED, AB_KEY_DRIVE_MODE, AB_KEY_FPS]) CFPreferencesSetAppValue((__bridge CFStringRef)k, NULL, kPrefsDomain);
+    for (NSString *k in @[AB_KEY_ENABLED, AB_KEY_FPS]) CFPreferencesSetAppValue((__bridge CFStringRef)k, NULL, kPrefsDomain);
     OMCABStore(OMCAB_KEY_RESET, @YES);
 }
 

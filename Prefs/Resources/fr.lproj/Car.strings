@@ -26,7 +26,6 @@
 "Couldn't reopen %@" = "Impossible de rouvrir %@";
 "Couldn't show %@ on the car" = "Impossible d’afficher %@ dans la voiture";
 "Done" = "OK";
-"Driving · sound only" = "En conduite · son uniquement";
 "Drizzle" = "Bruine";
 "Exit split" = "Quitter le partage";
 "Favorites" = "Favoris";
@@ -53,7 +52,6 @@
 "Speed Bubble" = "Bulle de vitesse";
 "Split Screen" = "Écran partagé";
 "Startup Screen" = "Écran de démarrage";
-"Stop the car to watch again" = "Arrêtez la voiture pour regarder à nouveau";
 "This app can't be split" = "Cette app ne peut pas être partagée";
 "This app doesn't support CarPlay" = "Cette app n’est pas compatible avec CarPlay";
 "This pane has no app" = "Ce volet n’a pas d’app";

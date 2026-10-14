@@ -25,6 +25,5 @@
 - (NSUInteger)count;
 - (NSString *)bundleForHash:(unsigned long long)hash;   // hosted app with this ABBundleHash, nil if none
 - (CGRect)frameOfApp:(NSString *)bid;                    // its box on the car screen (points), CGRectNull if none
-- (UIWindow *)carWindow;
-- (void)startDriveMonitor;   // SpringBoard start: driving mode follows AB_DARWIN_SPEED_NOW   // the host window on the car screen (pass-through, kept for the whole connection), nil if no car
+- (UIWindow *)carWindow;   // the host window on the car screen (pass-through, kept for the whole connection), nil if no car
 @end

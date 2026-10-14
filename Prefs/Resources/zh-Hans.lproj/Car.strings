@@ -25,7 +25,6 @@
 "Couldn't reopen %@" = "无法重新打开 %@";
 "Couldn't show %@ on the car" = "无法在汽车上显示 %@";
 "Done" = "完成";
-"Driving · sound only" = "驾驶中 · 仅声音";
 "Drizzle" = "毛毛雨";
 "Exit split" = "退出分屏";
 "Favorites" = "常用";
@@ -52,7 +51,6 @@
 "Speed Bubble" = "速度气泡";
 "Split Screen" = "分屏";
 "Startup Screen" = "启动画面";
-"Stop the car to watch again" = "停车后即可继续观看";
 "This app can't be split" = "此 App 无法分屏";
 "This app doesn't support CarPlay" = "此 App 不支持 CarPlay";
 "This pane has no app" = "此格中没有 App";

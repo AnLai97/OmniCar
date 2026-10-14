@@ -14,8 +14,6 @@
 "APPBRIDGE_APPS_SEARCH" = "Search apps";
 "APPBRIDGE_APPS_EMPTY" = "No iPhone apps found on this device.";
 "APPBRIDGE_APPS_NO_MATCH" = "No app matches.";
-"APPBRIDGE_DRIVE_MODE" = "Driving mode";
-"APPBRIDGE_DRIVE_FOOTER" = "Driving mode: above 10 km/h iPhone apps on the car play sound only (picture covered, touches locked); stop the car to watch again. Uses the Speed Bubble speed source.";
 "APPBRIDGE_FPS" = "App frame rate";
 "APPBRIDGE_FPS_MAX" = "Max";
 "APPBRIDGE_FPS_FOOTER" = "App frame rate: caps the frames per second of iPhone apps on the car to keep the phone cooler (animations, scrolling; video is unchanged). On Max it drops to 30 by itself while Lite mode is on or CarPlay is wireless.";

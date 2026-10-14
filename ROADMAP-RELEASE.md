@@ -147,7 +147,7 @@ Mỗi bản lớn đi kèm một video ngắn và một bài đăng; bản nhỏ
 - [ ] [ ] **1.1 – Màn chính và Khởi động** · Vừa
   Phần Màn chính CarPlay và Màn hình khởi động mới của Mức 2.
 - [ ] [ ] **1.2 – Chia màn hình và Lái xe** · Vừa
-  Phần còn lại của Mức 2: chế độ lái, nút vô lăng, hồ sơ theo xe.
+  Phần còn lại của Mức 2: nút vô lăng, hồ sơ theo xe.
 - [ ] [ ] **2.0 – Vượt DuoDash** · Cao
   Mức 3: bố cục tự do, tự phóng to bản đồ khi rẽ, ô tiện ích, cụm đồng hồ, widget màn chính.
 - [ ] [ ] **Gói thêm "OmniCar Drive" (camera / ADAS)** · Cao
@@ -165,7 +165,7 @@ có tuỳ chỉnh, không có tính năng nâng cao. Pro là toàn bộ sức m�
 - **Màn chính CarPlay**: Lite không có · Pro ẩn / sắp xếp app, cỡ icon, cột / hàng, dock, hình nền, gói icon, thư mục, widget.
 - **Màn hình khởi động**: Lite 1 video của bạn, không tuỳ chỉnh · Pro mọi kiểu (logo + âm thanh, lời chào, thời tiết, theo dịp, ngẫu nhiên, hiệu ứng, chia sẻ mẫu).
 - **Bong bóng tốc độ**: Lite 1 kiểu, 1 nguồn, cỡ mặc định · Pro đủ kiểu, mọi nguồn, chỉnh cỡ / vị trí, cảnh báo quá tốc độ tuỳ chỉnh.
-- **Lái xe an toàn**: Lite chế độ lái + cảnh báo quá tốc độ cơ bản (an toàn không khoá sau tiền; Lite chạy được video qua App Bridge nên bắt buộc có chế độ lái) · Pro nhắc nghỉ, nhật ký và điểm lái, HUD, giữ tốc độ trong hầm, nút vô lăng, lệnh giọng nói.
+- **Lái xe an toàn**: Lite cảnh báo quá tốc độ cơ bản (an toàn không khoá sau tiền) · Pro nhắc nghỉ, nhật ký và điểm lái, HUD, giữ tốc độ trong hầm, nút vô lăng, lệnh giọng nói.
 - **Cài đặt**: Lite đủ ngôn ngữ, không sao lưu, không Phím tắt Siri · Pro sao lưu / khôi phục, Phím tắt Siri, hồ sơ theo xe.
 - **Hỗ trợ**: Lite qua cộng đồng · Pro hỗ trợ trực tiếp, ưu tiên sửa lỗi theo đầu xe.
 - **Camera / ADAS**: không có trong Lite · gói thêm "OmniCar Drive".

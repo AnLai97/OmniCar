@@ -14,8 +14,6 @@
 "APPBRIDGE_APPS_SEARCH" = "Cerca app";
 "APPBRIDGE_APPS_EMPTY" = "Nessuna app di iPhone trovata su questo dispositivo.";
 "APPBRIDGE_APPS_NO_MATCH" = "Nessuna app corrispondente.";
-"APPBRIDGE_DRIVE_MODE" = "Modalità guida";
-"APPBRIDGE_DRIVE_FOOTER" = "Modalità guida: sopra i 10 km/h le app di iPhone sull'auto riproducono solo l'audio (immagine coperta, tocchi bloccati); ferma l'auto per tornare a guardare. Usa la sorgente di velocità di Bolla velocità.";
 "APPBRIDGE_FPS" = "Frame rate app";
 "APPBRIDGE_FPS_MAX" = "Max";
 "APPBRIDGE_FPS_FOOTER" = "Frame rate app: limita i fotogrammi al secondo delle app iPhone in auto per scaldare meno il telefono (animazioni, scorrimento; il video non cambia). Su Max scende da solo a 30 con la modalità leggera o CarPlay wireless.";

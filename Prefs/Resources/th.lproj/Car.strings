@@ -26,7 +26,6 @@
 "Couldn't reopen %@" = "เปิด %@ อีกครั้งไม่ได้";
 "Couldn't show %@ on the car" = "แสดง %@ บนรถไม่ได้";
 "Done" = "เสร็จสิ้น";
-"Driving · sound only" = "กำลังขับ · เสียงเท่านั้น";
 "Drizzle" = "ฝนปรอย";
 "Exit split" = "ออกจากการแบ่ง";
 "Favorites" = "รายการโปรด";
@@ -53,7 +52,6 @@
 "Speed Bubble" = "บับเบิลความเร็ว";
 "Split Screen" = "แบ่งหน้าจอ";
 "Startup Screen" = "หน้าจอเริ่มต้น";
-"Stop the car to watch again" = "จอดรถเพื่อดูอีกครั้ง";
 "This app can't be split" = "แอปนี้แบ่งหน้าจอไม่ได้";
 "This app doesn't support CarPlay" = "แอปนี้ไม่รองรับ CarPlay";
 "This pane has no app" = "ช่องนี้ไม่มีแอป";

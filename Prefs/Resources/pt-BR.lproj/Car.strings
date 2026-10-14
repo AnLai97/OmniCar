@@ -26,7 +26,6 @@
 "Couldn't reopen %@" = "Não foi possível reabrir %@";
 "Couldn't show %@ on the car" = "Não foi possível mostrar %@ no carro";
 "Done" = "OK";
-"Driving · sound only" = "Dirigindo · só som";
 "Drizzle" = "Garoa";
 "Exit split" = "Sair da divisão";
 "Favorites" = "Favoritos";
@@ -53,7 +52,6 @@
 "Speed Bubble" = "Bolha de velocidade";
 "Split Screen" = "Tela dividida";
 "Startup Screen" = "Tela de inicialização";
-"Stop the car to watch again" = "Pare o carro para assistir de novo";
 "This app can't be split" = "Este app não pode ser dividido";
 "This app doesn't support CarPlay" = "Este app não é compatível com o CarPlay";
 "This pane has no app" = "Este painel não tem app";

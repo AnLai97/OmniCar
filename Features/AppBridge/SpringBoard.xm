@@ -69,7 +69,6 @@ static int (*orig_BKSDisplayServicesSetScreenBlanked)(int) = NULL;
         @try { [[ABHost shared] appWithHash:hash changedOrientation:code supportedMask:mask]; }
         @catch (NSException *e) { ABLog("apporient loi %@", e); }
     });
-    [[ABHost shared] startDriveMonitor];   // che do lai: toc do tu Bong bong toc do
     // O nhap trong app dang host duoc chon / bo chon -> ban phim tren man xe (ABKeyboard)
     static int tokKeyboard = 0;
     notify_register_dispatch(AB_DARWIN_APP_KEYBOARD, &tokKeyboard, dispatch_get_main_queue(), ^(int t) {

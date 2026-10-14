@@ -125,7 +125,7 @@ Bản xem trước giao diện: tools/preview/home.html (trang Cài đặt + mà
 Code chung cho cả 5 mục (chưa thử trên xe, MẶC ĐỊNH TẮT): MỘT trang App trên màn xe gộp App Bridge + màn chính
 (Features/AppBridge/Prefs/OMCAppBridgeAppsController.m): xem trước màn xe, công tắc Màn chính OmniCar, các thẻ gập
 Ứng dụng (danh sách cuộn riêng) · Dock · Bố cục icon · Hình nền; key HS_KEY_* trong AppBridge.h. Bỏ công tắc App Bridge,
-Chế độ lái, Khung hình khỏi trang (đưa về mặc định một lần).
+Khung hình khỏi trang (đưa về mặc định một lần); Chế độ lái bỏ hẳn.
 Trên xe (Features/SplitScreen/SCPHomeScreen.mm): bật thì OmniCar vẽ lưới icon + dock + hình nền của riêng mình lên trên
 của CarPlay; lưới / icon dock gốc chỉ bị ẩn, tắt là trả lại nguyên vẹn. Thứ tự app đọc từ model *IconListView (cách bảng
 chọn app của Split Screen đã chạy trên xe), mở app qua DashBoard _launchAppWithInfo:forURL: (app iPhone → App Bridge),
@@ -198,9 +198,6 @@ xem trước ngay trong Cài đặt. Âm thanh phát qua loa xe khi CarPlay kế
   Nhận xe qua tên / ID đầu xe → bố cục chia màn, màn chính CarPlay, kiểu khởi động, cỡ bong bóng riêng cho từng xe.
   Code: Core OMCProfileSwitch khi cắm xe (khoá xe từ phiên CarKit), OMCProfileKeys() là các cài đặt theo xe;
   Cài đặt > Hồ sơ theo xe (Prefs/OMCCarProfilesController.m). Chờ thử: tên trường định danh xe của CarKit.
-- [ ] [ ] **Chọn ô phát tiếng** · Vừa
-  Hai ô cùng có âm thanh → chọn ô nào phát, ô kia tắt tiếng; tự giảm nhạc khi bản đồ đọc hướng dẫn.
-  Chưa làm: cần biết CarPlay chọn nguồn âm thanh thế nào (bộ dò liệt kê lớp NowPlaying / Audio).
 - [ ] [ ] **Gán nút giọng nói trên vô lăng** · Vừa
   Bấm giữ = Siri như cũ; bấm ngắn = mở bảng bố cục / một app / một lệnh OmniCar, người dùng chọn.
   Chưa làm: cần đường sự kiện nút Siri của DashBoard (bộ dò liệt kê DBEvent).
@@ -211,13 +208,6 @@ xem trước ngay trong Cài đặt. Âm thanh phát qua loa xe khi CarPlay kế
   Vượt biển + ngưỡng tuỳ chọn → viền màn đổi màu, tiếng ngắn; có chế độ im lặng.
   Code: SPPWarn.mm: viền đỏ nhấp nháy trên màn xe + tiếng bíp 1 lần mỗi lần vượt; ngưỡng 0–20, chế độ tắt / chỉ viền /
   viền + tiếng (Bong bóng tốc độ > Cảnh báo quá tốc độ).
-- [ ] [ ] **Chế độ lái** · Vừa
-  Trên tốc độ đặt trước: ô video chỉ còn tiếng / mờ đi, chữ và nút to hơn, khoá thao tác nhỏ; dừng xe → trở lại.
-  Đây cũng là câu trả lời khi repo / người mua hỏi về an toàn.
-  Code: ABHost che ô app iPhone ("chỉ còn tiếng", khoá chạm) khi tốc độ ≥ 10 km/h 3 giây, dừng xe 5 giây là mở lại
-  (App trên màn xe > Chế độ lái; tốc độ từ com.anlai.omnicar/speed). Còn thiếu: chữ / nút to hơn khi chạy.
-  Bản xem trước chữ / nút to: tools/preview/theme.html mục 5b (thanh ••• còn 3 nút to, khay bố cục ô to vẫn đủ Bố cục /
-  Gần đây / Yêu thích, thanh tỉ lệ to, bảng chọn app 4 cột, chip "Đang lái"). Chờ tác giả duyệt rồi mới code.
 - [ ] [ ] **Nguồn tốc độ toàn cầu** · Vừa
   Thêm Google Maps, Waze, Apple Maps; dự phòng bằng giới hạn tốc độ OpenStreetMap tải sẵn theo vùng.
   Code: nguồn "GPS iPhone" (SPPGPS.mm, CoreLocation trong SpringBoard) dùng được mọi nơi nhưng không có biển giới hạn.

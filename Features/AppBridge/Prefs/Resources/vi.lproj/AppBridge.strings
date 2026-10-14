@@ -14,8 +14,6 @@
 "APPBRIDGE_APPS_SEARCH" = "Tìm app";
 "APPBRIDGE_APPS_EMPTY" = "Không tìm thấy app iPhone nào trên máy.";
 "APPBRIDGE_APPS_NO_MATCH" = "Không có app nào khớp.";
-"APPBRIDGE_DRIVE_MODE" = "Chế độ lái";
-"APPBRIDGE_DRIVE_FOOTER" = "Chế độ lái: xe chạy trên 10 km/h thì app iPhone trên xe chỉ còn tiếng (che hình, khoá chạm), dừng xe là xem tiếp. Cần nguồn tốc độ của Bong bóng tốc độ.";
 "APPBRIDGE_FPS" = "Khung hình app";
 "APPBRIDGE_FPS_MAX" = "Tối đa";
 "APPBRIDGE_FPS_FOOTER" = "Khung hình app: giới hạn số khung hình / giây của app iPhone trên xe cho đỡ nóng máy (hoạt ảnh, cuộn; video không đổi). Để Tối đa thì tự giảm còn 30 khi Chế độ nhẹ bật hoặc CarPlay không dây.";

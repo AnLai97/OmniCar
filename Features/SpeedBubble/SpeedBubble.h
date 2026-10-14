@@ -35,7 +35,7 @@
 
 // Nav app -> SpringBoard: speed + limit (notify state = flags<<16 | speed<<8 | limit).
 #define SB_DARWIN_SPEED      "com.anlai.omnicar/speedbubble.speed"
-// SpringBoard -> tinh nang khac (vd Che do lai cua Split Screen): toc do hien tai cua nguon dang chon (moi nguon, ke ca
+// SpringBoard -> tinh nang khac (hien chua ai nghe): toc do hien tai cua nguon dang chon (moi nguon, ke ca
 // GPS iPhone). state = toc do km/h (0..255), 0xFFFF = khong biet (mat nguon / so cu qua 5 giay). Chi gui khi doi;
 // nguoi nghe doc notify_get_state luc bat dau (gia tri cuoi van con). Toc do gia cua "Xem thu" khong gui.
 #define SB_DARWIN_SPEED_NOW  "com.anlai.omnicar/speed"

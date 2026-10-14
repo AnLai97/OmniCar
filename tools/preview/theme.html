@@ -226,33 +226,6 @@ section > p { margin: -6px 0 0; color: var(--ink2); font-size: 13px; }
 .boot .prog i { display: block; height: 100%; width: 40%; border-radius: 2px; background: var(--acc); animation: load 1.6s var(--hm-in) infinite; }
 @keyframes load { from { transform: translateX(-100%); } to { transform: translateX(260%); } }
 .cap { font-size: 12.5px; color: var(--ink2); text-align: center; }
-/* ---------- Che do lai: xe chay -> nut / chu to hon, bot nut nho (ROADMAP-DEV: Che do lai) ---------- */
-.drive .abar { height: 74px; border-radius: 26px; padding: 0 8px; }
-.drive .act { width: 70px; height: 66px; gap: 5px; }
-.drive .act i { width: 42px; height: 42px; border-radius: 21px; }
-.drive .act svg { width: 24px; height: 24px; }
-.drive .act b { font-size: 11.5px; font-weight: 600; }
-.drive .abar .sep { height: 40px; margin: 0 5px; }
-.drive .rbar { height: 46px; border-radius: 23px; padding: 4px; gap: 4px; }
-.drive .rbar span { width: 54px; height: 38px; border-radius: 19px; }
-.drive .rbar svg { width: 30px; height: 30px; }
-.drive .tray { padding: 10px 12px; border-radius: 26px; gap: 5px; }
-.drive .tray .tr { height: 62px; gap: 6px; }
-.drive .tray .hd { width: 38px; } .drive .tray .hd svg { width: 22px; height: 22px; }
-.drive .tray .cell { width: 104px; height: 62px; border-radius: 16px; }
-.drive .lay { width: 88px; height: 46px; gap: 4px; }
-.drive .lay em { width: 24px; height: 24px; border-radius: 7px; }
-.drive .lay .plus { font-size: 18px; line-height: 24px; }
-.drive .tray .exit { width: 54px; height: 54px; border-radius: 27px; margin-left: 8px; }
-.drive .tray .exit svg { width: 24px; height: 24px; }
-.drivecover { position: absolute; inset: 0; border-radius: 10px; background: rgba(10,10,12,.9); color: #fff; display: flex; flex-direction: column;
-  align-items: center; justify-content: center; gap: 4px; padding-top: 70px; z-index: 4; }
-.drivecover svg { width: 26px; height: 26px; } .drivecover b { font-size: 15px; } .drivecover span { font-size: 11px; opacity: .6; }
-.drivechip { position: absolute; left: 6px; bottom: 6px; height: 22px; border-radius: 11px; padding: 0 9px; display: flex; align-items: center; gap: 5px;
-  font-size: 10.5px; font-weight: 600; color: var(--mk); z-index: 7; }
-.drivechip svg { width: 13px; height: 13px; }
-.cmp { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 16px; font-size: 12.5px; }
-.cmp b { display: block; margin-bottom: 2px; }
 </style>
 </head>
 <body>
@@ -401,53 +374,6 @@ section > p { margin: -6px 0 0; color: var(--ink2); font-size: 13px; }
       <div class="kb glass" id="kb"></div>
     </div>
   </div></div></div>
-</section>
-
-<section>
-  <h2>5b · Chế độ lái: xe chạy thì chữ và nút to hơn</h2>
-  <p>Khi xe chạy (Chế độ lái của App trên màn xe, trên 10 km/h trong 3 giây; dừng xe 5 giây là trở lại): ô app iPhone chỉ còn tiếng như hiện nay,
-    và các bảng trên màn xe phóng to ~1,3 lần, chữ nhãn to hơn, bỏ bớt nút nhỏ / cần nhìn lâu. Chip nhỏ góc dưới trái báo đang ở chế độ lái.</p>
-  <div class="legend card glass cmp" style="padding:12px 16px">
-    <div><b>Thanh •••</b>Đỗ xe: 5 nút (Đổi app · Toàn màn · Cửa sổ nổi · Chạy nền | Tắt app). Xe chạy: còn 3 nút to — Đổi app · Toàn màn | Tắt app.</div>
-    <div><b>Khay bố cục</b>Xe chạy: ô bố cục 104 × 62 (đỗ xe 84 × 56), vẫn đủ 3 hàng Bố cục · Gần đây · Yêu thích + nút thoát.</div>
-    <div><b>Thanh tỉ lệ</b>Xe chạy: nút 54 × 38, hình tỉ lệ to hơn.</div>
-    <div><b>Bảng chọn app</b>Xe chạy: icon 56, lưới 4 cột thay vì 6 (nhiều app thì vuốt trang).</div>
-  </div>
-  <div class="row" style="gap:14px">
-    <div style="width:100%;max-width:1120px">
-      <div class="cap" style="text-align:left;margin-bottom:6px"><b>a ·</b> Xe đang chạy, chạm ••• của ô YouTube: thanh còn 3 nút to; thanh tỉ lệ to</div>
-      <div class="car"><div class="carfit"><div class="cs drive">
-        <div class="dock"><div class="t">9:41</div><div class="d" style="background:#2fb24c"></div><div class="d" style="background:#ff375f"></div><div class="sp"></div><div class="split">${HM_SPLIT}</div><div class="g"><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
-        <div class="area">
-          <div class="pane map" style="left:0;width:294px"></div>
-          <div class="divider" style="left:294px"><i></i></div>
-          <div class="pane yt" style="left:300px;right:0"><div class="drivecover">${CAR}<b>Đang lái · chỉ còn tiếng</b><span>Dừng xe để xem tiếp</span></div></div>
-          <div class="handle glass" style="left:127px"><i></i><i></i><i></i></div>
-          <div class="handle glass open" style="left:427px"><i></i><i></i><i></i></div>
-          <div class="abar glass" style="left:447px;top:26px;transform:translateX(-50%)">${ABAR_DRIVE}</div>
-          <div class="rbar glass" style="left:206px;top:184px">${RATIOS}</div>
-          <div class="drivechip glass">${CAR}Đang lái</div>
-        </div>
-      </div></div></div>
-    </div>
-    <div style="width:100%;max-width:1120px">
-      <div class="cap" style="text-align:left;margin-bottom:6px"><b>b ·</b> Xe đang chạy, mở khay bố cục: ô to, đủ hàng Bố cục · Gần đây · Yêu thích</div>
-      <div class="car"><div class="carfit"><div class="cs drive">
-        <div class="dock"><div class="t">9:41</div><div class="d" style="background:#2fb24c"></div><div class="d" style="background:#ff375f"></div><div class="sp"></div><div class="split">${HM_SPLIT}</div><div class="g"><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
-        <div class="area">
-          <div class="pane map" style="left:0;width:340px"></div>
-          <div class="divider" style="left:340px"><i></i></div>
-          <div class="pane music" style="left:346px;right:0"><div class="art"></div><b>Chúng ta của hiện tại</b><span style="opacity:.7">Sơn Tùng M-TP</span></div>
-          <div class="tray glass" style="left:50%;top:8px;transform:translateX(-50%)">
-            <div class="tr"><span class="hd">${GRID}</span>${LAYS}<span class="exit">${XICON}</span></div>
-            <div class="tr"><span class="hd">${CLOCK}</span>${RECENT}</div>
-            <div class="tr"><span class="hd">${STAR}</span>${FAVS}</div>
-          </div>
-          <div class="drivechip glass">${CAR}Đang lái</div>
-        </div>
-      </div></div></div>
-    </div>
-  </div>
 </section>
 
 <section>
