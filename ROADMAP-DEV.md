@@ -277,7 +277,7 @@ bản xem trước tools/preview/home.html (nút ☀︎ / ☾ trên màn xe mô 
   Trang riêng cho app iPhone (HS_KEY_PHONE_PAGE): app iPhone bắt đầu ở trang mới sau app CarPlay.
   Thử: tạo thư mục 3 app → chạm mở, mở app trong thư mục; bật trang riêng → app iPhone sang trang sau; rút / cắm lại vẫn giữ.
 - [x] [ ] **3.1.5 Widget trên màn chính** · Vừa
-  Đặt đồng hồ, thời tiết, nhạc đang phát… thành ô lớn ngay trên màn chính CarPlay (dùng chung phần Ô tiện ích).
+  Đặt đồng hồ, thời tiết, nhạc đang phát… thành ô lớn ngay trên màn chính CarPlay.
   Code: thẻ Widget: Đồng hồ / Thời tiết / Đang phát, tối đa 2 (HS_KEY_WIDGETS), thành cột thẻ kính bên trái lưới (200–280 pt).
   Thời tiết: Open-Meteo theo vị trí iOS biết gần nhất, 30 phút một lần, chung bộ nhớ với Màn hình khởi động. Đang phát:
   MediaRemote (tên bài, ca sĩ, ảnh bìa, nút phát / dừng).
@@ -298,61 +298,6 @@ bản xem trước tools/preview/home.html (nút ☀︎ / ☾ trên màn xe mô 
   Lịch hôm nay, giờ đến nơi làm việc dự kiến, quãng đường hôm qua, pin điện thoại (và pin xe khi có OBD2 / VinFast).
 - [ ] [ ] **3.2.6 Chia sẻ mẫu khởi động** · Vừa
   Xuất kiểu khởi động thành một file (ảnh + âm thanh + tham số) để gửi cho người khác, mở là cài.
-
-### 3.3 Chia màn hình
-
-- [ ] [ ] **3.3.1 Thanh nhạc chung** · Thấp
-  Luôn hiện, điều khiển app nào đang phát (kể cả qua App Bridge).
-- [ ] [ ] **3.3.2 Tự phóng to ô bản đồ khi sắp rẽ** · Vừa
-  Còn ~300 m tới chỗ rẽ → ô bản đồ to ra (có hiệu ứng), qua chỗ rẽ → trả bố cục cũ. Ngưỡng chỉnh được.
-- [ ] [ ] **3.3.3 Bố cục tự do** · Vừa
-  Kéo vạch để tự tạo bố cục tới 4 ô, lưu thành mẫu, chia sẻ bằng mã ngắn (mã chứa bố cục, không chứa dữ liệu cá nhân).
-- [ ] [ ] **3.3.4 Tự động theo ngữ cảnh** · Vừa
-  Quy tắc: giờ, ngày trong tuần, xe, vị trí, có lịch hẹn → mở bố cục tương ứng khi cắm.
-- [ ] [ ] **3.3.5 Ô tiện ích** · Vừa
-  Đồng hồ, thời tiết, lịch hôm nay, nhạc đang phát, pin điện thoại, nhiệt độ máy, la bàn, độ cao.
-- [ ] [ ] **3.3.6 Cụm đồng hồ kiểu xe thể thao** · Vừa
-  Bố cục dạng đồng hồ: tốc độ, bản đồ thu nhỏ, nhạc; thêm dữ liệu OBD2 khi có (Mức 5).
-- [ ] [ ] **3.3.7 Kéo icon thả vào ô** · Vừa
-  Từ dock / màn chính CarPlay kéo icon vào ô muốn mở.
-- [ ] [ ] **3.3.8 Cửa sổ nổi hoàn chỉnh** · Vừa
-  Thu một app thành ô nhỏ nổi ở góc (kiểu hình trong hình), kéo đi, chạm để mở lại.
-- [ ] [ ] **3.3.9 Cử chỉ lớn khi đang chạy** · Vừa
-  Vuốt 3 ngón trái / phải đổi chỗ ô, chụm về màn chính; khi xe chạy chỉ nhận cử chỉ lớn.
-
-### 3.4 Lái xe
-
-- [ ] [ ] **3.4.1 Nhắc nghỉ** · Thấp
-  Lái liên tục 2 giờ (chỉnh được) → nhắc nghỉ, gợi ý trạm dừng gần nhất.
-- [ ] [ ] **3.4.2 Nhớ chỗ đỗ xe** · Thấp
-  Rút CarPlay → lưu vị trí (+ ảnh nếu có camera), chỉ đường đi bộ quay lại.
-- [ ] [ ] **3.4.3 Nhắc kiểm tra ghế sau** · Thấp
-  Rút CarPlay khi trời nóng (thời tiết) → thông báo trên iPhone.
-- [ ] [ ] **3.4.4 HUD bằng chính iPhone** · Thấp
-  Màn iPhone hiện tốc độ + hướng rẽ tiếp theo, lật gương, đặt dưới kính lái.
-- [ ] [ ] **3.4.5 Hướng dẫn làn đường cỡ lớn** · Vừa
-  Mũi tên làn to ở mép màn, kể cả khi bản đồ ở ô nhỏ.
-- [ ] [ ] **3.4.6 Giữ tốc độ trong hầm** · Vừa
-  Mất GPS → ước lượng tiếp bằng gia tốc kế + tốc độ trước đó, bong bóng không đứng số.
-- [ ] [ ] **3.4.7 Nút vô lăng làm phím tắt** · Vừa
-  Bấm đúp "bài tiếp" = đổi ô đang chọn, giữ = mở bảng bố cục.
-- [ ] [ ] **3.4.8 Điểm lái an toàn và nhật ký chuyến đi** · Vừa
-  Quãng đường, thời gian, phanh gấp, tăng tốc gắt, vào cua nhanh, số lần quá tốc độ; xem lại trong Cài đặt.
-- [ ] [ ] **3.4.9 Lệnh giọng nói ngay trên máy** · Vừa
-  Vài lệnh cố định không cần mạng: "lưu clip", "phóng to bản đồ", "tắt video", "bố cục đi làm".
-- [ ] [ ] **3.4.10 Thông báo gọn** · Vừa
-  Gom tin nhắn thành dải ngắn ở mép, Siri đọc khi chạm, trả lời bằng câu soạn sẵn; ẩn nội dung khi xe chạy.
-
-### 3.5 Giao diện
-
-- [ ] [ ] **3.5.1 Màn chờ khi đỗ** · Thấp
-  Đỗ lâu → đồng hồ lớn / ảnh, giống StandBy (dùng chung mẫu với Màn hình khởi động).
-- [ ] [ ] **3.5.2 Hiệu ứng chuyển cảnh HarmonyOS** · Thấp
-  Mở ô, đổi app, đổi bố cục mượt theo DESIGN.md.
-- [ ] [ ] **3.5.3 Chủ đề giao diện** · Thấp
-  Màu nhấn, độ trong kính, kiểu thanh nút; chủ đề theo hãng xe.
-- [ ] [ ] **3.5.4 Hỗ trợ núm xoay (đầu xe không cảm ứng)** · Cao
-  Điều khiển bảng bố cục và chọn ô bằng núm / nút; DuoDash không có.
 
 ## Mức 4 – Camera hành trình và hỗ trợ lái (ADAS)
 
@@ -391,7 +336,7 @@ Cần thử nghiệm dài và phần cứng / dữ liệu ngoài. Làm khi sản
   Va chạm mạnh + không phản hồi trong 30 giây → gửi vị trí (và clip camera nếu có) cho liên hệ đã chọn.
   Ghi rõ: chỉ hỗ trợ, không thay tính năng phát hiện tai nạn của Apple.
 - [ ] [ ] **5.2 API cho nhà phát triển** · Vừa
-  Tweak khác / Phím tắt đặt nội dung vào ô tiện ích, widget màn chính, hoặc thêm kiểu khởi động mới. Có tài liệu và ví dụ mã nguồn mở.
+  Tweak khác / Phím tắt đặt nội dung vào widget màn chính, hoặc thêm kiểu khởi động mới. Có tài liệu và ví dụ mã nguồn mở.
 - [ ] [ ] **5.3 Tốc độ khuyên dùng khi vào cua** · Cao
   Từ độ cong đường (dữ liệu bản đồ / OSM) nhắc giảm tốc trước cua gắt, nhất là đường đèo.
 - [ ] [ ] **5.4 OBD2 Bluetooth LE** · Cao

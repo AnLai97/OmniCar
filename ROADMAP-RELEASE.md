@@ -149,7 +149,7 @@ Mỗi bản lớn đi kèm một video ngắn và một bài đăng; bản nhỏ
 - [ ] [ ] **1.2 – Chia màn hình và Lái xe** · Vừa
   Phần còn lại của Mức 2: nút vô lăng, hồ sơ theo xe.
 - [ ] [ ] **2.0 – Vượt DuoDash** · Cao
-  Mức 3: bố cục tự do, tự phóng to bản đồ khi rẽ, ô tiện ích, cụm đồng hồ, widget màn chính.
+  Mức 3: màn chính CarPlay (hình nền ngày / đêm và động, gói icon, thư mục, widget), màn hình khởi động nâng cao.
 - [ ] [ ] **Gói thêm "OmniCar Drive" (camera / ADAS)** · Cao
   Mức 4 bán riêng hoặc là gói nâng cấp, vì tốn nhiều công và chỉ dành cho người muốn dùng camera. Pro không bị mất tính năng đã có.
 - [ ] [ ] **Chương trình giới thiệu** · Thấp
@@ -160,12 +160,12 @@ Mỗi bản lớn đi kèm một video ngắn và một bài đăng; bản nhỏ
 Áp dụng sau khi hết 7 ngày dùng thử. Nguyên tắc: Lite chỉ có tính năng đơn giản, đủ để người dùng thấy OmniCar làm được gì và muốn lên Pro; không
 có tuỳ chỉnh, không có tính năng nâng cao. Pro là toàn bộ sức mạnh. Bản sửa lỗi có cho cả hai.
 
-- **Chia màn hình**: Lite 2 ô 50/50 cố định, chọn app cho 2 ô · Pro kéo đổi tỉ lệ, 3 ô, đủ bố cục, yêu thích, gần đây, bố cục tự do, tự phóng to bản đồ, hồ sơ theo xe.
+- **Chia màn hình**: Lite 2 ô 50/50 cố định, chọn app cho 2 ô · Pro kéo đổi tỉ lệ, 3 ô, đủ bố cục, yêu thích, gần đây, hồ sơ theo xe.
 - **App iPhone trên xe (App Bridge)**: Lite 1 app iPhone, chỉ mở toàn màn · Pro không giới hạn, app iPhone vào ô chia màn.
 - **Màn chính CarPlay**: Lite không có · Pro ẩn / sắp xếp app, cỡ icon, cột / hàng, dock, hình nền, gói icon, thư mục, widget.
 - **Màn hình khởi động**: Lite 1 video của bạn, không tuỳ chỉnh · Pro mọi kiểu (logo + âm thanh, lời chào, thời tiết, theo dịp, ngẫu nhiên, hiệu ứng, chia sẻ mẫu).
 - **Bong bóng tốc độ**: Lite 1 kiểu, 1 nguồn, cỡ mặc định · Pro đủ kiểu, mọi nguồn, chỉnh cỡ / vị trí, cảnh báo quá tốc độ tuỳ chỉnh.
-- **Lái xe an toàn**: Lite cảnh báo quá tốc độ cơ bản (an toàn không khoá sau tiền) · Pro nhắc nghỉ, nhật ký và điểm lái, HUD, giữ tốc độ trong hầm, nút vô lăng, lệnh giọng nói.
+- **Lái xe an toàn**: Lite cảnh báo quá tốc độ cơ bản (an toàn không khoá sau tiền) · Pro nút giọng nói trên vô lăng.
 - **Cài đặt**: Lite đủ ngôn ngữ, không sao lưu, không Phím tắt Siri · Pro sao lưu / khôi phục, Phím tắt Siri, hồ sơ theo xe.
 - **Hỗ trợ**: Lite qua cộng đồng · Pro hỗ trợ trực tiếp, ưu tiên sửa lỗi theo đầu xe.
 - **Camera / ADAS**: không có trong Lite · gói thêm "OmniCar Drive".
