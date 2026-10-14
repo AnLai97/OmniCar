@@ -422,7 +422,7 @@ static BOOL sSeenRunning[8];
         [UIView animateWithDuration:0.2 delay:0 options:UIViewAnimationOptionBeginFromCurrentState
                          animations:^{ self.card.alpha = 1; self.card.transform = [self baseTransform]; } completion:nil];
     }
-    NSTimeInterval every = lite ? 1.0 : 0.5;   // lite mode: half the redraws
+    NSTimeInterval every = self.builtLite ? 1.0 : 0.5;   // lite mode: half the redraws
     if (self.timer && self.timerInterval != every) { [self.timer invalidate]; self.timer = nil; }
     if (!self.timer) {
         __weak SPPBubble *weakSelf = self;

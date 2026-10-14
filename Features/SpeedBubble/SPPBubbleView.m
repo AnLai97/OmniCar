@@ -578,7 +578,7 @@ static void SPPGlow(UILabel *l, UIColor *color, CGFloat radius)
     self.iconView = [[SPPIconView alloc] init];
     self.iconView.shape = SPPIconCircle;
     [card addSubview:self.iconView];
-    self.iconApp = -1;
+    self.iconView.imageView.image = nil;   // render dat lai icon
     self.builtStyle = style;
     SPPBVLog(@"bubble: kieu %ld", (long)style);
 }
