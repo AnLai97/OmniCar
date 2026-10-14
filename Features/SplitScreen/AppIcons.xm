@@ -4,6 +4,13 @@
 #import "SCPHomeScreen.h"
 #import <notify.h>
 
+// SBIconImageInfo cua SpringBoardHome (hook iconImageInfo ben duoi); phai nam truoc %group vi Logos khai bao ham goc o dau file
+typedef struct {
+    CGSize size;
+    CGFloat scale;
+    CGFloat continuousCornerRadius;
+} SCPIconImageInfo;
+
 // Inject vao process CarPlay cung OmniCarSplitScreen.dylib: icon app iPhone da chon (App Bridge) tren man chinh
 // CarPlay. Xem SCPAppIcons.mm. Moi hook boc @try nhu CarPlay.xm.
 
@@ -100,11 +107,6 @@ static void SCPIconsHookError(const char *where, NSException *e)
 // Co icon tren man chinh goc cua CarPlay: luoi icon (SBIconListView / DBIconListView) xep theo SBIconListGridLayoutConfiguration
 // cua SpringBoardHome; iconImageInfo (co anh icon, ti le, bo goc) nhan voi he so trong Cai dat (App tren man xe > Co icon).
 // Cot / hang giu nguyen nen chi icon to / nho trong o cua no; nhan ten di theo icon. 100 % = khong doi gi.
-typedef struct {
-    CGSize size;
-    CGFloat scale;
-    CGFloat continuousCornerRadius;
-} SCPIconImageInfo;
 
 %hook SBIconListGridLayoutConfiguration
 
