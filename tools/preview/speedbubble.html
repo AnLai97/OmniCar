@@ -201,11 +201,14 @@ h2 { margin: 0 0 4px; font-size: 16px; }
 .s-hud { display: flex; align-items: center; gap: 12px; height: 58px; padding: 0 4px 0 14px; border-radius: 29px; }
 .s-hud .sp { display: flex; align-items: baseline; gap: 4px; min-width: 70px; }
 .s-hud .num { font-size: 30px; }
-.s-hud .ticks { display: flex; gap: 3px; align-items: flex-end; height: 22px; }
-.s-hud .ticks i { width: 5px; border-radius: 2px; background: rgba(74,79,128,.16); }
-.s-hud .ticks i.on { background: linear-gradient(var(--a2), var(--a1)); }
-.s-hud.near .ticks i.on { background: var(--near); } .s-hud.over .ticks i.on { background: var(--over); }
-.s-hud .ticks i.lim { box-shadow: 0 0 0 1.5px var(--sign); }
+.s-hud .ticks { position: relative; width: 96px; height: 24px; clip-path: polygon(0 62%, 100% 0, 100% 100%, 0 100%);
+  -webkit-mask: repeating-linear-gradient(90deg, #000 0 5px, transparent 5px 8px); mask: repeating-linear-gradient(90deg, #000 0 5px, transparent 5px 8px);
+  background: rgba(74,79,128,.16); }
+/* vach sang tien dan toi bien gioi han: day thanh = cham gioi han -> canh bao */
+.s-hud .fill { position: absolute; left: 0; top: 0; bottom: 0; background: linear-gradient(90deg, var(--a1), var(--a2), var(--a3)); transition: width .9s cubic-bezier(.2, 0, .2, 1), background .4s; }
+.s-hud.near .fill { background: linear-gradient(90deg, #FFD58A, var(--near)); } .s-hud.over .fill { background: var(--over); }
+.s-hud.over .sign { animation: signpulse 1s ease-in-out infinite; }
+@keyframes signpulse { 50% { transform: scale(1.1); } }
 .s-hud .sign { --sz: 50px; }
 .s-hud .ico { --isz: 22px; margin-left: -4px; }
 
@@ -254,13 +257,16 @@ const STYLES = [
   { id: 'tile',  n: 'Thẻ Harmony', d: 'Thẻ vuông bo lớn nền 4 màu logo, số to, thanh tiến độ; gần / vượt thì cả thẻ đổi màu.', ts: .68 },
   { id: 'min',   n: 'Tối giản',   d: 'Không nền: số lớn có quầng sáng để đọc trên mọi bản đồ, gạch mảnh theo tốc độ, biển bên cạnh.', ts: .66 },
   { id: 'night', n: 'Kính đêm',   d: 'Viên thuốc dọc kính khói, viền neon cầu vồng; hợp bản đồ tối, chiếm ít chỗ ngang.', ts: .62 },
-  { id: 'hud',   n: 'Dải HUD',    d: 'Thanh ngang mảnh: số, 12 vạch sáng dần theo tốc độ (vạch viền đỏ = giới hạn), biển.', ts: .5 },
+  { id: 'hud',   n: 'Dải HUD',    d: 'Thanh ngang mảnh: vạch sáng chạy dần tới biển giới hạn; đầy thanh = chạm giới hạn → đỏ, biển nhấp nháy.', ts: .5 },
   { id: 'dash',  n: 'Đồng hồ taplo', d: 'Mặt đồng hồ kim như taplo xe: vạch 0–160 km/h, vùng đỏ từ mức giới hạn, cung sáng theo tốc độ, số điện tử dưới kim.', ts: .7 },
 ];
 const SOURCES = { vietmap: ['V', '#f07a12'], gofa: ['G', '#1aa260'], gmaps: ['G', '#4285f4'], waze: ['W', '#33ccff'], gps: ['⌖', '#5b6cf0'] };
 const S = { style: 'drop', speed: 47, limit: 50, unit: 'kmh', sign: 'vi', icon: true, src: 'vietmap', size: 100, map: 'light' };
 
 const state = (v, lim) => !lim ? 'normal' : v > lim ? 'over' : v >= lim * .9 ? 'near' : 'normal';
+// Dai HUD: canh bao ngay khi cham gioi han
+const hudState = (v, lim) => !lim ? 'normal' : v >= lim ? 'over' : v >= lim * .9 ? 'near' : 'normal';
+const hudFill = (v, lim) => Math.min(100, v / (lim || 160) * 100);
 const conv = v => S.unit === 'mph' ? Math.round(v * 0.621371) : v;
 const unitTxt = () => S.unit === 'mph' ? 'mph' : 'km/h';
 function signHtml(lim) {
@@ -291,9 +297,9 @@ function bubble(style, v, lim) {
     case 'min': return `<div class="bub s-min ${st}"><div class="sp">${S.icon ? `<div class="row" style="gap:6px">${icoHtml()}</div>` : ''}<div class="row">${S_}${U}</div><div class="line"><i style="width:${Math.min(100, ratio * 100)}%"></i></div></div>${signHtml(lim)}</div>`;
     case 'night': return `<div class="bub s-night dark dglass ${st} ${st === 'over' ? 'pulse' : ''}">${signHtml(lim)}<div class="sp">${S_}${U}</div>${icoHtml()}</div>`;
     case 'hud': {
-      const n = 12, on = Math.round(Math.min(1, v / 160) * n), limTick = lim ? Math.round(Math.min(1, lim / 160) * n) - 1 : -1;
-      const ticks = Array.from({ length: n }, (_, i) => `<i class="${i < on ? 'on' : ''} ${i === limTick ? 'lim' : ''}" style="height:${8 + i * 1.2}px"></i>`).join('');
-      return `<div class="bub s-hud lglass ${st} ${st === 'over' ? 'pulse' : ''}">${icoHtml()}<div class="sp">${S_}${U}</div><div class="ticks">${ticks}</div>${signHtml(lim)}</div>`;
+      // thanh = 0 -> gioi han (khong co gioi han: 0 -> 160); cham gioi han (>=) la canh bao
+      const hst = hudState(v, lim);
+      return `<div class="bub s-hud lglass ${hst} ${hst === 'over' ? 'pulse' : ''}">${icoHtml()}<div class="sp">${S_}${U}</div><div class="ticks"><div class="fill" style="width:${hudFill(v, lim)}%"></div></div>${signHtml(lim)}</div>`;
     }
     case 'dash': {
       // goc 150 do (duoi trai) -> 390 do (duoi phai), quet 240 do theo chieu kim dong ho; truc y man hinh huong xuong
@@ -329,10 +335,17 @@ function bubble(style, v, lim) {
 function renderCar() {
   $('map').className = 'map ' + S.map;
   $('cs').classList.toggle('mapdark', S.map === 'dark');
-  $('slot').innerHTML = bubble(S.style, S.speed, S.limit);
+  // Dai HUD: chi cap nhat so / trang thai / do dai thanh (giu nguyen phan tu de thanh chay muot)
+  const key = [S.style, S.unit, S.sign, S.icon, S.src, S.limit].join('|'), hud = $('slot').querySelector('.s-hud');
+  if (S.style === 'hud' && hud && $('slot').dataset.key === key) {
+    const st = hudState(S.speed, S.limit);
+    hud.className = `bub s-hud lglass ${st} ${st === 'over' ? 'pulse' : ''}`;
+    hud.querySelector('.num').textContent = conv(S.speed);
+    hud.querySelector('.fill').style.width = hudFill(S.speed, S.limit) + '%';
+  } else { $('slot').innerHTML = bubble(S.style, S.speed, S.limit); $('slot').dataset.key = key; }
   $('slot').style.transform = `scale(${S.size / 100})`;
-  const st = state(S.speed, S.limit);
-  $('stateTxt') && ($('stateTxt').textContent = !S.limit ? 'Không có giới hạn (biển xám)' : st === 'over' ? 'Vượt giới hạn' : st === 'near' ? 'Sắp chạm giới hạn (≥ 90 %)' : 'Dưới giới hạn');
+  const st = (S.style === 'hud' ? hudState : state)(S.speed, S.limit);
+  $('stateTxt') && ($('stateTxt').textContent = !S.limit ? 'Không có giới hạn (biển xám)' : st === 'over' ? (S.style === 'hud' ? 'Chạm / vượt giới hạn: cảnh báo' : 'Vượt giới hạn') : st === 'near' ? 'Sắp chạm giới hạn (≥ 90 %)' : 'Dưới giới hạn');
 }
 function renderGallery() {
   const lim = S.limit || 60;
@@ -387,7 +400,7 @@ function toggleDrive() {
     if (!S.limit) S.limit = 60;
     timer = setInterval(() => {
       const t = (performance.now() - t0) / 1000, lim = S.limit;
-      S.speed = Math.max(0, Math.round(lim * (0.55 + 0.65 * (0.5 - 0.5 * Math.cos(t * 0.9)))));
+      S.speed = Math.max(0, Math.round(lim * (0.55 + 0.65 * (0.5 - 0.5 * Math.cos(t * 0.45)))));
       $('spd').value = S.speed; $('spdv').textContent = `${conv(S.speed)} ${unitTxt()}`;
       renderCar();
     }, 120);
