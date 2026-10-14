@@ -44,16 +44,12 @@
 #define SCPC_BG_TOAST_TAG      0x5C9B   // thong bao "dang chay nen" (chi 1 cai mot luc)
 typedef NS_ENUM(NSInteger, SCPCLayoutKind) { SCPCLayoutColumns = 0, SCPCLayoutMainStack = 1, SCPCLayoutMainRight = 2 };
 
-// 2 o lech san: 70 = o 1 chiem 70 %, 30 = o 1 chiem 30 % (chon trong bang, sau do keo vach nhu 2 o thuong)
-#define SCPC_LAYOUT_70 70
-#define SCPC_LAYOUT_30 30
-static CGFloat SCPCPresetRatio(int layoutID) { return layoutID == SCPC_LAYOUT_70 ? 0.7 : (layoutID == SCPC_LAYOUT_30 ? 0.3 : 0); }
-
 static BOOL SCPCIsStackLayout(int layoutID) { return layoutID == SCPC_LAYOUT_MAIN_STACK || layoutID == SCPC_LAYOUT_MAIN_RIGHT; }
 static int SCPCPanesForLayout(int layoutID)
 {
-    if (SCPCPresetRatio(layoutID) > 0) return 2;
-    return SCPCIsStackLayout(layoutID) ? 3 : MAX(2, MIN(SCPC_MAX_PANES, layoutID));
+    if (SCPCIsStackLayout(layoutID)) return 3;
+    // Bo cuc la (vd 70 / 30 da bo, con trong Gan day / Yeu thich cu): coi nhu 2 o
+    return (layoutID >= 2 && layoutID <= SCPC_MAX_PANES) ? layoutID : 2;
 }
 static NSInteger SCPCKindForLayout(int layoutID)
 {
@@ -493,15 +489,7 @@ static NSArray<NSValue *> *SCPCLayoutBoxes(int layoutID, BOOL vertical, CGSize s
         }
         return boxes;
     }
-    CGFloat preset = SCPCPresetRatio(layoutID);
-    if (preset > 0) {
-        CGFloat len = (vertical ? size.height : size.width) - gap, first = floor(len * preset);
-        [boxes addObject:[NSValue valueWithCGRect:vertical ? CGRectMake(0, 0, size.width, first) : CGRectMake(0, 0, first, size.height)]];
-        [boxes addObject:[NSValue valueWithCGRect:vertical ? CGRectMake(0, first + gap, size.width, len - first)
-                                                           : CGRectMake(first + gap, 0, len - first, size.height)]];
-        return boxes;
-    }
-    int n = MAX(1, layoutID);
+    int n = SCPCPanesForLayout(layoutID);
     CGFloat len = (vertical ? size.height : size.width) - gap * (n - 1), pos = 0;
     for (int i = 0; i < n; i++) {
         CGFloat w = (i == n - 1) ? len - floor(len / n) * (n - 1) : floor(len / n);
@@ -2770,11 +2758,9 @@ static void SCPCHandleOpen(UIView *h, BOOL open)
 // ---- Siri / Phim tat (omnicar://splitscreen/layout | ratio | swap | zoom) ----
 - (void)urlLayout:(int)layoutID
 {
-    if (layoutID != 2 && layoutID != 3 && layoutID != SCPC_LAYOUT_MAIN_STACK && layoutID != SCPC_LAYOUT_MAIN_RIGHT
-        && SCPCPresetRatio(layoutID) <= 0) return;
+    if (layoutID != 2 && layoutID != 3 && layoutID != SCPC_LAYOUT_MAIN_STACK && layoutID != SCPC_LAYOUT_MAIN_RIGHT) return;
     if (self.active) [self switchToLayout:layoutID];
     else if ([self activateWithLayout:layoutID]) [self showPickersForEmptySlots];
-    if (SCPCPresetRatio(layoutID) > 0) [self urlRatio:SCPCPresetRatio(layoutID)];
 }
 
 - (void)urlRatio:(CGFloat)ratio
@@ -4654,12 +4640,10 @@ static BOOL SCPCRightHandDrive(void)
     NSString *app = self.layoutApp;
     self.layoutApp = nil;
     [self collapseAppTray];
-    CGFloat preset = SCPCPresetRatio(layoutID);
-    if (self.active) { [self switchToLayout:layoutID]; if (preset > 0) [self urlRatio:preset]; return; }
+    if (self.active) { [self switchToLayout:layoutID]; return; }
     SCPLog("CarSplit: chon bo cuc %d cho %@", layoutID, app ?: @"man chinh (moi o trong)");
     if (!app) {   // man chinh: moi o deu trong, hien bang chon app (dung nhu hinh dau cong trong bang)
         if (![self activateWithLayout:layoutID]) return;
-        if (preset > 0) [self urlRatio:preset];
         [self showPickersForEmptySlots];
         return;
     }
@@ -4672,7 +4656,6 @@ static BOOL SCPCRightHandDrive(void)
     }
     [self openApp:app slot:first];
     for (int s = 0; s < [self paneCount]; s++) if (![self slotOccupied:s]) [self showPickerForSlot:s];
-    if (preset > 0) [self urlRatio:preset];
 }
 
 // ---------------------------------------------------------------------

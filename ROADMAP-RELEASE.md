@@ -146,7 +146,7 @@ Mỗi bản lớn đi kèm một video ngắn và một bài đăng; bản nhỏ
 - [ ] **1.1 – Màn chính và Khởi động** · Vừa
   Phần Màn chính CarPlay và Màn hình khởi động mới của Mức 2.
 - [ ] **1.2 – Chia màn hình và Lái xe** · Vừa
-  Phần còn lại của Mức 2: 8 bố cục, chế độ lái, nút vô lăng, hồ sơ theo xe.
+  Phần còn lại của Mức 2: chế độ lái, nút vô lăng, hồ sơ theo xe.
 - [ ] **2.0 – Vượt DuoDash** · Cao
   Mức 3: bố cục tự do, tự phóng to bản đồ khi rẽ, ô tiện ích, cụm đồng hồ, widget màn chính.
 - [ ] **Gói thêm "OmniCar Drive" (camera / ADAS)** · Cao

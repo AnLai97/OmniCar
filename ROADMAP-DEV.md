@@ -176,10 +176,6 @@ xem trước ngay trong Cài đặt. Âm thanh phát qua loa xe khi CarPlay kế
   Nhận xe qua tên / ID đầu xe → bố cục chia màn, màn chính CarPlay, kiểu khởi động, cỡ bong bóng riêng cho từng xe.
   Code: Core OMCProfileSwitch khi cắm xe (khoá xe từ phiên CarKit), OMCProfileKeys() là các cài đặt theo xe;
   Cài đặt > Hồ sơ theo xe (Prefs/OMCCarProfilesController.m). Chờ thử: tên trường định danh xe của CarKit.
-- [x] **Đủ 8 bố cục trở lên** · Vừa
-  Thêm 70/30, 30/70, 3 cột đều, 1 lớn trên + 2 dưới (màn dọc).
-  Code: thêm 70/30 và 30/70 trong bảng bố cục (SCPC_LAYOUT_70 / _30); 3 cột đều và 1 lớn + 2 (màn dọc) đã có.
-  Bỏ lưới 2×2 (4 ô): các bố cục hiện có là đủ.
 - [ ] **Chọn ô phát tiếng** · Vừa
   Hai ô cùng có âm thanh → chọn ô nào phát, ô kia tắt tiếng; tự giảm nhạc khi bản đồ đọc hướng dẫn.
   Chưa làm: cần biết CarPlay chọn nguồn âm thanh thế nào (bộ dò liệt kê lớp NowPlaying / Audio).
