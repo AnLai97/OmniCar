@@ -16,6 +16,17 @@
   --lav: #B7A6FF; --sky: #8FD3FF; --mint: #9DF2D8; --peach: #FFC2D6;
   --acc1: #8B7CFF; --acc2: #5AB8FF; --acc: linear-gradient(135deg, var(--acc1), var(--acc2)); --acc-glow: 0 6px 18px rgba(110,120,255,.45);
   --on: #34C759; --danger: #FF5A5F;
+  /* Trong cac bang nen logo (man xe): 1 bo quy tac cho vien / o / dang chon / icon, khong dung vien den
+     o (tile)  = kinh trang trong + vien trang 1px nhu dia trong logo
+     khung o   = vien trang 1.5px (giong vanh trang cua dia + tam giac trong logo)
+     dang chon = o trang dac + vien cau vong 4 mau logo (tim, xanh troi, bac ha, hong) + quang tim nhat
+     nut chinh = gradient tim -> xanh troi dam hon nen mot bac, icon trang;  dong = X do tren o thuong */
+  --mk: #4a4f80; --mk2: rgba(74,79,128,.55);
+  --tile: rgba(255,255,255,.5); --tile-fx: inset 0 0 0 1px rgba(255,255,255,.9), 0 2px 6px rgba(110,100,200,.12);
+  --slot: rgba(255,255,255,.45); --slot-fx: inset 0 0 0 1.5px rgba(255,255,255,.95);
+  --aurora: conic-gradient(from 210deg, #A78BFA, #60C5FA, #5EDDB6, #F59AC0, #A78BFA);
+  --sel-fx: 0 6px 16px rgba(130,115,240,.28);
+  --main: linear-gradient(135deg, #9B87F8, #5DB4F6); --main-fx: 0 5px 14px rgba(110,120,245,.4);
   --glass: rgba(255,255,255,.4); --glass-strong: rgba(255,255,255,.78); --glass-rim: rgba(255,255,255,.85);
   --glass-shadow: 0 10px 30px rgba(70,60,140,.18), 0 1px 2px rgba(70,60,140,.08);
   --hm-in: cubic-bezier(.2, 0, .2, 1); --hm-spring: cubic-bezier(.25, 1.35, .45, 1);
@@ -41,6 +52,15 @@ section > p { margin: -6px 0 0; color: var(--ink2); font-size: 13px; }
 @keyframes drift { to { transform: translate(6%, 5%) scale(1.08); } }
 .glass { background: var(--glass); -webkit-backdrop-filter: blur(22px) saturate(1.6); backdrop-filter: blur(22px) saturate(1.6);
   box-shadow: inset 0 1px 0 var(--glass-rim), inset 0 0 0 1px rgba(255,255,255,.45), var(--glass-shadow); }
+/* Cac bang hien ra tren man xe (khay bo cuc, thanh ti le, thanh hanh dong, thong bao, bang chon app, ban phim):
+   nen phoi mau giong nen logo OmniCar - 4 goc tim oai / xanh troi / hong / bac ha (lay mau tu assets/icon-1024.png),
+   hoi trong de van thay kinh mo, khong bi mau app ben duoi (nhac tim, video do) nhuom lai */
+.tray.glass, .rbar.glass, .abar.glass, .toast.glass, .picker.glass, .kb.glass {
+  background: radial-gradient(circle at 0 0, rgba(201,186,252,.95), transparent 70%), radial-gradient(circle at 100% 0, rgba(166,221,253,.95), transparent 70%),
+    radial-gradient(circle at 0 100%, rgba(254,196,216,.95), transparent 70%), radial-gradient(circle at 100% 100%, rgba(160,241,217,.95), transparent 70%),
+    rgba(232,234,250,.8);
+  box-shadow: inset 0 1px 0 #fff, inset 0 0 0 1px rgba(255,255,255,.7), 0 12px 32px rgba(110,100,200,.25); color: var(--mk);
+}
 
 /* ---------- Bang mau ---------- */
 .pal { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
@@ -93,8 +113,10 @@ section > p { margin: -6px 0 0; color: var(--ink2); font-size: 13px; }
 .dock .t { font-size: 10px; font-weight: 700; }
 .dock .d { width: 30px; height: 30px; border-radius: 8px; }
 .dock .sp { flex: 1; }
-.dock .split { width: 26px; height: 26px; border-radius: 7px; display: grid; place-items: center; background: rgba(255,255,255,.35); box-shadow: inset 0 0 0 .5px rgba(255,255,255,.85); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }   /* icon 2 o trong o kinh mo */
-.dock .split i { width: 14px; height: 10px; display: flex; gap: 2px; } .dock .split i b { flex: 1; background: #c9cdd4; border-radius: 2px; }
+.dock .split { width: 30px; height: 30px; border-radius: 8px; display: grid; place-items: center; color: var(--mk);   /* nut Split Screen: o nen logo 4 mau nhu cac bang, cung co voi icon app tren dock */
+  background: radial-gradient(circle at 0 0, #C9BAFC, transparent 75%), radial-gradient(circle at 100% 0, #A6DDFD, transparent 75%), radial-gradient(circle at 0 100%, #FEC4D8, transparent 75%), radial-gradient(circle at 100% 100%, #A0F1D9, transparent 75%), #E2E4F6;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.85), 0 2px 8px rgba(130,115,240,.35); }
+.dock .split svg { width: 19px; height: 19px; }   /* cung glyph Chia man hinh (HM_SPLIT) cua thanh ••• */
 .dock .g { width: 18px; height: 12px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; } .dock .g i { background: #c9cdd4; border-radius: 1px; }
 .area { position: absolute; left: 45px; top: 0; right: 0; bottom: 0; }
 .pane { position: absolute; top: 0; bottom: 0; overflow: hidden; border-radius: 10px; }
@@ -113,14 +135,17 @@ section > p { margin: -6px 0 0; color: var(--ink2); font-size: 13px; }
 .handle { position: absolute; top: 5px; width: 40px; height: 16px; border-radius: 8px; display: flex; align-items: center; justify-content: center; gap: 3px; z-index: 5; }
 .handle i { width: 4px; height: 4px; border-radius: 2px; background: var(--ink); opacity: .85; }
 .handle.glass { background: rgba(255,255,255,.35); box-shadow: inset 0 0 0 .5px rgba(255,255,255,.55); }   /* vien bau duc trong */
-.handle.open { background: var(--acc); box-shadow: var(--acc-glow); } .handle.open i { background: #fff; opacity: 1; }
+.handle.open { background: var(--main); box-shadow: var(--main-fx); } .handle.open i { background: #fff; opacity: 1; }
 /* Thanh hanh dong kieu HarmonyOS: vien kinh, chi icon (khong nhan, khong vong tron), cham = nen mo */
-.abar { position: absolute; height: 44px; border-radius: 22px; padding: 0 6px; display: flex; align-items: center; gap: 4px; z-index: 6; animation: drop .4s var(--hm-spring) both; }
+.abar { position: absolute; height: 58px; border-radius: 22px; padding: 0 6px; display: flex; align-items: center; gap: 0; z-index: 6; animation: drop .4s var(--hm-spring) both; }
 @keyframes drop { from { opacity: 0; translate: 0 -8px; scale: .94; } }
-.act { width: 44px; height: 36px; border-radius: 18px; display: grid; place-items: center; color: var(--ink); cursor: pointer; transition: background .15s, transform .25s var(--hm-spring); }
-.act:active, .act.press { background: rgba(31,34,51,.08); transform: scale(.92); }
-.act svg { width: 22px; height: 22px; }
+.act { width: 50px; height: 50px; border-radius: 14px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; color: var(--mk); cursor: pointer; transition: transform .25s var(--hm-spring); }
+.act i { width: 30px; height: 30px; border-radius: 15px; display: grid; place-items: center; background: var(--tile); box-shadow: var(--tile-fx); transition: background .15s; }   /* o kinh tron nhu nut X cua khay */
+.act b { font-size: 8.5px; font-weight: 500; line-height: 1; white-space: nowrap; }
+.act:active, .act.press { transform: scale(.92); } .act:active i, .act.press i { background: #fff; }
+.act svg { width: 18px; height: 18px; }
 .act.x { color: var(--danger); }
+.abar .sep { width: 1px; height: 30px; margin: 0 3px; background: rgba(255,255,255,.95); border-radius: 1px; }   /* tach nut Tat khoi cac nut con lai */
 .legend { display: flex; flex-wrap: wrap; gap: 8px 18px; font-size: 12.5px; color: var(--ink); }
 .legend span { display: flex; align-items: center; gap: 6px; }
 .legend svg { width: 22px; height: 22px; }
@@ -130,43 +155,44 @@ section > p { margin: -6px 0 0; color: var(--ink2); font-size: 13px; }
 .pip .yt::before { inset: 22px 8px 10px; }
 .toast { position: absolute; left: 50%; top: 8px; transform: translateX(-50%); height: 34px; border-radius: 17px; display: flex; align-items: center; gap: 8px; padding: 0 6px 0 7px; font-size: 11.5px; z-index: 6; white-space: nowrap; }
 .toast em { width: 22px; height: 22px; border-radius: 6px; display: block; }
-.toast .open { height: 24px; padding: 0 10px; border-radius: 12px; display: grid; place-items: center; background: var(--acc); color: #fff; font-weight: 600; box-shadow: var(--acc-glow); }
+.toast .open { height: 24px; padding: 0 10px; border-radius: 12px; display: grid; place-items: center; background: var(--main); color: #fff; font-weight: 600; box-shadow: var(--main-fx); }
 /* thanh ti le */
 .rbar { position: absolute; height: 34px; border-radius: 17px; display: flex; align-items: center; padding: 3px; gap: 3px; z-index: 5; }
-.rbar span { height: 28px; width: 40px; border-radius: 14px; display: grid; place-items: center; color: var(--ink); }
-.rbar svg { width: 24px; height: 24px; }
-.rbar span.sel { background: var(--acc); color: #fff; box-shadow: var(--acc-glow); }
+.rbar span { height: 28px; width: 40px; border-radius: 14px; display: grid; place-items: center; color: var(--mk); position: relative; }
+.rbar svg { width: 22px; height: 22px; }
+/* Dang chon: nen trong suot cung mau bang, chi vien cau vong 2px (ve bang ::before + mask nen giua rong) + quang tim nhat */
+.rbar span.sel, .tray .cell.sel { box-shadow: var(--sel-fx); }
+.rbar span.sel::before, .tray .cell.sel::before { content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 2px; background: var(--aurora);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); pointer-events: none; }
 /* khay bo cuc */
 .tray { position: absolute; border-radius: 24px; padding: 10px; display: grid; gap: 6px; z-index: 6; }
 .tray .tr { display: flex; align-items: center; gap: 4px; height: 56px; }
-.tray .hd { width: 32px; display: grid; place-items: center; color: var(--ink2); }
+.tray .hd { width: 32px; display: grid; place-items: center; color: var(--mk2); }
 .tray .hd svg { width: 18px; height: 18px; }
-.tray .cell { width: 84px; height: 56px; border-radius: 14px; display: grid; place-items: center; transition: transform .3s var(--hm-spring); background: rgba(139,124,255,.12); box-shadow: inset 0 0 0 .5px rgba(139,124,255,.3); }
-.tray .cell.sel { background: var(--acc); box-shadow: var(--acc-glow); }
+.tray .cell { width: 84px; height: 56px; border-radius: 14px; display: grid; place-items: center; position: relative; transition: transform .3s var(--hm-spring); background: transparent; box-shadow: inset 0 0 0 1px rgba(255,255,255,.75); }   /* nen trong suot cung mau bang, vien trang manh tach tung bo cuc */
 .lay { width: 72px; height: 40px; display: flex; gap: 3px; }
-.lay i, .lay .col i { flex: 1; border-radius: 6px; background: rgba(255,255,255,.4); box-shadow: inset 0 0 0 1.5px var(--acc1); display: grid; place-items: center; }   /* khung mau chu dao quanh tung o */
-.cell:not(.sel) .lay i { background: rgba(255,255,255,.4); }
+.lay i, .lay .col i { flex: 1; border-radius: 6px; background: var(--slot); box-shadow: var(--slot-fx); display: grid; place-items: center; }   /* vien trang quanh tung o */
 .lay .col { flex: 1; display: flex; flex-direction: column; gap: 3px; }
 .lay img, .lay em { width: 18px; height: 18px; border-radius: 5px; display: block; }
-.lay .plus { font-style: normal; color: var(--acc1); font-size: 14px; line-height: 18px; text-align: center; }
-.cell.sel .lay i { background: rgba(255,255,255,.35); box-shadow: inset 0 0 0 1px rgba(255,255,255,.6); }
-.cell.sel .lay .plus { color: #fff; }
-.tray .exit { width: 40px; height: 40px; border-radius: 20px; display: grid; place-items: center; color: var(--danger); background: rgba(255,90,95,.12); box-shadow: inset 0 0 0 1px rgba(255,90,95,.18); margin-left: 6px; }
+.lay .plus { font-style: normal; color: var(--mk2); font-size: 14px; line-height: 18px; text-align: center; }
+.cell.sel .lay i { background: rgba(255,255,255,.75); }   /* o cua bo cuc dang dung sang hon mot chut */
+.tray .exit { width: 40px; height: 40px; border-radius: 20px; display: grid; place-items: center; color: var(--danger); background: var(--tile); box-shadow: var(--tile-fx); margin-left: 6px; }
 .tray .exit svg { width: 18px; height: 18px; }
 /* bang chon app */
 .picker { position: absolute; inset: 8px; border-radius: 24px; display: flex; gap: 10px; padding: 12px; z-index: 6; }
 .pgrid { flex: 1; display: grid; grid-template-columns: repeat(6, 1fr); grid-auto-rows: 56px; gap: 6px; }
-.papp { display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 14px; background: rgba(139,124,255,.12); box-shadow: inset 0 0 0 .5px rgba(139,124,255,.3); }   /* cung o voi khay bo cuc */
-.papp em { width: 42px; height: 42px; border-radius: 11px; display: block; box-shadow: 0 3px 8px rgba(0,0,0,.18); }
-.papp.sel { background: rgba(255,255,255,.85); box-shadow: 0 0 0 2px var(--acc1), var(--acc-glow); }
+.papp { display: flex; align-items: center; justify-content: center; position: relative; }   /* khong khung: icon tran nhu man Home */
+.papp em { width: 44px; height: 44px; border-radius: 12px; display: block; position: relative; box-shadow: 0 4px 10px rgba(110,100,200,.25); }
+.papp.sel::before { content: ""; position: absolute; width: 54px; height: 54px; border-radius: 16px; background: var(--aurora); box-shadow: var(--sel-fx); }
+.papp.sel em { box-shadow: 0 0 0 2.5px #fff; }   /* khe trang giua icon va vien cau vong */
 .papp.dim { opacity: .35; }
 .pinfo { width: 150px; display: flex; flex-direction: column; gap: 8px; }
-.pinfo .x { align-self: flex-end; width: 32px; height: 32px; border-radius: 16px; display: grid; place-items: center; color: var(--danger); background: rgba(255,90,95,.12); box-shadow: inset 0 0 0 1px rgba(255,90,95,.18); }
+.pinfo .x { align-self: flex-end; width: 32px; height: 32px; border-radius: 16px; display: grid; place-items: center; color: var(--danger); background: var(--tile); box-shadow: var(--tile-fx); }
 .pinfo .x svg { width: 14px; height: 14px; }
-.pinfo .mapx { flex: 1; border-radius: 14px; display: flex; gap: 4px; padding: 6px; background: rgba(139,124,255,.12); box-shadow: inset 0 0 0 .5px rgba(139,124,255,.3); }
-.pinfo .mapx i { flex: 1; border-radius: 8px; background: rgba(255,255,255,.4); box-shadow: inset 0 0 0 1.5px var(--acc1); }
-.pinfo .mapx i.sel { background: var(--acc); box-shadow: var(--acc-glow); }
-.dots { display: flex; gap: 5px; justify-content: center; } .dots i { width: 6px; height: 6px; border-radius: 3px; background: rgba(31,34,51,.2); } .dots i.on { width: 16px; background: var(--acc1); }
+.pinfo .mapx { flex: 1; border-radius: 14px; display: flex; gap: 4px; padding: 6px; background: transparent; }
+.pinfo .mapx i { flex: 1; border-radius: 8px; background: var(--slot); box-shadow: var(--slot-fx); }
+.pinfo .mapx i.sel { background: var(--main); box-shadow: var(--main-fx); }
+.dots { display: flex; gap: 5px; justify-content: center; } .dots i { width: 6px; height: 6px; border-radius: 3px; background: rgba(74,79,128,.2); } .dots i.on { width: 16px; background: var(--main); }
 /* bong bong toc do */
 .bubble { position: absolute; width: 74px; height: 74px; border-radius: 37px; display: grid; place-items: center; z-index: 7; }
 .bubble .ring { position: absolute; inset: 4px; border-radius: 50%; border: 3px solid transparent; background: conic-gradient(from 210deg, var(--acc1), var(--acc2), var(--mint), var(--acc1)) border-box;
@@ -176,18 +202,18 @@ section > p { margin: -6px 0 0; color: var(--ink2); font-size: 13px; }
 /* ban phim */
 .kb { position: absolute; border-radius: 20px; z-index: 6; padding: 5px; }
 .kb .bar { height: 24px; display: flex; gap: 4px; align-items: center; margin-bottom: 4px; }
-.kb .fld { flex: 1; height: 24px; border-radius: 12px; background: rgba(255,255,255,.7); display: flex; align-items: center; padding: 0 10px; font-size: 12px; font-weight: 500; box-shadow: inset 0 0 0 1px rgba(31,34,51,.06); }
-.kb .fld .caret { display: inline-block; width: 1.5px; height: 13px; background: var(--acc1); margin-left: 1px; vertical-align: -2px; animation: blink 1s steps(1) infinite; }
+.kb .fld { flex: 1; height: 24px; border-radius: 12px; background: rgba(255,255,255,.85); display: flex; align-items: center; padding: 0 10px; font-size: 12px; font-weight: 500; box-shadow: inset 0 0 0 1px #fff; }
+.kb .fld .caret { display: inline-block; width: 1.5px; height: 13px; background: #7c6cf5; margin-left: 1px; vertical-align: -2px; animation: blink 1s steps(1) infinite; }
 @keyframes blink { 50% { opacity: 0; } }
-.kb .chip { font-size: 10px; font-weight: 700; border: 1px solid rgba(31,34,51,.25); border-radius: 6px; padding: 0 4px; line-height: 14px; margin: 0 4px; color: var(--ink2); }
-.kb .tb { width: 30px; display: grid; place-items: center; color: var(--ink2); } .kb .tb svg { width: 18px; height: 18px; }
+.kb .chip { font-size: 10px; font-weight: 700; border: 1px solid rgba(74,79,128,.25); border-radius: 6px; padding: 0 4px; line-height: 14px; margin: 0 4px; color: var(--ink2); }
+.kb .tb { width: 30px; display: grid; place-items: center; color: var(--mk2); } .kb .tb svg { width: 18px; height: 18px; }
 .kb .keys { position: relative; }
-.kb .k { position: absolute; border-radius: 7px; display: grid; place-items: center; background: rgba(255,255,255,.92); color: var(--ink); font-size: 15px; box-shadow: inset 0 0 0 .5px rgba(139,124,255,.55), 0 1px 1px rgba(31,34,51,.18); }
-.kb .k.fn { background: rgba(214,210,240,.75); font-size: 10.5px; font-weight: 600; color: #4a4f6a; }
-.kb .k.soft { background: #d9d3ff; }
-.kb .k.acc { background: var(--acc); color: #fff; box-shadow: var(--acc-glow); }
-.kb .k.sp { font-size: 10px; color: var(--ink2); }
-.kb .k .h { position: absolute; right: 3px; top: 0; font-size: 7.5px; color: #9aa0b8; }
+.kb .k { position: absolute; border-radius: 7px; display: grid; place-items: center; background: rgba(255,255,255,.9); color: var(--mk); font-size: 15px; box-shadow: 0 1px 2px rgba(110,100,200,.18); }
+.kb .k.fn { background: var(--tile); font-size: 10.5px; font-weight: 600; color: var(--mk); box-shadow: inset 0 0 0 1px rgba(255,255,255,.9); }
+.kb .k.soft { background: var(--tile); }
+.kb .k.acc { background: var(--main); color: #fff; box-shadow: var(--main-fx); }
+.kb .k.sp { font-size: 10px; color: var(--mk2); }
+.kb .k .h { position: absolute; right: 3px; top: 0; font-size: 7.5px; color: var(--mk2); }
 .kb .k svg { width: 15px; height: 15px; }
 .kb .pop { position: absolute; border-radius: 9px; background: #fff; display: grid; place-items: center; font-size: 26px; box-shadow: 0 6px 18px rgba(70,60,140,.3); z-index: 2; }
 /* man hinh khoi dong */
@@ -204,7 +230,7 @@ section > p { margin: -6px 0 0; color: var(--ink2); font-size: 13px; }
 </head>
 <body>
 <h1>OmniCar · giao diện mới (HarmonyOS sáng + kính chất lỏng)</h1>
-<p class="sub">Áp phương án logo D cho toàn bộ tweak. Bảng / thanh / phím là kính trắng mờ trên nền chất lỏng pastel; đang chọn = gradient tím → xanh trời có quầng màu. Giữ: công tắc bật xanh lá, dấu X đóng màu đỏ, chuyển động HarmonyOS.</p>
+<p class="sub">Áp phương án logo D cho toàn bộ tweak. Bảng trên màn xe nền phối màu như logo; ô kính trắng viền trắng như logo; đang chọn = viền cầu vồng 4 màu logo, nền trong; nút chính = gradient tím → xanh trời. Giữ: công tắc bật xanh lá, dấu X đóng màu đỏ, chuyển động HarmonyOS.</p>
 
 <section>
   <h2>1 · Bảng màu</h2>
@@ -213,9 +239,11 @@ section > p { margin: -6px 0 0; color: var(--ink2); font-size: 13px; }
     <b>Quy tắc chung (mọi phần dùng cùng):</b><br>
     · <b>Kính mờ</b> cho bảng / thanh / thẻ / phím: trắng ~40% + mờ 22 (nhìn xuyên, không trắng đục), viền sáng trên, bóng tím nhạt.<br>
     · <b>Bo góc</b>: bảng lớn 24 (khay bố cục, bảng chọn app; thẻ Settings 20; bàn phím 20, bo cả 4 góc) · thanh = viên thuốc · ô bố cục 14 · phím 7 · nút tròn.<br>
-    · <b>Đang chọn / nút chính</b> = gradient tím → xanh trời + quầng màu (bố cục đang dùng, tay cầm ••• đang mở, tỉ lệ đang dùng, Enter / Shift, Mở lại).<br>
+    · <b>Bảng trên màn xe</b> (khay bố cục, thanh tỉ lệ, thanh •••, thông báo, bảng chọn app, bàn phím): nền phối 4 màu như nền logo, viền trắng 1px.<br>
+    · <b>Ô</b> trong bảng (ô bố cục, ô app, nút X, phím chức năng) = kính trắng trong + viền trắng 1px như đĩa trong logo; <b>khung từng ô</b> = viền trắng 1,5px như vành trắng của logo; không dùng viền đen.<br>
+    · <b>Đang chọn</b> = nền trong cùng màu bảng + viền cầu vồng 4 màu logo (tím, xanh trời, bạc hà, hồng) + quầng tím nhạt (bố cục đang dùng, tỉ lệ đang dùng, app đang chọn). <b>Nút chính</b> = gradient tím → xanh trời, icon trắng (tay cầm ••• đang mở, Enter, Mở lại, ô đang chọn cho app).<br>
     · <b>Đóng / Tắt</b> = dấu X đỏ trên nền đỏ nhạt, luôn ở cuối, tách bằng vạch mảnh. <b>Công tắc bật</b> = xanh lá.<br>
-    · <b>Icon</b> nét mảnh bo tròn 1.7–2; trên màn xe nút có nhãn ngắn khi là hành động (thanh •••), chỉ icon khi là chọn nhanh (khay).<br>
+    · <b>Icon</b> màu chàm dịu #4A4F80 (icon phụ 55%), nét mảnh bo tròn 1,5, cỡ 22 trên thanh, 18 trong khay; trên màn xe nút có nhãn ngắn khi là hành động (thanh •••), chỉ icon khi là chọn nhanh (khay).<br>
     · <b>Chuyển động</b>: hiện = lò xo HarmonyOS (thu 0,94 → 1, thả xuống 8 pt), ẩn = trượt / mờ 250 ms; bảng trên xe tự đóng sau 4 s không chạm.
   </div>
 </section>
@@ -261,9 +289,9 @@ section > p { margin: -6px 0 0; color: var(--ink2); font-size: 13px; }
 
 <section>
   <h2>3 · Màn xe: chia màn hình, khay bố cục, bong bóng tốc độ</h2>
-  <p>Bong bóng tốc độ: kính trắng, vòng gradient, biển giới hạn tốc độ đỏ. Khay bố cục kính trắng phía trên; bố cục đang dùng = gradient có quầng màu; dấu X đỏ. Nút Split Screen trên dock là icon 2 ô trần cùng màu lưới Home. Mỗi ô có tay cầm ••• ở giữa mép trên (xem 3b); thanh tỉ lệ cùng kiểu kính.</p>
+  <p>Bong bóng tốc độ: kính trắng, vòng gradient, biển giới hạn tốc độ đỏ. Khay bố cục kính trắng phía trên; mỗi bố cục có khung trắng mảnh, nền trong cùng màu bảng; bố cục đang dùng = viền cầu vồng, nền vẫn trong; dấu X đỏ trên ô kính. Nút Split Screen trên dock = ô nền logo 4 màu (như các bảng), viền trắng, icon 2 ô màu chàm giống nút Chia màn của thanh •••. Mỗi ô có tay cầm ••• ở giữa mép trên (xem 3b); thanh tỉ lệ cùng kiểu kính.</p>
   <div class="car"><div class="carfit"><div class="cs" id="c1">
-    <div class="dock"><div class="t">9:41</div><div class="d" style="background:#2fb24c"></div><div class="d" style="background:#ff375f"></div><div class="sp"></div><div class="split"><i><b></b><b></b></i></div><div class="g"><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
+    <div class="dock"><div class="t">9:41</div><div class="d" style="background:#2fb24c"></div><div class="d" style="background:#ff375f"></div><div class="sp"></div><div class="split">${HM_SPLIT}</div><div class="g"><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
     <div class="area">
       <div class="pane map" style="left:0;width:340px"></div>
       <div class="divider" style="left:340px"><i></i></div>
@@ -283,13 +311,13 @@ section > p { margin: -6px 0 0; color: var(--ink2); font-size: 13px; }
 
 <section>
   <h2>3b · Nút ••• của mỗi ô: Chọn app mới · Chạy 1 màn hình / Chia màn hình · Ảnh trong ảnh · Chạy nền · Tắt hẳn app</h2>
-  <p>Như HarmonyOS: tay cầm ••• nhỏ ở giữa mép trên mỗi ô; chạm thì tay cầm chuyển gradient và một viên kính chỉ có icon thả xuống ngay dưới (lò xo), tự đóng sau 4 s. Icon vẽ theo HarmonyOS Symbol (lưới 24, nét 1,5, khung cửa sổ bo tròn); dấu X tắt màu đỏ.</p>
+  <p>Như HarmonyOS: tay cầm ••• nhỏ ở giữa mép trên mỗi ô; chạm thì tay cầm chuyển gradient và một viên nền logo chỉ có icon thả xuống ngay dưới (lò xo), tự đóng sau 4 s. Mỗi nút = ô kính tròn + nhãn ngắn (Đổi app · Toàn màn / Chia màn · Cửa sổ nổi · Chạy nền · Tắt app), nút Tắt tách riêng bằng vạch trắng, X đỏ. Icon giữ HarmonyOS Symbol (lưới 24, nét 1,5).</p>
   <div class="legend card glass" style="padding:10px 14px">${LEGEND}</div>
   <div class="row" style="gap:14px">
     <div style="width:100%;max-width:1120px">
       <div class="cap" style="text-align:left;margin-bottom:6px"><b>a ·</b> Chạm ••• của ô YouTube (đang chia 50/50)</div>
       <div class="car"><div class="carfit"><div class="cs">
-        <div class="dock"><div class="t">9:41</div><div class="d" style="background:#2fb24c"></div><div class="d" style="background:#ff375f"></div><div class="sp"></div><div class="split"><i><b></b><b></b></i></div><div class="g"><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
+        <div class="dock"><div class="t">9:41</div><div class="d" style="background:#2fb24c"></div><div class="d" style="background:#ff375f"></div><div class="sp"></div><div class="split">${HM_SPLIT}</div><div class="g"><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
         <div class="area">
           <div class="pane map" style="left:0;width:294px"></div>
           <div class="divider" style="left:294px"><i></i></div>
@@ -303,7 +331,7 @@ section > p { margin: -6px 0 0; color: var(--ink2); font-size: 13px; }
     <div style="width:100%;max-width:1120px">
       <div class="cap" style="text-align:left;margin-bottom:6px"><b>b ·</b> Sau <b>Chạy 1 màn hình</b>: YouTube chiếm cả màn (Bản đồ vẫn chạy phía sau); nút đổi thành <b>Chia màn hình</b> để chia lại đúng như trước</div>
       <div class="car"><div class="carfit"><div class="cs">
-        <div class="dock"><div class="t">9:41</div><div class="d" style="background:#2fb24c"></div><div class="d" style="background:#ff375f"></div><div class="sp"></div><div class="split"><i><b></b><b></b></i></div><div class="g"><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
+        <div class="dock"><div class="t">9:41</div><div class="d" style="background:#2fb24c"></div><div class="d" style="background:#ff375f"></div><div class="sp"></div><div class="split">${HM_SPLIT}</div><div class="g"><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
         <div class="area">
           <div class="pane yt" style="left:0;right:0"></div>
           <div class="handle glass open" style="left:277px"><i></i><i></i><i></i></div>
@@ -314,7 +342,7 @@ section > p { margin: -6px 0 0; color: var(--ink2); font-size: 13px; }
     <div style="width:100%;max-width:1120px">
       <div class="cap" style="text-align:left;margin-bottom:6px"><b>c ·</b> Sau <b>Ảnh trong ảnh</b> (YouTube thành cửa sổ nổi, kéo đi được) và <b>Chạy nền</b> (Spotify ẩn khỏi màn, vẫn phát; chạm thông báo để mở lại). <b>Tắt hẳn app</b>: đóng ô và thoát luôn app.</div>
       <div class="car"><div class="carfit"><div class="cs">
-        <div class="dock"><div class="t">9:41</div><div class="d" style="background:#2fb24c"></div><div class="d" style="background:#ff375f"></div><div class="sp"></div><div class="split"><i><b></b><b></b></i></div><div class="g"><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
+        <div class="dock"><div class="t">9:41</div><div class="d" style="background:#2fb24c"></div><div class="d" style="background:#ff375f"></div><div class="sp"></div><div class="split">${HM_SPLIT}</div><div class="g"><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
         <div class="area">
           <div class="pane map" style="left:0;right:0"></div>
           <div class="pip"><div class="pane yt" style="inset:0"></div><div class="handle glass" style="left:50%;margin-left:-20px;top:4px"><i></i><i></i><i></i></div></div>
@@ -327,9 +355,9 @@ section > p { margin: -6px 0 0; color: var(--ink2); font-size: 13px; }
 
 <section>
   <h2>4 · Màn xe: bảng chọn app</h2>
-  <p>Lưới app bên trái, cột thông tin bên phải (sơ đồ ô đang chọn cho ô nào, dấu X đỏ góc trên phải); app đang chọn viền gradient, app đã dùng mờ đi; nhiều app thì vuốt ngang, chấm trang HarmonyOS.</p>
+  <p>Lưới app bên trái, cột thông tin bên phải (sơ đồ ô đang chọn cho ô nào, dấu X đỏ góc trên phải); app không có khung (icon trần như màn Home), app đang chọn = viền cầu vồng ôm quanh icon, ô đang chọn cho app tô gradient, app đã dùng mờ đi; nhiều app thì vuốt ngang, chấm trang HarmonyOS.</p>
   <div class="car"><div class="carfit"><div class="cs" id="c2">
-    <div class="dock"><div class="t">9:41</div><div class="d" style="background:#2fb24c"></div><div class="d" style="background:#ff375f"></div><div class="sp"></div><div class="split"><i><b></b><b></b></i></div><div class="g"><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
+    <div class="dock"><div class="t">9:41</div><div class="d" style="background:#2fb24c"></div><div class="d" style="background:#ff375f"></div><div class="sp"></div><div class="split">${HM_SPLIT}</div><div class="g"><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
     <div class="area"><div class="liquid"><i></i><i></i><i></i><i></i></div>
       <div class="picker glass"><div class="pgrid" id="pgrid"></div>
         <div class="pinfo"><span class="x">${XICON}</span><div class="mapx"><i></i><i class="sel"></i></div><div class="dots"><i class="on"></i><i></i></div></div></div>
@@ -339,9 +367,9 @@ section > p { margin: -6px 0 0; color: var(--ink2); font-size: 13px; }
 
 <section>
   <h2>5 · Màn xe: bàn phím</h2>
-  <p>Bàn phím giữ bố cục HarmonyOS (thẻ nổi bo tròn 4 góc, cách mép 6 pt, kín bề rộng ô app, hàng số, gợi ý góc phím, bong bóng phóng to khi chạm) nhưng đổi sang kính trắng: phím trắng, phím chức năng tím nhạt, Shift / Enter gradient.</p>
+  <p>Bàn phím giữ bố cục HarmonyOS (thẻ nổi bo tròn 4 góc, cách mép 6 pt, kín bề rộng ô app, hàng số, gợi ý góc phím, bong bóng phóng to khi chạm) nhưng đổi sang kính trắng: phím trắng, phím chức năng kính trong viền trắng, Enter gradient.</p>
   <div class="car"><div class="carfit"><div class="cs" id="c3">
-    <div class="dock"><div class="t">9:41</div><div class="d" style="background:#2fb24c"></div><div class="d" style="background:#ff375f"></div><div class="sp"></div><div class="split"><i><b></b><b></b></i></div><div class="g"><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
+    <div class="dock"><div class="t">9:41</div><div class="d" style="background:#2fb24c"></div><div class="d" style="background:#ff375f"></div><div class="sp"></div><div class="split">${HM_SPLIT}</div><div class="g"><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
     <div class="area"><div class="pane yt" style="left:0;right:0"></div>
       <div class="kb glass" id="kb"></div>
     </div>
@@ -423,9 +451,11 @@ const LAYS = lay(2, ['maps', 'music'], true) + lay(3) + lay(12) + lay(21);
 const RECENT = lay(2, ['maps', 'spot']) + lay(12, ['gofa', 'spot', 'phone']);
 // Thanh hanh dong cua o (nut •••), chi icon nhu HarmonyOS: Chon app moi · Chay 1 man hinh / Chia man hinh (dang chay 1
 // man hinh thi chia lai nhu truoc) · Anh trong anh · Chay nen · Tat han app
-const ACT = (icon, title, cls = '') => `<div class="act ${cls}" title="${title}">${icon}</div>`;
+const ACT = (icon, title, cls = '') => `<div class="act ${cls}" title="${title}"><i>${icon}</i><b>${ACTN[title]}</b></div>`;
+// nhan ngan duoi icon (man xe nhin luot, chi icon de nham Chay nen / Anh trong anh)
+const ACTN = { 'Chọn app mới': 'Đổi app', 'Chạy 1 màn hình': 'Toàn màn', 'Chia màn hình': 'Chia màn', 'Ảnh trong ảnh': 'Cửa sổ nổi', 'Chạy nền': 'Chạy nền', 'Tắt hẳn app': 'Tắt app' };
 const abar = single => ACT(ICON.HM_APPS, 'Chọn app mới') + (single ? ACT(ICON.HM_SPLIT, 'Chia màn hình') : ACT(ICON.HM_FULL, 'Chạy 1 màn hình'))
-  + ACT(ICON.HM_FLOAT, 'Ảnh trong ảnh') + ACT(ICON.HM_MIN, 'Chạy nền') + ACT(ICON.HM_CLOSE, 'Tắt hẳn app', 'x');
+  + ACT(ICON.HM_FLOAT, 'Ảnh trong ảnh') + ACT(ICON.HM_MIN, 'Chạy nền') + '<span class="sep"></span>' + ACT(ICON.HM_CLOSE, 'Tắt hẳn app', 'x');
 const ABAR = abar(false), ABAR_MAX = abar(true);
 // Thanh ti le: hinh mo ta nhu ban cu (SCPCRatioGlyph), khong dung so - 1/3 · 1/2 · 2/3 cho o ben trai
 function ratioGlyph(fr) {
@@ -444,7 +474,7 @@ document.querySelectorAll('.cs svg').forEach((s, i) => {});   // logo trong man 
 
 // ---------- Bang mau ----------
 const PAL = [['#B7A6FF', 'Oải hương', 'nền chất lỏng'], ['#8FD3FF', 'Xanh trời', 'nền chất lỏng'], ['#9DF2D8', 'Bạc hà', 'nền chất lỏng'], ['#FFC2D6', 'Đào', 'nền chất lỏng'],
-  ['linear-gradient(135deg,#8B7CFF,#5AB8FF)', 'Gradient nhấn', 'đang chọn / Enter / Shift'], ['rgba(255,255,255,.6)', 'Kính trắng', 'bảng / thanh / thẻ / phím'],
+  ['conic-gradient(from 210deg,#A78BFA,#60C5FA,#5EDDB6,#F59AC0,#A78BFA)', 'Viền cầu vồng', 'đang chọn trên màn xe'], ['linear-gradient(135deg,#9B87F8,#5DB4F6)', 'Gradient nhấn', 'nút chính / Enter / Mở lại'], ['#4A4F80', 'Chàm dịu', 'icon trên màn xe'], ['rgba(255,255,255,.6)', 'Kính trắng', 'bảng / thanh / thẻ / phím'],
   ['#34C759', 'Xanh lá', 'công tắc bật'], ['#FF5A5F', 'Đỏ', 'dấu X đóng, giới hạn tốc độ'], ['#1F2233', 'Mực', 'chữ, icon']];
 document.getElementById('pal').innerHTML = PAL.map(([c, n, u]) => `<div class="sw"><i style="background:${c};${c.startsWith('rgba') ? 'background-image:linear-gradient(rgba(255,255,255,.6),rgba(255,255,255,.6)),linear-gradient(135deg,#B7A6FF,#8FD3FF,#9DF2D8)' : ''}"></i><div><b>${n}</b>${c.startsWith('#') ? c : ''}<br><span>${u}</span></div></div>`).join('');
 
