@@ -36,7 +36,6 @@
 "Good evening" = "สวัสดีตอนเย็น";
 "Good morning" = "อรุณสวัสดิ์";
 "Heavy rain" = "ฝนตกหนัก";
-"Late night" = "ดึกแล้ว";
 "Layout" = "เลย์เอาต์";
 "Layouts" = "เลย์เอาต์";
 "Needs at least 2 panes" = "ต้องมีอย่างน้อย 2 ช่อง";
@@ -74,3 +73,5 @@
 "Background" = "พื้นหลัง";
 "Quit app" = "ปิดแอป";
 "Split" = "แยกจอ";
+"Your car is ready" = "รถของคุณพร้อมแล้ว";
+"Your car is ready, %@" = "รถของคุณพร้อมแล้ว %@";

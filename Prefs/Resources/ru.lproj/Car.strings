@@ -35,7 +35,6 @@
 "Good evening" = "Добрый вечер";
 "Good morning" = "Доброе утро";
 "Heavy rain" = "Сильный дождь";
-"Late night" = "Доброй ночи";
 "Layout" = "Раскладка";
 "Layouts" = "Раскладки";
 "Needs at least 2 panes" = "Нужно минимум 2 панели";
@@ -73,3 +72,5 @@
 "Background" = "Фон";
 "Quit app" = "Закрыть";
 "Split" = "Разделить";
+"Your car is ready" = "Ваш автомобиль готов";
+"Your car is ready, %@" = "Ваш автомобиль готов, %@";

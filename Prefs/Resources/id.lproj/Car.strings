@@ -36,7 +36,6 @@
 "Good evening" = "Selamat malam";
 "Good morning" = "Selamat pagi";
 "Heavy rain" = "Hujan lebat";
-"Late night" = "Sudah larut malam";
 "Layout" = "Tata letak";
 "Layouts" = "Tata letak";
 "Needs at least 2 panes" = "Perlu minimal 2 panel";
@@ -74,3 +73,5 @@
 "Background" = "Latar";
 "Quit app" = "Tutup app";
 "Split" = "Bagi";
+"Your car is ready" = "Mobil Anda siap";
+"Your car is ready, %@" = "Mobil Anda siap, %@";

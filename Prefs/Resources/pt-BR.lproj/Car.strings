@@ -36,7 +36,6 @@
 "Good evening" = "Boa noite";
 "Good morning" = "Bom dia";
 "Heavy rain" = "Chuva forte";
-"Late night" = "Já é tarde";
 "Layout" = "Layout";
 "Layouts" = "Layouts";
 "Needs at least 2 panes" = "Requer pelo menos 2 painéis";
@@ -74,3 +73,5 @@
 "Background" = "Segundo plano";
 "Quit app" = "Fechar app";
 "Split" = "Dividir";
+"Your car is ready" = "Seu carro está pronto";
+"Your car is ready, %@" = "Seu carro está pronto, %@";

@@ -63,7 +63,7 @@ const rnd = (a, b) => a + Math.random() * (b - a);
 const FONT = '-apple-system, "SF Pro Rounded", "SF Pro Display", "Segoe UI", Roboto, sans-serif';
 function greet() {
   const h = new Date().getHours();
-  return h < 5 ? 'Khuya rồi' : h < 11 ? 'Chào buổi sáng' : h < 17 ? 'Chào buổi chiều' : h < 21 ? 'Chào buổi tối' : 'Khuya rồi';
+  return h >= 5 && h < 11 ? 'Chào buổi sáng' : h >= 11 && h < 17 ? 'Chào buổi chiều' : 'Chào buổi tối';   // khuya cung 'Chào buổi tối'
 }
 function text(s, x, y, size, alpha = 1, weight = 700, color = '255,255,255', align = 'center') {
   ctx.save();
@@ -128,8 +128,7 @@ function sceneEngine(t, o) {
   });
   const a = span(t, 2.2, 2.9);
   text(o.car, W / 2, 300 - 10 * (1 - out(a)), 70, a, 800);
-  text(`${greet()}, ${o.name}`, W / 2, 380, 30, span(t, 2.6, 3.3), 600);
-  text(time(), W / 2, 450, 24, span(t, 2.9, 3.6) * .7, 500);
+  text(o.name ? `Xe của bạn đã sẵn sàng, ${o.name}` : 'Xe của bạn đã sẵn sàng', W / 2, 390, 30, span(t, 2.6, 3.3), 600);   // khong loi chao, khong gio
 }
 
 // ---------------------------------------------------------------- 2. Ánh sáng chào

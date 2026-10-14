@@ -36,7 +36,6 @@
 "Good evening" = "좋은 저녁이에요";
 "Good morning" = "좋은 아침이에요";
 "Heavy rain" = "폭우";
-"Late night" = "늦은 밤이에요";
 "Layout" = "레이아웃";
 "Layouts" = "레이아웃";
 "Needs at least 2 panes" = "2개 이상의 창이 필요함";
@@ -74,3 +73,5 @@
 "Background" = "백그라운드";
 "Quit app" = "앱 종료";
 "Split" = "분할";
+"Your car is ready" = "차량이 준비되었습니다";
+"Your car is ready, %@" = "%@님, 차량이 준비되었습니다";

@@ -35,7 +35,6 @@
 "Good evening" = "こんばんは";
 "Good morning" = "おはようございます";
 "Heavy rain" = "大雨";
-"Late night" = "夜遅くまでお疲れさまです";
 "Layout" = "レイアウト";
 "Layouts" = "レイアウト";
 "Needs at least 2 panes" = "2つ以上の枠が必要です";
@@ -73,3 +72,5 @@
 "Background" = "裏で実行";
 "Quit app" = "アプリ終了";
 "Split" = "分割";
+"Your car is ready" = "車の準備ができました";
+"Your car is ready, %@" = "%@さん、車の準備ができました";

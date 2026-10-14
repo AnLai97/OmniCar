@@ -35,7 +35,6 @@
 "Good evening" = "晚上好";
 "Good morning" = "早上好";
 "Heavy rain" = "大雨";
-"Late night" = "夜深了";
 "Layout" = "布局";
 "Layouts" = "布局";
 "Needs at least 2 panes" = "至少需要 2 格";
@@ -73,3 +72,5 @@
 "Background" = "后台运行";
 "Quit app" = "关闭应用";
 "Split" = "分屏";
+"Your car is ready" = "您的车已就绪";
+"Your car is ready, %@" = "您的车已就绪，%@";

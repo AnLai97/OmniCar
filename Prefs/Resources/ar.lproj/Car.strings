@@ -36,7 +36,6 @@
 "Good evening" = "مساء الخير";
 "Good morning" = "صباح الخير";
 "Heavy rain" = "أمطار غزيرة";
-"Late night" = "سهرة طيبة";
 "Layout" = "التخطيط";
 "Layouts" = "التخطيطات";
 "Needs at least 2 panes" = "يلزم جزآن على الأقل";
@@ -74,3 +73,5 @@
 "Background" = "في الخلفية";
 "Quit app" = "إنهاء التطبيق";
 "Split" = "تقسيم";
+"Your car is ready" = "سيارتك جاهزة";
+"Your car is ready, %@" = "سيارتك جاهزة، %@";
