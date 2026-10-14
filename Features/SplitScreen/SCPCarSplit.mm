@@ -5036,25 +5036,30 @@ static UIImage *SCPCSplitImage(CGFloat side)
     return [img imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
 }
 
-// O cua nut Split Screen tren dock: nen logo 4 mau dac, vien trang 1pt, quang tim nhat de noi tren dock den
-static void SCPCDockTile(UIView *v, CGFloat radius)
+// Nut Split Screen tren dock ve thanh MOT anh (tools/preview/theme.html .dock .split): o nen logo 4 mau dac, vien trang
+// 1pt, glyph 2 khung mau cham net 2.6 o giua (66 % o). Mot anh duy nhat vi UIButton + mesh chen duoi tung lam glyph
+// khong hien tren xe (lop con cua UIButton de len / tint khong ap).
+static UIImage *SCPCDockTileImage(CGFloat side, CGFloat radius)
 {
-    v.backgroundColor = [UIColor clearColor];
-    v.layer.cornerRadius = radius;
-    v.layer.cornerCurve = kCACornerCurveContinuous;
-    v.layer.shadowColor = SCPCAccent().CGColor;
-    v.layer.shadowOpacity = 0.35; v.layer.shadowRadius = 4; v.layer.shadowOffset = CGSizeMake(0, 1);
-    UIImageView *mesh = [[UIImageView alloc] initWithImage:OMCLogoMeshImage(YES)];
-    mesh.frame = v.bounds;
-    mesh.contentMode = UIViewContentModeScaleToFill;
-    mesh.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-    mesh.layer.cornerRadius = radius;
-    mesh.layer.cornerCurve = kCACornerCurveContinuous;
-    mesh.layer.borderWidth = 1;
-    mesh.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.85].CGColor;
-    mesh.clipsToBounds = YES;
-    mesh.userInteractionEnabled = NO;
-    [v insertSubview:mesh atIndex:0];
+    UIGraphicsImageRendererFormat *f = [UIGraphicsImageRendererFormat preferredFormat];
+    f.opaque = NO;
+    UIImage *glyph = SCPCGlyph(@"hm_split_dock", round(side * 0.66), NO);
+    UIImage *mesh = OMCLogoMeshImage(YES);
+    return [[[UIGraphicsImageRenderer alloc] initWithSize:CGSizeMake(side, side) format:f] imageWithActions:^(UIGraphicsImageRendererContext *rc) {
+        CGRect box = CGRectMake(0, 0, side, side);
+        UIBezierPath *shape = [UIBezierPath bezierPathWithRoundedRect:box cornerRadius:radius];
+        CGContextSaveGState(rc.CGContext);
+        [shape addClip];
+        [mesh drawInRect:box];
+        CGContextRestoreGState(rc.CGContext);
+        [[UIColor colorWithWhite:1 alpha:0.85] setStroke];
+        UIBezierPath *rim = [UIBezierPath bezierPathWithRoundedRect:CGRectInset(box, 0.5, 0.5) cornerRadius:radius - 0.5];
+        rim.lineWidth = 1;
+        [rim stroke];
+        CGSize g = glyph.size;
+        [[glyph imageWithTintColor:SCPCInk() renderingMode:UIImageRenderingModeAlwaysOriginal]
+            drawInRect:CGRectMake((side - g.width) / 2, (side - g.height) / 2, g.width, g.height)];
+    }];
 }
 
 // Mau luoi app cua nut Home (o vuong nho co backgroundColor, hoac anh template co tint) de nut Split Screen cung mau
@@ -5209,10 +5214,23 @@ static void SCPCStatusBottom(UIView *v, UIView *parent, CGRect strip, int depth,
     BOOL bare = ![self.launcherWhere hasPrefix:@"goc"];
     if (!self.homeButton || fabs(self.homeButton.bounds.size.width - size) > 0.5 || self.launcherBare != bare) {
         [self.homeButton removeFromSuperview];
-        UIButton *b = bare ? SCPCRoundButton(SCPCGlyph(@"hm_split_dock", round(size * 0.66), NO), self, @selector(homeButtonTapped))
-                           : SCPCCircleButton(SCPCSplitImage(size * 0.9), size, self, @selector(homeButtonTapped));
-        b.bounds = CGRectMake(0, 0, size, size);
-        if (bare) SCPCDockTile(b, size * 0.28);
+        UIButton *b;
+        if (bare) {
+            // Ca o (nen, vien, glyph) la mot anh goc -> khong qua tint / lop con cua UIButton
+            b = [SCPCButton buttonWithType:UIButtonTypeCustom];
+            [b setImage:SCPCDockTileImage(size, size * 0.28) forState:UIControlStateNormal];
+            b.adjustsImageWhenHighlighted = NO;
+            [b addTarget:self action:@selector(homeButtonTapped) forControlEvents:UIControlEventTouchUpInside];
+            b.bounds = CGRectMake(0, 0, size, size);
+            b.layer.cornerRadius = size * 0.28;
+            b.layer.cornerCurve = kCACornerCurveContinuous;
+            b.layer.shadowColor = SCPCAccent().CGColor;   // quang tim nhat de noi tren dock den
+            b.layer.shadowOpacity = 0.35; b.layer.shadowRadius = 4; b.layer.shadowOffset = CGSizeMake(0, 1);
+            SCPLog("CarSplit: nut Split Screen tren dock %.0fpt (anh %@)", size, NSStringFromCGSize([b imageForState:UIControlStateNormal].size));
+        } else {
+            b = SCPCCircleButton(SCPCSplitImage(size * 0.9), size, self, @selector(homeButtonTapped));
+            b.bounds = CGRectMake(0, 0, size, size);
+        }
         self.homeButton = b;
         self.launcherBare = bare;
     }
