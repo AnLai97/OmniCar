@@ -56,6 +56,19 @@ static void SCPIconsHookError(const char *where, NSException *e)
     @try { SCPHomeApply((UIViewController *)self); } @catch (NSException *e) { SCPIconsHookError("SCPHomeApply", e); }
 }
 
+// Hinh nen dong chi chay khi man chinh dang hien
+- (void)viewDidAppear:(BOOL)animated
+{
+    %orig;
+    @try { SCPHomeSetVisible(YES); } @catch (NSException *e) { SCPIconsHookError("SCPHomeSetVisible", e); }
+}
+
+- (void)viewDidDisappear:(BOOL)animated
+{
+    %orig;
+    @try { SCPHomeSetVisible(NO); } @catch (NSException *e) { SCPIconsHookError("SCPHomeSetVisible", e); }
+}
+
 %end
 
 // DashBoard sap mo app theo declaration gia (duong khac ngoai _launchAppWithInfo:, vi du mo lai app cuoi khi cam xe):

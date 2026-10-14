@@ -249,16 +249,39 @@ Những thứ DuoDash không có. Đây là nội dung chính cho video quảng 
 
 ### 3.1 Màn chính CarPlay
 
-- [ ] [ ] **3.1.1 Hình nền theo giờ** · Thấp
+Code chung (chưa thử trên xe): cùng trang App trên màn xe và SCPHomeScreen.mm như 2.1, key HS_KEY_* trong AppBridge.h;
+bản xem trước tools/preview/home.html (nút ☀︎ / ☾ trên màn xe mô phỏng). Chỉ có tác dụng khi bật Màn chính OmniCar.
+
+- [x] [ ] **3.1.1 Hình nền theo giờ** · Thấp
   Hai ảnh ngày / đêm, tự đổi theo giờ mặt trời mọc / lặn hoặc theo chế độ sáng / tối của xe.
-- [ ] [ ] **3.1.2 Hình nền động** · Vừa
+  Code: thẻ Hình nền có Ban ngày / Ban đêm (HS_KEY_NIGHT_STYLE, ảnh đêm HomeScreen/wallpaper-night.jpg, "Như ban ngày" = tắt),
+  Đổi sang đêm: Theo xe (traitCollection sáng / tối của màn xe) hoặc Mặt trời (giờ mọc / lặn tính từ vị trí iOS biết gần
+  nhất, không có thì 6:00 / 18:00) (HS_KEY_NIGHT_BY). Trên xe kiểm tra lại mỗi 30 giây, ảnh đổi mờ dần.
+  Thử: đêm chọn hình Đêm, Theo xe → bật / tắt đèn pha (hoặc giao diện tối của xe): hình đổi trong 30 giây; log "hinh nen dem".
+- [x] [ ] **3.1.2 Hình nền động** · Vừa
   Video ngắn lặp hoặc ảnh động làm nền, tự dừng khi máy nóng hoặc khi đang chia màn.
-- [ ] [ ] **3.1.3 Hình dạng và gói icon** · Vừa
+  Code: Từ Ảnh nhận cả video → cắt 20 giây đầu, 1280 px, bỏ tiếng (HomeScreen/video.mp4 + khung đầu video.jpg), ô Video
+  của bạn dùng được cho ngày hoặc đêm (kiểu 8). Trên xe AVPlayerLooper không tiếng; dừng khi máy nóng (thermal ≥ serious),
+  chế độ nhẹ, đang chia màn, hoặc màn chính bị che (viewDidDisappear). Video không làm mờ, chỉ phủ độ tối.
+  Thử: chọn một video 1 phút → còn 20 giây lặp; mở app toàn màn / chia màn → log "hinh nen dong dung", về màn chính → "chay".
+- [x] [ ] **3.1.3 Hình dạng và gói icon** · Vừa
   Bo tròn / vuông / tròn hẳn, viền kính, bóng; dùng gói icon có sẵn trên máy (theo chuẩn IconBundles) cho màn xe.
-- [ ] [ ] **3.1.4 Thư mục và trang riêng** · Vừa
+  Code: thẻ Bố cục icon thêm Hình dạng (HS_KEY_ICON_SHAPE), Viền kính, Bóng, Gói icon (HS_KEY_ICON_THEME = thư mục trong
+  /Library/Themes có IconBundles, đọc <bundle id>-large.png / <bundle id>.png @2x / @3x; app thiếu trong gói giữ icon gốc).
+  Áp cho lưới, dock tuỳ chỉnh, thư mục; xem trước và chip trong Cài đặt cũng đổi theo.
+  Thử: cài một gói IconBundles (vd. từ Sileo), chọn → icon trên xe đổi; nếu không đổi, xem CarPlay có đọc được /var/jb/Library/Themes không.
+- [x] [ ] **3.1.4 Thư mục và trang riêng** · Vừa
   Gom app vào thư mục trên màn chính CarPlay; một trang riêng cho app iPhone (App Bridge).
-- [ ] [ ] **3.1.5 Widget trên màn chính** · Vừa
+  Code: thẻ Thư mục: Thư mục mới (tên + chọn app), chạm thư mục → Chọn app / Đổi tên / Xoá (HS_KEY_FOLDERS, mỗi app một
+  thư mục). Trên xe thư mục nằm ở chỗ app đầu tiên của nó, ô kính 4 icon nhỏ; chạm mở thẻ kính giữa màn, chạm ngoài để đóng.
+  Trang riêng cho app iPhone (HS_KEY_PHONE_PAGE): app iPhone bắt đầu ở trang mới sau app CarPlay.
+  Thử: tạo thư mục 3 app → chạm mở, mở app trong thư mục; bật trang riêng → app iPhone sang trang sau; rút / cắm lại vẫn giữ.
+- [x] [ ] **3.1.5 Widget trên màn chính** · Vừa
   Đặt đồng hồ, thời tiết, nhạc đang phát… thành ô lớn ngay trên màn chính CarPlay (dùng chung phần Ô tiện ích).
+  Code: thẻ Widget: Đồng hồ / Thời tiết / Đang phát, tối đa 2 (HS_KEY_WIDGETS), thành cột thẻ kính bên trái lưới (200–280 pt).
+  Thời tiết: Open-Meteo theo vị trí iOS biết gần nhất, 30 phút một lần, chung bộ nhớ với Màn hình khởi động. Đang phát:
+  MediaRemote (tên bài, ca sĩ, ảnh bìa, nút phát / dừng).
+  Thử: bật Đồng hồ + Đang phát, mở nhạc → tên bài đổi theo, nút phát / dừng chạy; log "widget". Thời tiết "—" = CarPlay chưa có quyền vị trí.
 
 ### 3.2 Màn hình khởi động
 

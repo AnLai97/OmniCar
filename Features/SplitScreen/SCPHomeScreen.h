@@ -13,6 +13,8 @@ void SCPHomeApply(UIViewController *homeVC);
 void SCPHomeApplyDock(UIViewController *rootVC);
 // Cai dat doi (prefschanged): doc lai, ve lai
 void SCPHomeRefresh(void);
+// Man chinh vua hien / bi app toan man che (viewDidAppear / viewDidDisappear): hinh nen dong chay / dung
+void SCPHomeSetVisible(BOOL visible);
 #ifdef __cplusplus
 }
 #endif
