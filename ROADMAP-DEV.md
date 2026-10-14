@@ -208,7 +208,8 @@ xem trước ngay trong Cài đặt. Âm thanh phát qua loa xe khi CarPlay kế
 - [x] **Sao lưu / khôi phục cài đặt** · Thấp
   Xuất một file `.omnicar`, mở file là nạp lại (bố cục, màn chính, kiểu khởi động, kiểu bong bóng, ảnh / video / âm thanh đã chọn).
   Code: Prefs/OMCBackup.m: file .omnicar (plist: cài đặt + file dữ liệu ≤ 200 MB), Hỗ trợ > Sao lưu / Khôi phục.
-  Chưa làm: mở file .omnicar thẳng từ Tệp / AirDrop (cần khai báo UTI trong App/).
+  Mở file .omnicar thẳng từ Tệp / AirDrop / Zalo: app OmniCar khai báo kiểu com.anlai.omnicar.backup (App/Resources/Info.plist),
+  chép file vào OmniCar/Inbox rồi mở Cài đặt > OmniCar, trang chính hỏi khôi phục (OMCBackupOfferImported). Chờ thử trên máy.
 - [x] **Có gì mới** · Thấp
   Sau mỗi bản cập nhật hiện một trang ngắn trong Cài đặt.
   Code: Prefs/OMCWhatsNewController.m + Resources/WhatsNew.plist (theo phiên bản trong control), tự hiện 1 lần sau mỗi bản

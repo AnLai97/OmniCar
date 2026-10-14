@@ -341,9 +341,24 @@ static char kOMCBackupPickerKey;
 
 @end
 
+BOOL OMCBackupOfferImported(UIViewController *vc, void (^done)(void)) {
+	NSFileManager *fm = [NSFileManager defaultManager];
+	NSString *inbox = OMC_BACKUP_INBOX;
+	if (vc.presentedViewController || ![fm fileExistsAtPath:inbox]) return NO;
+	NSString *taken = [NSTemporaryDirectory() stringByAppendingPathComponent:@"Import.omnicar"];
+	[fm removeItemAtPath:taken error:nil];
+	if (![fm moveItemAtPath:inbox toPath:taken error:nil]) return NO;
+	OMCBackupPicker *flow = [OMCBackupPicker new];
+	flow.host = vc;
+	flow.done = done;
+	objc_setAssociatedObject(vc, &kOMCBackupPickerKey, flow, OBJC_ASSOCIATION_RETAIN_NONATOMIC);   // alive while the alerts run
+	[flow readURL:[NSURL fileURLWithPath:taken]];
+	return YES;
+}
+
 void OMCBackupPickAndRestore(UIViewController *vc, void (^done)(void)) {
 	if (vc.presentedViewController) return;
-	// .omnicar has no registered type: accept any data file and let OMCBackupRead check the format.
+	// Accept any data file (backups made before the .omnicar type was registered too) and let OMCBackupRead check it.
 	UIDocumentPickerViewController *picker = [[UIDocumentPickerViewController alloc] initForOpeningContentTypes:@[UTTypeData] asCopy:YES];
 	OMCBackupPicker *delegate = [OMCBackupPicker new];
 	delegate.host = vc;

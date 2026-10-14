@@ -307,6 +307,9 @@
 
 - (void)viewDidAppear:(BOOL)animated {
 	[super viewDidAppear:animated];
+	// A .omnicar opened from Files / AirDrop (App/main.m put it in the inbox): offer to restore it first
+	__weak typeof(self) weakSelf = self;
+	if (OMCBackupOfferImported(self, ^{ [weakSelf rebuildPage]; })) return;
 	static BOOL offered;
 	if (offered || self.presentedViewController) return;
 	if ([OMCOnboardingController shouldShow]) {

@@ -12,6 +12,8 @@
 #define OMC_BACKUP_EXTENSION  @"omnicar"
 // Files under OMC_DATA_ROOT go in until their total reaches this; the rest are skipped and named in a warning.
 #define OMC_BACKUP_MAX_BYTES  (200ULL * 1024 * 1024)
+// A .omnicar opened from Files / AirDrop lands here (App/main.m copies it, = OMC_BACKUP_INBOX there)
+#define OMC_BACKUP_INBOX      [OMC_DATA_ROOT stringByAppendingPathComponent:@"Inbox/Import.omnicar"]
 
 #ifdef __cplusplus
 extern "C" {
@@ -31,6 +33,9 @@ BOOL OMCBackupRestore(NSDictionary *backup, NSError **error);
 // UI flows started from the root page rows. done runs on the main queue after a successful restore.
 void OMCBackupShare(UIViewController *vc);
 void OMCBackupPickAndRestore(UIViewController *vc, void (^done)(void));
+// A backup waiting in OMC_BACKUP_INBOX (opened from another app): read it, confirm, restore, like the picker.
+// The inbox file is taken (moved to tmp) first, so it is offered once. NO when there is none.
+BOOL OMCBackupOfferImported(UIViewController *vc, void (^done)(void));
 
 #ifdef __cplusplus
 }
