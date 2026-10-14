@@ -1,33 +1,14 @@
 /* OmniCar - CarPlay home screen (OMCAppBridgeAppsController) */
 
 "HOMESCREEN_ICON_SIZE" = "ขนาดไอคอน";
-"HOMESCREEN_COLS" = "คอลัมน์";
-"HOMESCREEN_ROWS" = "แถว";
-"HOMESCREEN_GAP" = "ระยะห่าง";
-"HOMESCREEN_NAMES" = "ชื่อใต้ไอคอน";
 "HOMESCREEN_WALLPAPER" = "วอลเปเปอร์";
 "HOMESCREEN_BLUR" = "เบลอ";
 "HOMESCREEN_DIM" = "ความมืด";
-"HOMESCREEN_DOCK" = "Dock";
-"HOMESCREEN_DOCK_FOOTER" = "แอปที่ปักหมุดจะแทนคำแนะนำของ CarPlay (สูงสุด 4 รวมแอป iPhone) ไม่ปักหมุด: ตามสวิตช์ด้านล่าง";
-"HOMESCREEN_DOCK_SUGGEST" = "คำแนะนำของ CarPlay";
-"HOMESCREEN_DOCK_FULL" = "Dock มีครบ 4 แอปแล้ว ถอนหมุดแอปหนึ่งก่อน";
 "HOMESCREEN_WALLPAPER_DEFAULT" = "ค่าเริ่มต้น";
-"HOMESCREEN_DOCK_ADD" = "+ เพิ่ม";
-"HOMESCREEN_DOCK_PICK" = "เพิ่มลงใน Dock";
 
 /* One page: Apps on the car screen */
 "APPS_TITLE" = "แอปบนรถ";
-"APPS_CARD" = "แอป";
-"APPS_SUMMARY" = "แสดง %ld / %ld";
-"APPS_ALL" = "ทั้งหมด";
 "APPS_SYSTEM" = "ระบบ";
-"APPS_HINT" = "👁 แสดง / ซ่อน · ลาก ≡ · 📌 Dock";
-"APPS_RESET" = "ค่าเริ่มต้น";
-"APPS_LAYOUT" = "การจัดไอคอน";
-"APPS_DOCK_PINNED" = "ปักหมุด %ld";
-"APPS_DOCK_SUGGEST_SHORT" = "คำแนะนำ CarPlay";
-"APPS_DOCK_EMPTY" = "ว่าง";
 "APPS_WALL_0" = "ค่าเริ่มต้น";
 "APPS_WALL_1" = "มหาสมุทร";
 "APPS_WALL_2" = "พระอาทิตย์ตก";
@@ -37,9 +18,10 @@
 "APPS_WALL_6" = "ป่า";
 "APPS_WALL_7" = "รูปของคุณ";
 
-"APPS_LAYOUT_FOOTER" = "ตารางจะลดคอลัมน์ / แถวเมื่อไอคอนใหญ่เกินหน้าจอรถ แอปที่เหลือจะไปอยู่หน้าถัดไป";
 "APPS_WALL_8" = "วิดีโอของคุณ";
 "APPS_FROM_PHOTOS" = "จากรูปภาพ (ภาพหรือวิดีโอ)";
 "APPS_VIDEO_WORKING" = "กำลังเตรียมวิดีโอ…";
 "APPS_VIDEO_FAILED" = "ใช้วิดีโอนี้ไม่ได้";
 "APPS_WALL_FOOTER" = "รูปภาพจะถูกครอบตามหน้าจอรถ เพิ่มความมืดเพื่อให้ไอคอนอ่านง่าย วิดีโอจะวนซ้ำแบบไม่มีเสียง (20 วินาทีแรก) และหยุดชั่วคราวเมื่อเครื่องร้อน เปิดโหมดเบา แบ่งหน้าจอ หรือมีแอปบังหน้าจอหลัก";
+"APPS_PHONE" = "แอป iPhone";
+"HOMESCREEN_ICON_SIZE_FOOTER" = "ขนาดไอคอนบนหน้าโฮมของ CarPlay; 100 % คือขนาดเดิมของ CarPlay คอลัมน์และแถวยังจัดโดย CarPlay";

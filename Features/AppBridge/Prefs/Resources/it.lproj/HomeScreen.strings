@@ -1,33 +1,14 @@
 /* OmniCar - CarPlay home screen (OMCAppBridgeAppsController) */
 
 "HOMESCREEN_ICON_SIZE" = "Dimensione icone";
-"HOMESCREEN_COLS" = "Colonne";
-"HOMESCREEN_ROWS" = "Righe";
-"HOMESCREEN_GAP" = "Spaziatura";
-"HOMESCREEN_NAMES" = "Nomi sotto le icone";
 "HOMESCREEN_WALLPAPER" = "Sfondo";
 "HOMESCREEN_BLUR" = "Sfocatura";
 "HOMESCREEN_DIM" = "Oscuramento";
-"HOMESCREEN_DOCK" = "Dock";
-"HOMESCREEN_DOCK_FOOTER" = "Le app fissate sostituiscono i suggerimenti di CarPlay (fino a 4, anche app iPhone). Nessuna fissata: vale l'interruttore sotto.";
-"HOMESCREEN_DOCK_SUGGEST" = "Suggerimenti CarPlay";
-"HOMESCREEN_DOCK_FULL" = "Il dock ha già 4 app. Sblocca prima un'app.";
 "HOMESCREEN_WALLPAPER_DEFAULT" = "Predefinito";
-"HOMESCREEN_DOCK_ADD" = "+ Aggiungi";
-"HOMESCREEN_DOCK_PICK" = "Aggiungi al dock";
 
 /* One page: Apps on the car screen */
 "APPS_TITLE" = "App sull'auto";
-"APPS_CARD" = "App";
-"APPS_SUMMARY" = "%ld / %ld visibili";
-"APPS_ALL" = "Tutte";
 "APPS_SYSTEM" = "Sistema";
-"APPS_HINT" = "👁 mostra / nascondi · trascina ≡ · 📌 dock";
-"APPS_RESET" = "Predefinito";
-"APPS_LAYOUT" = "Layout icone";
-"APPS_DOCK_PINNED" = "%ld fissate";
-"APPS_DOCK_SUGGEST_SHORT" = "Suggerimenti CarPlay";
-"APPS_DOCK_EMPTY" = "Vuoto";
 "APPS_WALL_0" = "Predefinito";
 "APPS_WALL_1" = "Oceano";
 "APPS_WALL_2" = "Tramonto";
@@ -37,9 +18,10 @@
 "APPS_WALL_6" = "Foresta";
 "APPS_WALL_7" = "La tua foto";
 
-"APPS_LAYOUT_FOOTER" = "La griglia toglie colonne / righe quando le icone non entrano nello schermo dell’auto; le altre app vanno alla pagina successiva.";
 "APPS_WALL_8" = "Il tuo video";
 "APPS_FROM_PHOTOS" = "Da Foto (immagine o video)";
 "APPS_VIDEO_WORKING" = "Preparazione del video…";
 "APPS_VIDEO_FAILED" = "Impossibile usare questo video.";
 "APPS_WALL_FOOTER" = "Le immagini vengono ritagliate sullo schermo dell’auto; alza lo scurimento per tenere leggibili le icone. Un video va in loop senza audio (primi 20 s) e si ferma quando l’iPhone è caldo, la modalità leggera è attiva, lo schermo è diviso o un’app copre la schermata Home.";
+"APPS_PHONE" = "App iPhone";
+"HOMESCREEN_ICON_SIZE_FOOTER" = "Dimensione delle icone nella schermata Home di CarPlay; 100 % è la dimensione di CarPlay. Colonne e righe restano quelle di CarPlay.";

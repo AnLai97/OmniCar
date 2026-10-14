@@ -6,3 +6,5 @@
 "APPBRIDGE_APPS_COUNT" = "Приложений: %ld";
 "APPBRIDGE_APPS_SEARCH" = "Поиск приложений";
 "APPBRIDGE_APPS_NO_MATCH" = "Нет подходящих приложений.";
+"APPBRIDGE_APPS_FOOTER" = "Включите приложение, чтобы его значок появился на главном экране CarPlay.";
+"APPBRIDGE_APPS_OTHER_FOOTER" = "Приложения со своим интерфейсом CarPlay не показаны.";

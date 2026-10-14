@@ -1,33 +1,14 @@
 /* OmniCar - CarPlay home screen (OMCAppBridgeAppsController) */
 
 "HOMESCREEN_ICON_SIZE" = "حجم الأيقونات";
-"HOMESCREEN_COLS" = "الأعمدة";
-"HOMESCREEN_ROWS" = "الصفوف";
-"HOMESCREEN_GAP" = "التباعد";
-"HOMESCREEN_NAMES" = "الأسماء تحت الأيقونات";
 "HOMESCREEN_WALLPAPER" = "الخلفية";
 "HOMESCREEN_BLUR" = "التمويه";
 "HOMESCREEN_DIM" = "التعتيم";
-"HOMESCREEN_DOCK" = "Dock";
-"HOMESCREEN_DOCK_FOOTER" = "التطبيقات المثبتة تحل محل اقتراحات CarPlay (حتى 4، تشمل تطبيقات iPhone). بلا تثبيت: حسب المفتاح أدناه.";
-"HOMESCREEN_DOCK_SUGGEST" = "اقتراحات CarPlay";
-"HOMESCREEN_DOCK_FULL" = "يحتوي الـ Dock على 4 تطبيقات. ألغِ تثبيت واحد أولًا.";
 "HOMESCREEN_WALLPAPER_DEFAULT" = "افتراضي";
-"HOMESCREEN_DOCK_ADD" = "+ إضافة";
-"HOMESCREEN_DOCK_PICK" = "إضافة إلى الـ Dock";
 
 /* One page: Apps on the car screen */
 "APPS_TITLE" = "التطبيقات على السيارة";
-"APPS_CARD" = "التطبيقات";
-"APPS_SUMMARY" = "%ld / %ld ظاهرة";
-"APPS_ALL" = "الكل";
 "APPS_SYSTEM" = "النظام";
-"APPS_HINT" = "👁 إظهار / إخفاء · اسحب ≡ · 📌 Dock";
-"APPS_RESET" = "افتراضي";
-"APPS_LAYOUT" = "تخطيط الأيقونات";
-"APPS_DOCK_PINNED" = "%ld مثبتة";
-"APPS_DOCK_SUGGEST_SHORT" = "اقتراحات CarPlay";
-"APPS_DOCK_EMPTY" = "فارغ";
 "APPS_WALL_0" = "افتراضي";
 "APPS_WALL_1" = "محيط";
 "APPS_WALL_2" = "غروب";
@@ -37,9 +18,10 @@
 "APPS_WALL_6" = "غابة";
 "APPS_WALL_7" = "صورتك";
 
-"APPS_LAYOUT_FOOTER" = "تقلّل الشبكة الأعمدة / الصفوف عندما لا تتسع الأيقونات لشاشة السيارة؛ وتنتقل التطبيقات الإضافية إلى الصفحة التالية.";
 "APPS_WALL_8" = "الفيديو الخاص بك";
 "APPS_FROM_PHOTOS" = "من الصور (صورة أو فيديو)";
 "APPS_VIDEO_WORKING" = "جارٍ تجهيز الفيديو…";
 "APPS_VIDEO_FAILED" = "تعذّر استخدام هذا الفيديو.";
 "APPS_WALL_FOOTER" = "تُقصّ الصور على مقاس شاشة السيارة؛ ارفع التعتيم لتبقى الأيقونات مقروءة. يعمل الفيديو في حلقة بلا صوت (أول 20 ثانية) ويتوقف مؤقتًا عندما يسخن iPhone أو يُفعَّل الوضع الخفيف أو تُقسَّم الشاشة أو يغطي تطبيق الشاشة الرئيسية.";
+"APPS_PHONE" = "تطبيقات iPhone";
+"HOMESCREEN_ICON_SIZE_FOOTER" = "حجم الأيقونات على الشاشة الرئيسية لـ CarPlay؛ 100 % هو حجم CarPlay الأصلي. تبقى الأعمدة والصفوف كما يرتبها CarPlay.";

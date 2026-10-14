@@ -89,32 +89,22 @@
 // (video playback runs at the video's own rate).
 #define AB_KEY_FPS           @"appBridgeFps"
 // CarPlay home screen (Settings: App on the car screen, one page in OMCAppBridgeAppsController.m; car side:
-// Features/SplitScreen/SCPHomeScreen.mm). There is no switch: as soon as one of the options below differs from CarPlay's
-// own look (an app hidden or sorted, a dock app pinned, the icon layout changed, a wallpaper picked) OmniCar draws its own
-// icon grid over CarPlay's (which is only hidden, never changed) and its own dock icons; with everything at its default
-// CarPlay's home screen is left untouched. HS_KEY_ENABLED of the first builds (a separate "OmniCar home screen" switch)
-// is no longer read.
-#define HS_KEY_ORDER         @"homeScreenOrder"       // [bundle id] user order; apps not in it follow in CarPlay's order
-#define HS_KEY_HIDDEN        @"homeScreenHidden"      // [bundle id] not shown on the home screen (CarPlay apps too)
-#define HS_KEY_ICON_SIZE     @"homeScreenIconSize"    // 80..130 %, default 100
-#define HS_KEY_COLS          @"homeScreenCols"        // 3..7, default 5 (fewer when the icons do not fit the car screen)
-#define HS_KEY_ROWS          @"homeScreenRows"        // 1..3, default 2
-#define HS_KEY_GAP           @"homeScreenGap"         // 60..140 % spacing, default 100
-#define HS_KEY_NAMES         @"homeScreenNames"       // BOOL, default YES: app names under the icons
+// Features/SplitScreen/SCPHomeScreen.mm). CarPlay's own home screen stays as it is; OmniCar only adds two things to it:
+// an icon size (SBIconListGridLayoutConfiguration -iconImageInfo scaled, AppIcons.xm) and a wallpaper view slipped under
+// CarPlay's icon grid. At 100 % with no wallpaper nothing is touched. The first builds' own icon grid, app hiding /
+// sorting, dock, columns / rows / names, folders, widgets, icon packs and day / night wallpaper were dropped in 10/2026;
+// their homeScreen* keys (homeScreenEnabled, homeScreenOrder, homeScreenHidden, homeScreenDock ...) are no longer read.
+#define HS_KEY_ICON_SIZE     @"homeScreenIconSize"    // 60..130 %, default 100 (icon image size on CarPlay's grid)
 #define HS_KEY_WALLPAPER     @"homeScreenWallpaper"   // BOOL: use HS_WALLPAPER_PATH (picked in Settings) as the home wallpaper
 #define HS_KEY_WALLPAPER_STYLE @"homeScreenWallpaperStyle" // 0 default, 1..6 built-in picture, 7 the user's photo, 8 the user's video (HS_VIDEO_PATH)
 #define HS_KEY_BLUR          @"homeScreenBlur"        // 0..30, default 0
 #define HS_KEY_DIM           @"homeScreenDim"         // 0..70 %, default 25
-#define HS_KEY_DOCK          @"homeScreenDock"        // [bundle id] up to 4 apps pinned on the dock, in place of CarPlay's suggestions
-#define HS_KEY_DOCK_SUGGEST  @"homeScreenDockSuggest" // BOOL, default YES: no pinned app -> CarPlay's own dock suggestions
 #define HS_WALLPAPER_PATH    [OMC_DATA_ROOT stringByAppendingPathComponent:@"HomeScreen/wallpaper.jpg"]
 #define HS_PHOTO_PATH        [OMC_DATA_ROOT stringByAppendingPathComponent:@"HomeScreen/photo.jpg"]   // last photo picked (its own tile)
 #define HS_VIDEO_PATH        [OMC_DATA_ROOT stringByAppendingPathComponent:@"HomeScreen/video.mp4"]   // last video picked (≤ 20 s, 1280 px, no sound)
 #define HS_VIDEO_THUMB_PATH  [OMC_DATA_ROOT stringByAppendingPathComponent:@"HomeScreen/video.jpg"]   // its first frame (tile, preview)
 // A video (style 8) plays muted in a loop and pauses while the phone is hot, Lite mode is on, the screen is split or the
-// home screen is covered. (Day / night wallpaper, icon shape / glass / packs, folders, the iPhone page and widgets of the
-// first builds were dropped in 10/2026: their homeScreen* keys are no longer read.)
-#define HS_DOCK_MAX          4
+// home screen is covered.
 // Base scene orientation for hosted apps: 1 portrait (default), 3 landscape.
 #define AB_KEY_ORIENTATION   @"appBridgeOrientation"
 static inline unsigned long long ABBundleHash(NSString *bid)

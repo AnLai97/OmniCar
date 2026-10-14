@@ -6,3 +6,5 @@
 "APPBRIDGE_APPS_COUNT" = "%ld app";
 "APPBRIDGE_APPS_SEARCH" = "Cari app";
 "APPBRIDGE_APPS_NO_MATCH" = "Tidak ada app yang cocok.";
+"APPBRIDGE_APPS_FOOTER" = "Nyalakan app untuk menaruh ikonnya di layar utama CarPlay.";
+"APPBRIDGE_APPS_OTHER_FOOTER" = "App yang memiliki antarmuka CarPlay sendiri tidak dicantumkan.";

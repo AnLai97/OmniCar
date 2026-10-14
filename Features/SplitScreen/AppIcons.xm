@@ -49,7 +49,7 @@ static void SCPIconsHookError(const char *where, NSException *e)
     return r;
 }
 
-// Man chinh CarPlay cua OmniCar (co tuy chinh trong App tren man xe): luoi / hinh nen ve len tren, luoi goc chi an
+// Hinh nen rieng duoi luoi icon + co icon (SCPHomeScreen.mm): man chinh CarPlay giu nguyen
 - (void)viewDidLayoutSubviews
 {
     %orig;
@@ -97,17 +97,45 @@ static void SCPIconsHookError(const char *where, NSException *e)
 
 %end
 
+// Co icon tren man chinh goc cua CarPlay: luoi icon (SBIconListView / DBIconListView) xep theo SBIconListGridLayoutConfiguration
+// cua SpringBoardHome; iconImageInfo (co anh icon, ti le, bo goc) nhan voi he so trong Cai dat (App tren man xe > Co icon).
+// Cot / hang giu nguyen nen chi icon to / nho trong o cua no; nhan ten di theo icon. 100 % = khong doi gi.
+typedef struct {
+    CGSize size;
+    CGFloat scale;
+    CGFloat continuousCornerRadius;
+} SCPIconImageInfo;
+
+%hook SBIconListGridLayoutConfiguration
+
+- (SCPIconImageInfo)iconImageInfo
+{
+    SCPIconImageInfo info = %orig;
+    CGFloat k = 1;
+    @try { k = SCPHomeIconScale(); } @catch (NSException *e) { k = 1; }
+    if (k > 0 && fabs(k - 1) > 0.001) {
+        info.size.width *= k;
+        info.size.height *= k;
+        info.continuousCornerRadius *= k;
+    }
+    return info;
+}
+
+%end
+
 %end // APPICONS
 
 %ctor
 {
     if (![[[NSBundle mainBundle] bundleIdentifier] isEqualToString:@"com.apple.CarPlayApp"]) return;
     if (!OMCCrashGuard(SPL_FEATURE)) return;
-    %init(APPICONS, DashBoard = OMCCarClass("DashBoard"), DBApplicationInfo = OMCCarClass("DBApplicationInfo"), DBDashboardHomeViewController = OMCCarClass("DBDashboardHomeViewController"), DBApplicationLaunchInfo = OMCCarClass("DBApplicationLaunchInfo"));
+    %init(APPICONS, DashBoard = OMCCarClass("DashBoard"), DBApplicationInfo = OMCCarClass("DBApplicationInfo"), DBDashboardHomeViewController = OMCCarClass("DBDashboardHomeViewController"), DBApplicationLaunchInfo = OMCCarClass("DBApplicationLaunchInfo"),
+          SBIconListGridLayoutConfiguration = objc_getClass("SBIconListGridLayoutConfiguration"));
     OMCCheckHooks(@"SplitScreen", @[@"DashBoard +_newApplicationLibrary", @"DBApplicationInfo -_loadFromProxy:",
         @"DBDashboardHomeViewController -initWithEnvironment:", @"DBDashboardHomeViewController -viewDidLayoutSubviews", @"DBApplicationLaunchInfo +launchInfoForApplication:",
-        @"DBApplicationLaunchInfo +launchInfoForApplication:withActivationSettings:"]);
+        @"DBApplicationLaunchInfo +launchInfoForApplication:withActivationSettings:", @"SBIconListGridLayoutConfiguration -iconImageInfo"]);
     if (!OMCCarClass("DashBoard")) SCPLog("AppIcons: khong co lop DashBoard, icon app iPhone khong chen duoc");
+    if (!objc_getClass("SBIconListGridLayoutConfiguration")) SCPLog("HomeScreen: khong co SBIconListGridLayoutConfiguration, Co icon khong doi duoc tren iOS nay");
     // Settings doi danh sach app (hoac bat / tat App Bridge) -> cap nhat thu vien, ve lai man chinh
     static int token;
     notify_register_dispatch("com.anlai.omnicar/prefschanged", &token, dispatch_get_main_queue(), ^(int t) {

@@ -1,33 +1,14 @@
 /* OmniCar - CarPlay home screen (OMCAppBridgeAppsController) */
 
 "HOMESCREEN_ICON_SIZE" = "Icon size";
-"HOMESCREEN_COLS" = "Columns";
-"HOMESCREEN_ROWS" = "Rows";
-"HOMESCREEN_GAP" = "Spacing";
-"HOMESCREEN_NAMES" = "Names under icons";
 "HOMESCREEN_WALLPAPER" = "Wallpaper";
 "HOMESCREEN_BLUR" = "Blur";
 "HOMESCREEN_DIM" = "Darkness";
-"HOMESCREEN_DOCK" = "Dock";
-"HOMESCREEN_DOCK_FOOTER" = "Pinned apps replace CarPlay's suggestions (up to 4, iPhone apps too). Nothing pinned: the dock follows the switch below.";
-"HOMESCREEN_DOCK_SUGGEST" = "CarPlay suggestions";
-"HOMESCREEN_DOCK_FULL" = "The dock already has 4 apps. Unpin one first.";
 "HOMESCREEN_WALLPAPER_DEFAULT" = "Default";
-"HOMESCREEN_DOCK_ADD" = "+ Add";
-"HOMESCREEN_DOCK_PICK" = "Add to the dock";
 
 /* One page: Apps on the car screen */
 "APPS_TITLE" = "Apps on the car screen";
-"APPS_CARD" = "Apps";
-"APPS_SUMMARY" = "%ld / %ld shown";
-"APPS_ALL" = "All";
 "APPS_SYSTEM" = "System";
-"APPS_HINT" = "👁 show / hide · drag ≡ to sort · 📌 dock";
-"APPS_RESET" = "Default";
-"APPS_LAYOUT" = "Icon layout";
-"APPS_DOCK_PINNED" = "%ld pinned";
-"APPS_DOCK_SUGGEST_SHORT" = "CarPlay suggestions";
-"APPS_DOCK_EMPTY" = "Empty";
 "APPS_WALL_0" = "Default";
 "APPS_WALL_1" = "Ocean";
 "APPS_WALL_2" = "Sunset";
@@ -37,9 +18,10 @@
 "APPS_WALL_6" = "Forest";
 "APPS_WALL_7" = "Your photo";
 
-"APPS_LAYOUT_FOOTER" = "The grid drops columns / rows when the icons outgrow the car screen; more apps go to the next page.";
 "APPS_WALL_8" = "Your video";
 "APPS_FROM_PHOTOS" = "From Photos (picture or video)";
 "APPS_VIDEO_WORKING" = "Preparing the video…";
 "APPS_VIDEO_FAILED" = "Couldn't use this video.";
 "APPS_WALL_FOOTER" = "Pictures are cropped to the car screen; raise the darkness so icons stay easy to read. A video loops without sound (first 20 s) and pauses while the phone is hot, Lite mode is on, the screen is split or an app covers the home screen.";
+"APPS_PHONE" = "iPhone apps";
+"HOMESCREEN_ICON_SIZE_FOOTER" = "Icon size on CarPlay's own home screen; 100 % is CarPlay's size. Columns and rows stay as CarPlay lays them out.";

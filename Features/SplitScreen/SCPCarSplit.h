@@ -62,7 +62,7 @@
 extern "C" {
 #endif
 NSString *SCPRealBundleForInfos(id info, id proxyInfo);   // bo qua CarPlayTemplateUIHost, tra ve bundle that cua app
-// Cho man chinh CarPlay cua OmniCar (SCPHomeScreen.mm)
+// App tren man chinh CarPlay theo thu tu xe (bang chon app cua Split Screen, Cai dat)
 NSArray<NSString *> *SCPCarHomeBundles(void);   // app tren man chinh CarPlay theo thu tu CarPlay (nil = chua doc duoc)
 UIImage *SCPCarAppIcon(NSString *bundleID);
 NSString *SCPCarAppName(NSString *bundleID);

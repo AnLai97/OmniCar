@@ -146,7 +146,6 @@ static void SCPHookError(const char *where, NSException *e)
 {
     %orig;
     @try { [[SCPCarSplit shared] rootDidLayout]; } @catch (NSException *e) { SCPHookError("rootDidLayout", e); }
-    @try { SCPHomeApplyDock((UIViewController *)self); } @catch (NSException *e) { SCPHookError("SCPHomeApplyDock", e); }
 }
 
 // Man xe vua hien (cam xe): danh sach app CarPlay cho Settings, tu mo split

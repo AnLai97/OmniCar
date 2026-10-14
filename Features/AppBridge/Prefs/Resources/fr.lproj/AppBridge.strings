@@ -6,3 +6,5 @@
 "APPBRIDGE_APPS_COUNT" = "%ld apps";
 "APPBRIDGE_APPS_SEARCH" = "Rechercher des apps";
 "APPBRIDGE_APPS_NO_MATCH" = "Aucune app ne correspond.";
+"APPBRIDGE_APPS_FOOTER" = "Activez une app pour placer son icône sur l’écran d’accueil de CarPlay.";
+"APPBRIDGE_APPS_OTHER_FOOTER" = "Les apps dotées de leur propre interface CarPlay ne sont pas listées.";

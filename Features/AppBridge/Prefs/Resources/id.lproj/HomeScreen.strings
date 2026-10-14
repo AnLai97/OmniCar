@@ -1,33 +1,14 @@
 /* OmniCar - CarPlay home screen (OMCAppBridgeAppsController) */
 
 "HOMESCREEN_ICON_SIZE" = "Ukuran ikon";
-"HOMESCREEN_COLS" = "Kolom";
-"HOMESCREEN_ROWS" = "Baris";
-"HOMESCREEN_GAP" = "Jarak";
-"HOMESCREEN_NAMES" = "Nama di bawah ikon";
 "HOMESCREEN_WALLPAPER" = "Wallpaper";
 "HOMESCREEN_BLUR" = "Blur";
 "HOMESCREEN_DIM" = "Kegelapan";
-"HOMESCREEN_DOCK" = "Dock";
-"HOMESCREEN_DOCK_FOOTER" = "App yang dipin menggantikan saran CarPlay (maks. 4, app iPhone juga). Tanpa pin: mengikuti sakelar di bawah.";
-"HOMESCREEN_DOCK_SUGGEST" = "Saran CarPlay";
-"HOMESCREEN_DOCK_FULL" = "Dock sudah berisi 4 app. Lepas pin satu dulu.";
 "HOMESCREEN_WALLPAPER_DEFAULT" = "Bawaan";
-"HOMESCREEN_DOCK_ADD" = "+ Tambah";
-"HOMESCREEN_DOCK_PICK" = "Tambah ke dock";
 
 /* One page: Apps on the car screen */
 "APPS_TITLE" = "App di mobil";
-"APPS_CARD" = "App";
-"APPS_SUMMARY" = "%ld / %ld tampil";
-"APPS_ALL" = "Semua";
 "APPS_SYSTEM" = "Sistem";
-"APPS_HINT" = "👁 tampil / sembunyi · seret ≡ · 📌 dock";
-"APPS_RESET" = "Bawaan";
-"APPS_LAYOUT" = "Tata letak ikon";
-"APPS_DOCK_PINNED" = "%ld dipin";
-"APPS_DOCK_SUGGEST_SHORT" = "Saran CarPlay";
-"APPS_DOCK_EMPTY" = "Kosong";
 "APPS_WALL_0" = "Bawaan";
 "APPS_WALL_1" = "Samudra";
 "APPS_WALL_2" = "Senja";
@@ -37,9 +18,10 @@
 "APPS_WALL_6" = "Hutan";
 "APPS_WALL_7" = "Foto Anda";
 
-"APPS_LAYOUT_FOOTER" = "Kisi mengurangi kolom / baris saat ikon tidak muat di layar mobil; app lainnya pindah ke halaman berikutnya.";
 "APPS_WALL_8" = "Video Anda";
 "APPS_FROM_PHOTOS" = "Dari Foto (gambar atau video)";
 "APPS_VIDEO_WORKING" = "Menyiapkan video…";
 "APPS_VIDEO_FAILED" = "Video ini tidak bisa dipakai.";
 "APPS_WALL_FOOTER" = "Gambar dipotong sesuai layar mobil; naikkan tingkat gelap agar ikon tetap mudah dibaca. Video berulang tanpa suara (20 detik pertama) dan berhenti saat iPhone panas, mode ringan aktif, layar terbagi, atau ada app yang menutupi layar utama.";
+"APPS_PHONE" = "App iPhone";
+"HOMESCREEN_ICON_SIZE_FOOTER" = "Ukuran ikon di layar utama CarPlay; 100 % adalah ukuran asli CarPlay. Kolom dan baris tetap sesuai tata letak CarPlay.";

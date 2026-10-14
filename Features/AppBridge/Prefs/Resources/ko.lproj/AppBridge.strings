@@ -6,3 +6,5 @@
 "APPBRIDGE_APPS_COUNT" = "앱 %ld개";
 "APPBRIDGE_APPS_SEARCH" = "앱 검색";
 "APPBRIDGE_APPS_NO_MATCH" = "일치하는 앱이 없습니다.";
+"APPBRIDGE_APPS_FOOTER" = "앱을 켜면 CarPlay 홈 화면에 아이콘이 추가됩니다.";
+"APPBRIDGE_APPS_OTHER_FOOTER" = "자체 CarPlay 인터페이스가 있는 앱은 목록에 표시되지 않습니다.";

@@ -5,11 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>OmniCar Home Screen</title>
 <!--
-  Ban xem truoc "Man chinh CarPlay" (ROADMAP-DEV 2.1): trang Cai dat mo rong tu "App tren man xe" + man xe mo phong
-  doi theo ngay khi chinh. An / sap xep app (ca app CarPlay goc va app iPhone), co icon, so cot / hang, ten app,
-  hinh nen (anh / video, do mo, do toi), dock tuy chinh. Khong co cong tac "Man chinh OmniCar": co gi khac mac dinh la
-  xe ve theo. Da bo (10/2026): ngay / dem, hinh dang / vien kinh / goi icon, thu muc, trang app iPhone, widget.
-  Giao dien theo tools/preview/theme.html.
+  Ban xem truoc "App tren man xe" (ROADMAP-DEV 2.1, thu gon 10/2026): man chinh CarPlay GIU NGUYEN, OmniCar chi them
+  app iPhone (App Bridge), co icon (hook iconImageInfo cua CarPlay) va hinh nen (view chen duoi luoi icon). Trang Cai dat
+  ben trai, man xe mo phong ben phai doi theo ngay. Giao dien theo tools/preview/theme.html.
 -->
 <style>
 :root {
@@ -144,11 +142,10 @@ input[type=range] { flex: 1; accent-color: #8b7cff; min-width: 0; }
 </style>
 </head>
 <body>
-<h1>Màn chính CarPlay · bản xem trước</h1>
-<p class="sub"><b>Một trang "App trên màn xe"</b>: xem trước ở đầu, <b>một danh sách mọi app</b> (cả app hệ thống của CarPlay) với nút con mắt
-  hiện / ẩn trên xe, lọc CarPlay / iPhone, tìm, kéo để sắp xếp, ghim dock. Các thẻ gập theo thứ tự Ứng dụng · Dock · Bố cục icon · Hình nền;
-  danh sách app cuộn bên trong thẻ. <b>Không có công tắc "Màn chính OmniCar"</b>: hễ có gì khác mặc định của CarPlay (ẩn / sắp xếp app, ghim dock,
-  đổi bố cục icon, chọn hình nền) là xe vẽ theo; để mặc định hết thì trả lại màn chính CarPlay. Hình nền: 6 hình dựng sẵn, ảnh hoặc <b>video</b> từ Ảnh.</p>
+<h1>App trên màn xe · bản xem trước</h1>
+<p class="sub"><b>Màn chính CarPlay giữ nguyên.</b> Trang này chỉ có: <b>App iPhone</b> (bật để icon lên màn chính CarPlay qua App Bridge),
+  <b>Cỡ icon</b> (icon to / nhỏ trong ô của CarPlay, cột / hàng vẫn do CarPlay xếp) và <b>Hình nền</b> (6 hình dựng sẵn, ảnh hoặc video từ Ảnh, độ mờ, độ tối).
+  Cỡ 100 % và hình nền Mặc định = không đụng gì vào CarPlay.</p>
 
 <div class="wrap">
   <div class="phone"><div class="scr"><div class="liquid"><i></i><i></i><i></i><i></i></div>
@@ -159,8 +156,7 @@ input[type=range] { flex: 1; accent-color: #8b7cff; min-width: 0; }
   <div class="right">
     <div class="car"><div class="carfit" id="fit"><div class="cs" id="cs"></div></div></div>
     <div class="legend glass" id="sum"></div>
-    <div class="note"><b>Ghi chú:</b> đã có code (đang thử trên xe): App trên màn xe. Thử trên xe rồi Gửi log (dòng "HomeScreen:").
-      Bản xem trước: video là gradient chuyển động. Bấm Mặc định + bỏ ghim dock + hình nền Mặc định để thấy màn chính CarPlay gốc trở lại.</div>
+    <div class="note"><b>Ghi chú:</b> đã có code (đang thử trên xe). Thử trên xe rồi Gửi log (dòng "HomeScreen:"). Bản xem trước: video là gradient chuyển động.</div>
   </div>
 </div>
 
@@ -169,48 +165,38 @@ const $ = id => document.getElementById(id);
 const I = (d, w = 1.8) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
 const ICON = {
   back: I('<path d="M15 5l-7 7 7 7"/>', 2.2),
-  eye: I('<path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/>'),
-  eyeOff: I('<path d="M3 3l18 18M10.6 5.6A9.6 9.6 0 0 1 12 5.5c6 0 9.5 6.5 9.5 6.5a17 17 0 0 1-3 3.7M6.3 6.8C3.9 8.4 2.5 12 2.5 12S6 18.5 12 18.5c1.6 0 3-.4 4.2-1.1"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/>'),
-  grip: I('<path d="M5 9h14M5 15h14"/>', 2),
-  pin: I('<path d="M9 4h6l-1 5 3 3H7l3-3zM12 12v8"/>'),
-  grid: I('<rect x="4" y="4" width="6.5" height="6.5" rx="2"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="2"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="2"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="2"/>', 2),
   size: I('<rect x="3.5" y="3.5" width="17" height="17" rx="4"/><path d="M9 15l6-6M15 13V9h-4"/>', 2),
-  text: I('<path d="M5 6h14M12 6v12M9 18h6"/>', 2),
   photo: I('<rect x="3.5" y="5" width="17" height="14" rx="3"/><circle cx="9" cy="10" r="1.6"/><path d="M4 17l5-4 3 2.5 3-2.5 5 4"/>', 2),
   blur: I('<circle cx="12" cy="12" r="8"/><path d="M12 4v16M8 5.2v13.6M16 5.2v13.6" stroke-opacity=".5"/>', 2),
   moon: I('<path d="M19 14.5A7.5 7.5 0 0 1 9.5 5a7.5 7.5 0 1 0 9.5 9.5z"/>', 2),
-  dock: I('<rect x="3.5" y="4" width="17" height="16" rx="3"/><path d="M8.5 4v16"/>', 2),
-  sparkle: I('<path d="M12 4l1.8 4.7L18.5 10l-4.7 1.8L12 16.5l-1.8-4.7L5.5 10l4.7-1.3z"/>', 2),
-  space: I('<path d="M4 12h16M7 9l-3 3 3 3M17 9l3 3-3 3"/>', 2),
-  apps: I('<rect x="4" y="4" width="6.5" height="6.5" rx="2"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="2"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="2"/><path d="M16.75 13.5v6.5M13.5 16.75H20"/>', 2),
+  iphone: I('<rect x="7" y="3" width="10" height="18" rx="2.5"/><path d="M11 18h2"/>', 2),
   play: I('<path d="M8 5.5v13l11-6.5z"/>', 2),
 };
 const tile = (svg, c) => `<span class="tile" style="background:${c}">${svg}</span>`;
 
-// App tren man chinh CarPlay: app CarPlay goc + app iPhone (App Bridge, tag "iPhone")
-const APPS = [
-  { id: 'maps', sys: true, n: 'Bản đồ', c: 'linear-gradient(160deg,#6fd36b,#2e9cf5)', g: '➤' },
-  { id: 'music', sys: true, n: 'Nhạc', c: 'linear-gradient(160deg,#ff6b81,#fa2d55)', g: '♫' },
-  { id: 'phone', sys: true, n: 'Điện thoại', c: 'linear-gradient(160deg,#5be37d,#2fbf55)', g: '✆' },
-  { id: 'msg', sys: true, n: 'Tin nhắn', c: 'linear-gradient(160deg,#6ef08a,#2fc25a)', g: '✉' },
-  { id: 'podcast', sys: true, n: 'Podcast', c: 'linear-gradient(160deg,#d38bff,#8a3df0)', g: '◉' },
+// App tren man chinh CarPlay: app CarPlay goc (thu tu cua xe) + app iPhone da bat (App Bridge, chen vao cuoi)
+const CARPLAY = [
+  { id: 'maps', n: 'Bản đồ', c: 'linear-gradient(160deg,#6fd36b,#2e9cf5)', g: '➤' },
+  { id: 'music', n: 'Nhạc', c: 'linear-gradient(160deg,#ff6b81,#fa2d55)', g: '♫' },
+  { id: 'phone', n: 'Điện thoại', c: 'linear-gradient(160deg,#5be37d,#2fbf55)', g: '✆' },
+  { id: 'msg', n: 'Tin nhắn', c: 'linear-gradient(160deg,#6ef08a,#2fc25a)', g: '✉' },
+  { id: 'podcast', n: 'Podcast', c: 'linear-gradient(160deg,#d38bff,#8a3df0)', g: '◉' },
   { id: 'spotify', n: 'Spotify', c: '#1db954', g: 'S' },
   { id: 'gmaps', n: 'Google Maps', c: 'linear-gradient(160deg,#fff,#e9eef5)', g: '<span style="color:#ea4335">G</span>' },
   { id: 'waze', n: 'Waze', c: '#33ccff', g: 'W' },
   { id: 'vietmap', n: 'Vietmap', c: '#f07a12', g: 'V' },
-  { id: 'audible', sys: true, n: 'Sách', c: '#f7a300', g: 'A' },
-  { id: 'calendar', sys: true, n: 'Lịch', c: '#fff', g: '<span style="color:#ff3b30;font-size:.8em">14</span>' },
-  { id: 'settings', sys: true, n: 'Cài đặt', c: 'linear-gradient(160deg,#9aa0a8,#636a73)', g: '⚙' },
-  { id: 'youtube', n: 'YouTube', c: '#ff2a20', g: '▶', iphone: true },
-  { id: 'tiktok', n: 'TikTok', c: '#111', g: '♪', iphone: true },
-  { id: 'zing', n: 'Zing MP3', c: '#6a3df0', g: 'Z', iphone: true },
-  { id: 'facebook', n: 'Facebook', c: '#1877f2', g: 'f', iphone: true },
-  { id: 'netflix', n: 'Netflix', c: '#111', g: '<span style="color:#e50914">N</span>', iphone: true },
+  { id: 'settings', n: 'Cài đặt', c: 'linear-gradient(160deg,#9aa0a8,#636a73)', g: '⚙' },
 ];
-const byId = Object.fromEntries(APPS.map(a => [a.id, a]));
-// Mot khai niem cho moi loai app: "hien tren xe". App CarPlay (ca app he thong cua Apple): khong bi an; app iPhone: da chon
-const onCar = id => byId[id].iphone ? S.onCar.has(id) : !S.hidden.has(id);
-const kind = a => a.iphone ? 'iPhone' : a.sys ? 'Hệ thống' : 'CarPlay';
+const PHONE = [
+  { id: 'youtube', n: 'YouTube', c: '#ff2a20', g: '▶' },
+  { id: 'tiktok', n: 'TikTok', c: '#111', g: '♪' },
+  { id: 'zing', n: 'Zing MP3', c: '#6a3df0', g: 'Z' },
+  { id: 'facebook', n: 'Facebook', c: '#1877f2', g: 'f' },
+  { id: 'netflix', n: 'Netflix', c: '#111', g: '<span style="color:#e50914">N</span>' },
+  { id: 'safari', n: 'Safari', c: 'linear-gradient(160deg,#5ac8fa,#1f7bff)', g: '◎', sys: true },
+  { id: 'photos', n: 'Ảnh', c: '#fff', g: '<span style="color:#ff9500">✿</span>', sys: true },
+];
+const byId = Object.fromEntries([...CARPLAY, ...PHONE].map(a => [a.id, a]));
 const WALL_NAMES = ['Mặc định', 'Đại dương', 'Hoàng hôn', 'OmniCar', 'Đêm', 'Bình minh', 'Rừng', 'Ảnh của bạn', 'Video của bạn'];
 // Hinh nen mau (thay cho anh nguoi dung chon tu Anh); 8 = video (gradient chuyen dong thay cho video that)
 const WALLS = [
@@ -224,121 +210,75 @@ const WALLS = [
   'radial-gradient(circle at 25% 35%,#ffd8a8,transparent 40%),linear-gradient(160deg,#6a85b6,#bac8e0)',
   'linear-gradient(120deg,#ff7eb3,#7afcff,#feff9c,#ff7eb3)',
 ];
-const DEFAULT_ORDER = APPS.map(a => a.id);
 
 const S = {
-  filter: 'all', q: '', open: new Set(['apps']), toast: '',   // bo loc muc Them vao xe, o tim, the dang mo, thong bao
-  onCar: new Set(['youtube', 'tiktok', 'zing', 'netflix']),  // app iPhone dang tren xe (AB_KEY_APPS); app CarPlay luon tren xe
-  order: DEFAULT_ORDER.slice(), hidden: new Set(['podcast', 'audible', 'settings']),
-  size: 100, cols: 5, rows: 2, names: true, gap: 100,
-  wall: 2,                                                   // 0 mac dinh, 1..6 dung san, 7 anh, 8 video
-  blur: 0, dark: 25,
-  dock: ['maps', 'spotify', 'youtube'], suggest: true, page: 0,
+  q: '', open: new Set(['apps']),
+  onCar: new Set(['youtube', 'tiktok', 'zing']),   // app iPhone dang tren xe (AB_KEY_APPS)
+  size: 100,                                       // 60..130 %
+  wall: 2, blur: 0, dark: 25, hasPhoto: false,     // 0 mac dinh, 1..6 dung san, 7 anh, 8 video
+  page: 0,
 };
-
-// = SCPHCustomized: co gi khac mac dinh cua CarPlay thi OmniCar ve man chinh, khong thi de nguyen CarPlay
-const customized = () => S.hidden.size > 0 || S.order.join() !== DEFAULT_ORDER.join() || S.dock.length > 0 || !S.suggest
-  || S.size !== 100 || S.cols !== 5 || S.rows !== 2 || S.gap !== 100 || !S.names || S.wall > 0;
 
 // ---------- trang Cai dat ----------
 function settingsPage() {
-  const sw = (k) => `<span class="swi ${S[k] ? 'on' : ''}" data-sw="${k}"></span>`;
   const slider = (k, min, max, unit, label, ic, c) => `<div class="r">${tile(ICON[ic], c)}<span class="lab" style="flex:none;width:92px">${label}</span>
       <input type="range" min="${min}" max="${max}" value="${S[k]}" data-range="${k}"><span class="val" id="v-${k}">${S[k]}${unit}</span></div>`;
-  const step = (k, min, max, label, ic, c) => `<div class="r">${tile(ICON[ic], c)}<span class="lab">${label}</span>
-      <span class="step"><span data-step="${k}:-1:${min}:${max}">−</span><b>${S[k]}</b><span data-step="${k}:1:${min}:${max}">+</span></span></div>`;
-  // MOT trang "App tren man xe" = App Bridge + man chinh: xem truoc, app tren xe, them app, roi cac the gap lai duoc
-  // MOT danh sach moi app (he thong CarPlay, app CarPlay, app iPhone): mat = hien / an tren xe, keo de sap xep, ghim dock
-  const tag = a => `<span class="kind k-${kind(a) === 'iPhone' ? 'ip' : kind(a) === 'Hệ thống' ? 'sys' : 'cp'}">${kind(a)}</span>`;
   const q = S.q.trim().toLowerCase();
-  const list = S.order.filter(id => { const a = byId[id];
-    return (S.filter === 'all' || (S.filter === 'cp' ? !a.iphone : a.iphone)) && (!q || a.n.toLowerCase().includes(q)); });
-  const rows = list.map(id => {
-    const a = byId[id], vis = onCar(id), docked = S.dock.includes(id);
-    return `<div class="r app ${vis ? '' : 'hid'}" draggable="true" data-app="${id}">
-      <span class="grip">${ICON.grip}</span><span class="ico" style="background:${a.c}">${a.g}</span>
-      <span class="lab">${a.n}<small>${tag(a)}</small></span>
-      ${vis ? `<span class="pin ${docked ? 'on' : ''}" data-pin="${id}" title="Ghim lên dock">${ICON.pin}</span>` : ''}
-      <span class="eye ${vis ? 'on' : ''}" data-car="${id}" title="${vis ? 'Ẩn khỏi xe' : 'Hiện trên xe'}">${vis ? ICON.eye : ICON.eyeOff}</span></div>`;
-  }).join('');
-  const shown = S.order.filter(onCar).length;
-  const fold = (id, ic, c, title, summary, body) => `<div class="card glass fold ${S.open.has(id) ? 'open' : ''}">
+  const rows = PHONE.filter(a => !q || a.n.toLowerCase().includes(q)).map(a => `<div class="r app" data-app="${a.id}">
+      <span class="ico" style="background:${a.c}">${a.g}</span>
+      <span class="lab">${a.n}${a.sys ? '<small>Hệ thống</small>' : ''}</span>
+      <span class="swi ${S.onCar.has(a.id) ? 'on' : ''}" data-car="${a.id}"></span></div>`).join('');
+  const fold = (id, ic, c, title, summary, body, foot) => `<div class="card glass fold ${S.open.has(id) ? 'open' : ''}">
       <div class="r head" data-fold="${id}">${tile(ICON[ic], c)}<span class="lab">${title}</span><span class="val">${summary}</span><span class="chev">›</span></div>
-      ${S.open.has(id) ? body : ''}</div>`;
-  const seg = [['all', 'Tất cả'], ['cp', 'CarPlay'], ['ip', 'iPhone']].map(([k, t]) => `<span class="${S.filter === k ? 'on' : ''}" data-filter="${k}">${t}</span>`).join('');
-  const swRow = (k, label, ic, c, small) => `<div class="r">${tile(ICON[ic], c)}<span class="lab">${label}${small ? `<small>${small}</small>` : ''}</span>${sw(k)}</div>`;
+      ${S.open.has(id) ? body : ''}</div>${S.open.has(id) && foot ? `<div class="foot">${foot}</div>` : ''}`;
   const tiles = WALLS.map((w, i) => {
     if (i === 7 && !S.hasPhoto) return '';         // anh cua ban: chi hien khi da chon tu Anh
-    const none = i === 0, label = none ? 'Mặc định' : '';
-    return `<div class="${none ? 'none' : ''} ${i === 8 ? 'vid' : ''} ${S.wall === i ? 'sel' : ''}" data-wall="${i}" style="${w ? 'background:' + w : ''}">${label}${i === 8 ? ICON.play : ''}</div>`;
+    const none = i === 0;
+    return `<div class="${none ? 'none' : ''} ${i === 8 ? 'vid' : ''} ${S.wall === i ? 'sel' : ''}" data-wall="${i}" style="${w ? 'background:' + w : ''}">${none ? 'Mặc định' : ''}${i === 8 ? ICON.play : ''}</div>`;
   }).join('');
   return `<div class="nav"><span class="back">${ICON.back}OmniCar</span><span class="t">App trên màn xe</span></div>
     <div class="mini"><div class="cs" id="cs2"></div></div>
-    ${fold('apps', 'apps', 'linear-gradient(135deg,#8FD3FF,#5AB8FF)', 'Ứng dụng', `${shown} / ${APPS.length} hiện`, `
-      <div class="tools"><span class="seg">${seg}</span><input class="find" placeholder="Tìm app" value="${S.q}" data-find></div>
-      <div class="scrolllist" id="applist">${rows || '<div class="r"><span class="lab" style="color:var(--ink2)">Không có app nào khớp</span></div>'}</div>
-      <div class="hint"><span>👁 hiện / ẩn · kéo ≡ sắp xếp · 📌 dock</span><a data-act="reset">Mặc định</a></div>`)}
-    ${fold('dock', 'dock', 'linear-gradient(135deg,#B7A6FF,#8B7CFF)', 'Dock', S.dock.length ? S.dock.length + ' app ghim' : (S.suggest ? 'Gợi ý CarPlay' : 'Trống'), `
-      <div class="chips">${S.dock.map(id => `<span class="chip"><span class="ico" style="background:${byId[id].c}">${byId[id].g}</span>${byId[id].n}<span class="x" data-undock="${id}">✕</span></span>`).join('')}
-        ${S.dock.length < 4 ? '<span class="chip add" data-act="adddock">+ Thêm</span>' : ''}</div>
-      <div class="r">${tile(ICON.sparkle, 'linear-gradient(135deg,#FFC2D6,#B7A6FF)')}<span class="lab">Gợi ý của CarPlay<small>Khi không ghim app nào</small></span>${sw('suggest')}</div>`)}
-    ${fold('layout', 'grid', 'linear-gradient(135deg,#8FD3FF,#5AB8FF)', 'Bố cục icon', `${S.cols} × ${S.rows} · ${S.size}%`, `
-      ${slider('size', 80, 130, '%', 'Cỡ icon', 'size', 'linear-gradient(135deg,#B7A6FF,#8B7CFF)')}
-      ${step('cols', 3, 7, 'Số cột', 'grid', 'linear-gradient(135deg,#8FD3FF,#5AB8FF)')}
-      ${step('rows', 1, 3, 'Số hàng', 'grid', 'linear-gradient(135deg,#8FD3FF,#5AB8FF)')}
-      ${slider('gap', 60, 140, '%', 'Khoảng cách', 'space', 'linear-gradient(135deg,#9DF2D8,#2BC79A)')}
-      ${swRow('names', 'Tên dưới icon', 'text', 'linear-gradient(135deg,#FFC2D6,#FF7FA8)')}`)}
+    ${fold('apps', 'iphone', 'linear-gradient(135deg,#8FA2FF,#5B6CF0)', 'App iPhone', S.onCar.size ? S.onCar.size + ' app' : 'Chưa chọn', `
+      <div class="tools"><input class="find" placeholder="Tìm app" value="${S.q}" data-find></div>
+      <div class="scrolllist" id="applist">${rows || '<div class="r"><span class="lab" style="color:var(--ink2)">Không có app nào khớp</span></div>'}</div>`,
+      'Bật app để icon hiện trên màn chính CarPlay. App đã có CarPlay riêng không nằm ở đây.')}
+    <div class="card glass">${slider('size', 60, 130, '%', 'Cỡ icon', 'size', 'linear-gradient(135deg,#B7A6FF,#8B7CFF)')}</div>
+    <div class="foot">Cỡ icon trên màn chính gốc của CarPlay; 100 % là cỡ của CarPlay. Số cột / hàng vẫn do CarPlay xếp.</div>
     ${fold('wall', 'photo', 'linear-gradient(135deg,#FFB86B,#FF7FA8)', 'Hình nền', WALL_NAMES[S.wall], `
       <div class="wps">${tiles}</div>
       <div class="pair"><span data-act="photos">Từ Ảnh (ảnh hoặc video)</span></div>
       ${slider('blur', 0, 30, '', 'Độ mờ', 'blur', 'linear-gradient(135deg,#B7A6FF,#5AB8FF)')}
-      ${slider('dark', 0, 70, '%', 'Độ tối', 'moon', 'linear-gradient(135deg,#8a8fb0,#4a4f80)')}`)}
-    ${S.toast ? `<div class="toast">${S.toast}</div>` : ''}`;
+      ${slider('dark', 0, 70, '%', 'Độ tối', 'moon', 'linear-gradient(135deg,#8a8fb0,#4a4f80)')}`,
+      'Ảnh được cắt theo màn xe; tăng độ tối để icon dễ đọc. Video lặp lại không tiếng (20 giây đầu), tự dừng khi máy nóng, bật chế độ nhẹ, đang chia màn hoặc có app che màn chính.')}`;
 }
 
-// ---------- man xe ----------
-function iconHtml(id, base) {
-  const a = byId[id];
-  return `<div class="ic" style="width:${base}px;height:${base}px;border-radius:${base * .225}px;background:${a.c};font-size:${base * .42}px">${a.g}</div>`;
-}
+// ---------- man xe: luoi 5 x 2 cua CarPlay, chi icon to / nho trong o (= hook iconImageInfo), hinh nen duoi luoi ----------
 function carScreen() {
-  const W = 800 - 64, H = 300 - 22;
-  const custom = customized();
-  // Khong co gi tuy chinh: man chinh CarPlay goc (thu tu CarPlay, 5 x 2, co ten, dock goi y, khong hinh nen)
-  const items = custom ? S.order.filter(id => onCar(id) && !S.hidden.has(id)) : DEFAULT_ORDER.filter(onCar);
-  const base = custom ? 64 * S.size / 100 : 64;
-  const gapP = custom ? S.gap : 100, names = custom ? S.names : true;
-  // so cot / hang toi da theo man xe: o can icon + ten + khoang cach
-  const gapX = 26 * gapP / 100, gapY = 14 * gapP / 100, nameH = names ? 20 : 0;
-  const maxCols = Math.max(1, Math.floor((W - 16) / (base + gapX)));
-  const maxRows = Math.max(1, Math.floor((H - 20 + gapY) / (base + nameH + gapY)));
-  const cols = Math.min(custom ? S.cols : 5, maxCols), rows = Math.min(custom ? S.rows : 2, maxRows), per = cols * rows;
+  const W = 800 - 64;
+  const items = [...CARPLAY.map(a => a.id), ...PHONE.filter(a => S.onCar.has(a.id)).map(a => a.id)];
+  const cols = 5, rows = 2, per = cols * rows, base = 64 * S.size / 100, cellW = (W - 24) / cols;
   const pages = Math.max(1, Math.ceil(items.length / per));
   S.page = Math.min(S.page, pages - 1);
-  const cells = items.slice(S.page * per, S.page * per + per).map(id =>
-    `<div class="cell" style="width:${base + gapX}px">${iconHtml(id, base)}${names ? `<div class="nm">${byId[id].n}</div>` : ''}</div>`).join('');
-  // = SCPHomeApplyDock: app ghim thay cho goi y; khong ghim -> goi y cua CarPlay (bat) hoac dock trong (tat)
-  const dockApps = !custom ? ['music', 'phone'] : S.dock.length ? S.dock.slice(0, 4) : (S.suggest ? ['music', 'phone'] : []);
-  const style = custom ? S.wall : 0, w = WALLS[style];
-  const html = `<div class="wall ${w ? '' : 'blank'} ${style === 8 ? 'vid' : ''}" style="${w ? `background:${w};${style === 8 ? '' : `filter:blur(${S.blur / 3}px);transform:scale(${1 + S.blur / 200})`}` : ''}"></div>
+  const cells = items.slice(S.page * per, S.page * per + per).map(id => { const a = byId[id];
+    return `<div class="cell" style="width:${cellW}px"><div class="ic" style="width:${base}px;height:${base}px;border-radius:${base * .225}px;background:${a.c};font-size:${base * .42}px">${a.g}</div><div class="nm">${a.n}</div></div>`; }).join('');
+  const w = WALLS[S.wall];
+  const html = `<div class="wall ${w ? '' : 'blank'} ${S.wall === 8 ? 'vid' : ''}" style="${w ? `background:${w};${S.wall === 8 ? '' : `filter:blur(${S.blur / 3}px);transform:scale(${1 + S.blur / 200})`}` : ''}"></div>
     <div class="dim" style="opacity:${w ? S.dark / 100 : 0}"></div>
     <div class="dock"><div class="t">9:41</div><div class="sig">●●● 5G</div>
-      ${dockApps.map(id => `<div class="d" style="background:${byId[id].c}">${byId[id].g}</div>`).join('')}
+      ${['music', 'phone'].map(id => `<div class="d" style="background:${byId[id].c}">${byId[id].g}</div>`).join('')}
       <div class="sp"></div><div class="home"><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
-    <div class="grid" style="grid-template-columns:repeat(${cols}, ${base + gapX}px);row-gap:${gapY}px">${cells}</div>
+    <div class="grid" style="grid-template-columns:repeat(${cols}, ${cellW}px);row-gap:14px">${cells}</div>
     ${pages > 1 ? `<div class="pdots">${Array.from({ length: pages }, (_, i) => `<i class="${i === S.page ? 'on' : ''}" data-page="${i}"></i>`).join('')}</div>` : ''}`;
   $('cs').innerHTML = html;
   if ($('cs2')) { $('cs2').innerHTML = html; $('cs2').style.setProperty('--k', $('cs2').parentNode.clientWidth / 800); }
-  $('sum').innerHTML = custom ? `<b>OmniCar đang vẽ màn chính:</b> ${items.length} app trên xe · lưới ${cols} × ${rows}${cols < S.cols || rows < S.rows ? ' (đã giới hạn theo màn xe)' : ''}, ${pages} trang ·
-    icon ${S.size}% · ${S.names ? 'có' : 'không'} tên ·
-    hình nền: ${WALL_NAMES[style]}${w && style !== 8 ? `, mờ ${S.blur}, tối ${S.dark}%` : w ? `, tối ${S.dark}%` : ''} ·
-    dock: ${S.dock.length ? S.dock.map(id => byId[id].n).join(', ') : (S.suggest ? 'gợi ý của CarPlay' : 'trống')}`
-    : `<b>Màn chính CarPlay gốc:</b> không có gì tuỳ chỉnh (thứ tự, app ẩn, dock, bố cục icon, hình nền đều mặc định) nên OmniCar để nguyên CarPlay.`;
+  const touched = S.size !== 100 || S.wall > 0;
+  $('sum').innerHTML = touched ? `<b>OmniCar thêm vào màn chính CarPlay:</b> ${S.onCar.size} app iPhone · icon ${S.size}% (ô của CarPlay giữ nguyên) ·
+    hình nền: ${WALL_NAMES[S.wall]}${w && S.wall !== 8 ? `, mờ ${S.blur}, tối ${S.dark}%` : w ? `, tối ${S.dark}%` : ''} · ${pages} trang`
+    : `<b>Màn chính CarPlay nguyên bản:</b> cỡ 100 %, hình nền Mặc định nên OmniCar không đụng gì; ${S.onCar.size} app iPhone chèn vào cuối lưới.`;
   document.querySelectorAll('[data-page]').forEach(e => e.onclick = () => { S.page = +e.dataset.page; carScreen(); });
 }
 
 // ---------- tuong tac ----------
-let dragId = null;
 function render() {
   const pg = $('page'), top = pg.scrollTop, lt = $('applist') ? $('applist').scrollTop : 0;
   pg.innerHTML = settingsPage();
@@ -349,56 +289,24 @@ function render() {
 }
 function bind() {
   const pg = $('page');
-  pg.querySelectorAll('[data-sw]').forEach(e => e.onclick = () => { const k = e.dataset.sw; S[k] = !S[k]; render(); });
   pg.querySelectorAll('[data-range]').forEach(e => e.oninput = () => {
     S[e.dataset.range] = +e.value;
-    $('v-' + e.dataset.range).textContent = e.value + (['size', 'gap', 'dark'].includes(e.dataset.range) ? '%' : '');
+    $('v-' + e.dataset.range).textContent = e.value + (['size', 'dark'].includes(e.dataset.range) ? '%' : '');
     carScreen();
   });
-  pg.querySelectorAll('[data-step]').forEach(e => e.onclick = () => {
-    const [k, d, mn, mx] = e.dataset.step.split(':'); S[k] = Math.min(+mx, Math.max(+mn, S[k] + +d)); render();
-  });
-  // Cong tac "hien tren xe": cung 1 hanh vi cho moi loai app
-  pg.querySelectorAll('[data-car]').forEach(e => e.onclick = ev => {   // con mat
-    ev.stopPropagation(); const id = e.dataset.car, a = byId[id], was = onCar(id);
-    if (a.iphone) was ? S.onCar.delete(id) : S.onCar.add(id);
-    else was ? S.hidden.add(id) : S.hidden.delete(id);
-    if (was) S.dock = S.dock.filter(x => x !== id);
+  pg.querySelectorAll('[data-car]').forEach(e => e.onclick = ev => {   // cong tac len xe
+    ev.stopPropagation(); const id = e.dataset.car;
+    S.onCar.has(id) ? S.onCar.delete(id) : S.onCar.add(id);
     render();
   });
-  pg.querySelectorAll('[data-filter]').forEach(e => e.onclick = () => { S.filter = e.dataset.filter; render(); });
   pg.querySelectorAll('[data-find]').forEach(e => e.oninput = () => { S.q = e.value; const pos = e.selectionStart; render(); const f = $('page').querySelector('[data-find]'); f.focus(); f.setSelectionRange(pos, pos); });
   pg.querySelectorAll('[data-fold]').forEach(e => e.onclick = () => { const k = e.dataset.fold; S.open.has(k) ? S.open.delete(k) : S.open.add(k); render(); });
-  pg.querySelectorAll('[data-pin]').forEach(e => e.onclick = ev => {
-    ev.stopPropagation(); const id = e.dataset.pin;
-    if (S.dock.includes(id)) S.dock = S.dock.filter(x => x !== id); else if (S.dock.length < 4) S.dock.push(id);
-    render();
-  });
-  pg.querySelectorAll('[data-undock]').forEach(e => e.onclick = () => { S.dock = S.dock.filter(x => x !== e.dataset.undock); render(); });
   pg.querySelectorAll('[data-wall]').forEach(e => e.onclick = () => { S.wall = +e.dataset.wall; render(); });
   pg.querySelectorAll('[data-act]').forEach(e => e.onclick = () => {
-    const a = e.dataset.act;
-    if (a === 'reset') { S.order = DEFAULT_ORDER.slice(); S.hidden.clear(); }   // thu tu + hien lai app CarPlay; app iPhone giu nguyen
-    if (a === 'adddock') { const next = S.order.find(id => onCar(id) && !S.dock.includes(id)); if (next) S.dock.push(next); }
-    if (a === 'photos') { S.wall = Math.random() < .5 ? 8 : 7; S.hasPhoto = S.hasPhoto || S.wall === 7; }   // Tu Anh: anh (7) hoac video (8)
+    if (e.dataset.act === 'photos') { S.wall = Math.random() < .5 ? 8 : 7; S.hasPhoto = S.hasPhoto || S.wall === 7; }   // Tu Anh: anh (7) hoac video (8)
     render();
   });
-  // keo tha doi thu tu (chuot / cam ung qua HTML5 drag)
-  pg.querySelectorAll('.app[draggable]').forEach(row => {
-    row.ondragstart = ev => { dragId = row.dataset.app; row.classList.add('drag'); ev.dataTransfer.effectAllowed = 'move'; };
-    row.ondragend = () => { dragId = null; row.classList.remove('drag'); };
-    row.ondragover = ev => { ev.preventDefault(); row.classList.add('over'); };
-    row.ondragleave = () => row.classList.remove('over');
-    row.ondrop = ev => {
-      ev.preventDefault(); row.classList.remove('over');
-      const to = row.dataset.app; if (!dragId || dragId === to) return;
-      S.order = S.order.filter(x => x !== dragId); S.order.splice(S.order.indexOf(to), 0, dragId);
-      render();
-    };
-  });
 }
-let toastTimer;
-function flash(t) { S.toast = t; clearTimeout(toastTimer); toastTimer = setTimeout(() => { S.toast = ''; render(); }, 2200); }
 function fit() { $('cs').style.setProperty('--k', $('fit').clientWidth / 800); }
 window.addEventListener('resize', fit);
 render(); fit();

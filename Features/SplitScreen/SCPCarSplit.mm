@@ -263,7 +263,7 @@ static UIImage *SCPCAppIcon(NSString *bid)
     return nil;
 }
 
-// Cho man chinh CarPlay cua OmniCar (SCPHomeScreen.mm)
+// App tren man chinh CarPlay theo thu tu xe (bang chon app cua Split Screen, Cai dat)
 NSArray<NSString *> *SCPCarHomeBundles(void) { return SCPCHomeScreenBundles(); }
 UIImage *SCPCarAppIcon(NSString *bundleID) { return SCPCAppIcon(bundleID); }
 NSString *SCPCarAppName(NSString *bundleID)

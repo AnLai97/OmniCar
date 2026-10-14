@@ -6,3 +6,5 @@
 "APPBRIDGE_APPS_COUNT" = "%ld app";
 "APPBRIDGE_APPS_SEARCH" = "Tìm app";
 "APPBRIDGE_APPS_NO_MATCH" = "Không có app nào khớp.";
+"APPBRIDGE_APPS_FOOTER" = "Bật app để icon hiện trên màn chính CarPlay.";
+"APPBRIDGE_APPS_OTHER_FOOTER" = "App đã có CarPlay riêng không nằm ở đây.";

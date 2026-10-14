@@ -6,3 +6,5 @@
 "APPBRIDGE_APPS_COUNT" = "%ld แอป";
 "APPBRIDGE_APPS_SEARCH" = "ค้นหาแอป";
 "APPBRIDGE_APPS_NO_MATCH" = "ไม่มีแอปที่ตรงกัน";
+"APPBRIDGE_APPS_FOOTER" = "เปิดแอปเพื่อวางไอคอนบนหน้าโฮมของ CarPlay";
+"APPBRIDGE_APPS_OTHER_FOOTER" = "แอปที่มีอินเทอร์เฟซ CarPlay ของตัวเองจะไม่แสดงในรายการ";

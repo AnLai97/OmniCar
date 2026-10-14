@@ -1,33 +1,14 @@
 /* OmniCar - CarPlay home screen (OMCAppBridgeAppsController) */
 
 "HOMESCREEN_ICON_SIZE" = "Symbolgröße";
-"HOMESCREEN_COLS" = "Spalten";
-"HOMESCREEN_ROWS" = "Zeilen";
-"HOMESCREEN_GAP" = "Abstand";
-"HOMESCREEN_NAMES" = "Namen unter Symbolen";
 "HOMESCREEN_WALLPAPER" = "Hintergrund";
 "HOMESCREEN_BLUR" = "Unschärfe";
 "HOMESCREEN_DIM" = "Abdunklung";
-"HOMESCREEN_DOCK" = "Dock";
-"HOMESCREEN_DOCK_FOOTER" = "Angeheftete Apps ersetzen die CarPlay-Vorschläge (bis zu 4, auch iPhone-Apps). Nichts angeheftet: Schalter unten gilt.";
-"HOMESCREEN_DOCK_SUGGEST" = "CarPlay-Vorschläge";
-"HOMESCREEN_DOCK_FULL" = "Das Dock hat schon 4 Apps. Löse zuerst eine.";
 "HOMESCREEN_WALLPAPER_DEFAULT" = "Standard";
-"HOMESCREEN_DOCK_ADD" = "+ Hinzufügen";
-"HOMESCREEN_DOCK_PICK" = "Zum Dock hinzufügen";
 
 /* One page: Apps on the car screen */
 "APPS_TITLE" = "Apps im Auto";
-"APPS_CARD" = "Apps";
-"APPS_SUMMARY" = "%ld / %ld sichtbar";
-"APPS_ALL" = "Alle";
 "APPS_SYSTEM" = "System";
-"APPS_HINT" = "👁 ein- / ausblenden · ≡ ziehen · 📌 Dock";
-"APPS_RESET" = "Standard";
-"APPS_LAYOUT" = "Symbol-Layout";
-"APPS_DOCK_PINNED" = "%ld angeheftet";
-"APPS_DOCK_SUGGEST_SHORT" = "CarPlay-Vorschläge";
-"APPS_DOCK_EMPTY" = "Leer";
 "APPS_WALL_0" = "Standard";
 "APPS_WALL_1" = "Ozean";
 "APPS_WALL_2" = "Sonnenuntergang";
@@ -37,9 +18,10 @@
 "APPS_WALL_6" = "Wald";
 "APPS_WALL_7" = "Dein Foto";
 
-"APPS_LAYOUT_FOOTER" = "Das Raster lässt Spalten / Zeilen weg, wenn die Symbole nicht mehr auf den Autobildschirm passen; weitere Apps kommen auf die nächste Seite.";
 "APPS_WALL_8" = "Dein Video";
 "APPS_FROM_PHOTOS" = "Aus Fotos (Bild oder Video)";
 "APPS_VIDEO_WORKING" = "Video wird vorbereitet …";
 "APPS_VIDEO_FAILED" = "Dieses Video lässt sich nicht verwenden.";
 "APPS_WALL_FOOTER" = "Bilder werden auf den Autobildschirm zugeschnitten; erhöhe die Abdunklung, damit die Symbole lesbar bleiben. Ein Video läuft ohne Ton in Schleife (erste 20 s) und pausiert, wenn das iPhone heiß ist, der Lite-Modus an ist, der Bildschirm geteilt ist oder eine App den Startbildschirm verdeckt.";
+"APPS_PHONE" = "iPhone-Apps";
+"HOMESCREEN_ICON_SIZE_FOOTER" = "Symbolgröße auf dem CarPlay-Startbildschirm; 100 % ist die Größe von CarPlay. Spalten und Zeilen bleiben, wie CarPlay sie anordnet.";

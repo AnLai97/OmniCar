@@ -1,33 +1,14 @@
 /* OmniCar - CarPlay home screen (OMCAppBridgeAppsController) */
 
 "HOMESCREEN_ICON_SIZE" = "图标大小";
-"HOMESCREEN_COLS" = "列数";
-"HOMESCREEN_ROWS" = "行数";
-"HOMESCREEN_GAP" = "间距";
-"HOMESCREEN_NAMES" = "图标下显示名称";
 "HOMESCREEN_WALLPAPER" = "壁纸";
 "HOMESCREEN_BLUR" = "模糊";
 "HOMESCREEN_DIM" = "暗度";
-"HOMESCREEN_DOCK" = "程序坞";
-"HOMESCREEN_DOCK_FOOTER" = "固定的应用会替代 CarPlay 的建议（最多 4 个，含 iPhone 应用）。未固定时按下方开关。";
-"HOMESCREEN_DOCK_SUGGEST" = "CarPlay 建议";
-"HOMESCREEN_DOCK_FULL" = "程序坞已有 4 个应用。请先取消固定一个。";
 "HOMESCREEN_WALLPAPER_DEFAULT" = "默认";
-"HOMESCREEN_DOCK_ADD" = "+ 添加";
-"HOMESCREEN_DOCK_PICK" = "添加到程序坞";
 
 /* One page: Apps on the car screen */
 "APPS_TITLE" = "车机上的应用";
-"APPS_CARD" = "应用";
-"APPS_SUMMARY" = "显示 %ld / %ld";
-"APPS_ALL" = "全部";
 "APPS_SYSTEM" = "系统";
-"APPS_HINT" = "👁 显示 / 隐藏 · 拖动 ≡ 排序 · 📌 程序坞";
-"APPS_RESET" = "默认";
-"APPS_LAYOUT" = "图标布局";
-"APPS_DOCK_PINNED" = "已固定 %ld 个";
-"APPS_DOCK_SUGGEST_SHORT" = "CarPlay 建议";
-"APPS_DOCK_EMPTY" = "空";
 "APPS_WALL_0" = "默认";
 "APPS_WALL_1" = "海洋";
 "APPS_WALL_2" = "日落";
@@ -37,9 +18,10 @@
 "APPS_WALL_6" = "森林";
 "APPS_WALL_7" = "你的照片";
 
-"APPS_LAYOUT_FOOTER" = "图标超出车机屏幕时，网格会自动减少列 / 行；多出的 App 放到下一页。";
 "APPS_WALL_8" = "你的视频";
 "APPS_FROM_PHOTOS" = "从照片（图片或视频）";
 "APPS_VIDEO_WORKING" = "正在准备视频…";
 "APPS_VIDEO_FAILED" = "无法使用此视频。";
 "APPS_WALL_FOOTER" = "图片会按车机屏幕裁剪；调高变暗以保证图标清晰可读。视频无声循环播放（前 20 秒），并在手机发热、开启轻量模式、分屏或有 App 遮住主屏幕时暂停。";
+"APPS_PHONE" = "iPhone App";
+"HOMESCREEN_ICON_SIZE_FOOTER" = "CarPlay 主屏幕上的图标大小；100 % 为 CarPlay 原始大小。列数和行数仍由 CarPlay 排布。";

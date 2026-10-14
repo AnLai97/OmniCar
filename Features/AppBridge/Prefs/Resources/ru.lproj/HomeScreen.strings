@@ -1,33 +1,14 @@
 /* OmniCar - CarPlay home screen (OMCAppBridgeAppsController) */
 
 "HOMESCREEN_ICON_SIZE" = "Размер значков";
-"HOMESCREEN_COLS" = "Столбцы";
-"HOMESCREEN_ROWS" = "Ряды";
-"HOMESCREEN_GAP" = "Отступы";
-"HOMESCREEN_NAMES" = "Подписи под значками";
 "HOMESCREEN_WALLPAPER" = "Обои";
 "HOMESCREEN_BLUR" = "Размытие";
 "HOMESCREEN_DIM" = "Затемнение";
-"HOMESCREEN_DOCK" = "Док";
-"HOMESCREEN_DOCK_FOOTER" = "Закреплённые приложения заменяют подсказки CarPlay (до 4, и приложения iPhone). Ничего не закреплено — по переключателю ниже.";
-"HOMESCREEN_DOCK_SUGGEST" = "Подсказки CarPlay";
-"HOMESCREEN_DOCK_FULL" = "В доке уже 4 приложения. Сначала открепите одно.";
 "HOMESCREEN_WALLPAPER_DEFAULT" = "Стандарт";
-"HOMESCREEN_DOCK_ADD" = "+ Добавить";
-"HOMESCREEN_DOCK_PICK" = "Добавить в док";
 
 /* One page: Apps on the car screen */
 "APPS_TITLE" = "Приложения в машине";
-"APPS_CARD" = "Приложения";
-"APPS_SUMMARY" = "%ld / %ld показано";
-"APPS_ALL" = "Все";
 "APPS_SYSTEM" = "Системные";
-"APPS_HINT" = "👁 показать / скрыть · тяните ≡ · 📌 док";
-"APPS_RESET" = "По умолчанию";
-"APPS_LAYOUT" = "Сетка значков";
-"APPS_DOCK_PINNED" = "закреплено: %ld";
-"APPS_DOCK_SUGGEST_SHORT" = "Подсказки CarPlay";
-"APPS_DOCK_EMPTY" = "Пусто";
 "APPS_WALL_0" = "По умолчанию";
 "APPS_WALL_1" = "Океан";
 "APPS_WALL_2" = "Закат";
@@ -37,9 +18,10 @@
 "APPS_WALL_6" = "Лес";
 "APPS_WALL_7" = "Ваше фото";
 
-"APPS_LAYOUT_FOOTER" = "Сетка убирает столбцы / строки, когда значки не помещаются на экран машины; остальные приложения переходят на следующую страницу.";
 "APPS_WALL_8" = "Ваше видео";
 "APPS_FROM_PHOTOS" = "Из Фото (снимок или видео)";
 "APPS_VIDEO_WORKING" = "Подготовка видео…";
 "APPS_VIDEO_FAILED" = "Не удалось использовать это видео.";
 "APPS_WALL_FOOTER" = "Картинки обрезаются под экран машины; увеличьте затемнение, чтобы значки оставались читаемыми. Видео повторяется без звука (первые 20 с) и останавливается, когда iPhone горячий, включён лёгкий режим, экран разделён или приложение закрывает главный экран.";
+"APPS_PHONE" = "Приложения iPhone";
+"HOMESCREEN_ICON_SIZE_FOOTER" = "Размер значков на главном экране CarPlay; 100 % — размер CarPlay. Столбцы и строки остаются такими, как их располагает CarPlay.";

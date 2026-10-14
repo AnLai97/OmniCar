@@ -6,3 +6,5 @@
 "APPBRIDGE_APPS_COUNT" = "التطبيقات: %ld";
 "APPBRIDGE_APPS_SEARCH" = "البحث في التطبيقات";
 "APPBRIDGE_APPS_NO_MATCH" = "لا يوجد تطبيق مطابق.";
+"APPBRIDGE_APPS_FOOTER" = "شغّل تطبيقًا لوضع أيقونته على الشاشة الرئيسية لـ CarPlay.";
+"APPBRIDGE_APPS_OTHER_FOOTER" = "لا تظهر التطبيقات التي لها واجهة CarPlay خاصة بها.";

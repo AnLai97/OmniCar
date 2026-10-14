@@ -109,21 +109,18 @@ Khách so sánh trực tiếp với DuoDash / CarBridge ở các mục này, và
 
 ### 2.1 Màn chính CarPlay (nâng cấp từ App Bridge)
 
-Trang Cài đặt "App trên màn xe" mở rộng thành "Màn chính CarPlay": app, bố cục, hình nền, dock.
-Mỗi thay đổi có xem trước trong Cài đặt (mô phỏng màn xe) trước khi áp lên xe.
-Bản xem trước giao diện: tools/preview/home.html (trang Cài đặt + màn xe mô phỏng đổi theo ngay).
-Code chung cho cả 5 mục (chưa thử trên xe): MỘT trang App trên màn xe gộp App Bridge + màn chính
-(Features/AppBridge/Prefs/OMCAppBridgeAppsController.m): xem trước màn xe, các thẻ gập Ứng dụng (danh sách cuộn riêng) ·
-Dock · Bố cục icon · Hình nền; key HS_KEY_* trong AppBridge.h. Bỏ công tắc App Bridge, Khung hình khỏi trang (đưa về mặc
-định một lần); Chế độ lái bỏ hẳn. KHÔNG có công tắc "Màn chính OmniCar" (bỏ 10/2026, HS_KEY_ENABLED không đọc nữa):
-hễ có gì khác mặc định của CarPlay (SCPHCustomized: app ẩn / sắp xếp, dock, bố cục icon, hình nền) là xe vẽ theo.
-Trên xe (Features/SplitScreen/SCPHomeScreen.mm): có tuỳ chỉnh thì OmniCar vẽ lưới icon + dock + hình nền của riêng mình lên
-trên của CarPlay; lưới / icon dock gốc chỉ bị ẩn, về mặc định hết là trả lại nguyên vẹn. Thứ tự app đọc từ model *IconListView (cách bảng
-chọn app của Split Screen đã chạy trên xe), mở app qua DashBoard _launchAppWithInfo:forURL: (app iPhone → App Bridge),
-dock là appDockViewController của root (như nút Split Screen). Lần đầu bật ghi log "HomeScreen: DIAG cay man chinh" để
-chỉnh nếu khác. Thử chung: ẩn một app hoặc chọn hình nền, cắm xe, Gửi log (dòng "HomeScreen:").
+THU GỌN (10/2026, theo ý tác giả): KHÔNG đụng vào giao diện của CarPlay. Trang "App trên màn xe"
+(Features/AppBridge/Prefs/OMCAppBridgeAppsController.m, xem trước tools/preview/home.html) chỉ còn: xem trước màn xe, thẻ
+App iPhone (công tắc đưa app lên xe = App Bridge, AB_KEY_APPS), Cỡ icon (HS_KEY_ICON_SIZE 60–130 %) và thẻ Hình nền
+(6 hình dựng sẵn, ảnh hoặc video từ Ảnh, độ mờ, độ tối). Trên xe (Features/SplitScreen/SCPHomeScreen.mm) màn chính gốc
+của CarPlay giữ nguyên: hình nền là một view chèn xuống dưới lưới icon của DBDashboardHomeViewController, cỡ icon qua hook
+SBIconListGridLayoutConfiguration -iconImageInfo (AppIcons.xm, nhân hệ số; cột / hàng CarPlay tự xếp). 100 % và không hình
+nền = không đụng gì. Lưới icon riêng, ẩn / sắp xếp app CarPlay, dock, cột / hàng / tên, thư mục, widget, gói icon, ngày /
+đêm đã bỏ hẳn (code trong git trước commit này). Lần đầu áp ghi log "HomeScreen: DIAG cay man chinh".
+Thử: chọn hình nền + kéo cỡ icon 130 %, cắm xe, Gửi log (dòng "HomeScreen:"; "khong co SBIconListGridLayoutConfiguration"
+= iOS này cần cách khác cho cỡ icon).
 
-- [x] [ ] **2.1.1 Ẩn và sắp xếp app** · Vừa
+- ~~**2.1.1 Ẩn và sắp xếp app**~~ · ĐÃ BỎ (10/2026, không đụng giao diện CarPlay)
   Ẩn cả app CarPlay gốc không dùng (CarBridge có), kéo đổi thứ tự app iPhone và app CarPlay trong một danh sách.
   Xong khi: thứ tự và app ẩn giữ nguyên sau khi rút / cắm lại và sau respring.
   Code: thẻ Ứng dụng = một danh sách mọi app (app hệ thống của CarPlay, app CarPlay, app iPhone), lọc Tất cả / CarPlay /
@@ -131,21 +128,22 @@ chỉnh nếu khác. Thử chung: ẩn một app hoặc chọn hình nền, cắ
   (HS_KEY_ORDER), ghim dock.
   Thử: ẩn 1 app CarPlay gốc, kéo YouTube lên đầu → cắm xe, rút / cắm lại, respring: vẫn đúng.
 - [x] [ ] **2.1.2 Cỡ icon** · Vừa
-  Thanh trượt cỡ icon trên màn chính (ví dụ 80–130 %), lưới tự tính lại để không tràn màn.
-  Code: Cỡ icon 80–130 % (HS_KEY_ICON_SIZE, icon gốc 64 pt); lưới bớt cột / hàng khi không vừa màn xe.
-  Thử: kéo 130 % trên màn xe nhỏ → không icon nào bị cắt, app dư sang trang sau.
-- [x] [ ] **2.1.3 Số cột / hàng và tên app** · Vừa
+  Thanh trượt cỡ icon trên màn chính gốc của CarPlay (60–130 %).
+  Code: HS_KEY_ICON_SIZE; hook SBIconListGridLayoutConfiguration -iconImageInfo trong process CarPlay nhân cỡ ảnh icon + bo
+  góc, đổi cỡ thì gọi layoutIconsNow cho các *IconListView (SCPHomeScreen.mm). Chờ thử trên xe (iOS 15 có thể khác lớp).
+  Thử: kéo 130 % → icon to trong ô của CarPlay, tên không chồng; 60 % → icon nhỏ, ô giữ nguyên.
+- ~~**2.1.3 Số cột / hàng và tên app**~~ · ĐÃ BỎ (10/2026, lưới do CarPlay xếp)
   Chọn số cột × hàng mỗi trang, ẩn / hiện tên dưới icon, khoảng cách icon.
   Code: Số cột 3–7, Số hàng 1–3, Khoảng cách 60–140 %, Tên dưới icon (HS_KEY_COLS / ROWS / GAP / NAMES); vuốt ngang
   đổi trang, chấm trang.
   Thử: 4 × 2 không tên → mỗi trang 8 icon; bật tên → tên không chồng icon hàng dưới.
 - [x] [ ] **2.1.4 Hình nền màn chính** · Vừa
   Chọn hình dựng sẵn hoặc ảnh từ Ảnh (bỏ chọn từ Tệp), cắt theo tỉ lệ màn xe, chỉnh độ mờ và độ tối để icon vẫn dễ nhìn.
-  Code: ô Mặc định + 6 hình dựng sẵn (gradient như bản xem trước, vẽ 1920 × 720) + ô ảnh của bạn, nút Từ Ảnh
-  → OmniCar/HomeScreen/wallpaper.jpg (≤ 1920 px), lấp kín vùng app (cắt
+  Code: ô Mặc định + 6 hình dựng sẵn (gradient như bản xem trước, vẽ 1920 × 720) + ô ảnh / video của bạn, nút Từ Ảnh
+  → OmniCar/HomeScreen/wallpaper.jpg (≤ 1920 px) hoặc video.mp4; view chèn dưới lưới icon gốc của CarPlay, lấp kín vùng app (cắt
   theo tỉ lệ), Độ mờ 0–30 (CIGaussianBlur trên luồng phụ), Độ tối 0–70 %; Bỏ hình nền = dùng lại hình nền CarPlay.
   Thử: ảnh dọc và ảnh ngang đều phủ kín, không méo; đổi độ mờ / tối thấy ngay khi thả tay.
-- [x] [ ] **2.1.5 Dock tuỳ chỉnh** · Vừa
+- ~~**2.1.5 Dock tuỳ chỉnh**~~ · ĐÃ BỎ (10/2026, không đụng dock CarPlay)
   Chọn app nào nằm cố định trên dock (kể cả app iPhone), ẩn mục gợi ý của CarPlay.
   Code: chip app ghim (✕ để bỏ) + chip "+ Thêm" (chọn app), hoặc ghim từ danh sách app; tối đa 4, kể cả app iPhone, thay cho gợi ý của CarPlay; không ghim + tắt "Gợi ý của CarPlay" = dock trống.
   Nút Split Screen trên dock giữ nguyên. Dock ngắn hơn số app ghim thì chỉ hiện số vừa (ghi log).

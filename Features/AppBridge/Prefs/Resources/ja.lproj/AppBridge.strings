@@ -6,3 +6,5 @@
 "APPBRIDGE_APPS_COUNT" = "%ld個のApp";
 "APPBRIDGE_APPS_SEARCH" = "Appを検索";
 "APPBRIDGE_APPS_NO_MATCH" = "一致するAppはありません。";
+"APPBRIDGE_APPS_FOOTER" = "Appをオンにすると、そのアイコンがCarPlayのホーム画面に追加されます。";
+"APPBRIDGE_APPS_OTHER_FOOTER" = "独自のCarPlay画面を持つAppは表示されません。";

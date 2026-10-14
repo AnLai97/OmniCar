@@ -1,33 +1,14 @@
 /* OmniCar - CarPlay home screen (OMCAppBridgeAppsController) */
 
 "HOMESCREEN_ICON_SIZE" = "アイコンサイズ";
-"HOMESCREEN_COLS" = "列";
-"HOMESCREEN_ROWS" = "行";
-"HOMESCREEN_GAP" = "間隔";
-"HOMESCREEN_NAMES" = "アイコンの下に名前";
 "HOMESCREEN_WALLPAPER" = "壁紙";
 "HOMESCREEN_BLUR" = "ぼかし";
 "HOMESCREEN_DIM" = "暗さ";
-"HOMESCREEN_DOCK" = "Dock";
-"HOMESCREEN_DOCK_FOOTER" = "固定したアプリが CarPlay の提案の代わりに入ります（最大 4、iPhone アプリも可）。固定なしなら下のスイッチに従います。";
-"HOMESCREEN_DOCK_SUGGEST" = "CarPlay の提案";
-"HOMESCREEN_DOCK_FULL" = "Dock にはすでに 4 個あります。先に 1 個の固定を外してください。";
 "HOMESCREEN_WALLPAPER_DEFAULT" = "デフォルト";
-"HOMESCREEN_DOCK_ADD" = "+ 追加";
-"HOMESCREEN_DOCK_PICK" = "Dock に追加";
 
 /* One page: Apps on the car screen */
 "APPS_TITLE" = "車の画面のアプリ";
-"APPS_CARD" = "アプリ";
-"APPS_SUMMARY" = "%ld / %ld 表示";
-"APPS_ALL" = "すべて";
 "APPS_SYSTEM" = "システム";
-"APPS_HINT" = "👁 表示 / 非表示 · ≡ で並べ替え · 📌 Dock";
-"APPS_RESET" = "デフォルト";
-"APPS_LAYOUT" = "アイコン配置";
-"APPS_DOCK_PINNED" = "%ld 個固定";
-"APPS_DOCK_SUGGEST_SHORT" = "CarPlay の提案";
-"APPS_DOCK_EMPTY" = "空";
 "APPS_WALL_0" = "デフォルト";
 "APPS_WALL_1" = "海";
 "APPS_WALL_2" = "夕焼け";
@@ -37,9 +18,10 @@
 "APPS_WALL_6" = "森";
 "APPS_WALL_7" = "あなたの写真";
 
-"APPS_LAYOUT_FOOTER" = "アイコンが車のディスプレイに収まらないときは列 / 行を減らします。残りのAppは次のページに移ります。";
 "APPS_WALL_8" = "あなたのビデオ";
 "APPS_FROM_PHOTOS" = "写真から（画像またはビデオ）";
 "APPS_VIDEO_WORKING" = "ビデオを準備中…";
 "APPS_VIDEO_FAILED" = "このビデオは使用できません。";
 "APPS_WALL_FOOTER" = "写真は車のディスプレイに合わせて切り抜かれます。アイコンが読みやすいよう暗さを上げてください。動画は無音でループ再生（最初の20秒）され、iPhoneが熱いとき、軽量モード中、画面分割中、Appがホーム画面を覆っているときは一時停止します。";
+"APPS_PHONE" = "iPhoneのApp";
+"HOMESCREEN_ICON_SIZE_FOOTER" = "CarPlayホーム画面のアイコンサイズ。100 % がCarPlay本来のサイズです。列と行の配置はCarPlayのままです。";

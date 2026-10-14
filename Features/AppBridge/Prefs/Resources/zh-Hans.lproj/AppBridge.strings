@@ -6,3 +6,5 @@
 "APPBRIDGE_APPS_COUNT" = "%ld 个 App";
 "APPBRIDGE_APPS_SEARCH" = "搜索 App";
 "APPBRIDGE_APPS_NO_MATCH" = "没有匹配的 App。";
+"APPBRIDGE_APPS_FOOTER" = "打开某个 App，即可将其图标放到 CarPlay 主屏幕上。";
+"APPBRIDGE_APPS_OTHER_FOOTER" = "自带 CarPlay 界面的 App 不会列出。";

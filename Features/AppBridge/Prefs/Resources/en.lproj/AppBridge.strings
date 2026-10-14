@@ -6,3 +6,5 @@
 "APPBRIDGE_APPS_COUNT" = "%ld apps";
 "APPBRIDGE_APPS_SEARCH" = "Search apps";
 "APPBRIDGE_APPS_NO_MATCH" = "No app matches.";
+"APPBRIDGE_APPS_FOOTER" = "Turn an app on to put its icon on the CarPlay home screen.";
+"APPBRIDGE_APPS_OTHER_FOOTER" = "Apps with their own CarPlay interface are not listed.";

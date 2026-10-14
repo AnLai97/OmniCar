@@ -1,33 +1,14 @@
 /* OmniCar - CarPlay home screen (OMCAppBridgeAppsController) */
 
 "HOMESCREEN_ICON_SIZE" = "아이콘 크기";
-"HOMESCREEN_COLS" = "열";
-"HOMESCREEN_ROWS" = "행";
-"HOMESCREEN_GAP" = "간격";
-"HOMESCREEN_NAMES" = "아이콘 아래 이름";
 "HOMESCREEN_WALLPAPER" = "배경화면";
 "HOMESCREEN_BLUR" = "흐림";
 "HOMESCREEN_DIM" = "어둡기";
-"HOMESCREEN_DOCK" = "Dock";
-"HOMESCREEN_DOCK_FOOTER" = "고정한 앱이 CarPlay 제안을 대신합니다(최대 4개, iPhone 앱 포함). 고정한 앱이 없으면 아래 스위치를 따릅니다.";
-"HOMESCREEN_DOCK_SUGGEST" = "CarPlay 제안";
-"HOMESCREEN_DOCK_FULL" = "Dock에 이미 앱 4개가 있습니다. 먼저 하나를 고정 해제하세요.";
 "HOMESCREEN_WALLPAPER_DEFAULT" = "기본";
-"HOMESCREEN_DOCK_ADD" = "+ 추가";
-"HOMESCREEN_DOCK_PICK" = "Dock에 추가";
 
 /* One page: Apps on the car screen */
 "APPS_TITLE" = "차 화면의 앱";
-"APPS_CARD" = "앱";
-"APPS_SUMMARY" = "%ld / %ld 표시";
-"APPS_ALL" = "전체";
 "APPS_SYSTEM" = "시스템";
-"APPS_HINT" = "👁 표시 / 숨기기 · ≡ 드래그 · 📌 Dock";
-"APPS_RESET" = "기본";
-"APPS_LAYOUT" = "아이콘 배치";
-"APPS_DOCK_PINNED" = "%ld개 고정";
-"APPS_DOCK_SUGGEST_SHORT" = "CarPlay 제안";
-"APPS_DOCK_EMPTY" = "비어 있음";
 "APPS_WALL_0" = "기본";
 "APPS_WALL_1" = "바다";
 "APPS_WALL_2" = "노을";
@@ -37,9 +18,10 @@
 "APPS_WALL_6" = "숲";
 "APPS_WALL_7" = "내 사진";
 
-"APPS_LAYOUT_FOOTER" = "아이콘이 차량 화면에 맞지 않으면 열 / 행을 줄이고, 남는 앱은 다음 페이지로 넘깁니다.";
 "APPS_WALL_8" = "내 비디오";
 "APPS_FROM_PHOTOS" = "사진에서(이미지 또는 비디오)";
 "APPS_VIDEO_WORKING" = "비디오 준비 중…";
 "APPS_VIDEO_FAILED" = "이 비디오를 사용할 수 없습니다.";
 "APPS_WALL_FOOTER" = "사진은 차량 화면에 맞게 잘립니다. 아이콘이 잘 보이도록 어둡기를 높이십시오. 동영상은 소리 없이 반복 재생(처음 20초)되며 iPhone이 뜨겁거나 라이트 모드가 켜져 있거나 화면이 분할되었거나 앱이 홈 화면을 가리면 멈춥니다.";
+"APPS_PHONE" = "iPhone 앱";
+"HOMESCREEN_ICON_SIZE_FOOTER" = "CarPlay 홈 화면의 아이콘 크기입니다. 100 %가 CarPlay 기본 크기이며 열과 행 배치는 CarPlay 그대로입니다.";

@@ -162,7 +162,7 @@ có tuỳ chỉnh, không có tính năng nâng cao. Pro là toàn bộ sức m�
 
 - **Chia màn hình**: Lite 2 ô 50/50 cố định, chọn app cho 2 ô · Pro kéo đổi tỉ lệ, 3 ô, đủ bố cục, yêu thích, gần đây, hồ sơ theo xe.
 - **App iPhone trên xe (App Bridge)**: Lite 1 app iPhone, chỉ mở toàn màn · Pro không giới hạn, app iPhone vào ô chia màn.
-- **Màn chính CarPlay**: Lite không có · Pro ẩn / sắp xếp app, cỡ icon, cột / hàng, dock, hình nền.
+- **Màn chính CarPlay**: Lite không có · Pro cỡ icon, hình nền (giao diện CarPlay giữ nguyên).
 - **Màn hình khởi động**: Lite 1 video của bạn, không tuỳ chỉnh · Pro mọi kiểu (logo + âm thanh, lời chào, thời tiết, theo dịp, ngẫu nhiên, hiệu ứng, chia sẻ mẫu).
 - **Bong bóng tốc độ**: Lite 1 kiểu, 1 nguồn, cỡ mặc định · Pro đủ kiểu, mọi nguồn, chỉnh cỡ / vị trí, cảnh báo quá tốc độ tuỳ chỉnh.
 - **Lái xe an toàn**: Lite cảnh báo quá tốc độ cơ bản (an toàn không khoá sau tiền) · Pro nút giọng nói trên vô lăng.
