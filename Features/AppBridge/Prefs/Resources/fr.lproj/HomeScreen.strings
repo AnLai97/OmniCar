@@ -34,6 +34,8 @@
 "APPS_ON_CAR_FOOTER" = "Les apps avec le badge iPhone sont celles qu’OmniCar affiche dans la voiture.";
 "APPS_CARPLAY_FOOTER" = "Désactivez une app CarPlay pour masquer son icône sur l’écran d’accueil de la voiture. Seule l’icône disparaît : l’app s’ouvre toujours d’elle-même pour un appel, un itinéraire ou Siri.";
 "APPS_CARPLAY_LOCKED" = "Toujours dans CarPlay";
+"APPS_CUSTOM" = "Personnaliser la liste des apps";
+"APPS_CUSTOM_OFF_FOOTER" = "Désactivé : la voiture affiche les apps CarPlay choisies dans Réglages de l’iPhone › Général › CarPlay. Activez pour afficher ou masquer ici chaque app CarPlay.";
 "APPS_CARPLAY_GUESS_FOOTER" = "Pas encore connecté à une voiture : les apps CarPlay sont devinées d’après leur prise en charge de CarPlay.";
 
 /* Man chinh CarPlay: luoi icon */

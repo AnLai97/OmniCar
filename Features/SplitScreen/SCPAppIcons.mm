@@ -165,9 +165,11 @@ void SCPRefreshAppIconsSoon(void)
 static NSSet<NSString *> *sHiddenApps;
 static NSObject *sHiddenLock;
 
+// Tuy chinh danh sach app tat (HS_KEY_CUSTOM_APPS): de nguyen danh sach cua CarPlay, khong an gi
 static NSSet<NSString *> *SCPReadHiddenApps(void)
 {
     OMCPrefsSync();
+    if (![OMCPref(HS_KEY_CUSTOM_APPS, @NO) boolValue]) return [NSSet set];
     id v = OMCPref(HS_KEY_HIDDEN_APPS, nil);
     return [v isKindOfClass:[NSArray class]] ? [NSSet setWithArray:v] : [NSSet set];
 }

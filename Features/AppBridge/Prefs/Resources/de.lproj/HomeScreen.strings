@@ -34,6 +34,8 @@
 "APPS_ON_CAR_FOOTER" = "Apps mit dem iPhone-Abzeichen bringt OmniCar ins Auto.";
 "APPS_CARPLAY_FOOTER" = "Schalte eine CarPlay-App aus, um ihr Symbol auf dem Home-Bildschirm im Auto auszublenden. Nur das Symbol verschwindet: Die App öffnet sich weiterhin bei Anrufen, Routen oder Siri.";
 "APPS_CARPLAY_LOCKED" = "Immer in CarPlay";
+"APPS_CUSTOM" = "App-Liste anpassen";
+"APPS_CUSTOM_OFF_FOOTER" = "Aus: Das Auto zeigt die CarPlay-Apps wie in den iPhone-Einstellungen › Allgemein › CarPlay festgelegt. Einschalten, um jede CarPlay-App hier ein- oder auszublenden.";
 "APPS_CARPLAY_GUESS_FOOTER" = "Noch nicht mit einem Auto verbunden: CarPlay-Apps sind anhand der CarPlay-Unterstützung geschätzt.";
 
 /* Man chinh CarPlay: luoi icon */

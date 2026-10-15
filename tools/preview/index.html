@@ -716,7 +716,7 @@ document.getElementById('pal').innerHTML = PAL.map(([c, n, u]) => `<div class="s
 </template>
 
 <!-- ===================================================================== Màn xe & App (#home) ===================================================================== -->
-<template id="m-home" data-name="Màn xe & App" data-desc="App trên màn xe (đang hiện trên xe + tab App CarPlay / App OmniCar), Màn chính CarPlay (lưới icon, tên app, hình nền), màn chính CarPlay mô phỏng.">
+<template id="m-home" data-name="Màn xe & App" data-desc="App trên màn xe (đang hiện trên xe + Tùy chỉnh danh sách app, App CarPlay / App OmniCar), Màn chính CarPlay (lưới icon, tên app, hình nền), màn chính CarPlay mô phỏng.">
 <html lang="vi">
 <head>
 <meta charset="utf-8">
@@ -724,9 +724,10 @@ document.getElementById('pal').innerHTML = PAL.map(([c, n, u]) => `<div class="s
 <title>OmniCar Home Screen</title>
 <!--
   Nhom "Man xe" cua Cai dat (Features/AppBridge/Prefs/OMCAppBridgeAppsController.m) + man chinh CarPlay mo phong.
-  App tren man xe: tren = luoi app dang hien tren xe (app CarPlay + app iPhone co dau iPhone), duoi = 2 tab
-  App CarPlay (cong tac = hien / an icon, HS_KEY_HIDDEN_APPS; Dien thoai, Nhac, Ban do, Tin nhan, Dang phat, Cai dat khoa
-  nhu CarPlay) / App OmniCar (app iPhone len xe qua App Bridge, AB_KEY_APPS).
+  App tren man xe: tren = luoi app dang hien tren xe (app CarPlay + app iPhone co dau iPhone), duoi = Tuy chinh danh sach
+  app (HS_KEY_CUSTOM_APPS; tat = dung danh sach cua CarPlay) + MOT danh sach 2 phan: App CarPlay (cong tac = hien / an icon,
+  HS_KEY_HIDDEN_APPS, chi khi Tuy chinh bat; Dien thoai, Nhac, Ban do, Tin nhan, Dang phat, Cai dat khoa nhu CarPlay) /
+  App OmniCar (app iPhone len xe qua App Bridge, AB_KEY_APPS).
   Man chinh CarPlay (OMCHomeScreenController): xem truoc, luoi icon (so cot / hang: Tu dong = nhu CarPlay, co icon, ten app), hinh nen.
   Man chinh CarPlay giu nguyen: chi bot icon bi an (isIconVisible:), them app iPhone, doi co icon, chen hinh nen.
 -->
@@ -784,6 +785,8 @@ h1 { margin: 0; font-size: 22px; }
 .swi { width: 46px; height: 28px; border-radius: 14px; background: rgba(120,120,140,.22); position: relative; flex: none; cursor: pointer; transition: background .2s; }
 .swi::after { content: ""; position: absolute; top: 2px; left: 2px; width: 24px; height: 24px; border-radius: 12px; background: #fff; box-shadow: 0 2px 5px rgba(0,0,0,.2); transition: transform .3s var(--hm-spring); }
 .swi.on { background: var(--on); } .swi.on::after { transform: translateX(18px); }
+.swi.dis { opacity: .4; cursor: default; }
+.ph { position: sticky; top: 0; z-index: 1; padding: 6px 12px; font-size: 11px; font-weight: 600; letter-spacing: .4px; text-transform: uppercase; color: var(--ink2); background: rgba(244,245,251,.92); }
 .lock { width: 46px; display: grid; place-items: center; color: #b4b8cc; flex: none; }
 .lock svg { width: 18px; height: 18px; }
 input[type=range] { flex: 1; accent-color: #8b7cff; min-width: 0; }
@@ -847,9 +850,9 @@ input[type=range] { flex: 1; accent-color: #8b7cff; min-width: 0; }
 </head>
 <body>
 <h1>Màn xe · App trên màn xe + Màn chính CarPlay</h1>
-<p class="sub">Nhóm <b>Màn xe</b> ở trang chính có 2 mục. <b>App trên màn xe</b>: trên là các app đang hiện trên xe, dưới 2 tab
-  <b>App CarPlay</b> (tắt = ẩn icon; Điện thoại, Nhạc, Bản đồ, Tin nhắn, Đang phát, Cài đặt khoá như CarPlay) và <b>App OmniCar</b> (app iPhone đưa lên xe).
-  <b>Màn chính CarPlay</b>: lưới icon (số cột, số hàng, cỡ icon, tên app) và hình nền. Vẫn là màn chính gốc của CarPlay, OmniCar chỉ chỉnh lưới, bớt / thêm icon, chèn hình nền.</p>
+<p class="sub">Nhóm <b>Màn xe</b> ở trang chính có 2 mục. <b>App trên màn xe</b>: cắm xe thì CarPlay hiện app như đã chọn trong Cài đặt iPhone › CarPlay;
+  bật <b>Tùy chỉnh danh sách app</b> thì OmniCar thay danh sách đó (ẩn / hiện từng app CarPlay; Điện thoại, Nhạc, Bản đồ, Tin nhắn, Đang phát, Cài đặt khoá như CarPlay).
+  Một danh sách chia 2 phần: <b>App CarPlay</b> và <b>App OmniCar</b> (app iPhone đưa lên xe). <b>Màn chính CarPlay</b>: lưới icon (số cột, số hàng, cỡ icon, tên app) và hình nền.</p>
 
 <div class="wrap">
   <div class="phone"><div class="scr"><div class="liquid"><i></i><i></i><i></i><i></i></div>
@@ -877,6 +880,7 @@ const ICON = {
   blur: I('<circle cx="12" cy="12" r="8"/><path d="M12 4v16M8 5.2v13.6M16 5.2v13.6" stroke-opacity=".5"/>', 2),
   moon: I('<path d="M19 14.5A7.5 7.5 0 0 1 9.5 5a7.5 7.5 0 1 0 9.5 9.5z"/>', 2),
   iphone: I('<rect x="7" y="3" width="10" height="18" rx="2.5"/><path d="M11 18h2"/>', 2.6),
+  sliders: I('<path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/>', 2),
   lock: I('<rect x="5.5" y="10.5" width="13" height="9.5" rx="2.5"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/>', 2),
   play: I('<path d="M8 5.5v13l11-6.5z"/>', 2),
   cols: I('<rect x="3.5" y="5" width="17" height="14" rx="2.5"/><path d="M9.2 5v14M14.8 5v14"/>', 2),
@@ -925,13 +929,14 @@ const WALLS = [
 
 const S = {
   view: 'apps',                                    // root / apps / layout (mo thang trang App)
-  tab: 'omnicar', q: '',                           // tab App CarPlay / App OmniCar
+  custom: false, q: '',                            // Tuy chinh danh sach app (HS_KEY_CUSTOM_APPS), o tim
   onCar: new Set(['youtube', 'tiktok', 'zing']),   // AB_KEY_APPS
   hidden: new Set(['books']),                      // HS_KEY_HIDDEN_APPS
   size: 100, cols: 0, rows: 0, names: true,          // cols / rows 0 = Tu dong (HS_COLS_VALUES / HS_ROWS_VALUES)
   wall: 2, blur: 0, dark: 25, hasPhoto: false, wallOpen: true, page: 0,
 };
-const visibleCarPlay = () => CARPLAY.filter(a => a.lock || !S.hidden.has(a.id));
+const hides = id => S.custom && S.hidden.has(id) && !byId[id].lock;   // an chi khi Tuy chinh bat
+const visibleCarPlay = () => CARPLAY.filter(a => !hides(a.id));
 const onCarItems = () => [...visibleCarPlay(), ...PHONE.filter(a => S.onCar.has(a.id))];
 
 // ---------- trang Cai dat ----------
@@ -949,27 +954,31 @@ function navBar(title) { return `<div class="nav"><span class="back" data-go="ro
 function appsPage() {
   const grid = onCarItems().map(a => `<div><span class="ico" style="background:${a.c}">${a.g}${byId[a.id] && PHONE.includes(a) ? `<span class="badge">${ICON.iphone}</span>` : ''}</span><span>${a.n}</span></div>`).join('');
   const q = S.q.trim().toLowerCase(), match = a => !q || a.n.toLowerCase().includes(q);
-  const rows = S.tab === 'carplay'
-    ? CARPLAY.filter(match).map(a => `<div class="r"><span class="ico" style="background:${a.c}">${a.g}</span>
-        <span class="lab">${a.n}${a.lock ? '<small class="sys">CarPlay luôn hiện</small>' : ''}</span>
-        ${a.lock ? `<span class="lock">${ICON.lock}</span>` : `<span class="swi ${S.hidden.has(a.id) ? '' : 'on'}" data-hide="${a.id}"></span>`}</div>`).join('')
-    : PHONE.filter(match).map(a => `<div class="r"><span class="ico" style="background:${a.c}">${a.g}</span>
-        <span class="lab">${a.n}${a.sys ? '<small class="sys">Hệ thống</small>' : ''}</span>
-        <span class="swi ${S.onCar.has(a.id) ? 'on' : ''}" data-car="${a.id}"></span></div>`).join('');
-  const foot = S.tab === 'carplay'
-    ? 'Tắt một app CarPlay để ẩn icon của nó trên màn chính của xe. Chỉ ẩn icon: app vẫn tự mở khi có cuộc gọi, chỉ đường hoặc Siri.'
-    : 'Bật app để icon hiện trên màn chính CarPlay. App đã có CarPlay riêng không nằm ở đây.';
+  // Tuy chinh tat: app CarPlay theo dung Cai dat iPhone > CarPlay, cong tac chi de xem (mo)
+  const cp = CARPLAY.filter(match).map(a => `<div class="r"><span class="ico" style="background:${a.c}">${a.g}</span>
+      <span class="lab">${a.n}${a.lock ? '<small class="sys">CarPlay luôn hiện</small>' : ''}</span>
+      ${a.lock ? `<span class="lock">${ICON.lock}</span>` : `<span class="swi ${hides(a.id) ? '' : 'on'} ${S.custom ? '' : 'dis'}" data-hide="${a.id}"></span>`}</div>`).join('');
+  const ip = PHONE.filter(match).map(a => `<div class="r"><span class="ico" style="background:${a.c}">${a.g}</span>
+      <span class="lab">${a.n}${a.sys ? '<small class="sys">Hệ thống</small>' : ''}</span>
+      <span class="swi ${S.onCar.has(a.id) ? 'on' : ''}" data-car="${a.id}"></span></div>`).join('');
+  const nCp = CARPLAY.filter(match).length, nIp = PHONE.filter(match).length;
   return navBar('App trên màn xe') + `
     <div class="lbl">Đang hiện trên xe · ${onCarItems().length}</div>
     <div class="card glass"><div class="oncar">${grid}</div></div>
     <div class="foot">App có dấu iPhone là app OmniCar đưa lên xe.</div>
     <div class="lbl">Chọn app</div>
     <div class="card glass">
-      <div class="seg"><span class="${S.tab === 'carplay' ? 'on' : ''}" data-tab="carplay">App CarPlay</span><span class="${S.tab === 'omnicar' ? 'on' : ''}" data-tab="omnicar">App OmniCar</span></div>
+      <div class="r"><span class="tile" style="background:linear-gradient(135deg,#B7A6FF,#8B7CFF)">${ICON.sliders}</span><span class="lab">Tùy chỉnh danh sách app</span><span class="swi ${S.custom ? 'on' : ''}" data-custom></span></div>
       <input class="find" placeholder="Tìm app" value="${S.q}" data-find>
-      <div class="list" id="applist">${rows || '<div class="r"><span class="lab" style="color:var(--ink2)">Không có app nào khớp.</span></div>'}</div>
+      <div class="list" id="applist">
+        ${nCp ? `<div class="ph">App CarPlay · ${nCp}</div>${cp}` : ''}
+        ${nIp ? `<div class="ph">App OmniCar · ${nIp}</div>${ip}` : ''}
+        ${!nCp && !nIp ? '<div class="r"><span class="lab" style="color:var(--ink2)">Không có app nào khớp.</span></div>' : ''}
+      </div>
     </div>
-    <div class="foot">${foot}</div>`;
+    <div class="foot">${S.custom ? 'Tắt một app CarPlay để ẩn icon của nó trên màn chính của xe. Chỉ ẩn icon: app vẫn tự mở khi có cuộc gọi, chỉ đường hoặc Siri.'
+      : 'Đang tắt: xe hiện app CarPlay như đã chọn trong Cài đặt iPhone › Cài đặt chung › CarPlay. Bật để ẩn / hiện từng app CarPlay ở đây.'}<br>
+      Bật app OmniCar để icon hiện trên màn chính CarPlay. App đã có CarPlay riêng không nằm ở đây.</div>`;
 }
 
 function layoutPage() {
@@ -1019,7 +1028,7 @@ function carScreen() {
     ${pages > 1 ? `<div class="pdots">${Array.from({ length: pages }, (_, i) => `<i class="${i === S.page ? 'on' : ''}" data-page="${i}"></i>`).join('')}</div>` : ''}`;
   $('cs').innerHTML = html;
   if ($('cs2')) { $('cs2').innerHTML = html; $('cs2').style.setProperty('--k', $('cs2').parentNode.clientWidth / 800); }
-  const hid = CARPLAY.filter(a => !a.lock && S.hidden.has(a.id)).map(a => a.n);
+  const hid = CARPLAY.filter(a => hides(a.id)).map(a => a.n);
   $('sum').innerHTML = `<b>Trên xe:</b> ${visibleCarPlay().length} app CarPlay${hid.length ? ` (ẩn: ${hid.join(', ')})` : ''} + ${S.onCar.size} app iPhone ·
     lưới ${S.cols || 'tự động'} × ${S.rows || 'tự động'}, icon ${S.size}%${S.names ? '' : ', ẩn tên'} · hình nền ${WALL_NAMES[S.wall]}${w && S.wall !== 8 ? `, mờ ${S.blur}, tối ${S.dark}%` : w ? `, tối ${S.dark}%` : ''} · ${pages} trang.
     ${!hid.length && S.size === 100 && !S.cols && !S.rows && S.names && !S.wall ? ' Không ẩn app, lưới tự động, cỡ 100 %, có tên, hình nền Mặc định = màn chính CarPlay nguyên bản (chỉ thêm app iPhone).' : ''}`;
@@ -1038,9 +1047,9 @@ function render() {
 function bind() {
   const pg = $('page');
   pg.querySelectorAll('[data-go]').forEach(e => e.onclick = () => { S.view = e.dataset.go; $('page').scrollTop = 0; render(); });
-  pg.querySelectorAll('[data-tab]').forEach(e => e.onclick = () => { S.tab = e.dataset.tab; render(); });
+  pg.querySelectorAll('[data-custom]').forEach(e => e.onclick = () => { S.custom = !S.custom; render(); });
   pg.querySelectorAll('[data-car]').forEach(e => e.onclick = () => { const id = e.dataset.car; S.onCar.has(id) ? S.onCar.delete(id) : S.onCar.add(id); render(); });
-  pg.querySelectorAll('[data-hide]').forEach(e => e.onclick = () => { const id = e.dataset.hide; S.hidden.has(id) ? S.hidden.delete(id) : S.hidden.add(id); render(); });
+  pg.querySelectorAll('[data-hide]').forEach(e => e.onclick = () => { if (!S.custom) return; const id = e.dataset.hide; S.hidden.has(id) ? S.hidden.delete(id) : S.hidden.add(id); render(); });
   pg.querySelectorAll('[data-find]').forEach(e => e.oninput = () => { S.q = e.value; const pos = e.selectionStart; render(); const f = $('page').querySelector('[data-find]'); f.focus(); f.setSelectionRange(pos, pos); });
   pg.querySelectorAll('[data-range]').forEach(e => e.oninput = () => {
     S[e.dataset.range] = +e.value;

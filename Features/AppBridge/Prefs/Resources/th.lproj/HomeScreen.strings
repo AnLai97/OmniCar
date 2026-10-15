@@ -34,6 +34,8 @@
 "APPS_ON_CAR_FOOTER" = "แอปที่มีป้าย iPhone คือแอปที่ OmniCar นำขึ้นจอรถ";
 "APPS_CARPLAY_FOOTER" = "ปิดแอป CarPlay เพื่อซ่อนไอคอนบนหน้าจอหลักของรถ ซ่อนแค่ไอคอน แอปยังเปิดเองได้เมื่อมีสายเข้า นำทาง หรือใช้ Siri";
 "APPS_CARPLAY_LOCKED" = "แสดงใน CarPlay เสมอ";
+"APPS_CUSTOM" = "ปรับแต่งรายการแอป";
+"APPS_CUSTOM_OFF_FOOTER" = "ปิดอยู่: รถแสดงแอป CarPlay ตามที่เลือกไว้ในการตั้งค่า iPhone › ทั่วไป › CarPlay เปิดเพื่อแสดงหรือซ่อนแอป CarPlay แต่ละตัวที่นี่";
 "APPS_CARPLAY_GUESS_FOOTER" = "ยังไม่เคยเชื่อมต่อรถ: แอป CarPlay เดาจากการรองรับ CarPlay";
 
 /* Man chinh CarPlay: luoi icon */

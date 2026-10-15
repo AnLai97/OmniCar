@@ -34,6 +34,8 @@
 "APPS_ON_CAR_FOOTER" = "Le app con il badge iPhone sono quelle che OmniCar porta in auto.";
 "APPS_CARPLAY_FOOTER" = "Disattiva un'app CarPlay per nasconderne l'icona nella schermata Home dell'auto. Sparisce solo l'icona: l'app si apre comunque da sola per una chiamata, le indicazioni o Siri.";
 "APPS_CARPLAY_LOCKED" = "Sempre in CarPlay";
+"APPS_CUSTOM" = "Personalizza elenco app";
+"APPS_CUSTOM_OFF_FOOTER" = "Disattivato: l'auto mostra le app CarPlay scelte in Impostazioni di iPhone › Generali › CarPlay. Attiva per mostrare o nascondere qui ogni app CarPlay.";
 "APPS_CARPLAY_GUESS_FOOTER" = "Non ancora collegato a un'auto: le app CarPlay sono stimate in base al supporto CarPlay.";
 
 /* Man chinh CarPlay: luoi icon */

@@ -34,6 +34,8 @@
 "APPS_ON_CAR_FOOTER" = "App dengan lencana iPhone adalah app yang dibawa OmniCar ke mobil.";
 "APPS_CARPLAY_FOOTER" = "Matikan app CarPlay untuk menyembunyikan ikonnya di layar utama mobil. Hanya ikonnya yang hilang: app tetap terbuka sendiri untuk panggilan, petunjuk arah, atau Siri.";
 "APPS_CARPLAY_LOCKED" = "Selalu di CarPlay";
+"APPS_CUSTOM" = "Sesuaikan daftar app";
+"APPS_CUSTOM_OFF_FOOTER" = "Mati: mobil menampilkan app CarPlay sesuai Pengaturan iPhone › Umum › CarPlay. Nyalakan untuk menampilkan atau menyembunyikan tiap app CarPlay di sini.";
 "APPS_CARPLAY_GUESS_FOOTER" = "Belum terhubung ke mobil: app CarPlay ditebak dari dukungan CarPlay.";
 
 /* Man chinh CarPlay: luoi icon */

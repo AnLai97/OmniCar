@@ -34,6 +34,8 @@
 "APPS_ON_CAR_FOOTER" = "التطبيقات التي تحمل شارة iPhone هي التي ينقلها OmniCar إلى السيارة.";
 "APPS_CARPLAY_FOOTER" = "أوقف تطبيق CarPlay لإخفاء أيقونته من الشاشة الرئيسية للسيارة. تختفي الأيقونة فقط: يظل التطبيق يفتح تلقائيًا عند مكالمة أو اتجاهات أو Siri.";
 "APPS_CARPLAY_LOCKED" = "يظهر دائمًا في CarPlay";
+"APPS_CUSTOM" = "تخصيص قائمة التطبيقات";
+"APPS_CUSTOM_OFF_FOOTER" = "متوقف: تعرض السيارة تطبيقات CarPlay كما اخترتها في إعدادات iPhone › عام › CarPlay. شغّله لإظهار أو إخفاء كل تطبيق CarPlay هنا.";
 "APPS_CARPLAY_GUESS_FOOTER" = "لم يتم الاتصال بسيارة بعد: تطبيقات CarPlay مُخمَّنة حسب دعم CarPlay.";
 
 /* Man chinh CarPlay: luoi icon */

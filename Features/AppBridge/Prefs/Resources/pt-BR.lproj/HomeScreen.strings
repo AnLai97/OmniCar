@@ -34,6 +34,8 @@
 "APPS_ON_CAR_FOOTER" = "Os apps com o selo de iPhone são os que o OmniCar leva ao carro.";
 "APPS_CARPLAY_FOOTER" = "Desative um app do CarPlay para ocultar o ícone dele na tela inicial do carro. Só o ícone some: o app continua abrindo sozinho em uma ligação, rota ou com a Siri.";
 "APPS_CARPLAY_LOCKED" = "Sempre no CarPlay";
+"APPS_CUSTOM" = "Personalizar lista de apps";
+"APPS_CUSTOM_OFF_FOOTER" = "Desativado: o carro mostra os apps do CarPlay escolhidos em Ajustes do iPhone › Geral › CarPlay. Ative para mostrar ou ocultar aqui cada app do CarPlay.";
 "APPS_CARPLAY_GUESS_FOOTER" = "Ainda não conectado a um carro: os apps do CarPlay são estimados pelo suporte ao CarPlay.";
 
 /* Man chinh CarPlay: luoi icon */

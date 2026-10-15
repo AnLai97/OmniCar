@@ -34,6 +34,8 @@
 "APPS_ON_CAR_FOOTER" = "iPhoneバッジ付きのAppはOmniCarが車に表示しているAppです。";
 "APPS_CARPLAY_FOOTER" = "CarPlay Appをオフにすると、車のホーム画面からアイコンが消えます。消えるのはアイコンだけで、通話・経路案内・Siriでは今まで通り自動で開きます。";
 "APPS_CARPLAY_LOCKED" = "CarPlayに常に表示";
+"APPS_CUSTOM" = "Appリストをカスタマイズ";
+"APPS_CUSTOM_OFF_FOOTER" = "オフ: iPhoneの設定 › 一般 › CarPlayで選んだCarPlay Appを車に表示します。オンにすると、ここで各CarPlay Appの表示/非表示を切り替えられます。";
 "APPS_CARPLAY_GUESS_FOOTER" = "まだ車に接続していません: CarPlay対応状況からCarPlay Appを推定しています。";
 
 /* Man chinh CarPlay: luoi icon */

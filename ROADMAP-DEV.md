@@ -125,7 +125,10 @@ Thử: chọn hình nền + kéo cỡ icon 130 %, cắm xe, Gửi log (dòng "Ho
   Ẩn icon app CarPlay gốc không dùng (CarBridge có) trên màn chính gốc của CarPlay; app vẫn tự mở khi có cuộc gọi, chỉ
   đường, Siri. Sắp xếp / ghim dock vẫn bỏ (không tự vẽ lưới).
   Xong khi: app ẩn không hiện trên màn chính, giữ nguyên sau khi rút / cắm lại và sau respring; bật lại thì icon về.
-  Code: App trên màn xe > tab App CarPlay, công tắc mỗi app → HS_KEY_HIDDEN_APPS (key mới, không đọc homeScreenHidden cũ).
+  Flow: cắm xe thì CarPlay hiện app như đã chọn trong Cài đặt iPhone › Chung › CarPlay; bật "Tùy chỉnh danh sách app"
+  (HS_KEY_CUSTOM_APPS, mặc định tắt) thì OmniCar thay danh sách đó. Tắt = không ẩn gì (danh sách ẩn giữ lại, không áp).
+  Code: App trên màn xe > Chọn app: công tắc Tùy chỉnh + MỘT danh sách chia 2 phần có tiêu đề (App CarPlay / App OmniCar,
+  không còn tab); công tắc app CarPlay → HS_KEY_HIDDEN_APPS (key mới, không đọc homeScreenHidden cũ), chỉ bấm được khi Tùy chỉnh bật.
   Như CarPlay: Điện thoại, Nhạc, Bản đồ, Tin nhắn, Đang phát, Xe, Cài đặt không ẩn được (HSIsLockedCarPlayApp trong
   AppBridge.h: hàng có khóa thay công tắc, trên xe bỏ qua dù có trong danh sách ẩn).
   Trên xe: hook -[SBIconModel isIconVisible:] (AppIcons.xm, SCPIconHiddenOnCar trong SCPAppIcons.mm) trả NO cho app bị ẩn;
