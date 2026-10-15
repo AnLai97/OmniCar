@@ -152,10 +152,29 @@ static NSUInteger SCPGridValue(id cfg, NSUInteger orig, BOOL landscape, BOOL col
     return info;
 }
 
-- (NSUInteger)numberOfPortraitColumns { return SCPGridValue(self, %orig, NO, YES); }
-- (NSUInteger)numberOfPortraitRows { return SCPGridValue(self, %orig, NO, NO); }
-- (NSUInteger)numberOfLandscapeColumns { return SCPGridValue(self, %orig, YES, YES); }
-- (NSUInteger)numberOfLandscapeRows { return SCPGridValue(self, %orig, YES, NO); }
+- (NSUInteger)numberOfPortraitColumns
+{
+    NSUInteger n = %orig;
+    return SCPGridValue(self, n, NO, YES);
+}
+
+- (NSUInteger)numberOfPortraitRows
+{
+    NSUInteger n = %orig;
+    return SCPGridValue(self, n, NO, NO);
+}
+
+- (NSUInteger)numberOfLandscapeColumns
+{
+    NSUInteger n = %orig;
+    return SCPGridValue(self, n, YES, YES);
+}
+
+- (NSUInteger)numberOfLandscapeRows
+{
+    NSUInteger n = %orig;
+    return SCPGridValue(self, n, YES, NO);
+}
 
 %end
 
