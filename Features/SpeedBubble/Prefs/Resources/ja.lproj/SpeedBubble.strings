@@ -43,12 +43,12 @@
 "SPEEDBUBBLE_SRC_HINT_0" = "速度 + 制限標識。Vietmap Live を一度開いてバックグラウンドのままにします。";
 "SPEEDBUBBLE_SRC_HINT_1" = "速度 + 制限標識。GOFA を一度開いてバックグラウンドのままにします。";
 "SPEEDBUBBLE_SRC_HINT_2" = "速度は GPS から。制限は Waze が標識を表示しているときのみ（試験的）。";
-"SPEEDBUBBLE_WARN_SHORT_0" = "オフ";
 "SPEEDBUBBLE_WARN_SHORT_1" = "警告";
 "SPEEDBUBBLE_WARN_SHORT_2" = "音";
 "SPEEDBUBBLE_WARN_WHEN" = "しきい値";
 "SPEEDBUBBLE_WARN_ON_FOOTER" = "%@したときに警告します：CarPlay画面の周囲に赤い枠が点滅します%@。制限速度標識を提供するソースが必要です。";
 "SPEEDBUBBLE_WARN_SOUND_PART" = "（短い音 1 回）";
+"SPEEDBUBBLE_WARN_SOUND_FOOTER" = "%@したときに短い音を 1 回鳴らします（赤い枠なし）。制限速度標識を提供するソースが必要です。";
 "SPEEDBUBBLE_WARN_OFF_FOOTER" = "警告しません。超過時もバブルの色は変わります。";
 "SPEEDBUBBLE_WARN_TH_AT" = "制限速度に到達";
 "SPEEDBUBBLE_WARN_TH_OVER" = "制限速度を%@超過";

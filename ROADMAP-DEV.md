@@ -225,8 +225,9 @@ xem trước ngay trong Cài đặt. Âm thanh phát qua loa xe khi CarPlay kế
 - [x] [ ] **2.4.1 Cảnh báo quá tốc độ** · Thấp
   Vượt biển + ngưỡng tuỳ chọn → viền màn đổi màu, tiếng ngắn; có chế độ im lặng.
   Code: SPPWarn.mm: viền đỏ nhấp nháy trên màn xe + tiếng bíp 1 lần mỗi lần vượt; ngưỡng −10…+10 so với giới hạn (âm = báo
-  từ trước khi chạm giới hạn), ba lựa chọn Tắt / Cảnh báo (chỉ viền) / Âm thanh (viền + tiếng) (Bong bóng tốc độ > Cảnh báo
-  quá tốc độ).
+  từ trước khi chạm giới hạn), hai công tắc Cảnh báo (viền) và Âm thanh (tiếng), bật cái nào có cái đó
+  (mặc định cả hai; lưu 2 bit trong SB_KEY_WARN_MODE, giá trị cũ 2 = viền + tiếng tự đổi thành 3, SB_KEY_WARN_MODE_V2) (Bong bóng tốc độ > Cảnh báo quá tốc độ).
+  Trang cài đặt: nhóm Cỡ và vị trí nằm ngay dưới Kiểu; icon nguồn trong bong bóng là ô vuông bo góc (trước là tròn).
 - [ ] [ ] **2.4.2 Nguồn tốc độ toàn cầu** · Vừa
   Chỉ còn 3 nguồn (10/2026): Vietmap Live, GOFA, Waze. Đã bỏ GPS iPhone (SPPGPS.mm xoá), Google Maps, Apple Maps; nguồn cũ
   4 (Waze) tự đổi thành 2, các nguồn bỏ về Vietmap (SB_KEY_SOURCE_V2).

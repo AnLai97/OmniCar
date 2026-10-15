@@ -2,7 +2,7 @@
 
 // Canh bao qua toc do (Cai dat > Bong bong toc do > Canh bao qua toc do), chi tren man xe:
 // toc do > gioi han + nguong (SB_KEY_WARN_OVER) -> vien do phat sang nhay quanh man CarPlay (cua so rieng tren man xe,
-// cham xuyen qua) + 1 tieng ngan moi lan vuot (SB_KEY_WARN_MODE = 2). Keu lai chi sau khi xuong duoi gioi han
+// cham xuyen qua) va / hoac 1 tieng ngan moi lan vuot (SB_KEY_WARN_MODE: 1 vien, 2 tieng, 3 ca hai). Keu lai chi sau khi xuong duoi gioi han
 // lien tuc SPP_WARN_REARM giay. Khong co gioi han / so cu -> khong canh bao.
 // SPPBubble goi updateSpeed:limit: moi ban tin + moi giay (so cu -> -1).
 @interface SPPOverspeed : NSObject

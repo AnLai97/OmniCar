@@ -111,13 +111,13 @@ static UIImage *SPPWarnGlowImage(void)
     }
     self.over = over;
     if (over) {
-        if (self.armed && self.mode == 2) {
+        if (self.armed && (self.mode == 2 || self.mode == 3)) {
             AudioServicesPlaySystemSound(SPP_WARN_SOUND);
             SPPLog("canh bao: phat tieng");
         }
         self.armed = NO;   // ca che do im lang: tinh la 1 lan vuot
     }
-    [self showBorder:over];
+    [self showBorder:over && self.mode != 2];   // 2 = chi am thanh
 }
 
 // ---------------------------------------------------------------------

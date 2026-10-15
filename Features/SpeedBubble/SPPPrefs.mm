@@ -32,12 +32,14 @@ static id value(NSString *key)
     CFPreferencesAppSynchronize(OMC_PREFS_DOMAIN);
 }
 
-// Canh bao qua toc do: 0 tat, 1 canh bao (vien do, im lang), 2 am thanh (vien + tieng ngan, mac dinh)
+// Canh bao qua toc do: 0 tat, 1 canh bao (vien do, im lang), 2 am thanh (tieng ngan, khong vien), 3 ca hai (mac dinh).
+// Gia tri ban cu (chua co SB_KEY_WARN_MODE_V2): 2 = vien + tieng -> 3
 + (NSInteger)warnMode
 {
     id v = value(SB_KEY_WARN_MODE);
-    NSInteger i = v ? [v integerValue] : 2;
-    return (i >= 0 && i <= 2) ? i : 2;
+    NSInteger i = v ? [v integerValue] : 3;
+    if (v && i == 2 && ![value(SB_KEY_WARN_MODE_V2) boolValue]) i = 3;
+    return (i >= 0 && i <= 3) ? i : 3;
 }
 
 // Nguong -10..10 (mac dinh 5) so voi gioi han, theo don vi dang hien tren bong bong (am = bao tu truoc khi cham gioi han):

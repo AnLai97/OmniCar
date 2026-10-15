@@ -43,12 +43,12 @@
 "SPEEDBUBBLE_SRC_HINT_0" = "速度 + 限速标志。打开 Vietmap Live 一次后让它在后台运行。";
 "SPEEDBUBBLE_SRC_HINT_1" = "速度 + 限速标志。打开 GOFA 一次后让它在后台运行。";
 "SPEEDBUBBLE_SRC_HINT_2" = "速度来自 GPS；仅当 Waze 显示限速标志时才有限速（试验）。";
-"SPEEDBUBBLE_WARN_SHORT_0" = "关";
 "SPEEDBUBBLE_WARN_SHORT_1" = "警告";
 "SPEEDBUBBLE_WARN_SHORT_2" = "声音";
 "SPEEDBUBBLE_WARN_WHEN" = "阈值";
 "SPEEDBUBBLE_WARN_ON_FOOTER" = "当车速%@时发出警告：CarPlay 屏幕四周闪烁红色边框%@。需要能提供限速标志的来源。";
 "SPEEDBUBBLE_WARN_SOUND_PART" = "，并响一声";
+"SPEEDBUBBLE_WARN_SOUND_FOOTER" = "当车速%@时响一声，不显示红色边框。需要能提供限速标志的来源。";
 "SPEEDBUBBLE_WARN_OFF_FOOTER" = "不警告；超速时气泡仍会变色。";
 "SPEEDBUBBLE_WARN_TH_AT" = "达到限速";
 "SPEEDBUBBLE_WARN_TH_OVER" = "超过限速 %@";

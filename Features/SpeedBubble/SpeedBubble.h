@@ -28,7 +28,11 @@
 #define SB_SOURCE_NAMES      (@[@"Vietmap Live", @"GOFA", @"Waze"])
 // Canh bao qua toc do (chi tren man xe): toc do > gioi han + nguong -> vien do phat sang nhay quanh man CarPlay (nguong am:
 // bao tu truoc khi cham gioi han)
-#define SB_KEY_WARN_MODE     @"speedBubbleWarnMode"      // 0 tat, 1 canh bao (vien do, im lang), 2 am thanh (vien + 1 tieng ngan, mac dinh)
+#define SB_KEY_WARN_MODE     @"speedBubbleWarnMode"      // 2 bit (Cai dat: 2 cong tac Canh bao / Am thanh): 0 tat, 1 canh bao (vien do, im lang), 2 am thanh (1 tieng ngan, khong vien),
+                                                         // 3 canh bao + am thanh (vien + tieng, mac dinh)
+// Ban truoc chi co 0 / 1 / 2 (2 = vien + tieng): lan dau doc sau ban nay, SPPPrefs / Cai dat doi 2 -> 3, roi ghi
+// SB_KEY_WARN_MODE_V2 = YES.
+#define SB_KEY_WARN_MODE_V2  @"speedBubbleWarnModeV2"
 #define SB_KEY_WARN_OVER     @"speedBubbleWarnOver"      // nguong -10..10 so voi gioi han (am = bao truoc khi cham), mac dinh 5, theo don vi dang hien
 // Truoc day moi app 1 cong tac (bat ca hai duoc); chi con doc de chuyen sang SB_KEY_SOURCE khi chua co
 #define SB_KEY_APP_VIETMAP   @"speedBubbleAppVietmap"    // BOOL, default YES

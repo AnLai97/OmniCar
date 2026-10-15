@@ -43,12 +43,12 @@
 "SPEEDBUBBLE_SRC_HINT_0" = "Tempo + Limitschild. Vietmap Live einmal öffnen und im Hintergrund lassen.";
 "SPEEDBUBBLE_SRC_HINT_1" = "Tempo + Limitschild. GOFA einmal öffnen und im Hintergrund lassen.";
 "SPEEDBUBBLE_SRC_HINT_2" = "Tempo per GPS; Limit nur, wenn Waze das Schild zeigt (experimentell).";
-"SPEEDBUBBLE_WARN_SHORT_0" = "Aus";
 "SPEEDBUBBLE_WARN_SHORT_1" = "Warnung";
 "SPEEDBUBBLE_WARN_SHORT_2" = "Ton";
 "SPEEDBUBBLE_WARN_WHEN" = "Schwelle";
 "SPEEDBUBBLE_WARN_ON_FOOTER" = "Warnt, wenn du %@ fährst: ein roter Rand blinkt um den CarPlay-Bildschirm%@. Braucht eine Quelle mit Tempolimit-Schildern.";
 "SPEEDBUBBLE_WARN_SOUND_PART" = ", mit einem kurzen Ton";
+"SPEEDBUBBLE_WARN_SOUND_FOOTER" = "Ein kurzer Ton, wenn du %@ fährst, ohne roten Rand. Braucht eine Quelle mit Tempolimit-Schildern.";
 "SPEEDBUBBLE_WARN_OFF_FOOTER" = "Keine Warnung; die Blase wechselt trotzdem die Farbe.";
 "SPEEDBUBBLE_WARN_TH_AT" = "am Limit";
 "SPEEDBUBBLE_WARN_TH_OVER" = "%@ über dem Limit";

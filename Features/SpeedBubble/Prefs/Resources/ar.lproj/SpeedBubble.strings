@@ -43,12 +43,12 @@
 "SPEEDBUBBLE_SRC_HINT_0" = "السرعة + إشارة الحد. افتح Vietmap Live مرة ثم اتركه في الخلفية.";
 "SPEEDBUBBLE_SRC_HINT_1" = "السرعة + إشارة الحد. افتح GOFA مرة ثم اتركه في الخلفية.";
 "SPEEDBUBBLE_SRC_HINT_2" = "السرعة من GPS؛ الحد فقط عندما يعرض Waze الإشارة (تجريبي).";
-"SPEEDBUBBLE_WARN_SHORT_0" = "إيقاف";
 "SPEEDBUBBLE_WARN_SHORT_1" = "تنبيه";
 "SPEEDBUBBLE_WARN_SHORT_2" = "صوت";
 "SPEEDBUBBLE_WARN_WHEN" = "الحد";
 "SPEEDBUBBLE_WARN_ON_FOOTER" = "ينبّهك عند القيادة %@: يومض إطار أحمر حول شاشة CarPlay%@. يحتاج إلى مصدر يوفّر إشارات الحد الأقصى للسرعة.";
 "SPEEDBUBBLE_WARN_SOUND_PART" = "، مع صفارة قصيرة";
+"SPEEDBUBBLE_WARN_SOUND_FOOTER" = "صفارة قصيرة واحدة عند القيادة %@، بدون إطار أحمر. يحتاج إلى مصدر يوفّر إشارات الحد الأقصى للسرعة.";
 "SPEEDBUBBLE_WARN_OFF_FOOTER" = "بلا تنبيه؛ تغيّر الفقاعة لونها عند التجاوز.";
 "SPEEDBUBBLE_WARN_TH_AT" = "عند الحد";
 "SPEEDBUBBLE_WARN_TH_OVER" = "أعلى من الحد بمقدار %@";

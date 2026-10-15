@@ -106,7 +106,7 @@ static void OMCSBRing(UIView *v, BOOL on, CGFloat corner)
     [v.layer addSublayer:g];
 }
 
-enum { SBPreview = 0, SBEnable, SBStyle, SBSource, SBDisplay, SBWarn, SBSize, SBCount };
+enum { SBPreview = 0, SBEnable, SBStyle, SBSize, SBSource, SBDisplay, SBWarn, SBCount };   // Co & vi tri ngay duoi Kieu
 static char kOMCSBIndex;
 
 @interface OMCSpeedBubbleController ()
@@ -122,7 +122,7 @@ static char kOMCSBIndex;
 
 // Chi con 1 nguon (SB_KEY_SOURCE). Lan dau mo sau ban cap nhat: chuyen 2 cong tac cu (chi tat Vietmap -> GOFA), cung
 // quy tac SPPPrefs dung cho toi khi gia tri nay duoc ghi. Ban 6 nguon -> 3 nguon (SB_KEY_SOURCE_V2): 4 (Waze) -> 2, con lai
-// ngoai 0..1 -> 0.
+// ngoai 0..1 -> 0. Canh bao 3 che do -> 4 (SB_KEY_WARN_MODE_V2): 2 cu (vien + tieng) -> 3.
 - (void)viewDidLoad
 {
     CFPreferencesAppSynchronize(kPrefsDomain);
@@ -136,6 +136,11 @@ static char kOMCSBIndex;
         CFPreferencesSetAppValue((__bridge CFStringRef)SB_KEY_SOURCE, (__bridge CFPropertyListRef)@(i == 4 ? 2 : (i >= 0 && i <= 1) ? i : 0), kPrefsDomain);
     }
     CFPreferencesSetAppValue((__bridge CFStringRef)SB_KEY_SOURCE_V2, kCFBooleanTrue, kPrefsDomain);
+    if (![[self prefForKey:SB_KEY_WARN_MODE_V2 def:@NO] boolValue]) {
+        if ([[self prefForKey:SB_KEY_WARN_MODE def:nil] integerValue] == 2)
+            CFPreferencesSetAppValue((__bridge CFStringRef)SB_KEY_WARN_MODE, (__bridge CFPropertyListRef)@3, kPrefsDomain);
+        CFPreferencesSetAppValue((__bridge CFStringRef)SB_KEY_WARN_MODE_V2, kCFBooleanTrue, kPrefsDomain);
+    }
     CFPreferencesAppSynchronize(kPrefsDomain);
     [super viewDidLoad];
     if (!self.title.length) self.title = L(@"SPEEDBUBBLE");
@@ -163,7 +168,7 @@ static char kOMCSBIndex;
 - (NSInteger)style { NSInteger s = [self intForKey:SB_KEY_STYLE def:0]; return (s >= 0 && s < SB_STYLE_COUNT) ? s : 0; }
 - (NSInteger)source { NSInteger s = [self intForKey:SB_KEY_SOURCE def:0]; return (s >= 0 && s < (NSInteger)SB_SOURCE_NAMES.count) ? s : 0; }
 - (BOOL)showIcon { return [[self prefForKey:SB_KEY_SHOW_APP_ICON def:@YES] boolValue]; }
-- (NSInteger)warnMode { NSInteger m = [self intForKey:SB_KEY_WARN_MODE def:2]; return (m >= 0 && m <= 2) ? m : 2; }
+- (NSInteger)warnMode { NSInteger m = [self intForKey:SB_KEY_WARN_MODE def:3]; return (m >= 0 && m <= 3) ? m : 3; }   // 0 tat, 1 vien, 2 tieng, 3 ca hai
 
 // Cung quy tac SPPPrefs: tu dong = mph / bien My o vung dung
 - (BOOL)useMph
@@ -236,7 +241,7 @@ static char kOMCSBIndex;
 {
     switch (s) {
         case SBStyle: case SBSource: case SBDisplay: return 2;
-        case SBWarn: return [self warnMode] ? 2 : 1;
+        case SBWarn: return [self warnMode] ? 3 : 2;   // Canh bao, Am thanh (+ Nguong khi bat it nhat 1)
         case SBSize: return 3;
         default: return 1;
     }
@@ -266,7 +271,8 @@ static char kOMCSBIndex;
             NSString *amount = [NSString stringWithFormat:@"%ld %@", labs(margin), [self useMph] ? @"mph" : @"km/h"];
             NSString *when = margin > 0 ? [NSString stringWithFormat:L(@"SPEEDBUBBLE_WARN_TH_OVER"), amount]
                            : margin < 0 ? [NSString stringWithFormat:L(@"SPEEDBUBBLE_WARN_TH_UNDER"), amount] : L(@"SPEEDBUBBLE_WARN_TH_AT");
-            return [NSString stringWithFormat:L(@"SPEEDBUBBLE_WARN_ON_FOOTER"), when, m == 2 ? L(@"SPEEDBUBBLE_WARN_SOUND_PART") : @""];
+            if (m == 2) return [NSString stringWithFormat:L(@"SPEEDBUBBLE_WARN_SOUND_FOOTER"), when];
+            return [NSString stringWithFormat:L(@"SPEEDBUBBLE_WARN_ON_FOOTER"), when, m == 3 ? L(@"SPEEDBUBBLE_WARN_SOUND_PART") : @""];
         }
         case SBSize: return L(@"SPEEDBUBBLE_GESTURES_FOOTER");
     }
@@ -285,7 +291,6 @@ static char kOMCSBIndex;
             options:NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName: [UIFont systemFontOfSize:12.5]} context:nil].size;
         return ceil(s.height) + 20;
     }
-    if (ip.section == SBWarn && ip.row == 0) return 50;
     return 52;
 }
 
@@ -373,13 +378,18 @@ static char kOMCSBIndex;
         break;
     }
     case SBWarn:
-        if (ip.row == 0) {
-            c = [self cellWithId:@"warnmode"];
-            UIView *box = [self boxInCell:c];
-            for (UIView *v in [box.subviews copy]) [v removeFromSuperview];
-            UISegmentedControl *seg = [self segmentForKey:SB_KEY_WARN_MODE titles:@[L(@"SPEEDBUBBLE_WARN_SHORT_0"), L(@"SPEEDBUBBLE_WARN_SHORT_1"), L(@"SPEEDBUBBLE_WARN_SHORT_2")] def:2];
-            seg.frame = CGRectMake(12, 9, w - 24, 32);
-            [box addSubview:seg];
+        if (ip.row < 2) {
+            // 2 cong tac = 2 bit cua SB_KEY_WARN_MODE: 1 canh bao (vien do), 2 am thanh
+            BOOL rim = ip.row == 0;
+            c = [self cellWithId:rim ? @"warnrim" : @"warnsound"];
+            c.textLabel.text = L(rim ? @"SPEEDBUBBLE_WARN_SHORT_1" : @"SPEEDBUBBLE_WARN_SHORT_2");
+            c.imageView.image = OMCIcon(rim ? @"rectangle.dashed" : @"speaker.wave.2.fill", OMCColorFromHex(rim ? @"#FF5A5F" : @"#5AB8FF"));
+            UISwitch *sw = [UISwitch new];
+            sw.onTintColor = OMCSwitchColor();
+            sw.tag = rim ? 1 : 2;
+            sw.on = ([self warnMode] & sw.tag) != 0;
+            [sw addTarget:self action:@selector(warnSwitchChanged:) forControlEvents:UIControlEventValueChanged];
+            [self setAccessory:sw onCell:c];
         } else {
             c = [self cellWithId:@"warnover"];
             c.textLabel.text = L(@"SPEEDBUBBLE_WARN_WHEN");
@@ -417,6 +427,13 @@ static char kOMCSBIndex;
 {
     [tv deselectRowAtIndexPath:ip animated:YES];
     if (ip.section == SBSize && ip.row == 2) [self resetLayout];
+}
+
+- (void)warnSwitchChanged:(UISwitch *)sw
+{
+    NSInteger m = sw.on ? ([self warnMode] | sw.tag) : ([self warnMode] & ~sw.tag);
+    [self storeValue:@(m) forKey:SB_KEY_WARN_MODE];
+    [self prefChanged:SB_KEY_WARN_MODE];
 }
 
 #pragma mark - Kieu

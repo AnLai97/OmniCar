@@ -43,12 +43,12 @@
 "SPEEDBUBBLE_SRC_HINT_0" = "ความเร็ว + ป้ายจำกัด เปิด Vietmap Live หนึ่งครั้งแล้วปล่อยให้ทำงานเบื้องหลัง";
 "SPEEDBUBBLE_SRC_HINT_1" = "ความเร็ว + ป้ายจำกัด เปิด GOFA หนึ่งครั้งแล้วปล่อยให้ทำงานเบื้องหลัง";
 "SPEEDBUBBLE_SRC_HINT_2" = "ความเร็วจาก GPS; ป้ายจำกัดเฉพาะเมื่อ Waze แสดงป้าย (ทดลอง)";
-"SPEEDBUBBLE_WARN_SHORT_0" = "ปิด";
 "SPEEDBUBBLE_WARN_SHORT_1" = "เตือน";
 "SPEEDBUBBLE_WARN_SHORT_2" = "เสียง";
 "SPEEDBUBBLE_WARN_WHEN" = "เกณฑ์";
 "SPEEDBUBBLE_WARN_ON_FOOTER" = "เตือนเมื่อขับ%@: ขอบสีแดงกะพริบรอบหน้าจอ CarPlay%@ ต้องมีแหล่งข้อมูลที่มีป้ายจำกัดความเร็ว";
 "SPEEDBUBBLE_WARN_SOUND_PART" = " และมีเสียงสั้นหนึ่งครั้ง";
+"SPEEDBUBBLE_WARN_SOUND_FOOTER" = "มีเสียงสั้นหนึ่งครั้งเมื่อขับ%@ ไม่มีขอบสีแดง ต้องมีแหล่งข้อมูลที่มีป้ายจำกัดความเร็ว";
 "SPEEDBUBBLE_WARN_OFF_FOOTER" = "ไม่เตือน บับเบิลยังเปลี่ยนสีเมื่อเกิน";
 "SPEEDBUBBLE_WARN_TH_AT" = "ถึงขีดจำกัด";
 "SPEEDBUBBLE_WARN_TH_OVER" = "เกินขีดจำกัด %@";

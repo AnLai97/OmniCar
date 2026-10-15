@@ -43,12 +43,12 @@
 "SPEEDBUBBLE_SRC_HINT_0" = "Tốc độ + biển giới hạn. Mở Vietmap Live một lần rồi để chạy nền.";
 "SPEEDBUBBLE_SRC_HINT_1" = "Tốc độ + biển giới hạn. Mở GOFA một lần rồi để chạy nền.";
 "SPEEDBUBBLE_SRC_HINT_2" = "Tốc độ từ GPS; biển chỉ có khi Waze đang hiện biển (thử nghiệm).";
-"SPEEDBUBBLE_WARN_SHORT_0" = "Tắt";
 "SPEEDBUBBLE_WARN_SHORT_1" = "Cảnh báo";
 "SPEEDBUBBLE_WARN_SHORT_2" = "Âm thanh";
 "SPEEDBUBBLE_WARN_WHEN" = "Ngưỡng";
 "SPEEDBUBBLE_WARN_ON_FOOTER" = "Cảnh báo khi chạy %@: viền đỏ nhấp nháy quanh màn CarPlay%@. Cần nguồn có biển giới hạn.";
 "SPEEDBUBBLE_WARN_SOUND_PART" = ", kêu một tiếng ngắn";
+"SPEEDBUBBLE_WARN_SOUND_FOOTER" = "Kêu một tiếng ngắn khi chạy %@, không có viền đỏ. Cần nguồn có biển giới hạn.";
 "SPEEDBUBBLE_WARN_OFF_FOOTER" = "Không cảnh báo; bong bóng vẫn đổi màu khi vượt.";
 "SPEEDBUBBLE_WARN_TH_AT" = "chạm giới hạn";
 "SPEEDBUBBLE_WARN_TH_OVER" = "quá giới hạn %@";

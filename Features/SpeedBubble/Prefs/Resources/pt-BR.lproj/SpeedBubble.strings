@@ -43,12 +43,12 @@
 "SPEEDBUBBLE_SRC_HINT_0" = "Velocidade + placa de limite. Abra o Vietmap Live uma vez e deixe em segundo plano.";
 "SPEEDBUBBLE_SRC_HINT_1" = "Velocidade + placa de limite. Abra o GOFA uma vez e deixe em segundo plano.";
 "SPEEDBUBBLE_SRC_HINT_2" = "Velocidade pelo GPS; o limite só quando o Waze mostra a placa (experimental).";
-"SPEEDBUBBLE_WARN_SHORT_0" = "Não";
 "SPEEDBUBBLE_WARN_SHORT_1" = "Aviso";
 "SPEEDBUBBLE_WARN_SHORT_2" = "Som";
 "SPEEDBUBBLE_WARN_WHEN" = "Limiar";
 "SPEEDBUBBLE_WARN_ON_FOOTER" = "Avisa quando você dirige %@: uma borda vermelha pisca ao redor da tela do CarPlay%@. Precisa de uma fonte com placas de limite.";
 "SPEEDBUBBLE_WARN_SOUND_PART" = ", com um bipe curto";
+"SPEEDBUBBLE_WARN_SOUND_FOOTER" = "Um bipe curto quando você dirige %@, sem borda vermelha. Precisa de uma fonte com placas de limite.";
 "SPEEDBUBBLE_WARN_OFF_FOOTER" = "Sem alerta; a bolha ainda muda de cor ao passar do limite.";
 "SPEEDBUBBLE_WARN_TH_AT" = "no limite";
 "SPEEDBUBBLE_WARN_TH_OVER" = "%@ acima do limite";

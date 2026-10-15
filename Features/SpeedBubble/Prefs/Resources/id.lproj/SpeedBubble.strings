@@ -43,12 +43,12 @@
 "SPEEDBUBBLE_SRC_HINT_0" = "Kecepatan + rambu batas. Buka Vietmap Live sekali lalu biarkan di latar belakang.";
 "SPEEDBUBBLE_SRC_HINT_1" = "Kecepatan + rambu batas. Buka GOFA sekali lalu biarkan di latar belakang.";
 "SPEEDBUBBLE_SRC_HINT_2" = "Kecepatan dari GPS; batas hanya saat Waze menampilkan rambu (uji coba).";
-"SPEEDBUBBLE_WARN_SHORT_0" = "Mati";
 "SPEEDBUBBLE_WARN_SHORT_1" = "Peringatan";
 "SPEEDBUBBLE_WARN_SHORT_2" = "Suara";
 "SPEEDBUBBLE_WARN_WHEN" = "Ambang";
 "SPEEDBUBBLE_WARN_ON_FOOTER" = "Memperingatkan saat Anda melaju %@: bingkai merah berkedip di sekeliling layar CarPlay%@. Perlu sumber dengan rambu batas kecepatan.";
 "SPEEDBUBBLE_WARN_SOUND_PART" = ", dengan satu bunyi pendek";
+"SPEEDBUBBLE_WARN_SOUND_FOOTER" = "Satu bunyi pendek saat Anda melaju %@, tanpa bingkai merah. Perlu sumber dengan rambu batas kecepatan.";
 "SPEEDBUBBLE_WARN_OFF_FOOTER" = "Tanpa peringatan; gelembung tetap berubah warna.";
 "SPEEDBUBBLE_WARN_TH_AT" = "tepat di batas";
 "SPEEDBUBBLE_WARN_TH_OVER" = "%@ di atas batas";

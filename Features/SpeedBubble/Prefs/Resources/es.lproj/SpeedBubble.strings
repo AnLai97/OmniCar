@@ -43,12 +43,12 @@
 "SPEEDBUBBLE_SRC_HINT_0" = "Velocidad + señal de límite. Abre Vietmap Live una vez y déjala en segundo plano.";
 "SPEEDBUBBLE_SRC_HINT_1" = "Velocidad + señal de límite. Abre GOFA una vez y déjala en segundo plano.";
 "SPEEDBUBBLE_SRC_HINT_2" = "Velocidad por GPS; el límite solo cuando Waze muestra la señal (experimental).";
-"SPEEDBUBBLE_WARN_SHORT_0" = "No";
 "SPEEDBUBBLE_WARN_SHORT_1" = "Aviso";
 "SPEEDBUBBLE_WARN_SHORT_2" = "Sonido";
 "SPEEDBUBBLE_WARN_WHEN" = "Umbral";
 "SPEEDBUBBLE_WARN_ON_FOOTER" = "Avisa cuando vas %@: un borde rojo parpadea alrededor de la pantalla de CarPlay%@. Necesita una fuente con señales de límite.";
 "SPEEDBUBBLE_WARN_SOUND_PART" = ", con un pitido corto";
+"SPEEDBUBBLE_WARN_SOUND_FOOTER" = "Un pitido corto cuando vas %@, sin borde rojo. Necesita una fuente con señales de límite.";
 "SPEEDBUBBLE_WARN_OFF_FOOTER" = "Sin aviso; la burbuja cambia de color al superar el límite.";
 "SPEEDBUBBLE_WARN_TH_AT" = "al límite";
 "SPEEDBUBBLE_WARN_TH_OVER" = "%@ por encima del límite";

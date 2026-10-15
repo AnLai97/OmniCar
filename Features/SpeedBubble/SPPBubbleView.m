@@ -576,7 +576,7 @@ static void SPPGlow(UILabel *l, UIColor *color, CGFloat radius)
     self.sign = [[SPPSignView alloc] init];
     [card addSubview:self.sign];
     self.iconView = [[SPPIconView alloc] init];
-    self.iconView.shape = SPPIconCircle;
+    self.iconView.shape = SPPIconSquircle;   // icon nguon: o vuong bo goc
     [card addSubview:self.iconView];
     self.iconView.imageView.image = nil;   // render dat lai icon
     self.builtStyle = style;
