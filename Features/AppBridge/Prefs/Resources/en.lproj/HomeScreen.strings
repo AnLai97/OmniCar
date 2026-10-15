@@ -36,6 +36,12 @@
 "APPS_CARPLAY_LOCKED" = "Always on CarPlay";
 "APPS_CUSTOM" = "Customize app list";
 "APPS_CUSTOM_OFF_FOOTER" = "Off: the car shows the CarPlay apps you set in iOS Settings > General > CarPlay. Turn on to show or hide each CarPlay app here.";
+"APPS_INCLUDED" = "Included";
+"APPS_OTHER" = "Other apps";
+"APPS_RESET" = "Reset";
+"APPS_REMOVE" = "Remove";
+"APPS_RESET_CONFIRM" = "Show every CarPlay app again and turn Customize off? iPhone apps from App Bridge stay.";
+"APPS_OTHER_FOOTER" = "Tap + to put an app on the car. iPhone apps go through App Bridge.";
 "APPS_CARPLAY_GUESS_FOOTER" = "Not connected to a car yet: CarPlay apps are guessed from CarPlay support.";
 
 /* Man chinh CarPlay: luoi icon */

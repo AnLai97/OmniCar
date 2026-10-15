@@ -1,7 +1,8 @@
 // "Man xe" cua trang chinh OmniCar, hai dong (xem truoc: tools/preview/index.html#home):
-//  - "App tren man xe" (OMCAppBridgeAppsLinkCell, hien so app da chon) mo OMCAppBridgeAppsController: tren la cac app dang
-//    hien tren xe, duoi cong tac Tuy chinh danh sach app (HS_KEY_CUSTOM_APPS) + MOT danh sach chia 2 phan co tieu de:
-//    App CarPlay (cong tac = hien / an icon, HS_KEY_HIDDEN_APPS, chi khi Tuy chinh bat) / App Bridge = app iPhone nao len xe (AB_KEY_APPS; CarPlay
+//  - "App tren man xe" (OMCAppBridgeAppsLinkCell, hien so app da chon) mo OMCAppBridgeAppsController, kieu Cai dat iPhone >
+//    CarPlay > Tuy chinh: cong tac Tuy chinh danh sach app (HS_KEY_CUSTOM_APPS), muc Bao gom (app tren xe, nut - de bo) va
+//    Ung dung khac (nut + de them): app CarPlay (an / hien, HS_KEY_HIDDEN_APPS, chi khi Tuy chinh bat) va app iPhone qua
+//    App Bridge (AB_KEY_APPS; CarPlay
 //    (SCPCPhoneAppSet, SCPAppIcons) va bang chon app cua Chia man hinh dung dung danh sach nay)
 //  - "Man chinh CarPlay" mo OMCHomeScreenController (cung lop, chi hien phan con lai): xem truoc, luoi icon (so cot
 //    HS_KEY_COLS, so hang HS_KEY_ROWS, co icon HS_KEY_ICON_SIZE, ten app HS_KEY_NAMES) va hinh nen (HS_KEY_WALLPAPER*). Man chinh CarPlay giu nguyen: Features/SplitScreen/SCPHomeScreen.mm
@@ -384,25 +385,21 @@ static UIImage *OMCHSPresetImage(NSInteger i, CGSize size, CGFloat scale)
 
 // ---------------------------------------------------------------------
 //  OMCAppBridgeAppsController - "App tren man xe" / OMCHomeScreenController - "Man chinh CarPlay" (tools/preview/index.html#home)
-//    0 Xem truoc man xe                                                                                      (bo cuc)
-//    1 Tren xe: luoi icon app CarPlay + app iPhone da chon (dau iPhone)                                      (app)
-//    2 Tuy chinh danh sach app (tat = xe hien dung app da chon trong Cai dat iPhone > CarPlay), o tim + danh sach CUON
-//      RIENG 2 phan: App CarPlay = man chinh xe (HS_KEY_CAR_APPS), cong tac = hien icon (HS_KEY_HIDDEN_APPS; xe chua cam thi
-//      doan theo entitlement); App Bridge = moi app iPhone host duoc, cong tac = dua len xe (AB_KEY_APPS)  (app)
-//    3 Luoi icon: so cot / so hang (Tu dong = nhu CarPlay), co icon (HS_KEY_ICON_SIZE, 60..130 %), ten app       (man chinh)
-//    4 Hinh nen (the gap): hinh dung san, anh hoac video, do mo, do toi                                      (bo cuc)
-//  Moi trang chi hien the cua minh (the cua trang kia 0 dong, khong khoang trong).
+//    0 Xem truoc man xe                                                                                      (man chinh)
+//    1 Tuy chinh danh sach app (tat = xe hien dung app da chon trong Cai dat iPhone > CarPlay)                  (app)
+//    2 Bao gom: app tren xe - app CarPlay theo thu tu xe (HS_KEY_CAR_APPS; xe chua cam thi doan theo entitlement), roi app
+//      iPhone qua App Bridge (AB_KEY_APPS); nut - bo (app CarPlay khoa va app CarPlay khi Tuy chinh tat: khong co nut)   (app)
+//    3 Ung dung khac: o tim + app CarPlay da an + app iPhone chua dua len, nut + them lai                       (app)
+//    4 Luoi icon: so cot / so hang (Tu dong = nhu CarPlay), co icon (HS_KEY_ICON_SIZE, 60..130 %), ten app       (man chinh)
+//    5 Hinh nen (the gap): hinh dung san, anh hoac video, do mo, do toi                                      (man chinh)
+//  Moi trang chi hien the cua minh (the cua trang kia 0 dong, khong khoang trong). Trang App luon o che do sua (-/+ nhu iOS);
+//  khong keo doi thu tu (CarPlay giu thu tu cua no). Nut Dat lai tren thanh tren: hien lai moi app CarPlay, tat Tuy chinh.
 //  Cai dat App Bridge khac (cong tac, Khung hinh) khong con tren trang: ve mac dinh mot lan (OMCAB_KEY_RESET).
 // ---------------------------------------------------------------------
 #define OMCAB_KEY_CARPLAY_APPS @"splitScreenCarPlayApps"   // = SPL_KEY_CARPLAY_APPS (Split Screen ghi khi cam xe)
 #define OMCAB_KEY_RESET        @"appBridgeAdvancedReset"   // da dua cong tac / Khung hinh ve mac dinh
-#define OMCAB_LIST_ROWS        6                           // danh sach app cao toi da 6 dong, cuon ben trong
-#define OMCAB_ROW_H            52.0
-#define OMCAB_GRID_ICON        44.0                        // luoi "Tren xe"
-#define OMCAB_GRID_ROW         62.0
-enum { OMCABPreview = 0, OMCABOnCar, OMCABApps, OMCABGrid, OMCABWall, OMCABSectionCount };
+enum { OMCABPreview = 0, OMCABApps, OMCABIncluded, OMCABOther, OMCABGrid, OMCABWall, OMCABSectionCount };
 enum { OMCABGridCols = 0, OMCABGridRows, OMCABGridSize, OMCABGridNames, OMCABGridCount };
-enum { OMCABListCarPlay = 0, OMCABListOmniCar, OMCABListCount };   // 2 phan cua danh sach app
 static char kOMCABKey;
 
 static NSArray *OMCABArray(NSString *key)
@@ -414,12 +411,11 @@ static NSArray *OMCABArray(NSString *key)
 @interface OMCAppBridgeAppsController : PSViewController <UITableViewDataSource, UITableViewDelegate, UISearchBarDelegate,
     UIImagePickerControllerDelegate, UINavigationControllerDelegate>
 @property (nonatomic, strong) UITableView *table;
-@property (nonatomic, strong) UITableView *list;                          // danh sach app trong the App iPhone (cuon rieng)
 @property (nonatomic, strong) OMCHSPreview *preview;
 @property (nonatomic, strong) NSArray<NSDictionary *> *phoneApps;         // moi app iPhone host duoc (OMCABHostableApps)
 @property (nonatomic, strong) NSArray<NSString *> *carplayApps;           // app CarPlay xe da doc (cho xem truoc)
 @property (nonatomic, strong) NSArray<NSString *> *guessApps;             // xe chua doc: app CarPlay doan (OMCABGuessCarPlayApps)
-@property (nonatomic, strong) NSArray<NSArray<NSDictionary *> *> *parts;  // dong cua 2 phan danh sach sau khi tim
+@property (nonatomic, strong) NSArray<NSDictionary *> *included, *other; // Bao gom / Ung dung khac (other da loc theo o tim)
 @property (nonatomic) BOOL custom;                                        // HS_KEY_CUSTOM_APPS
 @property (nonatomic, strong) NSMutableSet<NSString *> *chosen;           // AB_KEY_APPS
 @property (nonatomic, strong) NSMutableSet<NSString *> *hidden;           // HS_KEY_HIDDEN_APPS (app CarPlay an khoi man chinh)
@@ -433,7 +429,7 @@ static NSArray *OMCABArray(NSString *key)
 @implementation OMCAppBridgeAppsController
 
 - (BOOL)layoutPage { return NO; }   // OMCHomeScreenController: YES
-- (BOOL)shows:(NSInteger)card { return (card == OMCABOnCar || card == OMCABApps) != [self layoutPage]; }
+- (BOOL)shows:(NSInteger)card { return (card == OMCABApps || card == OMCABIncluded || card == OMCABOther) != [self layoutPage]; }
 
 - (void)loadView
 {
@@ -453,6 +449,12 @@ static NSArray *OMCABArray(NSString *key)
     OMCStyleTable(_table);
     _icons = [NSCache new];
     _open = [NSMutableSet setWithObject:@(OMCABWall)];
+    if (![self layoutPage]) {   // nhu Cai dat iPhone > CarPlay > Tuy chinh: luon o che do sua, nut Dat lai
+        _table.editing = YES;
+        _table.allowsSelectionDuringEditing = YES;
+        self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:L(@"APPS_RESET") style:UIBarButtonItemStylePlain
+                                                                                 target:self action:@selector(resetTapped)];
+    }
     [self resetAdvancedOnce];
     [self loadState];
 }
@@ -518,37 +520,31 @@ static NSArray *OMCABArray(NSString *key)
     return ids;
 }
 
-// Luoi "Tren xe": app CarPlay roi app iPhone da chon (theo ten) - @[bid, la app iPhone]
-- (NSArray<NSArray *> *)onCarItems
-{
-    NSMutableArray *items = [NSMutableArray array];
-    for (NSString *bid in [self carplayIDs]) if (![self hides:bid]) [items addObject:@[bid, @NO]];
-    for (NSDictionary *a in _phoneApps) if ([_chosen containsObject:a[@"id"]]) [items addObject:@[a[@"id"], @YES]];
-    return items;
-}
-
 // App CarPlay bi an tren xe: chi khi Tuy chinh bat, khong bao gio app CarPlay khoa
 - (BOOL)hides:(NSString *)bid { return _custom && [_hidden containsObject:bid] && !HSIsLockedCarPlayApp(bid); }
 
-// 2 phan danh sach (App CarPlay theo thu tu xe, App Bridge theo ten), loc theo o tim
+// Co nut - : app iPhone luon co; app CarPlay chi khi Tuy chinh bat va khong khoa
+- (BOOL)removable:(NSDictionary *)a { return ![a[@"carplay"] boolValue] || (_custom && !HSIsLockedCarPlayApp(a[@"id"])); }
+
+// Bao gom = app CarPlay dang hien (thu tu xe) + app iPhone da dua len (theo ten); Ung dung khac = app CarPlay dang an + app
+// iPhone chua dua len, loc theo o tim
 - (void)rebuildRows
 {
     NSString *q = _query.length ? _query : nil;
-    NSMutableArray *cp = [NSMutableArray array];
-    for (NSString *bid in [self carplayIDs]) [cp addObject:@{@"id": bid, @"name": OMCHSName(bid), @"carplay": @YES}];
-    NSMutableArray *parts = [NSMutableArray array];
-    for (NSArray *source in @[cp, _phoneApps ?: @[]]) {
-        NSMutableArray *rows = [NSMutableArray array];
-        for (NSDictionary *a in source) {
-            if (q && [a[@"name"] rangeOfString:q options:NSCaseInsensitiveSearch | NSDiacriticInsensitiveSearch].location == NSNotFound) continue;
-            [rows addObject:a];
-        }
-        [parts addObject:rows];
+    NSMutableArray *inc = [NSMutableArray array], *oth = [NSMutableArray array];
+    BOOL (^match)(NSString *) = ^BOOL(NSString *n) { return !q || [n rangeOfString:q options:NSCaseInsensitiveSearch | NSDiacriticInsensitiveSearch].location != NSNotFound; };
+    for (NSString *bid in [self carplayIDs]) {
+        NSDictionary *a = @{@"id": bid, @"name": OMCHSName(bid), @"carplay": @YES};
+        if (![self hides:bid]) [inc addObject:a];
+        else if (match(a[@"name"])) [oth addObject:a];
     }
-    _parts = parts;
+    for (NSDictionary *a in _phoneApps) {
+        if ([_chosen containsObject:a[@"id"]]) [inc addObject:a];
+        else if (match(a[@"name"])) [oth addObject:a];
+    }
+    _included = inc;
+    _other = oth;
 }
-
-- (NSUInteger)rowCount { return _parts[0].count + _parts[1].count; }
 
 - (UIImage *)iconFor:(NSString *)bid
 {
@@ -564,58 +560,65 @@ static NSArray *OMCABArray(NSString *key)
     [self presentViewController:a animated:YES completion:nil];
 }
 
-// Cong tac "len xe" cua mot app iPhone
-- (void)appSwitched:(UISwitch *)sw
+- (void)storeChoices
 {
-    NSString *bid = objc_getAssociatedObject(sw, &kOMCABKey);
-    if (sw.on) [_chosen addObject:bid]; else [_chosen removeObject:bid];
-    NSMutableArray *ids = [NSMutableArray array];   // giu thu tu theo ten
+    NSMutableArray *ids = [NSMutableArray array];   // app iPhone: giu thu tu theo ten
     for (NSDictionary *a in _phoneApps) if ([_chosen containsObject:a[@"id"]]) [ids addObject:a[@"id"]];
     OMCABStore(AB_KEY_APPS, ids);
-    [_table reloadSections:[NSIndexSet indexSetWithIndex:OMCABOnCar] withRowAnimation:UITableViewRowAnimationNone];
+    OMCABStore(HS_KEY_HIDDEN_APPS, [[_hidden allObjects] sortedArrayUsingSelector:@selector(compare:)]);
+}
+
+// Ve lai Bao gom + Ung dung khac (giu dong o tim de khong mat ban phim)
+- (void)reloadLists
+{
+    NSInteger oldInc = [_table numberOfRowsInSection:OMCABIncluded], oldOth = [_table numberOfRowsInSection:OMCABOther];
+    [self rebuildRows];
+    NSMutableArray *del = [NSMutableArray array], *ins = [NSMutableArray array];
+    for (NSInteger r = 1; r < oldOth; r++) [del addObject:[NSIndexPath indexPathForRow:r inSection:OMCABOther]];
+    for (NSInteger r = 1; r < [self tableView:_table numberOfRowsInSection:OMCABOther]; r++) [ins addObject:[NSIndexPath indexPathForRow:r inSection:OMCABOther]];
+    [_table performBatchUpdates:^{
+        [self.table reloadSections:[NSIndexSet indexSetWithIndex:OMCABIncluded] withRowAnimation:oldInc ? UITableViewRowAnimationFade : UITableViewRowAnimationNone];
+        [self.table deleteRowsAtIndexPaths:del withRowAnimation:UITableViewRowAnimationFade];
+        [self.table insertRowsAtIndexPaths:ins withRowAnimation:UITableViewRowAnimationFade];
+    } completion:nil];
     [self updatePreview];
 }
 
 - (void)searchBar:(UISearchBar *)bar textDidChange:(NSString *)text
 {
     _query = text;
-    [self rebuildRows];
-    [_list reloadData];
-    [_table beginUpdates]; [_table endUpdates];
-    [self layoutListCell];
-}
-
-// Cong tac cua mot app CarPlay: tat = an icon khoi man chinh CarPlay
-- (void)carplaySwitched:(UISwitch *)sw
-{
-    NSString *bid = objc_getAssociatedObject(sw, &kOMCABKey);
-    if (sw.on) [_hidden removeObject:bid]; else [_hidden addObject:bid];
-    OMCABStore(HS_KEY_HIDDEN_APPS, [[_hidden allObjects] sortedArrayUsingSelector:@selector(compare:)]);
-    [_table reloadSections:[NSIndexSet indexSetWithIndex:OMCABOnCar] withRowAnimation:UITableViewRowAnimationNone];
-    [self updatePreview];
-}
-
-// Tuy chinh danh sach app: tat = xe hien dung danh sach cua CarPlay (khong an gi), bat = cong tac app CarPlay co hieu luc
-- (void)customSwitched:(UISwitch *)sw
-{
-    _custom = sw.on;
-    OMCABStore(HS_KEY_CUSTOM_APPS, @(sw.on));
-    [_list reloadData];
-    [_table reloadSections:[NSIndexSet indexSetWithIndex:OMCABOnCar] withRowAnimation:UITableViewRowAnimationNone];
-    [UIView performWithoutAnimation:^{ [self.table reloadSections:[NSIndexSet indexSetWithIndex:OMCABApps] withRowAnimation:UITableViewRowAnimationNone]; }];   // footer
-    [self updatePreview];
+    [self reloadLists];
 }
 
 - (void)searchBarSearchButtonClicked:(UISearchBar *)bar { [bar resignFirstResponder]; }
 
-#define OMCAB_PART_HEAD 30.0   // tieu de moi phan trong danh sach
-- (CGFloat)listHeight { return MAX(1, MIN((NSInteger)[self rowCount], OMCAB_LIST_ROWS)) * OMCAB_ROW_H + ([self rowCount] ? OMCAB_PART_HEAD * 2 : 0); }
-
-- (void)layoutListCell
+// Tuy chinh danh sach app: tat = xe hien dung danh sach cua CarPlay (khong an gi), bat = nut - / + cua app CarPlay co hieu luc
+- (void)customSwitched:(UISwitch *)sw
 {
-    CGRect f = _list.frame;
-    f.size.height = [self listHeight];
-    _list.frame = f;
+    _custom = sw.on;
+    OMCABStore(HS_KEY_CUSTOM_APPS, @(sw.on));
+    [self rebuildRows];   // app CarPlay dang an chuyen giua Bao gom / Ung dung khac, nut - hien / mat, footer doi
+    [UIView transitionWithView:self.table duration:0.2 options:UIViewAnimationOptionTransitionCrossDissolve
+                    animations:^{ [self.table reloadData]; } completion:nil];
+    [self updatePreview];
+}
+
+// Dat lai: hien lai moi app CarPlay va tat Tuy chinh (app iPhone qua App Bridge giu nguyen)
+- (void)resetTapped
+{
+    UIAlertController *a = [UIAlertController alertControllerWithTitle:nil message:L(@"APPS_RESET_CONFIRM") preferredStyle:UIAlertControllerStyleActionSheet];
+    [a addAction:[UIAlertAction actionWithTitle:L(@"APPS_RESET") style:UIAlertActionStyleDestructive handler:^(UIAlertAction *x) {
+        [self.hidden removeAllObjects];
+        self.custom = NO;
+        OMCABStore(HS_KEY_HIDDEN_APPS, @[]);
+        OMCABStore(HS_KEY_CUSTOM_APPS, @NO);
+        [self rebuildRows];
+        [self.table reloadData];
+        [self updatePreview];
+    }]];
+    [a addAction:[UIAlertAction actionWithTitle:L(@"CANCEL") style:UIAlertActionStyleCancel handler:nil]];
+    a.popoverPresentationController.barButtonItem = self.navigationItem.rightBarButtonItem;
+    [self presentViewController:a animated:YES completion:nil];
 }
 
 #pragma mark - Xem truoc
@@ -625,7 +628,7 @@ static NSArray *OMCABArray(NSString *key)
     OMCHSPreview *p = self.preview;
     if (!p) return;
     NSMutableArray *items = [NSMutableArray array];
-    for (NSString *bid in _carplayApps) if (![self hides:bid]) [items addObject:bid];
+    for (NSString *bid in _carplayApps) if (![self hides:bid] && ![_chosen containsObject:bid]) [items addObject:bid];
     for (NSDictionary *a in _phoneApps) if ([_chosen containsObject:a[@"id"]] && ![items containsObject:a[@"id"]]) [items addObject:a[@"id"]];
     if (!items.count) items = [@[@"com.apple.Maps", @"com.apple.Music", @"com.apple.mobilephone", @"com.apple.MobileSMS", @"com.apple.podcasts"] mutableCopy];
     p.items = items;
@@ -685,73 +688,99 @@ static NSArray *OMCABArray(NSString *key)
 
 #pragma mark - Bang
 
-- (NSInteger)numberOfSectionsInTableView:(UITableView *)tv { return tv == _list ? OMCABListCount : OMCABSectionCount; }
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tv { return OMCABSectionCount; }
 
 - (NSInteger)tableView:(UITableView *)tv numberOfRowsInSection:(NSInteger)s
 {
-    if (tv == _list) return ![self rowCount] ? (s == 0 ? 1 : 0) : (NSInteger)_parts[s].count;   // khong app nao khop: 1 dong bao
     if (![self shows:s]) return 0;
     BOOL o = [self isOpen:s];
     switch (s) {
         case OMCABPreview: return 1;
-        case OMCABOnCar: return 1;            // luoi icon
-        case OMCABApps: return 3;             // Tuy chinh, o tim, danh sach
+        case OMCABApps: return 1;                                         // Tuy chinh danh sach app
+        case OMCABIncluded: return (NSInteger)_included.count;
+        case OMCABOther: return 1 + MAX(1, (NSInteger)_other.count);      // o tim + app (hoac 1 dong "khong co app")
         case OMCABGrid: return OMCABGridCount;
-        case OMCABWall: return o ? 5 : 1;     // dau the, o hinh, Tu Anh, do mo, do toi
+        case OMCABWall: return o ? 5 : 1;                                 // dau the, o hinh, Tu Anh, do mo, do toi
     }
     return 0;
 }
 
 - (NSString *)tableView:(UITableView *)tv titleForFooterInSection:(NSInteger)s
 {
-    if (tv == _list || ![self shows:s]) return nil;
+    if (![self shows:s]) return nil;
     switch (s) {
-        case OMCABOnCar: return [self carplayGuessed] ? [NSString stringWithFormat:@"%@ %@", L(@"APPS_ON_CAR_FOOTER"), L(@"APPS_CARPLAY_GUESS_FOOTER")] : L(@"APPS_ON_CAR_FOOTER");
-        case OMCABApps: return [NSString stringWithFormat:@"%@\n%@ %@", L(_custom ? @"APPS_CARPLAY_FOOTER" : @"APPS_CUSTOM_OFF_FOOTER"),
-                                L(@"APPBRIDGE_APPS_FOOTER"), L(@"APPBRIDGE_APPS_OTHER_FOOTER")];
+        case OMCABApps: {
+            NSString *f = L(_custom ? @"APPS_CARPLAY_FOOTER" : @"APPS_CUSTOM_OFF_FOOTER");
+            return [self carplayGuessed] ? [NSString stringWithFormat:@"%@ %@", f, L(@"APPS_CARPLAY_GUESS_FOOTER")] : f;
+        }
+        case OMCABOther: return [NSString stringWithFormat:@"%@ %@", L(@"APPS_OTHER_FOOTER"), L(@"APPBRIDGE_APPS_OTHER_FOOTER")];
         case OMCABGrid: return L(@"HOMESCREEN_ICON_SIZE_FOOTER");
         case OMCABWall: return [self isOpen:s] ? L(@"APPS_WALL_FOOTER") : nil;
     }
     return nil;
 }
 
-// The cua trang kia: khong chua khoang dau / cuoi
 - (NSString *)tableView:(UITableView *)tv titleForHeaderInSection:(NSInteger)s
 {
-    if (tv == _list) return [self rowCount] && _parts[s].count ? [NSString stringWithFormat:@"%@ · %lu", L(s == OMCABListCarPlay ? @"APPS_TAB_CARPLAY" : @"APPS_TAB_OMNICAR"), (unsigned long)_parts[s].count] : nil;
     if (![self shows:s]) return nil;
-    if (s == OMCABOnCar) return [NSString stringWithFormat:@"%@ · %lu", L(@"APPS_ON_CAR"), (unsigned long)[self onCarItems].count];
-    if (s == OMCABApps) return L(@"APPS_ALL");
+    if (s == OMCABIncluded) return [NSString stringWithFormat:@"%@ · %lu", L(@"APPS_INCLUDED"), (unsigned long)_included.count];
+    if (s == OMCABOther) return L(@"APPS_OTHER");
     if (s == OMCABGrid) return L(@"HOMESCREEN_GRID");
     return nil;
 }
 
 - (void)tableView:(UITableView *)tv willDisplayHeaderView:(UIView *)view forSection:(NSInteger)section { OMCStyleHeaderFooter(view, YES); }
 
-- (CGFloat)tableView:(UITableView *)tv heightForHeaderInSection:(NSInteger)s
-{
-    if (tv == _list) return [self rowCount] && _parts[s].count ? OMCAB_PART_HEAD : CGFLOAT_MIN;
-    return ![self shows:s] ? CGFLOAT_MIN : UITableViewAutomaticDimension;
-}
-- (CGFloat)tableView:(UITableView *)tv heightForFooterInSection:(NSInteger)s
-{
-    if (tv == _list) return CGFLOAT_MIN;
-    return ![self shows:s] ? CGFLOAT_MIN : UITableViewAutomaticDimension;
-}
+// The cua trang kia: khong chua khoang dau / cuoi
+- (CGFloat)tableView:(UITableView *)tv heightForHeaderInSection:(NSInteger)s { return ![self shows:s] ? CGFLOAT_MIN : UITableViewAutomaticDimension; }
+- (CGFloat)tableView:(UITableView *)tv heightForFooterInSection:(NSInteger)s { return ![self shows:s] ? CGFLOAT_MIN : UITableViewAutomaticDimension; }
 
-- (void)tableView:(UITableView *)tv willDisplayFooterView:(UIView *)view forSection:(NSInteger)section { if (tv != _list) OMCStyleHeaderFooter(view, NO); }
+- (void)tableView:(UITableView *)tv willDisplayFooterView:(UIView *)view forSection:(NSInteger)section { OMCStyleHeaderFooter(view, NO); }
 
 - (CGFloat)tableView:(UITableView *)tv heightForRowAtIndexPath:(NSIndexPath *)ip
 {
-    if (tv == _list) return OMCAB_ROW_H;
     CGFloat w = tv.bounds.size.width - 40;
     if (ip.section == OMCABPreview) return floor((tv.bounds.size.width - 60) * 300.0 / 800.0) + 20;
-    if (ip.section == OMCABOnCar) return [self gridIn:nil width:w];
-    if (ip.section == OMCABApps && ip.row < 2) return 50;
-    if (ip.section == OMCABApps && ip.row == 2) return [self listHeight];
+    if (ip.section == OMCABOther && ip.row == 0) return 50;
     if (ip.section == OMCABWall && ip.row == 1) return [self layoutTilesIn:nil width:w];
     if (ip.section == OMCABWall && ip.row == 2) return 58;
     return 52;
+}
+
+#pragma mark - Sua danh sach app (nut - / + nhu iOS)
+
+- (NSDictionary *)appAt:(NSIndexPath *)ip
+{
+    if (ip.section == OMCABIncluded && ip.row < (NSInteger)_included.count) return _included[ip.row];
+    if (ip.section == OMCABOther && ip.row >= 1 && ip.row - 1 < (NSInteger)_other.count) return _other[ip.row - 1];
+    return nil;
+}
+
+- (BOOL)tableView:(UITableView *)tv canEditRowAtIndexPath:(NSIndexPath *)ip { return [self appAt:ip] != nil; }
+- (BOOL)tableView:(UITableView *)tv canMoveRowAtIndexPath:(NSIndexPath *)ip { return NO; }
+- (BOOL)tableView:(UITableView *)tv shouldIndentWhileEditingRowAtIndexPath:(NSIndexPath *)ip { return [self appAt:ip] != nil; }
+
+- (UITableViewCellEditingStyle)tableView:(UITableView *)tv editingStyleForRowAtIndexPath:(NSIndexPath *)ip
+{
+    NSDictionary *a = [self appAt:ip];
+    if (!a) return UITableViewCellEditingStyleNone;
+    if (ip.section == OMCABOther) return UITableViewCellEditingStyleInsert;
+    return [self removable:a] ? UITableViewCellEditingStyleDelete : UITableViewCellEditingStyleNone;
+}
+
+- (NSString *)tableView:(UITableView *)tv titleForDeleteConfirmationButtonForRowAtIndexPath:(NSIndexPath *)ip { return L(@"APPS_REMOVE"); }
+
+- (void)tableView:(UITableView *)tv commitEditingStyle:(UITableViewCellEditingStyle)style forRowAtIndexPath:(NSIndexPath *)ip
+{
+    NSDictionary *a = [self appAt:ip];
+    if (!a) return;
+    NSString *bid = a[@"id"];
+    BOOL add = style == UITableViewCellEditingStyleInsert, carplay = [a[@"carplay"] boolValue];
+    if (carplay) { if (add) [_hidden removeObject:bid]; else [_hidden addObject:bid]; }
+    else { if (add) [_chosen addObject:bid]; else [_chosen removeObject:bid]; }
+    [[UISelectionFeedbackGenerator new] selectionChanged];
+    [self storeChoices];
+    [self reloadLists];
 }
 
 - (UITableViewCell *)cellWithId:(NSString *)rid inTable:(UITableView *)tv
@@ -769,7 +798,6 @@ static NSArray *OMCABArray(NSString *key)
 
 - (UITableViewCell *)tableView:(UITableView *)tv cellForRowAtIndexPath:(NSIndexPath *)ip
 {
-    if (tv == _list) return [self appCellAt:ip];
     if (ip.row == 0 && ip.section == OMCABWall) return [self headerCellFor:ip.section inTable:tv];
     CGFloat w = tv.bounds.size.width - 40;
     switch (ip.section) {
@@ -785,24 +813,21 @@ static NSArray *OMCABArray(NSString *key)
             [self updatePreview];
             return c;
         }
-        case OMCABOnCar: {
-            UITableViewCell *c = [self cellWithId:@"oncar" inTable:tv];
-            [self gridIn:[self boxInCell:c] width:w];
+        case OMCABApps: {   // Tuy chinh danh sach app
+            UITableViewCell *c = [self cellWithId:@"custom" inTable:tv];
+            c.textLabel.text = L(@"APPS_CUSTOM");
+            c.imageView.image = OMCIcon(@"slider.horizontal.3", OMCColorFromHex(@"#8B7CFF"));
+            UISwitch *sw = [UISwitch new];
+            sw.onTintColor = OMCSwitchColor();
+            sw.on = _custom;
+            [sw addTarget:self action:@selector(customSwitched:) forControlEvents:UIControlEventValueChanged];
+            [self setAccessory:sw onCell:c];
             return c;
         }
-        case OMCABApps: {
-            if (ip.row == 0) {   // Tuy chinh danh sach app
-                UITableViewCell *c = [self cellWithId:@"custom" inTable:tv];
-                c.textLabel.text = L(@"APPS_CUSTOM");
-                c.imageView.image = OMCIcon(@"slider.horizontal.3", OMCColorFromHex(@"#8B7CFF"));
-                UISwitch *sw = [UISwitch new];
-                sw.onTintColor = OMCSwitchColor();
-                sw.on = _custom;
-                [sw addTarget:self action:@selector(customSwitched:) forControlEvents:UIControlEventValueChanged];
-                [self setAccessory:sw onCell:c];
-                return c;
-            }
-            if (ip.row == 1) {   // o tim
+        case OMCABIncluded:
+            return [self appCell:[self appAt:ip] inTable:tv];
+        case OMCABOther: {
+            if (ip.row == 0) {   // o tim
                 UITableViewCell *c = [self cellWithId:@"tools" inTable:tv];
                 UIView *box = [self boxInCell:c];
                 UISearchBar *bar = (UISearchBar *)[box viewWithTag:2];
@@ -818,18 +843,11 @@ static NSArray *OMCABArray(NSString *key)
                 bar.frame = CGRectMake(8, 3, w - 16, 44);
                 return c;
             }
-            UITableViewCell *c = [self cellWithId:@"list" inTable:tv];   // danh sach cuon rieng
-            if (!_list) {
-                _list = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStylePlain];
-                _list.dataSource = self;
-                _list.delegate = self;
-                _list.backgroundColor = [UIColor clearColor];
-                _list.rowHeight = OMCAB_ROW_H;
-                _list.allowsSelection = NO;
-                _list.keyboardDismissMode = UIScrollViewKeyboardDismissModeOnDrag;
-            }
-            if (_list.superview != c.contentView) { [_list removeFromSuperview]; [c.contentView addSubview:_list]; }
-            _list.frame = CGRectMake(0, 0, w, [self listHeight]);
+            NSDictionary *a = [self appAt:ip];
+            if (a) return [self appCell:a inTable:tv];
+            UITableViewCell *c = [self cellWithId:@"none" inTable:tv];
+            c.textLabel.text = L(_query.length ? @"APPBRIDGE_APPS_NO_MATCH" : @"APPBRIDGE_APPS_NONE");
+            c.textLabel.textColor = [UIColor secondaryLabelColor];
             return c;
         }
         case OMCABGrid: {   // so cot, so hang, co icon, ten app
@@ -882,58 +900,25 @@ static NSArray *OMCABArray(NSString *key)
     return c;
 }
 
-// Dong app: App CarPlay (cong tac hien / an, khoa, tat khi Tuy chinh tat) hoac app iPhone (cong tac len xe)
-- (UITableViewCell *)appCellAt:(NSIndexPath *)ip
+// Dong app: icon + ten (+ "App Bridge" cho app iPhone); nut - / + do che do sua ve
+- (UITableViewCell *)appCell:(NSDictionary *)a inTable:(UITableView *)tv
 {
-    UITableViewCell *c = [self cellWithId:@"app" inTable:_list];
-    c.backgroundColor = [UIColor clearColor];
-    c.contentView.alpha = 1;
-    if (![self rowCount]) {
-        c.textLabel.text = L(@"APPBRIDGE_APPS_NO_MATCH");
-        c.textLabel.textColor = [UIColor secondaryLabelColor];
-        return c;
-    }
-    NSDictionary *a = _parts[ip.section][ip.row];
+    UITableViewCell *c = [self cellWithId:@"app" inTable:tv];
     NSString *bid = a[@"id"];
     c.textLabel.text = a[@"name"];
-    if ([a[@"carplay"] boolValue]) {   // app CarPlay: cong tac = hien icon tren man chinh CarPlay
-        c.detailTextLabel.text = nil;
-        c.imageView.image = [self iconFor:bid];
-        if (HSIsLockedCarPlayApp(bid)) {   // CarPlay khong cho an (Dien thoai, Nhac, Ban do, Tin nhan...): khoa
-            c.detailTextLabel.text = L(@"APPS_CARPLAY_LOCKED");
-            c.detailTextLabel.textColor = [UIColor secondaryLabelColor];
-            c.detailTextLabel.font = [UIFont systemFontOfSize:11 weight:UIFontWeightSemibold];
-            UIImageView *lock = [[UIImageView alloc] initWithImage:[UIImage systemImageNamed:@"lock.fill"]];
-            lock.tintColor = [UIColor tertiaryLabelColor];
-            [self setAccessory:lock onCell:c];
-            return c;
-        }
-        UISwitch *sw = [UISwitch new];
-        sw.onTintColor = OMCSwitchColor();
-        sw.on = ![self hides:bid];
-        sw.enabled = _custom;   // Tuy chinh tat: xe theo danh sach CarPlay, cong tac chi de xem
-        objc_setAssociatedObject(sw, &kOMCABKey, bid, OBJC_ASSOCIATION_COPY_NONATOMIC);
-        [sw addTarget:self action:@selector(carplaySwitched:) forControlEvents:UIControlEventValueChanged];
-        [self setAccessory:sw onCell:c];
-        return c;
-    }
-    c.detailTextLabel.text = [a[@"system"] boolValue] ? L(@"APPS_SYSTEM") : nil;
-    c.detailTextLabel.textColor = [UIColor secondaryLabelColor];
-    c.detailTextLabel.font = [UIFont systemFontOfSize:11 weight:UIFontWeightSemibold];
     c.imageView.image = [self iconFor:bid];
-    UISwitch *sw = [UISwitch new];
-    sw.onTintColor = OMCSwitchColor();
-    sw.on = [_chosen containsObject:bid];
-    objc_setAssociatedObject(sw, &kOMCABKey, bid, OBJC_ASSOCIATION_COPY_NONATOMIC);
-    [sw addTarget:self action:@selector(appSwitched:) forControlEvents:UIControlEventValueChanged];
-    [self setAccessory:sw onCell:c];
+    if (![a[@"carplay"] boolValue]) {
+        c.detailTextLabel.text = L(@"APPBRIDGE");
+        c.detailTextLabel.textColor = [UIColor secondaryLabelColor];
+        c.detailTextLabel.font = [UIFont systemFontOfSize:11 weight:UIFontWeightSemibold];
+    }
     return c;
 }
 
 - (void)tableView:(UITableView *)tv didSelectRowAtIndexPath:(NSIndexPath *)ip
 {
     [tv deselectRowAtIndexPath:ip animated:YES];
-    if (tv == _list || ip.row != 0 || ip.section != OMCABWall) return;
+    if (ip.row != 0 || ip.section != OMCABWall) return;
     // dau the: mo / dong
     NSNumber *card = @(ip.section);
     if ([_open containsObject:card]) [_open removeObject:card]; else [_open addObject:card];
@@ -1047,53 +1032,6 @@ static NSArray *OMCABArray(NSString *key)
         [c.contentView addSubview:box];
     }
     return box;
-}
-
-#pragma mark - Tren xe
-
-// Luoi icon + ten cua app dang hien tren xe; app iPhone (OmniCar dua len) co dau iPhone o goc. v = nil: chi tinh chieu cao
-- (CGFloat)gridIn:(UIView *)v width:(CGFloat)w
-{
-    NSArray<NSArray *> *items = [self onCarItems];
-    CGFloat pad = 12, gap = 10;
-    NSInteger cols = MAX(1, (NSInteger)floor((w - pad * 2) / 68)), n = MAX(1, (NSInteger)items.count), rows = (n + cols - 1) / cols;
-    CGFloat cellW = (w - pad * 2) / cols, h = pad * 2 + rows * OMCAB_GRID_ROW + (rows - 1) * gap;
-    if (!v) return h;
-    for (UIView *old in [v.subviews copy]) [old removeFromSuperview];
-    if (!items.count) {
-        UILabel *l = [[UILabel alloc] initWithFrame:CGRectMake(pad, pad, w - pad * 2, OMCAB_GRID_ROW)];
-        l.text = L(@"APPBRIDGE_APPS_NONE");
-        l.textColor = [UIColor secondaryLabelColor];
-        l.textAlignment = NSTextAlignmentCenter;
-        [v addSubview:l];
-        return h;
-    }
-    for (NSUInteger i = 0; i < items.count; i++) {
-        NSString *bid = items[i][0];
-        CGFloat x = pad + (i % cols) * cellW, y = pad + (i / cols) * (OMCAB_GRID_ROW + gap);
-        UIImageView *icon = [[UIImageView alloc] initWithFrame:CGRectMake(x + (cellW - OMCAB_GRID_ICON) / 2, y, OMCAB_GRID_ICON, OMCAB_GRID_ICON)];
-        icon.image = OMCHSIcon(bid, OMCAB_GRID_ICON);
-        [v addSubview:icon];
-        if ([items[i][1] boolValue]) {   // dau iPhone: app OmniCar dua len
-            UIImage *glyph = [UIImage systemImageNamed:@"iphone" withConfiguration:[UIImageSymbolConfiguration configurationWithPointSize:9 weight:UIImageSymbolWeightBold]];
-            UIImageView *badge = [[UIImageView alloc] initWithImage:glyph];
-            badge.frame = CGRectMake(CGRectGetMaxX(icon.frame) - 13, CGRectGetMinY(icon.frame) - 5, 18, 18);
-            badge.contentMode = UIViewContentModeCenter;
-            badge.tintColor = [UIColor whiteColor];
-            badge.backgroundColor = OMCAccentColor();
-            badge.layer.cornerRadius = 9;
-            badge.layer.borderWidth = 1.5;
-            badge.layer.borderColor = [UIColor secondarySystemGroupedBackgroundColor].CGColor;
-            [v addSubview:badge];
-        }
-        UILabel *name = [[UILabel alloc] initWithFrame:CGRectMake(x + 2, y + OMCAB_GRID_ICON + 4, cellW - 4, 14)];
-        name.text = OMCHSName(bid);
-        name.font = [UIFont systemFontOfSize:10.5];
-        name.textColor = [UIColor secondaryLabelColor];
-        name.textAlignment = NSTextAlignmentCenter;
-        [v addSubview:name];
-    }
-    return h;
 }
 
 #pragma mark - Hinh nen

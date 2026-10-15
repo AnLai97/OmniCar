@@ -36,6 +36,12 @@
 "APPS_CARPLAY_LOCKED" = "CarPlayに常に表示";
 "APPS_CUSTOM" = "Appリストをカスタマイズ";
 "APPS_CUSTOM_OFF_FOOTER" = "オフ: iPhoneの設定 › 一般 › CarPlayで選んだCarPlay Appを車に表示します。オンにすると、ここで各CarPlay Appの表示/非表示を切り替えられます。";
+"APPS_INCLUDED" = "含まれるApp";
+"APPS_OTHER" = "その他のApp";
+"APPS_RESET" = "リセット";
+"APPS_REMOVE" = "削除";
+"APPS_RESET_CONFIRM" = "すべてのCarPlay Appを再表示してカスタマイズをオフにしますか？ App BridgeのiPhone Appはそのままです。";
+"APPS_OTHER_FOOTER" = "+をタップすると車にAppを追加します。iPhone AppはApp Bridge経由です。";
 "APPS_CARPLAY_GUESS_FOOTER" = "まだ車に接続していません: CarPlay対応状況からCarPlay Appを推定しています。";
 
 /* Man chinh CarPlay: luoi icon */

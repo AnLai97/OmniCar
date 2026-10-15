@@ -36,6 +36,12 @@
 "APPS_CARPLAY_LOCKED" = "Selalu di CarPlay";
 "APPS_CUSTOM" = "Sesuaikan daftar app";
 "APPS_CUSTOM_OFF_FOOTER" = "Mati: mobil menampilkan app CarPlay sesuai Pengaturan iPhone › Umum › CarPlay. Nyalakan untuk menampilkan atau menyembunyikan tiap app CarPlay di sini.";
+"APPS_INCLUDED" = "Disertakan";
+"APPS_OTHER" = "App lainnya";
+"APPS_RESET" = "Atur ulang";
+"APPS_REMOVE" = "Hapus";
+"APPS_RESET_CONFIRM" = "Tampilkan lagi semua app CarPlay dan matikan Sesuaikan? App iPhone lewat App Bridge tetap.";
+"APPS_OTHER_FOOTER" = "Ketuk + untuk menaruh app di mobil. App iPhone lewat App Bridge.";
 "APPS_CARPLAY_GUESS_FOOTER" = "Belum terhubung ke mobil: app CarPlay ditebak dari dukungan CarPlay.";
 
 /* Man chinh CarPlay: luoi icon */

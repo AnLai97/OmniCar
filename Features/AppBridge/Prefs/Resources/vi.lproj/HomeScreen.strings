@@ -36,6 +36,12 @@
 "APPS_CARPLAY_LOCKED" = "CarPlay luôn hiện";
 "APPS_CUSTOM" = "Tùy chỉnh danh sách app";
 "APPS_CUSTOM_OFF_FOOTER" = "Đang tắt: xe hiện app CarPlay như đã chọn trong Cài đặt iPhone › Cài đặt chung › CarPlay. Bật để ẩn / hiện từng app CarPlay ở đây.";
+"APPS_INCLUDED" = "Bao gồm";
+"APPS_OTHER" = "Ứng dụng khác";
+"APPS_RESET" = "Đặt lại";
+"APPS_REMOVE" = "Bỏ";
+"APPS_RESET_CONFIRM" = "Hiện lại mọi app CarPlay và tắt Tùy chỉnh? App iPhone qua App Bridge giữ nguyên.";
+"APPS_OTHER_FOOTER" = "Chạm + để đưa app lên xe. App iPhone đi qua App Bridge.";
 "APPS_CARPLAY_GUESS_FOOTER" = "Chưa cắm xe lần nào: app CarPlay đang được đoán theo hỗ trợ CarPlay.";
 
 /* Man chinh CarPlay: luoi icon */

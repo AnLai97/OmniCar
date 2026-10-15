@@ -36,6 +36,12 @@
 "APPS_CARPLAY_LOCKED" = "Immer in CarPlay";
 "APPS_CUSTOM" = "App-Liste anpassen";
 "APPS_CUSTOM_OFF_FOOTER" = "Aus: Das Auto zeigt die CarPlay-Apps wie in den iPhone-Einstellungen › Allgemein › CarPlay festgelegt. Einschalten, um jede CarPlay-App hier ein- oder auszublenden.";
+"APPS_INCLUDED" = "Enthalten";
+"APPS_OTHER" = "Andere Apps";
+"APPS_RESET" = "Zurücksetzen";
+"APPS_REMOVE" = "Entfernen";
+"APPS_RESET_CONFIRM" = "Alle CarPlay-Apps wieder anzeigen und Anpassen ausschalten? iPhone-Apps über App Bridge bleiben.";
+"APPS_OTHER_FOOTER" = "Tippe auf +, um eine App ins Auto zu bringen. iPhone-Apps laufen über App Bridge.";
 "APPS_CARPLAY_GUESS_FOOTER" = "Noch nicht mit einem Auto verbunden: CarPlay-Apps sind anhand der CarPlay-Unterstützung geschätzt.";
 
 /* Man chinh CarPlay: luoi icon */

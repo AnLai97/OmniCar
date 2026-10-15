@@ -36,6 +36,12 @@
 "APPS_CARPLAY_LOCKED" = "Всегда в CarPlay";
 "APPS_CUSTOM" = "Настроить список приложений";
 "APPS_CUSTOM_OFF_FOOTER" = "Выкл.: в машине приложения CarPlay как в Настройках iPhone › Основные › CarPlay. Включите, чтобы показывать или скрывать здесь каждое приложение CarPlay.";
+"APPS_INCLUDED" = "Включены";
+"APPS_OTHER" = "Другие приложения";
+"APPS_RESET" = "Сбросить";
+"APPS_REMOVE" = "Убрать";
+"APPS_RESET_CONFIRM" = "Снова показать все приложения CarPlay и выключить настройку? Приложения iPhone через App Bridge останутся.";
+"APPS_OTHER_FOOTER" = "Нажмите +, чтобы вывести приложение в машину. Приложения iPhone идут через App Bridge.";
 "APPS_CARPLAY_GUESS_FOOTER" = "Машина ещё не подключалась: приложения CarPlay определены по поддержке CarPlay.";
 
 /* Man chinh CarPlay: luoi icon */
