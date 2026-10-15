@@ -873,9 +873,7 @@ static void CPDumpCustomizeStorage(NSArray<NSString *> *homeBundles) {
 	NSMutableArray *summary = [NSMutableArray array];
 	for (NSArray *h in hits) {
 		NSString *path = h[0];
-		CPLine(@"
-%@ (%@ bytes, modified %@)
-  contains: %@", path, h[3], [df stringFromDate:h[2]], [h[1] componentsJoinedByString:@", "]);
+		CPLine(@"\n%@ (%@ bytes, modified %@)\n  contains: %@", path, h[3], [df stringFromDate:h[2]], [h[1] componentsJoinedByString:@", "]);
 		[summary addObject:path.lastPathComponent];
 		NSData *data = [NSData dataWithContentsOfFile:path];
 		id plist = data ? [NSPropertyListSerialization propertyListWithData:data options:0 format:NULL error:nil] : nil;
@@ -888,8 +886,7 @@ static void CPDumpCustomizeStorage(NSArray<NSString *> *homeBundles) {
 	NSDictionary *before = [NSDictionary dictionaryWithContentsOfFile:CP_FILES_PATH];
 	NSMutableArray *changed = [NSMutableArray array];
 	if (before) {
-		CPLine(@"
-Changed since the last probe (%lu files then):", (unsigned long)before.count);
+		CPLine(@"\nChanged since the last probe (%lu files then):", (unsigned long)before.count);
 		for (NSString *path in [[now allKeys] sortedArrayUsingSelector:@selector(compare:)]) {
 			NSArray *b = before[path], *n = now[path];
 			if (!b) { CPLine(@"  NEW      %@", path); [changed addObject:path.lastPathComponent]; }
@@ -897,8 +894,7 @@ Changed since the last probe (%lu files then):", (unsigned long)before.count);
 		}
 		for (NSString *path in before) if (!now[path]) { CPLine(@"  GONE     %@", path); [changed addObject:path.lastPathComponent]; }
 		if (!changed.count) CPLine(@"  (none)");
-	} else CPLine(@"
-(first scan: change CarPlay Customize in iOS Settings, then probe again to see which file changes)");
+	} else CPLine(@"\n(first scan: change CarPlay Customize in iOS Settings, then probe again to see which file changes)");
 	[now writeToFile:CP_FILES_PATH atomically:YES];
 	dispatch_async(dispatch_get_main_queue(), ^{
 		CPLog(@"Tuy chinh CarPlay: %lu file chua ma app (%@)%@", (unsigned long)summary.count, [summary componentsJoinedByString:@", "],
