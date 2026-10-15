@@ -217,7 +217,8 @@ static NSUInteger SCPGridValue(id cfg, NSUInteger orig, BOOL landscape, BOOL col
 {
     BOOL show = YES;
     @try { show = SCPHomeShowNames(); } @catch (NSException *e) { show = YES; }
-    return show ? %orig : CGSizeZero;
+    if (!show) return CGSizeZero;   // Logos khong doc duoc %orig trong bieu thuc ? :
+    return %orig;
 }
 
 %end
