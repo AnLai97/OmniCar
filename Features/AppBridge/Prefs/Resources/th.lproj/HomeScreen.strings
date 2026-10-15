@@ -32,15 +32,14 @@
 "APPS_TAB_CARPLAY" = "แอป CarPlay";
 "APPS_TAB_OMNICAR" = "App Bridge";
 "APPS_ON_CAR_FOOTER" = "แอปที่มีป้าย iPhone คือแอป iPhone ที่ App Bridge นำขึ้นจอรถ";
-"APPS_CARPLAY_FOOTER" = "ปิดแอป CarPlay เพื่อซ่อนไอคอนบนหน้าจอหลักของรถ ซ่อนแค่ไอคอน แอปยังเปิดเองได้เมื่อมีสายเข้า นำทาง หรือใช้ Siri";
+"APPS_CARPLAY_FOOTER" = "เอาแอป CarPlay ออกเพื่อซ่อนไอคอนบนหน้าจอหลักของรถ แอปยังเปิดเองได้เมื่อมีสายเข้า นำทาง หรือใช้ Siri รีเซ็ตเพื่อกลับไปตามการตั้งค่า iPhone › ทั่วไป › CarPlay";
 "APPS_CARPLAY_LOCKED" = "แสดงใน CarPlay เสมอ";
-"APPS_CUSTOM" = "ปรับแต่งรายการแอป";
-"APPS_CUSTOM_OFF_FOOTER" = "ปิดอยู่: รถแสดงแอป CarPlay ตามที่เลือกไว้ในการตั้งค่า iPhone › ทั่วไป › CarPlay เปิดเพื่อแสดงหรือซ่อนแอป CarPlay แต่ละตัวที่นี่";
+"APPS_IOS_REMOVED" = "เอาออกในการตั้งค่า iPhone";
 "APPS_INCLUDED" = "รวมอยู่";
 "APPS_OTHER" = "แอปอื่นๆ";
 "APPS_RESET" = "รีเซ็ต";
 "APPS_REMOVE" = "เอาออก";
-"APPS_RESET_CONFIRM" = "แสดงแอป CarPlay ทั้งหมดอีกครั้งและปิดการปรับแต่งไหม แอป iPhone ผ่าน App Bridge ยังอยู่";
+"APPS_RESET_CONFIRM" = "แสดงแอป CarPlay ตามการตั้งค่า iPhone › ทั่วไป › CarPlay อีกครั้งไหม แอป iPhone ผ่าน App Bridge ยังอยู่";
 "APPS_OTHER_FOOTER" = "แตะ + เพื่อเอาแอปขึ้นจอรถ แอป iPhone ผ่าน App Bridge";
 "APPS_CARPLAY_GUESS_FOOTER" = "ยังไม่เคยเชื่อมต่อรถ: แอป CarPlay เดาจากการรองรับ CarPlay";
 

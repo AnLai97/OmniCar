@@ -104,22 +104,26 @@
 #define HS_ROWS_VALUES       @[@0, @1, @2, @3, @4]
 // BOOL, default YES: app names under the icons (-[SBIconView setLabelHidden:], AppIcons.xm)
 #define HS_KEY_NAMES         @"homeScreenShowNames"
-// [bundle id] CarPlay apps whose icon is left off CarPlay's own home screen (Settings: App on the car screen > CarPlay
-// apps tab; car side: -[SBIconModel isIconVisible:] in AppIcons.xm). Only the icon goes: the app still opens by itself
-// (a call, directions, Siri). A new key, not the dropped homeScreenHidden of the first builds.
+// App on the car screen works like iOS Settings > General > CarPlay > Customize. On connect the car shows CarPlay's own
+// list; OmniCar only changes it through the two lists below (both empty = CarPlay untouched; Reset empties them):
+// [bundle id] CarPlay apps the user removed (minus) - left off CarPlay's home screen by -[SBIconModel isIconVisible:]
+// (AppIcons.xm). Only the icon goes: the app still opens by itself (a call, directions, Siri). Not the dropped
+// homeScreenHidden of the first builds.
 #define HS_KEY_HIDDEN_APPS   @"homeScreenHiddenApps"
-// BOOL, default NO: "Customize app list". Off = the car shows the CarPlay apps exactly as set in iOS Settings > General >
-// CarPlay (HS_KEY_HIDDEN_APPS is kept but not applied); on = OmniCar takes over that list and hides HS_KEY_HIDDEN_APPS.
-#define HS_KEY_CUSTOM_APPS   @"homeScreenCustomApps"
-// [@{id, name}] the CarPlay apps on CarPlay's home screen, in the car's order, written by the CarPlay process
+// [bundle id] CarPlay apps removed in iOS CarPlay Customize that the user added back here (plus): isIconVisible: is forced
+// to YES for them (only works if CarPlay asks the icon model about them; see the log "HomeScreen: hien lai").
+#define HS_KEY_SHOWN_APPS    @"homeScreenShownApps"
+// [@{id, name, off?}] the CarPlay apps on CarPlay's home screen, in the car's order, written by the CarPlay process
 // (SCPHomeScreen.mm) from the home grid's icon model each time the home screen lays out: includes CarPlay's own icons
 // (Now Playing, Settings, the car maker's app) that have no iPhone app proxy, hence the name. Apps OmniCar hides keep
-// their place (merged back from the previous list); apps removed in iOS Settings > CarPlay > Customize drop out.
+// their place (merged back from the previous list); then the other apps with a CarPlay interface (off = YES: removed in
+// iOS Settings > CarPlay > Customize), so Settings can offer them under Other apps.
 // splitScreenCarPlayApps (SPL_KEY_CARPLAY_APPS) is a different list: only apps Split Screen can put in a pane.
 #define HS_KEY_CAR_APPS      @"homeScreenCarApps"
 // Apps CarPlay itself never lets you hide (Settings > General > CarPlay > Customize): Phone, Music, Maps, Messages and
-// CarPlay's own Now Playing / car (OEM) / Settings icons. OmniCar keeps them too: no switch in Settings, never hidden on
-// the car even if HS_KEY_HIDDEN_APPS lists them.
+// CarPlay's own Now Playing / car (OEM) / Settings icons. OmniCar keeps them too: no minus in Settings, never hidden on
+// the car even if HS_KEY_HIDDEN_APPS lists them. CarPlay's own icons are also caught without knowing their bundle id:
+// an app on the home screen that is not an installed iPhone app (no LSApplicationProxy) is locked (Settings and car).
 static inline BOOL HSIsLockedCarPlayApp(NSString *bid)
 {
     if (![bid isKindOfClass:[NSString class]] || !bid.length) return NO;

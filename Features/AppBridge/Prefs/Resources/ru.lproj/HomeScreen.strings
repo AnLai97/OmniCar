@@ -32,15 +32,14 @@
 "APPS_TAB_CARPLAY" = "Приложения CarPlay";
 "APPS_TAB_OMNICAR" = "App Bridge";
 "APPS_ON_CAR_FOOTER" = "Приложения со значком iPhone — это приложения iPhone, которые App Bridge выводит в машину.";
-"APPS_CARPLAY_FOOTER" = "Выключите приложение CarPlay, чтобы скрыть его значок на главном экране авто. Скрывается только значок: приложение по-прежнему само открывается при звонке, маршруте или через Siri.";
+"APPS_CARPLAY_FOOTER" = "Уберите приложение CarPlay, чтобы убрать его значок с главного экрана авто; оно по-прежнему само открывается при звонке, маршруте или через Siri. Сброс возвращает к Настройкам iPhone › Основные › CarPlay.";
 "APPS_CARPLAY_LOCKED" = "Всегда в CarPlay";
-"APPS_CUSTOM" = "Настроить список приложений";
-"APPS_CUSTOM_OFF_FOOTER" = "Выкл.: в машине приложения CarPlay как в Настройках iPhone › Основные › CarPlay. Включите, чтобы показывать или скрывать здесь каждое приложение CarPlay.";
+"APPS_IOS_REMOVED" = "Убрано в Настройках iPhone";
 "APPS_INCLUDED" = "Включены";
 "APPS_OTHER" = "Другие приложения";
 "APPS_RESET" = "Сбросить";
 "APPS_REMOVE" = "Убрать";
-"APPS_RESET_CONFIRM" = "Снова показать все приложения CarPlay и выключить настройку? Приложения iPhone через App Bridge останутся.";
+"APPS_RESET_CONFIRM" = "Снова показать приложения CarPlay как в Настройках iPhone › Основные › CarPlay? Приложения iPhone через App Bridge останутся.";
 "APPS_OTHER_FOOTER" = "Нажмите +, чтобы вывести приложение в машину. Приложения iPhone идут через App Bridge.";
 "APPS_CARPLAY_GUESS_FOOTER" = "Машина ещё не подключалась: приложения CarPlay определены по поддержке CarPlay.";
 

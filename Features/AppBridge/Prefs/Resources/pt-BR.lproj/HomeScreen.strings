@@ -32,15 +32,14 @@
 "APPS_TAB_CARPLAY" = "Apps do CarPlay";
 "APPS_TAB_OMNICAR" = "App Bridge";
 "APPS_ON_CAR_FOOTER" = "Os apps com o selo de iPhone são apps do iPhone levados ao carro pelo App Bridge.";
-"APPS_CARPLAY_FOOTER" = "Desative um app do CarPlay para ocultar o ícone dele na tela inicial do carro. Só o ícone some: o app continua abrindo sozinho em uma ligação, rota ou com a Siri.";
+"APPS_CARPLAY_FOOTER" = "Remova um app do CarPlay para tirar o ícone da tela inicial do carro; ele continua abrindo sozinho em ligações, rotas ou com a Siri. Redefinir volta a Ajustes do iPhone › Geral › CarPlay.";
 "APPS_CARPLAY_LOCKED" = "Sempre no CarPlay";
-"APPS_CUSTOM" = "Personalizar lista de apps";
-"APPS_CUSTOM_OFF_FOOTER" = "Desativado: o carro mostra os apps do CarPlay escolhidos em Ajustes do iPhone › Geral › CarPlay. Ative para mostrar ou ocultar aqui cada app do CarPlay.";
+"APPS_IOS_REMOVED" = "Removido nos Ajustes do iPhone";
 "APPS_INCLUDED" = "Incluídos";
 "APPS_OTHER" = "Outros apps";
 "APPS_RESET" = "Redefinir";
 "APPS_REMOVE" = "Remover";
-"APPS_RESET_CONFIRM" = "Mostrar de novo todos os apps do CarPlay e desativar Personalizar? Os apps do iPhone via App Bridge continuam.";
+"APPS_RESET_CONFIRM" = "Mostrar de novo os apps do CarPlay como em Ajustes do iPhone › Geral › CarPlay? Os apps do iPhone via App Bridge continuam.";
 "APPS_OTHER_FOOTER" = "Toque em + para pôr um app no carro. Apps do iPhone passam pelo App Bridge.";
 "APPS_CARPLAY_GUESS_FOOTER" = "Ainda não conectado a um carro: os apps do CarPlay são estimados pelo suporte ao CarPlay.";
 

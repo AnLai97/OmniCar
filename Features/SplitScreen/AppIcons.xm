@@ -197,7 +197,10 @@ static NSUInteger SCPGridValue(id cfg, NSUInteger orig, BOOL landscape, BOOL col
 - (BOOL)isIconVisible:(id)icon
 {
     @try { if (SCPIconHiddenOnCar(icon)) return NO; } @catch (NSException *e) { SCPIconsHookError("isIconVisible", e); }
-    return %orig;
+    BOOL visible = %orig;
+    // app iOS da bo trong Tuy chinh ma nguoi dung them lai trong OmniCar
+    @try { if (!visible && SCPIconForcedOnCar(icon)) return YES; } @catch (NSException *e) { SCPIconsHookError("isIconVisible", e); }
+    return visible;
 }
 
 %end

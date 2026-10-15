@@ -32,15 +32,14 @@
 "APPS_TAB_CARPLAY" = "App CarPlay";
 "APPS_TAB_OMNICAR" = "App Bridge";
 "APPS_ON_CAR_FOOTER" = "App dengan lencana iPhone adalah app iPhone yang dibawa ke mobil oleh App Bridge.";
-"APPS_CARPLAY_FOOTER" = "Matikan app CarPlay untuk menyembunyikan ikonnya di layar utama mobil. Hanya ikonnya yang hilang: app tetap terbuka sendiri untuk panggilan, petunjuk arah, atau Siri.";
+"APPS_CARPLAY_FOOTER" = "Hapus app CarPlay untuk menyembunyikan ikonnya di layar utama mobil; app tetap terbuka sendiri untuk panggilan, petunjuk arah, atau Siri. Atur ulang kembali ke Pengaturan iPhone › Umum › CarPlay.";
 "APPS_CARPLAY_LOCKED" = "Selalu di CarPlay";
-"APPS_CUSTOM" = "Sesuaikan daftar app";
-"APPS_CUSTOM_OFF_FOOTER" = "Mati: mobil menampilkan app CarPlay sesuai Pengaturan iPhone › Umum › CarPlay. Nyalakan untuk menampilkan atau menyembunyikan tiap app CarPlay di sini.";
+"APPS_IOS_REMOVED" = "Dihapus di Pengaturan iPhone";
 "APPS_INCLUDED" = "Disertakan";
 "APPS_OTHER" = "App lainnya";
 "APPS_RESET" = "Atur ulang";
 "APPS_REMOVE" = "Hapus";
-"APPS_RESET_CONFIRM" = "Tampilkan lagi semua app CarPlay dan matikan Sesuaikan? App iPhone lewat App Bridge tetap.";
+"APPS_RESET_CONFIRM" = "Tampilkan lagi app CarPlay seperti di Pengaturan iPhone › Umum › CarPlay? App iPhone lewat App Bridge tetap.";
 "APPS_OTHER_FOOTER" = "Ketuk + untuk menaruh app di mobil. App iPhone lewat App Bridge.";
 "APPS_CARPLAY_GUESS_FOOTER" = "Belum terhubung ke mobil: app CarPlay ditebak dari dukungan CarPlay.";
 

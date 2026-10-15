@@ -356,6 +356,22 @@ static void SCPHPublishApps(UIView *root)
         [list insertObject:a atIndex:MIN(i, list.count)];
         [ids addObject:a[@"id"]];
     }
+    // App co giao dien CarPlay ma khong tren man chinh: da bo trong Tuy chinh cua iOS (off) - hoac OmniCar dang an (khong off)
+    id lib = SCPHTry([UIApplication sharedApplication], @"sharedApplicationLibrary");
+    NSArray *all = SCPHTry(lib, @"allInstalledApplications");
+    NSMutableArray *offApps = [NSMutableArray array];
+    for (id info in [all isKindOfClass:[NSArray class]] ? all : @[]) {
+        NSString *bid = SCPHTry(info, @"bundleIdentifier");
+        if (![bid isKindOfClass:[NSString class]] || !bid.length || [ids containsObject:bid] || !SCPHTry(info, @"carPlayDeclaration")) continue;
+        if ([bid hasPrefix:@"com.apple.CarPlay"] || [bid isEqualToString:@"com.apple.InCallService"] || SCPIsInjectedPhoneApp(bid)) continue;
+        id n = SCPHTry(info, @"displayName");
+        NSMutableDictionary *a = [@{@"id": bid, @"name": [n isKindOfClass:[NSString class]] && [n length] ? n : bid} mutableCopy];
+        if (![hidden containsObject:bid]) a[@"off"] = @YES;
+        [offApps addObject:a];
+        [ids addObject:bid];
+    }
+    [offApps sortUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"name" ascending:YES selector:@selector(localizedCaseInsensitiveCompare:)]]];
+    [list addObjectsFromArray:offApps];
     if ([list isEqualToArray:old]) return;
     CFPreferencesSetAppValue((__bridge CFStringRef)HS_KEY_CAR_APPS, (__bridge CFPropertyListRef)list, OMC_PREFS_DOMAIN);
     CFPreferencesAppSynchronize(OMC_PREFS_DOMAIN);

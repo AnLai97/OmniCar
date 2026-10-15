@@ -125,12 +125,16 @@ Thử: chọn hình nền + kéo cỡ icon 130 %, cắm xe, Gửi log (dòng "Ho
   Ẩn icon app CarPlay gốc không dùng (CarBridge có) trên màn chính gốc của CarPlay; app vẫn tự mở khi có cuộc gọi, chỉ
   đường, Siri. Sắp xếp / ghim dock vẫn bỏ (không tự vẽ lưới).
   Xong khi: app ẩn không hiện trên màn chính, giữ nguyên sau khi rút / cắm lại và sau respring; bật lại thì icon về.
-  Flow: cắm xe thì CarPlay hiện app như đã chọn trong Cài đặt iPhone › Chung › CarPlay; bật "Tùy chỉnh danh sách app"
-  (HS_KEY_CUSTOM_APPS, mặc định tắt) thì OmniCar thay danh sách đó. Tắt = không ẩn gì (danh sách ẩn giữ lại, không áp).
-  Code: App trên màn xe kiểu Cài đặt iPhone › CarPlay › Tùy chỉnh: công tắc Tùy chỉnh, mục Bao gồm (nút − bỏ) và Ứng dụng
-  khác (nút + thêm, ô tìm), chung app CarPlay và app iPhone qua App Bridge (AB_KEY_APPS), nút Đặt lại (hiện lại mọi app CarPlay,
-  tắt Tùy chỉnh); app CarPlay bỏ → HS_KEY_HIDDEN_APPS (key mới, không đọc homeScreenHidden cũ), chỉ có nút − khi Tùy chỉnh bật.
-  Không kéo đổi thứ tự (CarPlay giữ thứ tự của nó).
+  Flow: cắm xe thì CarPlay hiện app như đã chọn trong Cài đặt iPhone › Chung › CarPlay; chỉnh trong OmniCar thì OmniCar thay
+  danh sách đó (không còn công tắc Tùy chỉnh: 2 danh sách bên dưới đều rỗng = CarPlay nguyên vẹn; Đặt lại xoá cả 2).
+  Code: App trên màn xe kiểu Cài đặt iPhone › CarPlay › Tùy chỉnh: Bao gồm (nút − bỏ) và Ứng dụng khác (nút + thêm, ô tìm),
+  chung app CarPlay và app iPhone qua App Bridge (AB_KEY_APPS). Bỏ app CarPlay → HS_KEY_HIDDEN_APPS (isIconVisible: NO);
+  thêm lại app đã bỏ trong Tùy chỉnh của iOS → HS_KEY_SHOWN_APPS (isIconVisible: buộc YES, xe ghi các app này vào
+  HS_KEY_CAR_APPS với off = YES). Khoá: Điện thoại / Nhạc / Bản đồ / Tin nhắn + mọi icon riêng của CarPlay (có trên màn chính
+  mà không phải app cài trên iPhone, không cần biết mã bundle), ở cả Cài đặt lẫn trên xe. Không kéo đổi thứ tự; app thêm lại
+  do CarPlay tự xếp chỗ (xem log "HomeScreen: N app tren man chinh").
+  Thử thêm: bỏ Lịch trong Cài đặt iPhone › CarPlay, thêm lại ở OmniCar → log "hien lai (iOS da bo ...)" và icon về; không có
+  dòng đó = CarPlay không hỏi isIconVisible: cho app iOS đã bỏ (cần cách khác).
   Như CarPlay: Điện thoại, Nhạc, Bản đồ, Tin nhắn, Đang phát, Xe, Cài đặt không ẩn được (HSIsLockedCarPlayApp trong
   AppBridge.h: hàng có khóa thay công tắc, trên xe bỏ qua dù có trong danh sách ẩn).
   Trên xe: hook -[SBIconModel isIconVisible:] (AppIcons.xm, SCPIconHiddenOnCar trong SCPAppIcons.mm) trả NO cho app bị ẩn;

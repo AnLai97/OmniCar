@@ -32,15 +32,14 @@
 "APPS_TAB_CARPLAY" = "CarPlay App";
 "APPS_TAB_OMNICAR" = "App Bridge";
 "APPS_ON_CAR_FOOTER" = "带 iPhone 标记的 App 是通过 App Bridge 放到车机上的 iPhone App。";
-"APPS_CARPLAY_FOOTER" = "关闭某个 CarPlay App 即可在车机主屏幕上隐藏它的图标。只隐藏图标：来电、导航或 Siri 时 App 仍会自动打开。";
+"APPS_CARPLAY_FOOTER" = "移除某个 CarPlay App 可让它的图标离开车机主屏幕；来电、导航或 Siri 时它仍会自动打开。还原即回到 iPhone 设置 › 通用 › CarPlay 的状态。";
 "APPS_CARPLAY_LOCKED" = "始终显示在 CarPlay";
-"APPS_CUSTOM" = "自定 App 列表";
-"APPS_CUSTOM_OFF_FOOTER" = "关闭：车机按 iPhone 设置 › 通用 › CarPlay 中的选择显示 CarPlay App。打开后可在这里逐个显示或隐藏 CarPlay App。";
+"APPS_IOS_REMOVED" = "已在 iPhone 设置中移除";
 "APPS_INCLUDED" = "已包括";
 "APPS_OTHER" = "其他 App";
 "APPS_RESET" = "还原";
 "APPS_REMOVE" = "移除";
-"APPS_RESET_CONFIRM" = "重新显示所有 CarPlay App 并关闭自定？通过 App Bridge 的 iPhone App 保留。";
+"APPS_RESET_CONFIRM" = "重新按 iPhone 设置 › 通用 › CarPlay 显示 CarPlay App？通过 App Bridge 的 iPhone App 保留。";
 "APPS_OTHER_FOOTER" = "轻点 + 将 App 放到车机上。iPhone App 通过 App Bridge。";
 "APPS_CARPLAY_GUESS_FOOTER" = "尚未连接车辆：CarPlay App 根据 CarPlay 支持情况推测。";
 

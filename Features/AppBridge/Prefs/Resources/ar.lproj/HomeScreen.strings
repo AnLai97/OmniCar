@@ -32,15 +32,14 @@
 "APPS_TAB_CARPLAY" = "تطبيقات CarPlay";
 "APPS_TAB_OMNICAR" = "App Bridge";
 "APPS_ON_CAR_FOOTER" = "التطبيقات التي تحمل شارة iPhone هي تطبيقات iPhone تنقلها App Bridge إلى السيارة.";
-"APPS_CARPLAY_FOOTER" = "أوقف تطبيق CarPlay لإخفاء أيقونته من الشاشة الرئيسية للسيارة. تختفي الأيقونة فقط: يظل التطبيق يفتح تلقائيًا عند مكالمة أو اتجاهات أو Siri.";
+"APPS_CARPLAY_FOOTER" = "أزل تطبيق CarPlay لإخفاء أيقونته من الشاشة الرئيسية للسيارة؛ يظل يفتح تلقائيًا عند مكالمة أو اتجاهات أو Siri. إعادة التعيين تعود إلى إعدادات iPhone › عام › CarPlay.";
 "APPS_CARPLAY_LOCKED" = "يظهر دائمًا في CarPlay";
-"APPS_CUSTOM" = "تخصيص قائمة التطبيقات";
-"APPS_CUSTOM_OFF_FOOTER" = "متوقف: تعرض السيارة تطبيقات CarPlay كما اخترتها في إعدادات iPhone › عام › CarPlay. شغّله لإظهار أو إخفاء كل تطبيق CarPlay هنا.";
+"APPS_IOS_REMOVED" = "أُزيل في إعدادات iPhone";
 "APPS_INCLUDED" = "مضمّنة";
 "APPS_OTHER" = "تطبيقات أخرى";
 "APPS_RESET" = "إعادة تعيين";
 "APPS_REMOVE" = "إزالة";
-"APPS_RESET_CONFIRM" = "إظهار كل تطبيقات CarPlay مجددًا وإيقاف التخصيص؟ تبقى تطبيقات iPhone عبر App Bridge.";
+"APPS_RESET_CONFIRM" = "إظهار تطبيقات CarPlay كما في إعدادات iPhone › عام › CarPlay من جديد؟ تبقى تطبيقات iPhone عبر App Bridge.";
 "APPS_OTHER_FOOTER" = "اضغط + لوضع تطبيق في السيارة. تطبيقات iPhone تمر عبر App Bridge.";
 "APPS_CARPLAY_GUESS_FOOTER" = "لم يتم الاتصال بسيارة بعد: تطبيقات CarPlay مُخمَّنة حسب دعم CarPlay.";
 
