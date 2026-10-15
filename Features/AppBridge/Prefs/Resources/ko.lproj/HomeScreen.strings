@@ -30,8 +30,8 @@
 "APPS_ON_CAR" = "차량에 표시 중";
 "APPS_ALL" = "앱 선택";
 "APPS_TAB_CARPLAY" = "CarPlay 앱";
-"APPS_TAB_OMNICAR" = "OmniCar 앱";
-"APPS_ON_CAR_FOOTER" = "iPhone 배지가 있는 앱은 OmniCar가 차량에 띄운 앱입니다.";
+"APPS_TAB_OMNICAR" = "App Bridge";
+"APPS_ON_CAR_FOOTER" = "iPhone 배지가 있는 앱은 App Bridge로 차량에 띄운 iPhone 앱입니다.";
 "APPS_CARPLAY_FOOTER" = "CarPlay 앱을 끄면 차량 홈 화면에서 아이콘이 숨겨집니다. 아이콘만 숨겨지며 통화, 길 안내, Siri로는 그대로 열립니다.";
 "APPS_CARPLAY_LOCKED" = "CarPlay에 항상 표시";
 "APPS_CUSTOM" = "앱 목록 사용자화";

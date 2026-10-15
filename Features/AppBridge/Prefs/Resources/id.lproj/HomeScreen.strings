@@ -30,8 +30,8 @@
 "APPS_ON_CAR" = "Di mobil";
 "APPS_ALL" = "Pilih app";
 "APPS_TAB_CARPLAY" = "App CarPlay";
-"APPS_TAB_OMNICAR" = "App OmniCar";
-"APPS_ON_CAR_FOOTER" = "App dengan lencana iPhone adalah app yang dibawa OmniCar ke mobil.";
+"APPS_TAB_OMNICAR" = "App Bridge";
+"APPS_ON_CAR_FOOTER" = "App dengan lencana iPhone adalah app iPhone yang dibawa ke mobil oleh App Bridge.";
 "APPS_CARPLAY_FOOTER" = "Matikan app CarPlay untuk menyembunyikan ikonnya di layar utama mobil. Hanya ikonnya yang hilang: app tetap terbuka sendiri untuk panggilan, petunjuk arah, atau Siri.";
 "APPS_CARPLAY_LOCKED" = "Selalu di CarPlay";
 "APPS_CUSTOM" = "Sesuaikan daftar app";

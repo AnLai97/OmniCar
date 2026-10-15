@@ -1,7 +1,7 @@
 // "Man xe" cua trang chinh OmniCar, hai dong (xem truoc: tools/preview/index.html#home):
 //  - "App tren man xe" (OMCAppBridgeAppsLinkCell, hien so app da chon) mo OMCAppBridgeAppsController: tren la cac app dang
 //    hien tren xe, duoi cong tac Tuy chinh danh sach app (HS_KEY_CUSTOM_APPS) + MOT danh sach chia 2 phan co tieu de:
-//    App CarPlay (cong tac = hien / an icon, HS_KEY_HIDDEN_APPS, chi khi Tuy chinh bat) / App OmniCar = app iPhone nao len xe (AB_KEY_APPS; CarPlay
+//    App CarPlay (cong tac = hien / an icon, HS_KEY_HIDDEN_APPS, chi khi Tuy chinh bat) / App Bridge = app iPhone nao len xe (AB_KEY_APPS; CarPlay
 //    (SCPCPhoneAppSet, SCPAppIcons) va bang chon app cua Chia man hinh dung dung danh sach nay)
 //  - "Man chinh CarPlay" mo OMCHomeScreenController (cung lop, chi hien phan con lai): xem truoc, luoi icon (so cot
 //    HS_KEY_COLS, so hang HS_KEY_ROWS, co icon HS_KEY_ICON_SIZE, ten app HS_KEY_NAMES) va hinh nen (HS_KEY_WALLPAPER*). Man chinh CarPlay giu nguyen: Features/SplitScreen/SCPHomeScreen.mm
@@ -388,7 +388,7 @@ static UIImage *OMCHSPresetImage(NSInteger i, CGSize size, CGFloat scale)
 //    1 Tren xe: luoi icon app CarPlay + app iPhone da chon (dau iPhone)                                      (app)
 //    2 Tuy chinh danh sach app (tat = xe hien dung app da chon trong Cai dat iPhone > CarPlay), o tim + danh sach CUON
 //      RIENG 2 phan: App CarPlay = man chinh xe (HS_KEY_CAR_APPS), cong tac = hien icon (HS_KEY_HIDDEN_APPS; xe chua cam thi
-//      doan theo entitlement); App OmniCar = moi app iPhone host duoc, cong tac = dua len xe (AB_KEY_APPS)  (app)
+//      doan theo entitlement); App Bridge = moi app iPhone host duoc, cong tac = dua len xe (AB_KEY_APPS)  (app)
 //    3 Luoi icon: so cot / so hang (Tu dong = nhu CarPlay), co icon (HS_KEY_ICON_SIZE, 60..130 %), ten app       (man chinh)
 //    4 Hinh nen (the gap): hinh dung san, anh hoac video, do mo, do toi                                      (bo cuc)
 //  Moi trang chi hien the cua minh (the cua trang kia 0 dong, khong khoang trong).
@@ -530,7 +530,7 @@ static NSArray *OMCABArray(NSString *key)
 // App CarPlay bi an tren xe: chi khi Tuy chinh bat, khong bao gio app CarPlay khoa
 - (BOOL)hides:(NSString *)bid { return _custom && [_hidden containsObject:bid] && !HSIsLockedCarPlayApp(bid); }
 
-// 2 phan danh sach (App CarPlay theo thu tu xe, App OmniCar theo ten), loc theo o tim
+// 2 phan danh sach (App CarPlay theo thu tu xe, App Bridge theo ten), loc theo o tim
 - (void)rebuildRows
 {
     NSString *q = _query.length ? _query : nil;

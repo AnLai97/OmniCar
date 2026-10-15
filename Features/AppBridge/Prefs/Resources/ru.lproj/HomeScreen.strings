@@ -30,8 +30,8 @@
 "APPS_ON_CAR" = "В машине";
 "APPS_ALL" = "Выбор приложений";
 "APPS_TAB_CARPLAY" = "Приложения CarPlay";
-"APPS_TAB_OMNICAR" = "Приложения OmniCar";
-"APPS_ON_CAR_FOOTER" = "Приложения со значком iPhone выводит в машину OmniCar.";
+"APPS_TAB_OMNICAR" = "App Bridge";
+"APPS_ON_CAR_FOOTER" = "Приложения со значком iPhone — это приложения iPhone, которые App Bridge выводит в машину.";
 "APPS_CARPLAY_FOOTER" = "Выключите приложение CarPlay, чтобы скрыть его значок на главном экране авто. Скрывается только значок: приложение по-прежнему само открывается при звонке, маршруте или через Siri.";
 "APPS_CARPLAY_LOCKED" = "Всегда в CarPlay";
 "APPS_CUSTOM" = "Настроить список приложений";

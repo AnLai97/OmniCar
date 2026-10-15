@@ -30,8 +30,8 @@
 "APPS_ON_CAR" = "车机上显示";
 "APPS_ALL" = "选择 App";
 "APPS_TAB_CARPLAY" = "CarPlay App";
-"APPS_TAB_OMNICAR" = "OmniCar App";
-"APPS_ON_CAR_FOOTER" = "带 iPhone 标记的 App 是 OmniCar 放到车机上的。";
+"APPS_TAB_OMNICAR" = "App Bridge";
+"APPS_ON_CAR_FOOTER" = "带 iPhone 标记的 App 是通过 App Bridge 放到车机上的 iPhone App。";
 "APPS_CARPLAY_FOOTER" = "关闭某个 CarPlay App 即可在车机主屏幕上隐藏它的图标。只隐藏图标：来电、导航或 Siri 时 App 仍会自动打开。";
 "APPS_CARPLAY_LOCKED" = "始终显示在 CarPlay";
 "APPS_CUSTOM" = "自定 App 列表";

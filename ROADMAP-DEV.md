@@ -112,7 +112,7 @@ Khách so sánh trực tiếp với DuoDash / CarBridge ở các mục này, và
 THU GỌN (10/2026, theo ý tác giả): KHÔNG đụng vào giao diện của CarPlay. Nhóm "Màn xe" ở trang chính có hai mục
 (Features/AppBridge/Prefs/OMCAppBridgeAppsController.m, xem trước tools/preview/index.html#home): "App trên màn xe": trên là lưới app đang
 hiện trên xe (app CarPlay + app iPhone có dấu iPhone), dưới 2 tab App CarPlay (chỉ xem; chưa cắm xe thì đoán theo
-entitlement) / App OmniCar (công tắc đưa app iPhone lên xe = App Bridge, AB_KEY_APPS); "Màn chính CarPlay" (OMCHomeScreenController) gồm xem trước
+entitlement) / App Bridge (công tắc đưa app iPhone lên xe = App Bridge, AB_KEY_APPS); "Màn chính CarPlay" (OMCHomeScreenController) gồm xem trước
 màn xe, Lưới icon (Số cột / Số hàng, Cỡ icon HS_KEY_ICON_SIZE 60–130 %, Tên app) và thẻ Hình nền (6 hình dựng sẵn, ảnh hoặc video từ Ảnh, độ mờ, độ tối). Trên xe (Features/SplitScreen/SCPHomeScreen.mm) màn chính gốc
 của CarPlay giữ nguyên: hình nền là một view chèn xuống dưới lưới icon của DBDashboardHomeViewController, cỡ icon qua hook
 SBIconListGridLayoutConfiguration -iconImageInfo (AppIcons.xm, nhân hệ số; cột / hàng: xem 2.1.3). 100 %, lưới Tự động,
@@ -127,7 +127,7 @@ Thử: chọn hình nền + kéo cỡ icon 130 %, cắm xe, Gửi log (dòng "Ho
   Xong khi: app ẩn không hiện trên màn chính, giữ nguyên sau khi rút / cắm lại và sau respring; bật lại thì icon về.
   Flow: cắm xe thì CarPlay hiện app như đã chọn trong Cài đặt iPhone › Chung › CarPlay; bật "Tùy chỉnh danh sách app"
   (HS_KEY_CUSTOM_APPS, mặc định tắt) thì OmniCar thay danh sách đó. Tắt = không ẩn gì (danh sách ẩn giữ lại, không áp).
-  Code: App trên màn xe > Chọn app: công tắc Tùy chỉnh + MỘT danh sách chia 2 phần có tiêu đề (App CarPlay / App OmniCar,
+  Code: App trên màn xe > Chọn app: công tắc Tùy chỉnh + MỘT danh sách chia 2 phần có tiêu đề (App CarPlay / App Bridge,
   không còn tab); công tắc app CarPlay → HS_KEY_HIDDEN_APPS (key mới, không đọc homeScreenHidden cũ), chỉ bấm được khi Tùy chỉnh bật.
   Như CarPlay: Điện thoại, Nhạc, Bản đồ, Tin nhắn, Đang phát, Xe, Cài đặt không ẩn được (HSIsLockedCarPlayApp trong
   AppBridge.h: hàng có khóa thay công tắc, trên xe bỏ qua dù có trong danh sách ẩn).

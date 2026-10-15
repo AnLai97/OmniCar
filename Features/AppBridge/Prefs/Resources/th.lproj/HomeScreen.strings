@@ -30,8 +30,8 @@
 "APPS_ON_CAR" = "บนรถ";
 "APPS_ALL" = "เลือกแอป";
 "APPS_TAB_CARPLAY" = "แอป CarPlay";
-"APPS_TAB_OMNICAR" = "แอป OmniCar";
-"APPS_ON_CAR_FOOTER" = "แอปที่มีป้าย iPhone คือแอปที่ OmniCar นำขึ้นจอรถ";
+"APPS_TAB_OMNICAR" = "App Bridge";
+"APPS_ON_CAR_FOOTER" = "แอปที่มีป้าย iPhone คือแอป iPhone ที่ App Bridge นำขึ้นจอรถ";
 "APPS_CARPLAY_FOOTER" = "ปิดแอป CarPlay เพื่อซ่อนไอคอนบนหน้าจอหลักของรถ ซ่อนแค่ไอคอน แอปยังเปิดเองได้เมื่อมีสายเข้า นำทาง หรือใช้ Siri";
 "APPS_CARPLAY_LOCKED" = "แสดงใน CarPlay เสมอ";
 "APPS_CUSTOM" = "ปรับแต่งรายการแอป";

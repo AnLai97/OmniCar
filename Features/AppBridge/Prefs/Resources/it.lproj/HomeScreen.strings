@@ -30,8 +30,8 @@
 "APPS_ON_CAR" = "In auto";
 "APPS_ALL" = "Scegli le app";
 "APPS_TAB_CARPLAY" = "App CarPlay";
-"APPS_TAB_OMNICAR" = "App OmniCar";
-"APPS_ON_CAR_FOOTER" = "Le app con il badge iPhone sono quelle che OmniCar porta in auto.";
+"APPS_TAB_OMNICAR" = "App Bridge";
+"APPS_ON_CAR_FOOTER" = "Le app con il badge iPhone sono app di iPhone portate in auto da App Bridge.";
 "APPS_CARPLAY_FOOTER" = "Disattiva un'app CarPlay per nasconderne l'icona nella schermata Home dell'auto. Sparisce solo l'icona: l'app si apre comunque da sola per una chiamata, le indicazioni o Siri.";
 "APPS_CARPLAY_LOCKED" = "Sempre in CarPlay";
 "APPS_CUSTOM" = "Personalizza elenco app";

@@ -30,8 +30,8 @@
 "APPS_ON_CAR" = "車に表示中";
 "APPS_ALL" = "Appを選ぶ";
 "APPS_TAB_CARPLAY" = "CarPlay App";
-"APPS_TAB_OMNICAR" = "OmniCar App";
-"APPS_ON_CAR_FOOTER" = "iPhoneバッジ付きのAppはOmniCarが車に表示しているAppです。";
+"APPS_TAB_OMNICAR" = "App Bridge";
+"APPS_ON_CAR_FOOTER" = "iPhoneバッジ付きのAppは、App Bridgeで車に表示しているiPhone Appです。";
 "APPS_CARPLAY_FOOTER" = "CarPlay Appをオフにすると、車のホーム画面からアイコンが消えます。消えるのはアイコンだけで、通話・経路案内・Siriでは今まで通り自動で開きます。";
 "APPS_CARPLAY_LOCKED" = "CarPlayに常に表示";
 "APPS_CUSTOM" = "Appリストをカスタマイズ";

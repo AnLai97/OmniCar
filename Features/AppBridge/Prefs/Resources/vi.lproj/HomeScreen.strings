@@ -30,8 +30,8 @@
 "APPS_ON_CAR" = "Đang hiện trên xe";
 "APPS_ALL" = "Chọn app";
 "APPS_TAB_CARPLAY" = "App CarPlay";
-"APPS_TAB_OMNICAR" = "App OmniCar";
-"APPS_ON_CAR_FOOTER" = "App có dấu iPhone là app OmniCar đưa lên xe.";
+"APPS_TAB_OMNICAR" = "App Bridge";
+"APPS_ON_CAR_FOOTER" = "App có dấu iPhone là app iPhone đưa lên xe qua App Bridge.";
 "APPS_CARPLAY_FOOTER" = "Tắt một app CarPlay để ẩn icon của nó trên màn chính của xe. Chỉ ẩn icon: app vẫn tự mở khi có cuộc gọi, chỉ đường hoặc Siri.";
 "APPS_CARPLAY_LOCKED" = "CarPlay luôn hiện";
 "APPS_CUSTOM" = "Tùy chỉnh danh sách app";

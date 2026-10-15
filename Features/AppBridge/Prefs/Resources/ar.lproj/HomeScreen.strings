@@ -30,8 +30,8 @@
 "APPS_ON_CAR" = "على السيارة";
 "APPS_ALL" = "اختر التطبيقات";
 "APPS_TAB_CARPLAY" = "تطبيقات CarPlay";
-"APPS_TAB_OMNICAR" = "تطبيقات OmniCar";
-"APPS_ON_CAR_FOOTER" = "التطبيقات التي تحمل شارة iPhone هي التي ينقلها OmniCar إلى السيارة.";
+"APPS_TAB_OMNICAR" = "App Bridge";
+"APPS_ON_CAR_FOOTER" = "التطبيقات التي تحمل شارة iPhone هي تطبيقات iPhone تنقلها App Bridge إلى السيارة.";
 "APPS_CARPLAY_FOOTER" = "أوقف تطبيق CarPlay لإخفاء أيقونته من الشاشة الرئيسية للسيارة. تختفي الأيقونة فقط: يظل التطبيق يفتح تلقائيًا عند مكالمة أو اتجاهات أو Siri.";
 "APPS_CARPLAY_LOCKED" = "يظهر دائمًا في CarPlay";
 "APPS_CUSTOM" = "تخصيص قائمة التطبيقات";
