@@ -449,6 +449,7 @@ void SCPHomeApply(UIViewController *homeVC)
     // Ten app: tat thi ap moi lan layout (icon moi tao co the chua qua setLabelHidden:); bat lai thi ap 1 lan
     BOOL names = SCPHomeShowNames();
     if (!names || names != sAppliedNames) SCPHApplyNames(root, names, names != sAppliedNames);
+    if (names != sAppliedNames) SCPHRelayoutIcons(root, size);   // hook +maxLabelSizeForIconImageSize: chi co hieu luc khi xep lai
     sAppliedNames = names;
     SCPHPublishAppsSoon();
 }

@@ -135,6 +135,11 @@ Thử: chọn hình nền + kéo cỡ icon 130 %, cắm xe, Gửi log (dòng "Ho
   do CarPlay tự xếp chỗ (xem log "HomeScreen: N app tren man chinh").
   Thử thêm: bỏ Lịch trong Cài đặt iPhone › CarPlay, thêm lại ở OmniCar → log "hien lai (iOS da bo ...)" và icon về; không có
   dòng đó = CarPlay không hỏi isIconVisible: cho app iOS đã bỏ (cần cách khác).
+  Đồng bộ với Tùy chỉnh của iOS (đang dò): CarProbe (bản dev, OMC_AUTOTEST) có mục "CARPLAY CUSTOMIZE STORAGE": tìm file
+  dưới /var/mobile chứa mã app trên màn chính (kèm đường key trong plist) và so với lần probe trước. Cách dò: cắm xe (probe tự
+  chạy sau 8 s) → vào Cài đặt iPhone › Chung › CarPlay › xe › Tùy chỉnh bỏ 1 app → probe lại (rút / cắm lại xe, hoặc
+  notifyutil -p com.anlai.omnicar/probe) → Gửi log (dòng "Tuy chinh CarPlay: ... doi tu lan truoc: ...") + file
+  /var/mobile/Documents/OmniCar-Probe.txt. Tìm ra chỗ lưu thì đọc / ghi thẳng: danh sách giống hệt iOS, kéo đổi thứ tự.
   Như CarPlay: Điện thoại, Nhạc, Bản đồ, Tin nhắn, Đang phát, Xe, Cài đặt không ẩn được (HSIsLockedCarPlayApp trong
   AppBridge.h: hàng có khóa thay công tắc, trên xe bỏ qua dù có trong danh sách ẩn).
   Trên xe: hook -[SBIconModel isIconVisible:] (AppIcons.xm, SCPIconHiddenOnCar trong SCPAppIcons.mm) trả NO cho app bị ẩn;
@@ -156,7 +161,8 @@ Thử: chọn hình nền + kéo cỡ icon 130 %, cắm xe, Gửi log (dòng "Ho
   Code: Cài đặt > Màn xe > Màn chính CarPlay > Lưới icon: Số cột (Tự động, 3–8, HS_KEY_COLS), Số hàng (Tự động, 1–4,
   HS_KEY_ROWS), Tên app (HS_KEY_NAMES). Trên xe: hook SBIconListGridLayoutConfiguration numberOf{Portrait,Landscape}
   {Columns,Rows} (chỉ lưới có ≥ 2 cột và ≥ 2 hàng, không đụng dock), đổi thì -[iconModel layout] + layoutIconsNow
-  (SCPHomeScreen.mm); tên: hook -[SBIconView setLabelHidden:] + đặt lại cho icon đang có. Key cũ homeScreenCols / Rows / Names
+  (SCPHomeScreen.mm); tên: hook -[SBIconView setLabelHidden:] + đặt lại cho icon đang có, dự phòng
+  +[CARIconView / DBIconView maxLabelSizeForIconImageSize:] = 0 (cách của tweak CarPlayHideLabels, chỉ init khi lớp có hàm này). Key cũ homeScreenCols / Rows / Names
   không đọc. Chưa thử trên xe.
   Thử: 4 × 2 → mỗi trang 8 icon, log "HomeScreen: luoi ... cot 5 -> 4"; tắt Tên app → tên mất, log "ten app an";
   về Tự động → như CarPlay. Không thấy dòng "luoi" = CarPlay không đọc các getter này (cần cách khác).

@@ -207,6 +207,23 @@ static NSUInteger SCPGridValue(id cfg, NSUInteger orig, BOOL landscape, BOOL col
 
 %end // APPICONS
 
+// Du phong cho Ten app (cach CarPlayHideLabels da chay tren iOS 13-15): icon CarPlay hoi co toi da cua nhan -> 0 = khong ve
+// nhan. Chi init khi lop icon cua CarPlay co ham nay (xem %ctor), khong thi chi con hook setLabelHidden: o tren.
+%group CARLABELS
+
+%hook CARIconView
+
++ (CGSize)maxLabelSizeForIconImageSize:(CGSize)size
+{
+    BOOL show = YES;
+    @try { show = SCPHomeShowNames(); } @catch (NSException *e) { show = YES; }
+    return show ? %orig : CGSizeZero;
+}
+
+%end
+
+%end // CARLABELS
+
 %ctor
 {
     if (![[[NSBundle mainBundle] bundleIdentifier] isEqualToString:@"com.apple.CarPlayApp"]) return;
@@ -219,6 +236,12 @@ static NSUInteger SCPGridValue(id cfg, NSUInteger orig, BOOL landscape, BOOL col
         @"DBApplicationLaunchInfo +launchInfoForApplication:withActivationSettings:", @"SBIconListGridLayoutConfiguration -iconImageInfo",
         @"SBIconModel -isIconVisible:", @"SBIconListGridLayoutConfiguration -numberOfLandscapeColumns",
         @"SBIconListGridLayoutConfiguration -numberOfLandscapeRows", @"SBIconView -setLabelHidden:"]);
+    // Ten app du phong: lop icon cua CarPlay (CARIconView iOS 13-15, DBIconView iOS 16) co +maxLabelSizeForIconImageSize:
+    Class iconView = objc_getClass("CARIconView") ?: OMCCarClass("DBIconView");
+    if (iconView && [iconView respondsToSelector:NSSelectorFromString(@"maxLabelSizeForIconImageSize:")]) {
+        %init(CARLABELS, CARIconView = iconView);
+        SCPLog("HomeScreen: ten app du phong qua +[%@ maxLabelSizeForIconImageSize:]", NSStringFromClass(iconView));
+    } else SCPLog("HomeScreen: khong co +maxLabelSizeForIconImageSize: (%@), ten app chi qua setLabelHidden:", iconView ? NSStringFromClass(iconView) : @"khong co lop icon");
     if (!OMCCarClass("DashBoard")) SCPLog("AppIcons: khong co lop DashBoard, icon app iPhone khong chen duoc");
     if (!objc_getClass("SBIconListGridLayoutConfiguration")) SCPLog("HomeScreen: khong co SBIconListGridLayoutConfiguration, Co icon khong doi duoc tren iOS nay");
     // Settings doi danh sach app (hoac bat / tat App Bridge) -> cap nhat thu vien, ve lai man chinh
