@@ -82,7 +82,7 @@
 "AUTOTEST_NO_SUITES" = "Nessuna suite ha ancora risposto: esegui il respring, collega l'auto una volta, poi riapri questa pagina.";
 "AUTOTEST_NO_SUITES_ROW" = "Ancora nessuna suite";
 "AUTOTEST_ACTION_FOOTER" = "Solo a veicolo fermo. Lo schermo dell'auto cambia da solo; la barra arancione mostra l'avanzamento, toccala per interrompere.";
-"AUTOTEST_CONFIRM" = "Sei parcheggiato? OmniCar controllerà da solo lo schermo dell'auto per qualche minuto. Poi tocca Invia log per risultati e istantanee.";
+"AUTOTEST_CONFIRM" = "Parcheggiato? OmniCar userà da solo lo schermo dell'auto per qualche minuto. Poi tocca Invia log per i risultati.";
 "AUTOTEST_START" = "Avvia";
 "AUTOTEST_STOP" = "Interrompi";
 "AUTOTEST_LAST" = "Esecuzione";
@@ -90,7 +90,9 @@
 "AUTOTEST_STEPS" = "Passi";
 "AUTOTEST_RESULT" = "Risultato";
 "AUTOTEST_COUNTS" = "%lu superati · %lu falliti · %lu saltati";
-"AUTOTEST_FOOTER" = "I motivi completi e lo stato a ogni errore sono in OmniCar.log. Invia log per includere le istantanee dello schermo dell'auto di ogni passo.";
+"AUTOTEST_FOOTER" = "Spunta verde = superato, croce rossa = fallito, trattino grigio = saltato. Tocca un passo fallito per il motivo; tutto è anche in OmniCar.log (Invia log).";
+"AUTOTEST_WAITING" = "In attesa di iniziare";
+"AUTOTEST_NO_REASON" = "Nessun motivo registrato.";
 "AUTOTEST_STATE_RUNNING" = "In corso";
 "AUTOTEST_STATE_DONE" = "Completato";
 "AUTOTEST_STATE_STOPPED" = "Interrotto";

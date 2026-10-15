@@ -82,7 +82,7 @@
 "AUTOTEST_NO_SUITES" = "Nenhum conjunto respondeu ainda: faça respring, conecte o carro uma vez e abra esta página de novo.";
 "AUTOTEST_NO_SUITES_ROW" = "Nenhum conjunto ainda";
 "AUTOTEST_ACTION_FOOTER" = "Somente com o carro estacionado. A tela do carro muda sozinha; a barra laranja mostra o progresso, toque nela para parar.";
-"AUTOTEST_CONFIRM" = "Estacionado? O OmniCar vai controlar a tela do carro sozinho por alguns minutos. Depois toque em Enviar registro para ver os resultados e as capturas.";
+"AUTOTEST_CONFIRM" = "Estacionado? O OmniCar vai operar a tela do carro sozinho por alguns minutos. Depois toque em Enviar registro para ver os resultados.";
 "AUTOTEST_START" = "Iniciar";
 "AUTOTEST_STOP" = "Parar";
 "AUTOTEST_LAST" = "Execução";
@@ -90,7 +90,9 @@
 "AUTOTEST_STEPS" = "Etapas";
 "AUTOTEST_RESULT" = "Resultado";
 "AUTOTEST_COUNTS" = "%lu aprovados · %lu com falha · %lu ignorados";
-"AUTOTEST_FOOTER" = "Os motivos completos e o estado em cada falha estão no OmniCar.log. Envie o registro para incluir capturas da tela do carro de cada etapa.";
+"AUTOTEST_FOOTER" = "Visto verde = passou, X vermelho = falhou, traço cinza = pulado. Toque em um passo com falha para ver o motivo; tudo também está no OmniCar.log (Enviar registro).";
+"AUTOTEST_WAITING" = "Aguardando início";
+"AUTOTEST_NO_REASON" = "Nenhum motivo registrado.";
 "AUTOTEST_STATE_RUNNING" = "Em execução";
 "AUTOTEST_STATE_DONE" = "Concluído";
 "AUTOTEST_STATE_STOPPED" = "Parado";

@@ -82,7 +82,7 @@
 "AUTOTEST_NO_SUITES" = "No suite has reported in yet: respring, connect the car once, then reopen this page.";
 "AUTOTEST_NO_SUITES_ROW" = "No suites yet";
 "AUTOTEST_ACTION_FOOTER" = "Only while parked. The car screen changes by itself; the orange bar on it shows progress, tap it to stop.";
-"AUTOTEST_CONFIRM" = "Parked? OmniCar will drive the car screen by itself for a few minutes. Then tap Send log for the results and snapshots.";
+"AUTOTEST_CONFIRM" = "Parked? OmniCar will drive the car screen by itself for a few minutes. Then tap Send log for the results.";
 "AUTOTEST_START" = "Start";
 "AUTOTEST_STOP" = "Stop";
 "AUTOTEST_LAST" = "Run";
@@ -90,7 +90,9 @@
 "AUTOTEST_STEPS" = "Steps";
 "AUTOTEST_RESULT" = "Result";
 "AUTOTEST_COUNTS" = "%lu passed · %lu failed · %lu skipped";
-"AUTOTEST_FOOTER" = "Full reasons and the state at each failure are in OmniCar.log. Send log to include car-screen snapshots of every step.";
+"AUTOTEST_FOOTER" = "Green check = passed, red cross = failed, gray dash = skipped. Tap a failed step for the reason; everything is also in OmniCar.log (Send log).";
+"AUTOTEST_WAITING" = "Waiting to start";
+"AUTOTEST_NO_REASON" = "No reason recorded.";
 "AUTOTEST_STATE_RUNNING" = "Running";
 "AUTOTEST_STATE_DONE" = "Done";
 "AUTOTEST_STATE_STOPPED" = "Stopped";

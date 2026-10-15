@@ -82,7 +82,7 @@
 "AUTOTEST_NO_SUITES" = "Belum ada suite yang melapor: lakukan respring, hubungkan mobil sekali, lalu buka lagi halaman ini.";
 "AUTOTEST_NO_SUITES_ROW" = "Belum ada suite";
 "AUTOTEST_ACTION_FOOTER" = "Hanya saat parkir. Layar mobil berubah sendiri; bilah oranye di layar menunjukkan kemajuan, ketuk untuk berhenti.";
-"AUTOTEST_CONFIRM" = "Sudah parkir? OmniCar akan mengoperasikan layar mobil sendiri selama beberapa menit. Lalu ketuk Kirim log untuk hasil dan cuplikannya.";
+"AUTOTEST_CONFIRM" = "Sedang parkir? OmniCar akan mengoperasikan layar mobil sendiri selama beberapa menit. Lalu ketuk Kirim log untuk hasilnya.";
 "AUTOTEST_START" = "Mulai";
 "AUTOTEST_STOP" = "Hentikan";
 "AUTOTEST_LAST" = "Proses";
@@ -90,7 +90,9 @@
 "AUTOTEST_STEPS" = "Langkah";
 "AUTOTEST_RESULT" = "Hasil";
 "AUTOTEST_COUNTS" = "%lu lulus · %lu gagal · %lu dilewati";
-"AUTOTEST_FOOTER" = "Alasan lengkap dan status saat setiap kegagalan ada di OmniCar.log. Kirim log untuk menyertakan cuplikan layar mobil dari setiap langkah.";
+"AUTOTEST_FOOTER" = "Centang hijau = lulus, silang merah = gagal, strip abu-abu = dilewati. Ketuk langkah yang gagal untuk melihat alasannya; semuanya juga ada di OmniCar.log (Kirim log).";
+"AUTOTEST_WAITING" = "Menunggu mulai";
+"AUTOTEST_NO_REASON" = "Tidak ada alasan tercatat.";
 "AUTOTEST_STATE_RUNNING" = "Berjalan";
 "AUTOTEST_STATE_DONE" = "Selesai";
 "AUTOTEST_STATE_STOPPED" = "Dihentikan";

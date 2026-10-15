@@ -82,7 +82,7 @@
 "AUTOTEST_NO_SUITES" = "Noch keine Suite hat sich gemeldet: Respring ausführen, das Auto einmal verbinden und diese Seite erneut öffnen.";
 "AUTOTEST_NO_SUITES_ROW" = "Noch keine Suites";
 "AUTOTEST_ACTION_FOOTER" = "Nur im Stand. Das Autodisplay ändert sich von selbst; der orangefarbene Balken zeigt den Fortschritt, tippe darauf zum Beenden.";
-"AUTOTEST_CONFIRM" = "Geparkt? OmniCar steuert das Autodisplay einige Minuten lang selbst. Tippe danach auf „Protokoll senden“ für Ergebnisse und Schnappschüsse.";
+"AUTOTEST_CONFIRM" = "Geparkt? OmniCar steuert das Autodisplay einige Minuten lang selbst. Tippe danach auf „Protokoll senden“ für die Ergebnisse.";
 "AUTOTEST_START" = "Starten";
 "AUTOTEST_STOP" = "Beenden";
 "AUTOTEST_LAST" = "Durchlauf";
@@ -90,7 +90,9 @@
 "AUTOTEST_STEPS" = "Schritte";
 "AUTOTEST_RESULT" = "Ergebnis";
 "AUTOTEST_COUNTS" = "%lu bestanden · %lu fehlgeschlagen · %lu übersprungen";
-"AUTOTEST_FOOTER" = "Vollständige Gründe und der Zustand bei jedem Fehler stehen in OmniCar.log. Sende das Protokoll, um Schnappschüsse des Autodisplays von jedem Schritt mitzuschicken.";
+"AUTOTEST_FOOTER" = "Grünes Häkchen = bestanden, rotes Kreuz = fehlgeschlagen, grauer Strich = übersprungen. Tippe auf einen fehlgeschlagenen Schritt für den Grund; alles steht auch in OmniCar.log (Protokoll senden).";
+"AUTOTEST_WAITING" = "Wartet auf Start";
+"AUTOTEST_NO_REASON" = "Kein Grund vermerkt.";
 "AUTOTEST_STATE_RUNNING" = "Läuft";
 "AUTOTEST_STATE_DONE" = "Fertig";
 "AUTOTEST_STATE_STOPPED" = "Beendet";

@@ -66,55 +66,13 @@ static void OMCTestAfter(double delay, dispatch_block_t block) {
 	});
 }
 
-#pragma mark - Car screen: snapshot + progress bar
+#pragma mark - Car screen: progress bar
+// (Khong chup anh man xe nua: ket qua chi nam trong OmniCar.log va trang Kiem thu tu dong.)
 
 static UIWindowScene *OMCTestCarScene(void) {
 	for (UIScene *sc in [UIApplication sharedApplication].connectedScenes)
 		if ([sc isKindOfClass:[UIWindowScene class]] && ((UIWindowScene *)sc).screen != [UIScreen mainScreen]) return (UIWindowScene *)sc;
 	return nil;
-}
-
-static NSArray<UIWindow *> *OMCTestCarWindows(void) {
-	NSMutableArray *out = [NSMutableArray array];
-	UIWindowScene *scene = OMCTestCarScene();
-	if (scene) [out addObjectsFromArray:scene.windows];
-	else {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-		for (UIWindow *w in [UIApplication sharedApplication].windows) if (w.screen != [UIScreen mainScreen]) [out addObject:w];
-#pragma clang diagnostic pop
-	}
-	return out;
-}
-
-// What CarPlay / SpringBoard draws itself (panes, dividers, bars, bubble). Content of other processes (CarPlay
-// app scenes, hosted iPhone apps) may come out black.
-static NSString *OMCTestSnapshot(NSString *name) {
-	@try {
-		NSArray<UIWindow *> *(^custom)(void) = OMCTestR()[@"windows"];
-		NSMutableArray<UIWindow *> *windows = [(custom ? custom() : OMCTestCarWindows()) mutableCopy];
-		[windows removeObject:OMCTestR()[@"banner"]];
-		[windows sortUsingComparator:^NSComparisonResult(UIWindow *a, UIWindow *b) {
-			return a.windowLevel < b.windowLevel ? NSOrderedAscending : (a.windowLevel > b.windowLevel ? NSOrderedDescending : NSOrderedSame);
-		}];
-		CGRect bounds = CGRectNull;
-		for (UIWindow *w in windows) if (!w.hidden) bounds = CGRectUnion(bounds, w.frame);
-		if (CGRectIsNull(bounds) || bounds.size.width < 10 || bounds.size.height < 10) return nil;
-		UIGraphicsImageRendererFormat *fmt = [UIGraphicsImageRendererFormat preferredFormat];
-		fmt.scale = 1;
-		UIImage *img = [[[UIGraphicsImageRenderer alloc] initWithSize:bounds.size format:fmt] imageWithActions:^(UIGraphicsImageRendererContext *ctx) {
-			[[UIColor blackColor] setFill];
-			UIRectFill(CGRectMake(0, 0, bounds.size.width, bounds.size.height));
-			for (UIWindow *w in windows)
-				if (!w.hidden) [w drawViewHierarchyInRect:CGRectOffset(w.frame, -bounds.origin.x, -bounds.origin.y) afterScreenUpdates:NO];
-		}];
-		NSString *file = [name stringByAppendingPathExtension:@"jpg"];
-		NSString *path = [OMC_AUTOTEST_DIR stringByAppendingPathComponent:file];
-		return [UIImageJPEGRepresentation(img, 0.6) writeToFile:path atomically:YES] ? file : nil;
-	} @catch (NSException *e) {
-		OMCTestLog(@"chup man xe loi: %@", e);
-		return nil;
-	}
 }
 
 static void OMCTestBannerTapped(void);
@@ -272,7 +230,8 @@ static void OMCTestNext(void) {
 	NSInteger index = OMCTestIndex();
 	if (index >= (NSInteger)steps.count) { OMCTestEndSuite(); return; }
 	NSDictionary *step = steps[index];
-	if (!OMCTestSave(@{@"step": @(index), @"inStep": @YES})) return;   // dies in this step -> next launch knows which
+	// dies in this step -> next launch knows which; stepName / stepCount: the Autotest page shows the step running
+	if (!OMCTestSave(@{@"step": @(index), @"inStep": @YES, @"stepName": step[@"name"] ?: @"", @"stepCount": @(steps.count)})) return;
 	OMCTestShowBanner(OMCTestProgress());
 	OMCTestLog(@"[%@ %ld/%lu] %@ ...", OMCTestSuiteName(), (long)index + 1, (unsigned long)steps.count, step[@"name"]);
 	OMCTestR()[@"stepStart"] = @(CFAbsoluteTimeGetCurrent());
@@ -305,8 +264,6 @@ static void OMCTestFinishStep(NSString *status, NSString *detail) {
 	double secs = CFAbsoluteTimeGetCurrent() - [OMCTestR()[@"stepStart"] doubleValue];
 	NSMutableDictionary *r = [@{@"suite": suite, @"name": name, @"status": status, @"seconds": @(round(secs * 10) / 10)} mutableCopy];
 	if (detail) r[@"detail"] = detail;
-	NSString *shot = OMCTestSnapshot(OMCTestFormat(@"%@-%02ld-%@", suite, (long)index + 1, status));
-	if (shot) r[@"shot"] = shot;
 	OMCTestLog(@"[%@ %ld/%lu] %@ %@ (%.1fs)%@", suite, (long)index + 1, (unsigned long)steps.count, status.uppercaseString, name, secs,
 		detail ? [@": " stringByAppendingString:detail] : @"");
 	NSArray *results = [OMCTestStored()[@"results"] ?: @[] arrayByAddingObject:r];
@@ -349,7 +306,7 @@ static void OMCTestTick(void) {
 		return;
 	}
 	if ([d[@"suite"] unsignedIntegerValue] == 0 && [d[@"step"] integerValue] == 0 && ![d[@"results"] count]) {
-		NSFileManager *fm = [NSFileManager defaultManager];   // fresh run: old snapshots go
+		NSFileManager *fm = [NSFileManager defaultManager];   // fresh run: old files go (snapshots of older builds too)
 		[fm removeItemAtPath:OMC_AUTOTEST_DIR error:nil];
 		[fm createDirectoryAtPath:OMC_AUTOTEST_DIR withIntermediateDirectories:YES attributes:nil error:nil];
 	}

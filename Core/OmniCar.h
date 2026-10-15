@@ -93,7 +93,7 @@ BOOL OMCCrashGuard(NSString *feature);
 #define OMC_KEY_AUTOTEST_PICK  @"autoTestPick"     // suites ticked in Settings
 #define OMC_KEY_AUTOTEST_AVAIL @"autoTestAvail."   // + suite: {process, date}, written when a suite registers
 #define OMC_DARWIN_AUTOTEST    "com.anlai.omnicar/autotest"
-#define OMC_AUTOTEST_DIR       @"/var/mobile/Documents/OmniCar-AutoTest"   // snapshots + autotest.txt
+#define OMC_AUTOTEST_DIR       @"/var/mobile/Documents/OmniCar-AutoTest"   // autotest.txt
 #endif
 // Diagnostics written by the tweak, read by Settings (Diagnostics page, Send log):
 // last car screen and session (dictionary, see OMCRecordCarScreen in OmniCar.m) ...

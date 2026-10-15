@@ -82,7 +82,7 @@
 "AUTOTEST_NO_SUITES" = "Aucune suite ne s’est encore signalée : faites un respring, connectez la voiture une fois, puis rouvrez cette page.";
 "AUTOTEST_NO_SUITES_ROW" = "Aucune suite pour l’instant";
 "AUTOTEST_ACTION_FOOTER" = "Uniquement à l’arrêt. L’écran de la voiture change tout seul ; la barre orange indique la progression, touchez-la pour arrêter.";
-"AUTOTEST_CONFIRM" = "Garé ? OmniCar va piloter l’écran de la voiture tout seul pendant quelques minutes. Touchez ensuite Envoyer le journal pour les résultats et les captures.";
+"AUTOTEST_CONFIRM" = "Garé ? OmniCar va piloter seul l’écran de la voiture pendant quelques minutes. Touchez ensuite Envoyer le journal pour les résultats.";
 "AUTOTEST_START" = "Démarrer";
 "AUTOTEST_STOP" = "Arrêter";
 "AUTOTEST_LAST" = "Exécution";
@@ -90,7 +90,9 @@
 "AUTOTEST_STEPS" = "Étapes";
 "AUTOTEST_RESULT" = "Résultat";
 "AUTOTEST_COUNTS" = "%lu réussis · %lu échoués · %lu ignorés";
-"AUTOTEST_FOOTER" = "Les raisons complètes et l’état à chaque échec figurent dans OmniCar.log. Envoyez le journal pour inclure des captures de l’écran de la voiture à chaque étape.";
+"AUTOTEST_FOOTER" = "Coche verte = réussi, croix rouge = échoué, tiret gris = ignoré. Touchez une étape échouée pour voir la raison ; tout est aussi dans OmniCar.log (Envoyer le journal).";
+"AUTOTEST_WAITING" = "En attente du départ";
+"AUTOTEST_NO_REASON" = "Aucune raison notée.";
 "AUTOTEST_STATE_RUNNING" = "En cours";
 "AUTOTEST_STATE_DONE" = "Terminé";
 "AUTOTEST_STATE_STOPPED" = "Arrêté";

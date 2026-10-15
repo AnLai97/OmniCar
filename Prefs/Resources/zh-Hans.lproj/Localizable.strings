@@ -82,7 +82,7 @@
 "AUTOTEST_NO_SUITES" = "尚无测试组上报：请注销、连接一次汽车，然后重新打开此页面。";
 "AUTOTEST_NO_SUITES_ROW" = "尚无测试组";
 "AUTOTEST_ACTION_FOOTER" = "仅限停车时使用。车机屏幕会自动变化；屏幕上的橙色条显示进度，轻点即可停止。";
-"AUTOTEST_CONFIRM" = "已停好车？OmniCar 将自动操作车机屏幕几分钟。之后轻点“发送日志”获取结果和截图。";
+"AUTOTEST_CONFIRM" = "已停车？OmniCar 将自动操作车机屏幕几分钟。之后轻点“发送日志”获取结果。";
 "AUTOTEST_START" = "开始";
 "AUTOTEST_STOP" = "停止";
 "AUTOTEST_LAST" = "运行";
@@ -90,7 +90,9 @@
 "AUTOTEST_STEPS" = "步骤";
 "AUTOTEST_RESULT" = "结果";
 "AUTOTEST_COUNTS" = "%lu 通过 · %lu 失败 · %lu 跳过";
-"AUTOTEST_FOOTER" = "完整原因及每次失败时的状态见 OmniCar.log。发送日志可附带每一步的车机屏幕截图。";
+"AUTOTEST_FOOTER" = "绿色勾 = 通过，红色叉 = 失败，灰色横线 = 跳过。轻点失败的步骤查看原因；所有内容也在 OmniCar.log 中（发送日志）。";
+"AUTOTEST_WAITING" = "等待开始";
+"AUTOTEST_NO_REASON" = "未记录原因。";
 "AUTOTEST_STATE_RUNNING" = "运行中";
 "AUTOTEST_STATE_DONE" = "完成";
 "AUTOTEST_STATE_STOPPED" = "已停止";

@@ -82,7 +82,7 @@
 "AUTOTEST_NO_SUITES" = "Chưa có bộ test nào báo sẵn sàng: respring, cắm xe một lần rồi mở lại trang này.";
 "AUTOTEST_NO_SUITES_ROW" = "Chưa có bộ test";
 "AUTOTEST_ACTION_FOOTER" = "Chỉ chạy khi xe đỗ. Màn xe tự đổi; thanh cam trên màn xe hiện tiến độ, chạm để dừng.";
-"AUTOTEST_CONFIRM" = "Xe đang đỗ? OmniCar sẽ tự thao tác trên màn xe vài phút. Xong thì bấm Gửi log để lấy kết quả và ảnh.";
+"AUTOTEST_CONFIRM" = "Xe đang đỗ? OmniCar sẽ tự thao tác trên màn xe vài phút. Xong thì bấm Gửi log để lấy kết quả.";
 "AUTOTEST_START" = "Bắt đầu";
 "AUTOTEST_STOP" = "Dừng";
 "AUTOTEST_LAST" = "Lần chạy";
@@ -90,7 +90,9 @@
 "AUTOTEST_STEPS" = "Từng bước";
 "AUTOTEST_RESULT" = "Kết quả";
 "AUTOTEST_COUNTS" = "%lu đạt · %lu lỗi · %lu bỏ qua";
-"AUTOTEST_FOOTER" = "Lý do đầy đủ và trạng thái lúc lỗi nằm trong OmniCar.log. Gửi log để gửi kèm ảnh màn xe từng bước.";
+"AUTOTEST_FOOTER" = "Dấu ✓ xanh = đạt, ✗ đỏ = lỗi, – xám = bỏ qua. Chạm vào bước lỗi để xem lý do; mọi thứ cũng có trong OmniCar.log (Gửi log).";
+"AUTOTEST_WAITING" = "Đang chờ bắt đầu";
+"AUTOTEST_NO_REASON" = "Không ghi lý do.";
 "AUTOTEST_STATE_RUNNING" = "Đang chạy";
 "AUTOTEST_STATE_DONE" = "Xong";
 "AUTOTEST_STATE_STOPPED" = "Đã dừng";

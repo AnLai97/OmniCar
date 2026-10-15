@@ -855,14 +855,6 @@ void OMCShareReport(UIViewController *vc, UIBarButtonItem *barItem) {
 		return;
 	}
 	NSMutableArray *items = [NSMutableArray arrayWithObject:url];
-#if OMC_AUTOTEST
-	// Dev builds: the auto test's car-screen snapshots ride along (<suite>-<step>-<result>.jpg)
-	if (OMCAutoTestState()[@"results"]) {
-		NSArray *files = [[[NSFileManager defaultManager] contentsOfDirectoryAtPath:OMC_AUTOTEST_DIR error:nil] sortedArrayUsingSelector:@selector(compare:)];
-		for (NSString *file in files)
-			if ([file.pathExtension isEqualToString:@"jpg"]) [items addObject:[NSURL fileURLWithPath:[OMC_AUTOTEST_DIR stringByAppendingPathComponent:file]]];
-	}
-#endif
 	UIActivityViewController *share = [[UIActivityViewController alloc] initWithActivityItems:items applicationActivities:nil];
 	UIPopoverPresentationController *pop = share.popoverPresentationController;   // iPad
 	if (barItem) pop.barButtonItem = barItem;
