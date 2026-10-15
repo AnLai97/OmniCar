@@ -82,7 +82,7 @@ BOOL OMCCrashGuard(NSString *feature);
 #define OMC_KEY_RESCUE_DATE  @"rescueDate"
 #define OMC_DARWIN_RESCUE    "com.anlai.omnicar/rescue"
 #if OMC_AUTOTEST
-// Rescue-mode test (Settings > Auto test > Test rescue mode): feature key prefix whose CarPlay %ctor crashes
+// Rescue-mode test (Settings > Developer > Autotest > Test rescue mode): feature key prefix whose CarPlay %ctor crashes
 // CarPlay a few seconds after it starts, until rescue mode turns that feature off.
 #define OMC_KEY_CRASH_TEST   @"debugCrashTest"
 // Auto test run (Core/OMCTest.m): {state: running | done | stopped, run (NSDate), suites: [suite], suite (index),

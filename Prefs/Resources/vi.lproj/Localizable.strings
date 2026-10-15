@@ -22,6 +22,7 @@
 "FEATURE_OFF" = "Tắt";
 
 "SUPPORT_GROUP" = "Hỗ trợ";
+"DEV_GROUP" = "Nhà phát triển";
 "SUPPORT_FOOTER" = "Gặp lỗi? Bấm Gửi log rồi chọn Zalo hoặc Mail để gửi cho tác giả.";
 "SEND_LOG" = "Gửi log";
 "SEND_LOG_FAILED" = "Không tạo được file log.";
@@ -75,7 +76,7 @@
 "DIAG_CONFLICTS_FOOTER" = "CarBridge, DuoDash, TrueDash, CarPlayEnable.";
 
 /* Tự kiểm tra: chỉ bản dev (OMC_AUTOTEST) */
-"AUTOTEST" = "Tự kiểm tra (dev)";
+"AUTOTEST" = "Kiểm thử tự động";
 "AUTOTEST_SUITES" = "Tính năng cần kiểm tra";
 "AUTOTEST_SUITES_FOOTER" = "Mỗi bộ chạy trong process của nó (CarPlay / SpringBoard), lần lượt theo thứ tự trên. Cắm xe trước.";
 "AUTOTEST_NO_SUITES" = "Chưa có bộ test nào báo sẵn sàng: respring, cắm xe một lần rồi mở lại trang này.";

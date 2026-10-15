@@ -380,6 +380,54 @@ static void SCPHPublishApps(UIView *root)
     SCPLog("HomeScreen: %lu app tren man chinh cho Cai dat: %@", (unsigned long)list.count, [names componentsJoinedByString:@", "]);
 }
 
+#if OMC_AUTOTEST
+NSArray<NSString *> *SCPHomeVisibleBundles(void)
+{
+    UIViewController *home = sHomeVC;
+    if (!home.isViewLoaded || !home.view.window) return nil;
+    return [SCPHHomeApps(home.view) valueForKey:@"id"] ?: @[];
+}
+
+NSInteger SCPHomeFirstPageIconCount(void)
+{
+    UIViewController *home = sHomeVC;
+    if (!home.isViewLoaded) return -1;
+    NSMutableArray<UIView *> *lists = [NSMutableArray array];
+    SCPHCollectLists(home.view, lists, 0);
+    for (UIView *l in lists) {
+        NSArray *pages = SCPHTry(SCPHTry(SCPHTry(l, @"model"), @"folder"), @"lists");
+        NSArray *icons = [pages isKindOfClass:[NSArray class]] && pages.count ? SCPHTry(pages.firstObject, @"icons") : SCPHTry(SCPHTry(l, @"model"), @"icons");
+        if ([icons isKindOfClass:[NSArray class]]) return (NSInteger)icons.count;
+    }
+    return -1;
+}
+
+static NSInteger SCPHCountLabels(UIView *v, int depth)
+{
+    if (!v || depth > 8) return 0;
+    if ([NSStringFromClass([v class]) hasSuffix:@"IconView"]) {
+        BOOL hidden = [v respondsToSelector:NSSelectorFromString(@"isLabelHidden")] && objcInvokeT(v, @"isLabelHidden", BOOL);
+        UIView *label = SCPHTry(v, @"labelView");
+        BOOL drawn = !label || (!label.hidden && label.alpha > 0.05 && label.bounds.size.width > 1);
+        return (!hidden && drawn) ? 1 : 0;
+    }
+    NSInteger n = 0;
+    for (UIView *c in v.subviews) n += SCPHCountLabels(c, depth + 1);
+    return n;
+}
+
+NSInteger SCPHomeVisibleLabelCount(void)
+{
+    UIViewController *home = sHomeVC;
+    if (!home.isViewLoaded) return -1;
+    NSMutableArray<UIView *> *lists = [NSMutableArray array];
+    SCPHCollectLists(home.view, lists, 0);
+    NSInteger n = 0;
+    for (UIView *l in lists) n += SCPHCountLabels(l, 0);
+    return n;
+}
+#endif
+
 // Moi lan man chinh layout: ghi danh sach 1 s sau lan cuoi (gom lai, man chinh layout nhieu lan lien tiep)
 static void SCPHPublishAppsSoon(void)
 {

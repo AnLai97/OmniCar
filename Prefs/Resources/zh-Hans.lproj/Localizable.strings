@@ -22,6 +22,7 @@
 "FEATURE_OFF" = "关";
 
 "SUPPORT_GROUP" = "支持";
+"DEV_GROUP" = "开发者";
 "SUPPORT_FOOTER" = "遇到问题？轻点“发送日志”，选择邮件或聊天 App 发送给开发者。";
 "SEND_LOG" = "发送日志";
 "SEND_LOG_FAILED" = "无法创建日志文件。";
@@ -75,7 +76,7 @@
 "DIAG_CONFLICTS_FOOTER" = "CarBridge, DuoDash, TrueDash, CarPlayEnable.";
 
 /* Auto test: dev builds only (OMC_AUTOTEST) */
-"AUTOTEST" = "自动测试（开发）";
+"AUTOTEST" = "自动测试";
 "AUTOTEST_SUITES" = "要测试的功能";
 "AUTOTEST_SUITES_FOOTER" = "每个测试组在各自的进程（CarPlay / SpringBoard）中按此顺序依次运行。请先连接汽车。";
 "AUTOTEST_NO_SUITES" = "尚无测试组上报：请注销、连接一次汽车，然后重新打开此页面。";

@@ -22,6 +22,7 @@
 "FEATURE_OFF" = "オフ";
 
 "SUPPORT_GROUP" = "サポート";
+"DEV_GROUP" = "デベロッパ";
 "SUPPORT_FOOTER" = "問題がありますか？「ログを送信」をタップし、メールまたはチャットAppを選んで開発者に送信してください。";
 "SEND_LOG" = "ログを送信";
 "SEND_LOG_FAILED" = "ログファイルを作成できませんでした。";
@@ -75,7 +76,7 @@
 "DIAG_CONFLICTS_FOOTER" = "CarBridge, DuoDash, TrueDash, CarPlayEnable.";
 
 /* Auto test: dev builds only (OMC_AUTOTEST) */
-"AUTOTEST" = "自動テスト（開発）";
+"AUTOTEST" = "自動テスト";
 "AUTOTEST_SUITES" = "テストする機能";
 "AUTOTEST_SUITES_FOOTER" = "各スイートはそれぞれのプロセス（CarPlay / SpringBoard）で、この順番に1つずつ実行されます。先に車に接続してください。";
 "AUTOTEST_NO_SUITES" = "まだ応答したスイートがありません: リスプリングし、一度車に接続してから、このページを開き直してください。";

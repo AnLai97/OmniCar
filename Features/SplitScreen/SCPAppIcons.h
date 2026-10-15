@@ -27,6 +27,8 @@ void SCPRefreshAppIconsSoon(void);
 BOOL SCPIconHiddenOnCar(id icon);
 // App CarPlay da bo trong Tuy chinh cua iOS ma nguoi dung them lai (HS_KEY_SHOWN_APPS): isIconVisible: buoc YES
 BOOL SCPIconForcedOnCar(id icon);
+// App CarPlay bo duoc khoi man chinh (khong khoa, la app iPhone that, khong phai app iPhone OmniCar chen)
+BOOL SCPHomeAppRemovable(NSString *bid);
 // Cai dat doi (prefschanged): doc lai danh sach an; doi thi bao mo hinh icon xep lai man chinh
 void SCPRefreshHiddenAppsSoon(void);
 // Xep lai man chinh tu mo hinh icon (-[iconModel layout], khong co thi _handleAppLibraryRefresh): an app, doi so cot / hang

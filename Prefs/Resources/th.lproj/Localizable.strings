@@ -22,6 +22,7 @@
 "FEATURE_OFF" = "ปิด";
 
 "SUPPORT_GROUP" = "การสนับสนุน";
+"DEV_GROUP" = "นักพัฒนา";
 "SUPPORT_FOOTER" = "มีปัญหาใช่ไหม แตะส่งบันทึก แล้วเลือกเมลหรือแอปแชทเพื่อส่งให้ผู้พัฒนา";
 "SEND_LOG" = "ส่งบันทึก";
 "SEND_LOG_FAILED" = "ไม่สามารถสร้างไฟล์บันทึกได้";
@@ -75,7 +76,7 @@
 "DIAG_CONFLICTS_FOOTER" = "CarBridge, DuoDash, TrueDash, CarPlayEnable.";
 
 /* Auto test: dev builds only (OMC_AUTOTEST) */
-"AUTOTEST" = "ทดสอบอัตโนมัติ (dev)";
+"AUTOTEST" = "ทดสอบอัตโนมัติ";
 "AUTOTEST_SUITES" = "คุณสมบัติที่จะทดสอบ";
 "AUTOTEST_SUITES_FOOTER" = "แต่ละชุดทดสอบทำงานในโปรเซสของตัวเอง (CarPlay / SpringBoard) ทีละชุดตามลำดับนี้ เชื่อมต่อรถก่อน";
 "AUTOTEST_NO_SUITES" = "ยังไม่มีชุดทดสอบใดรายงานเข้ามา: Respring เชื่อมต่อรถหนึ่งครั้ง แล้วเปิดหน้านี้อีกครั้ง";

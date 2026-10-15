@@ -1,4 +1,4 @@
-// Developer auto test page (Support > Auto test, only when OMC_AUTOTEST is 1): tick the features to test,
+// Developer auto test page (Developer > Autotest, only when OMC_AUTOTEST is 1): tick the features to test,
 // start / stop, follow the run, read every step's result, and arm the rescue-mode crash test. The runner and
 // the test cases live with the features (Core/OMCTest.h); this page only writes the request and reads back.
 #import "OMCDiagnostics.h"

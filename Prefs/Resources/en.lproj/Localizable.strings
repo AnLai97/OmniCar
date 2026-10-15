@@ -22,6 +22,7 @@
 "FEATURE_OFF" = "Off";
 
 "SUPPORT_GROUP" = "Support";
+"DEV_GROUP" = "Developer";
 "SUPPORT_FOOTER" = "Something wrong? Tap Send log and pick Mail or a chat app to send it to the developer.";
 "SEND_LOG" = "Send log";
 "SEND_LOG_FAILED" = "Could not create the log file.";
@@ -75,7 +76,7 @@
 "DIAG_CONFLICTS_FOOTER" = "CarBridge, DuoDash, TrueDash, CarPlayEnable.";
 
 /* Auto test: dev builds only (OMC_AUTOTEST) */
-"AUTOTEST" = "Auto test (dev)";
+"AUTOTEST" = "Autotest";
 "AUTOTEST_SUITES" = "Features to test";
 "AUTOTEST_SUITES_FOOTER" = "Each suite runs in its own process (CarPlay / SpringBoard), one after another in this order. Connect the car first.";
 "AUTOTEST_NO_SUITES" = "No suite has reported in yet: respring, connect the car once, then reopen this page.";

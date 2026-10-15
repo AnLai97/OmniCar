@@ -119,28 +119,12 @@
 			<string>car.2.fill</string>
 		</dict>
 
-		<!-- SUPPORT: the one-tap log report (OMCShareReport in Prefs/OMCDiagnostics.m: health checks + device / car
-		     info + OmniCar.log -> share sheet). Dev builds (OMC_AUTOTEST) get an "Auto test" row after Send log,
-		     added by OMCRootListController. -->
+		<!-- SUPPORT: the first-run guide and what's new. -->
 		<dict>
 			<key>cell</key>
 			<string>PSGroupCell</string>
 			<key>label</key>
 			<string>SUPPORT_GROUP</string>
-			<key>footerText</key>
-			<string>SUPPORT_FOOTER</string>
-		</dict>
-		<dict>
-			<key>cell</key>
-			<string>PSButtonCell</string>
-			<key>id</key>
-			<string>sendLog</string>
-			<key>label</key>
-			<string>SEND_LOG</string>
-			<key>action</key>
-			<string>sendLog</string>
-			<key>symbol</key>
-			<string>square.and.arrow.up</string>
 		</dict>
 		<!-- Reopens the first-run guide (Prefs/OMCOnboardingController.m, strings in Onboarding.strings). -->
 		<dict>
@@ -168,6 +152,30 @@
 			<string>showWhatsNew</string>
 			<key>symbol</key>
 			<string>sparkles</string>
+		</dict>
+
+		<!-- DEVELOPER: the one-tap log report (OMCShareReport in Prefs/OMCDiagnostics.m: health checks + device / car
+		     info + OmniCar.log -> share sheet), then in dev builds (OMC_AUTOTEST) Autotest (Prefs/OMCAutoTestController.m),
+		     added after Send log by OMCRootListController. -->
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>label</key>
+			<string>DEV_GROUP</string>
+			<key>footerText</key>
+			<string>SUPPORT_FOOTER</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSButtonCell</string>
+			<key>id</key>
+			<string>sendLog</string>
+			<key>label</key>
+			<string>SEND_LOG</string>
+			<key>action</key>
+			<string>sendLog</string>
+			<key>symbol</key>
+			<string>square.and.arrow.up</string>
 		</dict>
 	</array>
 </dict>

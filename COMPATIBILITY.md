@@ -26,7 +26,7 @@ Trên trang công khai: ✅ = Works · 🟡 = Partly · ❌ = Doesn't · ⬜ = U
 1. Cài bản mới nhất, respring, cắm xe một lần.
 2. Mở Cài đặt > OmniCar > **Gửi log**, lưu file báo cáo. Mục Tính năng trong báo cáo phải hiện "đủ N hook". Có dòng "thiếu" thì chép
    tên hook thiếu vào cột Ghi chú: đó là selector cần đường dự phòng trên iOS này.
-3. Bản dev (`OMC_AUTOTEST` = 1): đỗ xe, vào Hỗ trợ > **Tự kiểm tra (dev)**, chọn tính năng, Bắt đầu. Các bộ test
+3. Bản dev (`OMC_AUTOTEST` = 1): đỗ xe, vào Nhà phát triển > **Kiểm thử tự động**, chọn tính năng (thứ tự chạy: Màn hình khởi động, App Bridge, Bong bóng tốc độ, Chia màn hình, Màn chính CarPlay), Bắt đầu. Các bộ test
    chạy lần lượt (thanh cam trên màn xe hiện tiến độ, chạm để dừng); kết quả từng bước hiện ngay trên trang đó.
 4. Bấm **Gửi log** (kèm kết quả từng bước + ảnh màn xe), lưu cạnh bảng này (ví dụ `tests/ios17-iphone11/`).
    Điền bảng dưới từ kết quả đó; chỉ phải thử tay phần tự kiểm tra không làm được (app có giao diện CarPlay
@@ -50,7 +50,7 @@ Trên trang công khai: ✅ = Works · 🟡 = Partly · ❌ = Doesn't · ⬜ = U
 | Icon app iPhone trên màn chính CarPlay | ⬜ | ⬜ | ⬜ | ⬜ |
 | Bong bóng tốc độ (Vietmap Live / GOFA) | ⬜ | ⬜ | ⬜ | ⬜ |
 | Màn hình khởi động | ⬜ | ⬜ | ⬜ | ⬜ |
-| Chế độ cứu (Tự kiểm tra > Thử chế độ cứu, cắm lần 3 tự phục hồi) | ⬜ | ⬜ | ⬜ | ⬜ |
+| Chế độ cứu (Kiểm thử tự động > Thử chế độ cứu, cắm lần 3 tự phục hồi) | ⬜ | ⬜ | ⬜ | ⬜ |
 | Ghi chú (hook thiếu, lỗi) | | | | |
 
 ## Theo app (qua App Bridge)

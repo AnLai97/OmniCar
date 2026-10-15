@@ -2,7 +2,7 @@
 // release builds set it to 0 and neither the runner, the test cases nor the Settings page are compiled.
 //
 // Each feature registers one suite (named by its key prefix: "splitScreen", "speedBubble" ...) in the
-// process that can drive it, usually from its %ctor. Settings > OmniCar > Support > Auto test lists the
+// process that can drive it, usually from its %ctor. Settings > OmniCar > Developer > Autotest lists the
 // registered suites, the developer picks some and starts; the suites run one after another (a suite of
 // another process waits for its turn), each step logs PASS / FAIL + reason to OmniCar.log, saves a snapshot
 // of the car screen and is stored in OMC_KEY_AUTOTEST. A crash in the middle: the process that restarts

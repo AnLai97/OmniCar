@@ -22,6 +22,7 @@
 "FEATURE_OFF" = "Mati";
 
 "SUPPORT_GROUP" = "Dukungan";
+"DEV_GROUP" = "Pengembang";
 "SUPPORT_FOOTER" = "Ada masalah? Ketuk Kirim log dan pilih Mail atau app chat untuk mengirimkannya ke pengembang.";
 "SEND_LOG" = "Kirim log";
 "SEND_LOG_FAILED" = "Tidak dapat membuat file log.";
@@ -75,7 +76,7 @@
 "DIAG_CONFLICTS_FOOTER" = "CarBridge, DuoDash, TrueDash, CarPlayEnable.";
 
 /* Auto test: dev builds only (OMC_AUTOTEST) */
-"AUTOTEST" = "Uji otomatis (dev)";
+"AUTOTEST" = "Uji otomatis";
 "AUTOTEST_SUITES" = "Fitur yang diuji";
 "AUTOTEST_SUITES_FOOTER" = "Setiap suite berjalan di prosesnya sendiri (CarPlay / SpringBoard), satu per satu sesuai urutan ini. Hubungkan mobil terlebih dahulu.";
 "AUTOTEST_NO_SUITES" = "Belum ada suite yang melapor: lakukan respring, hubungkan mobil sekali, lalu buka lagi halaman ini.";

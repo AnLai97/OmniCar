@@ -233,6 +233,11 @@ static void SCPLogOnce(NSString *what, NSString *bid)
     SCPLog("HomeScreen: %@ %@", what, bid);
 }
 
+BOOL SCPHomeAppRemovable(NSString *bid)
+{
+    return bid.length && !HSIsLockedCarPlayApp(bid) && !SCPIsInjectedPhoneApp(bid) && SCPIsInstalledPhoneApp(bid);
+}
+
 BOOL SCPIconHiddenOnCar(id icon)
 {
     NSSet *hidden = SCPHiddenApps();

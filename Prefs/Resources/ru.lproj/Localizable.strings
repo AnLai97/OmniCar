@@ -22,6 +22,7 @@
 "FEATURE_OFF" = "Выкл.";
 
 "SUPPORT_GROUP" = "Поддержка";
+"DEV_GROUP" = "Для разработчика";
 "SUPPORT_FOOTER" = "Что-то не так? Нажмите «Отправить журнал» и выберите Почту или мессенджер, чтобы отправить его разработчику.";
 "SEND_LOG" = "Отправить журнал";
 "SEND_LOG_FAILED" = "Не удалось создать файл журнала.";
@@ -75,7 +76,7 @@
 "DIAG_CONFLICTS_FOOTER" = "CarBridge, DuoDash, TrueDash, CarPlayEnable.";
 
 /* Auto test: dev builds only (OMC_AUTOTEST) */
-"AUTOTEST" = "Автотест (dev)";
+"AUTOTEST" = "Автотест";
 "AUTOTEST_SUITES" = "Функции для теста";
 "AUTOTEST_SUITES_FOOTER" = "Каждый набор выполняется в своём процессе (CarPlay / SpringBoard), один за другим в этом порядке. Сначала подключите автомобиль.";
 "AUTOTEST_NO_SUITES" = "Ни один набор ещё не отозвался: выполните респринг, подключите автомобиль, затем снова откройте эту страницу.";

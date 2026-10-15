@@ -19,6 +19,12 @@ NSInteger SCPHomeGridRows(void);
 BOOL SCPHomeShowNames(void);
 // Cai dat doi (prefschanged): doc lai, ap lai
 void SCPHomeRefresh(void);
+#if OMC_AUTOTEST
+// Bo test Man chinh CarPlay (SCPAutoTest.mm): app tren luoi (nil = man chinh khong hien), so icon trang dau, so nhan ten dang hien
+NSArray<NSString *> *SCPHomeVisibleBundles(void);
+NSInteger SCPHomeFirstPageIconCount(void);
+NSInteger SCPHomeVisibleLabelCount(void);
+#endif
 // Man chinh vua hien / bi app toan man che (viewDidAppear / viewDidDisappear): hinh nen dong chay / dung
 void SCPHomeSetVisible(BOOL visible);
 #ifdef __cplusplus

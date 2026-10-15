@@ -60,6 +60,7 @@ static NSString *OMCThermal(void) {
 // "<prefix>Enabled"), plus App Bridge whose page is the "Apps on the car screen" row.
 static NSDictionary<NSString *, NSString *> *OMCFeatureNames(void) {
 	NSMutableDictionary *names = [NSMutableDictionary dictionaryWithObject:L(@"APPS") forKey:@"appBridge"];
+	names[@"homeScreen"] = L(@"HOME_SCREEN");   // bo test Man chinh CarPlay (khong co Feature*.plist rieng)
 	NSBundle *bundle = [NSBundle bundleForClass:NSClassFromString(@"OMCRootListController")];
 	for (NSString *path in [bundle pathsForResourcesOfType:@"plist" inDirectory:nil]) {
 		if (![path.lastPathComponent hasPrefix:@"Feature"]) continue;
@@ -247,8 +248,14 @@ NSArray<NSDictionary *> *OMCAutoTestSuites(void) {
 		[out addObject:@{@"suite": suite, @"name": OMCFeatureDisplayName(suite),
 			@"process": [v isKindOfClass:[NSDictionary class]] ? v[@"process"] ?: @"?" : @"?"}];
 	}
-	// By name, like the feature rows
-	[out sortUsingComparator:^NSComparisonResult(NSDictionary *a, NSDictionary *b) { return [a[@"name"] localizedCompare:b[@"name"]]; }];
+	// Thu tu co dinh (cung la thu tu chay): Man hinh khoi dong, App Bridge, Bong bong toc do, Chia man hinh, Man chinh CarPlay;
+	// bo khac (sau nay) xep sau theo ten
+	NSArray *order = @[@"startupScreen", @"appBridge", @"speedBubble", @"splitScreen", @"homeScreen"];
+	[out sortUsingComparator:^NSComparisonResult(NSDictionary *a, NSDictionary *b) {
+		NSUInteger ia = [order indexOfObject:a[@"suite"]], ib = [order indexOfObject:b[@"suite"]];
+		if (ia != ib) return ia < ib ? NSOrderedAscending : NSOrderedDescending;
+		return [a[@"name"] localizedCompare:b[@"name"]];
+	}];
 	return out;
 }
 

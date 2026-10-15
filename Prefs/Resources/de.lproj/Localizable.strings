@@ -22,6 +22,7 @@
 "FEATURE_OFF" = "Aus";
 
 "SUPPORT_GROUP" = "Support";
+"DEV_GROUP" = "Entwickler";
 "SUPPORT_FOOTER" = "Stimmt etwas nicht? Tippe auf „Protokoll senden“ und wähle Mail oder eine Chat-App, um es an den Entwickler zu senden.";
 "SEND_LOG" = "Protokoll senden";
 "SEND_LOG_FAILED" = "Die Protokolldatei konnte nicht erstellt werden.";
@@ -75,7 +76,7 @@
 "DIAG_CONFLICTS_FOOTER" = "CarBridge, DuoDash, TrueDash, CarPlayEnable.";
 
 /* Autotest: nur Entwickler-Builds (OMC_AUTOTEST) */
-"AUTOTEST" = "Autotest (Dev)";
+"AUTOTEST" = "Autotest";
 "AUTOTEST_SUITES" = "Zu testende Funktionen";
 "AUTOTEST_SUITES_FOOTER" = "Jede Suite läuft in ihrem eigenen Prozess (CarPlay / SpringBoard), nacheinander in dieser Reihenfolge. Verbinde zuerst das Auto.";
 "AUTOTEST_NO_SUITES" = "Noch keine Suite hat sich gemeldet: Respring ausführen, das Auto einmal verbinden und diese Seite erneut öffnen.";

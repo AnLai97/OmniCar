@@ -186,7 +186,7 @@
 }
 
 #if OMC_AUTOTEST
-// Developer builds only: Support > Auto test (Prefs/OMCAutoTestController.m), right after Send log.
+// Developer builds only: Developer > Autotest (Prefs/OMCAutoTestController.m), right after Send log.
 - (void)insertAutoTestSpecifier {
 	PSSpecifier *spec = [PSSpecifier preferenceSpecifierNamed:L(@"AUTOTEST") target:self set:NULL get:NULL
 		detail:NSClassFromString(@"OMCAutoTestController") cell:PSLinkCell edit:Nil];

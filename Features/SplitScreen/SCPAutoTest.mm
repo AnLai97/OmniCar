@@ -3,7 +3,10 @@
 #if OMC_AUTOTEST
 #import "SCPCarSplit.h"
 #import "SCPPrefs.h"
+#import "SCPHomeScreen.h"
+#import "SCPAppIcons.h"
 #import "OMCTest.h"
+#import <notify.h>
 
 // Phan rieng cua SCPCarSplit (SCPCarSplit.mm) ma bai test goi / doc. Cung la ham nut bam tren xe goi.
 @interface SCPCarSplit (SCPAutoTest)
@@ -493,6 +496,94 @@ static NSArray<NSDictionary *> *SCPATBridgeSteps(void)
 
 #pragma mark - Dang ky
 
+// ---------------------------------------------------------------------
+//  Bo "homeScreen" (Man chinh CarPlay): bo / them lai 1 app CarPlay, luoi 4 x 2, tat / bat ten app. Moi buoc doi prefs roi
+//  bao prefschanged (nhu Cai dat); buoc sau tra lai gia tri cua nguoi dung (luu luc bat dau bo test).
+// ---------------------------------------------------------------------
+static NSDictionary *sHomeSaved;
+
+static void SCPATHomeSet(NSString *key, id value)
+{
+    CFPreferencesSetAppValue((__bridge CFStringRef)key, (__bridge CFPropertyListRef)value, OMC_PREFS_DOMAIN);
+    CFPreferencesAppSynchronize(OMC_PREFS_DOMAIN);
+    notify_post("com.anlai.omnicar/prefschanged");
+}
+
+static id SCPATHomeSaved(NSString *key) { id v = sHomeSaved[key]; return [v isKindOfClass:[NSNull class]] ? nil : v; }
+
+static NSString *SCPATHomeShowing(void)
+{
+    NSArray *ids = SCPHomeVisibleBundles();
+    if (!ids) return @"man chinh CarPlay khong hien (dang mo app / chia man?)";
+    return ids.count ? nil : @"khong doc duoc icon nao tren man chinh";
+}
+
+static NSArray<NSDictionary *> *SCPATHomeSteps(void)
+{
+    NSMutableDictionary *saved = [NSMutableDictionary dictionary];
+    for (NSString *k in @[HS_KEY_HIDDEN_APPS, HS_KEY_COLS, HS_KEY_ROWS, HS_KEY_NAMES]) saved[k] = OMCPref(k, nil) ?: [NSNull null];
+    sHomeSaved = saved;
+    __block NSString *target = nil;
+    NSMutableArray *steps = [NSMutableArray array];
+
+    [steps addObject:OMCTestStep(@"Man chinh hien, doc duoc icon", 0, 6, nil, ^NSString *{
+        NSString *why = SCPATHomeShowing();
+        if (why) return why;
+        NSArray *ids = SCPHomeVisibleBundles();
+        for (NSString *b in ids) if (SCPHomeAppRemovable(b)) { target = b; break; }
+        OMCTestLog(@"man chinh %lu app: %@ (thu bo: %@)", (unsigned long)ids.count, [ids componentsJoinedByString:@", "], target ?: @"khong co");
+        return nil;
+    })];
+    [steps addObject:OMCTestStep(@"Bo 1 app CarPlay", 2, 8, ^NSString *{
+        if (!target) return @"khong co app CarPlay nao bo duoc (chi app khoa)";
+        NSMutableArray *hid = [NSMutableArray arrayWithArray:[SCPATHomeSaved(HS_KEY_HIDDEN_APPS) isKindOfClass:[NSArray class]] ? SCPATHomeSaved(HS_KEY_HIDDEN_APPS) : @[]];
+        if (![hid containsObject:target]) [hid addObject:target];
+        SCPATHomeSet(HS_KEY_HIDDEN_APPS, hid);
+        return nil;
+    }, ^NSString *{
+        if (!target) return nil;
+        NSArray *ids = SCPHomeVisibleBundles();
+        return [ids containsObject:target] ? OMCTestFormat(@"%@ van tren man chinh (isIconVisible: khong co tac dung?)", target) : nil;
+    })];
+    [steps addObject:OMCTestStep(@"Them lai app", 2, 8, ^NSString *{
+        if (!target) return @"khong co app de them lai";
+        SCPATHomeSet(HS_KEY_HIDDEN_APPS, SCPATHomeSaved(HS_KEY_HIDDEN_APPS));
+        return nil;
+    }, ^NSString *{
+        if (!target) return nil;
+        NSArray *ids = SCPHomeVisibleBundles();
+        if (![ids containsObject:target]) return OMCTestFormat(@"%@ chua ve man chinh", target);
+        OMCTestLog(@"%@ ve o vi tri %lu / %lu", target, (unsigned long)[ids indexOfObject:target] + 1, (unsigned long)ids.count);
+        return nil;
+    })];
+    [steps addObject:OMCTestStep(@"Luoi 4 x 2", 2, 8, ^NSString *{
+        SCPATHomeSet(HS_KEY_COLS, @4); SCPATHomeSet(HS_KEY_ROWS, @2);
+        return nil;
+    }, ^NSString *{
+        NSInteger n = SCPHomeFirstPageIconCount();
+        if (n < 0) return @"khong doc duoc trang dau";
+        return n <= 8 ? nil : OMCTestFormat(@"trang dau co %ld icon, can <= 8", (long)n);
+    })];
+    [steps addObject:OMCTestStep(@"Tra lai luoi cua nguoi dung", 2, 8, ^NSString *{
+        SCPATHomeSet(HS_KEY_COLS, SCPATHomeSaved(HS_KEY_COLS)); SCPATHomeSet(HS_KEY_ROWS, SCPATHomeSaved(HS_KEY_ROWS));
+        return nil;
+    }, ^NSString *{
+        NSInteger n = SCPHomeFirstPageIconCount();
+        OMCTestLog(@"trang dau %ld icon", (long)n);
+        return n > 0 ? nil : @"trang dau khong co icon";
+    })];
+    [steps addObject:OMCTestStep(@"Tat ten app", 1.5, 6, ^NSString *{ SCPATHomeSet(HS_KEY_NAMES, @NO); return nil; }, ^NSString *{
+        NSInteger n = SCPHomeVisibleLabelCount();
+        return n == 0 ? nil : OMCTestFormat(@"con %ld ten app dang hien", (long)n);
+    })];
+    [steps addObject:OMCTestStep(@"Tra lai ten app", 1.5, 6, ^NSString *{ SCPATHomeSet(HS_KEY_NAMES, SCPATHomeSaved(HS_KEY_NAMES)); return nil; }, ^NSString *{
+        BOOL want = [SCPATHomeSaved(HS_KEY_NAMES) ?: @YES boolValue];
+        NSInteger n = SCPHomeVisibleLabelCount();
+        return (!want || n > 0) ? nil : @"ten app chua hien lai";
+    })];
+    return steps;
+}
+
 void SCPAutoTestInstall(void)
 {
     sBridgeStates = [NSMutableDictionary dictionary];
@@ -504,6 +595,8 @@ void SCPAutoTestInstall(void)
     }];
     OMCTestRegister(SPL_FEATURE, ^BOOL { return SCPATCarReady(); }, ^NSArray<NSDictionary *> *{ return SCPATSplitSteps(); }, nil);
     OMCTestRegister(AB_FEATURE, ^BOOL { return SCPATCarReady(); }, ^NSArray<NSDictionary *> *{ return SCPATBridgeSteps(); }, nil);
+    OMCTestRegister(@"homeScreen", ^BOOL { return SCPATCarReady() && SCPHomeVisibleBundles() != nil; },
+                    ^NSArray<NSDictionary *> *{ return SCPATHomeSteps(); }, nil);
 }
 
 #endif
