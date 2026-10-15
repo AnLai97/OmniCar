@@ -179,7 +179,7 @@ NSString *ABTelexApply(NSString *word, NSString *key)
 static NSString *ABKT(NSString *vi, NSString *en) { return OMCTr(vi, en); }
 
 // Bo cuc ban phim HarmonyOS (hang so rieng, goi y nho goc phim, phim , . rieng), mau giao dien moi (DESIGN.md,
-// tools/preview/theme.html): nen logo 4 mau tren kinh mo, phim trang khong vien, phim chuc nang kinh trong vien trang,
+// tools/preview/index.html#overview): nen logo 4 mau tren kinh mo, phim trang khong vien, phim chuc nang kinh trong vien trang,
 // chu mau cham diu, Shift dang bat / Enter = gradient tim -> xanh troi chu trang; cham phim chu -> bong bong phong to.
 static UIColor *ABKHex(uint32_t v, CGFloat a) { return [UIColor colorWithRed:((v >> 16) & 0xFF) / 255.0 green:((v >> 8) & 0xFF) / 255.0 blue:(v & 0xFF) / 255.0 alpha:a]; }
 #define ABK_KEY     ABKHex(0xFFFFFF, 0.9)
@@ -538,7 +538,7 @@ static NSString *ABKHint(NSString *c, BOOL vietnamese)
 
 - (void)layoutKeys
 {
-    // Hang tren cao 24 (o chu, chip VI / EN, nut an); duoi: 5 hang phim, khe 5 (tools/preview/keyboard.html, theme.html)
+    // Hang tren cao 24 (o chu, chip VI / EN, nut an); duoi: 5 hang phim, khe 5 (tools/preview/index.html#keyboard, #overview)
     CGRect b = self.panel.bounds;
     CGFloat pad = 5, top = 33, gap = 5, bar = 24, langW = 26, hideW = 34;
     self.hideButton.frame = CGRectMake(b.size.width - pad - hideW, 5, hideW, bar);

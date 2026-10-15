@@ -12,8 +12,9 @@
 "RESPRING" = "Respring";
 "RESPRING_CONFIRM" = "Respring ngay bây giờ?";
 
-"APPS_GROUP" = "Ứng dụng";
+"APPS_GROUP" = "Màn xe";
 "APPS" = "App trên màn xe";
+"HOME_SCREEN" = "Màn chính CarPlay";
 
 "FEATURES_GROUP" = "Tính năng";
 "FEATURES_FOOTER" = "Thay đổi áp dụng ngay. Respring sau khi cài hoặc cập nhật.";

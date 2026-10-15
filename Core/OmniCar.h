@@ -148,7 +148,7 @@ NSArray<NSString *> *OMCSupportedLanguages(void);
 NSString *OMCCurrentLanguage(void);
 NSString *OMCTr(NSString *vi, NSString *en);
 
-// Background of the OmniCar logo (DESIGN.md, tools/preview/theme.html): a 4-corner pastel mesh - lavender top left,
+// Background of the OmniCar logo (DESIGN.md, tools/preview/index.html#overview): a 4-corner pastel mesh - lavender top left,
 // sky top right, pink bottom left, mint bottom right. Small image meant to be stretched (scale to fill) under the car
 // panels. solid NO: slightly see-through (on frosted glass); YES: opaque (the dock button tile).
 @class UIImage;

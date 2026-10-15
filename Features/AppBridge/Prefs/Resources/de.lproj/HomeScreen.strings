@@ -24,4 +24,21 @@
 "APPS_VIDEO_FAILED" = "Dieses Video lässt sich nicht verwenden.";
 "APPS_WALL_FOOTER" = "Bilder werden auf den Autobildschirm zugeschnitten; erhöhe die Abdunklung, damit die Symbole lesbar bleiben. Ein Video läuft ohne Ton in Schleife (erste 20 s) und pausiert, wenn das iPhone heiß ist, der Lite-Modus an ist, der Bildschirm geteilt ist oder eine App den Startbildschirm verdeckt.";
 "APPS_PHONE" = "iPhone-Apps";
-"HOMESCREEN_ICON_SIZE_FOOTER" = "Symbolgröße auf dem CarPlay-Startbildschirm; 100 % ist die Größe von CarPlay. Spalten und Zeilen bleiben, wie CarPlay sie anordnet.";
+"HOMESCREEN_ICON_SIZE_FOOTER" = "Auto = Spalten und Zeilen von CarPlay. 100 % ist die Symbolgröße von CarPlay; bei mehr Spalten oder Zeilen die Symbole verkleinern, damit sich die Namen nicht überlappen.";
+
+/* App tren man xe: tren xe + 2 tab */
+"APPS_ON_CAR" = "Im Auto";
+"APPS_ALL" = "Apps wählen";
+"APPS_TAB_CARPLAY" = "CarPlay-Apps";
+"APPS_TAB_OMNICAR" = "OmniCar-Apps";
+"APPS_ON_CAR_FOOTER" = "Apps mit dem iPhone-Abzeichen bringt OmniCar ins Auto.";
+"APPS_CARPLAY_FOOTER" = "Schalte eine CarPlay-App aus, um ihr Symbol auf dem Home-Bildschirm im Auto auszublenden. Nur das Symbol verschwindet: Die App öffnet sich weiterhin bei Anrufen, Routen oder Siri.";
+"APPS_CARPLAY_LOCKED" = "Immer in CarPlay";
+"APPS_CARPLAY_GUESS_FOOTER" = "Noch nicht mit einem Auto verbunden: CarPlay-Apps sind anhand der CarPlay-Unterstützung geschätzt.";
+
+/* Man chinh CarPlay: luoi icon */
+"HOMESCREEN_GRID" = "Symbolraster";
+"HOMESCREEN_COLS" = "Spalten";
+"HOMESCREEN_ROWS" = "Zeilen";
+"HOMESCREEN_AUTO" = "Auto";
+"HOMESCREEN_NAMES" = "App-Namen";

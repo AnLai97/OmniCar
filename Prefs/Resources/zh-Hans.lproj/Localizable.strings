@@ -12,8 +12,9 @@
 "RESPRING" = "注销";
 "RESPRING_CONFIRM" = "立即注销？";
 
-"APPS_GROUP" = "App";
+"APPS_GROUP" = "车机屏幕";
 "APPS" = "车机屏幕上的 App";
+"HOME_SCREEN" = "CarPlay 主屏幕";
 
 "FEATURES_GROUP" = "功能";
 "FEATURES_FOOTER" = "更改立即生效。安装或更新后请注销。";

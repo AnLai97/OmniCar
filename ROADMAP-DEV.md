@@ -109,34 +109,45 @@ Khách so sánh trực tiếp với DuoDash / CarBridge ở các mục này, và
 
 ### 2.1 Màn chính CarPlay (nâng cấp từ App Bridge)
 
-THU GỌN (10/2026, theo ý tác giả): KHÔNG đụng vào giao diện của CarPlay. Trang "App trên màn xe"
-(Features/AppBridge/Prefs/OMCAppBridgeAppsController.m, xem trước tools/preview/home.html) chỉ còn: xem trước màn xe, thẻ
-App iPhone (công tắc đưa app lên xe = App Bridge, AB_KEY_APPS), Cỡ icon (HS_KEY_ICON_SIZE 60–130 %) và thẻ Hình nền
-(6 hình dựng sẵn, ảnh hoặc video từ Ảnh, độ mờ, độ tối). Trên xe (Features/SplitScreen/SCPHomeScreen.mm) màn chính gốc
+THU GỌN (10/2026, theo ý tác giả): KHÔNG đụng vào giao diện của CarPlay. Nhóm "Màn xe" ở trang chính có hai mục
+(Features/AppBridge/Prefs/OMCAppBridgeAppsController.m, xem trước tools/preview/index.html#home): "App trên màn xe": trên là lưới app đang
+hiện trên xe (app CarPlay + app iPhone có dấu iPhone), dưới 2 tab App CarPlay (chỉ xem; chưa cắm xe thì đoán theo
+entitlement) / App OmniCar (công tắc đưa app iPhone lên xe = App Bridge, AB_KEY_APPS); "Màn chính CarPlay" (OMCHomeScreenController) gồm xem trước
+màn xe, Lưới icon (Số cột / Số hàng, Cỡ icon HS_KEY_ICON_SIZE 60–130 %, Tên app) và thẻ Hình nền (6 hình dựng sẵn, ảnh hoặc video từ Ảnh, độ mờ, độ tối). Trên xe (Features/SplitScreen/SCPHomeScreen.mm) màn chính gốc
 của CarPlay giữ nguyên: hình nền là một view chèn xuống dưới lưới icon của DBDashboardHomeViewController, cỡ icon qua hook
-SBIconListGridLayoutConfiguration -iconImageInfo (AppIcons.xm, nhân hệ số; cột / hàng CarPlay tự xếp). 100 % và không hình
-nền = không đụng gì. Lưới icon riêng, ẩn / sắp xếp app CarPlay, dock, cột / hàng / tên, thư mục, widget, gói icon, ngày /
+SBIconListGridLayoutConfiguration -iconImageInfo (AppIcons.xm, nhân hệ số; cột / hàng: xem 2.1.3). 100 %, lưới Tự động,
+có tên và không hình nền = không đụng gì. Lưới icon riêng, sắp xếp app CarPlay, dock, thư mục, widget, gói icon, ngày /
 đêm đã bỏ hẳn (code trong git trước commit này). Lần đầu áp ghi log "HomeScreen: DIAG cay man chinh".
 Thử: chọn hình nền + kéo cỡ icon 130 %, cắm xe, Gửi log (dòng "HomeScreen:"; "khong co SBIconListGridLayoutConfiguration"
 = iOS này cần cách khác cho cỡ icon).
 
-- ~~**2.1.1 Ẩn và sắp xếp app**~~ · ĐÃ BỎ (10/2026, không đụng giao diện CarPlay)
-  Ẩn cả app CarPlay gốc không dùng (CarBridge có), kéo đổi thứ tự app iPhone và app CarPlay trong một danh sách.
-  Xong khi: thứ tự và app ẩn giữ nguyên sau khi rút / cắm lại và sau respring.
-  Code: thẻ Ứng dụng = một danh sách mọi app (app hệ thống của CarPlay, app CarPlay, app iPhone), lọc Tất cả / CarPlay /
-  iPhone, tìm; con mắt hiện / ẩn trên xe (app CarPlay → HS_KEY_HIDDEN, app iPhone → AB_KEY_APPS), kéo để sắp xếp
-  (HS_KEY_ORDER), ghim dock.
-  Thử: ẩn 1 app CarPlay gốc, kéo YouTube lên đầu → cắm xe, rút / cắm lại, respring: vẫn đúng.
+- [x] [ ] **2.1.1 Ẩn app CarPlay** · Vừa (sắp xếp app vẫn bỏ)
+  Ẩn icon app CarPlay gốc không dùng (CarBridge có) trên màn chính gốc của CarPlay; app vẫn tự mở khi có cuộc gọi, chỉ
+  đường, Siri. Sắp xếp / ghim dock vẫn bỏ (không tự vẽ lưới).
+  Xong khi: app ẩn không hiện trên màn chính, giữ nguyên sau khi rút / cắm lại và sau respring; bật lại thì icon về.
+  Code: App trên màn xe > tab App CarPlay, công tắc mỗi app → HS_KEY_HIDDEN_APPS (key mới, không đọc homeScreenHidden cũ).
+  Như CarPlay: Điện thoại, Nhạc, Bản đồ, Tin nhắn, Đang phát, Xe, Cài đặt không ẩn được (HSIsLockedCarPlayApp trong
+  AppBridge.h: hàng có khóa thay công tắc, trên xe bỏ qua dù có trong danh sách ẩn).
+  Trên xe: hook -[SBIconModel isIconVisible:] (AppIcons.xm, SCPIconHiddenOnCar trong SCPAppIcons.mm) trả NO cho app bị ẩn;
+  đổi danh sách → -[iconModel layout] của DBDashboardHomeViewController, không có thì _handleAppLibraryRefresh. Xe chỉ ghi
+  app đang hiện (splitScreenCarPlayApps) nên Cài đặt tự thêm lại app đã ẩn vào tab để bật lại được. Chưa thử trên xe.
+  Thử: ẩn Podcasts → cắm xe: icon không còn, log "HomeScreen: an com.apple.podcasts"; bật lại khi đang cắm → log
+  "danh sach an doi ... layout" và icon về. Không thấy dòng "an ..." = DashBoard không gọi isIconVisible: (cần cách khác,
+  chạy CarProbe xem DBIconModel). Ẩn Điện thoại rồi gọi đến: màn cuộc gọi vẫn hiện.
 - [x] [ ] **2.1.2 Cỡ icon** · Vừa
   Thanh trượt cỡ icon trên màn chính gốc của CarPlay (60–130 %).
   Code: HS_KEY_ICON_SIZE; hook SBIconListGridLayoutConfiguration -iconImageInfo trong process CarPlay nhân cỡ ảnh icon + bo
   góc, đổi cỡ thì gọi layoutIconsNow cho các *IconListView (SCPHomeScreen.mm). Chờ thử trên xe (iOS 15 có thể khác lớp).
   Thử: kéo 130 % → icon to trong ô của CarPlay, tên không chồng; 60 % → icon nhỏ, ô giữ nguyên.
-- ~~**2.1.3 Số cột / hàng và tên app**~~ · ĐÃ BỎ (10/2026, lưới do CarPlay xếp)
-  Chọn số cột × hàng mỗi trang, ẩn / hiện tên dưới icon, khoảng cách icon.
-  Code: Số cột 3–7, Số hàng 1–3, Khoảng cách 60–140 %, Tên dưới icon (HS_KEY_COLS / ROWS / GAP / NAMES); vuốt ngang
-  đổi trang, chấm trang.
-  Thử: 4 × 2 không tên → mỗi trang 8 icon; bật tên → tên không chồng icon hàng dưới.
+- [x] [ ] **2.1.3 Số cột / hàng và tên app** · Vừa (làm lại trên lưới gốc của CarPlay)
+  Chọn số cột × hàng của lưới màn chính CarPlay (Tự động = như CarPlay), ẩn / hiện tên dưới icon.
+  Code: Cài đặt > Màn xe > Màn chính CarPlay > Lưới icon: Số cột (Tự động, 3–8, HS_KEY_COLS), Số hàng (Tự động, 1–4,
+  HS_KEY_ROWS), Tên app (HS_KEY_NAMES). Trên xe: hook SBIconListGridLayoutConfiguration numberOf{Portrait,Landscape}
+  {Columns,Rows} (chỉ lưới có ≥ 2 cột và ≥ 2 hàng, không đụng dock), đổi thì -[iconModel layout] + layoutIconsNow
+  (SCPHomeScreen.mm); tên: hook -[SBIconView setLabelHidden:] + đặt lại cho icon đang có. Key cũ homeScreenCols / Rows / Names
+  không đọc. Chưa thử trên xe.
+  Thử: 4 × 2 → mỗi trang 8 icon, log "HomeScreen: luoi ... cot 5 -> 4"; tắt Tên app → tên mất, log "ten app an";
+  về Tự động → như CarPlay. Không thấy dòng "luoi" = CarPlay không đọc các getter này (cần cách khác).
 - [x] [ ] **2.1.4 Hình nền màn chính** · Vừa
   Chọn hình dựng sẵn hoặc ảnh từ Ảnh (bỏ chọn từ Tệp), cắt theo tỉ lệ màn xe, chỉnh độ mờ và độ tối để icon vẫn dễ nhìn.
   Code: ô Mặc định + 6 hình dựng sẵn (gradient như bản xem trước, vẽ 1920 × 720) + ô ảnh / video của bạn, nút Từ Ảnh

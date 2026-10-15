@@ -24,4 +24,21 @@
 "APPS_VIDEO_FAILED" = "ใช้วิดีโอนี้ไม่ได้";
 "APPS_WALL_FOOTER" = "รูปภาพจะถูกครอบตามหน้าจอรถ เพิ่มความมืดเพื่อให้ไอคอนอ่านง่าย วิดีโอจะวนซ้ำแบบไม่มีเสียง (20 วินาทีแรก) และหยุดชั่วคราวเมื่อเครื่องร้อน เปิดโหมดเบา แบ่งหน้าจอ หรือมีแอปบังหน้าจอหลัก";
 "APPS_PHONE" = "แอป iPhone";
-"HOMESCREEN_ICON_SIZE_FOOTER" = "ขนาดไอคอนบนหน้าโฮมของ CarPlay; 100 % คือขนาดเดิมของ CarPlay คอลัมน์และแถวยังจัดโดย CarPlay";
+"HOMESCREEN_ICON_SIZE_FOOTER" = "อัตโนมัติ = คอลัมน์และแถวของ CarPlay เอง 100 % คือขนาดไอคอนของ CarPlay ถ้าเพิ่มคอลัมน์หรือแถว ให้ลดขนาดไอคอนเพื่อไม่ให้ชื่อซ้อนกัน";
+
+/* App tren man xe: tren xe + 2 tab */
+"APPS_ON_CAR" = "บนรถ";
+"APPS_ALL" = "เลือกแอป";
+"APPS_TAB_CARPLAY" = "แอป CarPlay";
+"APPS_TAB_OMNICAR" = "แอป OmniCar";
+"APPS_ON_CAR_FOOTER" = "แอปที่มีป้าย iPhone คือแอปที่ OmniCar นำขึ้นจอรถ";
+"APPS_CARPLAY_FOOTER" = "ปิดแอป CarPlay เพื่อซ่อนไอคอนบนหน้าจอหลักของรถ ซ่อนแค่ไอคอน แอปยังเปิดเองได้เมื่อมีสายเข้า นำทาง หรือใช้ Siri";
+"APPS_CARPLAY_LOCKED" = "แสดงใน CarPlay เสมอ";
+"APPS_CARPLAY_GUESS_FOOTER" = "ยังไม่เคยเชื่อมต่อรถ: แอป CarPlay เดาจากการรองรับ CarPlay";
+
+/* Man chinh CarPlay: luoi icon */
+"HOMESCREEN_GRID" = "ตารางไอคอน";
+"HOMESCREEN_COLS" = "คอลัมน์";
+"HOMESCREEN_ROWS" = "แถว";
+"HOMESCREEN_AUTO" = "อัตโนมัติ";
+"HOMESCREEN_NAMES" = "ชื่อแอป";

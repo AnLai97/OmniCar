@@ -56,7 +56,7 @@ static UIColor *OMCDynamicColor(UInt32 light, UInt32 dark) {
 	}];
 }
 
-// Kieu OmniCar (DESIGN.md, tools/preview/theme.html): HarmonyOS sang + kinh chat long. Nhan tim, the kinh trang hoi
+// Kieu OmniCar (DESIGN.md, tools/preview/index.html#overview): HarmonyOS sang + kinh chat long. Nhan tim, the kinh trang hoi
 // trong (nhin thay nen chat long o dau trang), cong tac bat xanh la.
 UIColor *OMCAccentColor(void)     { return OMCDynamicColor(0x7B6CF6, 0xA89BFF); }
 UIColor *OMCSwitchColor(void)     { return UIColor.systemGreenColor; }

@@ -6,7 +6,7 @@
 // gradients behind the greeting and the weather; the weather details sit on a thin dark glass card.
 //
 // Animated styles (Weather sky, Engine, Welcome, Particles, HUD, Briefing, Festive) follow the approved mockup
-// tools/preview/startup.html: each scene is a function of the time t in seconds since -playIntro
+// tools/preview/index.html#startup: each scene is a function of the time t in seconds since -playIntro
 // (-ss_applyTime:), laid out on the mockup's 1600 x 600 canvas scaled to the view (letterboxed, one canvas pixel
 // = _k points, _k = unit / 6). Layers are built once per size; a display link (only while playing and on screen)
 // moves them. Particles and fireworks are drawn into one low-resolution canvas view; everything else is layers.
@@ -1737,7 +1737,7 @@ static NSArray<NSDictionary *> *SSSampleHud(NSString *carName) {
 
 #pragma mark Liquid (the OmniCar look)
 
-// tools/preview/theme.html part 6: four pastel blobs drifting slowly (lavender, sky, mint, peach), the glass logo rising
+// tools/preview/index.html#overview part 6: four pastel blobs drifting slowly (lavender, sky, mint, peach), the glass logo rising
 // on a spring and breathing, "OmniCar" in the violet -> sky gradient, the slogan under it, a thin loading bar.
 - (void)ss_buildLiquid {
 	CGFloat k = _k;

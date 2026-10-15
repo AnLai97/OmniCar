@@ -2,7 +2,7 @@
 #import <Preferences/PSSpecifier.h>
 #import <UIKit/UIKit.h>
 
-// Trang Cai dat kieu the (tools/preview/speedbubble.html, feature-settings.html): bang inset grouped tu ve, moi o la
+// Trang Cai dat kieu the (tools/preview/index.html#bubble, #settings): bang inset grouped tu ve, moi o la
 // cong tac / nut chon / thanh keo noi thang voi 1 key trong prefs OmniCar. Trang tinh nang ke thua lop nay va tu dung
 // cac section; doi gia tri -> ghi prefs + "com.anlai.omnicar/prefschanged" + -prefChanged:.
 @interface PSViewController (OMCCardPage)

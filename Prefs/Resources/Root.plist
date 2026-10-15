@@ -57,8 +57,9 @@
 			<string>exclamationmark.triangle.fill</string>
 		</dict>
 
-		<!-- APPS: the iPhone apps shown on the car screen through App Bridge (its own page,
-		     OMCAppBridgeAppsController in Features/AppBridge/Prefs). -->
+		<!-- CAR SCREEN: the iPhone apps shown on the car screen through App Bridge (OMCAppBridgeAppsController in
+		     Features/AppBridge/Prefs), then CarPlay's home screen: icon grid and wallpaper (OMCHomeScreenController,
+		     same file). -->
 		<dict>
 			<key>cell</key>
 			<string>PSGroupCell</string>
@@ -76,6 +77,16 @@
 			<string>APPS</string>
 			<key>symbol</key>
 			<string>square.grid.2x2.fill</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSLinkCell</string>
+			<key>detail</key>
+			<string>OMCHomeScreenController</string>
+			<key>label</key>
+			<string>HOME_SCREEN</string>
+			<key>symbol</key>
+			<string>apps.iphone</string>
 		</dict>
 
 		<!-- FEATURES: the rows are built at runtime from every Feature*.plist in the bundle

@@ -11,7 +11,7 @@
 
 #pragma mark - Header card
 
-// Glass card in the OmniCar look (DESIGN.md, tools/preview/theme.html): frosted glass tinted with the pastel
+// Glass card in the OmniCar look (DESIGN.md, tools/preview/index.html#overview): frosted glass tinted with the pastel
 // liquid colors, logo, name, slogan, status line ("● On", the dot glows green when on) and the master switch,
 // so the enable row is gone. The version lives in the footer card, not here.
 @interface OMCHeaderCard : UIView

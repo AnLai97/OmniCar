@@ -24,4 +24,21 @@
 "APPS_VIDEO_FAILED" = "Impossibile usare questo video.";
 "APPS_WALL_FOOTER" = "Le immagini vengono ritagliate sullo schermo dell’auto; alza lo scurimento per tenere leggibili le icone. Un video va in loop senza audio (primi 20 s) e si ferma quando l’iPhone è caldo, la modalità leggera è attiva, lo schermo è diviso o un’app copre la schermata Home.";
 "APPS_PHONE" = "App iPhone";
-"HOMESCREEN_ICON_SIZE_FOOTER" = "Dimensione delle icone nella schermata Home di CarPlay; 100 % è la dimensione di CarPlay. Colonne e righe restano quelle di CarPlay.";
+"HOMESCREEN_ICON_SIZE_FOOTER" = "Auto = colonne e righe di CarPlay. 100 % è la dimensione delle icone di CarPlay; con più colonne o righe riduci le icone perché i nomi non si sovrappongano.";
+
+/* App tren man xe: tren xe + 2 tab */
+"APPS_ON_CAR" = "In auto";
+"APPS_ALL" = "Scegli le app";
+"APPS_TAB_CARPLAY" = "App CarPlay";
+"APPS_TAB_OMNICAR" = "App OmniCar";
+"APPS_ON_CAR_FOOTER" = "Le app con il badge iPhone sono quelle che OmniCar porta in auto.";
+"APPS_CARPLAY_FOOTER" = "Disattiva un'app CarPlay per nasconderne l'icona nella schermata Home dell'auto. Sparisce solo l'icona: l'app si apre comunque da sola per una chiamata, le indicazioni o Siri.";
+"APPS_CARPLAY_LOCKED" = "Sempre in CarPlay";
+"APPS_CARPLAY_GUESS_FOOTER" = "Non ancora collegato a un'auto: le app CarPlay sono stimate in base al supporto CarPlay.";
+
+/* Man chinh CarPlay: luoi icon */
+"HOMESCREEN_GRID" = "Griglia icone";
+"HOMESCREEN_COLS" = "Colonne";
+"HOMESCREEN_ROWS" = "Righe";
+"HOMESCREEN_AUTO" = "Auto";
+"HOMESCREEN_NAMES" = "Nomi app";

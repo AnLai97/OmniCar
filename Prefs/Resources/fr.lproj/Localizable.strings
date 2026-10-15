@@ -12,8 +12,9 @@
 "RESPRING" = "Respring";
 "RESPRING_CONFIRM" = "Faire un respring maintenant ?";
 
-"APPS_GROUP" = "Apps";
+"APPS_GROUP" = "Écran de la voiture";
 "APPS" = "Apps sur l’écran de la voiture";
+"HOME_SCREEN" = "Écran d’accueil CarPlay";
 
 "FEATURES_GROUP" = "Fonctionnalités";
 "FEATURES_FOOTER" = "Les modifications s’appliquent immédiatement. Faites un respring après une installation ou une mise à jour.";

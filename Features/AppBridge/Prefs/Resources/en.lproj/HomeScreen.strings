@@ -24,4 +24,21 @@
 "APPS_VIDEO_FAILED" = "Couldn't use this video.";
 "APPS_WALL_FOOTER" = "Pictures are cropped to the car screen; raise the darkness so icons stay easy to read. A video loops without sound (first 20 s) and pauses while the phone is hot, Lite mode is on, the screen is split or an app covers the home screen.";
 "APPS_PHONE" = "iPhone apps";
-"HOMESCREEN_ICON_SIZE_FOOTER" = "Icon size on CarPlay's own home screen; 100 % is CarPlay's size. Columns and rows stay as CarPlay lays them out.";
+"HOMESCREEN_ICON_SIZE_FOOTER" = "Auto keeps CarPlay's own columns and rows. 100 % is CarPlay's icon size; with more columns or rows, lower the icon size so names don't overlap.";
+
+/* App tren man xe: tren xe + 2 tab */
+"APPS_ON_CAR" = "On the car";
+"APPS_ALL" = "Choose apps";
+"APPS_TAB_CARPLAY" = "CarPlay apps";
+"APPS_TAB_OMNICAR" = "OmniCar apps";
+"APPS_ON_CAR_FOOTER" = "Apps with the iPhone badge are the ones OmniCar brings to the car.";
+"APPS_CARPLAY_FOOTER" = "Turn a CarPlay app off to hide its icon on the car home screen. Only the icon goes: the app still opens by itself for a call, directions or Siri.";
+"APPS_CARPLAY_LOCKED" = "Always on CarPlay";
+"APPS_CARPLAY_GUESS_FOOTER" = "Not connected to a car yet: CarPlay apps are guessed from CarPlay support.";
+
+/* Man chinh CarPlay: luoi icon */
+"HOMESCREEN_GRID" = "Icon grid";
+"HOMESCREEN_COLS" = "Columns";
+"HOMESCREEN_ROWS" = "Rows";
+"HOMESCREEN_AUTO" = "Auto";
+"HOMESCREEN_NAMES" = "App names";

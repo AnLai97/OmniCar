@@ -24,4 +24,21 @@
 "APPS_VIDEO_FAILED" = "このビデオは使用できません。";
 "APPS_WALL_FOOTER" = "写真は車のディスプレイに合わせて切り抜かれます。アイコンが読みやすいよう暗さを上げてください。動画は無音でループ再生（最初の20秒）され、iPhoneが熱いとき、軽量モード中、画面分割中、Appがホーム画面を覆っているときは一時停止します。";
 "APPS_PHONE" = "iPhoneのApp";
-"HOMESCREEN_ICON_SIZE_FOOTER" = "CarPlayホーム画面のアイコンサイズ。100 % がCarPlay本来のサイズです。列と行の配置はCarPlayのままです。";
+"HOMESCREEN_ICON_SIZE_FOOTER" = "自動 = CarPlay本来の列と行。100 %はCarPlayのアイコンサイズです。列や行を増やす場合は、名前が重ならないようアイコンを小さくしてください。";
+
+/* App tren man xe: tren xe + 2 tab */
+"APPS_ON_CAR" = "車に表示中";
+"APPS_ALL" = "Appを選ぶ";
+"APPS_TAB_CARPLAY" = "CarPlay App";
+"APPS_TAB_OMNICAR" = "OmniCar App";
+"APPS_ON_CAR_FOOTER" = "iPhoneバッジ付きのAppはOmniCarが車に表示しているAppです。";
+"APPS_CARPLAY_FOOTER" = "CarPlay Appをオフにすると、車のホーム画面からアイコンが消えます。消えるのはアイコンだけで、通話・経路案内・Siriでは今まで通り自動で開きます。";
+"APPS_CARPLAY_LOCKED" = "CarPlayに常に表示";
+"APPS_CARPLAY_GUESS_FOOTER" = "まだ車に接続していません: CarPlay対応状況からCarPlay Appを推定しています。";
+
+/* Man chinh CarPlay: luoi icon */
+"HOMESCREEN_GRID" = "アイコングリッド";
+"HOMESCREEN_COLS" = "列";
+"HOMESCREEN_ROWS" = "行";
+"HOMESCREEN_AUTO" = "自動";
+"HOMESCREEN_NAMES" = "App名";

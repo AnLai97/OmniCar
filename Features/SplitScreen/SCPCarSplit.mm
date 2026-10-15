@@ -291,7 +291,7 @@ void SCPCarLaunchApp(NSString *bundleID)
 //  Kieu HyperOS: icon net tron deu tu ve (khong can asset), nen "kinh toi" bo goc lien tuc,
 //  nut gom trong thanh vien thuoc, cham thi nut lun nhe.
 // ---------------------------------------------------------------------
-// Giao dien moi (DESIGN.md, tools/preview/theme.html): cac bang tren man xe nen phoi 4 mau nhu nen logo
+// Giao dien moi (DESIGN.md, tools/preview/index.html#overview): cac bang tren man xe nen phoi 4 mau nhu nen logo
 // (OMCLogoMeshImage), o kinh trang vien trang nhu dia trong logo, icon / chu mau cham diu, khong vien den;
 // dang chon = vien cau vong 4 mau logo (nen van trong), nut chinh = gradient tim -> xanh troi, dau X do.
 static UIColor *SCPCInk(void) { return [UIColor colorWithRed:0x4A / 255.0 green:0x4F / 255.0 blue:0x80 / 255.0 alpha:1]; }
@@ -462,7 +462,7 @@ static UIImage *SCPCGlyph(NSString *name, CGFloat pt, BOOL rot)
         } else if ([name isEqualToString:@"swap"]) {     // 2 mui ten nguoc chieu
             SCPC_M(4.5, 8.5); SCPC_L(19, 8.5); SCPC_M(15.5, 5); SCPC_L(19, 8.5); SCPC_L(15.5, 12);
             SCPC_M(19.5, 15.5); SCPC_L(5, 15.5); SCPC_M(8.5, 12); SCPC_L(5, 15.5); SCPC_L(8.5, 19);
-        } else if ([name hasPrefix:@"hm_"]) {             // thanh ••• kieu HarmonyOS Symbol: net 1.5 (tools/preview/theme.html)
+        } else if ([name hasPrefix:@"hm_"]) {             // thanh ••• kieu HarmonyOS Symbol: net 1.5 (tools/preview/index.html#overview)
             p.lineWidth = 1.5;
             if ([name isEqualToString:@"hm_apps"]) {          // chon app moi: 4 o vuong bo tron
                 SCPC_RR(4, 4, 7, 7, 2.2); SCPC_RR(13, 4, 7, 7, 2.2); SCPC_RR(4, 13, 7, 7, 2.2); SCPC_RR(13, 13, 7, 7, 2.2);
@@ -2704,7 +2704,7 @@ static void SCPCHandleOpen(UIView *h, BOOL open)
     p.handle = h;
     [p.view addSubview:h];
 
-    // Thanh ••• (DESIGN.md, tools/preview/theme.html): o kinh tron chi icon (khong nhan) - Doi app · Toan man / Chia man ·
+    // Thanh ••• (DESIGN.md, tools/preview/index.html#overview): o kinh tron chi icon (khong nhan) - Doi app · Toan man / Chia man ·
     // Cua so noi · Chay nen | Tat app (do, tach bang vach trang). Icon HarmonyOS Symbol giu nguyen.
     UIButton *replace = SCPCActionButton(@"hm_apps", SCPCT(@"Đổi app", @"Change app"), SCPCInk(), self, @selector(paneChoose:));
     UIButton *full = SCPCActionButton(@"hm_full", SCPCT(@"Toàn màn", @"Full screen"), SCPCInk(), self, @selector(paneSolo:));
@@ -3590,7 +3590,7 @@ static CGFloat SCPCSnap(CGFloat f, CGFloat pair, int n)
 static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mirror, BOOL rot, CGFloat pt)
 {
     return SCPCDraw(pt, rot, ^(UIBezierPath *p, UIBezierPath *f) {
-        // O vien net 1.5 bo 2 (kieu HarmonyOS, tools/preview/theme.html), khong to dac
+        // O vien net 1.5 bo 2 (kieu HarmonyOS, tools/preview/index.html#overview), khong to dac
         CGFloat x0 = 3, y0 = 5, W = 18, H = 14, gap = 1.6;
         p.lineWidth = 1.5;
         void (^box)(CGFloat, CGFloat, CGFloat, CGFloat) = ^(CGFloat x, CGFloat y, CGFloat w, CGFloat h) {
@@ -5066,7 +5066,7 @@ static UIImage *SCPCSplitImage(CGFloat side)
 {
     UIGraphicsImageRenderer *r = [[UIGraphicsImageRenderer alloc] initWithSize:CGSizeMake(side, side)];
     UIImage *img = [r imageWithActions:^(UIGraphicsImageRendererContext *rc) {
-        // Nhu nut dock trong tools/preview/theme.html: 2 o 6 x 10 cach nhau 2 trong nut 26 (hinh 54% rong, 38% cao,
+        // Nhu nut dock trong tools/preview/index.html#overview: 2 o 6 x 10 cach nhau 2 trong nut 26 (hinh 54% rong, 38% cao,
         // khe 14%), de o cho nho (22..30 pt) van thay 2 o chu khong thanh 1 cham
         CGContextScaleCTM(rc.CGContext, side / 1024.0, side / 1024.0);
         UIBezierPath *panes = [UIBezierPath bezierPathWithRoundedRect:CGRectMake(236, 315, 236, 394) cornerRadius:78];
@@ -5077,7 +5077,7 @@ static UIImage *SCPCSplitImage(CGFloat side)
     return [img imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
 }
 
-// Nut Split Screen tren dock ve thanh MOT anh (tools/preview/theme.html .dock .split): o nen logo 4 mau dac, vien trang
+// Nut Split Screen tren dock ve thanh MOT anh (tools/preview/index.html#overview .dock .split): o nen logo 4 mau dac, vien trang
 // 1pt, glyph 2 khung mau cham net 2.6 o giua (66 % o). Mot anh duy nhat vi UIButton + mesh chen duoi tung lam glyph
 // khong hien tren xe (lop con cua UIButton de len / tint khong ap).
 static UIImage *SCPCDockTileImage(CGFloat side, CGFloat radius)
@@ -5251,7 +5251,7 @@ static void SCPCStatusBottom(UIView *v, UIView *parent, CGRect strip, int depth,
     CGPoint c = [self launcherCenterInParent:parent size:&size shift:&shift];
     [self setDockShift:shift];
     // Tren dock: o nen logo 4 mau (nhu cac bang tren xe), vien trang, glyph 2 o mau cham giong nut Chia man cua thanh •••
-    // (tools/preview/theme.html). Goc vung app (khong co dock doc): nut tron kinh trang cho noi tren app.
+    // (tools/preview/index.html#overview). Goc vung app (khong co dock doc): nut tron kinh trang cho noi tren app.
     BOOL bare = ![self.launcherWhere hasPrefix:@"goc"];
     if (!self.homeButton || fabs(self.homeButton.bounds.size.width - size) > 0.5 || self.launcherBare != bare) {
         [self.homeButton removeFromSuperview];

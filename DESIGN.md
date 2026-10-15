@@ -1,8 +1,8 @@
 # OmniCar — giao diện
 
 Giao diện đã chốt (13/10/2026): **HarmonyOS sáng + kính chất lỏng 3D** (logo phương án D). Mọi màn hình của
-OmniCar (màn xe, Cài đặt, icon) làm theo đây. Mẫu đầy đủ: `tools/preview/theme.html` (mở bằng trình duyệt);
-logo: `tools/preview/logo.html`; bàn phím: `tools/preview/keyboard.html`. Thử ở trang mẫu trước rồi mới sửa code.
+OmniCar (màn xe, Cài đặt, icon) làm theo đây. Mẫu đầy đủ: `tools/preview/index.html#overview` (mở bằng trình duyệt);
+logo: `tools/preview/index.html#logo`; bàn phím: `tools/preview/index.html#keyboard`. Thử ở trang mẫu trước rồi mới sửa code.
 
 ## Màu
 - Nền chất lỏng pastel: oải hương #B7A6FF, xanh trời #8FD3FF, bạc hà #9DF2D8, đào #FFC2D6 (chỉ làm nền: đầu
@@ -51,5 +51,5 @@ logo: `tools/preview/logo.html`; bàn phím: `tools/preview/keyboard.html`. Th�
 - Chữ ngắn hoặc không có chữ.
 
 ## Logo
-Phương án D (`tools/preview/logo.html`): nền chất lỏng pastel trong ô squircle, vòng + nút play CarPlay bằng kính
+Phương án D (`tools/preview/index.html#logo`): nền chất lỏng pastel trong ô squircle, vòng + nút play CarPlay bằng kính
 trắng mờ nổi 3D, viền sáng, vệt bóng. Vẽ ra PNG bằng `tools/icons/omnicar_logo_liquid.ps1`.

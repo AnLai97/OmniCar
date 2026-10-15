@@ -91,10 +91,33 @@
 // CarPlay home screen (Settings: App on the car screen, one page in OMCAppBridgeAppsController.m; car side:
 // Features/SplitScreen/SCPHomeScreen.mm). CarPlay's own home screen stays as it is; OmniCar only adds two things to it:
 // an icon size (SBIconListGridLayoutConfiguration -iconImageInfo scaled, AppIcons.xm) and a wallpaper view slipped under
-// CarPlay's icon grid. At 100 % with no wallpaper nothing is touched. The first builds' own icon grid, app hiding /
-// sorting, dock, columns / rows / names, folders, widgets, icon packs and day / night wallpaper were dropped in 10/2026;
-// their homeScreen* keys (homeScreenEnabled, homeScreenOrder, homeScreenHidden, homeScreenDock ...) are no longer read.
+// CarPlay's icon grid. At 100 % with no wallpaper nothing is touched. The first builds' own icon grid, app sorting, dock,
+// folders, widgets, icon packs and day / night wallpaper were dropped in 10/2026; their homeScreen* keys
+// (homeScreenEnabled, homeScreenOrder, homeScreenHidden, homeScreenCols, homeScreenRows, homeScreenNames, homeScreenDock
+// ...) are no longer read. Columns / rows / names came back on CarPlay's own grid with the new keys below.
 #define HS_KEY_ICON_SIZE     @"homeScreenIconSize"    // 60..130 %, default 100 (icon image size on CarPlay's grid)
+// CarPlay's own grid (SBIconListGridLayoutConfiguration numberOf{Portrait,Landscape}{Columns,Rows}, AppIcons.xm): 0 = Auto
+// (CarPlay's count). Only the home grid is changed (a config with at least 2 columns and 2 rows), never a 1-row / 1-column dock.
+#define HS_KEY_COLS          @"homeScreenGridCols"    // 0 Auto, 3..8
+#define HS_KEY_ROWS          @"homeScreenGridRows"    // 0 Auto, 1..4
+#define HS_COLS_VALUES       @[@0, @3, @4, @5, @6, @7, @8]
+#define HS_ROWS_VALUES       @[@0, @1, @2, @3, @4]
+// BOOL, default YES: app names under the icons (-[SBIconView setLabelHidden:], AppIcons.xm)
+#define HS_KEY_NAMES         @"homeScreenShowNames"
+// [bundle id] CarPlay apps whose icon is left off CarPlay's own home screen (Settings: App on the car screen > CarPlay
+// apps tab; car side: -[SBIconModel isIconVisible:] in AppIcons.xm). Only the icon goes: the app still opens by itself
+// (a call, directions, Siri). A new key, not the dropped homeScreenHidden of the first builds.
+#define HS_KEY_HIDDEN_APPS   @"homeScreenHiddenApps"
+// Apps CarPlay itself never lets you hide (Settings > General > CarPlay > Customize): Phone, Music, Maps, Messages and
+// CarPlay's own Now Playing / car (OEM) / Settings icons. OmniCar keeps them too: no switch in Settings, never hidden on
+// the car even if HS_KEY_HIDDEN_APPS lists them.
+static inline BOOL HSIsLockedCarPlayApp(NSString *bid)
+{
+    if (![bid isKindOfClass:[NSString class]] || !bid.length) return NO;
+    if ([@[@"com.apple.mobilephone", @"com.apple.Music", @"com.apple.Maps", @"com.apple.MobileSMS", @"com.apple.InCallService"] containsObject:bid])
+        return YES;
+    return [bid hasPrefix:@"com.apple.CarPlay"] || [bid rangeOfString:@"NowPlaying"].location != NSNotFound;
+}
 #define HS_KEY_WALLPAPER     @"homeScreenWallpaper"   // BOOL: use HS_WALLPAPER_PATH (picked in Settings) as the home wallpaper
 #define HS_KEY_WALLPAPER_STYLE @"homeScreenWallpaperStyle" // 0 default, 1..6 built-in picture, 7 the user's photo, 8 the user's video (HS_VIDEO_PATH)
 #define HS_KEY_BLUR          @"homeScreenBlur"        // 0..30, default 0

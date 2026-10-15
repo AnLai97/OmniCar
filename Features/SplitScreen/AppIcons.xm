@@ -19,6 +19,35 @@ static void SCPIconsHookError(const char *where, NSException *e)
     SCPLog("LOI trong %s: %@\n%@", where, e, e.callStackSymbols);
 }
 
+// So cot / hang cua luoi man chinh: chi doi luoi co >= 2 cot va >= 2 hang theo CarPlay (khong dong vao dock 1 hang / 1 cot).
+// Hoi so goc qua chinh cac getter da hook -> co bao bypass tren luong nay de chung tra %orig.
+static __thread BOOL sSCPGridBypass;
+
+static BOOL SCPIsHomeGrid(id cfg, BOOL landscape)
+{
+    sSCPGridBypass = YES;
+    NSUInteger c = 0, r = 0;
+    @try {
+        c = ((NSUInteger (*)(id, SEL))objc_msgSend)(cfg, NSSelectorFromString(landscape ? @"numberOfLandscapeColumns" : @"numberOfPortraitColumns"));
+        r = ((NSUInteger (*)(id, SEL))objc_msgSend)(cfg, NSSelectorFromString(landscape ? @"numberOfLandscapeRows" : @"numberOfPortraitRows"));
+    } @catch (NSException *e) {}
+    sSCPGridBypass = NO;
+    return c >= 2 && r >= 2;
+}
+
+static NSUInteger SCPGridValue(id cfg, NSUInteger orig, BOOL landscape, BOOL columns)
+{
+    if (sSCPGridBypass) return orig;
+    NSInteger want = 0;
+    @try { want = columns ? SCPHomeGridColumns() : SCPHomeGridRows(); } @catch (NSException *e) { want = 0; }
+    if (want <= 0 || (NSUInteger)want == orig || !SCPIsHomeGrid(cfg, landscape)) return orig;
+    static NSMutableSet *logged;
+    NSString *k = [NSString stringWithFormat:@"%@%@%lu>%ld", landscape ? @"L" : @"P", columns ? @"c" : @"r", (unsigned long)orig, (long)want];
+    if (!logged) logged = [NSMutableSet set];
+    if (![logged containsObject:k]) { [logged addObject:k]; SCPLog("HomeScreen: luoi %@ %@ %lu -> %ld", landscape ? @"ngang" : @"doc", columns ? @"cot" : @"hang", (unsigned long)orig, (long)want); }
+    return (NSUInteger)want;
+}
+
 %group APPICONS
 
 // Thu vien app cua DashBoard: giu nguyen, chi them app da chon vao (them tuong minh thi khong qua bo loc cua thu vien)
@@ -123,6 +152,35 @@ static void SCPIconsHookError(const char *where, NSException *e)
     return info;
 }
 
+- (NSUInteger)numberOfPortraitColumns { return SCPGridValue(self, %orig, NO, YES); }
+- (NSUInteger)numberOfPortraitRows { return SCPGridValue(self, %orig, NO, NO); }
+- (NSUInteger)numberOfLandscapeColumns { return SCPGridValue(self, %orig, YES, YES); }
+- (NSUInteger)numberOfLandscapeRows { return SCPGridValue(self, %orig, YES, NO); }
+
+%end
+
+// Ten app duoi icon (Man chinh CarPlay > Ten app): tat thi moi lan CarPlay dat nhan deu thanh an
+%hook SBIconView
+
+- (void)setLabelHidden:(BOOL)hidden
+{
+    BOOL show = YES;
+    @try { show = SCPHomeShowNames(); } @catch (NSException *e) { show = YES; }
+    %orig(hidden || !show);
+}
+
+%end
+
+// An app CarPlay khoi man chinh (App tren man xe > tab App CarPlay, HS_KEY_HIDDEN_APPS): SpringBoardHome chi dua vao luoi
+// icon nao isIconVisible:; app bi an van mo duoc (cuoc goi, chi duong, Siri). Xem SCPIconHiddenOnCar (SCPAppIcons.mm).
+%hook SBIconModel
+
+- (BOOL)isIconVisible:(id)icon
+{
+    @try { if (SCPIconHiddenOnCar(icon)) return NO; } @catch (NSException *e) { SCPIconsHookError("isIconVisible", e); }
+    return %orig;
+}
+
 %end
 
 %end // APPICONS
@@ -132,16 +190,20 @@ static void SCPIconsHookError(const char *where, NSException *e)
     if (![[[NSBundle mainBundle] bundleIdentifier] isEqualToString:@"com.apple.CarPlayApp"]) return;
     if (!OMCCrashGuard(SPL_FEATURE)) return;
     %init(APPICONS, DashBoard = OMCCarClass("DashBoard"), DBApplicationInfo = OMCCarClass("DBApplicationInfo"), DBDashboardHomeViewController = OMCCarClass("DBDashboardHomeViewController"), DBApplicationLaunchInfo = OMCCarClass("DBApplicationLaunchInfo"),
-          SBIconListGridLayoutConfiguration = objc_getClass("SBIconListGridLayoutConfiguration"));
+          SBIconListGridLayoutConfiguration = objc_getClass("SBIconListGridLayoutConfiguration"), SBIconModel = objc_getClass("SBIconModel"),
+          SBIconView = objc_getClass("SBIconView"));
     OMCCheckHooks(@"SplitScreen", @[@"DashBoard +_newApplicationLibrary", @"DBApplicationInfo -_loadFromProxy:",
         @"DBDashboardHomeViewController -initWithEnvironment:", @"DBDashboardHomeViewController -viewDidLayoutSubviews", @"DBApplicationLaunchInfo +launchInfoForApplication:",
-        @"DBApplicationLaunchInfo +launchInfoForApplication:withActivationSettings:", @"SBIconListGridLayoutConfiguration -iconImageInfo"]);
+        @"DBApplicationLaunchInfo +launchInfoForApplication:withActivationSettings:", @"SBIconListGridLayoutConfiguration -iconImageInfo",
+        @"SBIconModel -isIconVisible:", @"SBIconListGridLayoutConfiguration -numberOfLandscapeColumns",
+        @"SBIconListGridLayoutConfiguration -numberOfLandscapeRows", @"SBIconView -setLabelHidden:"]);
     if (!OMCCarClass("DashBoard")) SCPLog("AppIcons: khong co lop DashBoard, icon app iPhone khong chen duoc");
     if (!objc_getClass("SBIconListGridLayoutConfiguration")) SCPLog("HomeScreen: khong co SBIconListGridLayoutConfiguration, Co icon khong doi duoc tren iOS nay");
     // Settings doi danh sach app (hoac bat / tat App Bridge) -> cap nhat thu vien, ve lai man chinh
     static int token;
     notify_register_dispatch("com.anlai.omnicar/prefschanged", &token, dispatch_get_main_queue(), ^(int t) {
         SCPRefreshAppIconsSoon();
+        SCPRefreshHiddenAppsSoon();
         @try { SCPHomeRefresh(); } @catch (NSException *e) { SCPIconsHookError("SCPHomeRefresh", e); }
     });
 }

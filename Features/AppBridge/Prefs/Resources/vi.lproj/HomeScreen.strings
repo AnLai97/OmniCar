@@ -24,4 +24,21 @@
 "APPS_VIDEO_FAILED" = "Không dùng được video này.";
 "APPS_WALL_FOOTER" = "Ảnh được cắt theo màn xe; tăng độ tối để icon dễ đọc. Video lặp lại không tiếng (20 giây đầu), tự dừng khi máy nóng, bật chế độ nhẹ, đang chia màn hoặc có app che màn chính.";
 "APPS_PHONE" = "App iPhone";
-"HOMESCREEN_ICON_SIZE_FOOTER" = "Cỡ icon trên màn chính gốc của CarPlay; 100 % là cỡ của CarPlay. Số cột / hàng vẫn do CarPlay xếp.";
+"HOMESCREEN_ICON_SIZE_FOOTER" = "Tự động = số cột / hàng của CarPlay. Cỡ icon 100 % là cỡ của CarPlay; nhiều cột / hàng hơn thì giảm cỡ icon cho tên không chồng nhau.";
+
+/* App tren man xe: tren xe + 2 tab */
+"APPS_ON_CAR" = "Đang hiện trên xe";
+"APPS_ALL" = "Chọn app";
+"APPS_TAB_CARPLAY" = "App CarPlay";
+"APPS_TAB_OMNICAR" = "App OmniCar";
+"APPS_ON_CAR_FOOTER" = "App có dấu iPhone là app OmniCar đưa lên xe.";
+"APPS_CARPLAY_FOOTER" = "Tắt một app CarPlay để ẩn icon của nó trên màn chính của xe. Chỉ ẩn icon: app vẫn tự mở khi có cuộc gọi, chỉ đường hoặc Siri.";
+"APPS_CARPLAY_LOCKED" = "CarPlay luôn hiện";
+"APPS_CARPLAY_GUESS_FOOTER" = "Chưa cắm xe lần nào: app CarPlay đang được đoán theo hỗ trợ CarPlay.";
+
+/* Man chinh CarPlay: luoi icon */
+"HOMESCREEN_GRID" = "Lưới icon";
+"HOMESCREEN_COLS" = "Số cột";
+"HOMESCREEN_ROWS" = "Số hàng";
+"HOMESCREEN_AUTO" = "Tự động";
+"HOMESCREEN_NAMES" = "Tên app";

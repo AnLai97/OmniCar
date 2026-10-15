@@ -24,4 +24,21 @@
 "APPS_VIDEO_FAILED" = "Impossible d'utiliser cette vidéo.";
 "APPS_WALL_FOOTER" = "Les images sont recadrées à l’écran de la voiture ; augmentez l’assombrissement pour garder les icônes lisibles. Une vidéo tourne en boucle sans son (20 premières secondes) et se met en pause quand l’iPhone chauffe, que le mode léger est actif, que l’écran est partagé ou qu’une app couvre l’écran d’accueil.";
 "APPS_PHONE" = "Apps iPhone";
-"HOMESCREEN_ICON_SIZE_FOOTER" = "Taille des icônes sur l’écran d’accueil de CarPlay ; 100 % est la taille de CarPlay. Les colonnes et lignes restent celles de CarPlay.";
+"HOMESCREEN_ICON_SIZE_FOOTER" = "Auto = colonnes et rangées de CarPlay. 100 % correspond à la taille des icônes CarPlay ; avec plus de colonnes ou de rangées, réduisez les icônes pour que les noms ne se chevauchent pas.";
+
+/* App tren man xe: tren xe + 2 tab */
+"APPS_ON_CAR" = "Dans la voiture";
+"APPS_ALL" = "Choisir les apps";
+"APPS_TAB_CARPLAY" = "Apps CarPlay";
+"APPS_TAB_OMNICAR" = "Apps OmniCar";
+"APPS_ON_CAR_FOOTER" = "Les apps avec le badge iPhone sont celles qu’OmniCar affiche dans la voiture.";
+"APPS_CARPLAY_FOOTER" = "Désactivez une app CarPlay pour masquer son icône sur l’écran d’accueil de la voiture. Seule l’icône disparaît : l’app s’ouvre toujours d’elle-même pour un appel, un itinéraire ou Siri.";
+"APPS_CARPLAY_LOCKED" = "Toujours dans CarPlay";
+"APPS_CARPLAY_GUESS_FOOTER" = "Pas encore connecté à une voiture : les apps CarPlay sont devinées d’après leur prise en charge de CarPlay.";
+
+/* Man chinh CarPlay: luoi icon */
+"HOMESCREEN_GRID" = "Grille d’icônes";
+"HOMESCREEN_COLS" = "Colonnes";
+"HOMESCREEN_ROWS" = "Rangées";
+"HOMESCREEN_AUTO" = "Auto";
+"HOMESCREEN_NAMES" = "Noms des apps";

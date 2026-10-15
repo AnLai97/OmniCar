@@ -1,5 +1,6 @@
 #import "SCPHomeScreen.h"
 #import "SCPCarSplit.h"
+#import "SCPAppIcons.h"
 #import <CoreImage/CoreImage.h>
 #import <AVFoundation/AVFoundation.h>
 
@@ -9,13 +10,16 @@
 //  co icon la hook SBIconListGridLayoutConfiguration -iconImageInfo (AppIcons.xm) nhan voi SCPHomeIconScale(); doi co thi
 //  bao cac *IconListView xep lai icon. Khong chon hinh nen va co 100 % = CarPlay nguyen ven.
 //  Lan dau ghi log cay view man chinh de chinh lai neu iOS khac sap xep khac.
-//  Da bo (10/2026): luoi icon rieng, an / sap xep app, dock, so cot / hang, ten, ngay / dem, goi icon, thu muc, widget.
+//  So cot / hang: hook numberOf*Columns / numberOf*Rows cua cung lop (0 = nhu CarPlay); ten app: -[SBIconView setLabelHidden:].
+//  Da bo (10/2026): luoi icon rieng, sap xep app, dock, ngay / dem, goi icon, thu muc, widget.
 // =====================================================================
 
 static NSDictionary *sHS;            // cai dat dang dung (doc lai khi prefschanged)
 static __weak UIViewController *sHomeVC;
 static BOOL sHomeVisible = YES;      // DBDashboardHomeViewController dang hien (khong bi app toan man che)
 static NSInteger sAppliedSize = 100; // co icon (%) lan xep gan nhat
+static NSString *sAppliedGrid = @"0x0"; // so cot x hang lan xep gan nhat (0 = Tu dong)
+static BOOL sAppliedNames = YES;     // ten app lan ap gan nhat
 
 static NSDictionary *SCPHLoad(void)
 {
@@ -29,6 +33,9 @@ static NSDictionary *SCPHLoad(void)
     return @{
         @"on": @(OMCEnabled()),
         @"size": @(num(HS_KEY_ICON_SIZE, 100, 60, 130)),
+        @"cols": @([HS_COLS_VALUES containsObject:@(num(HS_KEY_COLS, 0, 0, 8))] ? num(HS_KEY_COLS, 0, 0, 8) : 0),
+        @"rows": @([HS_ROWS_VALUES containsObject:@(num(HS_KEY_ROWS, 0, 0, 4))] ? num(HS_KEY_ROWS, 0, 0, 4) : 0),
+        @"names": @([OMCPref(HS_KEY_NAMES, @YES) boolValue]),
         @"style": @(style), @"blur": @(num(HS_KEY_BLUR, 0, 0, 30)), @"dim": @(num(HS_KEY_DIM, 25, 0, 70)),
     };
 }
@@ -45,6 +52,24 @@ CGFloat SCPHomeIconScale(void)
     NSDictionary *hs = SCPHSettings();
     if (![hs[@"on"] boolValue]) return 1;
     return [hs[@"size"] doubleValue] / 100.0;
+}
+
+NSInteger SCPHomeGridColumns(void)
+{
+    NSDictionary *hs = SCPHSettings();
+    return [hs[@"on"] boolValue] ? [hs[@"cols"] integerValue] : 0;
+}
+
+NSInteger SCPHomeGridRows(void)
+{
+    NSDictionary *hs = SCPHSettings();
+    return [hs[@"on"] boolValue] ? [hs[@"rows"] integerValue] : 0;
+}
+
+BOOL SCPHomeShowNames(void)
+{
+    NSDictionary *hs = SCPHSettings();
+    return ![hs[@"on"] boolValue] || [hs[@"names"] boolValue];
 }
 
 // ---------------------------------------------------------------------
@@ -229,6 +254,30 @@ static void SCPHRelayoutIcons(UIView *root, NSInteger size)
            lists.count ? NSStringFromClass([lists.firstObject class]) : @"khong thay *IconListView");
 }
 
+// Ten app: an / hien nhan cua moi *IconView trong cac luoi icon (icon tao sau di qua hook setLabelHidden:)
+static NSUInteger SCPHSetLabels(UIView *v, BOOL hidden, int depth)
+{
+    if (!v || depth > 8) return 0;
+    NSUInteger n = 0;
+    if ([NSStringFromClass([v class]) hasSuffix:@"IconView"] && [v respondsToSelector:NSSelectorFromString(@"setLabelHidden:")]) {
+        // da dung trang thai thi thoi (ham nay chay moi lan layout khi tat ten: khong gay layout lai)
+        if (![v respondsToSelector:NSSelectorFromString(@"isLabelHidden")] || objcInvokeT(v, @"isLabelHidden", BOOL) != hidden)
+            objcCall_1(v, @"setLabelHidden:", hidden);
+        return 1;
+    }
+    for (UIView *c in v.subviews) n += SCPHSetLabels(c, hidden, depth + 1);
+    return n;
+}
+
+static void SCPHApplyNames(UIView *root, BOOL show, BOOL log)
+{
+    NSMutableArray<UIView *> *lists = [NSMutableArray array];
+    SCPHCollectLists(root, lists, 0);
+    NSUInteger n = 0;
+    for (UIView *l in lists) n += SCPHSetLabels(l, !show, 0);
+    if (log) SCPLog("HomeScreen: ten app %@ (%lu icon)", show ? @"hien" : @"an", (unsigned long)n);
+}
+
 // Moi 30 s khi dang ve hinh nen dong: bat / dung video theo dieu kien (may nong, che do nhe)
 static void SCPHStartTicker(void)
 {
@@ -274,6 +323,18 @@ void SCPHomeApply(UIViewController *homeVC)
         SCPHLogTreeOnce(root);
         SCPHRelayoutIcons(root, size);
     }
+    // So cot / hang: hook doc SCPHomeGridColumns / Rows; doi thi mo hinh icon xep lai trang (so icon moi trang doi)
+    NSString *grid = [NSString stringWithFormat:@"%ldx%ld", (long)SCPHomeGridColumns(), (long)SCPHomeGridRows()];
+    if (![grid isEqualToString:sAppliedGrid]) {
+        sAppliedGrid = grid;
+        SCPHLogTreeOnce(root);
+        SCPHomeIconModelLayout([@"luoi " stringByAppendingString:grid]);
+        SCPHRelayoutIcons(root, size);
+    }
+    // Ten app: tat thi ap moi lan layout (icon moi tao co the chua qua setLabelHidden:); bat lai thi ap 1 lan
+    BOOL names = SCPHomeShowNames();
+    if (!names || names != sAppliedNames) SCPHApplyNames(root, names, names != sAppliedNames);
+    sAppliedNames = names;
 }
 
 void SCPHomeSetVisible(BOOL visible)

@@ -12,8 +12,9 @@
 "RESPRING" = "Respring";
 "RESPRING_CONFIRM" = "Respring sekarang?";
 
-"APPS_GROUP" = "App";
+"APPS_GROUP" = "Layar mobil";
 "APPS" = "App di Layar Mobil";
+"HOME_SCREEN" = "Layar utama CarPlay";
 
 "FEATURES_GROUP" = "Fitur";
 "FEATURES_FOOTER" = "Perubahan langsung diterapkan. Lakukan respring setelah menginstal atau memperbarui.";

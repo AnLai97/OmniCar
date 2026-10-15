@@ -24,4 +24,21 @@
 "APPS_VIDEO_FAILED" = "无法使用此视频。";
 "APPS_WALL_FOOTER" = "图片会按车机屏幕裁剪；调高变暗以保证图标清晰可读。视频无声循环播放（前 20 秒），并在手机发热、开启轻量模式、分屏或有 App 遮住主屏幕时暂停。";
 "APPS_PHONE" = "iPhone App";
-"HOMESCREEN_ICON_SIZE_FOOTER" = "CarPlay 主屏幕上的图标大小；100 % 为 CarPlay 原始大小。列数和行数仍由 CarPlay 排布。";
+"HOMESCREEN_ICON_SIZE_FOOTER" = "自动 = CarPlay 自己的列数和行数。100 % 为 CarPlay 的图标大小；列数或行数增加时请缩小图标，以免名称重叠。";
+
+/* App tren man xe: tren xe + 2 tab */
+"APPS_ON_CAR" = "车机上显示";
+"APPS_ALL" = "选择 App";
+"APPS_TAB_CARPLAY" = "CarPlay App";
+"APPS_TAB_OMNICAR" = "OmniCar App";
+"APPS_ON_CAR_FOOTER" = "带 iPhone 标记的 App 是 OmniCar 放到车机上的。";
+"APPS_CARPLAY_FOOTER" = "关闭某个 CarPlay App 即可在车机主屏幕上隐藏它的图标。只隐藏图标：来电、导航或 Siri 时 App 仍会自动打开。";
+"APPS_CARPLAY_LOCKED" = "始终显示在 CarPlay";
+"APPS_CARPLAY_GUESS_FOOTER" = "尚未连接车辆：CarPlay App 根据 CarPlay 支持情况推测。";
+
+/* Man chinh CarPlay: luoi icon */
+"HOMESCREEN_GRID" = "图标网格";
+"HOMESCREEN_COLS" = "列数";
+"HOMESCREEN_ROWS" = "行数";
+"HOMESCREEN_AUTO" = "自动";
+"HOMESCREEN_NAMES" = "App 名称";

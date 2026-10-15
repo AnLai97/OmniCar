@@ -7,7 +7,7 @@
      Groups with an "id" get their header / footer from code (style name, weather status, current sound...).
      "ssRandomStyle" rows are the Random style's checklist (toggleRandomStyle: flips them).
      "Add video" / "Choose logo" ask Photos or Files; "Choose sound" opens Files.
-     Order (tools/preview/feature-settings.html): on/off, the chosen style's rows, duration, startup sound + volume,
+     Order (tools/preview/index.html#settings): on/off, the chosen style's rows, duration, startup sound + volume,
      special days. -->
 <plist version="1.0">
 <dict>

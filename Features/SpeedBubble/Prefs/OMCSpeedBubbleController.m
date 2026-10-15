@@ -48,7 +48,7 @@ static UIImage *OMCSBSourceIcon(NSInteger i)
     return img;
 }
 
-// Nen ban do sang cho o xem truoc / o chon kieu (giong tools/preview/speedbubble.html)
+// Nen ban do sang cho o xem truoc / o chon kieu (giong tools/preview/index.html#bubble)
 static UIImage *OMCSBMapImage(CGSize size)
 {
     UIGraphicsImageRendererFormat *f = [UIGraphicsImageRendererFormat preferredFormat];

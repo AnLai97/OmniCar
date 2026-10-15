@@ -12,8 +12,9 @@
 "RESPRING" = "リスプリング";
 "RESPRING_CONFIRM" = "今すぐリスプリングしますか？";
 
-"APPS_GROUP" = "App";
+"APPS_GROUP" = "車の画面";
 "APPS" = "車の画面のApp";
+"HOME_SCREEN" = "CarPlayホーム画面";
 
 "FEATURES_GROUP" = "機能";
 "FEATURES_FOOTER" = "変更はすぐに反映されます。インストールやアップデートの後はリスプリングしてください。";

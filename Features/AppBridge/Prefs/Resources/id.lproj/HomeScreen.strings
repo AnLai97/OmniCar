@@ -24,4 +24,21 @@
 "APPS_VIDEO_FAILED" = "Video ini tidak bisa dipakai.";
 "APPS_WALL_FOOTER" = "Gambar dipotong sesuai layar mobil; naikkan tingkat gelap agar ikon tetap mudah dibaca. Video berulang tanpa suara (20 detik pertama) dan berhenti saat iPhone panas, mode ringan aktif, layar terbagi, atau ada app yang menutupi layar utama.";
 "APPS_PHONE" = "App iPhone";
-"HOMESCREEN_ICON_SIZE_FOOTER" = "Ukuran ikon di layar utama CarPlay; 100 % adalah ukuran asli CarPlay. Kolom dan baris tetap sesuai tata letak CarPlay.";
+"HOMESCREEN_ICON_SIZE_FOOTER" = "Otomatis = kolom dan baris CarPlay sendiri. 100 % adalah ukuran ikon CarPlay; dengan lebih banyak kolom atau baris, kecilkan ikon agar nama tidak bertumpuk.";
+
+/* App tren man xe: tren xe + 2 tab */
+"APPS_ON_CAR" = "Di mobil";
+"APPS_ALL" = "Pilih app";
+"APPS_TAB_CARPLAY" = "App CarPlay";
+"APPS_TAB_OMNICAR" = "App OmniCar";
+"APPS_ON_CAR_FOOTER" = "App dengan lencana iPhone adalah app yang dibawa OmniCar ke mobil.";
+"APPS_CARPLAY_FOOTER" = "Matikan app CarPlay untuk menyembunyikan ikonnya di layar utama mobil. Hanya ikonnya yang hilang: app tetap terbuka sendiri untuk panggilan, petunjuk arah, atau Siri.";
+"APPS_CARPLAY_LOCKED" = "Selalu di CarPlay";
+"APPS_CARPLAY_GUESS_FOOTER" = "Belum terhubung ke mobil: app CarPlay ditebak dari dukungan CarPlay.";
+
+/* Man chinh CarPlay: luoi icon */
+"HOMESCREEN_GRID" = "Grid ikon";
+"HOMESCREEN_COLS" = "Kolom";
+"HOMESCREEN_ROWS" = "Baris";
+"HOMESCREEN_AUTO" = "Otomatis";
+"HOMESCREEN_NAMES" = "Nama app";

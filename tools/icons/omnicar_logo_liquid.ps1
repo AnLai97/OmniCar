@@ -1,4 +1,4 @@
-# OmniCar logo, liquid glass version (phuong an D trong tools/preview/logo.html, giao dien chot 13/10/2026):
+# OmniCar logo, liquid glass version (phuong an D trong tools/preview/index.html#logo, giao dien chot 13/10/2026):
 # nen chat long pastel (oai huong, xanh troi, bac ha, dao) trong o squircle, vong tron + nut play CarPlay bang
 # kinh trang mo noi 3D (bong do mem, vet bong phia tren, toi dan o mep, vien sang). Cung hinh nhu logo cu
 # (vong ban kinh ngoai 360 day 120, nut play cao 610 bo 48, vien cat 700 / 60, khung 1024).

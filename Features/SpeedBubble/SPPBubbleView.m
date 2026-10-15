@@ -1,7 +1,7 @@
 // Bong bong toc do: ve 1 bong bong theo kieu (SPPStyle, SB_KEY_STYLE) - so toc do, don vi, bien gioi han, icon app nguon,
 // trang thai binh thuong / sap cham / vuot. Dung chung: tweak (SPPBubble.mm dat no trong the tren man xe / iPhone) va trang
 // Cai dat (Prefs/SPPBubbleViewPrefs.m: xem truoc song + dai chon kieu), nen Cai dat ve dung nhu tren xe.
-// Ban duyet: tools/preview/speedbubble.html. Chi UIKit / QuartzCore, khong doc prefs, khong ghi log truc tiep (log).
+// Ban duyet: tools/preview/index.html#bubble. Chi UIKit / QuartzCore, khong doc prefs, khong ghi log truc tiep (log).
 #import "SPPBubbleView.h"
 #import "SpeedBubble.h"
 #import <QuartzCore/QuartzCore.h>
@@ -266,7 +266,7 @@ typedef NS_ENUM(NSInteger, SPPIconShape) {
 }
 
 // =====================================================================
-//  Cac kieu bong bong (Settings > OmniCar > Speed Bubble > Style), ban duyet: tools/preview/speedbubble.html.
+//  Cac kieu bong bong (Settings > OmniCar > Speed Bubble > Style), ban duyet: tools/preview/index.html#bubble.
 //  Chung: kinh trang + 4 mau logo khi binh thuong, ho phach khi >= 90 % gioi han, do + nhip sang khi vuot.
 //    0 Giot kinh    : dia kinh tron, vien cau vong, bien nho chom goc tren phai, icon goc duoi trai
 //    1 Vien kinh    : vien thuoc ngang [icon / cham trang thai] [so / km/h] | [bien]
