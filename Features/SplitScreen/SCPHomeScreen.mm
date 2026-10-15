@@ -278,6 +278,105 @@ static void SCPHApplyNames(UIView *root, BOOL show, BOOL log)
     if (log) SCPLog("HomeScreen: ten app %@ (%lu icon)", show ? @"hien" : @"an", (unsigned long)n);
 }
 
+// ---------------------------------------------------------------------
+//  Danh sach app tren man chinh cho Cai dat (HS_KEY_CAR_APPS): lay tu mo hinh icon cua luoi (moi trang, thu tu cua xe),
+//  ten tu icon / thu vien app (app rieng cua CarPlay nhu Dang phat, Cai dat khong co trong LSApplicationProxy cua iPhone).
+//  Bo app iPhone OmniCar chen (App Bridge). App OmniCar dang an (HS_KEY_HIDDEN_APPS) giu cho cu tu danh sach truoc.
+// ---------------------------------------------------------------------
+static id SCPHTry(id obj, NSString *sel)
+{
+    if (!obj || ![obj respondsToSelector:NSSelectorFromString(sel)]) return nil;
+    @try { return ((id (*)(id, SEL))objc_msgSend)(obj, NSSelectorFromString(sel)); } @catch (NSException *e) { return nil; }
+}
+
+static NSString *SCPHIconBundle(id icon)
+{
+    for (NSString *k in @[@"applicationBundleID", @"leafIdentifier"]) {
+        id v = SCPHTry(icon, k);
+        if ([v isKindOfClass:[NSString class]] && [v length]) return v;
+    }
+    return nil;
+}
+
+static NSString *SCPHIconName(id icon, NSString *bid)
+{
+    id n = SCPHTry(icon, @"displayName");
+    if (![n isKindOfClass:[NSString class]] || ![n length]) {
+        id lib = SCPHTry([UIApplication sharedApplication], @"sharedApplicationLibrary");
+        id info = nil;
+        @try { if ([lib respondsToSelector:NSSelectorFromString(@"applicationInfoForBundleIdentifier:")])
+            info = ((id (*)(id, SEL, id))objc_msgSend)(lib, NSSelectorFromString(@"applicationInfoForBundleIdentifier:"), bid); } @catch (NSException *e) {}
+        n = SCPHTry(info, @"displayName");
+    }
+    return [n isKindOfClass:[NSString class]] && [n length] ? n : bid;
+}
+
+// Moi app tren man chinh theo thu tu: @[@{id, name}]; nil = chua doc duoc ca thu muc (chi 1 trang -> khong ghi)
+static NSArray<NSDictionary *> *SCPHHomeApps(UIView *root)
+{
+    NSMutableArray<UIView *> *lists = [NSMutableArray array];
+    SCPHCollectLists(root, lists, 0);
+    NSArray *best = nil;
+    for (UIView *l in lists) {
+        NSArray *pages = SCPHTry(SCPHTry(SCPHTry(l, @"model"), @"folder"), @"lists");
+        if ([pages isKindOfClass:[NSArray class]] && pages.count > best.count) best = pages;   // thu muc lon nhat = man chinh
+    }
+    if (!best.count) return nil;
+    NSMutableArray *out = [NSMutableArray array];
+    NSMutableSet *seen = [NSMutableSet set];
+    for (id page in best) {
+        NSArray *icons = SCPHTry(page, @"icons");
+        if (![icons isKindOfClass:[NSArray class]]) continue;
+        for (id icon in icons) {
+            NSString *bid = SCPHIconBundle(icon);
+            if (!bid || [seen containsObject:bid] || SCPIsInjectedPhoneApp(bid)) continue;
+            [seen addObject:bid];
+            [out addObject:@{@"id": bid, @"name": SCPHIconName(icon, bid)}];
+        }
+    }
+    return out;
+}
+
+static void SCPHPublishApps(UIView *root)
+{
+    NSArray *now = SCPHHomeApps(root);
+    if (!now.count) return;
+    OMCPrefsSync();
+    id oldV = OMCPref(HS_KEY_CAR_APPS, nil), hidV = OMCPref(HS_KEY_HIDDEN_APPS, nil);
+    NSArray *old = [oldV isKindOfClass:[NSArray class]] ? oldV : @[];
+    NSSet *hidden = [hidV isKindOfClass:[NSArray class]] ? [NSSet setWithArray:hidV] : [NSSet set];
+    NSMutableArray *list = [now mutableCopy];
+    NSMutableSet *ids = [NSMutableSet set];
+    for (NSDictionary *a in now) [ids addObject:a[@"id"]];
+    // app OmniCar dang an: khong con tren luoi nhung giu cho cu de Cai dat van bat lai duoc
+    for (NSUInteger i = 0; i < old.count; i++) {
+        NSDictionary *a = old[i];
+        if (![a isKindOfClass:[NSDictionary class]] || ![a[@"id"] isKindOfClass:[NSString class]]) continue;
+        if (![hidden containsObject:a[@"id"]] || [ids containsObject:a[@"id"]]) continue;
+        [list insertObject:a atIndex:MIN(i, list.count)];
+        [ids addObject:a[@"id"]];
+    }
+    if ([list isEqualToArray:old]) return;
+    CFPreferencesSetAppValue((__bridge CFStringRef)HS_KEY_CAR_APPS, (__bridge CFPropertyListRef)list, OMC_PREFS_DOMAIN);
+    CFPreferencesAppSynchronize(OMC_PREFS_DOMAIN);
+    NSMutableArray *names = [NSMutableArray array];
+    for (NSDictionary *a in list) [names addObject:a[@"id"]];
+    SCPLog("HomeScreen: %lu app tren man chinh cho Cai dat: %@", (unsigned long)list.count, [names componentsJoinedByString:@", "]);
+}
+
+// Moi lan man chinh layout: ghi danh sach 1 s sau lan cuoi (gom lai, man chinh layout nhieu lan lien tiep)
+static void SCPHPublishAppsSoon(void)
+{
+    static NSUInteger gen;
+    NSUInteger my = ++gen;
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        if (my != gen) return;
+        UIViewController *home = sHomeVC;
+        if (!home.isViewLoaded || !home.view.window) return;
+        @try { SCPHPublishApps(home.view); } @catch (NSException *e) { SCPLog("HomeScreen: ghi danh sach app loi %@", e); }
+    });
+}
+
 // Moi 30 s khi dang ve hinh nen dong: bat / dung video theo dieu kien (may nong, che do nhe)
 static void SCPHStartTicker(void)
 {
@@ -335,6 +434,7 @@ void SCPHomeApply(UIViewController *homeVC)
     BOOL names = SCPHomeShowNames();
     if (!names || names != sAppliedNames) SCPHApplyNames(root, names, names != sAppliedNames);
     sAppliedNames = names;
+    SCPHPublishAppsSoon();
 }
 
 void SCPHomeSetVisible(BOOL visible)

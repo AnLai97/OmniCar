@@ -130,7 +130,10 @@ Thử: chọn hình nền + kéo cỡ icon 130 %, cắm xe, Gửi log (dòng "Ho
   AppBridge.h: hàng có khóa thay công tắc, trên xe bỏ qua dù có trong danh sách ẩn).
   Trên xe: hook -[SBIconModel isIconVisible:] (AppIcons.xm, SCPIconHiddenOnCar trong SCPAppIcons.mm) trả NO cho app bị ẩn;
   đổi danh sách → -[iconModel layout] của DBDashboardHomeViewController, không có thì _handleAppLibraryRefresh. Xe chỉ ghi
-  app đang hiện (splitScreenCarPlayApps) nên Cài đặt tự thêm lại app đã ẩn vào tab để bật lại được. Chưa thử trên xe.
+  app đang hiện nên app đã ẩn giữ chỗ cũ trong danh sách để bật lại được. Danh sách tab App CarPlay = HS_KEY_CAR_APPS do xe
+  ghi từ mô hình icon của lưới màn chính (mọi trang, đúng thứ tự, có cả Đang phát / Cài đặt / app Xe, tên lấy từ xe; ghi lại
+  1 s sau mỗi lần màn chính xếp lại, log "HomeScreen: N app tren man chinh cho Cai dat"); không còn dùng splitScreenCarPlayApps
+  (chỉ app chia màn được, ghi 1 lần lúc cắm xe). Chưa cắm xe thì đoán theo entitlement CarPlay. Chưa thử trên xe.
   Thử: ẩn Podcasts → cắm xe: icon không còn, log "HomeScreen: an com.apple.podcasts"; bật lại khi đang cắm → log
   "danh sach an doi ... layout" và icon về. Không thấy dòng "an ..." = DashBoard không gọi isIconVisible: (cần cách khác,
   chạy CarProbe xem DBIconModel). Ẩn Điện thoại rồi gọi đến: màn cuộc gọi vẫn hiện.

@@ -108,6 +108,12 @@
 // apps tab; car side: -[SBIconModel isIconVisible:] in AppIcons.xm). Only the icon goes: the app still opens by itself
 // (a call, directions, Siri). A new key, not the dropped homeScreenHidden of the first builds.
 #define HS_KEY_HIDDEN_APPS   @"homeScreenHiddenApps"
+// [@{id, name}] the CarPlay apps on CarPlay's home screen, in the car's order, written by the CarPlay process
+// (SCPHomeScreen.mm) from the home grid's icon model each time the home screen lays out: includes CarPlay's own icons
+// (Now Playing, Settings, the car maker's app) that have no iPhone app proxy, hence the name. Apps OmniCar hides keep
+// their place (merged back from the previous list); apps removed in iOS Settings > CarPlay > Customize drop out.
+// splitScreenCarPlayApps (SPL_KEY_CARPLAY_APPS) is a different list: only apps Split Screen can put in a pane.
+#define HS_KEY_CAR_APPS      @"homeScreenCarApps"
 // Apps CarPlay itself never lets you hide (Settings > General > CarPlay > Customize): Phone, Music, Maps, Messages and
 // CarPlay's own Now Playing / car (OEM) / Settings icons. OmniCar keeps them too: no switch in Settings, never hidden on
 // the car even if HS_KEY_HIDDEN_APPS lists them.

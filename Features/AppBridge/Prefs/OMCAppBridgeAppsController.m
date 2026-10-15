@@ -59,12 +59,26 @@ static BOOL OMCABGetBool(id obj, NSString *sel)
 }
 
 // App co giao dien CarPlay rieng thi CarPlay tu hien, khong can App Bridge -> khong dua vao danh sach
+// Doc qua entitlements (dict), khong co thi hoi tung key qua entitlementValueForKey:ofClass: (Preferences thuong khong
+// duoc tra ca dict entitlements cua app khac)
 static BOOL OMCABHasCarPlayEntitlement(id proxy)
 {
     NSDictionary *ent = OMCABGet(proxy, @"entitlements");
-    if (![ent isKindOfClass:[NSDictionary class]]) return NO;
-    for (NSString *k in ent) {
-        if ([k hasPrefix:@"com.apple.developer.carplay"] || [k isEqualToString:@"com.apple.developer.playable-content"]) return YES;
+    if ([ent isKindOfClass:[NSDictionary class]] && ent.count) {
+        for (NSString *k in ent) {
+            if ([k hasPrefix:@"com.apple.developer.carplay"] || [k isEqualToString:@"com.apple.developer.playable-content"]) return YES;
+        }
+        return NO;
+    }
+    SEL one = NSSelectorFromString(@"entitlementValueForKey:ofClass:");
+    if (![proxy respondsToSelector:one]) return NO;
+    for (NSString *k in @[@"com.apple.developer.carplay-audio", @"com.apple.developer.carplay-communication", @"com.apple.developer.carplay-messaging",
+                          @"com.apple.developer.carplay-calling", @"com.apple.developer.carplay-maps", @"com.apple.developer.carplay-charging",
+                          @"com.apple.developer.carplay-parking", @"com.apple.developer.carplay-fueling", @"com.apple.developer.carplay-quick-ordering",
+                          @"com.apple.developer.carplay-driving-task", @"com.apple.developer.carplay-public-safety", @"com.apple.developer.playable-content"]) {
+        id v = nil;
+        @try { v = ((id (*)(id, SEL, id, Class))objc_msgSend)(proxy, one, k, [NSObject class]); } @catch (NSException *e) {}
+        if (v && ![v isEqual:@NO]) return YES;
     }
     return NO;
 }
@@ -154,8 +168,12 @@ static void OMCHSStore(NSString *key, id value)
     notify_post("com.anlai.omnicar/prefschanged");
 }
 
+static NSDictionary<NSString *, NSString *> *sOMCHSCarNames;   // ten do xe ghi (HS_KEY_CAR_APPS): app rieng cua CarPlay
+
 static NSString *OMCHSName(NSString *bid)
 {
+    NSString *car = sOMCHSCarNames[bid];
+    if (car.length && ![car isEqualToString:bid]) return car;
     Class lp = objc_getClass("LSApplicationProxy");
     SEL forId = NSSelectorFromString(@"applicationProxyForIdentifier:"), name = NSSelectorFromString(@"localizedName");
     id proxy = [lp respondsToSelector:forId] ? ((id (*)(id, SEL, id))objc_msgSend)(lp, forId, bid) : nil;
@@ -172,9 +190,33 @@ static UIImage *OMCHSIcon(NSString *bid, CGFloat side)
     UIImage *hit = [cache objectForKey:key];
     if (hit) return hit;
     UIImage *icon = nil;
-    if ([UIImage respondsToSelector:@selector(_applicationIconImageForBundleIdentifier:format:scale:)])
+    // App khong cai tren iPhone thi ham nay tra icon trang mac dinh chu khong phai nil -> chi hoi khi co app that
+    Class lp = objc_getClass("LSApplicationProxy");
+    SEL forId = NSSelectorFromString(@"applicationProxyForIdentifier:");
+    id proxy = [lp respondsToSelector:forId] ? ((id (*)(id, SEL, id))objc_msgSend)(lp, forId, bid) : nil;
+    id state = OMCABGet(proxy, @"appState");
+    BOOL installed = proxy && (!state || OMCABGetBool(state, @"isInstalled"));
+    if (installed && [UIImage respondsToSelector:@selector(_applicationIconImageForBundleIdentifier:format:scale:)])
         icon = [UIImage _applicationIconImageForBundleIdentifier:bid format:2 scale:[UIScreen mainScreen].scale];
-    if (!icon) return nil;
+    if (!icon) {   // app rieng cua CarPlay (Dang phat, Cai dat, app Xe) khong co icon tren iPhone: o bo tron + bieu tuong
+        NSString *sym = [bid rangeOfString:@"NowPlaying" options:NSCaseInsensitiveSearch].location != NSNotFound ? @"play.fill"
+                      : [bid rangeOfString:@"Settings"].location != NSNotFound ? @"gearshape.fill"
+                      : [bid hasPrefix:@"com.apple.CarPlay"] ? @"car.fill" : @"app.fill";
+        UIColor *top = [sym isEqualToString:@"play.fill"] ? OMCColorFromHex(@"#FF8A65") : [sym isEqualToString:@"car.fill"] ? OMCColorFromHex(@"#5AB8FF") : OMCColorFromHex(@"#9AA0A8");
+        UIColor *bottom = [sym isEqualToString:@"play.fill"] ? OMCColorFromHex(@"#FF3D71") : [sym isEqualToString:@"car.fill"] ? OMCColorFromHex(@"#2E7CF6") : OMCColorFromHex(@"#636A73");
+        UIImage *glyph = [[UIImage systemImageNamed:sym withConfiguration:[UIImageSymbolConfiguration configurationWithPointSize:side * 0.42 weight:UIImageSymbolWeightSemibold]]
+                          imageWithTintColor:[UIColor whiteColor] renderingMode:UIImageRenderingModeAlwaysOriginal];
+        UIImage *out = [[[UIGraphicsImageRenderer alloc] initWithSize:CGSizeMake(side, side)] imageWithActions:^(UIGraphicsImageRendererContext *ctx) {
+            [[UIBezierPath bezierPathWithRoundedRect:CGRectMake(0, 0, side, side) cornerRadius:side * 0.225] addClip];
+            CGColorSpaceRef cs = CGColorSpaceCreateDeviceRGB();
+            CGGradientRef g = CGGradientCreateWithColors(cs, (__bridge CFArrayRef)@[(id)top.CGColor, (id)bottom.CGColor], (CGFloat[]){0, 1});
+            CGContextDrawLinearGradient(ctx.CGContext, g, CGPointZero, CGPointMake(0, side), 0);
+            CGGradientRelease(g); CGColorSpaceRelease(cs);
+            [glyph drawInRect:CGRectMake((side - glyph.size.width) / 2, (side - glyph.size.height) / 2, glyph.size.width, glyph.size.height)];
+        }];
+        [cache setObject:out forKey:key];
+        return out;
+    }
     UIGraphicsImageRenderer *r = [[UIGraphicsImageRenderer alloc] initWithSize:CGSizeMake(side, side)];
     UIImage *out = [r imageWithActions:^(UIGraphicsImageRendererContext *ctx) {
         [[UIBezierPath bezierPathWithRoundedRect:CGRectMake(0, 0, side, side) cornerRadius:side * 0.225] addClip];
@@ -434,7 +476,17 @@ static NSArray *OMCABArray(NSString *key)
 {
     CFPreferencesAppSynchronize(kPrefsDomain);
     if (!_phoneApps) _phoneApps = OMCABHostableApps();
-    _carplayApps = OMCABArray(OMCAB_KEY_CARPLAY_APPS);
+    // Uu tien danh sach man chinh xe ghi (HS_KEY_CAR_APPS: dung thu tu, co app rieng cua CarPlay + ten); ban cu chua co
+    // thi danh sach Chia man hinh (chi app chia man duoc); chua cam xe lan nao thi doan (OMCABGuessCarPlayApps)
+    NSMutableArray *ids = [NSMutableArray array];
+    NSMutableDictionary *names = [NSMutableDictionary dictionary];
+    for (NSDictionary *a in OMCABArray(HS_KEY_CAR_APPS)) {
+        if (![a isKindOfClass:[NSDictionary class]] || ![a[@"id"] isKindOfClass:[NSString class]]) continue;
+        [ids addObject:a[@"id"]];
+        if ([a[@"name"] isKindOfClass:[NSString class]]) names[a[@"id"]] = a[@"name"];
+    }
+    sOMCHSCarNames = names;
+    _carplayApps = ids.count ? ids : OMCABArray(OMCAB_KEY_CARPLAY_APPS);
     if (!_carplayApps.count && !_guessApps) _guessApps = OMCABGuessCarPlayApps();
     _chosen = [NSMutableSet setWithArray:OMCABChosenApps()];
     _hidden = [NSMutableSet set];
