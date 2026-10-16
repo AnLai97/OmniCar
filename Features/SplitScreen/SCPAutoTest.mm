@@ -14,6 +14,7 @@
 - (void)setFractions:(NSMutableArray *)fractions;
 - (id)floatPane;
 - (NSString *)soloHostedBundle;
+- (NSNumber *)zoomedSlot;
 - (UIView *)pickerSheet;
 - (UIView *)tray;
 - (UIView *)container;
@@ -209,6 +210,22 @@ static NSString *SCPATExpectSolo(NSString *bid)
     if ([SCPCarSplit shared].active) return SCPATWhy(@"split van bat");
     NSString *base = SCPATBaseBundle();
     return [base isEqualToString:bid] ? nil : SCPATWhy(SCPATF(@"toan man la %@, can %@", base, bid));
+}
+
+// Nut "1 man hinh" (full) khi dang chia: phong to tam o cua app, split van bat (bam lai -> ve chia man)
+static NSString *SCPATExpectZoomed(NSString *bid)
+{
+    SCPCarSplit *s = [SCPCarSplit shared];
+    if (!s.active) return SCPATWhy(@"split da tat (can giu split, chi phong to o)");
+    NSNumber *z = [s zoomedSlot];
+    if (!z) return SCPATWhy(@"khong co o nao phong to");
+    NSString *zb = SCPATPaneBundle(z.intValue);
+    if (![zb isEqualToString:bid]) return SCPATWhy(SCPATF(@"o phong to la %@, can %@", SCPATShort(zb), SCPATShort(bid)));
+    CGSize area = [s container].bounds.size, got = ((UIView *)SCPATPane([s slots][z.intValue], @"view")).frame.size;
+    if (fabs(area.width - got.width) > 2 || fabs(area.height - got.height) > 2)
+        return SCPATWhy(SCPATF(@"o phong to %@, can phu ca vung app %@", NSStringFromCGSize(got), NSStringFromCGSize(area)));
+    if (![sBridgeStates[bid] isEqualToString:@"ready"]) return SCPATWhy(SCPATF(@"App Bridge %@ chua hien (state=%@)", bid, sBridgeStates[bid] ?: @"chua bao"));
+    return nil;
 }
 
 static NSString *SCPATExpectHostedSolo(NSString *bid)
@@ -458,11 +475,17 @@ static NSArray<NSDictionary *> *SCPATBridgeSteps(void)
             [steps addObject:OMCTestStep(SCPATF(@"Ve 2 o (%@ | %@)", SCPATShort(A), p), 2.5, 12, ^NSString *{ [s closeSlot:2 background:YES]; return nil; },
                 ^NSString *{ return SCPATExpectLayout(2, @[A, P]); })];
         }
-        [steps addObject:OMCTestStep(SCPATF(@"%@: nut toan man tren thanh nut", p), 3, 12, ^NSString *{
+        // Nut "1 man hinh / chia man hinh": khi dang chia chi phong to tam o (split giu nguyen), bam lai thi thu nho
+        NSArray *pair = B ? @[A, P] : @[P, A];
+        [steps addObject:OMCTestStep(SCPATF(@"%@: nut 1 man hinh tren thanh nut (phong to o)", p), 2, 10, ^NSString *{
             if (![s isCarPlayApp:P] || !s.active) return @"app khong o trong split";
             [s bridgeBarAction:@"full" forBundle:P]; return nil;
-        }, ^NSString *{ return SCPATExpectHostedSolo(P); })];
-        [steps addObject:OMCTestStep(SCPATF(@"Home tu %@ toan man", p), 1.5, 8, home, atHome)];
+        }, ^NSString *{ return SCPATExpectZoomed(P); })];
+        [steps addObject:OMCTestStep(SCPATF(@"%@: bam lai -> ve chia man", p), 2, 10, ^NSString *{
+            if (!s.active) return @"split chua bat";
+            [s bridgeBarAction:@"full" forBundle:P]; return nil;
+        }, ^NSString *{ return [s zoomedSlot] ? SCPATWhy(@"o van phong to") : SCPATExpectLayout(2, pair); })];
+        [steps addObject:OMCTestStep(SCPATF(@"Home tu %@ trong split", p), 1.5, 8, home, atHome)];
         [steps addObject:OMCTestStep(SCPATF(@"%@: nut dong tren thanh nut", p), 4, 16, ^NSString *{
             [sBridgeStates removeObjectForKey:P];
             [s openSetupLayout:2 apps:@[A, P]];

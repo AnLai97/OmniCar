@@ -48,6 +48,12 @@ static NSUInteger SCPGridValue(id cfg, NSUInteger orig, BOOL landscape, BOOL col
     return (NSUInteger)want;
 }
 
+// Mo hinh icon man chinh CarPlay: DBIconModel (DashBoard) truoc, roi SBHIconModel (iOS 14+) / SBIconModel (cu)
+static Class SCPIconModelClass(void)
+{
+    return OMCCarClass("DBIconModel") ?: objc_getClass("SBHIconModel") ?: objc_getClass("SBIconModel");
+}
+
 %group APPICONS
 
 // Thu vien app cua DashBoard: giu nguyen, chi them app da chon vao (them tuong minh thi khong qua bo loc cua thu vien)
@@ -192,6 +198,8 @@ static NSUInteger SCPGridValue(id cfg, NSUInteger orig, BOOL landscape, BOOL col
 
 // An app CarPlay khoi man chinh (App tren man xe > tab App CarPlay, HS_KEY_HIDDEN_APPS): SpringBoardHome chi dua vao luoi
 // icon nao isIconVisible:; app bi an van mo duoc (cuoc goi, chi duong, Siri). Xem SCPIconHiddenOnCar (SCPAppIcons.mm).
+// Lop that la mo hinh icon cua CarPlay: DBIconModel (iOS 16: DBIconModel < SBHIconModel, khong con SBIconModel) tu
+// override isIconVisible: -> hook thang DBIconModel, khong co thi lop cha cua SpringBoardHome (xem %ctor).
 %hook SBIconModel
 
 - (BOOL)isIconVisible:(id)icon
@@ -230,12 +238,12 @@ static NSUInteger SCPGridValue(id cfg, NSUInteger orig, BOOL landscape, BOOL col
     if (![[[NSBundle mainBundle] bundleIdentifier] isEqualToString:@"com.apple.CarPlayApp"]) return;
     if (!OMCCrashGuard(SPL_FEATURE)) return;
     %init(APPICONS, DashBoard = OMCCarClass("DashBoard"), DBApplicationInfo = OMCCarClass("DBApplicationInfo"), DBDashboardHomeViewController = OMCCarClass("DBDashboardHomeViewController"), DBApplicationLaunchInfo = OMCCarClass("DBApplicationLaunchInfo"),
-          SBIconListGridLayoutConfiguration = objc_getClass("SBIconListGridLayoutConfiguration"), SBIconModel = objc_getClass("SBIconModel"),
+          SBIconListGridLayoutConfiguration = objc_getClass("SBIconListGridLayoutConfiguration"), SBIconModel = SCPIconModelClass(),
           SBIconView = objc_getClass("SBIconView"));
     OMCCheckHooks(@"SplitScreen", @[@"DashBoard +_newApplicationLibrary", @"DBApplicationInfo -_loadFromProxy:",
         @"DBDashboardHomeViewController -initWithEnvironment:", @"DBDashboardHomeViewController -viewDidLayoutSubviews", @"DBApplicationLaunchInfo +launchInfoForApplication:",
         @"DBApplicationLaunchInfo +launchInfoForApplication:withActivationSettings:", @"SBIconListGridLayoutConfiguration -iconImageInfo",
-        @"SBIconModel -isIconVisible:", @"SBIconListGridLayoutConfiguration -numberOfLandscapeColumns",
+        [NSString stringWithFormat:@"%s -isIconVisible:", class_getName(SCPIconModelClass())], @"SBIconListGridLayoutConfiguration -numberOfLandscapeColumns",
         @"SBIconListGridLayoutConfiguration -numberOfLandscapeRows", @"SBIconView -setLabelHidden:"]);
     // Ten app du phong: lop icon cua CarPlay (CARIconView iOS 13-15, DBIconView iOS 16) co +maxLabelSizeForIconImageSize:
     Class iconView = objc_getClass("CARIconView") ?: OMCCarClass("DBIconView");

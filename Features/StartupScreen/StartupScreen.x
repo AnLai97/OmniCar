@@ -500,7 +500,11 @@ static void SSWeatherFetch(void (^done)(NSDictionary *weather)) {
 @property (nonatomic, assign) CFTimeInterval startTime;
 @property (nonatomic, strong) CADisplayLink *displayLink;
 @property (nonatomic, assign) BOOL finished;
+@property (nonatomic, copy) NSString *endReason;             // why it ended (log + auto test): tap, timer, ...
+@property (nonatomic, assign) CFTimeInterval shownAt;        // window put on screen (CACurrentMediaTime)
 @end
+
+static NSString *gSSLastEnd;   // the last splash's end, "<reason> after <s>s" (auto test reports it when a splash ends too early)
 
 @implementation SSSplash
 
@@ -573,7 +577,7 @@ static void SSWeatherFetch(void (^done)(NSDictionary *weather)) {
 		_window.rootViewController = vc;
 
 		if (tapSkip) {
-			UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(dismiss)];
+			UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapped:)];
 			[root addGestureRecognizer:tap];
 		}
 	}
@@ -581,6 +585,7 @@ static void SSWeatherFetch(void (^done)(NSDictionary *weather)) {
 }
 
 - (void)start {
+	self.shownAt = CACurrentMediaTime();
 	self.window.hidden = NO;
 	SSLog(@"splash window shown: style=%ld frame=%@ level=%.0f scene=%@ frames=%lu fps=%.0f loop=%d", (long)self.style,
 		NSStringFromCGRect(self.window.frame), self.window.windowLevel,
@@ -596,7 +601,7 @@ static void SSWeatherFetch(void (^done)(NSDictionary *weather)) {
 	dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
 		if (weakSelf && !weakSelf.shownFrames) {
 			SSLog(@"no frame shown after 10s (failed=%lu), giving up", (unsigned long)weakSelf.failedFrames);
-			[weakSelf dismiss];
+			[weakSelf dismissBecause:@"no frame after 10s"];
 		}
 	});
 }
@@ -673,7 +678,7 @@ static void SSWeatherFetch(void (^done)(NSDictionary *weather)) {
 		[self.displayLink invalidate];
 		__weak __typeof(self) weakSelf = self;
 		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(NSEC_PER_SEC / self.fps)), dispatch_get_main_queue(), ^{
-			[weakSelf dismiss];
+			[weakSelf dismissBecause:@"video ended"];
 		});
 		return;
 	}
@@ -691,14 +696,25 @@ static void SSWeatherFetch(void (^done)(NSDictionary *weather)) {
 
 	__weak __typeof(self) weakSelf = self;
 	dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(limit * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-		[weakSelf dismiss];
+		[weakSelf dismissBecause:[NSString stringWithFormat:@"%.0fs timer", limit]];
 	});
 }
 
+// Tap to skip. A knob / button press also fires a tap recognizer (no touches), so the log says which one it was.
+- (void)tapped:(UITapGestureRecognizer *)tap {
+	[self dismissBecause:tap.numberOfTouches ? @"tap" : @"press (knob / button)"];
+}
+
 - (void)dismiss {
+	[self dismissBecause:@"skip"];
+}
+
+- (void)dismissBecause:(NSString *)reason {
 	if (self.finished) return;
 	self.finished = YES;
-	SSLog(@"dismissing after %lu frames", (unsigned long)self.shownFrames);
+	self.endReason = reason;
+	gSSLastEnd = [NSString stringWithFormat:@"%@ after %.1fs", reason, CACurrentMediaTime() - self.shownAt];
+	SSLog(@"dismissing after %lu frames: %@", (unsigned long)self.shownFrames, gSSLastEnd);
 	SSPostNotification(SS_NOTIFY_AUDIO_STOP);
 
 	[UIView animateWithDuration:kFadeDuration animations:^{
@@ -711,14 +727,21 @@ static void SSWeatherFetch(void (^done)(NSDictionary *weather)) {
 - (void)tearDown {
 	// Skipped by dismiss when CarPlay disconnects mid-splash.
 	if (!self.finished && self.shownFrames) SSPostNotification(SS_NOTIFY_AUDIO_STOP);
+	if (!self.finished) {
+		self.endReason = @"torn down";
+		gSSLastEnd = [NSString stringWithFormat:@"torn down after %.1fs", CACurrentMediaTime() - self.shownAt];
+	}
 	self.finished = YES;
 	[self.displayLink invalidate];
 	self.displayLink = nil;
 	[self.buffer removeAllObjects];
 	self.window.hidden = YES;
 	self.window = nil;
+	// Only our own slot: an older splash fading out (or its late timer) must not unhook a newer one on the same screen
+	// (a replay, or the next connection), which would free it and blank the car screen mid-play.
 	UIScreen *screen = self.screen;
-	if (screen) objc_setAssociatedObject(screen, &kSplashKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+	if (screen && objc_getAssociatedObject(screen, &kSplashKey) == self)
+		objc_setAssociatedObject(screen, &kSplashKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
 @end
@@ -817,6 +840,7 @@ static NSString *SSTestReplay(void) {
 	UIScreen *screen = SSTestCarScreen(&scene);
 	if (!screen) return @"khong thay man xe";
 	[SSTestSplash() tearDown];
+	gSSLastEnd = nil;
 	objc_setAssociatedObject(screen, &kShownKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 	// Le / sinh nhat: bo qua man hinh dip dac biet de kiem dung kieu da chon (va khong tieu luot hien trong ngay)
 	gSSTestNoOccasion = YES;
@@ -832,7 +856,8 @@ static NSDictionary *SSTestFramesInfo(void) {
 
 static NSString *SSTestShowing(void) {
 	SSSplash *sp = SSTestSplash();
-	if (!sp || sp.finished) return @"khong co man hinh khoi dong dang phat";
+	if (!sp || sp.finished)
+		return OMCTestFormat(@"khong co man hinh khoi dong dang phat (da tat: %@)", gSSLastEnd ?: @"khong ro, chua goi dismiss");
 	if (!sp.window || sp.window.hidden || sp.window.alpha < 0.5) return @"cua so man hinh khoi dong dang an";
 	if (!sp.shownFrames) return OMCTestFormat(@"chua hien khung nao (giai ma loi %lu)", (unsigned long)sp.failedFrames);
 	return nil;

@@ -142,7 +142,9 @@ Thử: chọn hình nền + kéo cỡ icon 130 %, cắm xe, Gửi log (dòng "Ho
   /var/mobile/Documents/OmniCar-Probe.txt. Tìm ra chỗ lưu thì đọc / ghi thẳng: danh sách giống hệt iOS, kéo đổi thứ tự.
   Như CarPlay: Điện thoại, Nhạc, Bản đồ, Tin nhắn, Đang phát, Xe, Cài đặt không ẩn được (HSIsLockedCarPlayApp trong
   AppBridge.h: hàng có khóa thay công tắc, trên xe bỏ qua dù có trong danh sách ẩn).
-  Trên xe: hook -[SBIconModel isIconVisible:] (AppIcons.xm, SCPIconHiddenOnCar trong SCPAppIcons.mm) trả NO cho app bị ẩn;
+  Trên xe: hook -[DBIconModel isIconVisible:] (AppIcons.xm, SCPIconHiddenOnCar trong SCPAppIcons.mm) trả NO cho app bị ẩn
+  (iOS 16: DBIconModel < SBHIconModel, không còn SBIconModel; DBIconModel tự override isIconVisible: nên hook thẳng lớp đó,
+  không có thì SBHIconModel / SBIconModel; autotest 15/10 trên iOS 16.6 báo thiếu hook SBIconModel và iBooks vẫn hiện);
   đổi danh sách → -[iconModel layout] của DBDashboardHomeViewController, không có thì _handleAppLibraryRefresh. Xe chỉ ghi
   app đang hiện nên app đã ẩn giữ chỗ cũ trong danh sách để bật lại được. Danh sách tab App CarPlay = HS_KEY_CAR_APPS do xe
   ghi từ mô hình icon của lưới màn chính (mọi trang, đúng thứ tự, có cả Đang phát / Cài đặt / app Xe, tên lấy từ xe; ghi lại
