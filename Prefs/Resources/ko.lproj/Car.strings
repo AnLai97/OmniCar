@@ -86,3 +86,6 @@
 "The speed camera is smiling at you" = "과속 카메라가 당신을 보고 웃고 있어요";
 "What's the rush? Dinner at home is still hot" = "뭐가 그리 급해요? 집밥은 아직 따뜻해요";
 "Easy on the gas, speeding won't make you any better looking" = "액셀은 살살, 빨리 달린다고 더 멋있어지지 않아요";
+"Choose an app for the floating window" = "떠 있는 창에 표시할 앱 선택";
+"Choose an app for pane %d" = "%d번 영역에 표시할 앱 선택";
+"Tap an app to open it here" = "앱을 탭하면 여기에서 열립니다";

@@ -220,11 +220,16 @@ section > p { margin: -6px 0 0; color: var(--ink2); font-size: 13px; }
 .papp.sel::before { content: ""; position: absolute; width: 54px; height: 54px; border-radius: 16px; background: var(--aurora); box-shadow: var(--sel-fx); }
 .papp.sel em { box-shadow: 0 0 0 2.5px #fff; }   /* khe trang giua icon va vien cau vong */
 .papp.dim { opacity: .35; }
-.pinfo { width: 150px; display: flex; flex-direction: column; gap: 8px; }
+.pinfo { width: 150px; display: flex; flex-direction: column; gap: 8px; position: relative; padding-left: 12px; }
+/* vach doc mo 2 dau: tach luoi app (trai) voi cot bo cuc (phai) */
+.pinfo::before { content: ""; position: absolute; left: 0; top: 10px; bottom: 10px; width: 1px; background: linear-gradient(rgba(74,79,128,0), rgba(74,79,128,.32) 20%, rgba(74,79,128,.32) 80%, rgba(74,79,128,0)); }
 .pinfo .x { align-self: flex-end; width: 32px; height: 32px; border-radius: 16px; display: grid; place-items: center; color: var(--danger); background: var(--tile); box-shadow: var(--tile-fx); }
 .pinfo .x svg { width: 14px; height: 14px; }
-.pinfo .mapx { flex: 1; border-radius: 14px; display: flex; gap: 4px; padding: 6px; background: transparent; }
-.pinfo .mapx i { flex: 1; border-radius: 8px; background: var(--slot); box-shadow: var(--slot-fx); }
+.pinfo .mapx { align-self: center; width: 96px; height: 64px; margin-top: auto; border-radius: 12px; display: flex; gap: 4px; padding: 5px; background: rgba(255,255,255,.35); box-shadow: inset 0 0 0 1px rgba(255,255,255,.7); }   /* so do nho, khung kinh mo */
+.pinfo .mapx i { flex: 1; border-radius: 6px; background: var(--slot); box-shadow: var(--slot-fx); }
+.pinfo .cap { text-align: center; margin-bottom: auto; display: flex; flex-direction: column; gap: 2px; }
+.pinfo .cap b { font-size: 12.5px; font-weight: 600; color: var(--ink); }
+.pinfo .cap span { font-size: 10.5px; line-height: 1.3; color: var(--ink2); }
 .pinfo .mapx i.sel { background: var(--main); box-shadow: var(--main-fx); }
 .dots { display: flex; gap: 5px; justify-content: center; } .dots i { width: 6px; height: 6px; border-radius: 3px; background: rgba(74,79,128,.2); } .dots i.on { width: 16px; background: var(--main); }
 /* bong bong toc do */
@@ -390,12 +395,12 @@ section > p { margin: -6px 0 0; color: var(--ink2); font-size: 13px; }
 
 <section>
   <h2>4 · Màn xe: bảng chọn app</h2>
-  <p>Lưới app bên trái, cột thông tin bên phải (sơ đồ ô đang chọn cho ô nào, dấu X đỏ góc trên phải); app không có khung (icon trần như màn Home), app đang chọn = viền cầu vồng ôm quanh icon, ô đang chọn cho app tô gradient, app đã dùng mờ đi; nhiều app thì vuốt ngang, chấm trang HarmonyOS.</p>
+  <p>Lưới app bên trái, cột thông tin bên phải ngăn bằng vạch kẻ dọc mờ (sơ đồ bố cục nhỏ cho biết đang chọn cho ô nào, dòng mô tả ngắn bên dưới, dấu X đỏ góc trên phải); app không có khung (icon trần như màn Home), app đang chọn = viền cầu vồng ôm quanh icon, ô đang chọn cho app tô gradient, app đã dùng mờ đi; nhiều app thì vuốt ngang, chấm trang HarmonyOS.</p>
   <div class="car"><div class="carfit"><div class="cs" id="c2">
     <div class="dock"><div class="t">9:41</div><div class="d" style="background:#2fb24c"></div><div class="d" style="background:#ff375f"></div><div class="sp"></div><div class="split">${HM_SPLIT}</div><div class="g"><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
     <div class="area"><div class="liquid"><i></i><i></i><i></i><i></i></div>
       <div class="picker glass"><div class="pgrid" id="pgrid"></div>
-        <div class="pinfo"><span class="x">${XICON}</span><div class="mapx"><i></i><i class="sel"></i></div><div class="dots"><i class="on"></i><i></i></div></div></div>
+        <div class="pinfo"><span class="x">${XICON}</span><div class="mapx"><i></i><i class="sel"></i></div><div class="cap"><b>Chọn app cho ô 2</b><span>Chạm 1 app để mở vào ô này</span></div><div class="dots"><i class="on"></i><i></i></div></div></div>
     </div>
   </div></div></div>
 </section>

@@ -3978,13 +3978,24 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
     // cham khi xe chay (o 78 x 68pt, icon 36pt); het cho thi chia trang vuot ngang co cham trang
     CGFloat cellW = 62, cellH = 56, icon = 38, gridPad = 10, sideW = 150, pad = 14;   // chi icon, khong ten (nguoi dung)
     CGSize cs = self.container.bounds.size;
-    CGFloat mapW = sideW - pad * 2, mapH = (cs.width > 1) ? MIN(84, mapW * cs.height / cs.width) : 60;
+    // So do bo cuc nho (toi da 96 x 56) trong khung kinh mo, duoi la 2 dong mo ta ngan (preview: tools/preview muc 4)
+    CGFloat mapW = 96, mapH = (cs.width > 1) ? MIN(56, mapW * cs.height / cs.width) : 40, plateIn = 5;
+    NSString *capTitle = (target == self.floatPane) ? SCPCT(@"Chọn app cho cửa sổ nổi", @"Choose an app for the floating window")
+                                                    : [NSString stringWithFormat:SCPCT(@"Chọn app cho ô %d", @"Choose an app for pane %d"), target.slot + 1];
+    NSString *capSub = SCPCT(@"Chạm 1 app để mở vào ô này", @"Tap an app to open it here");
+    CGFloat capW = sideW - 16;
+    UIFont *capTitleFont = [UIFont systemFontOfSize:12.5 weight:UIFontWeightSemibold], *capSubFont = [UIFont systemFontOfSize:10.5];
+    CGFloat capTitleH = ceil([capTitle boundingRectWithSize:CGSizeMake(capW, 40) options:NSStringDrawingUsesLineFragmentOrigin
+                                                 attributes:@{NSFontAttributeName: capTitleFont} context:nil].size.height);
+    CGFloat capSubH = ceil([capSub boundingRectWithSize:CGSizeMake(capW, 30) options:NSStringDrawingUsesLineFragmentOrigin
+                                             attributes:@{NSFontAttributeName: capSubFont} context:nil].size.height);
+    CGFloat groupH = mapH + plateIn * 2 + 8 + capTitleH + 2 + capSubH;   // khung so do + mo ta
     NSInteger cols = MAX(1, MIN((NSInteger)((area.size.width - 24 - sideW - gridPad * 2) / cellW), MAX((NSInteger)4, (NSInteger)apps.count)));
     NSInteger maxRows = MAX(1, (NSInteger)((area.size.height - 16 - 12 - 16) / cellH));
     NSInteger rows = MAX(1, MIN(maxRows, ((NSInteger)apps.count + cols - 1) / cols));
     NSInteger perPage = rows * cols, pages = MAX(1, ((NSInteger)apps.count + perPage - 1) / perPage);
     CGFloat gridW = cols * cellW + gridPad * 2, gridH = rows * cellH + 4, dotsH = pages > 1 ? 16 : 0;
-    CGFloat sideMinH = pad + 32 + 8 + mapH + pad;   // nut X, so do
+    CGFloat sideMinH = pad + 32 + 8 + groupH + pad;   // nut X, so do + mo ta
     CGFloat h = MIN(area.size.height - 16, MAX(sideMinH, 8 + gridH + dotsH + 6)), w = sideW + gridW;
     CGFloat gridX = 0, gridY = MAX(8, (h - gridH - dotsH) / 2);   // luoi app ben trai, cot thong tin ben phai
     CGRect pf = CGRectMake(CGRectGetMidX(area) - w / 2, CGRectGetMidY(area) - h / 2, w, h);
@@ -4007,8 +4018,33 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
     UIView *side = [[UIView alloc] initWithFrame:CGRectMake(gridW, 0, sideW, h)];   // cot phai: nen trong, cung mau bang
     side.backgroundColor = [UIColor clearColor];
     [sheet addSubview:side];
+    // Vach doc mo 2 dau tach luoi app (trai) voi cot bo cuc (phai)
+    CAGradientLayer *rule = [CAGradientLayer layer];
+    rule.frame = CGRectMake(0, 10, 1, h - 20);
+    id ink0 = (__bridge id)[SCPCInk() colorWithAlphaComponent:0].CGColor, ink1 = (__bridge id)[SCPCInk() colorWithAlphaComponent:0.32].CGColor;
+    rule.colors = @[ink0, ink1, ink1, ink0];
+    rule.locations = @[@0, @0.2, @0.8, @1];
+    [side.layer addSublayer:rule];
+    // Nhom so do + mo ta: giua khoang tu duoi nut X toi day cot
+    CGFloat top = pad + 32 + 8, groupY = top + MAX(0, (h - top - pad - groupH) / 2);
     UIView *map = [self pickerMapForPane:target height:mapH];
-    if (map) { map.frame = CGRectMake(pad, pad + 32 + 8, map.bounds.size.width, mapH); [side addSubview:map]; }
+    CGFloat plateW = (map ? map.bounds.size.width : mapW) + plateIn * 2;
+    UIView *plate = [[UIView alloc] initWithFrame:CGRectMake((sideW - plateW) / 2, groupY, plateW, mapH + plateIn * 2)];
+    plate.backgroundColor = [UIColor colorWithWhite:1 alpha:0.35];   // khung kinh mo quanh so do
+    plate.layer.cornerRadius = 12;
+    plate.layer.cornerCurve = kCACornerCurveContinuous;
+    plate.layer.borderWidth = 1;
+    plate.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.7].CGColor;
+    [side addSubview:plate];
+    if (map) { map.frame = CGRectMake(plateIn, plateIn, map.bounds.size.width, mapH); [plate addSubview:map]; }
+    UILabel *capT = [[UILabel alloc] initWithFrame:CGRectMake(8, CGRectGetMaxY(plate.frame) + 8, capW, capTitleH)];
+    capT.text = capTitle; capT.font = capTitleFont; capT.textColor = SCPCInk(); capT.numberOfLines = 2;
+    capT.textAlignment = NSTextAlignmentCenter;
+    [side addSubview:capT];
+    UILabel *capS = [[UILabel alloc] initWithFrame:CGRectMake(8, CGRectGetMaxY(capT.frame) + 2, capW, capSubH)];
+    capS.text = capSub; capS.font = capSubFont; capS.textColor = SCPCInk2(); capS.numberOfLines = 2;
+    capS.textAlignment = NSTextAlignmentCenter;
+    [side addSubview:capS];
 
     int waiting = 0;
     for (SCPCarPane *p in [self allPanes]) if (p.picker && p != target) waiting++;
