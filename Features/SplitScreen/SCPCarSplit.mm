@@ -1801,6 +1801,8 @@ static NSString *SCPCPinnedApp(void)
     for (int s = 0; s < [self paneCount]; s++) {
         NSString *bid = (s < (int)apps.count && [apps[s] isKindOfClass:[NSString class]]) ? apps[s] : nil;
         if (!bid) { [self showPickerForSlot:s]; continue; }
+        // App iPhone: SpringBoard host (App Bridge), khong qua workspace DashBoard -> mo ngay, khong chiem luot 1.2s
+        if (SCPCIsBridgedApp(bid)) { [self openApp:bid slot:s]; continue; }
         if (delay <= 0) { [self openApp:bid slot:s]; delay = 1.2; continue; }
         __weak SCPCarSplit *weakSelf = self;
         int slot = s;
