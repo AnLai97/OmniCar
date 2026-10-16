@@ -76,3 +76,13 @@
 "Your car is ready" = "차량이 준비되었습니다";
 "Your car is ready, %@" = "%@님, 차량이 준비되었습니다";
 "iPhone apps cannot float" = "iPhone 앱은 플로팅 창으로 띄울 수 없습니다";
+
+/* Speed Bubble: spoken over-speed warnings ({L} = the limit) */
+"You are over the speed limit" = "제한 속도를 초과했습니다";
+"Too fast, the limit is {L}" = "너무 빨라요, 제한 속도는 {L}입니다";
+"Please slow down" = "속도를 줄여 주세요";
+"Hey, this is a car, not a plane!" = "이봐요, 이건 차예요, 비행기가 아니라고요!";
+"Easy now, the road is long and the wallet is thin" = "진정하세요, 길은 멀고 지갑은 얇아요";
+"The speed camera is smiling at you" = "과속 카메라가 당신을 보고 웃고 있어요";
+"What's the rush? Dinner at home is still hot" = "뭐가 그리 급해요? 집밥은 아직 따뜻해요";
+"Easy on the gas, speeding won't make you any better looking" = "액셀은 살살, 빨리 달린다고 더 멋있어지지 않아요";

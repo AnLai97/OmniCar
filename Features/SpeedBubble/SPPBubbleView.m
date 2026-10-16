@@ -621,6 +621,42 @@ static void SPPGlow(UILabel *l, UIColor *color, CGFloat radius)
     return st == 2 ? SPPOverText() : st == 1 ? SPPNearText() : SPPMk();
 }
 
+// Mau nen tu chon (SB_KEY_COLOR, nhu .cbg trong tools/preview/index.html#bubble): nen kinh (Cap doi: dia toc do) to mau
+// chon luc binh thuong, sap cham / vuot van ho phach / do va chu trang; nen toi -> chu trang. Toi gian: chi doi mau so.
+// Dong ho taplo: mat dong ho to mau dac (tru Trang). Doi mau -> setColor: ve lai kieu nen chi can dat de, khong can tra lai.
+- (void)applyColor:(int)state
+{
+    NSInteger c = self.color;
+    if (c <= 0 || c >= SB_COLOR_COUNT) return;
+    static const uint32_t rgb[SB_COLOR_COUNT] = {0, 0xFFFFFF, 0x16182A, 0x7C5CF0, 0x2F8FE0, 0x16A87F, 0xE8558C};
+    static const CGFloat alpha[SB_COLOR_COUNT] = {0, 0.94, 0.88, 0.92, 0.92, 0.92, 0.92};
+    UIColor *solid = SPPRGB((rgb[c] >> 16) & 0xFF, (rgb[c] >> 8) & 0xFF, rgb[c] & 0xFF, 1);
+    UIColor *bg = [solid colorWithAlphaComponent:alpha[c]];
+    BOOL dark = c != 1;
+    switch (self.builtStyle) {
+    case SPPStyleMin:
+        if (state == 0) {
+            self.speedLabel.textColor = solid;
+            self.speedLabel.layer.shadowColor = (dark ? [UIColor whiteColor] : [UIColor blackColor]).CGColor;   // trang: vien den de doc tren ban do
+        } else self.speedLabel.layer.shadowColor = [UIColor whiteColor].CGColor;
+        return;
+    case SPPStyleDash:
+        if (dark) ((CAGradientLayer *)self.parts[@"face"]).colors = @[(id)solid.CGColor, (id)solid.CGColor];
+        return;
+    }
+    UIColor *fill = state == 2 ? SPPOver() : state == 1 ? SPPNear() : bg;
+    [self.glass setTop:fill bottom:fill];
+    self.parts[@"mesh"].hidden = YES;
+    if (state > 0 || dark) {
+        self.speedLabel.textColor = [UIColor whiteColor];
+        self.unitLabel.textColor = state > 0 ? [UIColor whiteColor] : [UIColor colorWithWhite:1 alpha:0.75];
+    } else {
+        self.speedLabel.textColor = SPPMk();
+        self.unitLabel.textColor = SPPMk2();
+    }
+    if (dark) for (NSString *k in @[@"bar", @"ticks"]) [self bit:k].backgroundColor = [UIColor colorWithWhite:1 alpha:0.28];
+}
+
 // So hien tren bong bong: app nguon luon gui km/h; mph thi doi + lam tron. So sanh gan / vuot gioi han van tren
 // km/h goc (self.speed / self.limit) nen khong lech do lam tron
 static int SPPShown(int kmh, BOOL mph)
@@ -915,6 +951,8 @@ static void SPPAnimateWidth(UIView *fill, CGFloat w, NSTimeInterval duration)
     }
     }
 
+    [self applyColor:state];
+
     // Vung nhay: quang tron quanh hinh chinh, hoac phu kin nen
     if (halo) {
         CGRect hr = CGRectInset(halo.frame, -6, -6);
@@ -943,5 +981,12 @@ static void SPPAnimateWidth(UIView *fill, CGFloat w, NSTimeInterval duration)
 }
 
 - (void)rebuild { self.builtStyle = -1; }
+
+- (void)setColor:(NSInteger)color
+{
+    if (color == _color) return;
+    _color = color;
+    [self rebuild];   // ve lai tu dau: tra mau goc cua kieu
+}
 
 @end

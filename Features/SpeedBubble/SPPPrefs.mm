@@ -42,6 +42,20 @@ static id value(NSString *key)
     return (i >= 0 && i <= 3) ? i : 3;
 }
 
+static NSInteger ranged(NSString *key, NSInteger def, NSInteger count)
+{
+    id v = value(key);
+    NSInteger i = [v respondsToSelector:@selector(integerValue)] ? [v integerValue] : def;
+    return (i >= 0 && i < count) ? i : def;
+}
+
++ (NSInteger)warnFx        { return ranged(SB_KEY_WARN_FX, 0, SB_WARN_FX_COUNT); }
++ (BOOL)warnVoice          { return ranged(SB_KEY_WARN_SOUND, 0, 2) == 1; }
++ (NSInteger)warnTone      { return ranged(SB_KEY_WARN_TONE, 0, SB_TONE_COUNT); }
++ (NSInteger)warnVoiceLine { return ranged(SB_KEY_WARN_VOICE, 0, SB_VOICE_CUSTOM + 1); }
++ (NSString *)warnVoiceText { id v = value(SB_KEY_WARN_VOICE_TEXT); return [v isKindOfClass:[NSString class]] ? v : @""; }
++ (NSInteger)color         { return ranged(SB_KEY_COLOR, 0, SB_COLOR_COUNT); }
+
 // Nguong -10..10 (mac dinh 5) so voi gioi han, theo don vi dang hien tren bong bong (am = bao tu truoc khi cham gioi han):
 // mph -> doi ra km/h de so voi toc do goc
 + (double)warnMarginKmh

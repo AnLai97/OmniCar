@@ -76,3 +76,13 @@
 "Your car is ready" = "سيارتك جاهزة";
 "Your car is ready, %@" = "سيارتك جاهزة، %@";
 "iPhone apps cannot float" = "لا يمكن جعل تطبيقات iPhone عائمة";
+
+/* Speed Bubble: spoken over-speed warnings ({L} = the limit) */
+"You are over the speed limit" = "أنت تتجاوز حد السرعة";
+"Too fast, the limit is {L}" = "سريع جدًا، الحد هو {L}";
+"Please slow down" = "يرجى تخفيف السرعة";
+"Hey, this is a car, not a plane!" = "مهلًا، هذه سيارة وليست طائرة!";
+"Easy now, the road is long and the wallet is thin" = "على مهلك، الطريق طويل والمحفظة خفيفة";
+"The speed camera is smiling at you" = "كاميرا السرعة تبتسم لك";
+"What's the rush? Dinner at home is still hot" = "ما العجلة؟ العشاء في البيت ما زال ساخنًا";
+"Easy on the gas, speeding won't make you any better looking" = "خفّف على دواسة الوقود، السرعة لن تجعلك أكثر وسامة";

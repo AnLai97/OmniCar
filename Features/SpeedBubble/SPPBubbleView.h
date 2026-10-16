@@ -6,6 +6,7 @@
 @property (nonatomic) int speed, limit;           // km/h, -1 = khong biet / khong co
 @property (nonatomic) BOOL showIcon, mph, usSign; // icon app nguon, don vi mph, bien kieu My
 @property (nonatomic, strong) UIImage *iconImage; // icon app nguon (nguoi goi lay)
+@property (nonatomic) NSInteger color;            // mau nen luc binh thuong (SB_KEY_COLOR), 0 = theo kieu
 @property (nonatomic, copy) void (^log)(NSString *line);
 @property (nonatomic, readonly) NSInteger builtStyle;      // kieu dang ve (-1 = chua ve)
 @property (nonatomic, readonly) CGRect outlineRect;        // hinh chinh (vien "giu de thoat" chay quanh)

@@ -76,3 +76,13 @@
 "Your car is ready" = "รถของคุณพร้อมแล้ว";
 "Your car is ready, %@" = "รถของคุณพร้อมแล้ว %@";
 "iPhone apps cannot float" = "แอป iPhone ไม่สามารถลอยได้";
+
+/* Speed Bubble: spoken over-speed warnings ({L} = the limit) */
+"You are over the speed limit" = "คุณขับเร็วเกินกำหนด";
+"Too fast, the limit is {L}" = "เร็วเกินไป จำกัดความเร็ว {L}";
+"Please slow down" = "กรุณาลดความเร็ว";
+"Hey, this is a car, not a plane!" = "เฮ้ นี่รถนะ ไม่ใช่เครื่องบิน!";
+"Easy now, the road is long and the wallet is thin" = "ใจเย็นๆ ทางยังอีกไกล แต่กระเป๋าตังค์บางแล้ว";
+"The speed camera is smiling at you" = "กล้องจับความเร็วกำลังยิ้มให้คุณ";
+"What's the rush? Dinner at home is still hot" = "จะรีบไปไหน ข้าวที่บ้านยังร้อนอยู่เลย";
+"Easy on the gas, speeding won't make you any better looking" = "เบาเท้าหน่อย ขับเร็วไม่ได้ทำให้หล่อขึ้นหรอก";

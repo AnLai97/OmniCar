@@ -445,6 +445,7 @@ static BOOL sSeenRunning[8];
     bv.style = [SPPPrefs style];
     bv.speed = self.speed; bv.limit = self.limit;
     bv.showIcon = [SPPPrefs showAppIcon]; bv.mph = [SPPPrefs useMph]; bv.usSign = [SPPPrefs usSign];
+    bv.color = [SPPPrefs color];
     if (bv.showIcon && self.iconApp != self.app) { bv.iconImage = SPPAppIcon(self.app); self.iconApp = self.app; }
     CGPoint c = self.card.center;
     CGSize size = [bv render];
@@ -453,6 +454,32 @@ static BOOL sSeenRunning[8];
     bv.frame = self.card.bounds;
     self.outlineRect = bv.outlineRect; self.outlineCorner = bv.outlineCorner;
     [self clampCard];
+}
+
+// Canh bao qua toc do kieu "Bong bong": bong bong phong to 1.12 + nghieng +-3 do theo nhip 0.7 s, quang do quanh hinh
+// (nhu .bshake trong tools/preview/index.html#bubble). Ap tren bubbleView (trong the) nen khong dung toi ti le / vi tri the.
+- (void)setWarnShake:(BOOL)on
+{
+    CALayer *l = self.bubbleView.layer;
+    if (!l || on == ([l animationForKey:@"sppShake"] != nil)) return;
+    if (!on) {
+        [l removeAnimationForKey:@"sppShake"];
+        l.shadowOpacity = 0;
+        return;
+    }
+    CAKeyframeAnimation *a = [CAKeyframeAnimation animationWithKeyPath:@"transform"];
+    CATransform3D big = CATransform3DMakeScale(1.12, 1.12, 1);
+    a.values = @[[NSValue valueWithCATransform3D:CATransform3DIdentity], [NSValue valueWithCATransform3D:CATransform3DRotate(big, -3 * M_PI / 180, 0, 0, 1)],
+                 [NSValue valueWithCATransform3D:CATransform3DIdentity], [NSValue valueWithCATransform3D:CATransform3DRotate(big, 3 * M_PI / 180, 0, 0, 1)],
+                 [NSValue valueWithCATransform3D:CATransform3DIdentity]];
+    a.keyTimes = @[@0, @0.25, @0.5, @0.75, @1];
+    a.duration = 0.7; a.repeatCount = HUGE_VALF;
+    a.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
+    [l addAnimation:a forKey:@"sppShake"];
+    if (!OMCLiteActive()) {
+        l.shadowColor = [UIColor colorWithRed:1 green:0.23 blue:0.19 alpha:1].CGColor;
+        l.shadowOffset = CGSizeZero; l.shadowRadius = 12; l.shadowOpacity = 0.85;
+    }
 }
 
 // Cai dat > Dat lai: ti le mac dinh, vi tri mac dinh tren ca iPhone lan xe

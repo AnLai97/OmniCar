@@ -115,3 +115,13 @@
 "Quit app" = "Quit app";
 "Split" = "Split";
 "iPhone apps cannot float" = "iPhone apps cannot float";
+
+/* Speed Bubble: spoken over-speed warnings ({L} = the limit) */
+"You are over the speed limit" = "You are over the speed limit";
+"Too fast, the limit is {L}" = "Too fast, the limit is {L}";
+"Please slow down" = "Please slow down";
+"Hey, this is a car, not a plane!" = "Hey, this is a car, not a plane!";
+"Easy now, the road is long and the wallet is thin" = "Easy now, the road is long and the wallet is thin";
+"The speed camera is smiling at you" = "The speed camera is smiling at you";
+"What's the rush? Dinner at home is still hot" = "What's the rush? Dinner at home is still hot";
+"Easy on the gas, speeding won't make you any better looking" = "Easy on the gas, speeding won't make you any better looking";

@@ -34,6 +34,22 @@
 // SB_KEY_WARN_MODE_V2 = YES.
 #define SB_KEY_WARN_MODE_V2  @"speedBubbleWarnModeV2"
 #define SB_KEY_WARN_OVER     @"speedBubbleWarnOver"      // nguong -10..10 so voi gioi han (am = bao truoc khi cham), mac dinh 5, theo don vi dang hien
+// Kieu canh bao (bit 1): 0 vien nhay, 1 phat sang diu, 2 nhay ca man, 3 bong bong phong to + rung (khong phu man)
+#define SB_KEY_WARN_FX       @"speedBubbleWarnFx"
+#define SB_WARN_FX_COUNT     4
+// Am thanh (bit 2): loai 0 am bao / 1 giong noi; am bao 0..SB_TONE_COUNT-1 (SPPSound.m); giong noi 0..SB_VOICE_COUNT-1
+// (cau co san, SPPSound.m) hoac SB_VOICE_CUSTOM = cau tu nhap (SB_KEY_WARN_VOICE_TEXT)
+#define SB_KEY_WARN_SOUND    @"speedBubbleWarnSound"
+#define SB_KEY_WARN_TONE     @"speedBubbleWarnTone"
+#define SB_KEY_WARN_VOICE    @"speedBubbleWarnVoice"
+#define SB_KEY_WARN_VOICE_TEXT @"speedBubbleWarnVoiceText"
+#define SB_TONE_COUNT        6
+#define SB_VOICE_COUNT       8
+#define SB_VOICE_CUSTOM      SB_VOICE_COUNT
+// Mau nen bong bong luc binh thuong (sap cham / vuot van ho phach / do): 0 mac dinh (theo kieu), 1 trang, 2 den, 3 tim,
+// 4 xanh duong, 5 bac ha, 6 hong
+#define SB_KEY_COLOR         @"speedBubbleColor"
+#define SB_COLOR_COUNT       7
 // Truoc day moi app 1 cong tac (bat ca hai duoc); chi con doc de chuyen sang SB_KEY_SOURCE khi chua co
 #define SB_KEY_APP_VIETMAP   @"speedBubbleAppVietmap"    // BOOL, default YES
 #define SB_KEY_APP_GOFA      @"speedBubbleAppGOFA"       // BOOL, default YES

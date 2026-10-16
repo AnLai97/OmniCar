@@ -75,3 +75,13 @@
 "Your car is ready" = "Ваш автомобиль готов";
 "Your car is ready, %@" = "Ваш автомобиль готов, %@";
 "iPhone apps cannot float" = "Приложения iPhone нельзя вынести в плавающее окно";
+
+/* Speed Bubble: spoken over-speed warnings ({L} = the limit) */
+"You are over the speed limit" = "Вы превышаете ограничение скорости";
+"Too fast, the limit is {L}" = "Слишком быстро, ограничение {L}";
+"Please slow down" = "Пожалуйста, снизьте скорость";
+"Hey, this is a car, not a plane!" = "Эй, это машина, а не самолёт!";
+"Easy now, the road is long and the wallet is thin" = "Спокойно, дорога длинная, а кошелёк тонкий";
+"The speed camera is smiling at you" = "Камера вам улыбается";
+"What's the rush? Dinner at home is still hot" = "Куда спешить? Ужин дома ещё горячий";
+"Easy on the gas, speeding won't make you any better looking" = "Полегче с газом, скорость не сделает вас красивее";

@@ -75,3 +75,13 @@
 "Your car is ready" = "La tua auto è pronta";
 "Your car is ready, %@" = "La tua auto è pronta, %@";
 "iPhone apps cannot float" = "Le app iPhone non possono fluttuare";
+
+/* Speed Bubble: spoken over-speed warnings ({L} = the limit) */
+"You are over the speed limit" = "Stai superando il limite di velocità";
+"Too fast, the limit is {L}" = "Troppo veloce, il limite è {L}";
+"Please slow down" = "Per favore, rallenta";
+"Hey, this is a car, not a plane!" = "Ehi, è un'auto, non un aereo!";
+"Easy now, the road is long and the wallet is thin" = "Calma, la strada è lunga e il portafoglio è sottile";
+"The speed camera is smiling at you" = "L'autovelox ti sta sorridendo";
+"What's the rush? Dinner at home is still hot" = "Che fretta c'è? La cena a casa è ancora calda";
+"Easy on the gas, speeding won't make you any better looking" = "Piano con l'acceleratore, correre non ti rende più bello";

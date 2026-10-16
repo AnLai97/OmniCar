@@ -14,6 +14,7 @@
 - (void)resetLayout;                                // Cai dat > Dat lai vi tri & kich thuoc
 - (void)runDemo;                                    // Cai dat > Xem thu: toc do gia 10 giay
 - (void)sourceStopped:(int)app;                     // nguon ngung han: bo so, an bong bong ngay
+- (void)setWarnShake:(BOOL)on;                      // canh bao kieu "Bong bong" (SPPWarn.mm): phong to + rung + quang do
 @end
 
 // Cua so tren man xe, dung chung voi canh bao qua toc do (SPPWarn.mm)

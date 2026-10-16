@@ -76,3 +76,13 @@
 "Your car is ready" = "Mobil Anda siap";
 "Your car is ready, %@" = "Mobil Anda siap, %@";
 "iPhone apps cannot float" = "App iPhone tidak bisa mengambang";
+
+/* Speed Bubble: spoken over-speed warnings ({L} = the limit) */
+"You are over the speed limit" = "Kamu melewati batas kecepatan";
+"Too fast, the limit is {L}" = "Terlalu cepat, batasnya {L}";
+"Please slow down" = "Mohon kurangi kecepatan";
+"Hey, this is a car, not a plane!" = "Hei, ini mobil, bukan pesawat!";
+"Easy now, the road is long and the wallet is thin" = "Santai, jalan masih panjang dan dompet makin tipis";
+"The speed camera is smiling at you" = "Kamera tilang sedang tersenyum padamu";
+"What's the rush? Dinner at home is still hot" = "Buru-buru amat? Makan malam di rumah masih hangat";
+"Easy on the gas, speeding won't make you any better looking" = "Pelan-pelan injak gasnya, ngebut tidak bikin kamu makin ganteng";

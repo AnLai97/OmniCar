@@ -1,10 +1,9 @@
 #import "SPPWarn.h"
 #import "SPPBubble.h"
 #import "SPPPrefs.h"
-#import <AudioToolbox/AudioToolbox.h>
+#import "SPPSound.h"
 
 #define SPP_WARN_REARM   5.0     // giay duoi nguong lien tuc -> lan vuot sau lai keu
-#define SPP_WARN_SOUND   1052    // SystemSoundID he thong: tieng bip ngan, nhe (SIMToolkitGeneralBeep)
 #define SPP_WARN_EDGE    36.0    // diem: be rong vung sang tinh tu mep man vao trong
 #define SPP_WARN_CORNER  18.0    // bo goc vien (gan bo goc man xe)
 #define SPP_WARN_LEVEL   65      // UIWindowLevelStatusBar + 65: duoi bong bong (+70), tren CarPlay
@@ -40,14 +39,43 @@ static UIImage *SPPWarnGlowImage(void)
     return img;
 }
 
+// Kieu "Phat sang": quang do diu toa tu mep vao, khong net (nhu inset 0 0 46px 12px rgba(255,59,48,.6) trong ban duyet)
+#define SPP_SOFT_EDGE    60.0
+static UIImage *SPPWarnSoftImage(void)
+{
+    static UIImage *img;
+    if (img) return img;
+    CGFloat e = SPP_SOFT_EDGE, side = e * 2 + 2;
+    UIGraphicsImageRenderer *r = [[UIGraphicsImageRenderer alloc] initWithSize:CGSizeMake(side, side)];
+    UIImage *raw = [r imageWithActions:^(UIGraphicsImageRendererContext *ctx) {
+        for (CGFloat i = 0; i < e; i += 1) {
+            CGFloat k = 1 - i / e;
+            UIBezierPath *p = [UIBezierPath bezierPathWithRoundedRect:CGRectInset(CGRectMake(0, 0, side, side), i + 0.5, i + 0.5)
+                                                         cornerRadius:MAX(2, SPP_WARN_CORNER + 12 - i * 0.5)];
+            p.lineWidth = 1.2;
+            [[UIColor colorWithRed:1 green:0.23 blue:0.19 alpha:0.6 * k * k] setStroke];
+            [p stroke];
+        }
+    }];
+    img = [raw resizableImageWithCapInsets:UIEdgeInsetsMake(e, e, e, e) resizingMode:UIImageResizingModeStretch];
+    return img;
+}
+
 @interface SPPOverspeed ()
 @property (nonatomic, strong) UIWindow *window;     // cua so tren man xe (nil = chua tao / xe ngat)
-@property (nonatomic, strong) UIImageView *glow;
+@property (nonatomic, strong) UIImageView *glow;   // Vien nhay / Phat sang (anh theo kieu)
+@property (nonatomic, strong) UIView *flash;       // Nhay man: lop do phu kin man
+@property (nonatomic) NSInteger shownFx;           // kieu dang hien tren cua so (-1 = khong)
 @property (nonatomic, copy) NSString *displayID;    // uniqueId cua man xe ung voi cua so
 @property (nonatomic) int speed, limit;
 @property (nonatomic) BOOL enabled;                 // bat bong bong (canh bao di kem tinh nang)
 @property (nonatomic) NSInteger mode;               // SB_KEY_WARN_MODE
 @property (nonatomic) double marginKmh;             // nguong da doi ra km/h
+@property (nonatomic) NSInteger fx;                 // SB_KEY_WARN_FX
+@property (nonatomic) BOOL voice;                   // am thanh: giong noi (khong thi am bao)
+@property (nonatomic) NSInteger tone, voiceLine;
+@property (nonatomic, copy) NSString *voiceText;
+@property (nonatomic) BOOL mph;                     // gioi han doc theo don vi dang hien
 @property (nonatomic) BOOL over;                    // dang vuot (dang hien vien)
 @property (nonatomic) BOOL armed;                   // lan vuot ke tiep duoc keu
 @property (nonatomic) CFAbsoluteTime belowSince;    // luc bat dau xuong duoi gioi han (0 = dang tren / khong biet)
@@ -60,7 +88,7 @@ static UIImage *SPPWarnGlowImage(void)
     static SPPOverspeed *s; static dispatch_once_t once;
     dispatch_once(&once, ^{
         s = [SPPOverspeed new];
-        s.speed = -1; s.limit = -1; s.armed = YES;
+        s.speed = -1; s.limit = -1; s.armed = YES; s.shownFx = -1;
         [s loadPrefs];
     });
     return s;
@@ -71,6 +99,12 @@ static UIImage *SPPWarnGlowImage(void)
     self.enabled = [SPPPrefs enabled];
     self.mode = [SPPPrefs warnMode];
     self.marginKmh = [SPPPrefs warnMarginKmh];
+    self.fx = [SPPPrefs warnFx];
+    self.voice = [SPPPrefs warnVoice];
+    self.tone = [SPPPrefs warnTone];
+    self.voiceLine = [SPPPrefs warnVoiceLine];
+    self.voiceText = [SPPPrefs warnVoiceText];
+    self.mph = [SPPPrefs useMph];
 }
 
 - (void)reloadPrefs
@@ -111,13 +145,21 @@ static UIImage *SPPWarnGlowImage(void)
     }
     self.over = over;
     if (over) {
-        if (self.armed && (self.mode == 2 || self.mode == 3)) {
-            AudioServicesPlaySystemSound(SPP_WARN_SOUND);
-            SPPLog("canh bao: phat tieng");
+        if (self.armed && (self.mode & 2)) {
+            if (self.voice) {
+                NSString *line = SPPVoiceLine(self.voiceLine, self.voiceText, self.mph ? (int)lround(limit / 1.609344) : limit);
+                SPPSpeak(line);
+                SPPLog("canh bao: noi \"%@\"", line);
+            } else {
+                SPPPlayTone(self.tone);
+                SPPLog("canh bao: phat am bao %ld", (long)self.tone);
+            }
         }
         self.armed = NO;   // ca che do im lang: tinh la 1 lan vuot
     }
-    [self showBorder:over && self.mode != 2];   // 2 = chi am thanh
+    BOOL visual = over && (self.mode & 1);   // bit 2 = chi am thanh
+    [[SPPBubble shared] setWarnShake:visual && self.fx == 3];
+    [self showFx:visual && self.fx != 3 ? self.fx : -1];
 }
 
 // ---------------------------------------------------------------------
@@ -143,8 +185,14 @@ static UIImage *SPPWarnGlowImage(void)
     glow.userInteractionEnabled = NO;
     glow.alpha = 0;
     [w addSubview:glow];
+    UIView *flash = [[UIView alloc] initWithFrame:w.bounds];
+    flash.backgroundColor = [UIColor colorWithRed:1 green:0.23 blue:0.19 alpha:0.32];
+    flash.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    flash.userInteractionEnabled = NO;
+    flash.alpha = 0;
+    [w addSubview:flash];
     w.hidden = YES;
-    self.window = w; self.glow = glow; self.displayID = uid;
+    self.window = w; self.glow = glow; self.flash = flash; self.displayID = uid; self.shownFx = -1;
     SPPLog("canh bao: cua so vien tren xe tao xong (%.0fx%.0f)", w.bounds.size.width, w.bounds.size.height);
     return YES;
 }
@@ -153,29 +201,38 @@ static UIImage *SPPWarnGlowImage(void)
 {
     if (!self.window) return;
     [self.glow.layer removeAllAnimations];
+    [self.flash.layer removeAllAnimations];
     self.window.hidden = YES;
-    self.window = nil; self.glow = nil; self.displayID = nil;
+    self.window = nil; self.glow = nil; self.flash = nil; self.displayID = nil; self.shownFx = -1;
 }
 
-- (void)showBorder:(BOOL)on
+// Kieu tren man xe (nhip nhu ban duyet): 0 vien nhay 0.7 s, 1 phat sang diu 1.6 s, 2 lop do nhay ca man 0.45 s; -1 = tat
+- (void)showFx:(NSInteger)fx
 {
-    if (on) {
+    if (fx >= 0) {
         if (![self ensureWindow]) return;
-        if (!self.window.hidden && [self.glow.layer animationForKey:@"sppWarnPulse"]) return;
+        if (fx == self.shownFx && !self.window.hidden) return;
+        [self.glow.layer removeAllAnimations]; [self.flash.layer removeAllAnimations];
         self.window.hidden = NO;
-        self.glow.alpha = 1;
+        UIView *v = fx == 2 ? self.flash : self.glow;
+        self.glow.alpha = fx == 2 ? 0 : 1;
+        self.flash.alpha = fx == 2 ? 1 : 0;
+        if (fx != 2) self.glow.image = fx == 1 ? SPPWarnSoftImage() : SPPWarnGlowImage();
         CABasicAnimation *pulse = [CABasicAnimation animationWithKeyPath:@"opacity"];
-        pulse.fromValue = @1.0; pulse.toValue = @0.3;
-        pulse.duration = 0.5; pulse.autoreverses = YES; pulse.repeatCount = HUGE_VALF;
+        pulse.fromValue = @1.0; pulse.toValue = fx == 2 ? @0.0 : @0.25;
+        pulse.duration = fx == 2 ? 0.45 : fx == 1 ? 1.6 : 0.7;
+        pulse.autoreverses = YES; pulse.repeatCount = HUGE_VALF;
         pulse.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
-        [self.glow.layer addAnimation:pulse forKey:@"sppWarnPulse"];
+        [v.layer addAnimation:pulse forKey:@"sppWarnPulse"];
+        self.shownFx = fx;
         return;
     }
+    self.shownFx = -1;
     if (!self.window || self.window.hidden) return;
-    UIWindow *win = self.window; UIImageView *glow = self.glow;
-    [glow.layer removeAnimationForKey:@"sppWarnPulse"];
-    [UIView animateWithDuration:0.25 animations:^{ glow.alpha = 0; }
-                     completion:^(BOOL f) { if (glow.alpha < 0.01) win.hidden = YES; }];
+    UIWindow *win = self.window; UIView *glow = self.glow, *flash = self.flash;
+    [glow.layer removeAnimationForKey:@"sppWarnPulse"]; [flash.layer removeAnimationForKey:@"sppWarnPulse"];
+    [UIView animateWithDuration:0.25 animations:^{ glow.alpha = 0; flash.alpha = 0; }
+                     completion:^(BOOL f) { if (glow.alpha < 0.01 && flash.alpha < 0.01) win.hidden = YES; }];
 }
 
 @end

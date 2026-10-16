@@ -228,6 +228,11 @@ xem trước ngay trong Cài đặt. Âm thanh phát qua loa xe khi CarPlay kế
   từ trước khi chạm giới hạn), hai công tắc Cảnh báo (viền) và Âm thanh (tiếng), bật cái nào có cái đó
   (mặc định cả hai; lưu 2 bit trong SB_KEY_WARN_MODE, giá trị cũ 2 = viền + tiếng tự đổi thành 3, SB_KEY_WARN_MODE_V2) (Bong bóng tốc độ > Cảnh báo quá tốc độ).
   Trang cài đặt: nhóm Cỡ và vị trí nằm ngay dưới Kiểu; icon nguồn trong bong bóng là ô vuông bo góc (trước là tròn).
+  Theo đúng bản duyệt tools/preview/index.html#bubble: Cảnh báo có 4 kiểu (Viền nháy / Phát sáng / Nháy màn / Bong bóng phóng
+  to + rung, SB_KEY_WARN_FX); Âm thanh chọn Âm báo (6 tiếng tổng hợp như bản duyệt: Bíp, Bíp đôi, Bíp gấp, Chuông, Ping, Radar)
+  hoặc Giọng nói (3 câu nghiêm túc, 5 câu vui, câu tự nhập; đọc bằng AVSpeechSynthesizer theo ngôn ngữ OmniCar), chạm một mục để
+  nghe thử (SPPSound.m, dùng chung SpringBoard + Cài đặt). Nhóm Giao diện thêm Màu nền bong bóng (Mặc định + 6 màu, SB_KEY_COLOR,
+  sắp chạm / vượt vẫn hổ phách / đỏ); thứ tự nhóm: Giao diện, Cỡ và vị trí, Nguồn tốc độ, Cảnh báo, Hiển thị.
 - [ ] [ ] **2.4.2 Nguồn tốc độ toàn cầu** · Vừa
   Chỉ còn 3 nguồn (10/2026): Vietmap Live, GOFA, Waze. Đã bỏ GPS iPhone (SPPGPS.mm xoá), Google Maps, Apple Maps; nguồn cũ
   4 (Waze) tự đổi thành 2, các nguồn bỏ về Vietmap (SB_KEY_SOURCE_V2).
