@@ -471,9 +471,7 @@ static UIImage *SCPCGlyph(NSString *name, CGFloat pt, BOOL rot)
                 SCPC_M(14.5, 4); SCPC_L(16.5, 4); [p addArcWithCenter:CGPointMake(16.5, 7.5) radius:3.5 startAngle:-M_PI_2 endAngle:0 clockwise:YES]; SCPC_L(20, 9.5);
                 SCPC_M(20, 14.5); SCPC_L(20, 16.5); [p addArcWithCenter:CGPointMake(16.5, 16.5) radius:3.5 startAngle:0 endAngle:M_PI_2 clockwise:YES]; SCPC_L(14.5, 20);
                 SCPC_M(9.5, 20); SCPC_L(7.5, 20); [p addArcWithCenter:CGPointMake(7.5, 16.5) radius:3.5 startAngle:M_PI_2 endAngle:M_PI clockwise:YES]; SCPC_L(4, 14.5);
-            } else if ([name isEqualToString:@"hm_split"] || [name isEqualToString:@"hm_split_dock"]) {  // chia man hinh: 2 khung dung canh nhau
-                // Nut Split Screen tren dock (hm_split_dock): net 2.6 - net 1.5 chi con 1-2 px tren man xe, chim tren nen pastel
-                if ([name isEqualToString:@"hm_split_dock"]) p.lineWidth = 2.6;
+            } else if ([name isEqualToString:@"hm_split"]) {  // chia man hinh: 2 khung dung canh nhau
                 SCPC_RR(3.5, 4.5, 7.5, 15, 2.5); SCPC_RR(13, 4.5, 7.5, 15, 2.5);
             } else if ([name isEqualToString:@"hm_float"]) {  // anh trong anh: khung + o nho to dac goc duoi phai
                 SCPC_RR(3.5, 4.5, 17, 15, 3);
@@ -948,6 +946,7 @@ static BOOL SCPCIsBridgedApp(NSString *bid);
 @property (nonatomic) BOOL dockTreeLogged;             // da ghi cay view dai dock (1 lan / tien trinh)
 @property (nonatomic, copy) NSString *launcherWhere;  // vi tri nut Split Screen lan truoc (chi de ghi log khi doi)
 @property (nonatomic, strong) UIColor *homeInk;       // mau luoi app cua nut Home dock (nut Split Screen ve cung mau)
+@property (nonatomic) CGRect homeGlyph;               // khung luoi app cua nut Home (toa do tabParent), Null neu khong thay -> co hinh nut Split Screen
 @property (nonatomic) BOOL launcherBare;              // nut Split Screen dang la hinh tran (tren dock) hay nut tron kinh (goc vung app)
 @property (nonatomic) CFAbsoluteTime lastLauncherCalc;  // lan do dock gan nhat (do lai toi da 1 lan / giay)
 @property (nonatomic) CFAbsoluteTime lastIconScan;
@@ -5098,47 +5097,22 @@ static NSArray<NSDictionary *> *SCPCPhoneApps(void)
 #define SCPC_DOCK_MIN 22.0    // nut Split Screen tren dock nho nhat (khe tren nut Home hep)
 static char kSCPCLongPressKey;
 
-// Nut Split Screen tren dock CarPlay: chi la hinh 2 o canh nhau (chia doi man hinh), khong o nen, cung mau voi luoi
-// app cua nut Home ngay duoi (anh template, tintColor = mau nut Home). Khung 1024, le 60.
-static UIImage *SCPCSplitImage(CGFloat side)
+// Nut Split Screen: hinh 2 o dac canh nhau (cua so chia doi) lap day `size`, khong o nen, khong vien - cung kieu luoi
+// app cua nut Home ngay duoi (tools/preview/index.html .dock .split). Anh template: tintColor = mau luoi nut Home.
+// Khe giua 2 o ~11 % be ngang (nhu khe luoi Home 2/18), bo goc nho nhu o luoi Home.
+static UIImage *SCPCSplitImage(CGSize size)
 {
-    UIGraphicsImageRenderer *r = [[UIGraphicsImageRenderer alloc] initWithSize:CGSizeMake(side, side)];
-    UIImage *img = [r imageWithActions:^(UIGraphicsImageRendererContext *rc) {
-        // Nhu nut dock trong tools/preview/index.html#overview: 2 o 6 x 10 cach nhau 2 trong nut 26 (hinh 54% rong, 38% cao,
-        // khe 14%), de o cho nho (22..30 pt) van thay 2 o chu khong thanh 1 cham
-        CGContextScaleCTM(rc.CGContext, side / 1024.0, side / 1024.0);
-        UIBezierPath *panes = [UIBezierPath bezierPathWithRoundedRect:CGRectMake(236, 315, 236, 394) cornerRadius:78];
-        [panes appendPath:[UIBezierPath bezierPathWithRoundedRect:CGRectMake(552, 315, 236, 394) cornerRadius:78]];
+    size.width = MAX(6, round(size.width)); size.height = MAX(4, round(size.height));
+    CGFloat gap = MAX(1.5, round(size.width * 0.11)), w = (size.width - gap) / 2, r = MIN(2.5, MIN(w, size.height) * 0.18);
+    UIGraphicsImageRendererFormat *f = [UIGraphicsImageRendererFormat preferredFormat];
+    f.opaque = NO;
+    UIImage *img = [[[UIGraphicsImageRenderer alloc] initWithSize:size format:f] imageWithActions:^(UIGraphicsImageRendererContext *rc) {
+        UIBezierPath *panes = [UIBezierPath bezierPathWithRoundedRect:CGRectMake(0, 0, w, size.height) cornerRadius:r];
+        [panes appendPath:[UIBezierPath bezierPathWithRoundedRect:CGRectMake(w + gap, 0, w, size.height) cornerRadius:r]];
         [[UIColor whiteColor] setFill];
         [panes fill];
     }];
     return [img imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-}
-
-// Nut Split Screen tren dock ve thanh MOT anh (tools/preview/index.html#overview .dock .split): o nen logo 4 mau dac, vien trang
-// 1pt, glyph 2 khung mau cham net 2.6 o giua (66 % o). Mot anh duy nhat vi UIButton + mesh chen duoi tung lam glyph
-// khong hien tren xe (lop con cua UIButton de len / tint khong ap).
-static UIImage *SCPCDockTileImage(CGFloat side, CGFloat radius)
-{
-    UIGraphicsImageRendererFormat *f = [UIGraphicsImageRendererFormat preferredFormat];
-    f.opaque = NO;
-    UIImage *glyph = SCPCGlyph(@"hm_split_dock", round(side * 0.66), NO);
-    UIImage *mesh = OMCLogoMeshImage(YES);
-    return [[[UIGraphicsImageRenderer alloc] initWithSize:CGSizeMake(side, side) format:f] imageWithActions:^(UIGraphicsImageRendererContext *rc) {
-        CGRect box = CGRectMake(0, 0, side, side);
-        UIBezierPath *shape = [UIBezierPath bezierPathWithRoundedRect:box cornerRadius:radius];
-        CGContextSaveGState(rc.CGContext);
-        [shape addClip];
-        [mesh drawInRect:box];
-        CGContextRestoreGState(rc.CGContext);
-        [[UIColor colorWithWhite:1 alpha:0.85] setStroke];
-        UIBezierPath *rim = [UIBezierPath bezierPathWithRoundedRect:CGRectInset(box, 0.5, 0.5) cornerRadius:radius - 0.5];
-        rim.lineWidth = 1;
-        [rim stroke];
-        CGSize g = glyph.size;
-        [[glyph imageWithTintColor:SCPCInk() renderingMode:UIImageRenderingModeAlwaysOriginal]
-            drawInRect:CGRectMake((side - g.width) / 2, (side - g.height) / 2, g.width, g.height)];
-    }];
 }
 
 // Mau luoi app cua nut Home (o vuong nho co backgroundColor, hoac anh template co tint) de nut Split Screen cung mau
@@ -5239,6 +5213,7 @@ static void SCPCStatusBottom(UIView *v, UIView *parent, CGRect strip, int depth,
         UIView *homeView = nil;
         SCPCFindHomeButton(scan, parent, strip, 0, self.homeButton, &home, &homeView);
         self.homeInk = SCPCViewInk(homeView, 0) ?: self.homeInk;   // cung mau luoi app cua nut Home
+        self.homeGlyph = home;                                      // cung co luoi app cua nut Home
         CGFloat statusBottom = CGRectGetMinY(strip) + SCPC_DOCK_TOP;
         SCPCStatusBottom(scan, parent, strip, 0, &statusBottom);
         CGFloat clusterBottom = CGRectIsNull(cluster) ? statusBottom : CGRectGetMaxY(cluster);
@@ -5288,31 +5263,33 @@ static void SCPCStatusBottom(UIView *v, UIView *parent, CGRect strip, int depth,
     CGFloat size = SCPC_HOME_BTN, shift = 0;
     CGPoint c = [self launcherCenterInParent:parent size:&size shift:&shift];
     [self setDockShift:shift];
-    // Tren dock: o nen logo 4 mau (nhu cac bang tren xe), vien trang, glyph 2 o mau cham giong nut Chia man cua thanh •••
-    // (tools/preview/index.html#overview). Goc vung app (khong co dock doc): nut tron kinh trang cho noi tren app.
+    // Tren dock: chi 2 o dac canh nhau (cua so chia doi), cung co va cung mau voi luoi app cua nut Home ngay duoi, khong
+    // o nen / vien (tools/preview/index.html .dock .split). Goc vung app (khong co dock doc): nut tron kinh trang cho noi tren app.
     BOOL bare = ![self.launcherWhere hasPrefix:@"goc"];
-    if (!self.homeButton || fabs(self.homeButton.bounds.size.width - size) > 0.5 || self.launcherBare != bare) {
+    CGSize glyph = CGSizeMake(size * 0.6, size * 0.4);   // khong thay luoi nut Home: ti le 30 x 22 cua luoi Home CarPlay, 60 % nut
+    if (bare && !CGRectIsNull(self.homeGlyph) && self.homeGlyph.size.width >= 8 && self.homeGlyph.size.width <= size)
+        glyph = CGSizeMake(self.homeGlyph.size.width, MIN(self.homeGlyph.size.height, size - 2));
+    if (!bare) glyph = CGSizeMake(size * 0.5, size * 0.36);
+    glyph = CGSizeMake(round(glyph.width), round(glyph.height));
+    BOOL sameGlyph = self.homeButton && CGSizeEqualToSize([self.homeButton imageForState:UIControlStateNormal].size, glyph);
+    if (!self.homeButton || fabs(self.homeButton.bounds.size.width - size) > 0.5 || self.launcherBare != bare || !sameGlyph) {
         [self.homeButton removeFromSuperview];
         UIButton *b;
         if (bare) {
-            // Ca o (nen, vien, glyph) la mot anh goc -> khong qua tint / lop con cua UIButton
             b = [SCPCButton buttonWithType:UIButtonTypeCustom];
-            [b setImage:SCPCDockTileImage(size, size * 0.28) forState:UIControlStateNormal];
+            [b setImage:SCPCSplitImage(glyph) forState:UIControlStateNormal];
             [b addTarget:self action:@selector(homeButtonTapped) forControlEvents:UIControlEventTouchUpInside];
-            b.bounds = CGRectMake(0, 0, size, size);
-            b.layer.cornerRadius = size * 0.28;
-            b.layer.cornerCurve = kCACornerCurveContinuous;
-            b.layer.shadowColor = SCPCAccent().CGColor;   // quang tim nhat de noi tren dock den
-            b.layer.shadowOpacity = 0.35; b.layer.shadowRadius = 4; b.layer.shadowOffset = CGSizeMake(0, 1);
-            SCPLog("CarSplit: nut Split Screen tren dock %.0fpt (anh %@)", size, NSStringFromCGSize([b imageForState:UIControlStateNormal].size));
+            b.bounds = CGRectMake(0, 0, size, size);   // vung cham ca o `size`, hinh nho o giua
+            SCPLog("CarSplit: nut Split Screen tren dock %.0fpt, hinh %@ (luoi nut Home %@)", size, NSStringFromCGSize(glyph), NSStringFromCGRect(self.homeGlyph));
         } else {
-            b = SCPCCircleButton(SCPCSplitImage(size * 0.9), size, self, @selector(homeButtonTapped));
+            b = SCPCCircleButton(SCPCSplitImage(glyph), size, self, @selector(homeButtonTapped));
             b.bounds = CGRectMake(0, 0, size, size);
         }
         self.homeButton = b;
         self.launcherBare = bare;
     }
-    self.homeButton.tintColor = SCPCInk();
+    // Tren dock cung mau luoi app cua nut Home (xam sang tren dock den); chua do duoc thi xam sang nhu CarPlay
+    self.homeButton.tintColor = bare ? (self.homeInk ?: [UIColor colorWithWhite:0.79 alpha:1]) : SCPCInk();
     // Nut nam tren dai dock: gan vao chinh view ve dai dock (status bar CarPlay nam tren baseContainerView,
     // gan vao tabParent thi nut bi dai dock che mat). Ngoai dock (goc vung app) thi van gan vao tabParent.
     CGRect r = CGRectMake(c.x - size / 2, c.y - size / 2, size, size);

@@ -148,10 +148,8 @@ section > p { margin: -6px 0 0; color: var(--ink2); font-size: 13px; }
 .dock .t { font-size: 10px; font-weight: 700; }
 .dock .d { width: 30px; height: 30px; border-radius: 8px; }
 .dock .sp { flex: 1; }
-.dock .split { width: 30px; height: 30px; border-radius: 8px; display: grid; place-items: center; color: var(--mk);   /* nut Split Screen: o nen logo 4 mau nhu cac bang, cung co voi icon app tren dock */
-  background: radial-gradient(circle at 0 0, #C9BAFC, transparent 75%), radial-gradient(circle at 100% 0, #A6DDFD, transparent 75%), radial-gradient(circle at 0 100%, #FEC4D8, transparent 75%), radial-gradient(circle at 100% 100%, #A0F1D9, transparent 75%), #E2E4F6;
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,.85), 0 2px 8px rgba(130,115,240,.35); }
-.dock .split svg { width: 19px; height: 19px; }   /* cung glyph Chia man hinh (HM_SPLIT) cua thanh ••• */
+.dock .split { width: 18px; height: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 2px; }   /* nut Split Screen: 2 o dac canh nhau (cua so chia doi), cung co / mau xam / bo goc voi luoi app cua nut Home ngay duoi, khong o nen */
+.dock .split i { background: #c9cdd4; border-radius: 2px; }
 .dock .g { width: 18px; height: 12px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; } .dock .g i { background: #c9cdd4; border-radius: 1px; }
 .area { position: absolute; left: 45px; top: 0; right: 0; bottom: 0; }
 .pane { position: absolute; top: 0; bottom: 0; overflow: hidden; border-radius: 10px; }
@@ -329,9 +327,9 @@ section > p { margin: -6px 0 0; color: var(--ink2); font-size: 13px; }
 
 <section>
   <h2>3 · Màn xe: chia màn hình, khay bố cục, bong bóng tốc độ</h2>
-  <p>Bong bóng tốc độ: kính trắng, vòng gradient, biển giới hạn tốc độ đỏ. Khay bố cục kính trắng phía trên; mỗi bố cục có khung trắng mảnh, nền trong cùng màu bảng; bố cục đang dùng = viền cầu vồng, nền vẫn trong; dấu X đỏ trên ô kính. Nút Split Screen trên dock = ô nền logo 4 màu (như các bảng), viền trắng, icon 2 ô màu chàm giống nút Chia màn của thanh •••. Mỗi ô có tay cầm ••• ở giữa mép trên (xem 3b); thanh tỉ lệ cùng kiểu kính.</p>
+  <p>Bong bóng tốc độ: kính trắng, vòng gradient, biển giới hạn tốc độ đỏ. Khay bố cục kính trắng phía trên; mỗi bố cục có khung trắng mảnh, nền trong cùng màu bảng; bố cục đang dùng = viền cầu vồng, nền vẫn trong; dấu X đỏ trên ô kính. Nút Split Screen trên dock = 2 ô đặc cạnh nhau (cửa sổ chia đôi) cùng cỡ, cùng màu xám, cùng bo góc với lưới app của nút Home ngay dưới; không ô nền, không viền. Mỗi ô có tay cầm ••• ở giữa mép trên (xem 3b); thanh tỉ lệ cùng kiểu kính.</p>
   <div class="car"><div class="carfit"><div class="cs" id="c1">
-    <div class="dock"><div class="t">9:41</div><div class="d" style="background:#2fb24c"></div><div class="d" style="background:#ff375f"></div><div class="sp"></div><div class="split">${HM_SPLIT}</div><div class="g"><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
+    <div class="dock"><div class="t">9:41</div><div class="d" style="background:#2fb24c"></div><div class="d" style="background:#ff375f"></div><div class="sp"></div><div class="split"><i></i><i></i></div><div class="g"><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
     <div class="area">
       <div class="pane map" style="left:0;width:340px"></div>
       <div class="divider" style="left:340px"><i></i></div>
@@ -357,7 +355,7 @@ section > p { margin: -6px 0 0; color: var(--ink2); font-size: 13px; }
     <div style="width:100%;max-width:1120px">
       <div class="cap" style="text-align:left;margin-bottom:6px"><b>a ·</b> Chạm ••• của ô YouTube (đang chia 50/50)</div>
       <div class="car"><div class="carfit"><div class="cs">
-        <div class="dock"><div class="t">9:41</div><div class="d" style="background:#2fb24c"></div><div class="d" style="background:#ff375f"></div><div class="sp"></div><div class="split">${HM_SPLIT}</div><div class="g"><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
+        <div class="dock"><div class="t">9:41</div><div class="d" style="background:#2fb24c"></div><div class="d" style="background:#ff375f"></div><div class="sp"></div><div class="split"><i></i><i></i></div><div class="g"><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
         <div class="area">
           <div class="pane map" style="left:0;width:294px"></div>
           <div class="divider" style="left:294px"><i></i></div>
@@ -371,7 +369,7 @@ section > p { margin: -6px 0 0; color: var(--ink2); font-size: 13px; }
     <div style="width:100%;max-width:1120px">
       <div class="cap" style="text-align:left;margin-bottom:6px"><b>b ·</b> Sau <b>Chạy 1 màn hình</b>: YouTube chiếm cả màn (Bản đồ vẫn chạy phía sau); nút đổi thành <b>Chia màn hình</b> để chia lại đúng như trước</div>
       <div class="car"><div class="carfit"><div class="cs">
-        <div class="dock"><div class="t">9:41</div><div class="d" style="background:#2fb24c"></div><div class="d" style="background:#ff375f"></div><div class="sp"></div><div class="split">${HM_SPLIT}</div><div class="g"><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
+        <div class="dock"><div class="t">9:41</div><div class="d" style="background:#2fb24c"></div><div class="d" style="background:#ff375f"></div><div class="sp"></div><div class="split"><i></i><i></i></div><div class="g"><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
         <div class="area">
           <div class="pane yt" style="left:0;right:0"></div>
           <div class="handle glass open" style="left:277px"><i></i><i></i><i></i></div>
@@ -382,7 +380,7 @@ section > p { margin: -6px 0 0; color: var(--ink2); font-size: 13px; }
     <div style="width:100%;max-width:1120px">
       <div class="cap" style="text-align:left;margin-bottom:6px"><b>c ·</b> Sau <b>Ảnh trong ảnh</b> (YouTube thành cửa sổ nổi, kéo đi được) và <b>Chạy nền</b> (Spotify ẩn khỏi màn, vẫn phát; chạm thông báo để mở lại). <b>Tắt hẳn app</b>: đóng ô và thoát luôn app.</div>
       <div class="car"><div class="carfit"><div class="cs">
-        <div class="dock"><div class="t">9:41</div><div class="d" style="background:#2fb24c"></div><div class="d" style="background:#ff375f"></div><div class="sp"></div><div class="split">${HM_SPLIT}</div><div class="g"><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
+        <div class="dock"><div class="t">9:41</div><div class="d" style="background:#2fb24c"></div><div class="d" style="background:#ff375f"></div><div class="sp"></div><div class="split"><i></i><i></i></div><div class="g"><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
         <div class="area">
           <div class="pane map" style="left:0;right:0"></div>
           <div class="pip"><div class="pane yt" style="inset:0"></div><div class="handle glass" style="left:50%;margin-left:-20px;top:4px"><i></i><i></i><i></i></div></div>
@@ -397,7 +395,7 @@ section > p { margin: -6px 0 0; color: var(--ink2); font-size: 13px; }
   <h2>4 · Màn xe: bảng chọn app</h2>
   <p>Lưới app bên trái, cột thông tin bên phải ngăn bằng vạch kẻ dọc mờ (sơ đồ bố cục nhỏ cho biết đang chọn cho ô nào, dòng mô tả ngắn bên dưới, dấu X đỏ góc trên phải); app không có khung (icon trần như màn Home), app đang chọn = viền cầu vồng ôm quanh icon, ô đang chọn cho app tô gradient, app đã dùng mờ đi; nhiều app thì vuốt ngang, chấm trang HarmonyOS.</p>
   <div class="car"><div class="carfit"><div class="cs" id="c2">
-    <div class="dock"><div class="t">9:41</div><div class="d" style="background:#2fb24c"></div><div class="d" style="background:#ff375f"></div><div class="sp"></div><div class="split">${HM_SPLIT}</div><div class="g"><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
+    <div class="dock"><div class="t">9:41</div><div class="d" style="background:#2fb24c"></div><div class="d" style="background:#ff375f"></div><div class="sp"></div><div class="split"><i></i><i></i></div><div class="g"><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
     <div class="area"><div class="liquid"><i></i><i></i><i></i><i></i></div>
       <div class="picker glass"><div class="pgrid" id="pgrid"></div>
         <div class="pinfo"><span class="x">${XICON}</span><div class="mapx"><i></i><i class="sel"></i></div><div class="cap"><b>Chọn app cho ô 2</b><span>Chạm 1 app để mở vào ô này</span></div><div class="dots"><i class="on"></i><i></i></div></div></div>
@@ -409,7 +407,7 @@ section > p { margin: -6px 0 0; color: var(--ink2); font-size: 13px; }
   <h2>5 · Màn xe: bàn phím</h2>
   <p>Bàn phím giữ bố cục HarmonyOS (thẻ nổi bo tròn 4 góc, cách mép 6 pt, kín bề rộng ô app, hàng số, gợi ý góc phím, bong bóng phóng to khi chạm) nhưng đổi sang kính trắng: phím trắng, phím chức năng kính trong viền trắng, Enter gradient.</p>
   <div class="car"><div class="carfit"><div class="cs" id="c3">
-    <div class="dock"><div class="t">9:41</div><div class="d" style="background:#2fb24c"></div><div class="d" style="background:#ff375f"></div><div class="sp"></div><div class="split">${HM_SPLIT}</div><div class="g"><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
+    <div class="dock"><div class="t">9:41</div><div class="d" style="background:#2fb24c"></div><div class="d" style="background:#ff375f"></div><div class="sp"></div><div class="split"><i></i><i></i></div><div class="g"><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
     <div class="area"><div class="pane yt" style="left:0;right:0"></div>
       <div class="kb glass" id="kb"></div>
     </div>
