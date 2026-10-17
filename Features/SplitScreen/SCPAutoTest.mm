@@ -28,6 +28,8 @@
 - (void)swapSlot:(int)a with:(int)b;
 - (void)closeSlot:(int)slot background:(BOOL)background;
 - (void)popOutPane:(id)pane;
+- (BOOL)canPopOutPane:(id)pane;
+- (NSString *)popOutBlockReason:(id)pane;
 - (void)floatDockBack;
 - (void)soloBundle:(NSString *)bid;
 - (void)showLayoutPanelForApp:(NSString *)app;
@@ -528,10 +530,16 @@ static NSArray<NSDictionary *> *SCPATBridgeSteps(void)
         }
         [steps addObject:OMCTestStep(SCPATF(@"%@: doi cho voi app CarPlay", p), 2, 10, ^NSString *{ [s swapSlot:0 with:1]; return nil; },
             ^NSString *{ return SCPATExpectLayout(2, @[P, A]); })];
-        [steps addObject:OMCTestStep(SCPATF(@"%@: khong cho ra cua so noi", p), 2, 6, ^NSString *{
+        // App iPhone khong ra cua so noi duoc (cua so host cua no phu ca vung app): bam "cua so noi" phai bi chan (toast),
+        // bo cuc giu nguyen. PASS = chan dung; FAIL = app bi dua ra / split vo
+        [steps addObject:OMCTestStep(SCPATF(@"%@: app iPhone bi chan cua so noi (dung y)", p), 2, 6, ^NSString *{
             if (!s.active) return @"split chua bat";
-            [s popOutPane:[s slots][0]]; return nil;   // app iPhone: phai bi chan, bo cuc giu nguyen
-        }, ^NSString *{ return SCPATExpectLayout(2, @[P, A]); })];
+            if (![s canPopOutPane:[s slots][0]]) OMCTestLog(@"%@ bi chan cua so noi: %@", p, [s popOutBlockReason:[s slots][0]]);
+            [s popOutPane:[s slots][0]]; return nil;
+        }, ^NSString *{
+            if ([s floatPane]) return SCPATWhy(SCPATF(@"%@ da ra cua so noi (app iPhone phai bi chan)", p));
+            return SCPATExpectLayout(2, @[P, A]);
+        })];
         if (B) {
             [steps addObject:OMCTestStep(SCPATF(@"%@ o giua 3 o", p), 3, 16, ^NSString *{ [s openSetupLayout:3 apps:@[A, P, B]]; return nil; },
                 ^NSString *{ return SCPATExpectLayout(3, @[A, P, B]); })];

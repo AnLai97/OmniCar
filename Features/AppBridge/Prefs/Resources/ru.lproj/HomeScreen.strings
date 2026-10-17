@@ -49,3 +49,6 @@
 "HOMESCREEN_ROWS" = "Строки";
 "HOMESCREEN_AUTO" = "Авто";
 "HOMESCREEN_NAMES" = "Названия приложений";
+
+/* Man chinh CarPlay: nut Dat lai */
+"HOMESCREEN_RESET_CONFIRM" = "Вернуть домашний экран CarPlay: столбцы и строки авто, размер значков 100 %, названия приложений включены, обои CarPlay? Приложения на экране автомобиля останутся.";

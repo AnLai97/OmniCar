@@ -49,3 +49,6 @@
 "HOMESCREEN_ROWS" = "แถว";
 "HOMESCREEN_AUTO" = "อัตโนมัติ";
 "HOMESCREEN_NAMES" = "ชื่อแอป";
+
+/* Man chinh CarPlay: nut Dat lai */
+"HOMESCREEN_RESET_CONFIRM" = "กลับไปใช้หน้าหลักของ CarPlay: คอลัมน์และแถวอัตโนมัติ ขนาดไอคอน 100 % แสดงชื่อแอป วอลเปเปอร์ของ CarPlay ไหม แอปบนหน้าจอรถยังอยู่";

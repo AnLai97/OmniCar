@@ -49,3 +49,6 @@
 "HOMESCREEN_ROWS" = "الصفوف";
 "HOMESCREEN_AUTO" = "تلقائي";
 "HOMESCREEN_NAMES" = "أسماء التطبيقات";
+
+/* Man chinh CarPlay: nut Dat lai */
+"HOMESCREEN_RESET_CONFIRM" = "العودة إلى الشاشة الرئيسية الأصلية لـ CarPlay: الأعمدة والصفوف تلقائية، حجم الأيقونات 100 ٪، أسماء التطبيقات ظاهرة، خلفية CarPlay؟ تبقى التطبيقات على شاشة السيارة.";

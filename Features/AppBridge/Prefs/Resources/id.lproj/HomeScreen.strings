@@ -49,3 +49,6 @@
 "HOMESCREEN_ROWS" = "Baris";
 "HOMESCREEN_AUTO" = "Otomatis";
 "HOMESCREEN_NAMES" = "Nama app";
+
+/* Man chinh CarPlay: nut Dat lai */
+"HOMESCREEN_RESET_CONFIRM" = "Kembali ke layar utama CarPlay: kolom dan baris Otomatis, ukuran ikon 100 %, nama app tampil, wallpaper CarPlay? App di layar mobil tetap.";

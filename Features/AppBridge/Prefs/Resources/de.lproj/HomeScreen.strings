@@ -49,3 +49,6 @@
 "HOMESCREEN_ROWS" = "Zeilen";
 "HOMESCREEN_AUTO" = "Auto";
 "HOMESCREEN_NAMES" = "App-Namen";
+
+/* Man chinh CarPlay: nut Dat lai */
+"HOMESCREEN_RESET_CONFIRM" = "Zurück zum CarPlay-Startbildschirm: Spalten und Zeilen automatisch, Symbolgröße 100 %, App-Namen an, CarPlay-Hintergrund? Die Apps auf dem Autobildschirm bleiben.";

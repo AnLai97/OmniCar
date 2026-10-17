@@ -49,3 +49,6 @@
 "HOMESCREEN_ROWS" = "Righe";
 "HOMESCREEN_AUTO" = "Auto";
 "HOMESCREEN_NAMES" = "Nomi app";
+
+/* Man chinh CarPlay: nut Dat lai */
+"HOMESCREEN_RESET_CONFIRM" = "Tornare alla schermata Home di CarPlay: colonne e righe automatiche, icone al 100 %, nomi delle app attivi, sfondo di CarPlay? Le app sull’auto restano.";

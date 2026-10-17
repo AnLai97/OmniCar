@@ -49,3 +49,6 @@
 "HOMESCREEN_ROWS" = "Số hàng";
 "HOMESCREEN_AUTO" = "Tự động";
 "HOMESCREEN_NAMES" = "Tên app";
+
+/* Man chinh CarPlay: nut Dat lai */
+"HOMESCREEN_RESET_CONFIRM" = "Về màn chính như CarPlay: số cột / số hàng Tự động, cỡ icon 100 %, hiện tên app, hình nền của CarPlay? App trên màn xe giữ nguyên.";

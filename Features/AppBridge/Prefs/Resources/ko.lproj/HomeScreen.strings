@@ -49,3 +49,6 @@
 "HOMESCREEN_ROWS" = "행";
 "HOMESCREEN_AUTO" = "자동";
 "HOMESCREEN_NAMES" = "앱 이름";
+
+/* Man chinh CarPlay: nut Dat lai */
+"HOMESCREEN_RESET_CONFIRM" = "CarPlay 기본 홈 화면으로 되돌릴까요? 열과 행 자동, 아이콘 크기 100 %, 앱 이름 표시, CarPlay 배경화면. 차량 화면의 앱은 유지됩니다.";

@@ -49,3 +49,6 @@
 "HOMESCREEN_ROWS" = "行";
 "HOMESCREEN_AUTO" = "自動";
 "HOMESCREEN_NAMES" = "App名";
+
+/* Man chinh CarPlay: nut Dat lai */
+"HOMESCREEN_RESET_CONFIRM" = "CarPlayのホーム画面に戻しますか？ 列と行は自動、アイコンサイズ100 %、App名を表示、壁紙はCarPlayのもの。車のAppはそのままです。";

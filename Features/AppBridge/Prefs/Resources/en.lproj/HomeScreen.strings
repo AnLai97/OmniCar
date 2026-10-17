@@ -49,3 +49,6 @@
 "HOMESCREEN_ROWS" = "Rows";
 "HOMESCREEN_AUTO" = "Auto";
 "HOMESCREEN_NAMES" = "App names";
+
+/* Man chinh CarPlay: nut Dat lai */
+"HOMESCREEN_RESET_CONFIRM" = "Back to CarPlay’s own home screen: Auto columns and rows, 100 % icon size, app names on, CarPlay’s wallpaper? Apps on the car stay.";

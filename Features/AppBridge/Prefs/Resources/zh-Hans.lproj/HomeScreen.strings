@@ -49,3 +49,6 @@
 "HOMESCREEN_ROWS" = "行数";
 "HOMESCREEN_AUTO" = "自动";
 "HOMESCREEN_NAMES" = "App 名称";
+
+/* Man chinh CarPlay: nut Dat lai */
+"HOMESCREEN_RESET_CONFIRM" = "恢复 CarPlay 原本的主屏幕：列数和行数自动、图标大小 100 %、显示 App 名称、CarPlay 壁纸？车机上的 App 保留。";

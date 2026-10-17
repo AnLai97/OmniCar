@@ -463,9 +463,10 @@ static NSArray *OMCABArray(NSString *key)
     if (![self layoutPage]) {   // nhu Cai dat iPhone > CarPlay > Tuy chinh: luon o che do sua, nut Dat lai
         _table.editing = YES;
         _table.allowsSelectionDuringEditing = YES;
-        self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:L(@"APPS_RESET") style:UIBarButtonItemStylePlain
-                                                                                 target:self action:@selector(resetTapped)];
     }
+    // Dat lai: trang App = app CarPlay nhu Cai dat iPhone; trang Man chinh = luoi / co icon / ten app / hinh nen ve mac dinh
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:L(@"APPS_RESET") style:UIBarButtonItemStylePlain
+                                                                             target:self action:@selector(resetTapped)];
     [self resetAdvancedOnce];
     [self loadState];
 }
@@ -623,11 +624,16 @@ static NSArray *OMCABArray(NSString *key)
 // Dat lai: app CarPlay ve dung danh sach cua Cai dat iPhone > CarPlay (app iPhone qua App Bridge giu nguyen)
 - (void)resetTapped
 {
-    UIAlertController *a = [UIAlertController alertControllerWithTitle:nil message:L(@"APPS_RESET_CONFIRM") preferredStyle:UIAlertControllerStyleActionSheet];
+    BOOL layout = [self layoutPage];
+    UIAlertController *a = [UIAlertController alertControllerWithTitle:nil message:L(layout ? @"HOMESCREEN_RESET_CONFIRM" : @"APPS_RESET_CONFIRM")
+                                                        preferredStyle:UIAlertControllerStyleActionSheet];
     [a addAction:[UIAlertAction actionWithTitle:L(@"APPS_RESET") style:UIAlertActionStyleDestructive handler:^(UIAlertAction *x) {
-        [self.hidden removeAllObjects];
-        [self.shown removeAllObjects];
-        [self storeChoices];
+        if (layout) [self resetLayout];
+        else {
+            [self.hidden removeAllObjects];
+            [self.shown removeAllObjects];
+            [self storeChoices];
+        }
         [self rebuildRows];
         [self.table reloadData];
         [self updatePreview];
@@ -635,6 +641,18 @@ static NSArray *OMCABArray(NSString *key)
     [a addAction:[UIAlertAction actionWithTitle:L(@"CANCEL") style:UIAlertActionStyleCancel handler:nil]];
     a.popoverPresentationController.barButtonItem = self.navigationItem.rightBarButtonItem;
     [self presentViewController:a animated:YES completion:nil];
+}
+
+// Dat lai trang Man chinh CarPlay: so cot / so hang Tu dong, co icon 100 %, hien ten app, hinh nen cua CarPlay, do mo / do toi
+// mac dinh (xoa key -> xe doc gia tri mac dinh). Anh / video da chon (HS_PHOTO_PATH / HS_VIDEO_PATH) giu lai de chon lai duoc.
+- (void)resetLayout
+{
+    for (NSString *k in @[HS_KEY_COLS, HS_KEY_ROWS, HS_KEY_ICON_SIZE, HS_KEY_NAMES, HS_KEY_BLUR, HS_KEY_DIM, HS_KEY_WALLPAPER, HS_KEY_WALLPAPER_STYLE])
+        CFPreferencesSetAppValue((__bridge CFStringRef)k, NULL, kPrefsDomain);
+    [[NSFileManager defaultManager] removeItemAtPath:HS_WALLPAPER_PATH error:nil];
+    CFPreferencesAppSynchronize(kPrefsDomain);
+    notify_post("com.anlai.omnicar/prefschanged");
+    [self loadState];
 }
 
 #pragma mark - Xem truoc

@@ -859,7 +859,7 @@ input[type=range] { flex: 1; accent-color: #8b7cff; min-width: 0; }
 <h1>Màn xe · App trên màn xe + Màn chính CarPlay</h1>
 <p class="sub">Nhóm <b>Màn xe</b> ở trang chính có 2 mục. <b>App trên màn xe</b>: cắm xe thì CarPlay hiện app như đã chọn trong Cài đặt iPhone › CarPlay;
   chỉnh ở đây thì OmniCar thay danh sách đó (bỏ / thêm từng app CarPlay, kể cả app đã bỏ trong Cài đặt iPhone; Điện thoại, Nhạc, Bản đồ, Tin nhắn, Đang phát, app hãng xe, Cài đặt khoá như CarPlay).
-  Giống Cài đặt iPhone › CarPlay › Tùy chỉnh: <b>Bao gồm</b> (nút − để bỏ) và <b>Ứng dụng khác</b> (nút + để thêm), app CarPlay và app iPhone qua <b>App Bridge</b>; nút <b>Đặt lại</b>. <b>Màn chính CarPlay</b>: lưới icon (số cột, số hàng, cỡ icon, tên app) và hình nền.</p>
+  Giống Cài đặt iPhone › CarPlay › Tùy chỉnh: <b>Bao gồm</b> (nút − để bỏ) và <b>Ứng dụng khác</b> (nút + để thêm), app CarPlay và app iPhone qua <b>App Bridge</b>; nút <b>Đặt lại</b>. <b>Màn chính CarPlay</b>: lưới icon (số cột, số hàng, cỡ icon, tên app) và hình nền; nút <b>Đặt lại</b> đưa cả trang về như CarPlay (lưới Tự động, icon 100 %, tên app, hình nền CarPlay).</p>
 
 <div class="wrap">
   <div class="phone"><div class="scr"><div class="liquid"><i></i><i></i><i></i><i></i></div>
@@ -994,7 +994,7 @@ function layoutPage() {
   const COLS = [0, 3, 4, 5, 6, 7, 8], ROWS = [0, 1, 2, 3, 4];
   const step = (k, vals, label, ic, c) => `<div class="r">${tile(ICON[ic], c)}<span class="lab">${label}</span>
       <span class="step"><span data-step="${k}" data-d="-1">−</span><b>${S[k] || 'Tự động'}</b><span data-step="${k}" data-d="1">+</span></span></div>`;
-  return navBar('Màn chính CarPlay') + `
+  return navBar('Màn chính CarPlay').replace('</div>', '<span class="navbtn" data-reset-layout>Đặt lại</span></div>') + `
     <div class="mini"><div class="cs" id="cs2"></div></div>
     <div class="lbl">Lưới icon</div>
     <div class="card glass">
@@ -1060,6 +1060,7 @@ function bind() {
   pg.querySelectorAll('[data-del]').forEach(e => e.onclick = () => flip(e.dataset.del, false));
   pg.querySelectorAll('[data-add]').forEach(e => e.onclick = () => flip(e.dataset.add, true));
   pg.querySelectorAll('[data-reset]').forEach(e => e.onclick = () => { if (confirm('Hiện lại app CarPlay như trong Cài đặt iPhone › Cài đặt chung › CarPlay? App iPhone qua App Bridge giữ nguyên.')) { S.hidden.clear(); S.shown.clear(); render(); } });
+  pg.querySelectorAll('[data-reset-layout]').forEach(e => e.onclick = () => { if (confirm('Về màn chính như CarPlay: số cột / số hàng Tự động, cỡ icon 100 %, hiện tên app, hình nền của CarPlay? App trên màn xe giữ nguyên.')) { Object.assign(S, { size: 100, cols: 0, rows: 0, names: true, wall: 0, blur: 0, dark: 25 }); render(); } });
   pg.querySelectorAll('[data-find]').forEach(e => e.oninput = () => { S.q = e.value; const pos = e.selectionStart; render(); const f = $('page').querySelector('[data-find]'); f.focus(); f.setSelectionRange(pos, pos); });
   pg.querySelectorAll('[data-range]').forEach(e => e.oninput = () => {
     S[e.dataset.range] = +e.value;

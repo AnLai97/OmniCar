@@ -49,3 +49,6 @@
 "HOMESCREEN_ROWS" = "Linhas";
 "HOMESCREEN_AUTO" = "Auto";
 "HOMESCREEN_NAMES" = "Nomes dos apps";
+
+/* Man chinh CarPlay: nut Dat lai */
+"HOMESCREEN_RESET_CONFIRM" = "Voltar à tela inicial do CarPlay: colunas e linhas automáticas, ícones em 100 %, nomes dos apps ativados, papel de parede do CarPlay? Os apps no carro continuam.";
