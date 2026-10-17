@@ -296,8 +296,15 @@ static int sPreferredApp = -1;   // app mo gan nhat (nguon uu tien)
     return NO;
 }
 
+#if OMC_AUTOTEST
+static BOOL sSPPTestMute;   // bo test: dang kiem "mat nguon -> an", app dan duong that (Vietmap...) gui toc do thi bo qua
+#endif
+
 - (void)updateSpeed:(int)speed limit:(int)limit appForeground:(BOOL)fg app:(int)app
 {
+#if OMC_AUTOTEST
+    if (sSPPTestMute) return;
+#endif
     app &= 7;
     CFAbsoluteTime now = CFAbsoluteTimeGetCurrent();
     if (fg != sAppFg[app]) SPPLog("bubble: %@ %@", SPPNavAppName(app), fg ? @"dang hien -> an bong bong" : @"chay nen -> hien bong bong");
@@ -919,8 +926,11 @@ static NSArray<NSDictionary *> *SPPTestSteps(void)
     [steps addObject:OMCTestStep(@"Tra lai co cua nguoi dung", 0.5, 3, ^NSString *{ SPPTestSetPref(SB_KEY_SIZE_CAR, sSPPTestSizeCar); return nil; },
         ^NSString *{ SPPTestFeed(48, 60); return SPPTestVisibleOnCar(); })];
 
-    [steps addObject:OMCTestStep(@"Mat nguon toc do -> an", 1, 4, ^NSString *{ SPPTestEnd(); return nil; },
+    // App dan duong that dang chay (Vietmap tren iOS 15, log 17/10 22:55) gui toc do ngay sau khi bo so -> bong bong hien lai
+    // va buoc nay FAIL oan: tam chan moi ban tin toc do trong luc kiem, buoc sau mo lai
+    [steps addObject:OMCTestStep(@"Mat nguon toc do -> an", 1, 4, ^NSString *{ sSPPTestMute = YES; SPPTestEnd(); return nil; },
         ^NSString *{ return (!b.window || b.window.hidden || b.card.alpha < 0.1) ? nil : SPPTestWhy(@"van hien khi khong con nguon"); })];
+    [steps addObject:OMCTestStep(@"Nhan lai toc do tu app dan duong", 0, 0, ^NSString *{ sSPPTestMute = NO; return nil; }, nil)];
     return steps;
 }
 

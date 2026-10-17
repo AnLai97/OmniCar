@@ -2317,7 +2317,10 @@ static CGSize SCPCSceneSize(UIViewController *vc)
         id d = SCPCDashboard();
         id info = SCPCAppInfo(bid);
         SCPLog("CarSplit: mo lai %@ toan man (dashboard=%d, info=%d)", bid, d != nil, info != nil);
-        if (d && info && [d respondsToSelector:NSSelectorFromString(@"_launchAppWithInfo:forURL:")]) objcCall_2(d, @"_launchAppWithInfo:forURL:", info, (id)nil);
+        // iOS 15 (CARDashboard): _launchAppWithInfo:forURL: goi -[CARApplicationInfo application] khong co -> nem loi
+        // (log 17/10 22:48); o do dung su kien 4 nhu mo app vao o
+        BOOL ios16 = objc_getClass("DBDashboard") != nil;
+        if (ios16 && d && info && [d respondsToSelector:NSSelectorFromString(@"_launchAppWithInfo:forURL:")]) objcCall_2(d, @"_launchAppWithInfo:forURL:", info, (id)nil);
         else SCPCSendEvent(4, launchInfo);
     });
 }

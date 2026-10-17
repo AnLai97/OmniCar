@@ -1,6 +1,7 @@
 #import "ABHost.h"
 #import "ABKeyboard.h"
 #import "common.h"
+#import <objc/runtime.h>
 
 // =====================================================================
 //  ABHost - iPhone apps on the car screen, hosted by SpringBoard.
@@ -27,6 +28,68 @@ void ABMissingSelector(id obj, NSString *sel)
 
 #define getIvar(object, ivar)        [object valueForKey:ivar]
 #define setIvar(object, ivar, value) [object setValue:value forKey:ivar]
+
+// Ten selector doi theo iOS: iOS 16 sceneIdentityForApplication:createPrimaryIfRequired:sceneSessionRole:, iOS 14 (carplay-cast)
+// _sceneIdentityForApplication:createPrimaryIfRequired:, iOS 15.8.4 khong co ca hai (log 17/10 22:47 "THIEU METHOD ... ->
+// expected FBSSceneIdentity got (null)"). Thu danh sach ten da biet, khong co thi quet method cua lop (va lop cha) lay
+// selector chua `stem`; goi bang NSInvocation, moi tham so dien theo ten: "...Application:" = app, "...createPrimary..." = YES,
+// "...Role:" = vai tro, "...BundleIdentifier:" = bundle id, "...displayIdentity:" = display. Ghi ten tim duoc 1 lan / lop.
+static NSString *ABFindSelector(id obj, NSArray<NSString *> *known, NSString *stem)
+{
+    if (!obj) return nil;
+    for (NSString *s in known) if ([obj respondsToSelector:NSSelectorFromString(s)]) return s;
+    NSString *found = nil;
+    NSMutableArray *near = [NSMutableArray array];
+    for (Class c = [obj class]; c; c = class_getSuperclass(c)) {
+        unsigned n = 0;
+        Method *ms = class_copyMethodList(c, &n);
+        for (unsigned i = 0; i < n; i++) {
+            NSString *name = NSStringFromSelector(method_getName(ms[i]));
+            if ([name rangeOfString:stem options:NSCaseInsensitiveSearch].location == NSNotFound) continue;
+            [near addObject:name];
+            if (!found || name.length < found.length) found = name;   // ngan nhat = it tham so phai doan nhat
+        }
+        free(ms);
+    }
+    static NSMutableSet *logged;
+    if (!logged) logged = [NSMutableSet set];
+    NSString *key = [NSString stringWithFormat:@"%@ %@", NSStringFromClass([obj class]), stem];
+    if (![logged containsObject:key]) {
+        [logged addObject:key];
+        ABLog("iOS %@: %@ khong co %@ -> dung %@ (co: %@)", [UIDevice currentDevice].systemVersion, NSStringFromClass([obj class]),
+              [known componentsJoinedByString:@" / "], found ?: @"(khong tim thay)", near.count ? [near componentsJoinedByString:@", "] : @"-");
+    }
+    return found;
+}
+
+static id ABCallNamed(id obj, NSString *selName, id app, NSString *bundleID, id displayIdentity)
+{
+    if (!obj || !selName) return nil;
+    SEL sel = NSSelectorFromString(selName);
+    NSMethodSignature *sig = [obj methodSignatureForSelector:sel];
+    if (!sig) return nil;
+    NSInvocation *inv = [NSInvocation invocationWithMethodSignature:sig];
+    inv.target = obj; inv.selector = sel;
+    NSArray *parts = [selName componentsSeparatedByString:@":"];
+    NSString *role = UIWindowSceneSessionRoleApplication;
+    for (NSUInteger i = 0; i + 1 < parts.count && i + 2 < sig.numberOfArguments; i++) {
+        NSString *p = parts[i].lowercaseString;
+        const char *t = [sig getArgumentTypeAtIndex:i + 2];
+        if (t[0] == 'B' || t[0] == 'c') { BOOL yes = [p containsString:@"createprimary"]; [inv setArgument:&yes atIndex:i + 2]; continue; }
+        id v = nil;
+        if ([p containsString:@"bundleidentifier"]) v = bundleID;
+        else if ([p containsString:@"application"]) v = app;
+        else if ([p containsString:@"role"]) v = role;
+        else if ([p containsString:@"display"]) v = displayIdentity;
+        [inv setArgument:&v atIndex:i + 2];
+    }
+    [inv retainArguments];
+    [inv invoke];
+    if (!sig.methodReturnLength) return nil;
+    __unsafe_unretained id ret = nil;
+    [inv getReturnValue:&ret];
+    return ret;
+}
 
 // CADisplay cua man hinh xe (nil neu chua ket noi)
 static id ABCarDisplay(void)
@@ -329,16 +392,20 @@ static void ABPostOrientation(NSString *bid, long long orientation)
 
     id sceneManager = objcInvoke(objc_getClass("SBSceneManagerCoordinator"), @"mainDisplaySceneManager");
     expectClass(sceneManager, "SBMainDisplaySceneManager");
-    // iOS 16: layoutStateManager / sceneIdentityForApplication:...sceneSessionRole:; iOS 14-15 (carplay-cast): _layoutStateManager /
-    // _sceneIdentityForApplication:createPrimaryIfRequired: (log 12/10 21:23, iOS 15.8.4: "expected FBSSceneIdentity got (null)")
-    BOOL ios16 = [sceneManager respondsToSelector:NSSelectorFromString(@"sceneIdentityForApplication:createPrimaryIfRequired:sceneSessionRole:")];
-    id layoutStateManager = objcInvoke(sceneManager, ios16 ? @"layoutStateManager" : @"_layoutStateManager");
+    // iOS 16: layoutStateManager / sceneIdentityForApplication:...sceneSessionRole:; iOS 14 (carplay-cast): _layoutStateManager /
+    // _sceneIdentityForApplication:createPrimaryIfRequired:; iOS 15.8.4 khong co ca hai (log 17/10 22:47) -> ABFindSelector quet
+    // lop tim ten that (ghi vao log) va ABCallNamed goi theo ten tham so
+    NSString *lsmSel = ABFindSelector(sceneManager, @[@"layoutStateManager", @"_layoutStateManager"], @"layoutStateManager");
+    id layoutStateManager = lsmSel ? objcInvoke(sceneManager, lsmSel) : nil;
     id displayIdentity    = objcInvoke(sceneManager, @"displayIdentity");
     expectClass(displayIdentity, "FBSDisplayIdentity");
 
-    id sceneIdentity = ios16
-        ? objcInvoke_3(sceneManager, @"sceneIdentityForApplication:createPrimaryIfRequired:sceneSessionRole:", pane.application, YES, UIWindowSceneSessionRoleApplication)
-        : objcInvoke_2(sceneManager, @"_sceneIdentityForApplication:createPrimaryIfRequired:", pane.application, YES);
+    NSString *idSel = ABFindSelector(sceneManager, @[@"sceneIdentityForApplication:createPrimaryIfRequired:sceneSessionRole:",
+                                                     @"sceneIdentityForApplication:createPrimaryIfRequired:",
+                                                     @"_sceneIdentityForApplication:createPrimaryIfRequired:"], @"sceneIdentityForApplication");
+    id sceneIdentity = ABCallNamed(sceneManager, idSel, pane.application, appID, displayIdentity);
+    if (!sceneIdentity && [pane.application respondsToSelector:NSSelectorFromString(@"sceneIdentityForRole:")])   // phong khi SBApplication tu biet
+        sceneIdentity = objcInvoke_1(pane.application, @"sceneIdentityForRole:", UIWindowSceneSessionRoleApplication);
     expectClass(sceneIdentity, "FBSSceneIdentity");
     id request = objcInvoke_3(objc_getClass("SBApplicationSceneHandleRequest"),
                               @"defaultRequestForApplication:sceneIdentity:displayIdentity:",
@@ -393,9 +460,10 @@ static void ABPostOrientation(NSString *bid, long long orientation)
     v.backgroundColor = [UIColor clearColor];
     [pane.box insertSubview:v atIndex:0];
 
-    NSString *sceneID = ios16
-        ? objcInvoke_3(layoutStateManager, @"primarySceneIdentifierForBundleIdentifier:sceneSessionRole:displayIdentity:", appID, UIWindowSceneSessionRoleApplication, displayIdentity)
-        : objcInvoke_1(layoutStateManager, @"primarySceneIdentifierForBundleIdentifier:", appID);
+    NSString *pidSel = ABFindSelector(layoutStateManager, @[@"primarySceneIdentifierForBundleIdentifier:sceneSessionRole:displayIdentity:",
+                                                            @"primarySceneIdentifierForBundleIdentifier:"], @"primarySceneIdentifierForBundleIdentifier");
+    NSString *sceneID = ABCallNamed(layoutStateManager, pidSel, pane.application, appID, displayIdentity);
+    if (![sceneID isKindOfClass:[NSString class]]) sceneID = nil;
     if (sceneID) {
         pane.sceneMonitor = objcInvoke_1([objc_getClass("FBSceneMonitor") alloc], @"initWithSceneID:", sceneID);
         objcCall_1(pane.sceneMonitor, @"setDelegate:", self);
