@@ -36,6 +36,14 @@
 - (void)openSetupLayout:(int)layoutID apps:(NSArray *)apps;
 - (void)endHostedSolo;
 - (NSArray *)favoriteApps:(NSDictionary *)favorite;
+// Nut Split Screen tren dock CarPlay (tren nut Home)
+- (UIButton *)homeButton;
+- (UIView *)tabParent;
+- (CGRect)homeGlyph;
+- (UIColor *)homeInk;
+- (NSString *)launcherWhere;
+- (BOOL)launcherBare;
+- (void)refreshHomeButton;
 @end
 
 #define SCPATF OMCTestFormat
@@ -237,6 +245,48 @@ static NSString *SCPATExpectHostedSolo(NSString *bid)
     return nil;
 }
 
+// Nut Split Screen tren dock CarPlay: dang hien; tren dai dock la hinh 2 o dac (anh template, khong o nen / bong) rong bang
+// luoi app cua nut Home, nam sat ngay tren nut Home (cung truc giua), cung mau luoi Home, khong de len cum icon dock.
+// Xe khong co dai dock (nut tron o goc vung app): chi can dang hien.
+static NSString *SCPATExpectDockButton(void)
+{
+    SCPCarSplit *s = [SCPCarSplit shared];
+    UIButton *b = [s homeButton];
+    UIView *parent = [s tabParent];
+    if (!b || !b.superview || !b.window) return SCPATWhy(@"nut Split Screen khong co tren man xe");
+    if (b.hidden || b.alpha < 0.9) return SCPATWhy(@"nut Split Screen bi an / mo");
+    UIImage *img = [b imageForState:UIControlStateNormal];
+    if (!img) return SCPATWhy(@"nut Split Screen khong co hinh");
+    CGRect r = parent ? [parent convertRect:b.bounds fromView:b] : b.frame;
+    if (![s launcherBare]) { OMCTestLog(@"nut Split Screen o %@ (khung %@)", [s launcherWhere] ?: @"?", NSStringFromCGRect(r)); return nil; }
+    if (img.renderingMode != UIImageRenderingModeAlwaysTemplate) return SCPATWhy(@"hinh nut dock khong phai anh template (khong an mau nut Home)");
+    if (b.backgroundColor && CGColorGetAlpha(b.backgroundColor.CGColor) > 0.05) return SCPATWhy(@"nut dock van co o nen");
+    if (b.layer.shadowOpacity > 0.05) return SCPATWhy(@"nut dock van co bong");
+    if (img.size.width < 8 || img.size.height < 4 || img.size.height > img.size.width) return SCPATWhy(SCPATF(@"hinh 2 o co %@ khong hop ly", NSStringFromCGSize(img.size)));
+    CGRect home = [s homeGlyph];
+    if (!CGRectIsNull(home) && home.size.width >= 8) {
+        if (fabs(img.size.width - home.size.width) > 1) return SCPATWhy(SCPATF(@"hinh rong %.0f, luoi nut Home rong %.0f", img.size.width, home.size.width));
+        if (fabs(CGRectGetMidX(r) - CGRectGetMidX(home)) > 2) return SCPATWhy(SCPATF(@"nut lech truc voi nut Home (%.0f, Home %.0f)", CGRectGetMidX(r), CGRectGetMidX(home)));
+        if (CGRectGetMaxY(r) > CGRectGetMinY(home) + 1) return SCPATWhy(SCPATF(@"nut khong nam tren nut Home (day %.0f, dinh Home %.0f)", CGRectGetMaxY(r), CGRectGetMinY(home)));
+        if (CGRectGetMinY(home) - CGRectGetMaxY(r) > 16) return SCPATWhy(SCPATF(@"nut cach nut Home %.0fpt, can sat", CGRectGetMinY(home) - CGRectGetMaxY(r)));
+        UIColor *ink = [s homeInk];
+        if (ink && ![b.tintColor isEqual:ink]) return SCPATWhy(@"mau nut khac mau luoi nut Home");
+        OMCTestLog(@"nut Split Screen %@ hinh %@ tren nut Home %@", NSStringFromCGRect(r), NSStringFromCGSize(img.size), NSStringFromCGRect(home));
+    } else OMCTestLog(@"khong do duoc luoi nut Home (%@), chi kiem tra nut dang hien", [s launcherWhere] ?: @"?");
+    // Khong de len cum icon dock (cum icon da duoc day len neu khe hep)
+    id d = SCPATDashboard();
+    id root = d ? objcInvoke(d, @"rootViewController") : nil;
+    id dockVC = root ? objcInvoke(root, @"appDockViewController") : nil;
+    UIView *dock = dockVC ? objcInvoke(dockVC, @"view") : nil;
+    if (parent && dock.window && parent.window) {
+        CGRect cluster = [parent convertRect:dock.bounds fromView:dock];
+        CGRect x = CGRectIntersection(r, cluster);
+        if (!CGRectIsNull(x) && x.size.width > 2 && x.size.height > 2)
+            return SCPATWhy(SCPATF(@"nut %@ de len cum icon dock %@", NSStringFromCGRect(r), NSStringFromCGRect(cluster)));
+    }
+    return nil;
+}
+
 #pragma mark - App de thu
 
 // App CarPlay: uu tien app Apple (luon co, it bat ngo), roi app khac tren man chinh
@@ -285,12 +335,26 @@ static NSArray<NSDictionary *> *SCPATSplitSteps(void)
         return missing.count ? SCPATF(@"thieu hook: %@", [missing componentsJoinedByString:@", "]) : nil;
     })];
     [steps addObject:OMCTestStep(@"Ve man chinh", 1.5, 6, home, atHome)];
+
+    // --- Nut Split Screen tren dock: hinh 2 o theo nut Home, bam mo / dong bang bo cuc
+    OMCTestBlock tapDock = ^NSString *{
+        if (![s homeButton]) return @"khong co nut Split Screen";
+        [[s homeButton] sendActionsForControlEvents:UIControlEventTouchUpInside]; return nil;
+    };
+    [steps addObject:OMCTestStep(@"Nut Split Screen tren dock (2 o theo nut Home)", 1.5, 8, ^NSString *{ [s refreshHomeButton]; return nil; },
+        ^NSString *{ return SCPATExpectDockButton(); })];
+    [steps addObject:OMCTestStep(@"Bam nut Split Screen: hien bang bo cuc", 1.5, 6, tapDock,
+        ^NSString *{ return [s tray] ? nil : SCPATWhy(@"bang bo cuc khong hien"); })];
+    [steps addObject:OMCTestStep(@"Bam lai nut Split Screen: dong bang bo cuc", 1, 5, tapDock,
+        ^NSString *{ return [s tray] ? SCPATWhy(@"bang bo cuc van con") : nil; })];
     if (!A || !B) return steps;
     NSString *a = SCPATShort(A), *b = SCPATShort(B);
 
     // --- 2 o: mo, ti le, doi cho
     [steps addObject:OMCTestStep(SCPATF(@"2 o: %@ | %@", a, b), 3, 12, ^NSString *{ [s openSetupLayout:2 apps:@[A, B]]; return nil; },
         ^NSString *{ return SCPATExpectLayout(2, @[A, B]); })];
+    [steps addObject:OMCTestStep(@"Nut Split Screen van hien khi dang chia", 1, 6, nil,
+        ^NSString *{ return SCPATExpectDockButton() ?: SCPATExpectLayout(2, @[A, B]); })];
     for (NSNumber *r in @[@0.3, @0.7, @0.5]) {
         CGFloat first = r.doubleValue;
         [steps addObject:OMCTestStep(SCPATF(@"Ti le %.0f / %.0f (scene doi theo)", first * 100, (1 - first) * 100), 1.5, 6, ^NSString *{
@@ -424,6 +488,7 @@ static NSArray<NSDictionary *> *SCPATSplitSteps(void)
         return nil;
     }, atHome)];
     [steps addObject:OMCTestStep(@"Ket thuc: ve man chinh", 1.5, 8, home, atHome)];
+    [steps addObject:OMCTestStep(@"Nut Split Screen ve lai tren dock sau khi tat split", 1.5, 8, nil, ^NSString *{ return SCPATExpectDockButton(); })];
     return steps;
 }
 
