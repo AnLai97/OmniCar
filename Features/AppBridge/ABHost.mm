@@ -73,7 +73,7 @@ static id ABCallNamed(id obj, NSString *selName, id app, NSString *bundleID, id 
     NSArray *parts = [selName componentsSeparatedByString:@":"];
     NSString *role = UIWindowSceneSessionRoleApplication;
     for (NSUInteger i = 0; i + 1 < parts.count && i + 2 < sig.numberOfArguments; i++) {
-        NSString *p = parts[i].lowercaseString;
+        NSString *p = ((NSString *)parts[i]).lowercaseString;
         const char *t = [sig getArgumentTypeAtIndex:i + 2];
         if (t[0] == 'B' || t[0] == 'c') { BOOL yes = [p containsString:@"createprimary"]; [inv setArgument:&yes atIndex:i + 2]; continue; }
         id v = nil;
