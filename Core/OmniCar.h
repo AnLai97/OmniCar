@@ -129,6 +129,21 @@ int OMCCarWireless(void);
 // Speed Bubble source. The CarPlay process posts OMC_DARWIN_CAR_CONNECTED when a car screen appears.
 #define OMC_KEY_CLEAN_RAM    @"cleanRamOnConnect"
 #define OMC_DARWIN_CAR_CONNECTED "com.anlai.omnicar/car.connected"
+// Last position of the phone, relayed by the navigation app the Speed Bubble runs in (its own GPS fix, at most once a
+// minute) for features that have no location access of their own (SpringBoard and CarPlay.app are not authorised on
+// iOS 16.6 - log 18/10 12:07: status 0, kCLErrorDomain 1 - and cannot ask). State = latitude and longitude rounded to
+// 2 decimals (about 1 km) as two signed 32-bit integers (x100); 0 = none. Readers keep their own copy on disk.
+#define OMC_DARWIN_LOCATION  "com.anlai.omnicar/location"
+static inline uint64_t OMCLocationPack(double lat, double lon) {
+    int32_t a = (int32_t)lround(lat * 100), b = (int32_t)lround(lon * 100);
+    return ((uint64_t)(uint32_t)a << 32) | (uint64_t)(uint32_t)b;
+}
+static inline BOOL OMCLocationUnpack(uint64_t state, double *lat, double *lon) {
+    if (!state) return NO;
+    *lat = (int32_t)(uint32_t)(state >> 32) / 100.0;
+    *lon = (int32_t)(uint32_t)(state & 0xFFFFFFFF) / 100.0;
+    return YES;
+}
 #define OMC_DARWIN_CLEAN_NOW "com.anlai.omnicar/cleanram.now"   // Settings: free memory now (whatever the switch)
 // Profiles per car (Settings > Car profiles, off by default): when a car connects the CarPlay process saves the
 // OMCProfileKeys() values into the previous car's profile and loads the new car's (or starts one from the current

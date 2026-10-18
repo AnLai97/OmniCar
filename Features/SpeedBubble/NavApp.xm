@@ -456,6 +456,8 @@ static int SPPCurrentLimit(void)
     return (now - sScanLimitAt) < SPP_LIMIT_FRESH ? sScanLimit : -1;
 }
 
+static void SPPRelayLocation(CLLocation *fix);
+
 // Toc do km/h tu 1 vi tri; -1 neu vi tri cu / sai so qua lon
 static int SPPSpeedFromFix(CLLocation *fix, double *outAge)
 {
@@ -554,6 +556,23 @@ static int SPPSpeedFromFix(CLLocation *fix, double *outAge)
         SPPLog("speed gps: vi tri dau tien, %d km/h (sai so %.0fm)", kmh, fix.horizontalAccuracy);
     }
     if (kmh >= 0) SPPSendSpeed(kmh, SPPCurrentLimit());   // moi ban tin GPS -> gui ngay
+    SPPRelayLocation(fix);
+}
+
+// Vi tri (lam tron 2 so, ~1 km) cho tinh nang khong co quyen vi tri (man khoi dong kieu Thoi tiet trong SpringBoard /
+// CarPlay): OMC_DARWIN_LOCATION, toi da 1 lan / 60 s va lan dau ngay khi co
+static void SPPRelayLocation(CLLocation *fix)
+{
+    static int token = 0;
+    static CFAbsoluteTime lastAt = 0;
+    if (!fix || fix.horizontalAccuracy < 0 || fix.horizontalAccuracy > 5000) return;
+    CFAbsoluteTime now = CFAbsoluteTimeGetCurrent();
+    if (lastAt > 0 && now - lastAt < 60) return;
+    if (!token) notify_register_check(OMC_DARWIN_LOCATION, &token);
+    if (!token) return;
+    lastAt = now;
+    notify_set_state(token, OMCLocationPack(fix.coordinate.latitude, fix.coordinate.longitude));
+    notify_post(OMC_DARWIN_LOCATION);
 }
 
 - (void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error

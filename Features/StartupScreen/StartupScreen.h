@@ -74,6 +74,8 @@
 #define SS_SOUNDS_DIR       ROOT_PATH_NS(@"/var/mobile/Library/OmniCar/StartupScreen/Sounds")
 // Last Open-Meteo result, written by SpringBoard (or CarPlay when it has location access); keys in SSStartupView.h.
 #define SS_WEATHER_CACHE    ROOT_PATH_NS(@"/var/mobile/Library/OmniCar/StartupScreen/weather.plist")
+// Last position relayed by the navigation app (OMC_DARWIN_LOCATION), kept by SpringBoard across resprings: lat, lon, date.
+#define SS_LOCATION_CACHE   ROOT_PATH_NS(@"/var/mobile/Library/OmniCar/StartupScreen/location.plist")
 
 // CarPlay.app asks SpringBoard to play / stop the soundtrack or startup sound.
 #define SS_NOTIFY_AUDIO_PLAY CFSTR("com.anlai.omnicar/startupscreen.audio.play")
