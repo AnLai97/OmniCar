@@ -220,8 +220,24 @@ static void ABPostOrientation(NSString *bid, long long orientation)
 @property (nonatomic, strong) UIButton *popButton;     // nut noi / ghim tren thanh (glyph doi theo "pop")
 @property (nonatomic, strong) UIButton *soloButton;    // nut "Chay 1 man hinh" / "Chia man hinh" (glyph doi theo "single")
 @property (nonatomic) CGFloat handleOffset;            // thanh "•••" lech ngang (hx tu CarPlay)
+@property (nonatomic, strong) UIView *shield;          // lop chan phu kin o khi co thanh nut dang mo (ABShieldView): cham vao = an thanh nut
 @end
 @implementation ABPane
+@end
+
+// Lop chan tren app khi mot thanh nut dang mo (o nay hay o khac): cham vao app = "cham cho khac" -> an thanh nut ngay.
+// Phai la lop CO VE (trang alpha 0.02, mat khong thay) vi backboardd dua cham thang vao tien trinh so huu lop ve that
+// tai diem cham (xem ABKnobView); lop trong suot thi cham roi vao app, SpringBoard khong bao gio biet. Cham dau tien
+// bi nuot (chi de dong thanh nut, nhu popup iOS); lop bo ngay nen cham ke tiep vao app binh thuong.
+@interface ABShieldView : UIView
+@end
+@implementation ABShieldView
+- (void)touchesBegan:(NSSet<UITouch *> *)t withEvent:(UIEvent *)e
+{
+    ABLog("cham ngoai thanh nut (lop chan) -> an thanh nut");
+    [[objc_getClass("NSDistributedNotificationCenter") defaultCenter] postNotificationName:AB_NOTIF_BAR_DISMISS object:nil userInfo:@{}];
+    [[ABHost shared] outsideTouched];
+}
 @end
 
 #pragma mark - Cham tron cua vach chia (ve lai len tren cac o)
@@ -873,10 +889,49 @@ static UIButton *ABActionButton(NSString *glyph, NSString *title, UIColor *tint,
             bar.transform = t;
         } completion:nil];
     } else {
-        CGAffineTransform t = bar.transform;
-        [UIView animateWithDuration:0.18 delay:0 options:UIViewAnimationOptionCurveEaseIn animations:^{
-            bar.alpha = 0; bar.transform = CGAffineTransformScale(t, 0.94, 0.94);
-        } completion:^(BOOL f) { if (bar.alpha == 0) { bar.hidden = YES; bar.transform = t; } }];
+        [self hideBarForPane:p];
+    }
+}
+
+// Mo + nho lai nhe roi an (nhu thanh ben CarPlay)
+- (void)hideBarForPane:(ABPane *)p
+{
+    UIView *bar = p.bar;
+    if (!bar || bar.hidden) return;
+    ABHandleOpen(p.handle, NO);
+    CGAffineTransform t = bar.transform;
+    [UIView animateWithDuration:0.18 delay:0 options:UIViewAnimationOptionCurveEaseIn animations:^{
+        bar.alpha = 0; bar.transform = CGAffineTransformScale(t, 0.94, 0.94);
+    } completion:^(BOOL f) { if (bar.alpha == 0) { bar.hidden = YES; bar.transform = t; } }];
+}
+
+// Lop chan tren o khi co thanh nut dang mo (anyBar tu CarPlay): duoi thanh "•••" va thanh nut (hai cai do van cham duoc),
+// tren app. Dai pass-through sat mep van xuyen xuong CarPlay (pointInside cua ABBoxView).
+- (void)setShield:(BOOL)on forApp:(NSString *)bid
+{
+    ABPane *p = [self paneFor:bid];
+    if (!p) return;
+    if (!on) { [p.shield removeFromSuperview]; p.shield = nil; return; }
+    if (!p.shield) {
+        ABShieldView *s = [[ABShieldView alloc] initWithFrame:p.box.bounds];
+        s.backgroundColor = [UIColor colorWithWhite:1 alpha:0.02];   // co ve nhung mat khong thay
+        s.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+        p.shield = s;
+        [p.box addSubview:s];
+    }
+    p.shield.frame = p.box.bounds;
+    [p.box bringSubviewToFront:p.shield];
+    if (p.bar) [p.box bringSubviewToFront:p.bar];
+    [p.box bringSubviewToFront:p.handleHit];
+}
+
+// Cham vao lop chan cua o nao do: an moi thanh nut + bo moi lop chan ngay (khong doi CarPlay gui lai khung), CarPlay
+// cung an thanh cua o CarPlay (AB_NOTIF_BAR_DISMISS)
+- (void)outsideTouched
+{
+    for (ABPane *p in self.panes) {
+        [self hideBarForPane:p];
+        [p.shield removeFromSuperview]; p.shield = nil;
     }
 }
 

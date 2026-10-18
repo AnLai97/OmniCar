@@ -45,7 +45,8 @@
 - (UIColor *)homeInk;
 - (NSString *)launcherWhere;
 - (BOOL)launcherBare;
-- (void)refreshHomeButton;
+- (void)setBarVisible:(BOOL)visible forPane:(id)pane;   // thanh nut cua o (cham "•••")
+- (void)hideBarsForTouchOn:(UIView *)v;                   // cham vao view v (hitTest cua container): thanh nut dang mo o cho khac -> an ngay
 @end
 
 #define SCPATF OMCTestFormat
@@ -368,6 +369,19 @@ static NSArray<NSDictionary *> *SCPATSplitSteps(void)
     }
     [steps addObject:OMCTestStep(@"Doi cho 2 o", 1.5, 8, ^NSString *{ [s swapSlot:0 with:1]; return nil; },
         ^NSString *{ return SCPATExpectLayout(2, @[B, A]); })];
+    // Thanh nut (cham "•••") dang mo: cham bat ky cho khac tren man (o ben canh) -> an ngay, khong cho het 4 giay
+    [steps addObject:OMCTestStep(@"Thanh nut mo, cham o ben canh -> an ngay", 1, 5, ^NSString *{
+        if (!s.active || [s paneCount] < 2) return @"split chua bat";
+        id p0 = [s slots][0], p1 = [s slots][1];
+        [s setBarVisible:YES forPane:p0];
+        UIView *bar = SCPATPane(p0, @"bar");
+        if (!bar || bar.hidden) return @"thanh nut cua o 1 khong mo";
+        [s hideBarsForTouchOn:SCPATPane(p1, @"view")];   // = hitTest cua container tra ve view cua o 2
+        return nil;
+    }, ^NSString *{
+        for (id p in [s slots]) { UIView *bar = SCPATPane(p, @"bar"); if (bar && !bar.hidden) return SCPATWhy(@"thanh nut van con sau khi cham cho khac"); }
+        return nil;
+    })];
 
     // --- 3 o va 2 kieu 1 lon + 2
     if (C) {

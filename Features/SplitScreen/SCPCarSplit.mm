@@ -790,13 +790,13 @@ static void SCPCDropIn(UIView *v)
 //  View
 // ---------------------------------------------------------------------
 @interface SCPCarSplitView : UIView
-@property (nonatomic, copy) void (^touched)(CGPoint p);
+@property (nonatomic, copy) void (^touched)(CGPoint p, UIView *v);   // v = view nhan cham (de biet cham vao thanh nut hay cho khac)
 @end
 @implementation SCPCarSplitView
 - (UIView *)hitTest:(CGPoint)p withEvent:(UIEvent *)e
 {
     UIView *v = [super hitTest:p withEvent:e];
-    if (v && self.touched && e.type == UIEventTypeTouches) self.touched(p);
+    if (v && self.touched && e.type == UIEventTypeTouches) self.touched(p, v);
     return v;
 }
 @end
@@ -859,6 +859,7 @@ static void SCPCFrame(UIView *v) { v.layer.borderWidth = 0; }
 @property (nonatomic) CGRect hostFrame;               // khung cua so host (App Bridge) da gui lan cuoi
 @property (nonatomic) BOOL hostHandle;                // lan gui gan nhat co thanh "•••" do SpringBoard ve khong
 @property (nonatomic) BOOL hostBar;                   // lan gui gan nhat co thanh nut do SpringBoard ve de len app khong
+@property (nonatomic) BOOL hostAnyBar;                // lan gui gan nhat: co thanh nut cua o NAO DO dang mo (SpringBoard chan cham vao app de an)
 @property (nonatomic) CGSize sceneSize;               // kich thuoc da bao cho scene lan cuoi
 @end
 @implementation SCPCarPane
@@ -1285,8 +1286,9 @@ static NSString *SCPCPinnedApp(void)
     c.backgroundColor = [UIColor blackColor];
     c.clipsToBounds = YES;
     __weak SCPCarSplit *weakSelf = self;
-    c.touched = ^(CGPoint p) {
+    c.touched = ^(CGPoint p, UIView *v) {
         SCPCarSplit *me = weakSelf;
+        [me hideBarsForTouchOn:v];   // thanh nut dang mo: cham cho khac -> an ngay
         SCPCarPane *fp = me.floatPane;
         if (fp && fp.view.alpha > 0 && CGRectContainsPoint(fp.view.frame, p)) return;   // cham vao cua so noi
         for (SCPCarPane *pane in me.slots) {
@@ -2775,7 +2777,7 @@ static void SCPCHandleOpen(UIView *h, BOOL open)
         p.barTimer = [NSTimer scheduledTimerWithTimeInterval:4 repeats:NO block:^(NSTimer *t) {
             if (weakPane) [weakSelf setBarVisible:NO forPane:weakPane];
         }];
-        if (wasHidden) [self sendHostFrameForPane:p live:NO];   // o app iPhone: cua so host nhuong cho thanh nut
+        if (wasHidden) [self pushHostFramesLive:NO];   // o app iPhone: SpringBoard ve thanh nut cua o nay + lop chan tren moi o app iPhone (anyBar)
     } else if (!p.bar.hidden) {
         SCPCHandleOpen(p.handle, NO);
         UIView *bar = p.bar;
@@ -2786,8 +2788,7 @@ static void SCPCHandleOpen(UIView *h, BOOL open)
             bar.alpha = 0; bar.transform = CGAffineTransformScale(t, 0.94, 0.94);
         } completion:^(BOOL f) {
             bar.hidden = YES; bar.alpha = 1; bar.transform = t;
-            SCPCarPane *pp = weakPane;
-            if (pp) [weakSelf sendHostFrameForPane:pp live:NO];   // o app iPhone: cua so host len lai khi thanh an xong
+            if (weakPane) [weakSelf pushHostFramesLive:NO];   // o app iPhone: SpringBoard an thanh nut + bo lop chan khi khong con thanh nao mo
         }];
     }
 }
@@ -2849,6 +2850,26 @@ static void SCPCHandleOpen(UIView *h, BOOL open)
         SCPCarPane *p = [self paneForView:g.view];
         if (p) [self setBarVisible:p.bar.hidden forPane:p];
     } @catch (NSException *e) { SCPLog("CarSplit: loi cham thanh ••• %@", e); }
+}
+
+// Thanh nut dang mo ma ngon tay cham vao bat ky cho nao khac (app, vach, o khac...) -> an ngay, khong cho het 4 giay.
+// Cham vao chinh thanh nut / thanh "•••" cua o do thi giu (nut tren thanh con nhan duoc cham; "•••" tu dong / mo).
+// v = view nhan cham trong container (hitTest); nil = khong biet -> an het.
+- (void)hideBarsForTouchOn:(UIView *)v
+{
+    for (SCPCarPane *p in [self allPanes]) {
+        if (!p.bar || p.bar.hidden) continue;
+        if (v && ([v isDescendantOfView:p.bar] || (p.handle && [v isDescendantOfView:p.handle]))) continue;
+        [self setBarVisible:NO forPane:p];
+    }
+}
+
+// SpringBoard bao (AB_NOTIF_BAR_DISMISS): cham vao app iPhone dang host o cho khong phai thanh nut / "•••" trong luc
+// mot thanh nut dang mo (cham vao app khong bao gio toi CarPlay, SpringBoard chan bang lop AB shield) -> an het.
+- (void)bridgeOutsideTouched
+{
+    if (!self.active) return;
+    [self hideBarsForTouchOn:nil];
 }
 
 // Keo "•••": the icon app theo tay, o duoi tay sang vien xanh; tha len o khac -> doi cho
@@ -4836,7 +4857,15 @@ static NSArray<NSDictionary *> *SCPCPhoneApps(void)
     BOOL isFloat = (p == self.floatPane);
     BOOL canPop = isFloat ? (p.vc && [self paneCount] < SCPC_MAX_PANES) : [self canPopOutPane:p];
     BOOL single = self.zoomedSlot && self.zoomedSlot.intValue == p.slot;
-    return @{@"bar": @(!p.bar.hidden), @"pop": @(isFloat ? 2 : 1), @"popDim": @(!canPop), @"single": @(single)};
+    // anyBar: thanh nut cua o nao do (ke ca o CarPlay) dang mo -> SpringBoard dat lop chan tren moi o app iPhone: cham vao
+    // app = cham cho khac -> an thanh nut ngay (AB_NOTIF_BAR_DISMISS)
+    return @{@"bar": @(!p.bar.hidden), @"pop": @(isFloat ? 2 : 1), @"popDim": @(!canPop), @"single": @(single), @"anyBar": @([self anyBarVisible])};
+}
+
+- (BOOL)anyBarVisible
+{
+    for (SCPCarPane *p in [self allPanes]) if (p.bar && !p.bar.hidden) return YES;
+    return NO;
 }
 
 // Dai sat mep cua so host cho cham xuyen xuong CarPlay (canh giap o khac: keo vach; canh giap mep vung app: 0)
@@ -4873,9 +4902,9 @@ static NSArray<NSDictionary *> *SCPCPhoneApps(void)
     if (!SCPCIsHostedVC(p.vc) || !p.bundleID) return;
     CGRect r = [self hostFrameForPane:p];
     BOOL handle = !CGRectIsEmpty(r);   // thanh "•••" luon hien, thanh nut (SpringBoard ve) nam duoi no
-    BOOL bar = !p.bar.hidden;
-    if (!live && CGRectEqualToRect(r, p.hostFrame) && handle == p.hostHandle && bar == p.hostBar) return;
-    p.hostFrame = r; p.hostHandle = handle; p.hostBar = bar;
+    BOOL bar = !p.bar.hidden, anyBar = [self anyBarVisible];
+    if (!live && CGRectEqualToRect(r, p.hostFrame) && handle == p.hostHandle && bar == p.hostBar && anyBar == p.hostAnyBar) return;
+    p.hostFrame = r; p.hostHandle = handle; p.hostBar = bar; p.hostAnyBar = anyBar;
     [self hostPost:AB_NOTIF_FRAME info:[self hostFrameInfo:r pane:p live:live handle:handle]];
     [self publishKnobsSoon];   // gui kem cham tron (gom 1 lan/vong runloop): SpringBoard moi respring hay vua tao cua so cung co
 }
@@ -4914,7 +4943,7 @@ static NSArray<NSDictionary *> *SCPCPhoneApps(void)
         if (!me.active || !pp || ![pp.bundleID isEqualToString:bid]) return;
         CGRect r = [me hostFrameForPane:pp];
         if (CGRectIsEmpty(r)) r = [pp.view convertRect:pp.view.bounds toView:nil];
-        pp.hostFrame = r; pp.hostHandle = !CGRectIsEmpty(r); pp.hostBar = !pp.bar.hidden;
+        pp.hostFrame = r; pp.hostHandle = !CGRectIsEmpty(r); pp.hostBar = !pp.bar.hidden; pp.hostAnyBar = [me anyBarVisible];
         [me hostPost:AB_NOTIF_OPEN info:[me hostFrameInfo:r pane:pp live:NO handle:pp.hostHandle]];
     });
     // Khong thay app len sau 8s -> bo the "dang mo" (app van co the toi muon)

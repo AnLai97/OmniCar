@@ -28,6 +28,7 @@ static int (*orig_BKSDisplayServicesSetScreenBlanked)(int) = NULL;
             [[ABHost shared] setPassInsets:UIEdgeInsetsMake([u[@"pt"] doubleValue], [u[@"pl"] doubleValue], [u[@"pb"] doubleValue], [u[@"pr"] doubleValue])
                                     forApp:u[@"identifier"]];
             [[ABHost shared] setBarVisible:[u[@"bar"] boolValue] pop:[u[@"pop"] intValue] dim:[u[@"popDim"] boolValue] single:[u[@"single"] boolValue] forApp:u[@"identifier"]];
+            [[ABHost shared] setShield:[u[@"anyBar"] boolValue] forApp:u[@"identifier"]];
             [[ABHost shared] setCornerRadius:[u[@"r"] doubleValue] corners:(CACornerMask)[u[@"corners"] unsignedLongLongValue] forApp:u[@"identifier"]];
             [[ABHost shared] setHandleOffset:[u[@"hx"] doubleValue] forApp:u[@"identifier"]];
             [[ABHost shared] setFront:[u[@"front"] boolValue] forApp:u[@"identifier"]];
@@ -41,6 +42,7 @@ static int (*orig_BKSDisplayServicesSetScreenBlanked)(int) = NULL;
         @try {
             [[ABHost shared] setFrame:r forApp:u[@"identifier"] live:[u[@"live"] boolValue] handle:[u[@"handle"] boolValue] passInsets:pass];
             [[ABHost shared] setBarVisible:[u[@"bar"] boolValue] pop:[u[@"pop"] intValue] dim:[u[@"popDim"] boolValue] single:[u[@"single"] boolValue] forApp:u[@"identifier"]];
+            [[ABHost shared] setShield:[u[@"anyBar"] boolValue] forApp:u[@"identifier"]];
             [[ABHost shared] setCornerRadius:[u[@"r"] doubleValue] corners:(CACornerMask)[u[@"corners"] unsignedLongLongValue] forApp:u[@"identifier"]];
             [[ABHost shared] setHandleOffset:[u[@"hx"] doubleValue] forApp:u[@"identifier"]];
             [[ABHost shared] setFront:[u[@"front"] boolValue] forApp:u[@"identifier"]];

@@ -44,7 +44,7 @@ logo: `tools/preview/index.html#logo`; bàn phím: `tools/preview/index.html#key
 ## Chuyển động
 - Hiện: lò xo HarmonyOS (damping ~0,86, thu 0,94 → 1, thả xuống 8 pt); ẩn: trượt / mờ 250 ms
   (đường cong 0.2, 0, 0.2, 1). Các mục hiện lần lượt.
-- Bảng bố cục, thanh •••, thanh tỉ lệ tự đóng sau 4 s không chạm.
+- Bảng bố cục, thanh •••, thanh tỉ lệ tự đóng sau 4 s không chạm. Thanh nút ••• còn ẩn ngay khi chạm bất kỳ chỗ khác trên màn (ô khác, app, vạch); chạm vào app iPhone (App Bridge) thì chạm đó chỉ để đóng thanh, không tới app.
 
 ## Dùng khi lái xe
 - Ô bấm to, cách xa nhau; nhiều mục thì chia trang vuốt ngang có chấm trang HarmonyOS, không cuộn dọc.

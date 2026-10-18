@@ -59,6 +59,9 @@
 // SpringBoard -> CarPlay process: a button of the bar drawn over the hosted app was tapped
 // (identifier, action = replace | pop | full | close)
 #define AB_NOTIF_BAR_ACTION  @"com.anlai.omnicar/appbridge.baraction"
+// SpringBoard -> CarPlay process: while a pane bar is open (FRAME / OPEN "anyBar"), a touch landed on a hosted app
+// outside its bar / "•••" (the shield over the app took it) -> CarPlay hides every bar at once (tap elsewhere = dismiss)
+#define AB_NOTIF_BAR_DISMISS @"com.anlai.omnicar/appbridge.bardismiss"
 // Orientation model (from CarDuo 1.0, which ran YouTube fine): the scene of a hosted app is PORTRAIT by default
 // whatever the box shape (a wide box is a wide portrait window), because an app whose main UI is portrait-only
 // (YouTube, TikTok) draws sideways in a landscape scene. The app itself may ask for landscape (YouTube full-screen
