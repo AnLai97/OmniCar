@@ -446,6 +446,15 @@ static void SSWeatherAskSpringBoard(void (^done)(NSDictionary *weather)) {
 	gWeatherWaiter = done;
 	SSLog(@"weather: no location access here, asking SpringBoard");
 	notify_post(SS_NOTIFY_WEATHER_REQUEST_C);
+	// After a respring CarPlay.app and its splash come up before SpringBoard has registered the observer (log 18/10
+	// 11:56: asked at 40.5s, SpringBoard loaded the tweak at 40.7s, no answer) -> ask again at 2 s and 5 s while waiting.
+	for (NSNumber *delay in @[@2, @5]) {
+		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delay.doubleValue * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+			if (gWeatherSeq != seq || !gWeatherWaiter) return;
+			SSLog(@"weather: no answer yet, asking SpringBoard again");
+			notify_post(SS_NOTIFY_WEATHER_REQUEST_C);
+		});
+	}
 	dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
 		if (gWeatherSeq != seq || !gWeatherWaiter) return;
 		void (^waiter)(NSDictionary *) = gWeatherWaiter;
@@ -1071,6 +1080,12 @@ static void SSTestInstall(void) {
 			CFNotificationCenterAddObserver(darwin, NULL, SSAudioNotification, SS_NOTIFY_AUDIO_PLAY, NULL, CFNotificationSuspensionBehaviorDeliverImmediately);
 			CFNotificationCenterAddObserver(darwin, NULL, SSAudioNotification, SS_NOTIFY_AUDIO_STOP, NULL, CFNotificationSuspensionBehaviorDeliverImmediately);
 			CFNotificationCenterAddObserver(darwin, NULL, SSWeatherRequestNotification, CFSTR(SS_NOTIFY_WEATHER_REQUEST_C), NULL, CFNotificationSuspensionBehaviorDeliverImmediately);
+			// Warm the weather cache once SpringBoard is up: the first splash after a respring then has today's weather
+			// even if its own request raced the registration above.
+			dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(15 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+				SSLog(@"weather: warming the cache at startup");
+				SSWeatherServe();
+			});
 			// Create the call observer once SpringBoard is up, so its call list is filled in by the time a car connects.
 			dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
 				if (!gCallObserver) gCallObserver = [CXCallObserver new];

@@ -842,13 +842,17 @@ static void SCPCFrame(UIView *v) { v.layer.borderWidth = 0; }
 - (BOOL)pointInside:(CGPoint)p withEvent:(UIEvent *)e { return CGRectContainsPoint(CGRectInset(self.bounds, -18, -14), p); }
 @end
 
-// Lop "nhin" cham phu ca man xe khi co bang nao dang mo (bang bo cuc, thanh ti le, bang chon app, thanh nut •••): hitTest
-// duoc goi cho moi cham bat dau trong khung -> cham ngoai cac bang (exempt tra NO) thi bao dong het, roi tra nil de cham
-// van di tiep xuong dock / o / app nhu khong co lop nay (khong nuot cham). Cham vao app iPhone khong toi day (tien trinh
-// app nhan truoc) -> SpringBoard chan bang lop AB shield (AB_NOTIF_SHIELD) va bao lai (AB_NOTIF_BAR_DISMISS).
+// Lop chan phu ca man xe khi co bang nao dang mo (bang bo cuc, thanh ti le, bang chon app): cham ngoai bang -> dong het.
+// Bang nam trong cua so rieng (UIRootSceneWindow, context khac voi man chinh CarPlay) va backboardd chi dua cham toi context
+// co lop DUOC VE tai diem cham (log 18/10 11:57: lop trong suot -> cham ngoai bang di thang xuong man chinh, bang khong dong),
+// nen lop nay phai co ve (trang alpha 0.02, mat khong thay): cham ngoai bang den day, bao dong het, roi bi nuot (hitTest nil,
+// nhu popup iOS). Khoet lo (holes, mask) tai nut Split Screen tren dock, "•••" / thanh nut cac o, cham tron, "+" cua o chon
+// app: cho do khong ve nen cham di thang toi nut ben duoi (nut tu bat / tat bang). Cham vao app iPhone: lop nay o tren cua
+// so App Bridge nen cung den day; khong co cua so rieng thi SpringBoard chan (AB_NOTIF_SHIELD) va bao lai (AB_NOTIF_BAR_DISMISS).
 @interface SCPCTouchWatch : UIView
 @property (nonatomic, copy) BOOL (^exempt)(CGPoint windowPoint);   // YES = cham vao chinh bang / nut mo bang -> khong dong
 @property (nonatomic, copy) void (^outside)(void);
+- (void)setHoles:(NSArray<NSValue *> *)holes;   // khung (toa do lop nay) khong ve
 @end
 @implementation SCPCTouchWatch
 - (UIView *)hitTest:(CGPoint)p withEvent:(UIEvent *)e
@@ -858,6 +862,19 @@ static void SCPCFrame(UIView *v) { v.layer.borderWidth = 0; }
         if (!self.exempt || !self.exempt(wp)) self.outside();
     }
     return nil;
+}
+- (void)setHoles:(NSArray<NSValue *> *)holes
+{
+    if (!holes.count) { self.layer.mask = nil; return; }
+    UIBezierPath *path = [UIBezierPath bezierPathWithRect:self.bounds];
+    for (NSValue *v in holes) [path appendPath:[UIBezierPath bezierPathWithRect:v.CGRectValue]];
+    CAShapeLayer *m = [self.layer.mask isKindOfClass:[CAShapeLayer class]] ? (CAShapeLayer *)self.layer.mask : [CAShapeLayer layer];
+    m.fillRule = kCAFillRuleEvenOdd;
+    m.frame = self.bounds;
+    [CATransaction begin]; [CATransaction setDisableActions:YES];
+    m.path = path.CGPath;
+    self.layer.mask = m;
+    [CATransaction commit];
 }
 @end
 
@@ -2887,9 +2904,10 @@ static void SCPCHandleOpen(UIView *h, BOOL open)
     [self hideBarsForTouchOn:nil];
 }
 
-// Cham vao chinh bang / nut mo bang (toa do man xe) thi khong dong: bang bo cuc, thanh ti le, bang chon app, nut Split Screen
-// tren dock (toggle cua no tu dong), cham tron dang mo thanh ti le, thanh nut + "•••" cua moi o, "+" cua o dang chon app
-- (BOOL)shieldExemptPoint:(CGPoint)wp
+// Khung (toa do man xe, noi rong 8pt) cham vao thi khong dong bang va lop chan khong ve o do (cham di thang toi nut): bang bo
+// cuc, thanh ti le, bang chon app, nut Split Screen tren dock (toggle cua no tu dong), cham tron dang mo thanh ti le, thanh nut
+// + "•••" cua moi o, "+" cua o dang chon app
+- (NSArray<NSValue *> *)shieldExemptRects
 {
     NSMutableArray<UIView *> *views = [NSMutableArray array];
     if (self.tray) [views addObject:self.tray];
@@ -2902,27 +2920,55 @@ static void SCPCHandleOpen(UIView *h, BOOL open)
         if (p.handle && !p.handle.hidden) [views addObject:p.handle];
         if (p.bar && !p.bar.hidden) [views addObject:p.bar];
     }
+    NSMutableArray<NSValue *> *rects = [NSMutableArray array];
     for (UIView *v in views) {
-        if (!v.window || v.hidden) continue;
-        if (CGRectContainsPoint(CGRectInset([v convertRect:v.bounds toView:nil], -8, -8), wp)) return YES;
+        if (!v.window || v.hidden || v.alpha < 0.05) continue;
+        [rects addObject:[NSValue valueWithCGRect:CGRectInset([v convertRect:v.bounds toView:nil], -8, -8)]];
     }
+    return rects;
+}
+
+- (BOOL)shieldExemptPoint:(CGPoint)wp
+{
+    for (NSValue *r in [self shieldExemptRects]) if (CGRectContainsPoint(r.CGRectValue, wp)) return YES;
     return NO;
 }
 
-// Lop nhin cham (SCPCTouchWatch) phu ca man xe trong cua so bang bo cuc (hoac view goc neu khong co cua so) khi co bang mo;
-// bo khi het bang. Luon o tren cung cua cua so do (hitTest tra nil nen khong che gi).
+// Lo khoet cua lop chan theo cac nut hien tai (goi lai khi thanh nut / bo cuc doi)
+- (void)refreshShieldHoles
+{
+    SCPCTouchWatch *s = (SCPCTouchWatch *)self.popupShield;
+    if (!s) return;
+    NSMutableArray<NSValue *> *holes = [NSMutableArray array];
+    for (NSValue *r in [self shieldExemptRects]) [holes addObject:[NSValue valueWithCGRect:[s convertRect:r.CGRectValue fromView:nil]]];
+    [s setHoles:holes];
+}
+
+// Bang that (co lop chan phu man): bang bo cuc / thanh ti le / bang chon app. Thanh nut ••• khong tinh: an khi cham cho khac
+// qua hitTest cua container (cung context, cham van di tiep) va lop chan SpringBoard tren app iPhone.
+- (BOOL)panelOpen
+{
+    return self.tray || self.ratioMenu || self.pickerSheet;
+}
+
+// Lop chan (SCPCTouchWatch) phu ca man xe trong cua so bang bo cuc (hoac view goc neu khong co cua so) khi co bang mo; bo khi
+// het bang. Luon o tren cung cua cua so do.
 - (void)updatePopupShield
 {
-    BOOL want = [self popupOpen];
+    BOOL want = [self panelOpen];
     UIView *parent = want ? [self tabParent] : nil;
-    UIView *host = parent ? ([self trayWindowForParent:parent] ?: parent) : nil;   // (cua so bang bo cuc tu an khi bang cuoi dong xong)
-    if (!want || !host) { [self.popupShield removeFromSuperview]; self.popupShield = nil; return; }
+    UIView *host = parent ? ([self trayWindowForParent:parent] ?: parent) : nil;
+    if (!want || !host) {
+        [self.popupShield removeFromSuperview]; self.popupShield = nil;
+        [self hideTrayWindowIfIdle];
+        return;
+    }
     SCPCTouchWatch *s = (SCPCTouchWatch *)self.popupShield;
     if (!s || s.superview != host) {
         [s removeFromSuperview];
         s = [[SCPCTouchWatch alloc] initWithFrame:host.bounds];
         s.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-        s.backgroundColor = [UIColor clearColor];
+        s.backgroundColor = [UIColor colorWithWhite:1 alpha:0.02];   // co ve: backboardd moi dua cham ve cua so nay
         __weak SCPCarSplit *weakSelf = self;
         s.exempt = ^BOOL(CGPoint wp) { return [weakSelf shieldExemptPoint:wp]; };
         s.outside = ^{ SCPCAfter(0, ^{ [weakSelf closePopups]; }); };   // ngoai hitTest (dang phan phoi cham) moi doi view
@@ -2930,6 +2976,7 @@ static void SCPCHandleOpen(UIView *h, BOOL open)
         self.popupShield = s;
     }
     [host bringSubviewToFront:s];
+    [self refreshShieldHoles];
 }
 
 // Keo "•••": the icon app theo tay, o duoi tay sang vien xanh; tha len o khac -> doi cho
@@ -4984,6 +5031,7 @@ static NSArray<NSDictionary *> *SCPCPhoneApps(void)
 {
     for (SCPCarPane *p in [self hostedPanes]) [self sendHostFrameForPane:p live:live];
     [self publishShield];
+    [self refreshShieldHoles];   // thanh nut / bo cuc vua doi -> lo khoet cua lop chan theo
 }
 
 // Co bang nao dang mo (bang bo cuc / thanh ti le / bang chon app / thanh nut •••) -> SpringBoard dat lop chan tren MOI o app
