@@ -79,7 +79,11 @@ static NSData *SPPToneWav(NSInteger tone)
     return d;
 }
 
+#ifdef SPP_SOUND_PREFS   // bundle Cai dat: khong co Core
+#define SPPSoundLog(fmt, ...) NSLog(@"OmniCar SpeedBubble: " fmt, ##__VA_ARGS__)
+#else
 #define SPPSoundLog(fmt, ...) OMCLogWrite(@"SpeedBubble", [NSString stringWithFormat:@fmt, ##__VA_ARGS__])
+#endif
 
 // Phien am thanh: truoc day am bao phat bang am he thong (AudioServicesPlaySystemSound: theo cong tac im lang, ra loa
 // iPhone) va giong noi bang phien rieng cua AVSpeechSynthesizer (trong SpringBoard phien do khong len tieng - log 18/10
