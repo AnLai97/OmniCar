@@ -1,5 +1,3 @@
-    if ([key isEqualToString:SB_KEY_SHOW_APP_ICON]) { self.stripOffset = self.styleStrip.contentOffset.x; [self reloadSection:SBStyle]; }
-    if ([key isEqualToString:SB_KEY_SHOW_APP_ICON]) { self.stripOffset = self.styleStrip.contentOffset.x; [self reloadSection:SBStyle]; }
 #import "OMCSpeedBubbleController.h"
 #import "OMCTheme.h"
 #import "../SpeedBubble.h"
