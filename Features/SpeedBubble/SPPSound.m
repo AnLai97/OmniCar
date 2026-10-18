@@ -79,18 +79,80 @@ static NSData *SPPToneWav(NSInteger tone)
     return d;
 }
 
+#define SPPSoundLog(fmt, ...) OMCLogWrite(@"SpeedBubble", [NSString stringWithFormat:@fmt, ##__VA_ARGS__])
+
+// Phien am thanh: truoc day am bao phat bang am he thong (AudioServicesPlaySystemSound: theo cong tac im lang, ra loa
+// iPhone) va giong noi bang phien rieng cua AVSpeechSynthesizer (trong SpringBoard phien do khong len tieng - log 18/10
+// 10:26: "canh bao: noi ..." ma xe im). Lam nhu am man khoi dong (StartupScreen.x, da nghe duoc tren xe): phien chung
+// cua process, Playback (khong theo cong tac im lang) + mix (nhac / dan duong tren xe khong bi ngat) + duck (nho nhac
+// de nghe ro), bat khi phat, tat khi xong (NotifyOthersOnDeactivation: nhac to lai). Trang Cai dat (nghe thu) di cung duong.
+static NSString *gSavedCategory;
+static AVAudioSessionCategoryOptions gSavedOptions;
+static int gPlaying;   // so viec dang phat (am bao / giong noi)
+
+static void SPPAudioBegin(void)
+{
+    AVAudioSession *s = [AVAudioSession sharedInstance];
+    if (gPlaying++ == 0 && !gSavedCategory) { gSavedCategory = s.category; gSavedOptions = s.categoryOptions; }
+    NSError *e = nil;
+    if (![s setCategory:AVAudioSessionCategoryPlayback withOptions:AVAudioSessionCategoryOptionMixWithOthers | AVAudioSessionCategoryOptionDuckOthers error:&e])
+        SPPSoundLog("am thanh: khong dat duoc phien Playback: %@", e);
+    e = nil;
+    if (![s setActive:YES error:&e]) SPPSoundLog("am thanh: khong bat duoc phien: %@", e);
+    else SPPSoundLog("am thanh: phien bat, ra %@", s.currentRoute.outputs.firstObject.portType ?: @"?");
+}
+
+static void SPPAudioEnd(void)
+{
+    if (gPlaying <= 0 || --gPlaying > 0) return;
+    AVAudioSession *s = [AVAudioSession sharedInstance];
+    [s setActive:NO withOptions:AVAudioSessionSetActiveOptionNotifyOthersOnDeactivation error:nil];
+    if (gSavedCategory) [s setCategory:gSavedCategory withOptions:gSavedOptions error:nil];
+    gSavedCategory = nil;
+}
+
+// Nhan "phat xong" cua AVAudioPlayer / AVSpeechSynthesizer -> tat phien
+@interface SPPSoundDelegate : NSObject <AVAudioPlayerDelegate, AVSpeechSynthesizerDelegate>
+@end
+@implementation SPPSoundDelegate
+- (void)audioPlayerDidFinishPlaying:(AVAudioPlayer *)player successfully:(BOOL)flag { SPPAudioEnd(); }
+- (void)audioPlayerDecodeErrorDidOccur:(AVAudioPlayer *)player error:(NSError *)error { SPPSoundLog("am thanh: loi giai ma %@", error); SPPAudioEnd(); }
+- (void)speechSynthesizer:(AVSpeechSynthesizer *)s didFinishSpeechUtterance:(AVSpeechUtterance *)u { SPPAudioEnd(); }
+- (void)speechSynthesizer:(AVSpeechSynthesizer *)s didCancelSpeechUtterance:(AVSpeechUtterance *)u { SPPAudioEnd(); }
+@end
+
+static SPPSoundDelegate *SPPDelegate(void)
+{
+    static SPPSoundDelegate *d;
+    if (!d) d = [SPPSoundDelegate new];
+    return d;
+}
+
 void SPPPlayTone(NSInteger tone)
 {
-    static SystemSoundID ids[SB_TONE_COUNT];
+    static AVAudioPlayer *player;
+    static NSData *wavs[SB_TONE_COUNT];
     if (tone < 0 || tone >= SB_TONE_COUNT) tone = 0;
-    if (!ids[tone]) {
-        NSString *path = [NSTemporaryDirectory() stringByAppendingPathComponent:[NSString stringWithFormat:@"omc-speedbubble-tone-%ld.wav", (long)tone]];
-        if (![SPPToneWav(tone) writeToFile:path atomically:YES]) return;
-        SystemSoundID sid = 0;
-        if (AudioServicesCreateSystemSoundID((__bridge CFURLRef)[NSURL fileURLWithPath:path], &sid) != noErr) return;
-        ids[tone] = sid;
+    if (!wavs[tone]) wavs[tone] = SPPToneWav(tone);
+    if (player) { [player stop]; player = nil; }
+    SPPAudioBegin();
+    NSError *e = nil;
+    player = [[AVAudioPlayer alloc] initWithData:wavs[tone] fileTypeHint:AVFileTypeWAVE error:&e];
+    if (!player) {   // khong mo duoc: phat bang am he thong nhu cu (co the im tren xe)
+        SPPSoundLog("am thanh: khong mo duoc am bao %ld: %@ -> am he thong", (long)tone, e);
+        SPPAudioEnd();
+        static SystemSoundID ids[SB_TONE_COUNT];
+        if (!ids[tone]) {
+            NSString *path = [NSTemporaryDirectory() stringByAppendingPathComponent:[NSString stringWithFormat:@"omc-speedbubble-tone-%ld.wav", (long)tone]];
+            SystemSoundID sid = 0;
+            if ([wavs[tone] writeToFile:path atomically:YES] && AudioServicesCreateSystemSoundID((__bridge CFURLRef)[NSURL fileURLWithPath:path], &sid) == noErr) ids[tone] = sid;
+        }
+        if (ids[tone]) AudioServicesPlaySystemSound(ids[tone]);
+        return;
     }
-    AudioServicesPlaySystemSound(ids[tone]);
+    player.delegate = SPPDelegate();
+    player.volume = 1;
+    if (![player play]) { SPPSoundLog("am thanh: khong phat duoc am bao %ld", (long)tone); SPPAudioEnd(); }
 }
 
 // Ma giong theo ngon ngu OmniCar (AVSpeechSynthesisVoice can vung)
@@ -107,10 +169,15 @@ void SPPSpeak(NSString *text)
     if (!text.length) return;
     if (!synth) {
         synth = [AVSpeechSynthesizer new];
-        synth.usesApplicationAudioSession = NO;   // he thong tu lo phien am thanh (giam nhac, ra loa xe)
+        synth.usesApplicationAudioSession = YES;   // dung phien cua process (SPPAudioBegin): phien rieng trong SpringBoard khong len tieng
+        synth.delegate = SPPDelegate();
     }
-    [synth stopSpeakingAtBoundary:AVSpeechBoundaryImmediate];
+    if (synth.speaking) [synth stopSpeakingAtBoundary:AVSpeechBoundaryImmediate];   // didCancel -> SPPAudioEnd cua cau cu
+    SPPAudioBegin();
     AVSpeechUtterance *u = [AVSpeechUtterance speechUtteranceWithString:text];
-    u.voice = [AVSpeechSynthesisVoice voiceWithLanguage:SPPSpeechLanguage()];
+    AVSpeechSynthesisVoice *voice = [AVSpeechSynthesisVoice voiceWithLanguage:SPPSpeechLanguage()];
+    if (!voice) SPPSoundLog("am thanh: khong co giong %@, dung giong mac dinh", SPPSpeechLanguage());
+    u.voice = voice;
+    u.volume = 1;
     [synth speakUtterance:u];
 }

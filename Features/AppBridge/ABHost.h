@@ -14,6 +14,9 @@
 // kin o nay: cham vao app = cham cho khac -> an thanh nut ngay (AB_NOTIF_BAR_DISMISS), cham do khong toi app
 - (void)setShield:(BOOL)on forApp:(NSString *)bid;
 - (void)outsideTouched;   // lop chan nhan cham: an moi thanh nut + bo moi lop chan ngay (ABShieldView goi)
+// Cua so noi cua CarPlay (ve duoi cua so host) nam tren o nay: khoet lo dung khung do (toa do man xe, CGRectZero = khong)
+// de cua so noi lo ra va cham duoc (FRAME / OPEN "ox/oy/ow/oh")
+- (void)setHole:(CGRect)hole forApp:(NSString *)bid;
 - (void)setFront:(BOOL)front forApp:(NSString *)bid;   // cua so noi: len tren cac o app iPhone khac
 @property (nonatomic) CGRect carAppArea;   // vung app cua man xe (khong tinh dock), CarPlay gui kem moi khung o; ban phim xe trai theo day
 - (void)setCornerRadius:(CGFloat)radius corners:(CACornerMask)corners forApp:(NSString *)bid;   // bo goc nhu o CarPlay

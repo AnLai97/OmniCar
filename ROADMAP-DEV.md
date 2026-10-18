@@ -55,7 +55,7 @@ Thiếu một trong các mục này thì khách quốc tế không mua, hoặc m
   khỏi bản phát hành. Cài đặt > Hỗ trợ > Tự kiểm tra: chọn tính năng → mỗi tính năng tự chạy bộ test của nó trên xe,
   mỗi bước ghi đạt / lỗi + lý do + trạng thái + ảnh màn xe → Gửi log. Process sập giữa chừng thì lần sau chạy tiếp.
   Bộ test: Chia màn hình (nút Split Screen trên dock: 2 ô theo nút Home, bấm mở / đóng bảng bố cục, còn hiện khi đang chia và sau khi tắt; bố cục, tỉ lệ, đổi chỗ, cửa sổ nổi, bảng chọn / bảng bố cục, toàn màn, lệnh URL, yêu thích,
-  gần đây, bấm nhanh), App Bridge (trong ô, tỉ lệ, đổi chỗ, 3 ô, chặn cửa sổ nổi, toàn màn, đóng, icon, 2 app cùng
+  gần đây, bấm nhanh), App Bridge (trong ô, tỉ lệ, đổi chỗ, 3 ô, cửa sổ nổi (app iPhone nổi, app CarPlay nổi trên ô app iPhone), toàn màn, đóng, icon, 2 app cùng
   lúc), Màn hình khởi động (phát, khung chạy, tự tắt, chạm bỏ qua, tắt tính năng), Bong bóng tốc độ (hiện trên xe,
   số, gần / vượt giới hạn, ẩn khi Split Screen chiếm màn, mọi kiểu, cỡ, mất nguồn).
   Xong khi: một lần chạy trên xe ra đủ kết quả từng bước, gửi log có ảnh, sửa lỗi không cần thử tay lại từng ca.

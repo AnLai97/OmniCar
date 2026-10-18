@@ -860,6 +860,7 @@ static void SCPCFrame(UIView *v) { v.layer.borderWidth = 0; }
 @property (nonatomic) BOOL hostHandle;                // lan gui gan nhat co thanh "•••" do SpringBoard ve khong
 @property (nonatomic) BOOL hostBar;                   // lan gui gan nhat co thanh nut do SpringBoard ve de len app khong
 @property (nonatomic) BOOL hostAnyBar;                // lan gui gan nhat: co thanh nut cua o NAO DO dang mo (SpringBoard chan cham vao app de an)
+@property (nonatomic) CGRect hostHole;                // lan gui gan nhat: lo khoet cho cua so noi CarPlay (toa do man xe), CGRectZero = khong
 @property (nonatomic) CGSize sceneSize;               // kich thuoc da bao cho scene lan cuoi
 @end
 @implementation SCPCarPane
@@ -2367,7 +2368,10 @@ static CGSize SCPCSceneSize(UIViewController *vc)
     return CGSizeMake(MIN(w, c.width - 16), MIN(h, c.height - 16));
 }
 
-- (void)floatHandleDoubleTapped:(UITapGestureRecognizer *)g
+- (void)floatHandleDoubleTapped:(UITapGestureRecognizer *)g { [self toggleFloatSize]; }
+
+// Doi co cua so noi nho <-> lon (cham dup "•••": o CarPlay qua gesture, o app iPhone qua bridgeHandleTapped)
+- (void)toggleFloatSize
 {
     @try {
         SCPCarPane *fp = self.floatPane;
@@ -2386,7 +2390,8 @@ static CGSize SCPCSceneSize(UIViewController *vc)
     } @catch (NSException *e) { SCPLog("CarSplit: loi doi co cua so noi %@", e); }
 }
 
-// Giu cua so noi gon trong vung app va khong de len o dang chieu CarBridge. Khong con cho -> hen dong.
+// Giu cua so noi gon trong vung app. Nam tren o app iPhone cung duoc: cua so noi CarPlay thi SpringBoard khoet lo trong o
+// (hostFrameInfo "ox/oy/ow/oh"), cua so noi app iPhone thi SpringBoard dua len tren ("front") - khong con "bi che thi dong".
 - (void)fitFloatFrame
 {
     SCPCarPane *fp = self.floatPane;
@@ -2396,29 +2401,7 @@ static CGSize SCPCSceneSize(UIViewController *vc)
     f.size.height = MIN(f.size.height, c.size.height - 16);
     f.origin.x = MIN(MAX(f.origin.x, 8), c.size.width - f.size.width - 8);
     f.origin.y = MIN(MAX(f.origin.y, 8), c.size.height - f.size.height - 8);
-    SCPCarPane *bp = [self bridgedPane];
-    CGRect busy = bp ? [self frameForSlot:bp.slot] : CGRectNull;
-    if (!bp || !CGRectIntersectsRect(f, busy)) self.floatClosing = NO;   // het bi che -> bo hen dong
-    if (bp && CGRectIntersectsRect(f, busy)) {
-        CGRect g = f;   // thu sang canh ben kia
-        g.origin.x = (CGRectGetMidX(f) > CGRectGetMidX(c)) ? 8 : c.size.width - f.size.width - 8;
-        if (!CGRectIntersectsRect(g, busy)) f = g;
-        else if (!self.floatClosing) {
-            self.floatClosing = YES;
-            SCPLog("CarSplit: cua so noi bi %@ (CarBridge) che het cho -> dong", bp.bundleID);
-            __weak SCPCarSplit *weakSelf = self;
-            SCPCAfter(0, ^{
-                SCPCarSplit *me = weakSelf;
-                SCPCarPane *bpp = [me bridgedPane];
-                if (!me.floatPane || !me.floatClosing || !bpp || !CGRectIntersectsRect(me.floatFrame, [me frameForSlot:bpp.slot])) {
-                    me.floatClosing = NO;
-                    return;
-                }
-                [me toast:[NSString stringWithFormat:SCPCT(@"Đóng cửa sổ nổi: %@ đang che hết chỗ", @"Floating window closed: %@ covers the screen"), [me displayNameFor:bpp.bundleID]]];
-                [me closeFloat:YES];
-            });
-        }
-    }
+    self.floatClosing = NO;
     self.floatFrame = f;
 }
 
@@ -2453,17 +2436,9 @@ static CGSize SCPCSceneSize(UIViewController *vc)
     if (!p || p == self.floatPane || !p.vc || !p.bundleID) return SCPCT(@"Ô chưa có app", @"This pane has no app");
     if (self.floatPane.vc) return nil;   // doi cho voi cua so noi
     if ([self paneCount] < 2) return SCPCT(@"Cần ít nhất 2 ô", @"Needs at least 2 panes");
-    // App iPhone khong ra cua so noi: cua so host cua no phu ca vung app, cua so noi CarPlay mo ra bi che roi dong ngay
-    // (log 14/10 22:14: "cua so noi bi youtube che het cho -> dong" -> tat ca split)
-    if (SCPCIsBridgedApp(p.bundleID)) return SCPCT(@"App iPhone không đưa ra cửa sổ nổi được", @"iPhone apps cannot float");
-    // Cac o con lai deu la app iPhone: cua so cua chung phu het vung app, cua so noi CarPlay khong con cho -> app vua dua ra se mat
-    BOOL roomLeft = NO;
-    for (SCPCarPane *o in self.slots) if (o != p && !(o.vc && SCPCIsBridgedApp(o.bundleID))) roomLeft = YES;
-    if (!roomLeft) {
-        NSString *other = nil;
-        for (SCPCarPane *o in self.slots) if (o != p) other = o.bundleID;
-        return [NSString stringWithFormat:SCPCT(@"%@ sẽ che mất cửa sổ nổi", @"%@ would cover the floating window"), [self displayNameFor:other]];
-    }
+    // Moi app deu ra cua so noi duoc. App iPhone: cua so host cua no (SpringBoard) nam tren CarPlay va duoc dua len tren
+    // cac o app iPhone khac ("front"). App CarPlay noi tren o app iPhone: SpringBoard khoet lo dung khung cua so noi trong o
+    // app iPhone ("ox/oy/ow/oh" trong hostFrameInfo) nen cua so noi lo ra va cham duoc. Truoc 18/10 ca hai bi chan.
     return nil;
 }
 
@@ -2540,6 +2515,7 @@ static CGSize SCPCSceneSize(UIViewController *vc)
         [CATransaction setDisableActions:YES];
         fp.view.frame = f;
         [CATransaction commit];
+        if ([self hostedPanes].count) [self pushHostFramesLive:YES];   // lo khoet trong o app iPhone chay theo cua so noi
         return;
     }
     CGRect c = self.container.bounds;
@@ -4888,6 +4864,10 @@ static NSArray<NSDictionary *> *SCPCPhoneApps(void)
     // Thanh "•••" lech sang phai nhu thanh cua o CarPlay khi o nam duoi vach ngang (cham tron cua vach o giua)
     if (p) d[@"hx"] = @([self handleShiftForPane:p]);
     if (p) d[@"front"] = @(p == self.floatPane);   // cua so noi app iPhone: SpringBoard dua len tren cac o app iPhone khac
+    // Cua so noi la app CarPlay (ve trong CarPlay, duoi cua so host) nam tren o app iPhone nay: SpringBoard khoet lo dung
+    // khung do trong o (mask + cham xuyen) de cua so noi lo ra. ow = 0: khong lo.
+    CGRect hole = [self holeForPane:p];
+    d[@"ox"] = @(hole.origin.x); d[@"oy"] = @(hole.origin.y); d[@"ow"] = @(hole.size.width); d[@"oh"] = @(hole.size.height);
     // Vung app cua man xe (khong tinh dock): ban phim xe trai theo ca vung nay du app dang o 1 o chia
     UIView *parent = [self tabParent];
     if (parent) {
@@ -4897,14 +4877,24 @@ static NSArray<NSDictionary *> *SCPCPhoneApps(void)
     return d;
 }
 
+// Lo khoet trong o app iPhone p cho cua so noi CarPlay (toa do man xe); CGRectZero = khong (p la cua so noi, cua so noi
+// la app iPhone - SpringBoard dua len tren, hay khong co / khong giao nhau)
+- (CGRect)holeForPane:(SCPCarPane *)p
+{
+    SCPCarPane *fp = self.floatPane;
+    if (!p || !fp || p == fp || !fp.vc || SCPCIsHostedVC(fp.vc) || !fp.view.window || fp.view.alpha < 0.5) return CGRectZero;
+    CGRect f = [fp.view convertRect:fp.view.bounds toView:nil], r = [p.view convertRect:p.view.bounds toView:nil];
+    return CGRectIntersectsRect(f, r) ? f : CGRectZero;
+}
+
 - (void)sendHostFrameForPane:(SCPCarPane *)p live:(BOOL)live
 {
     if (!SCPCIsHostedVC(p.vc) || !p.bundleID) return;
-    CGRect r = [self hostFrameForPane:p];
+    CGRect r = [self hostFrameForPane:p], hole = [self holeForPane:p];
     BOOL handle = !CGRectIsEmpty(r);   // thanh "•••" luon hien, thanh nut (SpringBoard ve) nam duoi no
     BOOL bar = !p.bar.hidden, anyBar = [self anyBarVisible];
-    if (!live && CGRectEqualToRect(r, p.hostFrame) && handle == p.hostHandle && bar == p.hostBar && anyBar == p.hostAnyBar) return;
-    p.hostFrame = r; p.hostHandle = handle; p.hostBar = bar; p.hostAnyBar = anyBar;
+    if (!live && CGRectEqualToRect(r, p.hostFrame) && handle == p.hostHandle && bar == p.hostBar && anyBar == p.hostAnyBar && CGRectEqualToRect(hole, p.hostHole)) return;
+    p.hostFrame = r; p.hostHandle = handle; p.hostBar = bar; p.hostAnyBar = anyBar; p.hostHole = hole;
     [self hostPost:AB_NOTIF_FRAME info:[self hostFrameInfo:r pane:p live:live handle:handle]];
     [self publishKnobsSoon];   // gui kem cham tron (gom 1 lan/vong runloop): SpringBoard moi respring hay vua tao cua so cung co
 }
@@ -5022,7 +5012,10 @@ static NSArray<NSDictionary *> *SCPCPhoneApps(void)
     BOOL dbl = [self.lastBridgeTapBundle isEqualToString:bid] && now - self.lastBridgeTapAt < 0.35;
     self.lastBridgeTapBundle = dbl ? nil : bid;
     self.lastBridgeTapAt = now;
-    if (dbl && p != self.floatPane) { [self toggleZoomForPane:p]; return; }   // lan 1 da mo thanh nut: toggleZoom dong lai
+    if (dbl) {   // lan 1 da mo thanh nut: toggleZoom / toggleFloatSize dong lai
+        if (p == self.floatPane) [self toggleFloatSize]; else [self toggleZoomForPane:p];
+        return;
+    }
     [self setBarVisible:p.bar.hidden forPane:p];
 }
 

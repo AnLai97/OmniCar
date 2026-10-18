@@ -166,10 +166,13 @@ static void ABPostOrientation(NSString *bid, long long orientation)
 
 // Khung o: cham trong dai passInsets sat mep (canh giap o khac) khong tinh la cham vao o -> cua so (pass-through)
 // tra nil. Thanh "•••" van cham duoc. Cham tron cua vach (ABKnobView, nam tren moi o) tu nhan cham va chuyen sang CarPlay.
+// Lo khoet (hole, toa do o): cua so noi cua CarPlay (ve duoi cua so host) nam tren o nay -> o bi mask bo dung khung do va
+// cham trong do xuyen xuong CarPlay, nen cua so noi lo ra va dung duoc nhu nam tren app. CGRectZero = khong lo.
 @interface ABBoxView : UIView
 @property (nonatomic) UIEdgeInsets passInsets;
 @property (nonatomic, weak) UIView *handleHit;
 @property (nonatomic, weak) UIView *bar;           // thanh nut ve de len app: luon nhan cham
+@property (nonatomic) CGRect hole;
 @end
 @implementation ABBoxView
 - (BOOL)pointInside:(CGPoint)p withEvent:(UIEvent *)e
@@ -177,7 +180,32 @@ static void ABPostOrientation(NSString *bid, long long orientation)
     if (![super pointInside:p withEvent:e]) return NO;
     if (self.handleHit && !self.handleHit.hidden && CGRectContainsPoint(self.handleHit.frame, p)) return YES;
     if (self.bar && !self.bar.hidden && CGRectContainsPoint(self.bar.frame, p)) return YES;
+    if (!CGRectIsEmpty(self.hole) && CGRectContainsPoint(self.hole, p)) return NO;   // trong lo: cham xuyen xuong cua so noi CarPlay
     return CGRectContainsPoint(UIEdgeInsetsInsetRect(self.bounds, self.passInsets), p);
+}
+- (void)setHole:(CGRect)hole
+{
+    if (CGRectEqualToRect(hole, _hole) && (CGRectIsEmpty(hole) || self.layer.mask)) return;
+    _hole = hole;
+    [self applyHole];
+}
+- (void)applyHole
+{
+    if (CGRectIsEmpty(self.hole)) { self.layer.mask = nil; return; }
+    CAShapeLayer *m = [self.layer.mask isKindOfClass:[CAShapeLayer class]] ? (CAShapeLayer *)self.layer.mask : [CAShapeLayer layer];
+    m.fillRule = kCAFillRuleEvenOdd;
+    m.frame = self.bounds;
+    UIBezierPath *path = [UIBezierPath bezierPathWithRect:self.bounds];
+    [path appendPath:[UIBezierPath bezierPathWithRoundedRect:self.hole cornerRadius:12]];   // bo goc nhu cua so noi (SCPC_RADIUS)
+    [CATransaction begin]; [CATransaction setDisableActions:YES];
+    m.path = path.CGPath;
+    self.layer.mask = m;
+    [CATransaction commit];
+}
+- (void)layoutSubviews
+{
+    [super layoutSubviews];
+    if (!CGRectIsEmpty(self.hole)) [self applyHole];   // o doi khung (keo vach / doi bo cuc): mask theo bounds moi
 }
 @end
 
@@ -923,6 +951,14 @@ static UIButton *ABActionButton(NSString *glyph, NSString *title, UIColor *tint,
     [p.box bringSubviewToFront:p.shield];
     if (p.bar) [p.box bringSubviewToFront:p.bar];
     [p.box bringSubviewToFront:p.handleHit];
+}
+
+// Lo khoet cho cua so noi CarPlay (toa do man xe = toa do cua so host) -> toa do o
+- (void)setHole:(CGRect)hole forApp:(NSString *)bid
+{
+    ABPane *p = [self paneFor:bid];
+    if (!p) return;
+    p.box.hole = CGRectIsEmpty(hole) ? CGRectZero : CGRectOffset(hole, -p.frame.origin.x, -p.frame.origin.y);
 }
 
 // Cham vao lop chan cua o nao do: an moi thanh nut + bo moi lop chan ngay (khong doi CarPlay gui lai khung), CarPlay
