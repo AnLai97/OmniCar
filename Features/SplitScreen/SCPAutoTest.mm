@@ -274,6 +274,11 @@ static NSString *SCPATExpectDockButton(void)
         if (CGRectGetMinY(home) - CGRectGetMaxY(r) > 16) return SCPATWhy(SCPATF(@"nut cach nut Home %.0fpt, can sat", CGRectGetMinY(home) - CGRectGetMaxY(r)));
         UIColor *ink = [s homeInk];
         if (ink && ![b.tintColor isEqual:ink]) return SCPATWhy(@"mau nut khac mau luoi nut Home");
+        // Mau theo giao dien dock: den khi sang, trang khi toi (ban dem)
+        BOOL dark = b.traitCollection.userInterfaceStyle == UIUserInterfaceStyleDark;
+        CGFloat white = -1, alpha = 0;
+        if (![[b.tintColor resolvedColorWithTraitCollection:b.traitCollection] getWhite:&white alpha:&alpha] || fabs(white - (dark ? 1 : 0)) > 0.1 || alpha < 0.95)
+            return SCPATWhy(SCPATF(@"mau nut (trang %.2f) khong phai %@ nhu nut Home khi giao dien %@", white, dark ? @"trang" : @"den", dark ? @"toi" : @"sang"));
         OMCTestLog(@"nut Split Screen %@ hinh %@ tren nut Home %@", NSStringFromCGRect(r), NSStringFromCGSize(img.size), NSStringFromCGRect(home));
     } else OMCTestLog(@"khong do duoc luoi nut Home (%@), chi kiem tra nut dang hien", [s launcherWhere] ?: @"?");
     // Khong de len cum icon dock (cum icon da duoc day len neu khe hep)

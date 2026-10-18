@@ -32,7 +32,7 @@ logo: `tools/preview/index.html#logo`; bàn phím: `tools/preview/index.html#key
   (2 khung) · Cửa sổ nổi (khung + ô nhỏ đặc) · Chạy nền (gạch ngang) | Tắt app (X đỏ, tách bằng vạch trắng).
   Icon HarmonyOS Symbol giữ nguyên. Thanh ••• của app iPhone (App Bridge, `ABHost.mm`) vẽ giống hệt.
 - **Bảng chọn app**: icon app không có khung (trần như màn Home), cột sơ đồ bên phải nền trong.
-- **Nút Split Screen trên dock**: ô nền logo 4 màu, viền trắng, glyph 2 ô màu chàm (giống nút Chia màn của thanh •••).
+- **Nút Split Screen trên dock**: không nền / viền, chỉ hình 2 ô đặc cùng cỡ, cùng màu với lưới app của nút Home ngay dưới (đen khi sáng, trắng khi tối). Ở góc vùng app (xe không có dải dock dọc) mới là nút tròn kính trắng.
 - **Thanh tỉ lệ**: hình mô tả tỉ lệ (1/3 · 1/2 · 2/3), không dùng số.
 - **Bàn phím** theo bàn phím HarmonyOS: thẻ nổi bo tròn 4 góc (20) cách mép 6 pt, kín bề rộng ô app, hàng số riêng, gợi ý góc phím (Telex: dấu /
   chữ phím đó tạo), bong bóng phóng to khi chạm; nền logo 4 màu, phím trắng không viền, phím chức năng kính trong
@@ -45,6 +45,7 @@ logo: `tools/preview/index.html#logo`; bàn phím: `tools/preview/index.html#key
 - Hiện: lò xo HarmonyOS (damping ~0,86, thu 0,94 → 1, thả xuống 8 pt); ẩn: trượt / mờ 250 ms
   (đường cong 0.2, 0, 0.2, 1). Các mục hiện lần lượt.
 - Bảng bố cục, thanh •••, thanh tỉ lệ tự đóng sau 4 s không chạm. Thanh nút ••• còn ẩn ngay khi chạm bất kỳ chỗ khác trên màn (ô khác, app, vạch); chạm vào app iPhone (App Bridge) thì chạm đó chỉ để đóng thanh, không tới app.
+- Nút Split Screen trên dock: 2 ô đặc, không nền, **cùng màu với lưới app của nút Home ngay dưới**: đen khi giao diện sáng (ban ngày), trắng khi tối (ban đêm); màu động theo trait của dock nên xe đổi ngày / đêm là đổi theo.
 
 ## Dùng khi lái xe
 - Ô bấm to, cách xa nhau; nhiều mục thì chia trang vuốt ngang có chấm trang HarmonyOS, không cuộn dọc.

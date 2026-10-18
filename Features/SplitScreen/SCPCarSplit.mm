@@ -946,7 +946,7 @@ static BOOL SCPCIsBridgedApp(NSString *bid);
 @property (nonatomic, weak) UIView *launcherHost;      // view dang chua nut Split Screen (view dai dock hoac tabParent)
 @property (nonatomic) BOOL dockTreeLogged;             // da ghi cay view dai dock (1 lan / tien trinh)
 @property (nonatomic, copy) NSString *launcherWhere;  // vi tri nut Split Screen lan truoc (chi de ghi log khi doi)
-@property (nonatomic, strong) UIColor *homeInk;       // mau luoi app cua nut Home dock (nut Split Screen ve cung mau)
+@property (nonatomic, strong) UIColor *homeInk;       // mau nut Split Screen tren dock = mau luoi app cua nut Home: mau dong den (sang) / trang (toi), SCPCHomeInk()
 @property (nonatomic) CGRect homeGlyph;               // khung luoi app cua nut Home (toa do tabParent), Null neu khong thay -> co hinh nut Split Screen
 @property (nonatomic) BOOL launcherBare;              // nut Split Screen dang la hinh tran (tren dock) hay nut tron kinh (goc vung app)
 @property (nonatomic) CFAbsoluteTime lastLauncherCalc;  // lan do dock gan nhat (do lai toi da 1 lan / giay)
@@ -5147,19 +5147,14 @@ static UIImage *SCPCSplitImage(CGSize size)
     return [img imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
 }
 
-// Mau luoi app cua nut Home (o vuong nho co backgroundColor, hoac anh template co tint) de nut Split Screen cung mau
-static UIColor *SCPCViewInk(UIView *v, int depth)
+// Mau luoi app cua nut Home dock = mau nut Split Screen: DEN khi giao dien sang (ban ngay), TRANG khi toi (ban dem).
+// Mau dong theo trait cua chinh nut (nut nam trong dai dock, cung trait voi nut Home) nen CarPlay doi ngay / dem la UIKit
+// tu ve lai, khong can do lai dock. Truoc day do mau tu view con cua nut Home: hay ra xam / sai mau, khong doi theo dem.
+static UIColor *SCPCHomeInk(void)
 {
-    if (!v || depth > 6) return nil;
-    for (UIView *c in v.subviews) {
-        if (c.hidden || c.alpha < 0.05) continue;
-        UIColor *bg = c.backgroundColor;
-        if (bg && CGColorGetAlpha(bg.CGColor) > 0.3 && c.bounds.size.width <= 20 && c.bounds.size.height <= 20) return bg;
-        if ([c isKindOfClass:[UIImageView class]] && ((UIImageView *)c).image.renderingMode == UIImageRenderingModeAlwaysTemplate) return c.tintColor;
-        UIColor *ink = SCPCViewInk(c, depth + 1);
-        if (ink) return ink;
-    }
-    return nil;
+    return [UIColor colorWithDynamicProvider:^UIColor *(UITraitCollection *tc) {
+        return tc.userInterfaceStyle == UIUserInterfaceStyleDark ? [UIColor whiteColor] : [UIColor blackColor];
+    }];
 }
 
 - (BOOL)atHomeScreen
@@ -5244,7 +5239,6 @@ static void SCPCStatusBottom(UIView *v, UIView *parent, CGRect strip, int depth,
         UIView *scan = dock.window ?: root.view;
         UIView *homeView = nil;
         SCPCFindHomeButton(scan, parent, strip, 0, self.homeButton, &home, &homeView);
-        self.homeInk = SCPCViewInk(homeView, 0) ?: self.homeInk;   // cung mau luoi app cua nut Home
         self.homeGlyph = home;                                      // cung co luoi app cua nut Home
         CGFloat statusBottom = CGRectGetMinY(strip) + SCPC_DOCK_TOP;
         SCPCStatusBottom(scan, parent, strip, 0, &statusBottom);
@@ -5320,8 +5314,9 @@ static void SCPCStatusBottom(UIView *v, UIView *parent, CGRect strip, int depth,
         self.homeButton = b;
         self.launcherBare = bare;
     }
-    // Tren dock cung mau luoi app cua nut Home (xam sang tren dock den); chua do duoc thi xam sang nhu CarPlay
-    self.homeButton.tintColor = bare ? (self.homeInk ?: [UIColor colorWithWhite:0.79 alpha:1]) : SCPCInk();
+    // Tren dock cung mau luoi app cua nut Home: den khi giao dien sang, trang khi toi (mau dong, UIKit tu doi ngay / dem)
+    if (!self.homeInk) self.homeInk = SCPCHomeInk();
+    self.homeButton.tintColor = bare ? self.homeInk : SCPCInk();
     // Nut nam tren dai dock: gan vao chinh view ve dai dock (status bar CarPlay nam tren baseContainerView,
     // gan vao tabParent thi nut bi dai dock che mat). Ngoai dock (goc vung app) thi van gan vao tabParent.
     CGRect r = CGRectMake(c.x - size / 2, c.y - size / 2, size, size);

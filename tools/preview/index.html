@@ -148,9 +148,9 @@ section > p { margin: -6px 0 0; color: var(--ink2); font-size: 13px; }
 .dock .t { font-size: 10px; font-weight: 700; }
 .dock .d { width: 30px; height: 30px; border-radius: 8px; }
 .dock .sp { flex: 1; }
-.dock .split { width: 18px; height: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 2px; }   /* nut Split Screen: 2 o dac canh nhau (cua so chia doi), cung co / mau xam / bo goc voi luoi app cua nut Home ngay duoi, khong o nen */
-.dock .split i { background: #c9cdd4; border-radius: 2px; }
-.dock .g { width: 18px; height: 12px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; } .dock .g i { background: #c9cdd4; border-radius: 1px; }
+.dock .split { width: 18px; height: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 2px; }   /* nut Split Screen: 2 o dac canh nhau (cua so chia doi), cung co / cung mau / bo goc voi luoi app cua nut Home ngay duoi, khong o nen. Mau = mau nut Home: trang tren dock toi (dem), den tren dock sang (ngay) */
+.dock .split i { background: #fff; border-radius: 2px; }
+.dock .g { width: 18px; height: 12px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; } .dock .g i { background: #fff; border-radius: 1px; }
 .area { position: absolute; left: 45px; top: 0; right: 0; bottom: 0; }
 .pane { position: absolute; top: 0; bottom: 0; overflow: hidden; border-radius: 10px; }
 .map { background: linear-gradient(160deg, #eef0e4, #dde9d6 40%, #d3e3ef); }
@@ -3301,7 +3301,7 @@ h1 { font-size: 16px; font-weight: 600; margin: 0; }
 #dock .d { width: 30px; height: 30px; border-radius: 8px; }
 #dock .sp { flex: 1; }
 #dock .g { width: 18px; height: 12px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; }
-#dock .g i { background: #c9cdd4; border-radius: 1px; }
+#dock .g i { background: #fff; border-radius: 1px; }   /* dock toi (dem): luoi nut Home trang; nut Split Screen cung mau */
 
 /* Nen sau ban phim: app iPhone (YouTube) hoac app CarPlay goc (Ban do) */
 #app { position: absolute; top: 0; bottom: 0; right: 0; overflow: hidden; }
