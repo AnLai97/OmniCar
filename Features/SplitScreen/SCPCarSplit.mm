@@ -4585,8 +4585,8 @@ static void SCPCMakePassThrough(UIWindow *w)
         [self raiseView:cover];
         self.trayCover = cover;
     }
-    [self raiseView:shield];
     [self raiseView:panel];
+    [self raiseView:self.popupShield];
     // Hien kieu HarmonyOS: bang nho ra tu mep tren + phong nhe theo lo xo, cac muc mo + troi len lan luot
     panel.alpha = 0;
     panel.transform = CGAffineTransformScale(CGAffineTransformMakeTranslation(0, -18), 0.92, 0.92);   // nho ra tu mep tren
