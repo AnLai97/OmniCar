@@ -2508,6 +2508,8 @@ h2 { margin: 0 0 4px; font-size: 16px; }
 .hold .b.off { color: var(--mk2); }
 .hold .b.off::after { content: ""; position: absolute; left: 7px; top: 17px; width: 22px; height: 2.4px; border-radius: 2px; background: #f0323a;
   transform: rotate(-45deg); box-shadow: 0 0 0 1.5px rgba(255,255,255,.95); }
+.hold .sep { width: 1px; height: 26px; margin: 5px 1px; border-radius: 1px; background: rgba(255,255,255,.95); }
+.hold .b.quit { color: #f0323a; }
 .slot.holding { filter: drop-shadow(0 0 10px rgba(139,124,255,.75)); transition: filter .2s; }
 .holddemo { display: flex; gap: 22px; align-items: center; flex-wrap: wrap; margin-top: 8px; }
 .holddemo .hold { position: static; transform: none; animation: none; }
@@ -2533,7 +2535,7 @@ h2 { margin: 0 0 4px; font-size: 16px; }
     <div class="sim glass" id="sim"></div>
     <div class="note"><b>Menu nhấn giữ (mới)</b>: bỏ "giữ 2 giây để thoát app". Giữ bong bóng ~0,6 s (thử ngay trên màn xe bên trên) → bong bóng sáng viền và một
       viên nền logo 4 màu thả xuống ngay trên nó (dưới nếu sát mép trên) với 4 ô kính tròn: <b>nhỏ lại</b> · <b>to lên</b> (mỗi lần 10 %, 60–220 %, bong bóng đổi cỡ ngay)
-      · <b>cảnh báo</b> · <b>âm thanh</b> (hai công tắc Cảnh báo / Âm thanh trong Cài đặt). Tắt = icon mờ đi và có gạch chéo đỏ, không chữ. Tự đóng sau 4 s không chạm
+      · <b>cảnh báo</b> · <b>âm thanh</b> (hai công tắc Cảnh báo / Âm thanh trong Cài đặt) · vạch trắng · <b>tắt app</b> (X đỏ: tắt hẳn app nguồn, bong bóng ẩn - việc của "giữ 2 giây" cũ). Tắt = icon mờ đi và có gạch chéo đỏ, không chữ. Tự đóng sau 4 s không chạm
       hoặc khi chạm chỗ khác; kéo bong bóng thì đóng. Chạm vẫn mở app nguồn, chụm 2 ngón vẫn đổi cỡ.
       <div class="holddemo" id="holddemo"></div></div>
     <div class="note"><b>Trang Cài đặt mới</b> (khung iPhone): xem trước sống ở đầu trang, chọn kiểu bằng dải hình chạm là đổi, nguồn tốc độ là các ô có icon app
@@ -2772,7 +2774,7 @@ function renderSettings() {
       <div class="r">${tile('▭', 'linear-gradient(135deg,#9DF2D8,#2BC79A)')}<span class="lab" style="flex:none;width:64px">CarPlay</span><input type="range" min="60" max="220" value="${S.size}" data-range="size"><span class="v" id="v-size">${S.size}%</span></div>
       <div class="r">${tile('▯', 'linear-gradient(135deg,#9DF2D8,#2BC79A)')}<span class="lab" style="flex:none;width:64px">iPhone</span><input type="range" min="60" max="220" value="${S.sizePhone}" data-range="sizePhone"><span class="v" id="v-sizePhone">${S.sizePhone}%</span></div>
       <div class="r"><span class="link" id="resetpos">Đặt lại vị trí và cỡ</span></div></div>
-    <div class="foot">Trên màn: kéo để dời · chụm 2 ngón đổi cỡ · chạm để mở app · giữ để mở menu nhanh (cỡ ± · cảnh báo · âm thanh).</div>
+    <div class="foot">Trên màn: kéo để dời · chụm 2 ngón đổi cỡ · chạm để mở app · giữ để mở menu nhanh (cỡ ± · cảnh báo · âm thanh · tắt app).</div>
     <div class="lbl">Nguồn tốc độ</div>
     <div class="pc glass ${off}"><div class="srcs">${Object.entries(SOURCES).map(([k, [g, c, n]]) => `<div class="src ${S.src === k ? 'on' : ''}" data-src="${k}"><span class="ico" style="background:${c}">${g}</span>${n.replace(' iPhone', '<br>iPhone').replace(' Live', '')}</div>`).join('')}</div>
       <div class="hint">ⓘ <span>${SRC_HINT[S.src]}</span></div></div>
@@ -2850,9 +2852,11 @@ const HOLD_ICON = {
   plus: '<svg viewBox="0 0 24 24"><path d="M12 6v12M6 12h12"/></svg>',
   warn: '<svg viewBox="0 0 24 24"><path d="M12 4.5 20 18.5H4z"/><path d="M12 10v4M12 16.6v.1"/></svg>',
   snd: '<svg viewBox="0 0 24 24"><path d="M4 9.5v5h3.2L12 18.5v-13L7.2 9.5z"/><path d="M15.5 9.2a4 4 0 0 1 0 5.6M18.2 6.6a7.8 7.8 0 0 1 0 10.8"/></svg>',
+  quit: '<svg viewBox="0 0 24 24"><path d="M7 7l10 10M17 7 7 17"/></svg>',
 };
 const holdHtml = (warnOn, sndOn) => `<span class="b" data-h="minus" title="Nhỏ lại">${HOLD_ICON.minus}</span><span class="b" data-h="plus" title="To lên">${HOLD_ICON.plus}</span>` +
-  `<span class="b ${warnOn ? '' : 'off'}" data-h="warn" title="Cảnh báo">${HOLD_ICON.warn}</span><span class="b ${sndOn ? '' : 'off'}" data-h="snd" title="Âm thanh">${HOLD_ICON.snd}</span>`;
+  `<span class="b ${warnOn ? '' : 'off'}" data-h="warn" title="Cảnh báo">${HOLD_ICON.warn}</span><span class="b ${sndOn ? '' : 'off'}" data-h="snd" title="Âm thanh">${HOLD_ICON.snd}</span>` +
+  `<span class="sep"></span><span class="b quit" data-h="quit" title="Tắt app">${HOLD_ICON.quit}</span>`;
 let holdTimer;
 function hideHold() { const h = $('cs').querySelector('.hold'); if (h) h.remove(); $('slot').classList.remove('holding'); clearTimeout(holdTimer); }
 function placeHold(h) {
@@ -2880,6 +2884,7 @@ function showHold() {
     if (k === 'minus' || k === 'plus') { S.size = Math.max(60, Math.min(220, S.size + (k === 'plus' ? 10 : -10))); renderSettings(); renderCar(); placeHold(h); }
     if (k === 'warn') { S.warn ^= 1; b.classList.toggle('off', !(S.warn & 1)); renderSettings(); renderCar(); }
     if (k === 'snd') { S.warn ^= 2; b.classList.toggle('off', !(S.warn & 2)); renderSettings(); renderCar(); }
+    if (k === 'quit') { hideHold(); S.on = false; renderSettings(); renderCar(); 197609'stateTxt') && (197609'stateTxt').textContent = 'Đã tắt app nguồn: bong bóng ẩn (bật lại bằng công tắc trong Cài đặt)'); return; }
     arm();
   });
 }
