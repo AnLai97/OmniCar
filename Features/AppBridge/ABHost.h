@@ -10,9 +10,9 @@
 // Thanh nut cua o ve de len app (SpringBoard ve, CarPlay nhan tap qua AB_NOTIF_BAR_ACTION); pop 1 = nut "noi", 2 = "ghim";
 // single = o dang chay 1 man hinh (nut "Chay 1 man hinh" doi thanh "Chia man hinh")
 - (void)setBarVisible:(BOOL)visible pop:(int)pop dim:(BOOL)dim single:(BOOL)single forApp:(NSString *)bid;
-// anyBar (FRAME / OPEN): thanh nut cua o nao do dang mo -> lop chan mong (co ve, de backboardd dua cham ve SpringBoard) phu
-// kin o nay: cham vao app = cham cho khac -> an thanh nut ngay (AB_NOTIF_BAR_DISMISS), cham do khong toi app
-- (void)setShield:(BOOL)on forApp:(NSString *)bid;
+// AB_NOTIF_SHIELD: co bang nao mo tren man xe -> lop chan mong (co ve, de backboardd dua cham ve SpringBoard) phu kin MOI o
+// (ke ca app toan man, ke ca o mo sau do): cham vao app = cham cho khac -> AB_NOTIF_BAR_DISMISS, cham do khong toi app
+- (void)setShieldAll:(BOOL)on;
 - (void)outsideTouched;   // lop chan nhan cham: an moi thanh nut + bo moi lop chan ngay (ABShieldView goi)
 // Cua so noi cua CarPlay (ve duoi cua so host) nam tren o nay: khoet lo dung khung do (toa do man xe, CGRectZero = khong)
 // de cua so noi lo ra va cham duoc (FRAME / OPEN "ox/oy/ow/oh")

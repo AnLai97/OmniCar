@@ -28,7 +28,6 @@ static int (*orig_BKSDisplayServicesSetScreenBlanked)(int) = NULL;
             [[ABHost shared] setPassInsets:UIEdgeInsetsMake([u[@"pt"] doubleValue], [u[@"pl"] doubleValue], [u[@"pb"] doubleValue], [u[@"pr"] doubleValue])
                                     forApp:u[@"identifier"]];
             [[ABHost shared] setBarVisible:[u[@"bar"] boolValue] pop:[u[@"pop"] intValue] dim:[u[@"popDim"] boolValue] single:[u[@"single"] boolValue] forApp:u[@"identifier"]];
-            [[ABHost shared] setShield:[u[@"anyBar"] boolValue] forApp:u[@"identifier"]];
             [[ABHost shared] setHole:CGRectMake([u[@"ox"] doubleValue], [u[@"oy"] doubleValue], [u[@"ow"] doubleValue], [u[@"oh"] doubleValue]) forApp:u[@"identifier"]];
             [[ABHost shared] setCornerRadius:[u[@"r"] doubleValue] corners:(CACornerMask)[u[@"corners"] unsignedLongLongValue] forApp:u[@"identifier"]];
             [[ABHost shared] setHandleOffset:[u[@"hx"] doubleValue] forApp:u[@"identifier"]];
@@ -43,13 +42,15 @@ static int (*orig_BKSDisplayServicesSetScreenBlanked)(int) = NULL;
         @try {
             [[ABHost shared] setFrame:r forApp:u[@"identifier"] live:[u[@"live"] boolValue] handle:[u[@"handle"] boolValue] passInsets:pass];
             [[ABHost shared] setBarVisible:[u[@"bar"] boolValue] pop:[u[@"pop"] intValue] dim:[u[@"popDim"] boolValue] single:[u[@"single"] boolValue] forApp:u[@"identifier"]];
-            [[ABHost shared] setShield:[u[@"anyBar"] boolValue] forApp:u[@"identifier"]];
             [[ABHost shared] setHole:CGRectMake([u[@"ox"] doubleValue], [u[@"oy"] doubleValue], [u[@"ow"] doubleValue], [u[@"oh"] doubleValue]) forApp:u[@"identifier"]];
             [[ABHost shared] setCornerRadius:[u[@"r"] doubleValue] corners:(CACornerMask)[u[@"corners"] unsignedLongLongValue] forApp:u[@"identifier"]];
             [[ABHost shared] setHandleOffset:[u[@"hx"] doubleValue] forApp:u[@"identifier"]];
             [[ABHost shared] setFront:[u[@"front"] boolValue] forApp:u[@"identifier"]];
             if ([u[@"aw"] doubleValue] > 0) [ABHost shared].carAppArea = CGRectMake([u[@"ax"] doubleValue], [u[@"ay"] doubleValue], [u[@"aw"] doubleValue], [u[@"ah"] doubleValue]);
         } @catch (NSException *e) { ABLog("frame loi %@", e); }
+    }];
+    [dnc addObserverForName:AB_NOTIF_SHIELD object:nil queue:main usingBlock:^(NSNotification *note) {   // co bang mo tren man xe -> chan cham vao moi app iPhone
+        @try { [[ABHost shared] setShieldAll:[note.userInfo[@"on"] boolValue]]; } @catch (NSException *e) { ABLog("shield loi %@", e); }
     }];
     [dnc addObserverForName:AB_NOTIF_CLOSE object:nil queue:main usingBlock:^(NSNotification *note) {
         @try { [[ABHost shared] closeApp:note.userInfo[@"identifier"] terminate:[note.userInfo[@"terminate"] boolValue]]; }

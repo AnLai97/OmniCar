@@ -59,8 +59,13 @@
 // SpringBoard -> CarPlay process: a button of the bar drawn over the hosted app was tapped
 // (identifier, action = replace | pop | full | close)
 #define AB_NOTIF_BAR_ACTION  @"com.anlai.omnicar/appbridge.baraction"
-// SpringBoard -> CarPlay process: while a pane bar is open (FRAME / OPEN "anyBar"), a touch landed on a hosted app
-// outside its bar / "•••" (the shield over the app took it) -> CarPlay hides every bar at once (tap elsewhere = dismiss)
+// CarPlay process -> SpringBoard: on = 1 while any panel is open on the car screen (layout tray, ratio bar, app picker,
+// a pane's ••• bar). SpringBoard then lays a painted, invisible shield over EVERY hosted iPhone app (panes and full
+// screen): a touch on an app never reaches CarPlay, so the shield takes it (the touch is swallowed, like an iOS popup)
+// and reports it with AB_NOTIF_BAR_DISMISS. on = 0 removes the shields.
+#define AB_NOTIF_SHIELD      @"com.anlai.omnicar/appbridge.shield"
+// SpringBoard -> CarPlay process: a touch landed on a hosted app (outside its bar / "•••") while AB_NOTIF_SHIELD was on
+// -> CarPlay closes every open panel at once (tap elsewhere = dismiss)
 #define AB_NOTIF_BAR_DISMISS @"com.anlai.omnicar/appbridge.bardismiss"
 // Orientation model (from CarDuo 1.0, which ran YouTube fine): the scene of a hosted app is PORTRAIT by default
 // whatever the box shape (a wide box is a wide portrait window), because an app whose main UI is portrait-only

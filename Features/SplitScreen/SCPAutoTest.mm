@@ -17,6 +17,7 @@
 - (NSNumber *)zoomedSlot;
 - (UIView *)pickerSheet;
 - (UIView *)tray;
+- (UIView *)popupShield;   // lop nhin cham khi co bang mo (SCPCTouchWatch): hitTest ngoai bang -> dong het
 - (UIView *)container;
 - (NSMutableDictionary *)pending;
 - (int)layoutID;
@@ -41,6 +42,7 @@
 // Nut Split Screen tren dock CarPlay (tren nut Home)
 - (UIButton *)homeButton;
 - (UIView *)tabParent;
+- (CGRect)appAreaInParent:(UIView *)parent;
 - (CGRect)homeGlyph;
 - (UIColor *)homeInk;
 - (NSString *)launcherWhere;
@@ -353,6 +355,19 @@ static NSArray<NSDictionary *> *SCPATSplitSteps(void)
     [steps addObject:OMCTestStep(@"Nut Split Screen tren dock (2 o theo nut Home)", 1.5, 8, ^NSString *{ [s refreshHomeButton]; return nil; },
         ^NSString *{ return SCPATExpectDockButton(); })];
     [steps addObject:OMCTestStep(@"Bam nut Split Screen: hien bang bo cuc", 1.5, 6, tapDock,
+        ^NSString *{ return [s tray] ? nil : SCPATWhy(@"bang bo cuc khong hien"); })];
+    // Bang dang mo: cham bat ky cho khac (goc duoi vung app, ngoai bang) -> dong ngay (lop nhin cham, hitTest nhu cham that)
+    [steps addObject:OMCTestStep(@"Bang bo cuc mo, cham cho khac -> dong ngay", 1, 5, ^NSString *{
+        UIView *shield = [s popupShield];
+        if (![s tray]) return @"bang bo cuc chua mo";
+        if (!shield || !shield.window) return SCPATWhy(@"khong co lop nhin cham khi bang mo");
+        UIView *parent = [s tabParent];
+        CGRect area = [parent convertRect:[s appAreaInParent:parent] toView:nil];
+        CGPoint p = [shield convertPoint:CGPointMake(CGRectGetMinX(area) + 12, CGRectGetMaxY(area) - 12) fromView:nil];
+        [shield hitTest:p withEvent:nil];
+        return nil;
+    }, ^NSString *{ return [s tray] ? SCPATWhy(@"bang bo cuc van con sau khi cham cho khac") : nil; })];
+    [steps addObject:OMCTestStep(@"Bam nut Split Screen: hien lai bang bo cuc", 1.5, 6, tapDock,
         ^NSString *{ return [s tray] ? nil : SCPATWhy(@"bang bo cuc khong hien"); })];
     [steps addObject:OMCTestStep(@"Bam lai nut Split Screen: dong bang bo cuc", 1, 5, tapDock,
         ^NSString *{ return [s tray] ? SCPATWhy(@"bang bo cuc van con") : nil; })];

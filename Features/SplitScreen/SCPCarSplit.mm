@@ -842,6 +842,25 @@ static void SCPCFrame(UIView *v) { v.layer.borderWidth = 0; }
 - (BOOL)pointInside:(CGPoint)p withEvent:(UIEvent *)e { return CGRectContainsPoint(CGRectInset(self.bounds, -18, -14), p); }
 @end
 
+// Lop "nhin" cham phu ca man xe khi co bang nao dang mo (bang bo cuc, thanh ti le, bang chon app, thanh nut •••): hitTest
+// duoc goi cho moi cham bat dau trong khung -> cham ngoai cac bang (exempt tra NO) thi bao dong het, roi tra nil de cham
+// van di tiep xuong dock / o / app nhu khong co lop nay (khong nuot cham). Cham vao app iPhone khong toi day (tien trinh
+// app nhan truoc) -> SpringBoard chan bang lop AB shield (AB_NOTIF_SHIELD) va bao lai (AB_NOTIF_BAR_DISMISS).
+@interface SCPCTouchWatch : UIView
+@property (nonatomic, copy) BOOL (^exempt)(CGPoint windowPoint);   // YES = cham vao chinh bang / nut mo bang -> khong dong
+@property (nonatomic, copy) void (^outside)(void);
+@end
+@implementation SCPCTouchWatch
+- (UIView *)hitTest:(CGPoint)p withEvent:(UIEvent *)e
+{
+    if ((!e || e.type == UIEventTypeTouches) && [self pointInside:p withEvent:e] && self.outside) {
+        CGPoint wp = [self convertPoint:p toView:nil];
+        if (!self.exempt || !self.exempt(wp)) self.outside();
+    }
+    return nil;
+}
+@end
+
 @interface SCPCarPane : NSObject
 @property (nonatomic) int slot;
 @property (nonatomic, copy) NSString *bundleID;
@@ -859,7 +878,6 @@ static void SCPCFrame(UIView *v) { v.layer.borderWidth = 0; }
 @property (nonatomic) CGRect hostFrame;               // khung cua so host (App Bridge) da gui lan cuoi
 @property (nonatomic) BOOL hostHandle;                // lan gui gan nhat co thanh "•••" do SpringBoard ve khong
 @property (nonatomic) BOOL hostBar;                   // lan gui gan nhat co thanh nut do SpringBoard ve de len app khong
-@property (nonatomic) BOOL hostAnyBar;                // lan gui gan nhat: co thanh nut cua o NAO DO dang mo (SpringBoard chan cham vao app de an)
 @property (nonatomic) CGRect hostHole;                // lan gui gan nhat: lo khoet cho cua so noi CarPlay (toa do man xe), CGRectZero = khong
 @property (nonatomic) CGSize sceneSize;               // kich thuoc da bao cho scene lan cuoi
 @end
@@ -936,7 +954,9 @@ static BOOL SCPCIsBridgedApp(NSString *bid);
 @property (nonatomic, copy) NSArray<NSNumber *> *floatReturnFractions;
 // Tab tren app CarPlay dang mo toan man (chua split): cham / vuot xuong -> hang icon app CarPlay
 @property (nonatomic, strong) UIView *tray;
-@property (nonatomic, strong) UIView *trayShield;
+@property (nonatomic, strong) UIView *popupShield;        // SCPCTouchWatch phu ca man khi co bang nao mo: cham ngoai bang -> dong het (cham van di tiep)
+@property (nonatomic) BOOL shieldPosted;                 // da bao SpringBoard dat lop chan tren o app iPhone (AB_NOTIF_SHIELD)
+@property (nonatomic) CFAbsoluteTime popupsClosedAt;     // lan cuoi dong bang vi cham cho khac
 @property (nonatomic) BOOL trayHidesBridge;           // bang bo cuc dang mo tren app iPhone toan man -> cua so host tam an
 @property (nonatomic, strong) NSTimer *trayTimer;
 @property (nonatomic, copy) NSString *layoutApp;      // app vao o 1 khi chon bo cuc (nil = cap lan truoc)
@@ -2623,6 +2643,7 @@ static CGSize SCPCSceneSize(UIViewController *vc)
     self.soloHostedBundle = nil;   // App Bridge tu bo o khi xe ngat
     [self removePickerSheet];
     self.trayWindow.hidden = YES; self.trayWindow = nil;   // cua so bang bo cuc gan voi man xe cu
+    [self.popupShield removeFromSuperview]; self.popupShield = nil; self.shieldPosted = NO;
     if (!self.active) return;
     SCPLog("CarSplit: DashBoard invalidate -> bo split");
     self.active = NO;
@@ -2753,7 +2774,7 @@ static void SCPCHandleOpen(UIView *h, BOOL open)
         p.barTimer = [NSTimer scheduledTimerWithTimeInterval:4 repeats:NO block:^(NSTimer *t) {
             if (weakPane) [weakSelf setBarVisible:NO forPane:weakPane];
         }];
-        if (wasHidden) [self pushHostFramesLive:NO];   // o app iPhone: SpringBoard ve thanh nut cua o nay + lop chan tren moi o app iPhone (anyBar)
+        if (wasHidden) [self pushHostFramesLive:NO];   // o app iPhone: SpringBoard ve thanh nut cua o nay + lop chan tren moi o app iPhone (publishShield)
     } else if (!p.bar.hidden) {
         SCPCHandleOpen(p.handle, NO);
         UIView *bar = p.bar;
@@ -2840,12 +2861,75 @@ static void SCPCHandleOpen(UIView *h, BOOL open)
     }
 }
 
-// SpringBoard bao (AB_NOTIF_BAR_DISMISS): cham vao app iPhone dang host o cho khong phai thanh nut / "•••" trong luc
-// mot thanh nut dang mo (cham vao app khong bao gio toi CarPlay, SpringBoard chan bang lop AB shield) -> an het.
+// SpringBoard bao (AB_NOTIF_BAR_DISMISS): cham vao app iPhone dang host trong luc co bang nao mo (cham vao app khong bao
+// gio toi CarPlay, SpringBoard chan bang lop AB shield) -> dong het nhu cham cho khac tren CarPlay.
 - (void)bridgeOutsideTouched
 {
-    if (!self.active) return;
+    [self closePopups];
+}
+
+// Co bang nao dang mo tren man xe khong
+- (BOOL)popupOpen
+{
+    return self.tray || self.ratioMenu || self.pickerSheet || [self anyBarVisible];
+}
+
+// Cham bat ky cho nao ngoai bang -> dong het ngay: bang bo cuc, thanh ti le, bang chon app, thanh nut •••
+- (void)closePopups
+{
+    if (![self popupOpen]) return;
+    self.popupsClosedAt = CFAbsoluteTimeGetCurrent();
+    SCPLog("CarSplit: cham cho khac -> dong bang (%@%@%@%@)", self.tray ? @"bo cuc " : @"", self.ratioMenu ? @"ti le " : @"",
+           self.pickerSheet ? @"chon app " : @"", [self anyBarVisible] ? @"thanh nut" : @"");
+    [self collapseAppTray];
+    [self hideRatioMenu];
+    [self removePickerSheet];
     [self hideBarsForTouchOn:nil];
+}
+
+// Cham vao chinh bang / nut mo bang (toa do man xe) thi khong dong: bang bo cuc, thanh ti le, bang chon app, nut Split Screen
+// tren dock (toggle cua no tu dong), cham tron dang mo thanh ti le, thanh nut + "•••" cua moi o, "+" cua o dang chon app
+- (BOOL)shieldExemptPoint:(CGPoint)wp
+{
+    NSMutableArray<UIView *> *views = [NSMutableArray array];
+    if (self.tray) [views addObject:self.tray];
+    if (self.ratioMenu) [views addObject:self.ratioMenu];
+    if (self.pickerSheet) [views addObject:self.pickerSheet];
+    if (self.homeButton) [views addObject:self.homeButton];
+    if (self.ratioKnob) [views addObject:self.ratioKnob];
+    if (self.pickerSheetPane.picker) [views addObject:self.pickerSheetPane.picker];
+    for (SCPCarPane *p in [self allPanes]) {
+        if (p.handle && !p.handle.hidden) [views addObject:p.handle];
+        if (p.bar && !p.bar.hidden) [views addObject:p.bar];
+    }
+    for (UIView *v in views) {
+        if (!v.window || v.hidden) continue;
+        if (CGRectContainsPoint(CGRectInset([v convertRect:v.bounds toView:nil], -8, -8), wp)) return YES;
+    }
+    return NO;
+}
+
+// Lop nhin cham (SCPCTouchWatch) phu ca man xe trong cua so bang bo cuc (hoac view goc neu khong co cua so) khi co bang mo;
+// bo khi het bang. Luon o tren cung cua cua so do (hitTest tra nil nen khong che gi).
+- (void)updatePopupShield
+{
+    BOOL want = [self popupOpen];
+    UIView *parent = want ? [self tabParent] : nil;
+    UIView *host = parent ? ([self trayWindowForParent:parent] ?: parent) : nil;   // (cua so bang bo cuc tu an khi bang cuoi dong xong)
+    if (!want || !host) { [self.popupShield removeFromSuperview]; self.popupShield = nil; return; }
+    SCPCTouchWatch *s = (SCPCTouchWatch *)self.popupShield;
+    if (!s || s.superview != host) {
+        [s removeFromSuperview];
+        s = [[SCPCTouchWatch alloc] initWithFrame:host.bounds];
+        s.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+        s.backgroundColor = [UIColor clearColor];
+        __weak SCPCarSplit *weakSelf = self;
+        s.exempt = ^BOOL(CGPoint wp) { return [weakSelf shieldExemptPoint:wp]; };
+        s.outside = ^{ SCPCAfter(0, ^{ [weakSelf closePopups]; }); };   // ngoai hitTest (dang phan phoi cham) moi doi view
+        [host addSubview:s];
+        self.popupShield = s;
+    }
+    [host bringSubviewToFront:s];
 }
 
 // Keo "•••": the icon app theo tay, o duoi tay sang vien xanh; tha len o khac -> doi cho
@@ -3724,6 +3808,7 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
     if (ow) { m.center = [self.container convertPoint:m.center toView:nil]; [ow addSubview:m]; }
     else [self.container addSubview:m];
     self.ratioMenu = m;
+    [self updatePopupShield];
     if (!ow) for (SCPCarPane *hp in [self hostedPanes]) {   // thanh de len o app iPhone -> cua so host tam an, phu the icon
         if (!CGRectIntersectsRect(CGRectInset(m.frame, -6, -6), hp.view.frame)) continue;
         self.ratioHidesBridge = YES;
@@ -3743,6 +3828,7 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
     [self.ratioTimer invalidate]; self.ratioTimer = nil;
     UIView *m = self.ratioMenu;
     self.ratioMenu = nil;
+    [self updatePopupShield];
     if (!m) return;
     if (self.ratioKnob) SCPCKnobActive(self.ratioKnob, NO);
     self.ratioKnob = nil;
@@ -3884,6 +3970,7 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
     UIView *sheet = self.pickerSheet, *shield = self.pickerShield;
     BOOL overlay = self.pickerSheetOverlay;
     self.pickerSheet = nil; self.pickerShield = nil; self.pickerSheetKey = nil; self.pickerSheetOverlay = NO;
+    [self updatePopupShield];
     [self publishBusy];
     if (!sheet && !shield) return;
     __weak SCPCarSplit *weakSelf = self;
@@ -4135,11 +4222,9 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
     }
 
     [parent addSubview:card];
-    if (self.tray && self.tray.superview == parent) {   // bang bo cuc dang mo cung cua so -> giu no o tren
-        [parent bringSubviewToFront:self.trayShield];
-        [parent bringSubviewToFront:self.tray];
-    }
+    if (self.tray && self.tray.superview == parent) [parent bringSubviewToFront:self.tray];   // bang bo cuc dang mo cung cua so -> giu no o tren
     self.pickerSheet = card; self.pickerShield = nil; self.pickerSheetOverlay = overlay;
+    [self updatePopupShield];
     [self publishBusy];
     // Hien kieu HarmonyOS: popup troi len + phong nhe theo lo xo; doi o: popup cu mo, popup moi troi len it
     BOOL fresh = !oldSheet;
@@ -4244,7 +4329,7 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
 - (void)refreshAppTab
 {
     [self refreshHomeButton];
-    if (self.tray && ![self viewIsRaised:self.tray]) { [self raiseView:self.trayShield]; [self raiseView:self.tray]; }
+    if (self.tray && ![self viewIsRaised:self.tray]) { [self raiseView:self.tray]; [self raiseView:self.popupShield]; }
 }
 
 - (void)removeAppTab
@@ -4357,13 +4442,8 @@ static void SCPCMakePassThrough(UIWindow *w)
     UIWindow *host = [self trayWindowForParent:parent];   // nil -> bang trong view goc nhu cu (phai an o app iPhone)
     self.trayOverlay = (host != nil);
 
-    // Lop phu trong suot chi tren vung app (HarmonyOS: khong to toi, khong che dock): cham ra ngoai bang -> thu lai.
-    // Cua so rieng cho cham xuyen o cho trong (SCPCMakePassThrough) nen dock van bam duoc.
-    UIView *shield = [[UIView alloc] initWithFrame:host ? [parent convertRect:area toView:nil] : area];
-    shield.backgroundColor = [UIColor clearColor];
-    [shield addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(collapseAppTray)]];
-    [host ?: parent addSubview:shield];
-    self.trayShield = shield;
+    // Cham bat ky cho nao ngoai bang (ke ca dock / o / app) -> bang dong ngay, cham van di tiep: popupShield (updatePopupShield
+    // sau khi dat self.tray). Cua so rieng cho cham xuyen o cho trong (SCPCMakePassThrough) nen dock van bam duoc.
     [self publishBusy];
     // App CarBridge dang mo toan man: CBWindow (SpringBoard) nam tren moi view CarPlay nen che mat bang -> an CBWindow
     // trong luc bang mo, hien lai khi bang dong (collapseAppTray)
@@ -4485,6 +4565,7 @@ static void SCPCMakePassThrough(UIWindow *w)
 
     [host ?: parent addSubview:panel];
     self.tray = panel;
+    [self updatePopupShield];
     [self pushHostFramesLive:NO];   // dang chia: o app iPhone nhuong cho bang (hostFrameForPane xet self.tray -> phai dat tray truoc;
                                     // log 10/10 22:48: goi truoc khi dat tray nen o YouTube van de len bang)
     // Cua so host an thi o app iPhone chi con nen den / app toan man lo man chinh (log 10/10 22:59) -> the icon app nhu luc
@@ -4680,8 +4761,9 @@ static void SCPCMakePassThrough(UIWindow *w)
 {
     __weak SCPCarSplit *weakSelf = self;
     [self.trayTimer invalidate]; self.trayTimer = nil;
-    UIView *tray = self.tray, *shield = self.trayShield;
-    self.tray = nil; self.trayShield = nil;
+    UIView *tray = self.tray;
+    self.tray = nil;
+    [self updatePopupShield];
     [self publishBusy];
     [self setFullscreenBridgeHidden:NO bundle:nil];
     [self pushHostFramesLive:NO];   // bang dong: o app iPhone hien lai
@@ -4689,12 +4771,12 @@ static void SCPCMakePassThrough(UIWindow *w)
     UIView *tc = self.trayCover;
     self.trayCover = nil;
     if (tc) [UIView animateWithDuration:0.2 animations:^{ tc.alpha = 0; } completion:^(BOOL f) { [tc removeFromSuperview]; }];
-    if (!tray && !shield) return;
+    if (!tray) return;
     UIWindow *tw = self.trayWindow;
     [UIView animateWithDuration:0.22 delay:0 options:UIViewAnimationOptionCurveEaseIn animations:^{   // thu ve mep tren + nho lai
         tray.alpha = 0; tray.transform = CGAffineTransformScale(CGAffineTransformMakeTranslation(0, -14), 0.94, 0.94);
     } completion:^(BOOL f) {
-        [tray removeFromSuperview]; [shield removeFromSuperview];
+        [tray removeFromSuperview];
         if (tw && !weakSelf.tray && !weakSelf.ratioMenu && !weakSelf.pickerSheet) tw.hidden = YES;   // khong con gi tren cua so -> an (giu lai cho lan sau)
     }];
 }
@@ -4833,9 +4915,7 @@ static NSArray<NSDictionary *> *SCPCPhoneApps(void)
     BOOL isFloat = (p == self.floatPane);
     BOOL canPop = isFloat ? (p.vc && [self paneCount] < SCPC_MAX_PANES) : [self canPopOutPane:p];
     BOOL single = self.zoomedSlot && self.zoomedSlot.intValue == p.slot;
-    // anyBar: thanh nut cua o nao do (ke ca o CarPlay) dang mo -> SpringBoard dat lop chan tren moi o app iPhone: cham vao
-    // app = cham cho khac -> an thanh nut ngay (AB_NOTIF_BAR_DISMISS)
-    return @{@"bar": @(!p.bar.hidden), @"pop": @(isFloat ? 2 : 1), @"popDim": @(!canPop), @"single": @(single), @"anyBar": @([self anyBarVisible])};
+    return @{@"bar": @(!p.bar.hidden), @"pop": @(isFloat ? 2 : 1), @"popDim": @(!canPop), @"single": @(single)};
 }
 
 - (BOOL)anyBarVisible
@@ -4892,9 +4972,9 @@ static NSArray<NSDictionary *> *SCPCPhoneApps(void)
     if (!SCPCIsHostedVC(p.vc) || !p.bundleID) return;
     CGRect r = [self hostFrameForPane:p], hole = [self holeForPane:p];
     BOOL handle = !CGRectIsEmpty(r);   // thanh "•••" luon hien, thanh nut (SpringBoard ve) nam duoi no
-    BOOL bar = !p.bar.hidden, anyBar = [self anyBarVisible];
-    if (!live && CGRectEqualToRect(r, p.hostFrame) && handle == p.hostHandle && bar == p.hostBar && anyBar == p.hostAnyBar && CGRectEqualToRect(hole, p.hostHole)) return;
-    p.hostFrame = r; p.hostHandle = handle; p.hostBar = bar; p.hostAnyBar = anyBar; p.hostHole = hole;
+    BOOL bar = !p.bar.hidden;
+    if (!live && CGRectEqualToRect(r, p.hostFrame) && handle == p.hostHandle && bar == p.hostBar && CGRectEqualToRect(hole, p.hostHole)) return;
+    p.hostFrame = r; p.hostHandle = handle; p.hostBar = bar; p.hostHole = hole;
     [self hostPost:AB_NOTIF_FRAME info:[self hostFrameInfo:r pane:p live:live handle:handle]];
     [self publishKnobsSoon];   // gui kem cham tron (gom 1 lan/vong runloop): SpringBoard moi respring hay vua tao cua so cung co
 }
@@ -4903,6 +4983,17 @@ static NSArray<NSDictionary *> *SCPCPhoneApps(void)
 - (void)pushHostFramesLive:(BOOL)live
 {
     for (SCPCarPane *p in [self hostedPanes]) [self sendHostFrameForPane:p live:live];
+    [self publishShield];
+}
+
+// Co bang nao dang mo (bang bo cuc / thanh ti le / bang chon app / thanh nut •••) -> SpringBoard dat lop chan tren MOI o app
+// iPhone (ke ca app toan man): cham vao app = cham cho khac -> AB_NOTIF_BAR_DISMISS -> closePopups. Chi gui khi doi.
+- (void)publishShield
+{
+    BOOL on = [self popupOpen];
+    if (on == self.shieldPosted) return;
+    self.shieldPosted = on;
+    [self hostPost:AB_NOTIF_SHIELD info:@{@"on": @(on)}];
 }
 
 // Mo app iPhone vao o: VC gia ben CarPlay + SpringBoard host app o dung khung cua o
@@ -4933,7 +5024,7 @@ static NSArray<NSDictionary *> *SCPCPhoneApps(void)
         if (!me.active || !pp || ![pp.bundleID isEqualToString:bid]) return;
         CGRect r = [me hostFrameForPane:pp];
         if (CGRectIsEmpty(r)) r = [pp.view convertRect:pp.view.bounds toView:nil];
-        pp.hostFrame = r; pp.hostHandle = !CGRectIsEmpty(r); pp.hostBar = !pp.bar.hidden; pp.hostAnyBar = [me anyBarVisible];
+        pp.hostFrame = r; pp.hostHandle = !CGRectIsEmpty(r); pp.hostBar = !pp.bar.hidden;
         [me hostPost:AB_NOTIF_OPEN info:[me hostFrameInfo:r pane:pp live:NO handle:pp.hostHandle]];
     });
     // Khong thay app len sau 8s -> bo the "dang mo" (app van co the toi muon)

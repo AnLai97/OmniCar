@@ -306,6 +306,7 @@ static void ABPostOrientation(NSString *bid, long long orientation)
 
 @interface ABHost ()
 @property (nonatomic, strong) UIWindow *window;
+@property (nonatomic) BOOL shieldOn;                   // AB_NOTIF_SHIELD dang bat: moi o (ke ca o mo sau) co lop chan
 @property (nonatomic, copy) NSString *displayID;
 @property (nonatomic, strong) NSMutableArray<ABPane *> *panes;
 @property (nonatomic, strong) NSMutableArray<UIView *> *knobViews;   // cham tron cua vach chia ve len tren cac o
@@ -394,6 +395,7 @@ static void ABPostOrientation(NSString *bid, long long orientation)
     pane.box.clipsToBounds = YES;
     pane.box.alpha = 0;   // hien dan khi app san sang (afterLaunch), khong nhay cuc
     [self.window addSubview:pane.box];
+    if (self.shieldOn) [self setShield:YES forPane:pane];   // dang co bang mo tren man xe: o moi cung chan cham
     [self raiseKnobs];   // o moi them vao nam tren cac cham tron da ve -> dua cham tron len lai
     [self setupHandleForPane:pane];
     [self.panes addObject:pane];
@@ -933,11 +935,16 @@ static UIButton *ABActionButton(NSString *glyph, NSString *title, UIColor *tint,
     } completion:^(BOOL f) { if (bar.alpha == 0) { bar.hidden = YES; bar.transform = t; } }];
 }
 
-// Lop chan tren o khi co thanh nut dang mo (anyBar tu CarPlay): duoi thanh "•••" va thanh nut (hai cai do van cham duoc),
-// tren app. Dai pass-through sat mep van xuyen xuong CarPlay (pointInside cua ABBoxView).
-- (void)setShield:(BOOL)on forApp:(NSString *)bid
+// Lop chan tren moi o khi co bang nao mo tren man xe (AB_NOTIF_SHIELD): duoi thanh "•••" va thanh nut (hai cai do van cham
+// duoc), tren app. Dai pass-through sat mep van xuyen xuong CarPlay (pointInside cua ABBoxView). O mo sau cung duoc chan.
+- (void)setShieldAll:(BOOL)on
 {
-    ABPane *p = [self paneFor:bid];
+    self.shieldOn = on;
+    for (ABPane *p in self.panes) [self setShield:on forPane:p];
+}
+
+- (void)setShield:(BOOL)on forPane:(ABPane *)p
+{
     if (!p) return;
     if (!on) { [p.shield removeFromSuperview]; p.shield = nil; return; }
     if (!p.shield) {
@@ -965,6 +972,7 @@ static UIButton *ABActionButton(NSString *glyph, NSString *title, UIColor *tint,
 // cung an thanh cua o CarPlay (AB_NOTIF_BAR_DISMISS)
 - (void)outsideTouched
 {
+    self.shieldOn = NO;
     for (ABPane *p in self.panes) {
         [self hideBarForPane:p];
         [p.shield removeFromSuperview]; p.shield = nil;

@@ -44,7 +44,7 @@ logo: `tools/preview/index.html#logo`; bàn phím: `tools/preview/index.html#key
 ## Chuyển động
 - Hiện: lò xo HarmonyOS (damping ~0,86, thu 0,94 → 1, thả xuống 8 pt); ẩn: trượt / mờ 250 ms
   (đường cong 0.2, 0, 0.2, 1). Các mục hiện lần lượt.
-- Bảng bố cục, thanh •••, thanh tỉ lệ tự đóng sau 4 s không chạm. Thanh nút ••• còn ẩn ngay khi chạm bất kỳ chỗ khác trên màn (ô khác, app, vạch); chạm vào app iPhone (App Bridge) thì chạm đó chỉ để đóng thanh, không tới app.
+- Bảng bố cục, thanh •••, thanh tỉ lệ tự đóng sau 4 s không chạm. Mọi bảng (bảng bố cục, thanh tỉ lệ, bảng chọn app, thanh nút •••) còn đóng ngay khi chạm bất kỳ chỗ khác trên màn (dock, ô khác, app, vạch); chạm đó vẫn đi tiếp tới nơi chạm. Riêng chạm vào app iPhone (App Bridge) thì chạm đó chỉ để đóng bảng, không tới app.
 - Nút Split Screen trên dock: 2 ô đặc, không nền, **cùng màu với lưới app của nút Home ngay dưới**: đen khi giao diện sáng (ban ngày), trắng khi tối (ban đêm); màu động theo trait của dock nên xe đổi ngày / đêm là đổi theo.
 - Bong bóng tốc độ, nhấn giữ ~0,6 s: menu nhanh ngay trên bong bóng (viên nền logo 4 màu, 5 ô kính tròn: nhỏ lại · to lên · cảnh báo · âm thanh · vạch trắng · tắt app X đỏ; tắt = icon mờ + gạch chéo đỏ). Tự đóng sau 4 s hoặc chạm chỗ khác. Thay cho "giữ 2 giây để thoát app".
 
