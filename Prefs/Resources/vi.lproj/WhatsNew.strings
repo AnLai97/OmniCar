@@ -1,0 +1,13 @@
+/* OmniCar – What's new (Prefs/OMCWhatsNewController.m, keys named in WhatsNew.plist) */
+
+"WN_ROW" = "Có gì mới";
+"WN_TITLE" = "Có gì mới trong OmniCar %@";
+"WN_CONTINUE" = "Tiếp tục";
+"WN_KEYBOARD_TITLE" = "Bàn phím trên màn hình xe";
+"WN_KEYBOARD_TEXT" = "Gõ chữ trong các app iPhone hiển thị trên màn hình xe bằng bàn phím ngay trên màn hình xe.";
+"WN_ZOOM_TITLE" = "Phóng to ô";
+"WN_ZOOM_TEXT" = "Chạm hai lần vào ••• của một ô Chia màn hình để ô đó chiếm cả màn hình, chạm hai lần nữa để quay lại.";
+"WN_LANG_TITLE" = "14 ngôn ngữ";
+"WN_LANG_TEXT" = "Cài đặt, chữ trên màn hình xe và thông báo có 14 ngôn ngữ. Chọn bằng nút quả địa cầu.";
+"WN_GUIDE_TITLE" = "Hướng dẫn lần đầu";
+"WN_GUIDE_TEXT" = "Một hướng dẫn ngắn để bắt đầu. Mở lại bất cứ lúc nào ở Hỗ trợ > Xem lại hướng dẫn.";

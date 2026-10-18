@@ -1,7 +1,6 @@
-// App picker for the favorite layouts of the Split Screen page: a "Box 1: Maps >" row
-// (OMCSplitScreenAppLinkCell) that opens a list of the apps a box can show (real CarPlay apps, then
-// iPhone apps through App Bridge), OMCSplitScreenAppPickerController. The chosen bundle id is stored
-// under the row's key (splitScreenFav<n>Left / Right / Third) in the OmniCar prefs domain.
+// App picker of the Split Screen page (OMCSplitScreenController pushes it for the pinned pane and each box of a
+// favorite layout): real CarPlay apps, then iPhone apps through App Bridge. The chosen bundle id is stored under the
+// specifier's "key" (splitScreenPinnedApp, splitScreenFav<n>Left / Right / Third) in the OmniCar prefs domain.
 #import <Preferences/PSViewController.h>
 #import <Preferences/PSListController.h>
 #import <Preferences/PSTableCell.h>
@@ -111,81 +110,6 @@ static NSArray<NSString *> *OMCSplitChosenPhoneApps(void)
     NSString *bid = OMCSplitPrefValue([specifier propertyForKey:@"key"]);
     BOOL has = [bid isKindOfClass:[NSString class]] && bid.length;
     self.detailTextLabel.text = has ? OMCSplitAppName(bid) : L(@"SPLITSCREEN_APP_NOT_SET");
-    self.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-}
-
-@end
-
-// ---------------------------------------------------------------------
-//  OMCSplitFavCell: dong 1 bo cuc yeu thich tren trang Chia man hinh - ten (hoac goi y), cac app, hinh bo
-//  cuc nho co icon app trong tung o (bo cuc + app doc tu splitScreenFav<n>Layout / Left / Right / Third)
-// ---------------------------------------------------------------------
-static UIImage *OMCSplitLayoutPicture(NSInteger layout, NSArray *apps)
-{
-    const CGFloat w = 46, h = 29, g = 2;
-    NSMutableArray<NSValue *> *boxes = [NSMutableArray array];
-    if (layout == 13 || layout == 31) {
-        CGFloat mw = floor((w - g) / 2), th = floor((h - g) / 2);
-        [boxes addObject:[NSValue valueWithCGRect:CGRectMake(0, 0, mw, h)]];
-        [boxes addObject:[NSValue valueWithCGRect:CGRectMake(mw + g, 0, w - mw - g, th)]];
-        [boxes addObject:[NSValue valueWithCGRect:CGRectMake(mw + g, th + g, w - mw - g, h - th - g)]];
-        if (layout == 31) for (NSUInteger i = 0; i < boxes.count; i++) {
-            CGRect b = boxes[i].CGRectValue; b.origin.x = w - CGRectGetMaxX(b); boxes[i] = [NSValue valueWithCGRect:b];
-        }
-    } else {
-        NSInteger n = layout == 3 ? 3 : 2;
-        CGFloat bw = (w - g * (n - 1)) / n;
-        for (NSInteger i = 0; i < n; i++) [boxes addObject:[NSValue valueWithCGRect:CGRectMake(i * (bw + g), 0, bw, h)]];
-    }
-    UIGraphicsImageRenderer *r = [[UIGraphicsImageRenderer alloc] initWithSize:CGSizeMake(w, h)];
-    return [r imageWithActions:^(UIGraphicsImageRendererContext *ctx) {
-        for (NSUInteger i = 0; i < boxes.count; i++) {
-            CGRect b = boxes[i].CGRectValue;
-            [[UIColor colorWithWhite:0.5 alpha:0.2] setFill];
-            [[UIBezierPath bezierPathWithRoundedRect:b cornerRadius:4] fill];
-            NSString *bid = i < apps.count ? apps[i] : nil;
-            UIImage *icon = [bid isKindOfClass:[NSString class]] && [bid length] ? OMCSplitAppIconImage(bid) : nil;
-            if (!icon) continue;
-            CGFloat s = MIN(15, MIN(b.size.width, b.size.height) - 3);
-            CGRect ir = CGRectMake(CGRectGetMidX(b) - s / 2, CGRectGetMidY(b) - s / 2, s, s);
-            CGContextSaveGState(ctx.CGContext);
-            [[UIBezierPath bezierPathWithRoundedRect:ir cornerRadius:s * 0.27] addClip];
-            [icon drawInRect:ir];
-            CGContextRestoreGState(ctx.CGContext);
-        }
-    }];
-}
-
-@interface OMCSplitFavCell : PSTableCell
-@end
-
-@implementation OMCSplitFavCell
-
-- (instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier specifier:(PSSpecifier *)specifier
-{
-    return [super initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:reuseIdentifier specifier:specifier];
-}
-
-- (void)refreshCellContentsWithSpecifier:(PSSpecifier *)specifier
-{
-    [super refreshCellContentsWithSpecifier:specifier];
-    NSInteger n = [[specifier propertyForKey:@"favIndex"] integerValue];
-    NSString *prefix = [NSString stringWithFormat:@"splitScreenFav%ld", (long)n];
-    id layoutValue = OMCSplitPrefValue([prefix stringByAppendingString:@"Layout"]);
-    NSInteger layout = layoutValue ? [layoutValue integerValue] : 2;
-    NSInteger count = (layout == 3 || layout == 13 || layout == 31) ? 3 : 2;
-    NSMutableArray *apps = [NSMutableArray array], *names = [NSMutableArray array];
-    NSArray *suffixes = @[@"Left", @"Right", @"Third"];
-    for (NSInteger i = 0; i < count; i++) {
-        id bid = OMCSplitPrefValue([prefix stringByAppendingString:suffixes[i]]);
-        BOOL has = [bid isKindOfClass:[NSString class]] && [bid length];
-        [apps addObject:has ? bid : [NSNull null]];
-        if (has) [names addObject:OMCSplitAppName(bid)];
-    }
-    self.textLabel.text = specifier.name;
-    self.detailTextLabel.text = names.count ? [names componentsJoinedByString:@" + "] : L(@"SPLITSCREEN_APP_NOT_SET");
-    self.detailTextLabel.textColor = [UIColor secondaryLabelColor];
-    self.imageView.image = OMCSplitLayoutPicture(layout, apps);
     self.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
 }
 

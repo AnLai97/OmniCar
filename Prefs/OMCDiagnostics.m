@@ -60,6 +60,7 @@ static NSString *OMCThermal(void) {
 // "<prefix>Enabled"), plus App Bridge whose page is the "Apps on the car screen" row.
 static NSDictionary<NSString *, NSString *> *OMCFeatureNames(void) {
 	NSMutableDictionary *names = [NSMutableDictionary dictionaryWithObject:L(@"APPS") forKey:@"appBridge"];
+	names[@"homeScreen"] = L(@"HOME_SCREEN");   // bo test Man chinh CarPlay (khong co Feature*.plist rieng)
 	NSBundle *bundle = [NSBundle bundleForClass:NSClassFromString(@"OMCRootListController")];
 	for (NSString *path in [bundle pathsForResourcesOfType:@"plist" inDirectory:nil]) {
 		if (![path.lastPathComponent hasPrefix:@"Feature"]) continue;
@@ -247,8 +248,14 @@ NSArray<NSDictionary *> *OMCAutoTestSuites(void) {
 		[out addObject:@{@"suite": suite, @"name": OMCFeatureDisplayName(suite),
 			@"process": [v isKindOfClass:[NSDictionary class]] ? v[@"process"] ?: @"?" : @"?"}];
 	}
-	// By name, like the feature rows
-	[out sortUsingComparator:^NSComparisonResult(NSDictionary *a, NSDictionary *b) { return [a[@"name"] localizedCompare:b[@"name"]]; }];
+	// Thu tu co dinh (cung la thu tu chay): Man hinh khoi dong, App Bridge, Bong bong toc do, Chia man hinh, Man chinh CarPlay;
+	// bo khac (sau nay) xep sau theo ten
+	NSArray *order = @[@"startupScreen", @"appBridge", @"speedBubble", @"splitScreen", @"homeScreen"];
+	[out sortUsingComparator:^NSComparisonResult(NSDictionary *a, NSDictionary *b) {
+		NSUInteger ia = [order indexOfObject:a[@"suite"]], ib = [order indexOfObject:b[@"suite"]];
+		if (ia != ib) return ia < ib ? NSOrderedAscending : NSOrderedDescending;
+		return [a[@"name"] localizedCompare:b[@"name"]];
+	}];
 	return out;
 }
 
@@ -485,7 +492,7 @@ static NSArray<NSDictionary *> *OMCPerfChecks(BOOL connected) {
 		BOOL live = connected && [perf[@"updated"] isKindOfClass:[NSDate class]] && -[perf[@"updated"] timeIntervalSinceNow] < 90;
 		NSString *drive = live ? [NSString stringWithFormat:L(@"CHK_PERF_LIVE"), minutes]
 			: [NSString stringWithFormat:L(@"CHK_PERF_AT"), OMCTimeText(perf[@"start"]), minutes];
-		[out addObject:OMCCheck(L(@"CHK_PERF_DRIVE"), @"info", drive, L(@"CHK_PERF_RESET"), @"perfReset")];
+		[out addObject:OMCCheck(L(@"CHK_PERF_DRIVE"), @"info", drive, nil, nil)];
 		NSString *cause = OMCPerfCause(perf);
 
 		// Smoothness: frames the car screen's display link fired late (main thread busy)
@@ -542,120 +549,10 @@ static NSArray<NSDictionary *> *OMCPerfChecks(BOOL connected) {
 	// OmniCar's own log: written by every process on every logged line
 	unsigned long long bytes = OMCLogBytes();
 	if (bytes > 1024 * 1024)
-		[out addObject:OMCCheck(L(@"CHK_PERF_LOG"), @"info", [NSString stringWithFormat:@"%.1f MB", bytes / 1048576.0], L(@"CHK_PERF_LOG_FIX"), @"clearLog")];
+		[out addObject:OMCCheck(L(@"CHK_PERF_LOG"), @"info", [NSString stringWithFormat:@"%.1f MB", bytes / 1048576.0], nil, nil)];
 	NSMutableArray *marked = [NSMutableArray array];
 	for (NSDictionary *c in out) [marked addObject:OMCPerf(c)];
 	return marked;
-}
-
-#pragma mark - Optimize
-
-NSInteger OMCLiteMode(void) {
-	id v = OMCDiagPref(OMC_KEY_LITE_MODE);
-	return v ? [v integerValue] : 2;
-}
-
-static void OMCPrefsChanged(void) {
-	CFPreferencesAppSynchronize(kPrefsDomain);
-	notify_post([(__bridge NSString *)OMC_PREFS_CHANGED UTF8String]);
-}
-
-void OMCSetLiteMode(NSInteger mode) {
-	OMCDiagStore(OMC_KEY_LITE_MODE, @(mode));
-	OMCPrefsChanged();
-}
-
-NSString *OMCLiteStatus(void) {
-	NSInteger mode = OMCLiteMode();
-	if (mode == 0) return L(@"LITE_STATUS_OFF");
-	if (mode == 1) return L(@"LITE_STATUS_ALWAYS");
-	if ([NSProcessInfo processInfo].thermalState >= NSProcessInfoThermalStateSerious) return L(@"LITE_STATUS_ON_HEAT");
-	int token;
-	uint64_t state = 0;
-	if (notify_register_check(OMC_DARWIN_LITE, &token) == NOTIFY_STATUS_OK) {
-		notify_get_state(token, &state);
-		notify_cancel(token);
-	}
-	if (state) {
-		NSDictionary *perf = OMCDiagPref(OMC_KEY_DIAG_PERF);
-		NSString *reason = [perf isKindOfClass:[NSDictionary class]] ? perf[@"liteReason"] : nil;
-		NSString *key = [@"LITE_REASON_" stringByAppendingString:[reason uppercaseString] ?: @""];
-		return [NSString stringWithFormat:L(@"LITE_STATUS_ON"), [reason length] ? L(key) : @""];
-	}
-	return L(@"LITE_STATUS_AUTO");
-}
-
-BOOL OMCCleanRamOn(void) {
-	return [OMCDiagPref(OMC_KEY_CLEAN_RAM) boolValue];
-}
-
-void OMCSetCleanRam(BOOL on) {
-	OMCDiagStore(OMC_KEY_CLEAN_RAM, @(on));
-	OMCPrefsChanged();
-}
-
-void OMCCleanRamNow(void) {
-	notify_post(OMC_DARWIN_CLEAN_NOW);
-}
-
-NSDictionary *OMCCleanRamLast(void) {
-	CFPreferencesAppSynchronize(kPrefsDomain);
-	NSDictionary *last = OMCDiagPref(OMC_KEY_DIAG_CLEAN);
-	return [last isKindOfClass:[NSDictionary class]] ? last : nil;
-}
-
-NSString *OMCCleanRamStatus(void) {
-	NSDictionary *last = OMCDiagPref(OMC_KEY_DIAG_CLEAN);
-	if (![last isKindOfClass:[NSDictionary class]] || ![last[@"date"] isKindOfClass:[NSDate class]]) return L(@"CLEAN_RAM_NEVER");
-	return [NSString stringWithFormat:L(@"CLEAN_RAM_LAST"), (unsigned long)[last[@"closed"] count], OMCTimeText(last[@"date"])];
-}
-
-// What "Optimize" can do by itself (ids: lite, cleanNow, cleanOn, log, reset) and what only the user can do (the fixes of
-// the failing performance / phone checks that have no button).
-NSDictionary *OMCOptimizePlan(NSArray<NSDictionary *> *groups) {
-	NSMutableArray *steps = [NSMutableArray array];
-	if (OMCLiteMode() == 0) [steps addObject:@{@"id": @"lite", @"title": L(@"OPT_LITE")}];
-	NSDictionary *perf = OMCDiagPref(OMC_KEY_DIAG_PERF);
-	if (![perf isKindOfClass:[NSDictionary class]]) perf = nil;
-	long room = [perf[@"availMinMB"] longValue] ?: [perf[@"sysFreeMinMB"] longValue];
-	if (perf[@"memMB"] && room && room < 200) {
-		[steps addObject:@{@"id": @"cleanNow", @"title": L(@"OPT_CLEAN_NOW")}];
-		if (!OMCCleanRamOn()) [steps addObject:@{@"id": @"cleanOn", @"title": L(@"OPT_CLEAN_ON")}];
-	}
-	unsigned long long bytes = OMCLogBytes();
-	if (bytes > 1024 * 1024) [steps addObject:@{@"id": @"log", @"title": [NSString stringWithFormat:L(@"OPT_LOG"), bytes / 1048576.0]}];
-	if (steps.count && perf) [steps addObject:@{@"id": @"reset", @"title": L(@"OPT_RESET")}];
-
-	NSMutableOrderedSet *manual = [NSMutableOrderedSet orderedSet];
-	for (NSDictionary *g in groups) for (NSDictionary *c in g[@"checks"]) {
-		NSString *s = c[@"status"];
-		if (c[@"action"] || ![c[@"fix"] length] || !([s isEqualToString:@"warn"] || [s isEqualToString:@"bad"])) continue;
-		if ([c[@"perf"] boolValue]) [manual addObject:c[@"fix"]];
-	}
-	return @{@"steps": steps, @"manual": manual.array};
-}
-
-void OMCOptimizeApply(NSArray<NSDictionary *> *steps) {
-	for (NSDictionary *step in steps) {
-		NSString *i = step[@"id"];
-		if ([i isEqualToString:@"lite"]) OMCDiagStore(OMC_KEY_LITE_MODE, @2);
-		else if ([i isEqualToString:@"cleanOn"]) OMCDiagStore(OMC_KEY_CLEAN_RAM, @YES);
-		else if ([i isEqualToString:@"cleanNow"]) OMCCleanRamNow();
-		else if ([i isEqualToString:@"log"]) OMCClearLog();
-		else if ([i isEqualToString:@"reset"]) OMCDiagStore(OMC_KEY_DIAG_PERF, nil);
-	}
-	OMCPrefsChanged();
-}
-
-void OMCPerfReset(void) {
-	OMCDiagStore(OMC_KEY_DIAG_PERF, nil);
-	CFPreferencesAppSynchronize(kPrefsDomain);
-}
-
-void OMCClearLog(void) {
-	NSFileManager *fm = [NSFileManager defaultManager];
-	[fm removeItemAtPath:[kLogPath stringByAppendingString:@".old"] error:nil];
-	[[NSData data] writeToFile:kLogPath atomically:NO];   // truncate: processes keep appending to the same path
 }
 
 NSArray<NSDictionary *> *OMCDiagChecks(void) {
@@ -820,12 +717,13 @@ NSArray<NSDictionary *> *OMCDiagChecks(void) {
 	else [features addObject:OMCCheck(bridgeName, @"ok", [NSString stringWithFormat:L(@"CHK_BRIDGE_APPS"), (unsigned long)chosen.count], nil, nil)];
 
 	NSString *bubbleName = OMCFeatureDisplayName(SB_FEATURE);
-	NSArray *sources = SB_SOURCE_NAMES, *sourceIDs = @[@"vn.vietmap.live", @"com.lumi.GOFA"];   // same order as SPP_NAV_APPS
+	// same order as SPP_NAV_APPS
+	NSArray *sources = SB_SOURCE_NAMES, *sourceIDs = @[@"vn.vietmap.live", @"com.lumi.GOFA", @"com.waze.iphone"];
 	NSInteger src = [OMCDiagPref(SB_KEY_SOURCE) integerValue];
 	if (src < 0 || src >= (NSInteger)sources.count) src = 0;
 	NSString *srcText = [NSString stringWithFormat:L(@"CHK_BUBBLE_SOURCE"), sources[src]];
 	if (OMC_FEATURE_OFF(SB_FEATURE)) [features addObject:OMCCheck(bubbleName, @"info", L(@"FEATURE_OFF"), nil, nil)];
-	else if (src < (NSInteger)sourceIDs.count && !OMCAppInstalled(sourceIDs[src]))
+	else if (src < (NSInteger)sourceIDs.count && [sourceIDs[src] length] && !OMCAppInstalled(sourceIDs[src]))
 		[features addObject:OMCCheck(bubbleName, @"warn", srcText, [NSString stringWithFormat:L(@"CHK_BUBBLE_MISSING"), sources[src]], nil)];
 	else [features addObject:OMCCheck(bubbleName, @"ok", srcText, nil, nil)];
 
@@ -957,14 +855,6 @@ void OMCShareReport(UIViewController *vc, UIBarButtonItem *barItem) {
 		return;
 	}
 	NSMutableArray *items = [NSMutableArray arrayWithObject:url];
-#if OMC_AUTOTEST
-	// Dev builds: the auto test's car-screen snapshots ride along (<suite>-<step>-<result>.jpg)
-	if (OMCAutoTestState()[@"results"]) {
-		NSArray *files = [[[NSFileManager defaultManager] contentsOfDirectoryAtPath:OMC_AUTOTEST_DIR error:nil] sortedArrayUsingSelector:@selector(compare:)];
-		for (NSString *file in files)
-			if ([file.pathExtension isEqualToString:@"jpg"]) [items addObject:[NSURL fileURLWithPath:[OMC_AUTOTEST_DIR stringByAppendingPathComponent:file]]];
-	}
-#endif
 	UIActivityViewController *share = [[UIActivityViewController alloc] initWithActivityItems:items applicationActivities:nil];
 	UIPopoverPresentationController *pop = share.popoverPresentationController;   // iPad
 	if (barItem) pop.barButtonItem = barItem;

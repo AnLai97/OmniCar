@@ -1,0 +1,54 @@
+/* OmniCar - CarPlay home screen (OMCAppBridgeAppsController) */
+
+"HOMESCREEN_ICON_SIZE" = "아이콘 크기";
+"HOMESCREEN_WALLPAPER" = "배경화면";
+"HOMESCREEN_BLUR" = "흐림";
+"HOMESCREEN_DIM" = "어둡기";
+"HOMESCREEN_WALLPAPER_DEFAULT" = "기본";
+
+/* One page: Apps on the car screen */
+"APPS_TITLE" = "차 화면의 앱";
+"APPS_SYSTEM" = "시스템";
+"APPS_WALL_0" = "기본";
+"APPS_WALL_1" = "바다";
+"APPS_WALL_2" = "노을";
+"APPS_WALL_3" = "OmniCar";
+"APPS_WALL_4" = "밤";
+"APPS_WALL_5" = "새벽";
+"APPS_WALL_6" = "숲";
+"APPS_WALL_7" = "내 사진";
+
+"APPS_WALL_8" = "내 비디오";
+"APPS_FROM_PHOTOS" = "사진에서(이미지 또는 비디오)";
+"APPS_VIDEO_WORKING" = "비디오 준비 중…";
+"APPS_VIDEO_FAILED" = "이 비디오를 사용할 수 없습니다.";
+"APPS_WALL_FOOTER" = "사진은 차량 화면에 맞게 잘립니다. 아이콘이 잘 보이도록 어둡기를 높이십시오. 동영상은 소리 없이 반복 재생(처음 20초)되며 iPhone이 뜨겁거나 라이트 모드가 켜져 있거나 화면이 분할되었거나 앱이 홈 화면을 가리면 멈춥니다.";
+"APPS_PHONE" = "iPhone 앱";
+"HOMESCREEN_ICON_SIZE_FOOTER" = "자동 = CarPlay 기본 열과 행. 100 %는 CarPlay 아이콘 크기이며, 열이나 행을 늘리면 이름이 겹치지 않게 아이콘을 줄이세요.";
+
+/* App tren man xe: tren xe + 2 tab */
+"APPS_ON_CAR" = "차량에 표시 중";
+"APPS_ALL" = "앱 선택";
+"APPS_TAB_CARPLAY" = "CarPlay 앱";
+"APPS_TAB_OMNICAR" = "App Bridge";
+"APPS_ON_CAR_FOOTER" = "iPhone 배지가 있는 앱은 App Bridge로 차량에 띄운 iPhone 앱입니다.";
+"APPS_CARPLAY_FOOTER" = "CarPlay 앱을 제거하면 차량 홈 화면에서 아이콘이 사라지며, 통화·길 안내·Siri로는 그대로 열립니다. 재설정하면 iPhone 설정 › 일반 › CarPlay 상태로 돌아갑니다.";
+"APPS_CARPLAY_LOCKED" = "CarPlay에 항상 표시";
+"APPS_IOS_REMOVED" = "iPhone 설정에서 제거됨";
+"APPS_INCLUDED" = "포함됨";
+"APPS_OTHER" = "기타 앱";
+"APPS_RESET" = "재설정";
+"APPS_REMOVE" = "제거";
+"APPS_RESET_CONFIRM" = "iPhone 설정 › 일반 › CarPlay대로 CarPlay 앱을 다시 표시할까요? App Bridge의 iPhone 앱은 유지됩니다.";
+"APPS_OTHER_FOOTER" = "+를 탭하면 앱을 차량에 넣습니다. iPhone 앱은 App Bridge를 통합니다.";
+"APPS_CARPLAY_GUESS_FOOTER" = "아직 차량에 연결되지 않음: CarPlay 지원 여부로 CarPlay 앱을 추정했습니다.";
+
+/* Man chinh CarPlay: luoi icon */
+"HOMESCREEN_GRID" = "아이콘 격자";
+"HOMESCREEN_COLS" = "열";
+"HOMESCREEN_ROWS" = "행";
+"HOMESCREEN_AUTO" = "자동";
+"HOMESCREEN_NAMES" = "앱 이름";
+
+/* Man chinh CarPlay: nut Dat lai */
+"HOMESCREEN_RESET_CONFIRM" = "CarPlay 기본 홈 화면으로 되돌릴까요? 열과 행 자동, 아이콘 크기 100 %, 앱 이름 표시, CarPlay 배경화면. 차량 화면의 앱은 유지됩니다.";

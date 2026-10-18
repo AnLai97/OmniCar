@@ -25,7 +25,6 @@
 "Couldn't reopen %@" = "%@を再度開けませんでした";
 "Couldn't show %@ on the car" = "%@を車に表示できませんでした";
 "Done" = "完了";
-"Driving · sound only" = "運転中 · 音声のみ";
 "Drizzle" = "霧雨";
 "Exit split" = "分割を終了";
 "Favorites" = "お気に入り";
@@ -36,7 +35,6 @@
 "Good evening" = "こんばんは";
 "Good morning" = "おはようございます";
 "Heavy rain" = "大雨";
-"Late night" = "夜遅くまでお疲れさまです";
 "Layout" = "レイアウト";
 "Layouts" = "レイアウト";
 "Needs at least 2 panes" = "2つ以上の枠が必要です";
@@ -52,7 +50,6 @@
 "Speed Bubble" = "スピードバブル";
 "Split Screen" = "画面分割";
 "Startup Screen" = "起動画面";
-"Stop the car to watch again" = "停車すると再び視聴できます";
 "This app can't be split" = "このAppは分割できません";
 "This app doesn't support CarPlay" = "このAppはCarPlayに対応していません";
 "This pane has no app" = "この枠にはAppがありません";
@@ -75,3 +72,19 @@
 "Background" = "裏で実行";
 "Quit app" = "アプリ終了";
 "Split" = "分割";
+"Your car is ready" = "車の準備ができました";
+"Your car is ready, %@" = "%@さん、車の準備ができました";
+"iPhone apps cannot float" = "iPhoneのAppはフローティングにできません";
+
+/* Speed Bubble: spoken over-speed warnings ({L} = the limit) */
+"You are over the speed limit" = "制限速度を超えています";
+"Too fast, the limit is {L}" = "スピード出しすぎ、制限速度は{L}です";
+"Please slow down" = "スピードを落としてください";
+"Hey, this is a car, not a plane!" = "ねえ、これは車だよ、飛行機じゃない！";
+"Easy now, the road is long and the wallet is thin" = "落ち着いて、道は長いけど財布は薄いよ";
+"The speed camera is smiling at you" = "スピードカメラが微笑んでいます";
+"What's the rush? Dinner at home is still hot" = "何を急いでるの？家のごはんはまだ温かいよ";
+"Easy on the gas, speeding won't make you any better looking" = "アクセルは控えめに、飛ばしてもかっこよくはならないよ";
+"Choose an app for the floating window" = "フローティングウインドウのアプリを選択";
+"Choose an app for pane %d" = "区画 %d のアプリを選択";
+"Tap an app to open it here" = "アプリをタップしてここで開く";

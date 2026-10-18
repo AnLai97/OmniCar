@@ -1,4 +1,5 @@
 #import "common.h"
+#import "SCPHomeScreen.h"
 #import "SCPPrefs.h"
 #import "SCPCarSplit.h"
 #import "SCPAppIcons.h"
@@ -313,6 +314,10 @@ static BOOL SCPLayoutHasElement(id publisher, NSString *identifier)
     [dnc addObserverForName:AB_NOTIF_BAR_ACTION object:nil queue:main usingBlock:^(NSNotification *note) {
         @try { [[SCPCarSplit shared] bridgeBarAction:note.userInfo[@"action"] forBundle:note.userInfo[@"identifier"]]; }
         @catch (NSException *e) { SCPHookError("AB_BAR_ACTION", e); }
+    }];
+    [dnc addObserverForName:AB_NOTIF_BAR_DISMISS object:nil queue:main usingBlock:^(NSNotification *note) {
+        @try { [[SCPCarSplit shared] bridgeOutsideTouched]; }
+        @catch (NSException *e) { SCPHookError("AB_BAR_DISMISS", e); }
     }];
     [dnc addObserverForName:AB_NOTIF_KNOB_TOUCH object:nil queue:main usingBlock:^(NSNotification *note) {
         @try { [[SCPCarSplit shared] remoteKnobTouch:note.userInfo]; }

@@ -1,0 +1,54 @@
+/* OmniCar - CarPlay home screen (OMCAppBridgeAppsController) */
+
+"HOMESCREEN_ICON_SIZE" = "Tamaño de icono";
+"HOMESCREEN_WALLPAPER" = "Fondo";
+"HOMESCREEN_BLUR" = "Desenfoque";
+"HOMESCREEN_DIM" = "Oscuridad";
+"HOMESCREEN_WALLPAPER_DEFAULT" = "Predeterminado";
+
+/* One page: Apps on the car screen */
+"APPS_TITLE" = "Apps en el coche";
+"APPS_SYSTEM" = "Sistema";
+"APPS_WALL_0" = "Predeterminado";
+"APPS_WALL_1" = "Océano";
+"APPS_WALL_2" = "Atardecer";
+"APPS_WALL_3" = "OmniCar";
+"APPS_WALL_4" = "Noche";
+"APPS_WALL_5" = "Amanecer";
+"APPS_WALL_6" = "Bosque";
+"APPS_WALL_7" = "Tu foto";
+
+"APPS_WALL_8" = "Tu vídeo";
+"APPS_FROM_PHOTOS" = "Desde Fotos (imagen o vídeo)";
+"APPS_VIDEO_WORKING" = "Preparando el vídeo…";
+"APPS_VIDEO_FAILED" = "No se pudo usar este vídeo.";
+"APPS_WALL_FOOTER" = "Las imágenes se recortan a la pantalla del coche; sube el oscurecimiento para que los iconos se lean bien. Un vídeo se repite sin sonido (primeros 20 s) y se pausa cuando el iPhone está caliente, el modo ligero está activo, la pantalla está dividida o una app tapa la pantalla de inicio.";
+"APPS_PHONE" = "Apps de iPhone";
+"HOMESCREEN_ICON_SIZE_FOOTER" = "Auto = columnas y filas de CarPlay. 100 % es el tamaño de iconos de CarPlay; con más columnas o filas, reduce los iconos para que los nombres no se solapen.";
+
+/* App tren man xe: tren xe + 2 tab */
+"APPS_ON_CAR" = "En el coche";
+"APPS_ALL" = "Elegir apps";
+"APPS_TAB_CARPLAY" = "Apps de CarPlay";
+"APPS_TAB_OMNICAR" = "App Bridge";
+"APPS_ON_CAR_FOOTER" = "Las apps con la insignia de iPhone son apps del iPhone que App Bridge lleva al coche.";
+"APPS_CARPLAY_FOOTER" = "Quita una app de CarPlay para sacar su icono de la pantalla de inicio del coche; se sigue abriendo sola con una llamada, una ruta o Siri. Restablecer vuelve a Ajustes del iPhone › General › CarPlay.";
+"APPS_CARPLAY_LOCKED" = "Siempre en CarPlay";
+"APPS_IOS_REMOVED" = "Quitada en Ajustes del iPhone";
+"APPS_INCLUDED" = "Incluidas";
+"APPS_OTHER" = "Otras apps";
+"APPS_RESET" = "Restablecer";
+"APPS_REMOVE" = "Quitar";
+"APPS_RESET_CONFIRM" = "¿Mostrar de nuevo las apps de CarPlay como en Ajustes del iPhone › General › CarPlay? Las apps del iPhone de App Bridge se quedan.";
+"APPS_OTHER_FOOTER" = "Toca + para poner una app en el coche. Las apps del iPhone van por App Bridge.";
+"APPS_CARPLAY_GUESS_FOOTER" = "Aún no se ha conectado a un coche: las apps de CarPlay se deducen por su compatibilidad con CarPlay.";
+
+/* Man chinh CarPlay: luoi icon */
+"HOMESCREEN_GRID" = "Cuadrícula de iconos";
+"HOMESCREEN_COLS" = "Columnas";
+"HOMESCREEN_ROWS" = "Filas";
+"HOMESCREEN_AUTO" = "Auto";
+"HOMESCREEN_NAMES" = "Nombres de apps";
+
+/* Man chinh CarPlay: nut Dat lai */
+"HOMESCREEN_RESET_CONFIRM" = "¿Volver a la pantalla de inicio de CarPlay: columnas y filas automáticas, iconos al 100 %, nombres de apps activados, fondo de CarPlay? Las apps en el coche se quedan.";

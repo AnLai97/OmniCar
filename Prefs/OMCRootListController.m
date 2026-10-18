@@ -3,7 +3,6 @@
 #import "OMCDiagnostics.h"
 #import "OMCOnboardingController.h"
 #import "OMCWhatsNewController.h"
-#import "OMCBackup.h"
 #import <Preferences/PSTableCell.h>
 #import <dlfcn.h>
 #import <notify.h>
@@ -12,7 +11,7 @@
 
 #pragma mark - Header card
 
-// Glass card in the OmniCar look (DESIGN.md, tools/preview/theme.html): frosted glass tinted with the pastel
+// Glass card in the OmniCar look (DESIGN.md, tools/preview/index.html#overview): frosted glass tinted with the pastel
 // liquid colors, logo, name, slogan, status line ("● On", the dot glows green when on) and the master switch,
 // so the enable row is gone. The version lives in the footer card, not here.
 @interface OMCHeaderCard : UIView
@@ -187,7 +186,7 @@
 }
 
 #if OMC_AUTOTEST
-// Developer builds only: Support > Auto test (Prefs/OMCAutoTestController.m), right after Send log.
+// Developer builds only: Developer > Autotest (Prefs/OMCAutoTestController.m), right after Send log.
 - (void)insertAutoTestSpecifier {
 	PSSpecifier *spec = [PSSpecifier preferenceSpecifierNamed:L(@"AUTOTEST") target:self set:NULL get:NULL
 		detail:NSClassFromString(@"OMCAutoTestController") cell:PSLinkCell edit:Nil];
@@ -495,27 +494,6 @@
 - (void)showWhatsNew {
 	if (self.presentedViewController) return;
 	[self presentViewController:[OMCWhatsNewController whatsNewNavigationController] animated:YES completion:nil];
-}
-
-// Support > Back up settings: one .omnicar file into the share sheet (Files, AirDrop, Zalo ...).
-- (void)backupSettings {
-	OMCBackupShare(self);
-}
-
-// Support > Restore from file: Files picker, confirm, write back, offer a respring. The language and every row
-// may have changed, so the page is rebuilt.
-- (void)restoreSettings {
-	__weak typeof(self) weakSelf = self;
-	OMCBackupPickAndRestore(self, ^{
-		[weakSelf rebuildPage];
-	});
-}
-
-- (void)rebuildPage {
-	[self applyLanguage];
-	_specifiers = nil;
-	[self reloadSpecifiers];
-	[self updateHeaderStatus];
 }
 
 // Rescue card: turn the features rescue mode switched off back on.

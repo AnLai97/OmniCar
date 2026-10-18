@@ -1,0 +1,54 @@
+/* OmniCar - CarPlay home screen (OMCAppBridgeAppsController) */
+
+"HOMESCREEN_ICON_SIZE" = "ขนาดไอคอน";
+"HOMESCREEN_WALLPAPER" = "วอลเปเปอร์";
+"HOMESCREEN_BLUR" = "เบลอ";
+"HOMESCREEN_DIM" = "ความมืด";
+"HOMESCREEN_WALLPAPER_DEFAULT" = "ค่าเริ่มต้น";
+
+/* One page: Apps on the car screen */
+"APPS_TITLE" = "แอปบนรถ";
+"APPS_SYSTEM" = "ระบบ";
+"APPS_WALL_0" = "ค่าเริ่มต้น";
+"APPS_WALL_1" = "มหาสมุทร";
+"APPS_WALL_2" = "พระอาทิตย์ตก";
+"APPS_WALL_3" = "OmniCar";
+"APPS_WALL_4" = "กลางคืน";
+"APPS_WALL_5" = "รุ่งอรุณ";
+"APPS_WALL_6" = "ป่า";
+"APPS_WALL_7" = "รูปของคุณ";
+
+"APPS_WALL_8" = "วิดีโอของคุณ";
+"APPS_FROM_PHOTOS" = "จากรูปภาพ (ภาพหรือวิดีโอ)";
+"APPS_VIDEO_WORKING" = "กำลังเตรียมวิดีโอ…";
+"APPS_VIDEO_FAILED" = "ใช้วิดีโอนี้ไม่ได้";
+"APPS_WALL_FOOTER" = "รูปภาพจะถูกครอบตามหน้าจอรถ เพิ่มความมืดเพื่อให้ไอคอนอ่านง่าย วิดีโอจะวนซ้ำแบบไม่มีเสียง (20 วินาทีแรก) และหยุดชั่วคราวเมื่อเครื่องร้อน เปิดโหมดเบา แบ่งหน้าจอ หรือมีแอปบังหน้าจอหลัก";
+"APPS_PHONE" = "แอป iPhone";
+"HOMESCREEN_ICON_SIZE_FOOTER" = "อัตโนมัติ = คอลัมน์และแถวของ CarPlay เอง 100 % คือขนาดไอคอนของ CarPlay ถ้าเพิ่มคอลัมน์หรือแถว ให้ลดขนาดไอคอนเพื่อไม่ให้ชื่อซ้อนกัน";
+
+/* App tren man xe: tren xe + 2 tab */
+"APPS_ON_CAR" = "บนรถ";
+"APPS_ALL" = "เลือกแอป";
+"APPS_TAB_CARPLAY" = "แอป CarPlay";
+"APPS_TAB_OMNICAR" = "App Bridge";
+"APPS_ON_CAR_FOOTER" = "แอปที่มีป้าย iPhone คือแอป iPhone ที่ App Bridge นำขึ้นจอรถ";
+"APPS_CARPLAY_FOOTER" = "เอาแอป CarPlay ออกเพื่อซ่อนไอคอนบนหน้าจอหลักของรถ แอปยังเปิดเองได้เมื่อมีสายเข้า นำทาง หรือใช้ Siri รีเซ็ตเพื่อกลับไปตามการตั้งค่า iPhone › ทั่วไป › CarPlay";
+"APPS_CARPLAY_LOCKED" = "แสดงใน CarPlay เสมอ";
+"APPS_IOS_REMOVED" = "เอาออกในการตั้งค่า iPhone";
+"APPS_INCLUDED" = "รวมอยู่";
+"APPS_OTHER" = "แอปอื่นๆ";
+"APPS_RESET" = "รีเซ็ต";
+"APPS_REMOVE" = "เอาออก";
+"APPS_RESET_CONFIRM" = "แสดงแอป CarPlay ตามการตั้งค่า iPhone › ทั่วไป › CarPlay อีกครั้งไหม แอป iPhone ผ่าน App Bridge ยังอยู่";
+"APPS_OTHER_FOOTER" = "แตะ + เพื่อเอาแอปขึ้นจอรถ แอป iPhone ผ่าน App Bridge";
+"APPS_CARPLAY_GUESS_FOOTER" = "ยังไม่เคยเชื่อมต่อรถ: แอป CarPlay เดาจากการรองรับ CarPlay";
+
+/* Man chinh CarPlay: luoi icon */
+"HOMESCREEN_GRID" = "ตารางไอคอน";
+"HOMESCREEN_COLS" = "คอลัมน์";
+"HOMESCREEN_ROWS" = "แถว";
+"HOMESCREEN_AUTO" = "อัตโนมัติ";
+"HOMESCREEN_NAMES" = "ชื่อแอป";
+
+/* Man chinh CarPlay: nut Dat lai */
+"HOMESCREEN_RESET_CONFIRM" = "กลับไปใช้หน้าหลักของ CarPlay: คอลัมน์และแถวอัตโนมัติ ขนาดไอคอน 100 % แสดงชื่อแอป วอลเปเปอร์ของ CarPlay ไหม แอปบนหน้าจอรถยังอยู่";

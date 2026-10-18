@@ -1,4 +1,4 @@
-# OmniCar logo, glass version (the approved OmniCar look, see tools/preview/splitscreen.html): dark HarmonyOS
+# OmniCar logo, glass version (the approved OmniCar look, see tools/preview/index.html#split): dark HarmonyOS
 # glass squircle with a faint top sheen and a hairline rim, the ring + CarPlay play button in bright white with a
 # soft white glow. No blue. Same shapes as SCPCLogoImage (the dock button in SCPCarSplit.mm).
 # Rendered with .NET System.Drawing so it needs no Python.

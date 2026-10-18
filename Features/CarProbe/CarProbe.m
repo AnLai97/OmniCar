@@ -14,7 +14,10 @@
 // frame, hidden / alpha, accessibility id, owning view controller, label text, icon bundle id / name) / home icon
 // order read from the icon list views' models / properties of the home views (icon lists, dock, wallpaper, layout,
 // status bar) and of the view controllers on the car screen / the app library in use and its apps / CarKit session,
-// configuration, paired vehicles / DBEvent (CAREvent) / CarPlay preference files / the class names of DashBoard,
+// configuration, paired vehicles / DBEvent (CAREvent) / CarPlay preference files / WHERE iOS KEEPS THE CARPLAY CUSTOMIZE
+// LIST (files under /var/mobile that contain the bundle ids of the apps on the home screen, the key path inside each
+// plist, and which of them changed since the previous probe: run once, change iOS Settings > General > CarPlay > car >
+// Customize, run again) / the class names of DashBoard,
 // CarPlay, CarPlayUIServices and CarKit / a method index by keyword (siri, voice, button, event, wallpaper, dock ...)
 // / class details (superclass chain, protocols, ivars, properties, methods + type encodings) of every class seen on
 // the car screen and of every class in those images whose name has Icon, Dock, Wallpaper, Home, Dashboard, Library,
@@ -51,6 +54,9 @@
 #define CP_OBJ_PROPS    150    // property values per object
 #define CP_OBJ_SEEN     80     // objects per object dump (recursion)
 #define CP_INDEX_LINES  5000   // method index
+#define CP_FILES_PATH   @"/var/mobile/Documents/OmniCar-ProbeFiles.plist"   // last probe's matching files (path -> [mtime, size])
+#define CP_SCAN_FILES   60000  // files looked at per scan
+#define CP_SCAN_BYTES   (4 * 1024 * 1024)   // bigger files are skipped
 
 #ifndef TWEAK_VERSION
 #define TWEAK_VERSION "dev"
@@ -60,6 +66,7 @@ static NSMutableString *sOut;
 static BOOL sFull;
 static BOOL sRunning;
 static id sSessionStatus;   // CARSessionStatus, kept: it fills currentSession in asynchronously
+static NSMutableOrderedSet<NSString *> *sHomeBundles;   // bundle ids of the home icons (CPDumpIconLists), for the file scan
 
 #pragma mark - Report text
 
@@ -615,9 +622,12 @@ static void CPDumpIconLists(NSArray *iconLists) {
 		for (id icon in icons) {
 			if (i >= 120) { CPLine(@"  ..."); break; }
 			NSMutableArray *parts = [NSMutableArray array];
-			for (NSString *p in @[@"applicationBundleIdentifier", @"leafIdentifier", @"displayName", @"uniqueIdentifier"]) {
+			for (NSString *p in @[@"applicationBundleIdentifier", @"applicationBundleID", @"leafIdentifier", @"displayName", @"uniqueIdentifier"]) {
 				NSString *t = CPProp(icon, p, NULL);
 				if (t) [parts addObject:[NSString stringWithFormat:@"%@=%@", p, CPShort(t, 80)]];
+				id raw = CPPropObject(icon, p);
+				if (![p isEqualToString:@"displayName"] && ![p isEqualToString:@"uniqueIdentifier"] && [raw isKindOfClass:[NSString class]] && [raw containsString:@"."])
+					[sHomeBundles addObject:raw];
 			}
 			CPLine(@"  %2lu. %@ %@", (unsigned long)i, NSStringFromClass(object_getClass(icon)), [parts componentsJoinedByString:@" "]);
 			i++;
@@ -789,6 +799,109 @@ static void CPDumpPreferenceFiles(void) {
 	}
 }
 
+#pragma mark - CarPlay Customize storage (background)
+
+// Duong dan key trong plist chua chuoi needle (vehicles[0].iconState.hidden[3] ...), toi da `cap` dong
+static void CPFindKeyPaths(id obj, NSString *path, NSArray<NSString *> *needles, NSMutableArray<NSString *> *out, NSUInteger cap, int depth) {
+	if (out.count >= cap || depth > 12 || !obj) return;
+	if ([obj isKindOfClass:[NSString class]]) {
+		for (NSString *n in needles) if ([obj containsString:n]) { [out addObject:[NSString stringWithFormat:@"%@ = %@", path.length ? path : @"(root)", CPShort(obj, 120)]]; return; }
+	} else if ([obj isKindOfClass:[NSDictionary class]]) {
+		for (id key in [[obj allKeys] sortedArrayUsingSelector:@selector(description)]) {
+			NSString *k = [key description];
+			for (NSString *n in needles) if ([k containsString:n]) { [out addObject:[NSString stringWithFormat:@"%@.<key %@>", path, CPShort(k, 120)]]; break; }
+			CPFindKeyPaths(obj[key], path.length ? [path stringByAppendingFormat:@".%@", k] : k, needles, out, cap, depth + 1);
+		}
+	} else if ([obj isKindOfClass:[NSArray class]]) {
+		NSUInteger i = 0;
+		for (id v in obj) CPFindKeyPaths(v, [path stringByAppendingFormat:@"[%lu]", (unsigned long)i++], needles, out, cap, depth + 1);
+	} else if ([obj isKindOfClass:[NSData class]] && [obj length] < CP_SCAN_BYTES) {   // plist long trong plist (NSKeyedArchiver ...)
+		id inner = [NSPropertyListSerialization propertyListWithData:obj options:0 format:NULL error:nil];
+		if (inner) CPFindKeyPaths(inner, [path stringByAppendingString:@"<data>"], needles, out, cap, depth + 1);
+	}
+}
+
+// Tim noi iOS luu danh sach Cai dat > Chung > CarPlay > xe > Tuy chinh: moi file trong /var/mobile/Library va cac app group
+// co chua ma bundle cua app tren man chinh xe; so voi lan probe truoc (CP_FILES_PATH) de biet file nao vua doi
+static void CPDumpCustomizeStorage(NSArray<NSString *> *homeBundles) {
+	CPSection(@"CARPLAY CUSTOMIZE STORAGE (files with the home apps' bundle ids, changes since the last probe)");
+	NSMutableOrderedSet *needles = [NSMutableOrderedSet orderedSet];
+	for (NSString *b in homeBundles) if (![b hasPrefix:@"com.apple."]) [needles addObject:b];   // app ben thu ba: hiem khi nam o file khac
+	for (NSString *b in @[@"com.apple.podcasts", @"com.apple.iBooks", @"com.apple.mobilecal", @"com.apple.news"]) if ([homeBundles containsObject:b]) [needles addObject:b];
+	if (needles.count > 8) [needles removeObjectsInRange:NSMakeRange(8, needles.count - 8)];
+	if (!needles.count) { CPLine(@"(no third-party app on the home screen to look for: add one in iOS CarPlay Customize, probe again)"); return; }
+	NSArray *find = needles.array;
+	NSMutableArray *bytes = [NSMutableArray array];
+	for (NSString *n in find) [bytes addObject:[n dataUsingEncoding:NSUTF8StringEncoding]];
+	CPLine(@"looking for: %@", [find componentsJoinedByString:@", "]);
+
+	NSFileManager *fm = [NSFileManager defaultManager];
+	NSMutableArray *roots = [NSMutableArray arrayWithObject:@"/var/mobile/Library"];
+	for (NSString *g in [fm contentsOfDirectoryAtPath:@"/var/mobile/Containers/Shared/AppGroup" error:nil] ?: @[])
+		[roots addObject:[@"/var/mobile/Containers/Shared/AppGroup" stringByAppendingPathComponent:g]];
+	NSSet *skipExt = [NSSet setWithArray:@[@"png", @"jpg", @"jpeg", @"heic", @"mov", @"mp4", @"m4a", @"caf", @"car", @"ktx", @"astc", @"ttf", @"otf", @"wal", @"shm", @"log"]];
+	NSMutableDictionary *now = [NSMutableDictionary dictionary];   // path -> @[mtime, size]
+	NSUInteger looked = 0, denied = 0;
+	NSMutableArray *hits = [NSMutableArray array];
+	for (NSString *root in roots) {
+		NSDirectoryEnumerator *en = [fm enumeratorAtURL:[NSURL fileURLWithPath:root] includingPropertiesForKeys:@[NSURLFileSizeKey, NSURLContentModificationDateKey, NSURLIsRegularFileKey]
+		                                        options:0 errorHandler:^BOOL(NSURL *url, NSError *error) { return YES; }];
+		for (NSURL *url in en) {
+			if (looked >= CP_SCAN_FILES || sFull) break;
+			NSString *path = url.path;
+			if ([path containsString:@"/Caches/com.apple.dyld"] || [path containsString:@"/Logs/"] || [path containsString:@"/Media/"]) continue;
+			NSNumber *regular = nil, *size = nil; NSDate *mtime = nil;
+			[url getResourceValue:&regular forKey:NSURLIsRegularFileKey error:nil];
+			if (!regular.boolValue || [skipExt containsObject:path.pathExtension.lowercaseString]) continue;
+			[url getResourceValue:&size forKey:NSURLFileSizeKey error:nil];
+			[url getResourceValue:&mtime forKey:NSURLContentModificationDateKey error:nil];
+			if (size.unsignedLongLongValue > CP_SCAN_BYTES) continue;
+			looked++;
+			NSData *data = [NSData dataWithContentsOfFile:path options:NSDataReadingMappedIfSafe error:nil];
+			if (!data) { denied++; continue; }
+			NSMutableArray *found = [NSMutableArray array];
+			for (NSUInteger i = 0; i < bytes.count; i++) if ([data rangeOfData:bytes[i] options:0 range:NSMakeRange(0, data.length)].location != NSNotFound) [found addObject:find[i]];
+			BOOL named = CPNameMatches(path.lastPathComponent, @[@"carplay", @"carkit", @"dashboard", @"iconstate", @"vehicle"]);
+			if (!found.count && !named) continue;
+			now[path] = @[@(mtime.timeIntervalSince1970), size ?: @0];
+			if (found.count) [hits addObject:@[path, found, mtime ?: [NSDate distantPast], size ?: @0]];
+		}
+	}
+	CPLine(@"%lu files read, %lu not readable from CarPlay.app (sandbox), %lu contain a home app id", (unsigned long)looked, (unsigned long)denied, (unsigned long)hits.count);
+	NSDateFormatter *df = [NSDateFormatter new];
+	df.dateFormat = @"yyyy-MM-dd HH:mm:ss";
+	NSMutableArray *summary = [NSMutableArray array];
+	for (NSArray *h in hits) {
+		NSString *path = h[0];
+		CPLine(@"\n%@ (%@ bytes, modified %@)\n  contains: %@", path, h[3], [df stringFromDate:h[2]], [h[1] componentsJoinedByString:@", "]);
+		[summary addObject:path.lastPathComponent];
+		NSData *data = [NSData dataWithContentsOfFile:path];
+		id plist = data ? [NSPropertyListSerialization propertyListWithData:data options:0 format:NULL error:nil] : nil;
+		if (!plist) { CPLine(@"  (not a property list: sqlite / json / other)"); continue; }
+		NSMutableArray *paths = [NSMutableArray array];
+		CPFindKeyPaths(plist, @"", find, paths, 40, 0);
+		for (NSString *p in paths) CPLine(@"  %@", p);
+	}
+	// so voi lan truoc
+	NSDictionary *before = [NSDictionary dictionaryWithContentsOfFile:CP_FILES_PATH];
+	NSMutableArray *changed = [NSMutableArray array];
+	if (before) {
+		CPLine(@"\nChanged since the last probe (%lu files then):", (unsigned long)before.count);
+		for (NSString *path in [[now allKeys] sortedArrayUsingSelector:@selector(compare:)]) {
+			NSArray *b = before[path], *n = now[path];
+			if (!b) { CPLine(@"  NEW      %@", path); [changed addObject:path.lastPathComponent]; }
+			else if (![b isEqualToArray:n]) { CPLine(@"  CHANGED  %@ (size %@ -> %@)", path, b[1], n[1]); [changed addObject:path.lastPathComponent]; }
+		}
+		for (NSString *path in before) if (!now[path]) { CPLine(@"  GONE     %@", path); [changed addObject:path.lastPathComponent]; }
+		if (!changed.count) CPLine(@"  (none)");
+	} else CPLine(@"\n(first scan: change CarPlay Customize in iOS Settings, then probe again to see which file changes)");
+	[now writeToFile:CP_FILES_PATH atomically:YES];
+	dispatch_async(dispatch_get_main_queue(), ^{
+		CPLog(@"Tuy chinh CarPlay: %lu file chua ma app (%@)%@", (unsigned long)summary.count, [summary componentsJoinedByString:@", "],
+		      before ? [NSString stringWithFormat:@"; doi tu lan truoc: %@", changed.count ? [changed componentsJoinedByString:@", "] : @"khong"] : @"; lan dau, doi Tuy chinh roi probe lai");
+	});
+}
+
 #pragma mark - Runtime (background)
 
 static NSArray<NSString *> *CPTargetImages(void) {
@@ -830,9 +943,10 @@ static void CPDumpRuntime(NSOrderedSet<NSString *> *seenClasses) {
 	}
 	if (!images.count) CPLine(@"(none of DashBoard / CarPlay / CarPlayUIServices / CarKit is loaded)");
 
-	CPSection(@"METHOD INDEX (selectors with siri, voice, button, hardware, knob, event, wallpaper, dock, nowplaying, audio, hidden, order, rows, columns, iconsize)");
+	CPSection(@"METHOD INDEX (selectors with siri, voice, button, hardware, knob, event, wallpaper, dock, nowplaying, audio, hidden, order, rows, columns, iconsize, iconstate, layout, customiz, visible, applist)");
 	NSArray *words = @[@"siri", @"voice", @"button", @"hardware", @"knob", @"event", @"wallpaper", @"dock", @"nowplaying", @"audio",
-		@"hidden", @"order", @"rows", @"columns", @"iconsize"];
+		@"hidden", @"order", @"rows", @"columns", @"iconsize", @"iconstate", @"iconlayout", @"layoutstate", @"customiz", @"visibleicon",
+		@"applist", @"appidentifiers", @"bundleidentifiers"];
 	NSUInteger lines = 0;
 	for (NSString *image in images) {
 		for (NSString *name in classesByImage[image]) {
@@ -910,6 +1024,7 @@ static void CPRun(NSString *reason) {
 	sFull = NO;
 	sOut = [NSMutableString stringWithCapacity:512 * 1024];
 	CPLog(@"probe bat dau (%@)", reason);
+	sHomeBundles = [NSMutableOrderedSet orderedSet];
 
 	NSMutableDictionary *homeViews = [NSMutableDictionary dictionary];
 	NSMutableArray *iconLists = [NSMutableArray array];
@@ -927,7 +1042,9 @@ static void CPRun(NSString *reason) {
 	@try { CPDumpPreferenceFiles(); } @catch (NSException *e) { CPLine(@"(preference files threw %@: %@)", e.name, e.reason); }
 
 	NSOrderedSet *seenClasses = [classes copy];
+	NSArray *homeBundles = sHomeBundles.array;
 	dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0), ^{
+		@try { CPDumpCustomizeStorage(homeBundles); } @catch (NSException *e) { CPLine(@"(customize storage threw %@: %@)", e.name, e.reason); }
 		@try { CPDumpRuntime(seenClasses); } @catch (NSException *e) { CPLine(@"(runtime threw %@: %@)", e.name, e.reason); }
 		CPLine(@"\n[end of report]");
 		CPWrite();

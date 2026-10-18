@@ -1,5 +1,6 @@
-// Developer auto test page (Support > Auto test, only when OMC_AUTOTEST is 1): tick the features to test,
-// start / stop, follow the run, read every step's result, and arm the rescue-mode crash test. The runner and
+// Developer auto test page (Developer > Autotest, only when OMC_AUTOTEST is 1): tick the features to test,
+// start / stop, follow the run step by step (green check = pass, red cross = fail / crash, gray dash = skipped, a
+// spinner on the step running; tap a failed or skipped step for the reason), and arm the rescue-mode crash test. The runner and
 // the test cases live with the features (Core/OMCTest.h); this page only writes the request and reads back.
 #import "OMCDiagnostics.h"
 
@@ -123,6 +124,17 @@ typedef NS_ENUM(NSInteger, OMCATSection) { OMCATSuites, OMCATAction, OMCATStatus
 	[self presentViewController:alert animated:YES completion:nil];
 }
 
+// Ly do cua buoc loi / bo qua (phan sau "||" la trang thai chia man luc loi, cung trong OmniCar.log)
+- (void)showReason:(NSDictionary *)r {
+	if ([r[@"status"] isEqualToString:@"pass"]) return;
+	NSString *detail = [r[@"detail"] length] ? r[@"detail"] : L(@"AUTOTEST_NO_REASON");
+	detail = [detail stringByReplacingOccurrencesOfString:@" || " withString:@"\n\n"];
+	NSString *title = [NSString stringWithFormat:@"%@ · %@", OMCFeatureDisplayName(r[@"suite"]), r[@"name"]];
+	UIAlertController *a = [UIAlertController alertControllerWithTitle:title message:detail preferredStyle:UIAlertControllerStyleAlert];
+	[a addAction:[UIAlertAction actionWithTitle:L(@"OK") style:UIAlertActionStyleCancel handler:nil]];
+	[self presentViewController:a animated:YES completion:nil];
+}
+
 #pragma mark - Table
 
 - (NSArray *)results { return self.run[@"results"] ?: @[]; }
@@ -134,7 +146,7 @@ typedef NS_ENUM(NSInteger, OMCATSection) { OMCATSuites, OMCATAction, OMCATStatus
 		case OMCATSuites: return MAX(1, (NSInteger)self.suites.count);
 		case OMCATAction: return 1;
 		case OMCATStatus: return self.run ? 2 : 0;
-		case OMCATResults: return [self results].count;
+		case OMCATResults: return [self results].count + ([self running] ? 1 : 0);   // + dong "dang chay"
 		case OMCATRescue: return 1;
 	}
 	return 0;
@@ -144,7 +156,7 @@ typedef NS_ENUM(NSInteger, OMCATSection) { OMCATSuites, OMCATAction, OMCATStatus
 	switch (section) {
 		case OMCATSuites: return L(@"AUTOTEST_SUITES");
 		case OMCATStatus: return self.run ? L(@"AUTOTEST_LAST") : nil;
-		case OMCATResults: return [self results].count ? L(@"AUTOTEST_STEPS") : nil;
+		case OMCATResults: return ([self results].count || [self running]) ? L(@"AUTOTEST_STEPS") : nil;
 		case OMCATRescue: return L(@"RESCUE_GROUP");
 	}
 	return nil;
@@ -222,16 +234,33 @@ typedef NS_ENUM(NSInteger, OMCATSection) { OMCATSuites, OMCATAction, OMCATStatus
 	}
 	if (ip.section == OMCATResults) {
 		UITableViewCell *c = [self cellWithStyle:UITableViewCellStyleSubtitle id:@"result"];
+		c.textLabel.numberOfLines = 0;
+		if (ip.row >= (NSInteger)[self results].count) {   // buoc dang chay
+			NSArray *suites = self.run[@"suites"];
+			NSUInteger i = [self.run[@"suite"] unsignedIntegerValue];
+			NSString *suite = i < suites.count ? suites[i] : @"";
+			NSString *name = [self.run[@"stepName"] length] && [self.run[@"inStep"] boolValue] ? self.run[@"stepName"] : L(@"AUTOTEST_WAITING");
+			c.textLabel.text = name;
+			c.detailTextLabel.text = [NSString stringWithFormat:@"%@ · %@ %ld/%ld", OMCFeatureDisplayName(suite), L(@"AUTOTEST_STEP"),
+				(long)[self.run[@"step"] integerValue] + 1, (long)MAX([self.run[@"stepCount"] integerValue], [self.run[@"step"] integerValue] + 1)];
+			UIActivityIndicatorView *spin = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleMedium];
+			[spin startAnimating];
+			c.imageView.image = [UIImage systemImageNamed:@"circle.dotted"];
+			c.imageView.tintColor = [UIColor tertiaryLabelColor];
+			c.accessoryView = spin;
+			return c;
+		}
 		NSDictionary *r = [self results][ip.row];
 		NSString *st = r[@"status"];
-		NSDictionary *mark = @{@"pass": @"✓", @"fail": @"✗", @"crash": @"✗", @"skip": @"–"};
-		c.textLabel.text = [NSString stringWithFormat:@"%@ %@ · %@", mark[st] ?: @"?", OMCFeatureDisplayName(r[@"suite"]), r[@"name"]];
-		c.textLabel.numberOfLines = 0;
-		c.textLabel.textColor = [st isEqualToString:@"pass"] ? [UIColor labelColor]
-			: ([st isEqualToString:@"skip"] ? [UIColor secondaryLabelColor] : [UIColor systemRedColor]);
-		NSString *detail = r[@"detail"];
-		NSRange cut = [detail rangeOfString:@" || "];   // the split state after "||" is for the log, not this list
-		c.detailTextLabel.text = cut.location != NSNotFound ? [detail substringToIndex:cut.location] : detail;
+		BOOL pass = [st isEqualToString:@"pass"], skip = [st isEqualToString:@"skip"];
+		c.textLabel.text = r[@"name"];
+		c.detailTextLabel.text = [NSString stringWithFormat:@"%@ · %@s", OMCFeatureDisplayName(r[@"suite"]), r[@"seconds"] ?: @"?"];
+		c.imageView.image = [UIImage systemImageNamed:pass ? @"checkmark.circle.fill" : skip ? @"minus.circle.fill" : @"xmark.circle.fill"];
+		c.imageView.tintColor = pass ? [UIColor systemGreenColor] : skip ? [UIColor systemGrayColor] : [UIColor systemRedColor];
+		if (!pass) {   // cham de xem ly do
+			c.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+			c.selectionStyle = UITableViewCellSelectionStyleDefault;
+		}
 		return c;
 	}
 	UITableViewCell *c = [self cellWithStyle:UITableViewCellStyleDefault id:@"rescue"];
@@ -245,6 +274,7 @@ typedef NS_ENUM(NSInteger, OMCATSection) { OMCATSuites, OMCATAction, OMCATStatus
 	[tableView deselectRowAtIndexPath:ip animated:YES];
 	if (ip.section == OMCATAction) [self startOrStop];
 	else if (ip.section == OMCATRescue) [self armCrashTest];
+	else if (ip.section == OMCATResults && ip.row < (NSInteger)[self results].count) [self showReason:[self results][ip.row]];
 }
 
 @end

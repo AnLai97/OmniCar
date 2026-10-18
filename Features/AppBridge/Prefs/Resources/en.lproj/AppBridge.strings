@@ -1,18 +1,10 @@
 /* OmniCar – App Bridge – English */
 
 "APPBRIDGE" = "App Bridge";
-"APPBRIDGE_FOOTER" = "iPhone apps without CarPlay (YouTube, TikTok…) on the car screen.";
-"APPBRIDGE_ENABLE" = "Show iPhone apps on the car";
 "APPBRIDGE_APPS" = "Apps on the car screen";
-"APPBRIDGE_APPS_FOOTER" = "Turn an app on to put its icon on the CarPlay home screen.";
 "APPBRIDGE_APPS_NONE" = "None";
 "APPBRIDGE_APPS_COUNT" = "%ld apps";
-"APPBRIDGE_APPS_ON_CAR" = "On the car screen";
-"APPBRIDGE_APPS_USER" = "Your apps";
-"APPBRIDGE_APPS_SYSTEM" = "System apps";
-"APPBRIDGE_APPS_OTHER_FOOTER" = "Apps with their own CarPlay interface are not listed.";
 "APPBRIDGE_APPS_SEARCH" = "Search apps";
-"APPBRIDGE_APPS_EMPTY" = "No iPhone apps found on this device.";
 "APPBRIDGE_APPS_NO_MATCH" = "No app matches.";
-"APPBRIDGE_DRIVE_MODE" = "Driving mode";
-"APPBRIDGE_DRIVE_FOOTER" = "Driving mode: above 10 km/h iPhone apps on the car play sound only (picture covered, touches locked); stop the car to watch again. Uses the Speed Bubble speed source.";
+"APPBRIDGE_APPS_FOOTER" = "Turn an app on to put its icon on the CarPlay home screen.";
+"APPBRIDGE_APPS_OTHER_FOOTER" = "Apps with their own CarPlay interface are not listed.";

@@ -12,8 +12,9 @@
 "RESPRING" = "리스프링";
 "RESPRING_CONFIRM" = "지금 리스프링하겠습니까?";
 
-"APPS_GROUP" = "앱";
+"APPS_GROUP" = "차량 화면";
 "APPS" = "차량 화면 앱";
+"HOME_SCREEN" = "CarPlay 홈 화면";
 
 "FEATURES_GROUP" = "기능";
 "FEATURES_FOOTER" = "변경 사항은 즉시 적용됩니다. 설치 또는 업데이트 후에는 리스프링하십시오.";
@@ -21,8 +22,8 @@
 "FEATURE_OFF" = "끔";
 
 "SUPPORT_GROUP" = "지원";
+"DEV_GROUP" = "개발자";
 "SUPPORT_FOOTER" = "문제가 있습니까? 로그 보내기를 탭하고 메일이나 채팅 앱을 선택하여 개발자에게 보내십시오.";
-"DIAGNOSTICS" = "진단";
 "SEND_LOG" = "로그 보내기";
 "SEND_LOG_FAILED" = "로그 파일을 만들 수 없습니다.";
 
@@ -74,19 +75,14 @@
 "DIAG_CONFLICTS_NONE" = "없음";
 "DIAG_CONFLICTS_FOOTER" = "CarBridge, DuoDash, TrueDash, CarPlayEnable.";
 
-"CRASH_TEST_TITLE" = "복구 모드 테스트";
-"CRASH_TEST_MESSAGE" = "열린 후 5초 뒤에 CarPlay를 충돌시킬 기능을 선택하십시오. 테스트 전용입니다.";
-"CRASH_TEST_STOP" = "테스트 중지";
-"CRASH_TEST_ARMED" = "차량을 두 번 연결하십시오. CarPlay가 충돌합니다. 세 번째 연결 시 복구 모드가 이 기능을 끄고 CarPlay가 다시 작동해야 합니다.";
-
 /* Auto test: dev builds only (OMC_AUTOTEST) */
-"AUTOTEST" = "자동 테스트(개발)";
+"AUTOTEST" = "자동 테스트";
 "AUTOTEST_SUITES" = "테스트할 기능";
 "AUTOTEST_SUITES_FOOTER" = "각 스위트는 자체 프로세스(CarPlay / SpringBoard)에서 이 순서대로 하나씩 실행됩니다. 먼저 차량을 연결하십시오.";
 "AUTOTEST_NO_SUITES" = "아직 보고된 스위트가 없습니다. 리스프링하고 차량을 한 번 연결한 다음 이 페이지를 다시 여십시오.";
 "AUTOTEST_NO_SUITES_ROW" = "스위트 없음";
 "AUTOTEST_ACTION_FOOTER" = "주차 중에만 사용하십시오. 차량 화면이 저절로 바뀌며, 화면의 주황색 막대가 진행 상황을 표시합니다. 탭하면 중지됩니다.";
-"AUTOTEST_CONFIRM" = "주차했습니까? OmniCar가 몇 분 동안 차량 화면을 자동으로 조작합니다. 그런 다음 로그 보내기를 탭하여 결과와 스냅샷을 확인하십시오.";
+"AUTOTEST_CONFIRM" = "주차 중인가요? OmniCar가 몇 분 동안 차량 화면을 직접 조작합니다. 그다음 로그 보내기를 탭해 결과를 받으세요.";
 "AUTOTEST_START" = "시작";
 "AUTOTEST_STOP" = "중지";
 "AUTOTEST_LAST" = "실행";
@@ -94,20 +90,19 @@
 "AUTOTEST_STEPS" = "단계";
 "AUTOTEST_RESULT" = "결과";
 "AUTOTEST_COUNTS" = "통과 %lu · 실패 %lu · 건너뜀 %lu";
-"AUTOTEST_FOOTER" = "자세한 원인과 각 실패 시점의 상태는 OmniCar.log에 있습니다. 로그 보내기를 하면 모든 단계의 차량 화면 스냅샷이 포함됩니다.";
+"AUTOTEST_FOOTER" = "초록 체크 = 통과, 빨간 X = 실패, 회색 줄 = 건너뜀. 실패한 단계를 탭하면 이유가 표시되며, 모든 내용은 OmniCar.log에도 있습니다(로그 보내기).";
+"AUTOTEST_WAITING" = "시작 대기 중";
+"AUTOTEST_NO_REASON" = "기록된 이유가 없습니다.";
 "AUTOTEST_STATE_RUNNING" = "실행 중";
 "AUTOTEST_STATE_DONE" = "완료";
 "AUTOTEST_STATE_STOPPED" = "중지됨";
 
 /* Diagnostics: health check */
-"DIAG_DETAILS" = "기술 정보";
 "CHK_SUM_OK" = "모두 정상입니다";
 "CHK_SUM_WARN" = "확인이 필요한 항목 %lu개";
 "CHK_SUM_BAD" = "해결할 문제 %lu개";
 "CHK_SUM_COUNTS" = "정상 %lu · 확인 필요 %lu · 문제 %lu";
 "CHK_CHECKED_AT" = "%@에 확인함";
-"CHK_AGAIN" = "다시 확인";
-"CHK_FOOTER" = "여전히 작동하지 않습니까? 상단의 공유 버튼을 탭하여 이 결과와 로그를 개발자에게 보내십시오.";
 "CHK_IOS" = "iOS 버전";
 "CHK_IOS_OLD" = "OmniCar는 iOS 15 이상이 필요합니다.";
 "CHK_IOS_NEW" = "설치는 되지만 이 버전에서 완전히 테스트되지 않았습니다. 문제가 생기면 로그를 보내십시오.";
@@ -177,9 +172,6 @@
 "CHK_PERF_NONE_FIX" = "CarPlay를 1분 이상 사용한 다음 이 페이지를 다시 여십시오. OmniCar는 주행 중에 측정합니다.";
 "CHK_PERF_LIVE" = "측정 중 · %ld분";
 "CHK_PERF_AT" = "%@ · %ld분";
-"CHK_PERF_RESET" = "탭하여 수치를 지우고 다음 주행 때 다시 측정합니다(문제 해결 후).";
-"CHK_PERF_RESET_CONFIRM" = "성능 수치를 지우고 다시 측정하겠습니까?";
-"CHK_PERF_RESET_DO" = "지우고 다시 측정";
 "CHK_PERF_FEW" = "아직 데이터가 충분하지 않음";
 "CHK_PERF_SMOOTH" = "부드러움";
 "CHK_PERF_SMOOTH_VALUE" = "프레임 %.0f%% 지연(%@fps 화면) · 최장 %ldms";
@@ -203,54 +195,3 @@
 "CHK_PERF_TWEAKS_FIX" = "다른 트윅 %lu개가 CarPlay에 로드됩니다. 트윅마다 시작이 느려지고 끊김이나 충돌이 늘어납니다. Choicy로 CarPlay에 필요 없는 트윅을 끄십시오.";
 "CHK_PERF_GENERIC_FIX" = "주행 전에 백그라운드 앱을 닫고, 오랫동안 재시동하지 않았다면 휴대폰을 재시동하십시오.";
 "CHK_PERF_LOG" = "OmniCar 로그";
-"CHK_PERF_LOG_FIX" = "로그가 큽니다. 탭하여 지우십시오(버그를 신고하는 경우 먼저 개발자에게 보내십시오).";
-"CHK_PERF_LOG_CONFIRM" = "OmniCar 로그를 지우겠습니까?";
-"CHK_PERF_LOG_DO" = "로그 지우기";
-
-/* Diagnostics: optimize */
-"ISSUES_GROUP" = "확인 필요";
-"ISSUES_FOOTER" = "오른쪽에 버튼이 있는 항목은 한 번 탭으로 해결됩니다. 나머지는 색상 줄의 안내를 따르십시오.";
-"ALL_CHECKS_GROUP" = "모든 검사";
-"ALL_CHECKS_FOOTER" = "그룹을 탭하면 검사 항목이 표시됩니다.";
-"GROUP_BAD" = "오류 %lu개";
-"GROUP_WARN" = "확인 필요 %lu개";
-"GROUP_OK" = "정상 %lu개";
-"GROUP_INFO" = "아직 데이터 없음";
-"ACT_TURN_ON" = "켜기";
-"ACT_REMEASURE" = "다시 측정";
-"ACT_CLEAR" = "지우기";
-"OPT_BUTTON" = "최적화";
-"OPT_GROUP" = "성능 최적화";
-"OPT_FOOTER" = "라이트 모드: 화면 분할은 반투명 유리 효과를 빼고, 속도 버블은 그림자 없이 덜 자주 다시 그립니다. 자동 = 휴대폰이 뜨겁거나 CarPlay가 끊길 때만 켜지고, 정상이 되면 다시 꺼집니다.\n메모리 확보: 백그라운드에서 실행 중인 앱을 종료합니다. 음악, 지도, CarPlay 앱, 차량용으로 선택한 앱과 속도 출처 앱은 유지됩니다.";
-"OPT_WILL" = "OmniCar가 할 작업:";
-"OPT_MANUAL" = "직접 할 수 있는 작업:";
-"OPT_NOTHING" = "최적화할 항목이 없습니다. CarPlay가 계속 끊기면 한 번 주행한 후 이 페이지를 다시 열어 수치를 확인하십시오.";
-"OPT_APPLY" = "최적화";
-"OPT_DONE" = "최적화되었습니다. 적용하려면 차량을 다시 연결하십시오.";
-"OPT_LITE" = "자동 라이트 모드 켜기";
-"OPT_CLEAN_NOW" = "지금 메모리 확보";
-"OPT_CLEAN_ON" = "차량을 연결할 때마다 메모리 확보";
-"OPT_LOG" = "로그 지우기(%.1fMB)";
-"OPT_RESET" = "다음 주행부터 성능 다시 측정";
-"LITE_MODE" = "라이트 모드";
-"LITE_OFF" = "끔";
-"LITE_AUTO" = "자동";
-"LITE_ALWAYS" = "항상";
-"LITE_STATUS_OFF" = "끔: 항상 모든 효과 사용";
-"LITE_STATUS_ALWAYS" = "켬";
-"LITE_STATUS_AUTO" = "끔, 휴대폰이 뜨겁거나 CarPlay가 끊길 때 켜짐";
-"LITE_STATUS_ON_HEAT" = "켬(휴대폰 과열)";
-"LITE_STATUS_ON" = "자동으로 켜짐%@";
-"LITE_REASON_HEAT" = " (휴대폰 과열)";
-"LITE_REASON_HANGS" = " (CarPlay가 계속 멈춤)";
-"LITE_REASON_FRAMES" = " (차량 화면 끊김)";
-"CLEAN_RAM" = "차량 연결 시 메모리 확보";
-"CLEAN_RAM_NEVER" = "아직 실행한 적 없음";
-"CLEAN_RAM_LAST" = "마지막: 앱 %lu개 종료, %@";
-"CLEAN_RAM_NOW" = "지금 메모리 확보";
-"CLEAN_RAM_NOW_SUB" = "화면에 표시된 앱과 재생 중인 앱을 제외하고 백그라운드에서 실행 중인 모든 앱을 종료합니다. 차량이 연결되어 있으면 차량에 필요한 앱도 유지합니다.";
-"CLEAN_RAM_RESULT" = "앱 %lu개를 종료했습니다.";
-"CLEAN_RAM_NOTHING" = "종료할 백그라운드 앱이 없습니다.";
-"CLEAN_RAM_NO_REPLY" = "SpringBoard가 응답하지 않았습니다. 리스프링한 다음 다시 시도하십시오. 계속 실패하면 개발자에게 로그를 보내십시오.";
-"CLEAN_RAM_CONFIRM" = "지금 메모리를 확보하겠습니까?";
-"CLEAN_RAM_DO" = "확보";

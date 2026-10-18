@@ -1,35 +1,19 @@
-// Support data for the settings pages: the Diagnostics page (OMCDiagnosticsController), the one-tap
-// "Send log" report, conflicting tweaks and rescue mode. The tweak side writes what only it can see
-// (car screen, hook checks, rescue list: OMC_KEY_* in Core/OmniCar.h); this reads it back.
+// Support data for the settings pages: the one-tap "Send log" report (health checks + technical details + the log),
+// conflicting tweaks and rescue mode. The tweak side writes what only it can see (car screen, hook checks, rescue
+// list: OMC_KEY_* in Core/OmniCar.h); this reads it back. The Diagnostics page that showed the checks is gone; the
+// checks still open the report so the developer sees the same verdicts.
 #import <UIKit/UIKit.h>
 #import "OmniCar.h"
 
 // Health checks, in plain words: @[@{@"title", @"checks": @[@{@"title", @"status": ok | warn | bad | info, @"value",
-// @"fix" (what to do, optional), @"action" (respring | rescue, optional)}]}] for the phone, CarPlay and each feature.
+// @"fix" (what to do, optional)}]}] for the phone, CarPlay and each feature (report only).
 NSArray<NSDictionary *> *OMCDiagChecks(void);
 // One line over all checks: @{@"status", @"title" ("Everything looks good" / "2 things need attention"), @"subtitle"}.
 NSDictionary *OMCDiagSummary(NSArray<NSDictionary *> *groups);
 // Technical details (raw values) as sections: @{@"title", @"rows": @[@{@"label", @"value"}], @"footer"}, localized.
 NSArray<NSDictionary *> *OMCDiagSections(void);
-// Restart SpringBoard (Respring button, "OmniCar needs a respring" check).
+// Restart SpringBoard (Respring button).
 void OMCRespring(void);
-// Performance group actions: forget the last drive's measurements (perfReset), empty OmniCar.log (clearLog).
-void OMCPerfReset(void);
-void OMCClearLog(void);
-
-// Optimize section: lite mode (0 off, 1 always, 2 auto) and its state in words ("On · the phone is hot"), freeing memory
-// when the car connects (switch, now, last run in words).
-NSInteger OMCLiteMode(void);
-void OMCSetLiteMode(NSInteger mode);
-NSString *OMCLiteStatus(void);
-BOOL OMCCleanRamOn(void);
-void OMCSetCleanRam(BOOL on);
-void OMCCleanRamNow(void);
-NSString *OMCCleanRamStatus(void);
-NSDictionary *OMCCleanRamLast(void);   // last run written by SpringBoard: {date, closed: [bundle id], running}
-// The Optimize button: @{@"steps": @[@{@"id", @"title"}] it can apply, @"manual": @[fix text] only the user can do}.
-NSDictionary *OMCOptimizePlan(NSArray<NSDictionary *> *groups);
-void OMCOptimizeApply(NSArray<NSDictionary *> *steps);
 
 // Other tweaks that also change CarPlay: @{@"name", @"active"} (active = its dylib is installed and
 // not disabled, so it loads next to OmniCar; otherwise only the package is installed).

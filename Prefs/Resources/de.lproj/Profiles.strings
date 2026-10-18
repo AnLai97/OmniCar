@@ -1,7 +1,7 @@
 /* OmniCar – Autoprofile – Deutsch */
 "PROFILES" = "Autoprofile";
 "PROFILES_ENABLE" = "Ein Profil pro Auto";
-"PROFILES_FOOTER" = "Jedes Auto behält sein eigenes Teilungs-Layout, den fixierten Bereich, die Fahrerseite, die Tempo-Blase im Auto, den Startbildschirm und den Zoom der iPhone-Apps. OmniCar wechselt zu den Einstellungen dieses Autos, wenn du es verbindest.";
+"PROFILES_FOOTER" = "Jedes Auto behält sein eigenes Teilungs-Layout, den fixierten Bereich, die Tempo-Blase im Auto, den Startbildschirm und den Zoom der iPhone-Apps. OmniCar wechselt zu den Einstellungen dieses Autos, wenn du es verbindest.";
 "PROFILES_CARS" = "Autos";
 "PROFILES_CARS_FOOTER" = "✓ markiert das aktive Auto. Nach links wischen, um ein Auto zu vergessen.";
 "PROFILES_NONE" = "Noch keine Autos: Einschalten und ein Auto einmal verbinden";

@@ -1,18 +1,10 @@
 /* OmniCar – App Bridge – Français */
 
 "APPBRIDGE" = "App Bridge";
-"APPBRIDGE_FOOTER" = "Apps iPhone sans CarPlay (YouTube, TikTok…) sur l’écran de la voiture.";
-"APPBRIDGE_ENABLE" = "Afficher les apps iPhone dans la voiture";
 "APPBRIDGE_APPS" = "Apps sur l’écran de la voiture";
-"APPBRIDGE_APPS_FOOTER" = "Activez une app pour placer son icône sur l’écran d’accueil de CarPlay.";
 "APPBRIDGE_APPS_NONE" = "Aucune";
 "APPBRIDGE_APPS_COUNT" = "%ld apps";
-"APPBRIDGE_APPS_ON_CAR" = "Sur l’écran de la voiture";
-"APPBRIDGE_APPS_USER" = "Vos apps";
-"APPBRIDGE_APPS_SYSTEM" = "Apps système";
-"APPBRIDGE_APPS_OTHER_FOOTER" = "Les apps dotées de leur propre interface CarPlay ne sont pas listées.";
 "APPBRIDGE_APPS_SEARCH" = "Rechercher des apps";
-"APPBRIDGE_APPS_EMPTY" = "Aucune app iPhone trouvée sur cet appareil.";
 "APPBRIDGE_APPS_NO_MATCH" = "Aucune app ne correspond.";
-"APPBRIDGE_DRIVE_MODE" = "Mode conduite";
-"APPBRIDGE_DRIVE_FOOTER" = "Mode conduite : au-dessus de 10 km/h, les apps iPhone dans la voiture ne diffusent que le son (image masquée, touchers bloqués) ; arrêtez la voiture pour regarder à nouveau. Utilise la source de vitesse de la Bulle de vitesse.";
+"APPBRIDGE_APPS_FOOTER" = "Activez une app pour placer son icône sur l’écran d’accueil de CarPlay.";
+"APPBRIDGE_APPS_OTHER_FOOTER" = "Les apps dotées de leur propre interface CarPlay ne sont pas listées.";

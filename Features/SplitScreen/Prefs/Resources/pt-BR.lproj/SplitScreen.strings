@@ -3,12 +3,8 @@
 "SPLITSCREEN" = "Tela dividida";
 "SPLITSCREEN_ENABLE" = "Tela dividida";
 "SPLITSCREEN_AUTO_LAUNCH" = "Abrir ao conectar";
-"SPLITSCREEN_DRIVER_SIDE" = "Lado do motorista";
-"SPLITSCREEN_DRIVER_AUTO" = "Automático";
-"SPLITSCREEN_DRIVER_LEFT" = "Esquerda";
-"SPLITSCREEN_DRIVER_RIGHT" = "Direita";
 "SPLITSCREEN_PINNED" = "Painel fixado";
-"SPLITSCREEN_DRIVER_FOOTER" = "Volante à direita: o app atual abre no painel direito, ao lado do motorista. Automático = o que o carro informa.\nPainel fixado (geralmente o mapa): esse app mantém o painel quando o layout ou outros apps mudam.";
+"SPLITSCREEN_PINNED_FOOTER" = "Painel fixado (geralmente o mapa): esse app mantém o painel quando o layout ou outros apps mudam.";
 
 "SPLITSCREEN_PANEL_GROUP" = "Menu OmniCar no carro";
 "SPLITSCREEN_SHOW_RECENT" = "Recentes";
@@ -44,3 +40,15 @@
 "SPLITSCREEN_SHORTCUTS_GROUP" = "Siri / Atalhos (Abrir URL)";
 "SPLITSCREEN_SHORTCUTS_FOOTER" = "omnicar://splitscreen/open?left=com.apple.Maps&right=com.spotify.client\nomnicar://splitscreen/fav?n=1\nomnicar://splitscreen/close\nomnicar://splitscreen/layout?id=3 · ratio?r=70 · swap · zoom?pane=1\nomnicar://feature/speedBubble?on=toggle\nomnicar://lite?mode=auto\nomnicar://cleanram";
 "SPLITSCREEN_CREDITS_FOOTER" = "Antigo CarDuo. A hospedagem de apps é baseada no carplay-cast (Ethan Arbuckle).";
+
+/* Settings page (OMCSplitScreenController) */
+"SPLITSCREEN_ENABLE_SUB" = "Botão OmniCar no dock do CarPlay";
+"SPLITSCREEN_AUTO_LAUNCH_SUB" = "Abre o último layout";
+"SPLITSCREEN_OFF" = "Tela dividida desativada";
+"SPLITSCREEN_PANEL_SHOW" = "Mostrar no painel";
+"SPLITSCREEN_GESTURES" = "Gestos no carro";
+"SPLITSCREEN_SIRI" = "Siri / Atalhos";
+"SPLITSCREEN_COPY" = "Copiar";
+"SPLITSCREEN_COPIED" = "URL copiada";
+"SPLITSCREEN_FAV_APPS_HINT" = "Toque num quadro para trocar o app";
+"SPLITSCREEN_FAV_DONE" = "OK";

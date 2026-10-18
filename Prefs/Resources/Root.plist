@@ -57,8 +57,9 @@
 			<string>exclamationmark.triangle.fill</string>
 		</dict>
 
-		<!-- APPS: the iPhone apps shown on the car screen through App Bridge (its own page,
-		     OMCAppBridgeAppsController in Features/AppBridge/Prefs). -->
+		<!-- CAR SCREEN: the iPhone apps shown on the car screen through App Bridge (OMCAppBridgeAppsController in
+		     Features/AppBridge/Prefs), then CarPlay's home screen: icon grid and wallpaper (OMCHomeScreenController,
+		     same file). -->
 		<dict>
 			<key>cell</key>
 			<string>PSGroupCell</string>
@@ -76,6 +77,16 @@
 			<string>APPS</string>
 			<key>symbol</key>
 			<string>square.grid.2x2.fill</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSLinkCell</string>
+			<key>detail</key>
+			<string>OMCHomeScreenController</string>
+			<key>label</key>
+			<string>HOME_SCREEN</string>
+			<key>symbol</key>
+			<string>apps.iphone</string>
 		</dict>
 
 		<!-- FEATURES: the rows are built at runtime from every Feature*.plist in the bundle
@@ -108,38 +119,12 @@
 			<string>car.2.fill</string>
 		</dict>
 
-		<!-- SUPPORT: Diagnostics page (Prefs/OMCDiagnosticsController.m) and the one-tap log report
-		     (OMCShareReport in Prefs/OMCDiagnostics.m: report + OmniCar.log -> share sheet). Dev builds
-		     (OMC_AUTOTEST) get an "Auto test" row after Send log, added by OMCRootListController. -->
+		<!-- SUPPORT: the first-run guide and what's new. -->
 		<dict>
 			<key>cell</key>
 			<string>PSGroupCell</string>
 			<key>label</key>
 			<string>SUPPORT_GROUP</string>
-			<key>footerText</key>
-			<string>SUPPORT_FOOTER</string>
-		</dict>
-		<dict>
-			<key>cell</key>
-			<string>PSLinkCell</string>
-			<key>detail</key>
-			<string>OMCDiagnosticsController</string>
-			<key>label</key>
-			<string>DIAGNOSTICS</string>
-			<key>symbol</key>
-			<string>stethoscope</string>
-		</dict>
-		<dict>
-			<key>cell</key>
-			<string>PSButtonCell</string>
-			<key>id</key>
-			<string>sendLog</string>
-			<key>label</key>
-			<string>SEND_LOG</string>
-			<key>action</key>
-			<string>sendLog</string>
-			<key>symbol</key>
-			<string>square.and.arrow.up</string>
 		</dict>
 		<!-- Reopens the first-run guide (Prefs/OMCOnboardingController.m, strings in Onboarding.strings). -->
 		<dict>
@@ -168,31 +153,29 @@
 			<key>symbol</key>
 			<string>sparkles</string>
 		</dict>
-		<!-- Back up every setting + the files under OMC_DATA_ROOT to one .omnicar file, and restore one
-		     (Prefs/OMCBackup.m, strings in Backup.strings). -->
+
+		<!-- DEVELOPER: the one-tap log report (OMCShareReport in Prefs/OMCDiagnostics.m: health checks + device / car
+		     info + OmniCar.log -> share sheet), then in dev builds (OMC_AUTOTEST) Autotest (Prefs/OMCAutoTestController.m),
+		     added after Send log by OMCRootListController. -->
 		<dict>
 			<key>cell</key>
-			<string>PSButtonCell</string>
-			<key>id</key>
-			<string>backup</string>
+			<string>PSGroupCell</string>
 			<key>label</key>
-			<string>BAK_BACKUP</string>
-			<key>action</key>
-			<string>backupSettings</string>
-			<key>symbol</key>
-			<string>externaldrive.fill</string>
+			<string>DEV_GROUP</string>
+			<key>footerText</key>
+			<string>SUPPORT_FOOTER</string>
 		</dict>
 		<dict>
 			<key>cell</key>
 			<string>PSButtonCell</string>
 			<key>id</key>
-			<string>restore</string>
+			<string>sendLog</string>
 			<key>label</key>
-			<string>BAK_RESTORE</string>
+			<string>SEND_LOG</string>
 			<key>action</key>
-			<string>restoreSettings</string>
+			<string>sendLog</string>
 			<key>symbol</key>
-			<string>clock.arrow.circlepath</string>
+			<string>square.and.arrow.up</string>
 		</dict>
 	</array>
 </dict>

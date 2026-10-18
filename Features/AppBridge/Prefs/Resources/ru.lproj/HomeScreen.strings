@@ -1,0 +1,54 @@
+/* OmniCar - CarPlay home screen (OMCAppBridgeAppsController) */
+
+"HOMESCREEN_ICON_SIZE" = "Размер значков";
+"HOMESCREEN_WALLPAPER" = "Обои";
+"HOMESCREEN_BLUR" = "Размытие";
+"HOMESCREEN_DIM" = "Затемнение";
+"HOMESCREEN_WALLPAPER_DEFAULT" = "Стандарт";
+
+/* One page: Apps on the car screen */
+"APPS_TITLE" = "Приложения в машине";
+"APPS_SYSTEM" = "Системные";
+"APPS_WALL_0" = "По умолчанию";
+"APPS_WALL_1" = "Океан";
+"APPS_WALL_2" = "Закат";
+"APPS_WALL_3" = "OmniCar";
+"APPS_WALL_4" = "Ночь";
+"APPS_WALL_5" = "Рассвет";
+"APPS_WALL_6" = "Лес";
+"APPS_WALL_7" = "Ваше фото";
+
+"APPS_WALL_8" = "Ваше видео";
+"APPS_FROM_PHOTOS" = "Из Фото (снимок или видео)";
+"APPS_VIDEO_WORKING" = "Подготовка видео…";
+"APPS_VIDEO_FAILED" = "Не удалось использовать это видео.";
+"APPS_WALL_FOOTER" = "Картинки обрезаются под экран машины; увеличьте затемнение, чтобы значки оставались читаемыми. Видео повторяется без звука (первые 20 с) и останавливается, когда iPhone горячий, включён лёгкий режим, экран разделён или приложение закрывает главный экран.";
+"APPS_PHONE" = "Приложения iPhone";
+"HOMESCREEN_ICON_SIZE_FOOTER" = "Авто = столбцы и строки самого CarPlay. 100 % — размер значков CarPlay; при большем числе столбцов или строк уменьшите значки, чтобы названия не налезали друг на друга.";
+
+/* App tren man xe: tren xe + 2 tab */
+"APPS_ON_CAR" = "В машине";
+"APPS_ALL" = "Выбор приложений";
+"APPS_TAB_CARPLAY" = "Приложения CarPlay";
+"APPS_TAB_OMNICAR" = "App Bridge";
+"APPS_ON_CAR_FOOTER" = "Приложения со значком iPhone — это приложения iPhone, которые App Bridge выводит в машину.";
+"APPS_CARPLAY_FOOTER" = "Уберите приложение CarPlay, чтобы убрать его значок с главного экрана авто; оно по-прежнему само открывается при звонке, маршруте или через Siri. Сброс возвращает к Настройкам iPhone › Основные › CarPlay.";
+"APPS_CARPLAY_LOCKED" = "Всегда в CarPlay";
+"APPS_IOS_REMOVED" = "Убрано в Настройках iPhone";
+"APPS_INCLUDED" = "Включены";
+"APPS_OTHER" = "Другие приложения";
+"APPS_RESET" = "Сбросить";
+"APPS_REMOVE" = "Убрать";
+"APPS_RESET_CONFIRM" = "Снова показать приложения CarPlay как в Настройках iPhone › Основные › CarPlay? Приложения iPhone через App Bridge останутся.";
+"APPS_OTHER_FOOTER" = "Нажмите +, чтобы вывести приложение в машину. Приложения iPhone идут через App Bridge.";
+"APPS_CARPLAY_GUESS_FOOTER" = "Машина ещё не подключалась: приложения CarPlay определены по поддержке CarPlay.";
+
+/* Man chinh CarPlay: luoi icon */
+"HOMESCREEN_GRID" = "Сетка значков";
+"HOMESCREEN_COLS" = "Столбцы";
+"HOMESCREEN_ROWS" = "Строки";
+"HOMESCREEN_AUTO" = "Авто";
+"HOMESCREEN_NAMES" = "Названия приложений";
+
+/* Man chinh CarPlay: nut Dat lai */
+"HOMESCREEN_RESET_CONFIRM" = "Вернуть домашний экран CarPlay: столбцы и строки авто, размер значков 100 %, названия приложений включены, обои CarPlay? Приложения на экране автомобиля останутся.";

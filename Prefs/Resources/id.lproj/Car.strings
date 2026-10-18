@@ -26,7 +26,6 @@
 "Couldn't reopen %@" = "Tidak dapat membuka ulang %@";
 "Couldn't show %@ on the car" = "Tidak dapat menampilkan %@ di mobil";
 "Done" = "Selesai";
-"Driving · sound only" = "Berkendara · hanya suara";
 "Drizzle" = "Gerimis";
 "Exit split" = "Keluar layar terpisah";
 "Favorites" = "Favorit";
@@ -37,7 +36,6 @@
 "Good evening" = "Selamat malam";
 "Good morning" = "Selamat pagi";
 "Heavy rain" = "Hujan lebat";
-"Late night" = "Sudah larut malam";
 "Layout" = "Tata letak";
 "Layouts" = "Tata letak";
 "Needs at least 2 panes" = "Perlu minimal 2 panel";
@@ -53,7 +51,6 @@
 "Speed Bubble" = "Gelembung Kecepatan";
 "Split Screen" = "Layar Terpisah";
 "Startup Screen" = "Layar Pembuka";
-"Stop the car to watch again" = "Hentikan mobil untuk menonton lagi";
 "This app can't be split" = "App ini tidak bisa dibagi";
 "This app doesn't support CarPlay" = "App ini tidak mendukung CarPlay";
 "This pane has no app" = "Panel ini tidak berisi app";
@@ -76,3 +73,19 @@
 "Background" = "Latar";
 "Quit app" = "Tutup app";
 "Split" = "Bagi";
+"Your car is ready" = "Mobil Anda siap";
+"Your car is ready, %@" = "Mobil Anda siap, %@";
+"iPhone apps cannot float" = "App iPhone tidak bisa mengambang";
+
+/* Speed Bubble: spoken over-speed warnings ({L} = the limit) */
+"You are over the speed limit" = "Kamu melewati batas kecepatan";
+"Too fast, the limit is {L}" = "Terlalu cepat, batasnya {L}";
+"Please slow down" = "Mohon kurangi kecepatan";
+"Hey, this is a car, not a plane!" = "Hei, ini mobil, bukan pesawat!";
+"Easy now, the road is long and the wallet is thin" = "Santai, jalan masih panjang dan dompet makin tipis";
+"The speed camera is smiling at you" = "Kamera tilang sedang tersenyum padamu";
+"What's the rush? Dinner at home is still hot" = "Buru-buru amat? Makan malam di rumah masih hangat";
+"Easy on the gas, speeding won't make you any better looking" = "Pelan-pelan injak gasnya, ngebut tidak bikin kamu makin ganteng";
+"Choose an app for the floating window" = "Pilih app untuk jendela mengambang";
+"Choose an app for pane %d" = "Pilih app untuk panel %d";
+"Tap an app to open it here" = "Ketuk app untuk membukanya di sini";

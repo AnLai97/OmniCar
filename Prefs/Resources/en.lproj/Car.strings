@@ -30,7 +30,6 @@
 "Couldn't reopen %@" = "Couldn't reopen %@";
 "Couldn't show %@ on the car" = "Couldn't show %@ on the car";
 "Done" = "Done";
-"Driving · sound only" = "Driving · sound only";
 "Drizzle" = "Drizzle";
 "Enjoy the drive today" = "Enjoy the drive today";
 "Enough for the trip" = "Enough for the trip";
@@ -59,7 +58,6 @@
 "Heavy rain" = "Heavy rain";
 "In %ld h %ld min" = "In %ld h %ld min";
 "In %ld min" = "In %ld min";
-"Late night" = "Late night";
 "Layout" = "Layout";
 "Layouts" = "Layouts";
 "Lite mode: auto" = "Lite mode: auto";
@@ -89,7 +87,6 @@
 "Speed Bubble" = "Speed Bubble";
 "Split Screen" = "Split Screen";
 "Startup Screen" = "Startup Screen";
-"Stop the car to watch again" = "Stop the car to watch again";
 "Team meeting" = "Team meeting";
 "This app can't be split" = "This app can't be split";
 "This app doesn't support CarPlay" = "This app doesn't support CarPlay";
@@ -117,3 +114,17 @@
 "Background" = "Background";
 "Quit app" = "Quit app";
 "Split" = "Split";
+"iPhone apps cannot float" = "iPhone apps cannot float";
+
+/* Speed Bubble: spoken over-speed warnings ({L} = the limit) */
+"You are over the speed limit" = "You are over the speed limit";
+"Too fast, the limit is {L}" = "Too fast, the limit is {L}";
+"Please slow down" = "Please slow down";
+"Hey, this is a car, not a plane!" = "Hey, this is a car, not a plane!";
+"Easy now, the road is long and the wallet is thin" = "Easy now, the road is long and the wallet is thin";
+"The speed camera is smiling at you" = "The speed camera is smiling at you";
+"What's the rush? Dinner at home is still hot" = "What's the rush? Dinner at home is still hot";
+"Easy on the gas, speeding won't make you any better looking" = "Easy on the gas, speeding won't make you any better looking";
+"Choose an app for the floating window" = "Choose an app for the floating window";
+"Choose an app for pane %d" = "Choose an app for pane %d";
+"Tap an app to open it here" = "Tap an app to open it here";

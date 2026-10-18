@@ -59,6 +59,14 @@
 // SpringBoard -> CarPlay process: a button of the bar drawn over the hosted app was tapped
 // (identifier, action = replace | pop | full | close)
 #define AB_NOTIF_BAR_ACTION  @"com.anlai.omnicar/appbridge.baraction"
+// CarPlay process -> SpringBoard: on = 1 while any panel is open on the car screen (layout tray, ratio bar, app picker,
+// a pane's ••• bar). SpringBoard then lays a painted, invisible shield over EVERY hosted iPhone app (panes and full
+// screen): a touch on an app never reaches CarPlay, so the shield takes it (the touch is swallowed, like an iOS popup)
+// and reports it with AB_NOTIF_BAR_DISMISS. on = 0 removes the shields.
+#define AB_NOTIF_SHIELD      @"com.anlai.omnicar/appbridge.shield"
+// SpringBoard -> CarPlay process: a touch landed on a hosted app (outside its bar / "•••") while AB_NOTIF_SHIELD was on
+// -> CarPlay closes every open panel at once (tap elsewhere = dismiss)
+#define AB_NOTIF_BAR_DISMISS @"com.anlai.omnicar/appbridge.bardismiss"
 // Orientation model (from CarDuo 1.0, which ran YouTube fine): the scene of a hosted app is PORTRAIT by default
 // whatever the box shape (a wide box is a wide portrait window), because an app whose main UI is portrait-only
 // (YouTube, TikTok) draws sideways in a landscape scene. The app itself may ask for landscape (YouTube full-screen
@@ -83,12 +91,64 @@
 #define AB_NOTIF_KEY         @"com.anlai.omnicar/appbridge.key"
 // Keyboard language on the car: 0 English, 1 Vietnamese (Telex). Remembered by SpringBoard.
 #define AB_KEY_KEYBOARD_LANG @"appBridgeKeyboardLang"
-// Driving mode (SpringBoard, ABHost): above AB_KEY_DRIVE_SPEED km/h for a few seconds every iPhone app box on the car is
-// covered ("sound only", touches blocked except the ••• bar), back once the car stops. Speed comes from the Speed Bubble's
-// Darwin notification AB_DARWIN_SPEED_NOW (state = km/h, 0xFFFF unknown), whatever its source (nav app or GPS).
-#define AB_KEY_DRIVE_MODE    @"appBridgeDriveMode"    // BOOL, default YES
-#define AB_KEY_DRIVE_SPEED   @"appBridgeDriveSpeed"   // km/h, default 10
-#define AB_DARWIN_SPEED_NOW  "com.anlai.omnicar/speed"
+// Frame rate cap for iPhone apps on the car: 0 none (default), 30, 24. With none, the cap is 30 while Lite mode is on or
+// CarPlay is wireless (OMCCarWireless). SpringBoard sends the cap with every AB_NOTIF_ORIENTATION (userInfo "fps",
+// 0 = none); the app side (App.xm) caps the app's CADisplayLinks, which drive its animations / scrolling / games
+// (video playback runs at the video's own rate).
+#define AB_KEY_FPS           @"appBridgeFps"
+// CarPlay home screen (Settings: App on the car screen, one page in OMCAppBridgeAppsController.m; car side:
+// Features/SplitScreen/SCPHomeScreen.mm). CarPlay's own home screen stays as it is; OmniCar only adds two things to it:
+// an icon size (SBIconListGridLayoutConfiguration -iconImageInfo scaled, AppIcons.xm) and a wallpaper view slipped under
+// CarPlay's icon grid. At 100 % with no wallpaper nothing is touched. The first builds' own icon grid, app sorting, dock,
+// folders, widgets, icon packs and day / night wallpaper were dropped in 10/2026; their homeScreen* keys
+// (homeScreenEnabled, homeScreenOrder, homeScreenHidden, homeScreenCols, homeScreenRows, homeScreenNames, homeScreenDock
+// ...) are no longer read. Columns / rows / names came back on CarPlay's own grid with the new keys below.
+#define HS_KEY_ICON_SIZE     @"homeScreenIconSize"    // 60..130 %, default 100 (icon image size on CarPlay's grid)
+// CarPlay's own grid (SBIconListGridLayoutConfiguration numberOf{Portrait,Landscape}{Columns,Rows}, AppIcons.xm): 0 = Auto
+// (CarPlay's count). Only the home grid is changed (a config with at least 2 columns and 2 rows), never a 1-row / 1-column dock.
+#define HS_KEY_COLS          @"homeScreenGridCols"    // 0 Auto, 3..8
+#define HS_KEY_ROWS          @"homeScreenGridRows"    // 0 Auto, 1..4
+#define HS_COLS_VALUES       @[@0, @3, @4, @5, @6, @7, @8]
+#define HS_ROWS_VALUES       @[@0, @1, @2, @3, @4]
+// BOOL, default YES: app names under the icons (-[SBIconView setLabelHidden:], AppIcons.xm)
+#define HS_KEY_NAMES         @"homeScreenShowNames"
+// App on the car screen works like iOS Settings > General > CarPlay > Customize. On connect the car shows CarPlay's own
+// list; OmniCar only changes it through the two lists below (both empty = CarPlay untouched; Reset empties them):
+// [bundle id] CarPlay apps the user removed (minus) - left off CarPlay's home screen by -[SBIconModel isIconVisible:]
+// (AppIcons.xm). Only the icon goes: the app still opens by itself (a call, directions, Siri). Not the dropped
+// homeScreenHidden of the first builds.
+#define HS_KEY_HIDDEN_APPS   @"homeScreenHiddenApps"
+// [bundle id] CarPlay apps removed in iOS CarPlay Customize that the user added back here (plus): isIconVisible: is forced
+// to YES for them (only works if CarPlay asks the icon model about them; see the log "HomeScreen: hien lai").
+#define HS_KEY_SHOWN_APPS    @"homeScreenShownApps"
+// [@{id, name, off?}] the CarPlay apps on CarPlay's home screen, in the car's order, written by the CarPlay process
+// (SCPHomeScreen.mm) from the home grid's icon model each time the home screen lays out: includes CarPlay's own icons
+// (Now Playing, Settings, the car maker's app) that have no iPhone app proxy, hence the name. Apps OmniCar hides keep
+// their place (merged back from the previous list); then the other apps with a CarPlay interface (off = YES: removed in
+// iOS Settings > CarPlay > Customize), so Settings can offer them under Other apps.
+// splitScreenCarPlayApps (SPL_KEY_CARPLAY_APPS) is a different list: only apps Split Screen can put in a pane.
+#define HS_KEY_CAR_APPS      @"homeScreenCarApps"
+// Apps CarPlay itself never lets you hide (Settings > General > CarPlay > Customize): Phone, Music, Maps, Messages and
+// CarPlay's own Now Playing / car (OEM) / Settings icons. OmniCar keeps them too: no minus in Settings, never hidden on
+// the car even if HS_KEY_HIDDEN_APPS lists them. CarPlay's own icons are also caught without knowing their bundle id:
+// an app on the home screen that is not an installed iPhone app (no LSApplicationProxy) is locked (Settings and car).
+static inline BOOL HSIsLockedCarPlayApp(NSString *bid)
+{
+    if (![bid isKindOfClass:[NSString class]] || !bid.length) return NO;
+    if ([@[@"com.apple.mobilephone", @"com.apple.Music", @"com.apple.Maps", @"com.apple.MobileSMS", @"com.apple.InCallService"] containsObject:bid])
+        return YES;
+    return [bid hasPrefix:@"com.apple.CarPlay"] || [bid rangeOfString:@"NowPlaying"].location != NSNotFound;
+}
+#define HS_KEY_WALLPAPER     @"homeScreenWallpaper"   // BOOL: use HS_WALLPAPER_PATH (picked in Settings) as the home wallpaper
+#define HS_KEY_WALLPAPER_STYLE @"homeScreenWallpaperStyle" // 0 default, 1..6 built-in picture, 7 the user's photo, 8 the user's video (HS_VIDEO_PATH)
+#define HS_KEY_BLUR          @"homeScreenBlur"        // 0..30, default 0
+#define HS_KEY_DIM           @"homeScreenDim"         // 0..70 %, default 25
+#define HS_WALLPAPER_PATH    [OMC_DATA_ROOT stringByAppendingPathComponent:@"HomeScreen/wallpaper.jpg"]
+#define HS_PHOTO_PATH        [OMC_DATA_ROOT stringByAppendingPathComponent:@"HomeScreen/photo.jpg"]   // last photo picked (its own tile)
+#define HS_VIDEO_PATH        [OMC_DATA_ROOT stringByAppendingPathComponent:@"HomeScreen/video.mp4"]   // last video picked (≤ 20 s, 1280 px, no sound)
+#define HS_VIDEO_THUMB_PATH  [OMC_DATA_ROOT stringByAppendingPathComponent:@"HomeScreen/video.jpg"]   // its first frame (tile, preview)
+// A video (style 8) plays muted in a loop and pauses while the phone is hot, Lite mode is on, the screen is split or the
+// home screen is covered.
 // Base scene orientation for hosted apps: 1 portrait (default), 3 landscape.
 #define AB_KEY_ORIENTATION   @"appBridgeOrientation"
 static inline unsigned long long ABBundleHash(NSString *bid)

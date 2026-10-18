@@ -158,6 +158,143 @@ void SCPRefreshAppIconsSoon(void)
 }
 
 // ---------------------------------------------------------------------
+//  An app CarPlay khoi man chinh (HS_KEY_HIDDEN_APPS): hook -[SBIconModel isIconVisible:] (AppIcons.xm) tra NO cho icon
+//  cua app bi an -> SpringBoardHome khong dua icon vao luoi; app van chay (cuoc goi, chi duong, Siri). Doi danh sach:
+//  -[SBIconModel layout] cua man chinh xep lai, khong co thi _handleAppLibraryRefresh.
+// ---------------------------------------------------------------------
+static NSSet<NSString *> *sHiddenApps, *sShownApps;
+static NSObject *sHiddenLock;
+
+static NSSet<NSString *> *SCPReadSet(NSString *key)
+{
+    OMCPrefsSync();
+    id v = OMCPref(key, nil);
+    return [v isKindOfClass:[NSArray class]] ? [NSSet setWithArray:v] : [NSSet set];
+}
+
+static NSObject *SCPHiddenLock(void)
+{
+    static dispatch_once_t once;
+    dispatch_once(&once, ^{ sHiddenLock = [NSObject new]; });
+    return sHiddenLock;
+}
+
+static NSSet<NSString *> *SCPHiddenApps(void)
+{
+    @synchronized (SCPHiddenLock()) {
+        if (!sHiddenApps) sHiddenApps = SCPReadSet(HS_KEY_HIDDEN_APPS);
+        return sHiddenApps;
+    }
+}
+
+static NSSet<NSString *> *SCPShownApps(void)
+{
+    @synchronized (SCPHiddenLock()) {
+        if (!sShownApps) sShownApps = SCPReadSet(HS_KEY_SHOWN_APPS);
+        return sShownApps;
+    }
+}
+
+static NSString *SCPIconBundleID(id icon)
+{
+    for (NSString *k in @[@"applicationBundleID", @"leafIdentifier"]) {
+        id v = SCPTryGet(icon, k);
+        if ([v isKindOfClass:[NSString class]] && [v length]) return v;
+    }
+    return nil;
+}
+
+// App iPhone that (co LSApplicationProxy da cai)? Icon rieng cua CarPlay (Dang phat, Cai dat, app Xe) thi khong -> khoa
+static BOOL SCPIsInstalledPhoneApp(NSString *bid)
+{
+    static NSMutableDictionary<NSString *, NSNumber *> *cache;
+    @synchronized (SCPHiddenLock()) {
+        if (!cache) cache = [NSMutableDictionary dictionary];
+        NSNumber *hit = cache[bid];
+        if (hit) return hit.boolValue;
+    }
+    Class lp = objc_getClass("LSApplicationProxy");
+    id proxy = lp ? objcInvoke_1(lp, @"applicationProxyForIdentifier:", bid) : nil;
+    id state = SCPTryGet(proxy, @"appState");
+    BOOL ok = proxy && (!state || objcInvokeT(state, @"isInstalled", BOOL));
+    @synchronized (SCPHiddenLock()) { cache[bid] = @(ok); }
+    return ok;
+}
+
+static void SCPLogOnce(NSString *what, NSString *bid)
+{
+    static NSMutableSet *logged;   // log 1 lan moi app: xac nhan hook co chay khi xep man chinh
+    NSString *k = [what stringByAppendingString:bid];
+    @synchronized (SCPHiddenLock()) {
+        if (!logged) logged = [NSMutableSet set];
+        if ([logged containsObject:k]) return;
+        [logged addObject:k];
+    }
+    SCPLog("HomeScreen: %@ %@", what, bid);
+}
+
+BOOL SCPHomeAppRemovable(NSString *bid)
+{
+    return bid.length && !HSIsLockedCarPlayApp(bid) && !SCPIsInjectedPhoneApp(bid) && SCPIsInstalledPhoneApp(bid);
+}
+
+BOOL SCPIconHiddenOnCar(id icon)
+{
+    NSSet *hidden = SCPHiddenApps();
+    if (!hidden.count || !icon) return NO;
+    NSString *bid = SCPIconBundleID(icon);
+    if (!bid || ![hidden containsObject:bid] || HSIsLockedCarPlayApp(bid) || SCPIsInjectedPhoneApp(bid) || !SCPIsInstalledPhoneApp(bid)) return NO;
+    SCPLogOnce(@"an khoi man chinh (isIconVisible: NO):", bid);
+    return YES;
+}
+
+BOOL SCPIconForcedOnCar(id icon)
+{
+    NSSet *shown = SCPShownApps();
+    if (!shown.count || !icon) return NO;
+    NSString *bid = SCPIconBundleID(icon);
+    if (!bid || ![shown containsObject:bid] || [SCPHiddenApps() containsObject:bid]) return NO;
+    SCPLogOnce(@"hien lai (iOS da bo trong Tuy chinh, isIconVisible: YES):", bid);
+    return YES;
+}
+
+// Mo hinh icon cua man chinh: thuoc tinh / ivar iconModel cua DBDashboardHomeViewController
+static id SCPHomeIconModel(void)
+{
+    id home = sHomeVC;
+    id model = SCPTryGet(home, @"iconModel");
+    if (!model && home) model = SCPIvar(home, @"_iconModel");
+    return model;
+}
+
+void SCPHomeIconModelLayout(NSString *why)
+{
+    @try {
+        id model = SCPHomeIconModel();
+        if (model && [model respondsToSelector:NSSelectorFromString(@"layout")]) {
+            objcCall(model, @"layout");
+            SCPLog("HomeScreen: %@ -> %@ layout", why, [model class]);
+        } else if (sHomeVC) {
+            objcCall(sHomeVC, @"_handleAppLibraryRefresh");
+            SCPLog("HomeScreen: %@, khong co iconModel (%@) -> _handleAppLibraryRefresh", why, model ? NSStringFromClass([model class]) : @"nil");
+        }
+    } @catch (NSException *e) { SCPLog("HomeScreen: %@: xep lai man chinh loi %@", why, e); }
+}
+
+void SCPRefreshHiddenAppsSoon(void)
+{
+    static NSUInteger gen;
+    NSUInteger my = ++gen;
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.8 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        if (my != gen) return;
+        NSSet *hid = SCPReadSet(HS_KEY_HIDDEN_APPS), *shown = SCPReadSet(HS_KEY_SHOWN_APPS);
+        if ([hid isEqualToSet:SCPHiddenApps()] && [shown isEqualToSet:SCPShownApps()]) return;
+        @synchronized (SCPHiddenLock()) { sHiddenApps = hid; sShownApps = shown; }
+        SCPHomeIconModelLayout([NSString stringWithFormat:@"danh sach app doi (bo %lu, them lai %lu)", (unsigned long)hid.count, (unsigned long)shown.count]);
+    });
+}
+
+// ---------------------------------------------------------------------
 //  Cau dao chong crash-loop: ghi "dang chen" vao prefs truoc khi them app vao thu vien, xoa khi man xe hien
 //  (carScreenAppeared). Lan khoi dong sau ma con "dang chen" = CarPlay sap sau khi chen -> ghi version bi sap, khong chen
 //  nua cho den khi nguoi dung doi danh sach app (prefschanged) hoac cai ban moi (version khac).

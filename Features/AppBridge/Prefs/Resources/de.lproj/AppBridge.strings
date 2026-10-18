@@ -1,18 +1,10 @@
 /* OmniCar – App Bridge – Deutsch */
 
 "APPBRIDGE" = "App Bridge";
-"APPBRIDGE_FOOTER" = "iPhone-Apps ohne CarPlay (YouTube, TikTok…) auf dem Autodisplay.";
-"APPBRIDGE_ENABLE" = "iPhone-Apps im Auto zeigen";
 "APPBRIDGE_APPS" = "Apps auf dem Autodisplay";
-"APPBRIDGE_APPS_FOOTER" = "Aktiviere eine App, um ihr Symbol auf den CarPlay-Home-Bildschirm zu legen.";
 "APPBRIDGE_APPS_NONE" = "Keine";
 "APPBRIDGE_APPS_COUNT" = "%ld Apps";
-"APPBRIDGE_APPS_ON_CAR" = "Auf dem Autodisplay";
-"APPBRIDGE_APPS_USER" = "Deine Apps";
-"APPBRIDGE_APPS_SYSTEM" = "System-Apps";
-"APPBRIDGE_APPS_OTHER_FOOTER" = "Apps mit eigener CarPlay-Oberfläche werden nicht aufgeführt.";
 "APPBRIDGE_APPS_SEARCH" = "Apps suchen";
-"APPBRIDGE_APPS_EMPTY" = "Keine iPhone-Apps auf diesem Gerät gefunden.";
 "APPBRIDGE_APPS_NO_MATCH" = "Keine passende App.";
-"APPBRIDGE_DRIVE_MODE" = "Fahrmodus";
-"APPBRIDGE_DRIVE_FOOTER" = "Fahrmodus: Über 10 km/h geben iPhone-Apps im Auto nur Ton wieder (Bild verdeckt, Berührungen gesperrt); halte an, um wieder zuzusehen. Nutzt die Tempoquelle der Tempo-Blase.";
+"APPBRIDGE_APPS_FOOTER" = "Aktiviere eine App, um ihr Symbol auf den CarPlay-Home-Bildschirm zu legen.";
+"APPBRIDGE_APPS_OTHER_FOOTER" = "Apps mit eigener CarPlay-Oberfläche werden nicht aufgeführt.";

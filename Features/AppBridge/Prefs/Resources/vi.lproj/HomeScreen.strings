@@ -1,0 +1,54 @@
+/* OmniCar - CarPlay home screen (OMCAppBridgeAppsController) */
+
+"HOMESCREEN_ICON_SIZE" = "Cỡ icon";
+"HOMESCREEN_WALLPAPER" = "Hình nền";
+"HOMESCREEN_BLUR" = "Độ mờ";
+"HOMESCREEN_DIM" = "Độ tối";
+"HOMESCREEN_WALLPAPER_DEFAULT" = "Mặc định";
+
+/* One page: Apps on the car screen */
+"APPS_TITLE" = "App trên màn xe";
+"APPS_SYSTEM" = "Hệ thống";
+"APPS_WALL_0" = "Mặc định";
+"APPS_WALL_1" = "Đại dương";
+"APPS_WALL_2" = "Hoàng hôn";
+"APPS_WALL_3" = "OmniCar";
+"APPS_WALL_4" = "Đêm";
+"APPS_WALL_5" = "Bình minh";
+"APPS_WALL_6" = "Rừng";
+"APPS_WALL_7" = "Ảnh của bạn";
+
+"APPS_WALL_8" = "Video của bạn";
+"APPS_FROM_PHOTOS" = "Từ Ảnh (ảnh hoặc video)";
+"APPS_VIDEO_WORKING" = "Đang chuẩn bị video…";
+"APPS_VIDEO_FAILED" = "Không dùng được video này.";
+"APPS_WALL_FOOTER" = "Ảnh được cắt theo màn xe; tăng độ tối để icon dễ đọc. Video lặp lại không tiếng (20 giây đầu), tự dừng khi máy nóng, bật chế độ nhẹ, đang chia màn hoặc có app che màn chính.";
+"APPS_PHONE" = "App iPhone";
+"HOMESCREEN_ICON_SIZE_FOOTER" = "Tự động = số cột / hàng của CarPlay. Cỡ icon 100 % là cỡ của CarPlay; nhiều cột / hàng hơn thì giảm cỡ icon cho tên không chồng nhau.";
+
+/* App tren man xe: tren xe + 2 tab */
+"APPS_ON_CAR" = "Đang hiện trên xe";
+"APPS_ALL" = "Chọn app";
+"APPS_TAB_CARPLAY" = "App CarPlay";
+"APPS_TAB_OMNICAR" = "App Bridge";
+"APPS_ON_CAR_FOOTER" = "App có dấu iPhone là app iPhone đưa lên xe qua App Bridge.";
+"APPS_CARPLAY_FOOTER" = "Bỏ một app CarPlay để ẩn icon của nó trên màn chính của xe; app vẫn tự mở khi có cuộc gọi, chỉ đường hoặc Siri. Đặt lại = quay về như Cài đặt iPhone › Cài đặt chung › CarPlay.";
+"APPS_CARPLAY_LOCKED" = "CarPlay luôn hiện";
+"APPS_IOS_REMOVED" = "Đã bỏ trong Cài đặt iPhone";
+"APPS_INCLUDED" = "Bao gồm";
+"APPS_OTHER" = "Ứng dụng khác";
+"APPS_RESET" = "Đặt lại";
+"APPS_REMOVE" = "Bỏ";
+"APPS_RESET_CONFIRM" = "Hiện lại app CarPlay như trong Cài đặt iPhone › Cài đặt chung › CarPlay? App iPhone qua App Bridge giữ nguyên.";
+"APPS_OTHER_FOOTER" = "Chạm + để đưa app lên xe. App iPhone đi qua App Bridge.";
+"APPS_CARPLAY_GUESS_FOOTER" = "Chưa cắm xe lần nào: app CarPlay đang được đoán theo hỗ trợ CarPlay.";
+
+/* Man chinh CarPlay: luoi icon */
+"HOMESCREEN_GRID" = "Lưới icon";
+"HOMESCREEN_COLS" = "Số cột";
+"HOMESCREEN_ROWS" = "Số hàng";
+"HOMESCREEN_AUTO" = "Tự động";
+"HOMESCREEN_NAMES" = "Tên app";
+
+/* Man chinh CarPlay: nut Dat lai */
+"HOMESCREEN_RESET_CONFIRM" = "Về màn chính như CarPlay: số cột / số hàng Tự động, cỡ icon 100 %, hiện tên app, hình nền của CarPlay? App trên màn xe giữ nguyên.";

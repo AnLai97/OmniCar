@@ -26,7 +26,6 @@
 "Couldn't reopen %@" = "Não foi possível reabrir %@";
 "Couldn't show %@ on the car" = "Não foi possível mostrar %@ no carro";
 "Done" = "OK";
-"Driving · sound only" = "Dirigindo · só som";
 "Drizzle" = "Garoa";
 "Exit split" = "Sair da divisão";
 "Favorites" = "Favoritos";
@@ -37,7 +36,6 @@
 "Good evening" = "Boa noite";
 "Good morning" = "Bom dia";
 "Heavy rain" = "Chuva forte";
-"Late night" = "Já é tarde";
 "Layout" = "Layout";
 "Layouts" = "Layouts";
 "Needs at least 2 panes" = "Requer pelo menos 2 painéis";
@@ -53,7 +51,6 @@
 "Speed Bubble" = "Bolha de velocidade";
 "Split Screen" = "Tela dividida";
 "Startup Screen" = "Tela de inicialização";
-"Stop the car to watch again" = "Pare o carro para assistir de novo";
 "This app can't be split" = "Este app não pode ser dividido";
 "This app doesn't support CarPlay" = "Este app não é compatível com o CarPlay";
 "This pane has no app" = "Este painel não tem app";
@@ -76,3 +73,19 @@
 "Background" = "Segundo plano";
 "Quit app" = "Fechar app";
 "Split" = "Dividir";
+"Your car is ready" = "Seu carro está pronto";
+"Your car is ready, %@" = "Seu carro está pronto, %@";
+"iPhone apps cannot float" = "Apps do iPhone não podem flutuar";
+
+/* Speed Bubble: spoken over-speed warnings ({L} = the limit) */
+"You are over the speed limit" = "Você está acima do limite de velocidade";
+"Too fast, the limit is {L}" = "Rápido demais, o limite é {L}";
+"Please slow down" = "Por favor, reduza a velocidade";
+"Hey, this is a car, not a plane!" = "Ei, isto é um carro, não um avião!";
+"Easy now, the road is long and the wallet is thin" = "Calma, a estrada é longa e a carteira é curta";
+"The speed camera is smiling at you" = "O radar está sorrindo para você";
+"What's the rush? Dinner at home is still hot" = "Pra que a pressa? O jantar em casa ainda está quente";
+"Easy on the gas, speeding won't make you any better looking" = "Pega leve no acelerador, correr não te deixa mais bonito";
+"Choose an app for the floating window" = "Escolha um app para a janela flutuante";
+"Choose an app for pane %d" = "Escolha um app para o painel %d";
+"Tap an app to open it here" = "Toque em um app para abri-lo aqui";

@@ -1,8 +1,8 @@
 # OmniCar — giao diện
 
 Giao diện đã chốt (13/10/2026): **HarmonyOS sáng + kính chất lỏng 3D** (logo phương án D). Mọi màn hình của
-OmniCar (màn xe, Cài đặt, icon) làm theo đây. Mẫu đầy đủ: `tools/preview/theme.html` (mở bằng trình duyệt);
-logo: `tools/preview/logo.html`; bàn phím: `tools/preview/keyboard.html`. Thử ở trang mẫu trước rồi mới sửa code.
+OmniCar (màn xe, Cài đặt, icon) làm theo đây. Mẫu đầy đủ: `tools/preview/index.html#overview` (mở bằng trình duyệt);
+logo: `tools/preview/index.html#logo`; bàn phím: `tools/preview/index.html#keyboard`. Thử ở trang mẫu trước rồi mới sửa code.
 
 ## Màu
 - Nền chất lỏng pastel: oải hương #B7A6FF, xanh trời #8FD3FF, bạc hà #9DF2D8, đào #FFC2D6 (chỉ làm nền: đầu
@@ -28,11 +28,11 @@ logo: `tools/preview/logo.html`; bàn phím: `tools/preview/keyboard.html`. Th�
 
 ## Màn xe
 - **Nút ••• của mỗi ô**: tay cầm nhỏ giữa mép trên ô; chạm → tay cầm gradient, thanh nền logo thả xuống. Mỗi nút = ô
-  kính tròn 30pt + nhãn ngắn: Đổi app (4 ô vuông) · Toàn màn (4 góc khung) / Chia màn khi đang chạy 1 màn hình
+  kính tròn 40pt chỉ icon 22pt, không nhãn: Đổi app (4 ô vuông) · Toàn màn (4 góc khung) / Chia màn khi đang chạy 1 màn hình
   (2 khung) · Cửa sổ nổi (khung + ô nhỏ đặc) · Chạy nền (gạch ngang) | Tắt app (X đỏ, tách bằng vạch trắng).
   Icon HarmonyOS Symbol giữ nguyên. Thanh ••• của app iPhone (App Bridge, `ABHost.mm`) vẽ giống hệt.
 - **Bảng chọn app**: icon app không có khung (trần như màn Home), cột sơ đồ bên phải nền trong.
-- **Nút Split Screen trên dock**: ô nền logo 4 màu, viền trắng, glyph 2 ô màu chàm (giống nút Chia màn của thanh •••).
+- **Nút Split Screen trên dock**: không nền / viền, chỉ hình 2 ô đặc cùng cỡ, cùng màu với lưới app của nút Home ngay dưới (đen khi sáng, trắng khi tối). Ở góc vùng app (xe không có dải dock dọc) mới là nút tròn kính trắng.
 - **Thanh tỉ lệ**: hình mô tả tỉ lệ (1/3 · 1/2 · 2/3), không dùng số.
 - **Bàn phím** theo bàn phím HarmonyOS: thẻ nổi bo tròn 4 góc (20) cách mép 6 pt, kín bề rộng ô app, hàng số riêng, gợi ý góc phím (Telex: dấu /
   chữ phím đó tạo), bong bóng phóng to khi chạm; nền logo 4 màu, phím trắng không viền, phím chức năng kính trong
@@ -44,12 +44,14 @@ logo: `tools/preview/logo.html`; bàn phím: `tools/preview/keyboard.html`. Th�
 ## Chuyển động
 - Hiện: lò xo HarmonyOS (damping ~0,86, thu 0,94 → 1, thả xuống 8 pt); ẩn: trượt / mờ 250 ms
   (đường cong 0.2, 0, 0.2, 1). Các mục hiện lần lượt.
-- Bảng bố cục, thanh •••, thanh tỉ lệ tự đóng sau 4 s không chạm.
+- Bảng bố cục, thanh •••, thanh tỉ lệ tự đóng sau 4 s không chạm. Mọi bảng (bảng bố cục, thanh tỉ lệ, bảng chọn app, thanh nút •••) còn đóng ngay khi chạm bất kỳ chỗ khác trên màn (dock, ô khác, app, vạch); chạm đó vẫn đi tiếp tới nơi chạm. Riêng chạm vào app iPhone (App Bridge) thì chạm đó chỉ để đóng bảng, không tới app.
+- Nút Split Screen trên dock: 2 ô đặc, không nền, **cùng màu với lưới app của nút Home ngay dưới**: đen khi giao diện sáng (ban ngày), trắng khi tối (ban đêm); màu động theo trait của dock nên xe đổi ngày / đêm là đổi theo.
+- Bong bóng tốc độ, nhấn giữ ~0,6 s: menu nhanh ngay trên bong bóng (viên nền logo 4 màu, 5 ô kính tròn: nhỏ lại · to lên · cảnh báo · âm thanh · vạch trắng · tắt app X đỏ; tắt = icon mờ + gạch chéo đỏ). Tự đóng sau 4 s hoặc chạm chỗ khác. Thay cho "giữ 2 giây để thoát app".
 
 ## Dùng khi lái xe
 - Ô bấm to, cách xa nhau; nhiều mục thì chia trang vuốt ngang có chấm trang HarmonyOS, không cuộn dọc.
 - Chữ ngắn hoặc không có chữ.
 
 ## Logo
-Phương án D (`tools/preview/logo.html`): nền chất lỏng pastel trong ô squircle, vòng + nút play CarPlay bằng kính
+Phương án D (`tools/preview/index.html#logo`): nền chất lỏng pastel trong ô squircle, vòng + nút play CarPlay bằng kính
 trắng mờ nổi 3D, viền sáng, vệt bóng. Vẽ ra PNG bằng `tools/icons/omnicar_logo_liquid.ps1`.

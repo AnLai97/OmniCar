@@ -6,7 +6,7 @@
 // gradients behind the greeting and the weather; the weather details sit on a thin dark glass card.
 //
 // Animated styles (Weather sky, Engine, Welcome, Particles, HUD, Briefing, Festive) follow the approved mockup
-// tools/preview/startup.html: each scene is a function of the time t in seconds since -playIntro
+// tools/preview/index.html#startup: each scene is a function of the time t in seconds since -playIntro
 // (-ss_applyTime:), laid out on the mockup's 1600 x 600 canvas scaled to the view (letterboxed, one canvas pixel
 // = _k points, _k = unit / 6). Layers are built once per size; a display link (only while playing and on screen)
 // moves them. Particles and fireworks are drawn into one low-resolution canvas view; everything else is layers.
@@ -99,8 +99,7 @@ static NSString *SSGreetingPhrase(NSInteger period) {
 	switch (period) {
 		case 0:  return OMCTr(@"Chào buổi sáng", @"Good morning");
 		case 1:  return OMCTr(@"Chào buổi chiều", @"Good afternoon");
-		case 2:  return OMCTr(@"Chào buổi tối", @"Good evening");
-		default: return OMCTr(@"Khuya rồi", @"Late night");
+		default: return OMCTr(@"Chào buổi tối", @"Good evening");   // ca khuya (bo "Khuya roi", 10/2026)
 	}
 }
 
@@ -1400,17 +1399,14 @@ static NSArray<NSDictionary *> *SSSampleHud(NSString *carName) {
 		fade.outB = 1.7 + i * 0.12;
 	}
 
+	// Ten xe + "Xe cua ban da san sang" (khong loi chao, khong gio - 10/2026)
 	NSString *car = SSTrimmed(self.carName).length ? SSTrimmed(self.carName) : @"OmniCar";
-	NSInteger period = SSPeriodForDate(self.date ?: [NSDate date]);
 	CGFloat between = (1270 - 330 - 2 * 210 + 120) * k;   // the room between the dials (they overlap a little)
 	UILabel *name = [self ss_label:car at:SSPT(800, 300) size:70 weight:UIFontWeightHeavy color:nil left:NO in:host maxWidth:between];
 	[self ss_fade:name from:2.2 to:2.9 alpha:1].rise = -10 * k;
-	UILabel *greet = [self ss_label:SSGreetingTitle(self.name, period) at:SSPT(800, 380) size:30 weight:UIFontWeightSemibold color:nil
-		left:NO in:host maxWidth:between];
-	[self ss_fade:greet from:2.6 to:3.3 alpha:1];
-	UILabel *clock = [self ss_label:SSTimeText(self.date ?: [NSDate date]) at:SSPT(800, 450) size:24 weight:UIFontWeightMedium color:nil
-		left:NO in:host maxWidth:between];
-	[self ss_fade:clock from:2.9 to:3.6 alpha:0.7];
+	UILabel *ready = [self ss_label:SSWithName(OMCTr(@"Xe của bạn đã sẵn sàng, %@", @"Your car is ready, %@"), OMCTr(@"Xe của bạn đã sẵn sàng", @"Your car is ready"), self.name)
+		at:SSPT(800, 390) size:30 weight:UIFontWeightSemibold color:nil left:NO in:host maxWidth:between];
+	[self ss_fade:ready from:2.6 to:3.3 alpha:1];
 }
 
 - (void)ss_setGauge:(SSGauge *)g value:(CGFloat)value {
@@ -1741,7 +1737,7 @@ static NSArray<NSDictionary *> *SSSampleHud(NSString *carName) {
 
 #pragma mark Liquid (the OmniCar look)
 
-// tools/preview/theme.html part 6: four pastel blobs drifting slowly (lavender, sky, mint, peach), the glass logo rising
+// tools/preview/index.html#overview part 6: four pastel blobs drifting slowly (lavender, sky, mint, peach), the glass logo rising
 // on a spring and breathing, "OmniCar" in the violet -> sky gradient, the slogan under it, a thin loading bar.
 - (void)ss_buildLiquid {
 	CGFloat k = _k;

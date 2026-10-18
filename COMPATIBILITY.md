@@ -14,7 +14,7 @@ Trên trang công khai: ✅ = Works · 🟡 = Partly · ❌ = Doesn't · ⬜ = U
 |---|---|---|
 | iOS 15 | Hỗ trợ | Tác giả đã chạy (hook chỉ có trên iOS 16 tự bỏ qua, ghi log); bảng dưới chưa điền |
 | iOS 16 | Hỗ trợ | Bản phát triển chính (Chia màn hình, App Bridge dựa selector iOS 16); bảng dưới chưa điền |
-| iOS 17, 18 | ⬜ chưa thử | Gói cài được (`firmware (>= 15.0)`); Chẩn đoán hiện hook thiếu |
+| iOS 17, 18 | ⬜ chưa thử | Gói cài được (`firmware (>= 15.0)`); Gửi log hiện hook thiếu |
 | iOS 14 trở xuống | ❌ | Gói yêu cầu iOS 15.0+ |
 | Rootless: Dopamine (A12+, arm64e), palera1n rootless (A9–A11, arm64) | Hỗ trợ | Gói `iphoneos-arm64`, build arm64 + arm64e |
 | roothide | ❌ chưa hỗ trợ | Có trong kế hoạch (ROADMAP-RELEASE.md, Phát hành 0) |
@@ -24,9 +24,9 @@ Trên trang công khai: ✅ = Works · 🟡 = Partly · ❌ = Doesn't · ⬜ = U
 ## Cách thử một bản iOS
 
 1. Cài bản mới nhất, respring, cắm xe một lần.
-2. Mở Cài đặt > OmniCar > **Chẩn đoán**. Mục Tính năng phải hiện "đủ N hook". Có dòng "thiếu" thì chép
-   chân mục (tên hook thiếu) vào cột Ghi chú: đó là selector cần đường dự phòng trên iOS này.
-3. Bản dev (`OMC_AUTOTEST` = 1): đỗ xe, vào Hỗ trợ > **Tự kiểm tra (dev)**, chọn tính năng, Bắt đầu. Các bộ test
+2. Mở Cài đặt > OmniCar > **Gửi log**, lưu file báo cáo. Mục Tính năng trong báo cáo phải hiện "đủ N hook". Có dòng "thiếu" thì chép
+   tên hook thiếu vào cột Ghi chú: đó là selector cần đường dự phòng trên iOS này.
+3. Bản dev (`OMC_AUTOTEST` = 1): đỗ xe, vào Nhà phát triển > **Kiểm thử tự động**, chọn tính năng (thứ tự chạy: Màn hình khởi động, App Bridge, Bong bóng tốc độ, Chia màn hình, Màn chính CarPlay), Bắt đầu. Các bộ test
    chạy lần lượt (thanh cam trên màn xe hiện tiến độ, chạm để dừng); kết quả từng bước hiện ngay trên trang đó.
 4. Bấm **Gửi log** (kèm kết quả từng bước + ảnh màn xe), lưu cạnh bảng này (ví dụ `tests/ios17-iphone11/`).
    Điền bảng dưới từ kết quả đó; chỉ phải thử tay phần tự kiểm tra không làm được (app có giao diện CarPlay
@@ -37,8 +37,8 @@ Trên trang công khai: ✅ = Works · 🟡 = Partly · ❌ = Doesn't · ⬜ = U
 | Mục thử | iOS 15 | iOS 16 | iOS 17 | iOS 18 |
 |---|---|---|---|---|
 | Máy / jailbreak | | | | |
-| Chẩn đoán: hook Chia màn hình | ⬜ | ⬜ | ⬜ | ⬜ |
-| Chẩn đoán: hook App Bridge | ⬜ | ⬜ | ⬜ | ⬜ |
+| Báo cáo: hook Chia màn hình | ⬜ | ⬜ | ⬜ | ⬜ |
+| Báo cáo: hook App Bridge | ⬜ | ⬜ | ⬜ | ⬜ |
 | Bố cục 2 ô | ⬜ | ⬜ | ⬜ | ⬜ |
 | Bố cục 3 ô | ⬜ | ⬜ | ⬜ | ⬜ |
 | Bố cục 1 lớn + 2 | ⬜ | ⬜ | ⬜ | ⬜ |
@@ -50,7 +50,7 @@ Trên trang công khai: ✅ = Works · 🟡 = Partly · ❌ = Doesn't · ⬜ = U
 | Icon app iPhone trên màn chính CarPlay | ⬜ | ⬜ | ⬜ | ⬜ |
 | Bong bóng tốc độ (Vietmap Live / GOFA) | ⬜ | ⬜ | ⬜ | ⬜ |
 | Màn hình khởi động | ⬜ | ⬜ | ⬜ | ⬜ |
-| Chế độ cứu (Tự kiểm tra > Thử chế độ cứu, cắm lần 3 tự phục hồi) | ⬜ | ⬜ | ⬜ | ⬜ |
+| Chế độ cứu (Kiểm thử tự động > Thử chế độ cứu, cắm lần 3 tự phục hồi) | ⬜ | ⬜ | ⬜ | ⬜ |
 | Ghi chú (hook thiếu, lỗi) | | | | |
 
 ## Theo app (qua App Bridge)
@@ -95,7 +95,7 @@ Suy ra từ cách hoạt động, chưa xác nhận hết trên xe:
 
 ## Đầu xe đã thử
 
-Lấy từ Chẩn đoán > Màn xe.
+Lấy từ mục "Màn xe" trong báo cáo Gửi log.
 
 | Đầu xe | Độ phân giải | Tỉ lệ | Kết nối | iOS | Ghi chú |
 |---|---|---|---|---|---|

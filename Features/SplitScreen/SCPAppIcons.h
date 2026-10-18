@@ -22,6 +22,17 @@ void SCPAddChosenAppsToLibrary(id library);
 void SCPSetHomeViewController(id vc);
 // Danh sach app da chon vua doi (prefschanged): them / bo app trong thu vien va ve lai man chinh (co debounce)
 void SCPRefreshAppIconsSoon(void);
+// App CarPlay an khoi man chinh (HS_KEY_HIDDEN_APPS): icon (SBApplicationIcon ...) co phai cua app bi an khong.
+// Goi tu hook -[SBIconModel isIconVisible:] (co the tren nhieu queue).
+BOOL SCPIconHiddenOnCar(id icon);
+// App CarPlay da bo trong Tuy chinh cua iOS ma nguoi dung them lai (HS_KEY_SHOWN_APPS): isIconVisible: buoc YES
+BOOL SCPIconForcedOnCar(id icon);
+// App CarPlay bo duoc khoi man chinh (khong khoa, la app iPhone that, khong phai app iPhone OmniCar chen)
+BOOL SCPHomeAppRemovable(NSString *bid);
+// Cai dat doi (prefschanged): doc lai danh sach an; doi thi bao mo hinh icon xep lai man chinh
+void SCPRefreshHiddenAppsSoon(void);
+// Xep lai man chinh tu mo hinh icon (-[iconModel layout], khong co thi _handleAppLibraryRefresh): an app, doi so cot / hang
+void SCPHomeIconModelLayout(NSString *why);
 // Cau dao chong crash-loop (xem SCPAppIcons.mm): hoi truoc khi chen; bao man xe da hien; cho phep thu lai
 BOOL SCPAppIconsBeginInjection(void);
 void SCPAppIconsCarScreenOK(void);

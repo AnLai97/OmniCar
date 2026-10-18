@@ -1,0 +1,54 @@
+/* OmniCar - CarPlay home screen (OMCAppBridgeAppsController) */
+
+"HOMESCREEN_ICON_SIZE" = "アイコンサイズ";
+"HOMESCREEN_WALLPAPER" = "壁紙";
+"HOMESCREEN_BLUR" = "ぼかし";
+"HOMESCREEN_DIM" = "暗さ";
+"HOMESCREEN_WALLPAPER_DEFAULT" = "デフォルト";
+
+/* One page: Apps on the car screen */
+"APPS_TITLE" = "車の画面のアプリ";
+"APPS_SYSTEM" = "システム";
+"APPS_WALL_0" = "デフォルト";
+"APPS_WALL_1" = "海";
+"APPS_WALL_2" = "夕焼け";
+"APPS_WALL_3" = "OmniCar";
+"APPS_WALL_4" = "夜";
+"APPS_WALL_5" = "夜明け";
+"APPS_WALL_6" = "森";
+"APPS_WALL_7" = "あなたの写真";
+
+"APPS_WALL_8" = "あなたのビデオ";
+"APPS_FROM_PHOTOS" = "写真から（画像またはビデオ）";
+"APPS_VIDEO_WORKING" = "ビデオを準備中…";
+"APPS_VIDEO_FAILED" = "このビデオは使用できません。";
+"APPS_WALL_FOOTER" = "写真は車のディスプレイに合わせて切り抜かれます。アイコンが読みやすいよう暗さを上げてください。動画は無音でループ再生（最初の20秒）され、iPhoneが熱いとき、軽量モード中、画面分割中、Appがホーム画面を覆っているときは一時停止します。";
+"APPS_PHONE" = "iPhoneのApp";
+"HOMESCREEN_ICON_SIZE_FOOTER" = "自動 = CarPlay本来の列と行。100 %はCarPlayのアイコンサイズです。列や行を増やす場合は、名前が重ならないようアイコンを小さくしてください。";
+
+/* App tren man xe: tren xe + 2 tab */
+"APPS_ON_CAR" = "車に表示中";
+"APPS_ALL" = "Appを選ぶ";
+"APPS_TAB_CARPLAY" = "CarPlay App";
+"APPS_TAB_OMNICAR" = "App Bridge";
+"APPS_ON_CAR_FOOTER" = "iPhoneバッジ付きのAppは、App Bridgeで車に表示しているiPhone Appです。";
+"APPS_CARPLAY_FOOTER" = "CarPlay Appを削除すると車のホーム画面からアイコンが消えます。通話・経路案内・Siriでは今まで通り自動で開きます。リセットでiPhoneの設定 › 一般 › CarPlayの状態に戻ります。";
+"APPS_CARPLAY_LOCKED" = "CarPlayに常に表示";
+"APPS_IOS_REMOVED" = "iPhoneの設定で削除済み";
+"APPS_INCLUDED" = "含まれるApp";
+"APPS_OTHER" = "その他のApp";
+"APPS_RESET" = "リセット";
+"APPS_REMOVE" = "削除";
+"APPS_RESET_CONFIRM" = "iPhoneの設定 › 一般 › CarPlayの通りにCarPlay Appを再表示しますか？ App BridgeのiPhone Appはそのままです。";
+"APPS_OTHER_FOOTER" = "+をタップすると車にAppを追加します。iPhone AppはApp Bridge経由です。";
+"APPS_CARPLAY_GUESS_FOOTER" = "まだ車に接続していません: CarPlay対応状況からCarPlay Appを推定しています。";
+
+/* Man chinh CarPlay: luoi icon */
+"HOMESCREEN_GRID" = "アイコングリッド";
+"HOMESCREEN_COLS" = "列";
+"HOMESCREEN_ROWS" = "行";
+"HOMESCREEN_AUTO" = "自動";
+"HOMESCREEN_NAMES" = "App名";
+
+/* Man chinh CarPlay: nut Dat lai */
+"HOMESCREEN_RESET_CONFIRM" = "CarPlayのホーム画面に戻しますか？ 列と行は自動、アイコンサイズ100 %、App名を表示、壁紙はCarPlayのもの。車のAppはそのままです。";

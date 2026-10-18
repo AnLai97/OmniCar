@@ -3,12 +3,8 @@
 "SPLITSCREEN" = "Split Screen";
 "SPLITSCREEN_ENABLE" = "Split Screen";
 "SPLITSCREEN_AUTO_LAUNCH" = "Open on connect";
-"SPLITSCREEN_DRIVER_SIDE" = "Driver side";
-"SPLITSCREEN_DRIVER_AUTO" = "Automatic";
-"SPLITSCREEN_DRIVER_LEFT" = "Left";
-"SPLITSCREEN_DRIVER_RIGHT" = "Right";
 "SPLITSCREEN_PINNED" = "Pinned pane";
-"SPLITSCREEN_DRIVER_FOOTER" = "Right-hand drive: the current app opens in the right pane, next to the driver. Automatic = what the car reports.\nPinned pane (usually the map): that app keeps its pane when the layout or other apps change.";
+"SPLITSCREEN_PINNED_FOOTER" = "Pinned pane (usually the map): that app keeps its pane when the layout or other apps change.";
 
 "SPLITSCREEN_PANEL_GROUP" = "OmniCar panel in the car";
 "SPLITSCREEN_SHOW_RECENT" = "Recent";
@@ -44,3 +40,15 @@
 "SPLITSCREEN_SHORTCUTS_GROUP" = "Siri / Shortcuts (Open URL)";
 "SPLITSCREEN_SHORTCUTS_FOOTER" = "omnicar://splitscreen/open?left=com.apple.Maps&right=com.spotify.client\nomnicar://splitscreen/fav?n=1\nomnicar://splitscreen/close\nomnicar://splitscreen/layout?id=3 · ratio?r=70 · swap · zoom?pane=1\nomnicar://feature/speedBubble?on=toggle\nomnicar://lite?mode=auto\nomnicar://cleanram";
 "SPLITSCREEN_CREDITS_FOOTER" = "Formerly CarDuo. App hosting is based on carplay-cast (Ethan Arbuckle).";
+
+/* Settings page (OMCSplitScreenController) */
+"SPLITSCREEN_ENABLE_SUB" = "OmniCar button on the CarPlay dock";
+"SPLITSCREEN_AUTO_LAUNCH_SUB" = "Reopens the last layout";
+"SPLITSCREEN_OFF" = "Split Screen is off";
+"SPLITSCREEN_PANEL_SHOW" = "Show in the panel";
+"SPLITSCREEN_GESTURES" = "Gestures on the car";
+"SPLITSCREEN_SIRI" = "Siri / Shortcuts";
+"SPLITSCREEN_COPY" = "Copy";
+"SPLITSCREEN_COPIED" = "URL copied";
+"SPLITSCREEN_FAV_APPS_HINT" = "Tap a box to change its app";
+"SPLITSCREEN_FAV_DONE" = "Done";

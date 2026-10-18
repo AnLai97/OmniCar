@@ -26,7 +26,6 @@
 "Couldn't reopen %@" = "เปิด %@ อีกครั้งไม่ได้";
 "Couldn't show %@ on the car" = "แสดง %@ บนรถไม่ได้";
 "Done" = "เสร็จสิ้น";
-"Driving · sound only" = "กำลังขับ · เสียงเท่านั้น";
 "Drizzle" = "ฝนปรอย";
 "Exit split" = "ออกจากการแบ่ง";
 "Favorites" = "รายการโปรด";
@@ -37,7 +36,6 @@
 "Good evening" = "สวัสดีตอนเย็น";
 "Good morning" = "อรุณสวัสดิ์";
 "Heavy rain" = "ฝนตกหนัก";
-"Late night" = "ดึกแล้ว";
 "Layout" = "เลย์เอาต์";
 "Layouts" = "เลย์เอาต์";
 "Needs at least 2 panes" = "ต้องมีอย่างน้อย 2 ช่อง";
@@ -53,7 +51,6 @@
 "Speed Bubble" = "บับเบิลความเร็ว";
 "Split Screen" = "แบ่งหน้าจอ";
 "Startup Screen" = "หน้าจอเริ่มต้น";
-"Stop the car to watch again" = "จอดรถเพื่อดูอีกครั้ง";
 "This app can't be split" = "แอปนี้แบ่งหน้าจอไม่ได้";
 "This app doesn't support CarPlay" = "แอปนี้ไม่รองรับ CarPlay";
 "This pane has no app" = "ช่องนี้ไม่มีแอป";
@@ -76,3 +73,19 @@
 "Background" = "พื้นหลัง";
 "Quit app" = "ปิดแอป";
 "Split" = "แยกจอ";
+"Your car is ready" = "รถของคุณพร้อมแล้ว";
+"Your car is ready, %@" = "รถของคุณพร้อมแล้ว %@";
+"iPhone apps cannot float" = "แอป iPhone ไม่สามารถลอยได้";
+
+/* Speed Bubble: spoken over-speed warnings ({L} = the limit) */
+"You are over the speed limit" = "คุณขับเร็วเกินกำหนด";
+"Too fast, the limit is {L}" = "เร็วเกินไป จำกัดความเร็ว {L}";
+"Please slow down" = "กรุณาลดความเร็ว";
+"Hey, this is a car, not a plane!" = "เฮ้ นี่รถนะ ไม่ใช่เครื่องบิน!";
+"Easy now, the road is long and the wallet is thin" = "ใจเย็นๆ ทางยังอีกไกล แต่กระเป๋าตังค์บางแล้ว";
+"The speed camera is smiling at you" = "กล้องจับความเร็วกำลังยิ้มให้คุณ";
+"What's the rush? Dinner at home is still hot" = "จะรีบไปไหน ข้าวที่บ้านยังร้อนอยู่เลย";
+"Easy on the gas, speeding won't make you any better looking" = "เบาเท้าหน่อย ขับเร็วไม่ได้ทำให้หล่อขึ้นหรอก";
+"Choose an app for the floating window" = "เลือกแอปสำหรับหน้าต่างลอย";
+"Choose an app for pane %d" = "เลือกแอปสำหรับช่อง %d";
+"Tap an app to open it here" = "แตะแอปเพื่อเปิดที่นี่";

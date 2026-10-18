@@ -25,7 +25,6 @@
 "Couldn't reopen %@" = "Impossibile riaprire %@";
 "Couldn't show %@ on the car" = "Impossibile mostrare %@ sull'auto";
 "Done" = "Fine";
-"Driving · sound only" = "In guida · solo audio";
 "Drizzle" = "Pioggerella";
 "Exit split" = "Esci dalla divisione";
 "Favorites" = "Preferiti";
@@ -36,7 +35,6 @@
 "Good evening" = "Buonasera";
 "Good morning" = "Buongiorno";
 "Heavy rain" = "Pioggia forte";
-"Late night" = "Buonanotte";
 "Layout" = "Layout";
 "Layouts" = "Layout";
 "Needs at least 2 panes" = "Servono almeno 2 riquadri";
@@ -52,7 +50,6 @@
 "Speed Bubble" = "Bolla velocità";
 "Split Screen" = "Schermo diviso";
 "Startup Screen" = "Schermata di avvio";
-"Stop the car to watch again" = "Ferma l'auto per tornare a guardare";
 "This app can't be split" = "Questa app non si può dividere";
 "This app doesn't support CarPlay" = "Questa app non supporta CarPlay";
 "This pane has no app" = "Questo riquadro non ha app";
@@ -75,3 +72,19 @@
 "Background" = "Background";
 "Quit app" = "Chiudi app";
 "Split" = "Dividi";
+"Your car is ready" = "La tua auto è pronta";
+"Your car is ready, %@" = "La tua auto è pronta, %@";
+"iPhone apps cannot float" = "Le app iPhone non possono fluttuare";
+
+/* Speed Bubble: spoken over-speed warnings ({L} = the limit) */
+"You are over the speed limit" = "Stai superando il limite di velocità";
+"Too fast, the limit is {L}" = "Troppo veloce, il limite è {L}";
+"Please slow down" = "Per favore, rallenta";
+"Hey, this is a car, not a plane!" = "Ehi, è un'auto, non un aereo!";
+"Easy now, the road is long and the wallet is thin" = "Calma, la strada è lunga e il portafoglio è sottile";
+"The speed camera is smiling at you" = "L'autovelox ti sta sorridendo";
+"What's the rush? Dinner at home is still hot" = "Che fretta c'è? La cena a casa è ancora calda";
+"Easy on the gas, speeding won't make you any better looking" = "Piano con l'acceleratore, correre non ti rende più bello";
+"Choose an app for the floating window" = "Scegli un’app per la finestra mobile";
+"Choose an app for pane %d" = "Scegli un’app per il riquadro %d";
+"Tap an app to open it here" = "Tocca un’app per aprirla qui";

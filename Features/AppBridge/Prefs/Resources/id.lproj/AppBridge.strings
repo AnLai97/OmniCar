@@ -1,18 +1,10 @@
 /* OmniCar – App Bridge – Bahasa Indonesia */
 
 "APPBRIDGE" = "App Bridge";
-"APPBRIDGE_FOOTER" = "App iPhone tanpa CarPlay (YouTube, TikTok…) di layar mobil.";
-"APPBRIDGE_ENABLE" = "Tampilkan app iPhone di mobil";
 "APPBRIDGE_APPS" = "App di Layar Mobil";
-"APPBRIDGE_APPS_FOOTER" = "Nyalakan app untuk menaruh ikonnya di layar utama CarPlay.";
 "APPBRIDGE_APPS_NONE" = "Tidak ada";
 "APPBRIDGE_APPS_COUNT" = "%ld app";
-"APPBRIDGE_APPS_ON_CAR" = "Di layar mobil";
-"APPBRIDGE_APPS_USER" = "App Anda";
-"APPBRIDGE_APPS_SYSTEM" = "App sistem";
-"APPBRIDGE_APPS_OTHER_FOOTER" = "App yang memiliki antarmuka CarPlay sendiri tidak dicantumkan.";
 "APPBRIDGE_APPS_SEARCH" = "Cari app";
-"APPBRIDGE_APPS_EMPTY" = "Tidak ada app iPhone di perangkat ini.";
 "APPBRIDGE_APPS_NO_MATCH" = "Tidak ada app yang cocok.";
-"APPBRIDGE_DRIVE_MODE" = "Mode berkendara";
-"APPBRIDGE_DRIVE_FOOTER" = "Mode berkendara: di atas 10 km/j app iPhone di mobil hanya memutar suara (gambar ditutup, sentuhan dikunci); hentikan mobil untuk menonton lagi. Memakai sumber kecepatan Gelembung Kecepatan.";
+"APPBRIDGE_APPS_FOOTER" = "Nyalakan app untuk menaruh ikonnya di layar utama CarPlay.";
+"APPBRIDGE_APPS_OTHER_FOOTER" = "App yang memiliki antarmuka CarPlay sendiri tidak dicantumkan.";

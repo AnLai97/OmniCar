@@ -6,10 +6,10 @@ Nothing here is recorded yet. Record on a real car (or head unit on the bench), 
 
 - [ ] Release build (`OMC_AUTOTEST=0`), so no dev test bar shows on the car screen.
 - [ ] Settings language set to English for the international set; record a Vietnamese set later if needed.
-- [ ] No conflict / rescue cards on the OmniCar page (Diagnostics all green).
+- [ ] No conflict / rescue cards on the OmniCar page.
 - [ ] Car parked. Any shot with video playing on the car screen must clearly be parked (handbrake / P visible or no driver).
 - [ ] Clean phone: full battery icon, no personal notifications, neutral wallpaper; Do Not Disturb on.
-- [ ] Car screen shots: photograph the head unit straight on (tripod, no glare) or capture from the car if the unit allows. Note the head unit model and resolution (Diagnostics > Car screen) for each shot.
+- [ ] Car screen shots: photograph the head unit straight on (tripod, no glare) or capture from the car if the unit allows. Note the head unit model and resolution (the "Car screen" section of a Send log report) for each shot.
 - [ ] Only show apps you are allowed to show; avoid DRM apps (they show black) and copyrighted video – use your own clip or a public-domain one in YouTube.
 
 ## The 6 screenshots
@@ -21,7 +21,7 @@ Nothing here is recorded yet. Record on a real car (or head unit on the bench), 
 | 3 | Any iPhone app / Mọi app iPhone | CarPlay home screen with iPhone app icons (YouTube, TikTok…) next to the normal CarPlay apps | Shows App Bridge icons on the home screen. |
 | 4 | Speed and limit at a glance / Tốc độ và biển giới hạn | Car screen with the Speed Bubble over a map, showing speed and a posted-limit sign | Needs Vietmap Live or GOFA running with GPS; a real road with a limit. |
 | 5 | Your own startup video / Video khởi động của bạn | Car screen mid-playback of a custom Startup Screen video right after connecting | Pick a frame that reads well as a still (logo or car). |
-| 6 | Everything in one place / Tất cả trong một nơi | iPhone: Settings > OmniCar main page (header card, feature list) – optionally side by side with the Diagnostics page all green | Phone screenshot, not the car. |
+| 6 | Everything in one place / Tất cả trong một nơi | iPhone: Settings > OmniCar main page (header card, feature list) | Phone screenshot, not the car. |
 
 Export: car shots at the head unit's native resolution plus a 16:9 crop; phone shot at native resolution. Keep originals in a `docs/sales/media/` folder (TODO: decide whether media goes in git).
 
@@ -39,7 +39,7 @@ Format: 16:9, 1080p or higher, 30 fps. No voice-over needed; short on-screen cap
 | 0:30–0:34 | TikTok or another iPhone app in a pane next to Maps. | Any iPhone app, in a pane or full screen |
 | 0:34–0:44 | Driving footage (passenger-held camera or dash mount): Speed Bubble on the map showing speed and the limit sign; speed passes the limit and the bubble changes. | Speed Bubble: your speed and the limit, from Vietmap Live / GOFA |
 | 0:44–0:50 | iPhone: Settings > OmniCar, scroll the feature list, open Speed Bubble styles briefly. | Every feature has its own switch |
-| 0:50–0:55 | iPhone: Diagnostics page, all green; tap Send log to show the share sheet. | Built-in diagnostics and one-tap log |
+| 0:50–0:55 | iPhone: Support section; tap Send log to show the share sheet. | One-tap log for support |
 | 0:55–1:00 | Car screen with the hero split layout; OmniCar logo and repo / store link. | OmniCar · iOS 15–16 · rootless · `<TODO: store URL>` |
 
 Rules while filming:

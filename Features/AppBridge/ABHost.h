@@ -10,6 +10,13 @@
 // Thanh nut cua o ve de len app (SpringBoard ve, CarPlay nhan tap qua AB_NOTIF_BAR_ACTION); pop 1 = nut "noi", 2 = "ghim";
 // single = o dang chay 1 man hinh (nut "Chay 1 man hinh" doi thanh "Chia man hinh")
 - (void)setBarVisible:(BOOL)visible pop:(int)pop dim:(BOOL)dim single:(BOOL)single forApp:(NSString *)bid;
+// AB_NOTIF_SHIELD: co bang nao mo tren man xe -> lop chan mong (co ve, de backboardd dua cham ve SpringBoard) phu kin MOI o
+// (ke ca app toan man, ke ca o mo sau do): cham vao app = cham cho khac -> AB_NOTIF_BAR_DISMISS, cham do khong toi app
+- (void)setShieldAll:(BOOL)on;
+- (void)outsideTouched;   // lop chan nhan cham: an moi thanh nut + bo moi lop chan ngay (ABShieldView goi)
+// Cua so noi cua CarPlay (ve duoi cua so host) nam tren o nay: khoet lo dung khung do (toa do man xe, CGRectZero = khong)
+// de cua so noi lo ra va cham duoc (FRAME / OPEN "ox/oy/ow/oh")
+- (void)setHole:(CGRect)hole forApp:(NSString *)bid;
 - (void)setFront:(BOOL)front forApp:(NSString *)bid;   // cua so noi: len tren cac o app iPhone khac
 @property (nonatomic) CGRect carAppArea;   // vung app cua man xe (khong tinh dock), CarPlay gui kem moi khung o; ban phim xe trai theo day
 - (void)setCornerRadius:(CGFloat)radius corners:(CACornerMask)corners forApp:(NSString *)bid;   // bo goc nhu o CarPlay
@@ -25,6 +32,5 @@
 - (NSUInteger)count;
 - (NSString *)bundleForHash:(unsigned long long)hash;   // hosted app with this ABBundleHash, nil if none
 - (CGRect)frameOfApp:(NSString *)bid;                    // its box on the car screen (points), CGRectNull if none
-- (UIWindow *)carWindow;
-- (void)startDriveMonitor;   // SpringBoard start: driving mode follows AB_DARWIN_SPEED_NOW   // the host window on the car screen (pass-through, kept for the whole connection), nil if no car
+- (UIWindow *)carWindow;   // the host window on the car screen (pass-through, kept for the whole connection), nil if no car
 @end

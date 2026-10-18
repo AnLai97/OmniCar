@@ -1,6 +1,7 @@
 #import "SPPPrefs.h"
 #import "common.h"
 #import "OmniCar.h"
+#import <notify.h>
 
 // Reads the OmniCar prefs domain (written by the settings bundle through cfprefsd); every read
 // re-synchronizes so changes apply at once.
@@ -13,7 +14,7 @@ static id value(NSString *key)
 }
 
 + (BOOL)enabled    { OMCPrefsSync(); return OMCFeatureEnabled(SB_FEATURE); }
-+ (NSInteger)style { id v = value(SB_KEY_STYLE); NSInteger i = v ? [v integerValue] : 0; return (i >= 0 && i < 18) ? i : 0; }
++ (NSInteger)style { id v = value(SB_KEY_STYLE); NSInteger i = v ? [v integerValue] : 0; return (i >= 0 && i < SB_STYLE_COUNT) ? i : 0; }
 
 + (BOOL)showAppIcon { id v = value(SB_KEY_SHOW_APP_ICON); return v ? [v boolValue] : YES; }
 
@@ -32,70 +33,65 @@ static id value(NSString *key)
     CFPreferencesAppSynchronize(OMC_PREFS_DOMAIN);
 }
 
-// Canh bao qua toc do: 0 tat, 1 chi vien (im lang), 2 vien + tieng ngan (mac dinh)
+// Menu nhan giu tren bong bong bat / tat Canh bao (bit 1) / Am thanh (bit 2): ghi nhu 2 cong tac trong Cai dat (kem
+// SB_KEY_WARN_MODE_V2 de gia tri 2 khong bi doc thanh 3) roi bao SPPOverspeed nap lai (SB_DARWIN_PREFS)
++ (void)setWarnMode:(NSInteger)mode
+{
+    mode = MIN(3, MAX(0, mode));
+    CFPreferencesSetAppValue((__bridge CFStringRef)SB_KEY_WARN_MODE, (__bridge CFPropertyListRef)@(mode), OMC_PREFS_DOMAIN);
+    CFPreferencesSetAppValue((__bridge CFStringRef)SB_KEY_WARN_MODE_V2, kCFBooleanTrue, OMC_PREFS_DOMAIN);
+    CFPreferencesAppSynchronize(OMC_PREFS_DOMAIN);
+    notify_post(SB_DARWIN_PREFS);
+}
+
+// Canh bao qua toc do: 0 tat, 1 canh bao (vien do, im lang), 2 am thanh (tieng ngan, khong vien), 3 ca hai (mac dinh).
+// Gia tri ban cu (chua co SB_KEY_WARN_MODE_V2): 2 = vien + tieng -> 3
 + (NSInteger)warnMode
 {
     id v = value(SB_KEY_WARN_MODE);
-    NSInteger i = v ? [v integerValue] : 2;
-    return (i >= 0 && i <= 2) ? i : 2;
+    NSInteger i = v ? [v integerValue] : 3;
+    if (v && i == 2 && ![value(SB_KEY_WARN_MODE_V2) boolValue]) i = 3;
+    return (i >= 0 && i <= 3) ? i : 3;
 }
 
-// Nguong 0..20 (mac dinh 5) theo don vi dang hien tren bong bong: mph -> doi ra km/h de so voi toc do goc
+static NSInteger ranged(NSString *key, NSInteger def, NSInteger count)
+{
+    id v = value(key);
+    NSInteger i = [v respondsToSelector:@selector(integerValue)] ? [v integerValue] : def;
+    return (i >= 0 && i < count) ? i : def;
+}
+
++ (NSInteger)warnFx        { return ranged(SB_KEY_WARN_FX, 0, SB_WARN_FX_COUNT); }
++ (BOOL)warnVoice          { return ranged(SB_KEY_WARN_SOUND, 0, 2) == 1; }
++ (NSInteger)warnTone      { return ranged(SB_KEY_WARN_TONE, 0, SB_TONE_COUNT); }
++ (NSInteger)warnVoiceLine { return ranged(SB_KEY_WARN_VOICE, 0, SB_VOICE_CUSTOM + 1); }
++ (NSString *)warnVoiceText { id v = value(SB_KEY_WARN_VOICE_TEXT); return [v isKindOfClass:[NSString class]] ? v : @""; }
++ (NSInteger)color         { return ranged(SB_KEY_COLOR, 0, SB_COLOR_COUNT); }
+
+// Nguong -10..10 km/h (mac dinh 5) so voi gioi han (am = bao tu truoc khi cham gioi han)
 + (double)warnMarginKmh
 {
     id v = value(SB_KEY_WARN_OVER);
     double m = v ? round([v doubleValue]) : 5;
-    m = MIN(20, MAX(0, m));
-    return [self useMph] ? m * 1.609344 : m;
+    m = MIN(10, MAX(-10, m));
+    return m;
 }
 
-+ (void)setGPSStatus:(int)status
-{
-    id cur = value(SB_KEY_GPS_STATUS);
-    if (cur && [cur intValue] == status) return;
-    CFPreferencesSetAppValue((__bridge CFStringRef)SB_KEY_GPS_STATUS, (__bridge CFPropertyListRef)@(status), OMC_PREFS_DOMAIN);
-    CFPreferencesAppSynchronize(OMC_PREFS_DOMAIN);
-}
-
-// Index in SPP_NAV_APPS: Vietmap Live, GOFA, GPS iPhone (SPP_SOURCE_GPS). Chi 1 nguon. Chua chon lan nao: lay tu 2 cong tac cu
-// (chi tat Vietmap -> GOFA), giong OMCSpeedBubbleController ghi lai khi mo trang cai dat.
+// Index in SPP_NAV_APPS: Vietmap Live, GOFA, Waze. Chi 1 nguon. Gia tri cua ban 6 nguon (chua co SB_KEY_SOURCE_V2): 4 (Waze)
+// -> 2, con lai ngoai 0..1 -> 0 (OMCSpeedBubbleController ghi lai khi mo trang cai dat). Chua chon lan nao: lay tu 2 cong
+// tac cu (chi tat Vietmap -> GOFA).
 + (int)source
 {
     id v = value(SB_KEY_SOURCE);
-    if (v) { int i = [v intValue]; return (i >= 0 && i < SPP_NAV_APP_COUNT) ? i : 0; }
+    if (v) {
+        int i = [v intValue];
+        if (![value(SB_KEY_SOURCE_V2) boolValue]) i = (i == 4) ? 2 : (i >= 0 && i <= 1) ? i : 0;
+        return (i >= 0 && i < SPP_NAV_APP_COUNT) ? i : 0;
+    }
     id vm = value(SB_KEY_APP_VIETMAP), gf = value(SB_KEY_APP_GOFA);
     return (vm && ![vm boolValue] && !(gf && ![gf boolValue])) ? 1 : 0;
 }
 
 + (BOOL)appEnabled:(int)appIndex { return appIndex == [self source]; }
-
-// Ma vung hien tai (vd "VN", "US"); rong neu khong biet
-static NSString *regionCode(void)
-{
-    NSString *cc = [[NSLocale currentLocale] countryCode];
-    return cc ? cc.uppercaseString : @"";
-}
-
-// Don vi: 0 tu dong (mph khi vung khong dung he met, hoac US/GB/LR/MM - Anh dung he met nhung bien duong ghi mph),
-// 1 km/h, 2 mph
-+ (BOOL)useMph
-{
-    id v = value(SB_KEY_UNIT);
-    NSInteger i = v ? [v integerValue] : 0;
-    if (i == 1) return NO;
-    if (i == 2) return YES;
-    if (![[NSLocale currentLocale] usesMetricSystem]) return YES;
-    return [@[@"US", @"GB", @"LR", @"MM"] containsObject:regionCode()];
-}
-
-// Bien gioi han: 0 tu dong (kieu My o US/PR/LR/MM, con lai Vienna), 1 Vienna, 2 My
-+ (BOOL)usSign
-{
-    id v = value(SB_KEY_SIGN);
-    NSInteger i = v ? [v integerValue] : 0;
-    if (i == 1) return NO;
-    if (i == 2) return YES;
-    return [@[@"US", @"PR", @"LR", @"MM"] containsObject:regionCode()];
-}
 
 @end

@@ -8,8 +8,8 @@
 // What a car profile keeps: split layout and side, Speed Bubble on the car, startup screen, iPhone app zoom
 NSArray<NSString *> *OMCProfileKeys(void) {
 	return @[@"splitScreenLastLeft", @"splitScreenLastRight", @"splitScreenSplitRatio", @"splitScreenSplitDirection",
-		@"splitScreenPaneOrientation", @"splitScreenDriverSide", @"splitScreenAutoLaunch", @"splitScreenPinnedApp",
-		@"speedBubbleSizeCar", @"speedBubbleStyle", @"startupScreenVideoName", @"startupScreenStyle", @"startupScreenCarName",
+		@"splitScreenPaneOrientation", @"splitScreenAutoLaunch", @"splitScreenPinnedApp",
+		@"speedBubbleSizeCar", @"speedBubbleLook", @"startupScreenVideoName", @"startupScreenStyle", @"startupScreenCarName",
 		@"startupScreenTempo", @"appBridgeZoom"];
 }
 

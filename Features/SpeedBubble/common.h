@@ -12,19 +12,20 @@
 #define SPPLogWrite(...) OMCLogWrite(@"SpeedBubble", __VA_ARGS__)
 #define SPPLog(fmt, ...) SPPLogWrite([NSString stringWithFormat:@fmt, ##__VA_ARGS__])
 
-// App dan duong ho tro (thu tu = chi so app gui trong Darwin state; them app moi thi them CUOI danh sach + CarSpeed.plist
+// App dan duong ho tro (thu tu = chi so app gui trong Darwin state; them app moi thi them CUOI danh sach + Filter.plist
 // + ten vao SB_SOURCE_NAMES trong SpeedBubble.h). Toi da 8 (3 bit trong Darwin state).
 #define SPP_APP_VIETMAP         @"vn.vietmap.live"
 #define SPP_APP_GOFA            @"com.lumi.GOFA"
-// Chi so SB_SOURCE_GPS: khong phai app (ma gia, khong app nao trung) - GPS iPhone do SpringBoard tu doc (SPPGPS.mm).
-// Khong mo / khong thoat app nay (SPPIsGPSSource).
-#define SPP_APP_GPS             @"com.anlai.omnicar.gps"
-#define SPP_NAV_APPS            (@[SPP_APP_VIETMAP, SPP_APP_GOFA, SPP_APP_GPS])
-#define SPP_NAV_APP_NAMES       (@[@"Vietmap", @"GOFA", @"GPS"])
+// Waze: toc do tu GPS rieng trong app, gioi han quet tren man hinh (vong do / ten anh / chu); chi quet khi app la nguon
+// dang chon (SPP_DARWIN_SOURCE) vi gan nhu may nao cung co.
+#define SPP_APP_WAZE            @"com.waze.iphone"
+#define SPP_NAV_APPS            (@[SPP_APP_VIETMAP, SPP_APP_GOFA, SPP_APP_WAZE])
+#define SPP_NAV_APP_NAMES       (@[@"Vietmap", @"GOFA", @"Waze"])
 #define SPP_NAV_APP_COUNT       3
-#define SPP_SOURCE_GPS          SB_SOURCE_GPS
-
-static inline BOOL SPPIsGPSSource(int i) { return i == SPP_SOURCE_GPS; }
+// Nguon dang chon de app quet biet (app sandbox khong doc duoc prefs): SpringBoard dat state = chi so SB_KEY_SOURCE,
+// 0xFF = Bong bong toc do dang tat. App tu index SPP_FIRST_GATED_APP tro di chi quet khi state = chinh no.
+#define SPP_DARWIN_SOURCE       "com.anlai.omnicar/speedbubble.source"
+#define SPP_FIRST_GATED_APP     2
 
 static inline int SPPNavAppIndex(NSString *bid)
 {

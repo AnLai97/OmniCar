@@ -72,9 +72,17 @@
 // The logo (always re-encoded to PNG, at most 1024 px) and the startup sound (one file).
 #define SS_LOGO_PATH        ROOT_PATH_NS(@"/var/mobile/Library/OmniCar/StartupScreen/Logo/logo.png")
 #define SS_SOUNDS_DIR       ROOT_PATH_NS(@"/var/mobile/Library/OmniCar/StartupScreen/Sounds")
-// Last Open-Meteo result, written by CarPlay (see SSWeatherParse in SSStartupView.h for the keys).
+// Last Open-Meteo result, written by SpringBoard (or CarPlay when it has location access); keys in SSStartupView.h.
 #define SS_WEATHER_CACHE    ROOT_PATH_NS(@"/var/mobile/Library/OmniCar/StartupScreen/weather.plist")
+// Last position relayed by the navigation app (OMC_DARWIN_LOCATION), kept by SpringBoard across resprings: lat, lon, date.
+#define SS_LOCATION_CACHE   ROOT_PATH_NS(@"/var/mobile/Library/OmniCar/StartupScreen/location.plist")
 
 // CarPlay.app asks SpringBoard to play / stop the soundtrack or startup sound.
 #define SS_NOTIFY_AUDIO_PLAY CFSTR("com.anlai.omnicar/startupscreen.audio.play")
 #define SS_NOTIFY_AUDIO_STOP CFSTR("com.anlai.omnicar/startupscreen.audio.stop")
+// CarPlay.app has no location access and cannot ask for it (log 18/10 11:13: "no location access (status 0)" -> the
+// Weather style always fell back to the greeting), so it asks SpringBoard, which is pre-authorised for location:
+// REQUEST -> SpringBoard takes its last fix (or a fresh one, up to 6 s), fetches Open-Meteo, writes SS_WEATHER_CACHE ->
+// READY -> CarPlay reloads the cache and swaps the weather in while the splash is still up.
+#define SS_NOTIFY_WEATHER_REQUEST_C "com.anlai.omnicar/startupscreen.weather.request"
+#define SS_NOTIFY_WEATHER_READY_C   "com.anlai.omnicar/startupscreen.weather.ready"

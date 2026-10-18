@@ -54,6 +54,7 @@
 // App Bridge (SpringBoard) bao ve
 - (void)hostedApp:(NSString *)bundleID state:(NSString *)state;   // ready | failed | gone
 - (void)bridgeHandleTapped:(NSString *)bundleID;                   // cham thanh "•••" ve tren app -> hien thanh nut cua o
+- (void)bridgeOutsideTouched;                                     // cham vao app iPhone dang host ngoai thanh nut (AB_NOTIF_BAR_DISMISS) -> an moi thanh nut
 - (void)bridgeHandleDrag:(NSDictionary *)info;                   // keo thanh "•••" tren o app iPhone (AB_NOTIF_HANDLE_DRAG): doi cho / keo cua so noi
 - (void)bridgeBarAction:(NSString *)action forBundle:(NSString *)bundleID;   // nut tren thanh nut SpringBoard ve: replace | pop | full | close
 @end
@@ -62,6 +63,11 @@
 extern "C" {
 #endif
 NSString *SCPRealBundleForInfos(id info, id proxyInfo);   // bo qua CarPlayTemplateUIHost, tra ve bundle that cua app
+// App tren man chinh CarPlay theo thu tu xe (bang chon app cua Split Screen, Cai dat)
+NSArray<NSString *> *SCPCarHomeBundles(void);   // app tren man chinh CarPlay theo thu tu CarPlay (nil = chua doc duoc)
+UIImage *SCPCarAppIcon(NSString *bundleID);
+NSString *SCPCarAppName(NSString *bundleID);
+void SCPCarLaunchApp(NSString *bundleID);         // nhu cham icon tren man chinh: app iPhone -> App Bridge
 #ifdef __cplusplus
 }
 #endif

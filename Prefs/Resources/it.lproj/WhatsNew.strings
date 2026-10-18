@@ -1,0 +1,13 @@
+/* OmniCar – What's new (Prefs/OMCWhatsNewController.m, keys named in WhatsNew.plist) */
+
+"WN_ROW" = "Novità";
+"WN_TITLE" = "Novità di OmniCar %@";
+"WN_CONTINUE" = "Continua";
+"WN_KEYBOARD_TITLE" = "Tastiera sullo schermo dell'auto";
+"WN_KEYBOARD_TEXT" = "Scrivi nelle app di iPhone mostrate sullo schermo dell'auto con una tastiera direttamente sul display dell'auto.";
+"WN_ZOOM_TITLE" = "Zoom del riquadro";
+"WN_ZOOM_TEXT" = "Tocca due volte la barra ••• di un riquadro di Schermo diviso per estenderlo a tutto lo schermo, tocca di nuovo due volte per tornare.";
+"WN_LANG_TITLE" = "14 lingue";
+"WN_LANG_TEXT" = "Impostazioni, testi sullo schermo dell'auto e avvisi in 14 lingue. Scegline una con il pulsante del globo.";
+"WN_GUIDE_TITLE" = "Guida iniziale";
+"WN_GUIDE_TEXT" = "Una breve guida per iniziare. Aprila quando vuoi da Supporto > Mostra di nuovo la guida.";

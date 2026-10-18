@@ -21,7 +21,7 @@ TODO before publishing: contact address for privacy questions, and a note on wha
 - **Settings** you choose in Settings > OmniCar (stored in the standard preferences of the phone).
 - **Startup videos** you add, copied to `/var/jb/var/mobile/Library/OmniCar/`.
 - **A log file**, `/var/mobile/Documents/OmniCar.log` (an older part is kept as `OmniCar.log.old`; the file rolls over at 2 MB). It records what OmniCar did and any errors or crashes, so problems can be fixed.
-- **Car screen info and CarPlay performance** from the last connection, shown on the Diagnostics page.
+- **Car screen info and CarPlay performance** from the last connection, included in the log report.
 
 ### Location and speed
 Speed Bubble gets your speed and the posted speed limit from the navigation app you chose (Vietmap Live or GOFA), inside that app and with that app's own location permission. OmniCar does not store or log your position. Speed values may appear in the log.
@@ -29,7 +29,7 @@ Speed Bubble gets your speed and the posted speed limit from the navigation app 
 ### When you tap "Send log"
 OmniCar builds a text file on your phone and opens the iOS share sheet. **Nothing leaves your phone unless you choose where to send it** (Mail, Zalo, etc.). The file contains:
 - Date, OmniCar version, master switch and language.
-- iOS version and build, device model (for example `iPhone12,1`), jailbreak type, temperature, battery level, memory and the results of the Diagnostics health check.
+- iOS version and build, device model (for example `iPhone12,1`), jailbreak type, temperature, battery level, memory and the results of the health check in the report.
 - Car screen info: head unit name / maker as the car reports it, wired or wireless, resolution, UI size, aspect ratio, max frame rate, last connection time, and the raw CarPlay screen data.
 - Which OmniCar features are on, missing hooks, rescue mode state and other CarPlay tweaks found.
 - CarPlay performance from the last drive (frame delays, freezes, CPU, memory, temperature).
@@ -58,7 +58,7 @@ Uninstall OmniCar, then delete `/var/mobile/Documents/OmniCar.log*` and `/var/jb
 - **Cài đặt** bạn chọn trong Cài đặt > OmniCar (lưu trong cài đặt chuẩn của máy).
 - **Video khởi động** bạn thêm, chép vào `/var/jb/var/mobile/Library/OmniCar/`.
 - **File log** `/var/mobile/Documents/OmniCar.log` (phần cũ giữ ở `OmniCar.log.old`; quá 2 MB thì xoay vòng). Ghi việc OmniCar đã làm, lỗi và lần sập để sửa lỗi.
-- **Thông tin màn xe và hiệu năng CarPlay** của lần cắm gần nhất, hiện ở trang Chẩn đoán.
+- **Thông tin màn xe và hiệu năng CarPlay** của lần cắm gần nhất, kèm trong báo cáo khi Gửi log.
 
 ### Vị trí và tốc độ
 Bong bóng tốc độ lấy tốc độ và biển giới hạn từ app dẫn đường bạn chọn (Vietmap Live hoặc GOFA), ngay trong app đó và bằng quyền vị trí của chính app đó. OmniCar không lưu và không ghi log vị trí của bạn. Giá trị tốc độ có thể xuất hiện trong log.
@@ -66,7 +66,7 @@ Bong bóng tốc độ lấy tốc độ và biển giới hạn từ app dẫn 
 ### Khi bấm "Gửi log"
 OmniCar tạo một file chữ trên máy rồi mở bảng chia sẻ của iOS. **Không có gì rời máy trừ khi bạn chọn nơi gửi** (Zalo, Mail…). File gồm:
 - Ngày giờ, phiên bản OmniCar, công tắc tổng, ngôn ngữ.
-- Phiên bản iOS và bản build, đời máy (ví dụ `iPhone12,1`), kiểu jailbreak, nhiệt độ, mức pin, bộ nhớ và kết quả kiểm tra của trang Chẩn đoán.
+- Phiên bản iOS và bản build, đời máy (ví dụ `iPhone12,1`), kiểu jailbreak, nhiệt độ, mức pin, bộ nhớ và kết quả kiểm tra sức khoẻ trong báo cáo.
 - Thông tin màn xe: tên / hãng đầu xe do xe báo, có dây hay không dây, độ phân giải, cỡ giao diện, tỉ lệ, FPS tối đa, lần cắm gần nhất, và dữ liệu màn xe thô của CarPlay.
 - Tính năng OmniCar nào đang bật, hook thiếu, trạng thái chế độ cứu, tweak CarPlay khác tìm thấy.
 - Hiệu năng CarPlay của chuyến đi gần nhất (khung hình trễ, khựng, CPU, bộ nhớ, nhiệt độ).

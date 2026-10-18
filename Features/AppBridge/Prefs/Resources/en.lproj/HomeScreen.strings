@@ -1,0 +1,54 @@
+/* OmniCar - CarPlay home screen (OMCAppBridgeAppsController) */
+
+"HOMESCREEN_ICON_SIZE" = "Icon size";
+"HOMESCREEN_WALLPAPER" = "Wallpaper";
+"HOMESCREEN_BLUR" = "Blur";
+"HOMESCREEN_DIM" = "Darkness";
+"HOMESCREEN_WALLPAPER_DEFAULT" = "Default";
+
+/* One page: Apps on the car screen */
+"APPS_TITLE" = "Apps on the car screen";
+"APPS_SYSTEM" = "System";
+"APPS_WALL_0" = "Default";
+"APPS_WALL_1" = "Ocean";
+"APPS_WALL_2" = "Sunset";
+"APPS_WALL_3" = "OmniCar";
+"APPS_WALL_4" = "Night";
+"APPS_WALL_5" = "Dawn";
+"APPS_WALL_6" = "Forest";
+"APPS_WALL_7" = "Your photo";
+
+"APPS_WALL_8" = "Your video";
+"APPS_FROM_PHOTOS" = "From Photos (picture or video)";
+"APPS_VIDEO_WORKING" = "Preparing the video…";
+"APPS_VIDEO_FAILED" = "Couldn't use this video.";
+"APPS_WALL_FOOTER" = "Pictures are cropped to the car screen; raise the darkness so icons stay easy to read. A video loops without sound (first 20 s) and pauses while the phone is hot, Lite mode is on, the screen is split or an app covers the home screen.";
+"APPS_PHONE" = "iPhone apps";
+"HOMESCREEN_ICON_SIZE_FOOTER" = "Auto keeps CarPlay's own columns and rows. 100 % is CarPlay's icon size; with more columns or rows, lower the icon size so names don't overlap.";
+
+/* App tren man xe: tren xe + 2 tab */
+"APPS_ON_CAR" = "On the car";
+"APPS_ALL" = "Choose apps";
+"APPS_TAB_CARPLAY" = "CarPlay apps";
+"APPS_TAB_OMNICAR" = "App Bridge";
+"APPS_ON_CAR_FOOTER" = "Apps with the iPhone badge are iPhone apps brought to the car by App Bridge.";
+"APPS_CARPLAY_FOOTER" = "Remove a CarPlay app to take its icon off the car home screen; it still opens by itself for a call, directions or Siri. Reset goes back to iOS Settings > General > CarPlay.";
+"APPS_CARPLAY_LOCKED" = "Always on CarPlay";
+"APPS_IOS_REMOVED" = "Removed in iOS Settings";
+"APPS_INCLUDED" = "Included";
+"APPS_OTHER" = "Other apps";
+"APPS_RESET" = "Reset";
+"APPS_REMOVE" = "Remove";
+"APPS_RESET_CONFIRM" = "Show the CarPlay apps as set in iOS Settings > General > CarPlay again? iPhone apps from App Bridge stay.";
+"APPS_OTHER_FOOTER" = "Tap + to put an app on the car. iPhone apps go through App Bridge.";
+"APPS_CARPLAY_GUESS_FOOTER" = "Not connected to a car yet: CarPlay apps are guessed from CarPlay support.";
+
+/* Man chinh CarPlay: luoi icon */
+"HOMESCREEN_GRID" = "Icon grid";
+"HOMESCREEN_COLS" = "Columns";
+"HOMESCREEN_ROWS" = "Rows";
+"HOMESCREEN_AUTO" = "Auto";
+"HOMESCREEN_NAMES" = "App names";
+
+/* Man chinh CarPlay: nut Dat lai */
+"HOMESCREEN_RESET_CONFIRM" = "Back to CarPlay’s own home screen: Auto columns and rows, 100 % icon size, app names on, CarPlay’s wallpaper? Apps on the car stay.";

@@ -1,0 +1,54 @@
+/* OmniCar - CarPlay home screen (OMCAppBridgeAppsController) */
+
+"HOMESCREEN_ICON_SIZE" = "Ukuran ikon";
+"HOMESCREEN_WALLPAPER" = "Wallpaper";
+"HOMESCREEN_BLUR" = "Blur";
+"HOMESCREEN_DIM" = "Kegelapan";
+"HOMESCREEN_WALLPAPER_DEFAULT" = "Bawaan";
+
+/* One page: Apps on the car screen */
+"APPS_TITLE" = "App di mobil";
+"APPS_SYSTEM" = "Sistem";
+"APPS_WALL_0" = "Bawaan";
+"APPS_WALL_1" = "Samudra";
+"APPS_WALL_2" = "Senja";
+"APPS_WALL_3" = "OmniCar";
+"APPS_WALL_4" = "Malam";
+"APPS_WALL_5" = "Fajar";
+"APPS_WALL_6" = "Hutan";
+"APPS_WALL_7" = "Foto Anda";
+
+"APPS_WALL_8" = "Video Anda";
+"APPS_FROM_PHOTOS" = "Dari Foto (gambar atau video)";
+"APPS_VIDEO_WORKING" = "Menyiapkan video…";
+"APPS_VIDEO_FAILED" = "Video ini tidak bisa dipakai.";
+"APPS_WALL_FOOTER" = "Gambar dipotong sesuai layar mobil; naikkan tingkat gelap agar ikon tetap mudah dibaca. Video berulang tanpa suara (20 detik pertama) dan berhenti saat iPhone panas, mode ringan aktif, layar terbagi, atau ada app yang menutupi layar utama.";
+"APPS_PHONE" = "App iPhone";
+"HOMESCREEN_ICON_SIZE_FOOTER" = "Otomatis = kolom dan baris CarPlay sendiri. 100 % adalah ukuran ikon CarPlay; dengan lebih banyak kolom atau baris, kecilkan ikon agar nama tidak bertumpuk.";
+
+/* App tren man xe: tren xe + 2 tab */
+"APPS_ON_CAR" = "Di mobil";
+"APPS_ALL" = "Pilih app";
+"APPS_TAB_CARPLAY" = "App CarPlay";
+"APPS_TAB_OMNICAR" = "App Bridge";
+"APPS_ON_CAR_FOOTER" = "App dengan lencana iPhone adalah app iPhone yang dibawa ke mobil oleh App Bridge.";
+"APPS_CARPLAY_FOOTER" = "Hapus app CarPlay untuk menyembunyikan ikonnya di layar utama mobil; app tetap terbuka sendiri untuk panggilan, petunjuk arah, atau Siri. Atur ulang kembali ke Pengaturan iPhone › Umum › CarPlay.";
+"APPS_CARPLAY_LOCKED" = "Selalu di CarPlay";
+"APPS_IOS_REMOVED" = "Dihapus di Pengaturan iPhone";
+"APPS_INCLUDED" = "Disertakan";
+"APPS_OTHER" = "App lainnya";
+"APPS_RESET" = "Atur ulang";
+"APPS_REMOVE" = "Hapus";
+"APPS_RESET_CONFIRM" = "Tampilkan lagi app CarPlay seperti di Pengaturan iPhone › Umum › CarPlay? App iPhone lewat App Bridge tetap.";
+"APPS_OTHER_FOOTER" = "Ketuk + untuk menaruh app di mobil. App iPhone lewat App Bridge.";
+"APPS_CARPLAY_GUESS_FOOTER" = "Belum terhubung ke mobil: app CarPlay ditebak dari dukungan CarPlay.";
+
+/* Man chinh CarPlay: luoi icon */
+"HOMESCREEN_GRID" = "Grid ikon";
+"HOMESCREEN_COLS" = "Kolom";
+"HOMESCREEN_ROWS" = "Baris";
+"HOMESCREEN_AUTO" = "Otomatis";
+"HOMESCREEN_NAMES" = "Nama app";
+
+/* Man chinh CarPlay: nut Dat lai */
+"HOMESCREEN_RESET_CONFIRM" = "Kembali ke layar utama CarPlay: kolom dan baris Otomatis, ukuran ikon 100 %, nama app tampil, wallpaper CarPlay? App di layar mobil tetap.";

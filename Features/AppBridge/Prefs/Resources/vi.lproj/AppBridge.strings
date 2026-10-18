@@ -1,18 +1,10 @@
 /* OmniCar – App Bridge – Tiếng Việt */
 
 "APPBRIDGE" = "App Bridge";
-"APPBRIDGE_FOOTER" = "App iPhone không có CarPlay (YouTube, TikTok…) hiện trên màn xe.";
-"APPBRIDGE_ENABLE" = "Hiện app iPhone trên xe";
 "APPBRIDGE_APPS" = "App trên màn xe";
-"APPBRIDGE_APPS_FOOTER" = "Bật app để icon hiện trên màn chính CarPlay.";
 "APPBRIDGE_APPS_NONE" = "Chưa chọn";
 "APPBRIDGE_APPS_COUNT" = "%ld app";
-"APPBRIDGE_APPS_ON_CAR" = "Trên màn xe";
-"APPBRIDGE_APPS_USER" = "App của bạn";
-"APPBRIDGE_APPS_SYSTEM" = "App hệ thống";
-"APPBRIDGE_APPS_OTHER_FOOTER" = "App đã có CarPlay riêng không nằm ở đây.";
 "APPBRIDGE_APPS_SEARCH" = "Tìm app";
-"APPBRIDGE_APPS_EMPTY" = "Không tìm thấy app iPhone nào trên máy.";
 "APPBRIDGE_APPS_NO_MATCH" = "Không có app nào khớp.";
-"APPBRIDGE_DRIVE_MODE" = "Chế độ lái";
-"APPBRIDGE_DRIVE_FOOTER" = "Chế độ lái: xe chạy trên 10 km/h thì app iPhone trên xe chỉ còn tiếng (che hình, khoá chạm), dừng xe là xem tiếp. Cần nguồn tốc độ của Bong bóng tốc độ.";
+"APPBRIDGE_APPS_FOOTER" = "Bật app để icon hiện trên màn chính CarPlay.";
+"APPBRIDGE_APPS_OTHER_FOOTER" = "App đã có CarPlay riêng không nằm ở đây.";

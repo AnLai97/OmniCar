@@ -2,7 +2,7 @@
 
 "PROFILES" = "차량 프로필";
 "PROFILES_ENABLE" = "차량마다 프로필 사용";
-"PROFILES_FOOTER" = "각 차량은 자체 분할 레이아웃, 고정된 창, 운전석 위치, 차량의 속도 버블, 시작 화면, iPhone 앱 확대를 유지합니다. 차량을 연결하면 OmniCar가 해당 차량의 설정으로 전환합니다.";
+"PROFILES_FOOTER" = "각 차량은 자체 분할 레이아웃, 고정된 창, 차량의 속도 버블, 시작 화면, iPhone 앱 확대를 유지합니다. 차량을 연결하면 OmniCar가 해당 차량의 설정으로 전환합니다.";
 "PROFILES_CARS" = "차량";
 "PROFILES_CARS_FOOTER" = "✓는 사용 중인 차량입니다. 차량을 지우려면 왼쪽으로 쓸어넘기십시오.";
 "PROFILES_NONE" = "아직 차량 없음: 이 기능을 켜고 차량을 한 번 연결하십시오";

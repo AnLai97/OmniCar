@@ -1,0 +1,54 @@
+/* OmniCar - CarPlay home screen (OMCAppBridgeAppsController) */
+
+"HOMESCREEN_ICON_SIZE" = "حجم الأيقونات";
+"HOMESCREEN_WALLPAPER" = "الخلفية";
+"HOMESCREEN_BLUR" = "التمويه";
+"HOMESCREEN_DIM" = "التعتيم";
+"HOMESCREEN_WALLPAPER_DEFAULT" = "افتراضي";
+
+/* One page: Apps on the car screen */
+"APPS_TITLE" = "التطبيقات على السيارة";
+"APPS_SYSTEM" = "النظام";
+"APPS_WALL_0" = "افتراضي";
+"APPS_WALL_1" = "محيط";
+"APPS_WALL_2" = "غروب";
+"APPS_WALL_3" = "OmniCar";
+"APPS_WALL_4" = "ليل";
+"APPS_WALL_5" = "فجر";
+"APPS_WALL_6" = "غابة";
+"APPS_WALL_7" = "صورتك";
+
+"APPS_WALL_8" = "الفيديو الخاص بك";
+"APPS_FROM_PHOTOS" = "من الصور (صورة أو فيديو)";
+"APPS_VIDEO_WORKING" = "جارٍ تجهيز الفيديو…";
+"APPS_VIDEO_FAILED" = "تعذّر استخدام هذا الفيديو.";
+"APPS_WALL_FOOTER" = "تُقصّ الصور على مقاس شاشة السيارة؛ ارفع التعتيم لتبقى الأيقونات مقروءة. يعمل الفيديو في حلقة بلا صوت (أول 20 ثانية) ويتوقف مؤقتًا عندما يسخن iPhone أو يُفعَّل الوضع الخفيف أو تُقسَّم الشاشة أو يغطي تطبيق الشاشة الرئيسية.";
+"APPS_PHONE" = "تطبيقات iPhone";
+"HOMESCREEN_ICON_SIZE_FOOTER" = "تلقائي = أعمدة وصفوف CarPlay نفسها. الحجم 100 % هو حجم أيقونات CarPlay؛ مع أعمدة أو صفوف أكثر صغّر الأيقونات حتى لا تتداخل الأسماء.";
+
+/* App tren man xe: tren xe + 2 tab */
+"APPS_ON_CAR" = "على السيارة";
+"APPS_ALL" = "اختر التطبيقات";
+"APPS_TAB_CARPLAY" = "تطبيقات CarPlay";
+"APPS_TAB_OMNICAR" = "App Bridge";
+"APPS_ON_CAR_FOOTER" = "التطبيقات التي تحمل شارة iPhone هي تطبيقات iPhone تنقلها App Bridge إلى السيارة.";
+"APPS_CARPLAY_FOOTER" = "أزل تطبيق CarPlay لإخفاء أيقونته من الشاشة الرئيسية للسيارة؛ يظل يفتح تلقائيًا عند مكالمة أو اتجاهات أو Siri. إعادة التعيين تعود إلى إعدادات iPhone › عام › CarPlay.";
+"APPS_CARPLAY_LOCKED" = "يظهر دائمًا في CarPlay";
+"APPS_IOS_REMOVED" = "أُزيل في إعدادات iPhone";
+"APPS_INCLUDED" = "مضمّنة";
+"APPS_OTHER" = "تطبيقات أخرى";
+"APPS_RESET" = "إعادة تعيين";
+"APPS_REMOVE" = "إزالة";
+"APPS_RESET_CONFIRM" = "إظهار تطبيقات CarPlay كما في إعدادات iPhone › عام › CarPlay من جديد؟ تبقى تطبيقات iPhone عبر App Bridge.";
+"APPS_OTHER_FOOTER" = "اضغط + لوضع تطبيق في السيارة. تطبيقات iPhone تمر عبر App Bridge.";
+"APPS_CARPLAY_GUESS_FOOTER" = "لم يتم الاتصال بسيارة بعد: تطبيقات CarPlay مُخمَّنة حسب دعم CarPlay.";
+
+/* Man chinh CarPlay: luoi icon */
+"HOMESCREEN_GRID" = "شبكة الأيقونات";
+"HOMESCREEN_COLS" = "الأعمدة";
+"HOMESCREEN_ROWS" = "الصفوف";
+"HOMESCREEN_AUTO" = "تلقائي";
+"HOMESCREEN_NAMES" = "أسماء التطبيقات";
+
+/* Man chinh CarPlay: nut Dat lai */
+"HOMESCREEN_RESET_CONFIRM" = "العودة إلى الشاشة الرئيسية الأصلية لـ CarPlay: الأعمدة والصفوف تلقائية، حجم الأيقونات 100 ٪، أسماء التطبيقات ظاهرة، خلفية CarPlay؟ تبقى التطبيقات على شاشة السيارة.";

@@ -4,7 +4,7 @@
 #import <CoreLocation/CoreLocation.h>
 
 // =====================================================================
-//  Inject vao app dan duong (SPP_NAV_APPS: Vietmap Live "Runner", GOFA): lay toc do + gioi han, gui sang SpringBoard.
+//  Inject vao app dan duong (SPP_NAV_APPS: Vietmap Live "Runner", GOFA, Waze): lay toc do + gioi han, gui sang SpringBoard.
 //  - Toc do: GPS rieng cua tweak (dung quyen vi tri cua app) khi app dang bat GPS; du phong = so tren man hinh
 //  - Gioi han: quet man hinh (view cua plugin dan duong / vong tron vien do / cay accessibility cua Flutter)
 //  Gui qua Darwin notify + state (qua duoc sandbox cua app).
@@ -456,6 +456,8 @@ static int SPPCurrentLimit(void)
     return (now - sScanLimitAt) < SPP_LIMIT_FRESH ? sScanLimit : -1;
 }
 
+static void SPPRelayLocation(CLLocation *fix);
+
 // Toc do km/h tu 1 vi tri; -1 neu vi tri cu / sai so qua lon
 static int SPPSpeedFromFix(CLLocation *fix, double *outAge)
 {
@@ -554,6 +556,23 @@ static int SPPSpeedFromFix(CLLocation *fix, double *outAge)
         SPPLog("speed gps: vi tri dau tien, %d km/h (sai so %.0fm)", kmh, fix.horizontalAccuracy);
     }
     if (kmh >= 0) SPPSendSpeed(kmh, SPPCurrentLimit());   // moi ban tin GPS -> gui ngay
+    SPPRelayLocation(fix);
+}
+
+// Vi tri (lam tron 2 so, ~1 km) cho tinh nang khong co quyen vi tri (man khoi dong kieu Thoi tiet trong SpringBoard /
+// CarPlay): OMC_DARWIN_LOCATION, toi da 1 lan / 60 s va lan dau ngay khi co
+static void SPPRelayLocation(CLLocation *fix)
+{
+    static int token = 0;
+    static CFAbsoluteTime lastAt = 0;
+    if (!fix || fix.horizontalAccuracy < 0 || fix.horizontalAccuracy > 5000) return;
+    CFAbsoluteTime now = CFAbsoluteTimeGetCurrent();
+    if (lastAt > 0 && now - lastAt < 60) return;
+    if (!token) notify_register_check(OMC_DARWIN_LOCATION, &token);
+    if (!token) return;
+    lastAt = now;
+    notify_set_state(token, OMCLocationPack(fix.coordinate.latitude, fix.coordinate.longitude));
+    notify_post(OMC_DARWIN_LOCATION);
 }
 
 - (void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error
@@ -565,11 +584,15 @@ static int SPPSpeedFromFix(CLLocation *fix, double *outAge)
 
 static int SPPGPSSpeed(double *outAge) { return SPPSpeedFromFix([SPPSpeedGPS shared].last, outAge); }
 
-// App bat / tat GPS: chi ghi nhan. Bo qua manager rieng cua tweak.
+static BOOL SPPChosenSource(void);
+
+// App bat / tat GPS: chi ghi nhan. Bo qua manager rieng cua tweak. App ban do pho bien khong phai nguon dang chon:
+// khong bat GPS rieng (Waze dan duong hang ngay ma khong dung cho bong bong).
 static void SPPAppGPSChanged(CLLocationManager *m, BOOL running)
 {
     void (^apply)(void) = ^{
         if (m == [SPPSpeedGPS shared].mgr) return;
+        if (running && !SPPChosenSource()) return;
         [[SPPSpeedGPS shared] appManager:m running:running];
     };
     if ([NSThread isMainThread]) apply(); else dispatch_async(dispatch_get_main_queue(), apply);
@@ -870,8 +893,23 @@ static void SPPScanSpeed(BOOL doLog)
 }
 
 // Nhip quet man hinh (SPP_TICK): lay gioi han (va toc do du phong khi khong co GPS)
+// App ban do pho bien (index >= SPP_FIRST_GATED_APP): chi lam viec khi la nguon dang chon (SpringBoard dat state)
+static BOOL SPPChosenSource(void)
+{
+    if (sAppIndex < SPP_FIRST_GATED_APP) return YES;
+    static int token = 0;
+    if (!token && notify_register_check(SPP_DARWIN_SOURCE, &token) != NOTIFY_STATUS_OK) { token = 0; return NO; }
+    uint64_t state = 0xFF;
+    notify_get_state(token, &state);
+    return state == (uint64_t)sAppIndex;
+}
+
 static void SPPSpeedTick(void)
 {
+    static BOOL wasChosen = YES;
+    BOOL chosen = SPPChosenSource();
+    if (chosen != wasChosen) { wasChosen = chosen; SPPLog("%@ %@ nguon toc do", SPPNavAppName(sAppIndex), chosen ? @"la" : @"khong con la"); }
+    if (!chosen) return;
     static CFAbsoluteTime lastLog = 0;
     CFAbsoluteTime now = CFAbsoluteTimeGetCurrent();
     BOOL doLog = (now - lastLog > 20);

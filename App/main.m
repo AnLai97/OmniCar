@@ -10,6 +10,7 @@
 //   omnicar://lite?mode=off|auto|always · omnicar://cleanram                                 (Core.x)
 #import <UIKit/UIKit.h>
 #import "SplitScreen.h"
+#import "OmniCar.h"
 
 static BOOL OMCForwardURL(NSURL *url)
 {

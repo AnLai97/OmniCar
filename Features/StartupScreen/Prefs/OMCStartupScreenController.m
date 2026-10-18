@@ -312,7 +312,9 @@ static NSInteger SSPNextOccasion(NSString *birthday) {
 			if ([ident isEqualToString:@"soundGroup"]) {
 				NSString *sound = [self currentSound];
 				NSString *status = sound ? [NSString stringWithFormat:L(@"STARTUPSCREEN_SOUND_CURRENT"), sound] : L(@"STARTUPSCREEN_SOUND_NONE");
-				[spec setProperty:[NSString stringWithFormat:@"%@\n%@", status, L(@"STARTUPSCREEN_STARTUP_SOUND_FOOTER")] forKey:@"footerText"];
+				// Thanh am luong nam ngay trong nhom nay (khong con nhom rieng): them 1 dong chu thich
+				[spec setProperty:[NSString stringWithFormat:@"%@\n%@\n%@: %@", status, L(@"STARTUPSCREEN_STARTUP_SOUND_FOOTER"),
+					L(@"STARTUPSCREEN_VOLUME_GROUP"), L(@"STARTUPSCREEN_VOLUME_FOOTER")] forKey:@"footerText"];
 			} else if ([ident isEqualToString:@"nameGroup"]) {
 				// One group for every style that shows the name: titled with the style, one footer each.
 				spec.name = L(SSPStyleTitleKey(style));

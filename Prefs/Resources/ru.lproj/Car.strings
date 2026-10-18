@@ -25,7 +25,6 @@
 "Couldn't reopen %@" = "Не удалось снова открыть %@";
 "Couldn't show %@ on the car" = "Не удалось показать %@ в авто";
 "Done" = "Готово";
-"Driving · sound only" = "В движении · только звук";
 "Drizzle" = "Морось";
 "Exit split" = "Выйти из разделения";
 "Favorites" = "Избранное";
@@ -36,7 +35,6 @@
 "Good evening" = "Добрый вечер";
 "Good morning" = "Доброе утро";
 "Heavy rain" = "Сильный дождь";
-"Late night" = "Доброй ночи";
 "Layout" = "Раскладка";
 "Layouts" = "Раскладки";
 "Needs at least 2 panes" = "Нужно минимум 2 панели";
@@ -52,7 +50,6 @@
 "Speed Bubble" = "Пузырь скорости";
 "Split Screen" = "Разделённый экран";
 "Startup Screen" = "Заставка";
-"Stop the car to watch again" = "Остановите автомобиль, чтобы смотреть снова";
 "This app can't be split" = "Это приложение нельзя разделить";
 "This app doesn't support CarPlay" = "Это приложение не поддерживает CarPlay";
 "This pane has no app" = "На этой панели нет приложения";
@@ -75,3 +72,19 @@
 "Background" = "Фон";
 "Quit app" = "Закрыть";
 "Split" = "Разделить";
+"Your car is ready" = "Ваш автомобиль готов";
+"Your car is ready, %@" = "Ваш автомобиль готов, %@";
+"iPhone apps cannot float" = "Приложения iPhone нельзя вынести в плавающее окно";
+
+/* Speed Bubble: spoken over-speed warnings ({L} = the limit) */
+"You are over the speed limit" = "Вы превышаете ограничение скорости";
+"Too fast, the limit is {L}" = "Слишком быстро, ограничение {L}";
+"Please slow down" = "Пожалуйста, снизьте скорость";
+"Hey, this is a car, not a plane!" = "Эй, это машина, а не самолёт!";
+"Easy now, the road is long and the wallet is thin" = "Спокойно, дорога длинная, а кошелёк тонкий";
+"The speed camera is smiling at you" = "Камера вам улыбается";
+"What's the rush? Dinner at home is still hot" = "Куда спешить? Ужин дома ещё горячий";
+"Easy on the gas, speeding won't make you any better looking" = "Полегче с газом, скорость не сделает вас красивее";
+"Choose an app for the floating window" = "Выберите приложение для плавающего окна";
+"Choose an app for pane %d" = "Выберите приложение для панели %d";
+"Tap an app to open it here" = "Коснитесь приложения, чтобы открыть его здесь";

@@ -26,7 +26,6 @@
 "Couldn't reopen %@" = "تعذّرت إعادة فتح %@";
 "Couldn't show %@ on the car" = "تعذّر عرض %@ على السيارة";
 "Done" = "تم";
-"Driving · sound only" = "القيادة · الصوت فقط";
 "Drizzle" = "رذاذ";
 "Exit split" = "إنهاء التقسيم";
 "Favorites" = "المفضلة";
@@ -37,7 +36,6 @@
 "Good evening" = "مساء الخير";
 "Good morning" = "صباح الخير";
 "Heavy rain" = "أمطار غزيرة";
-"Late night" = "سهرة طيبة";
 "Layout" = "التخطيط";
 "Layouts" = "التخطيطات";
 "Needs at least 2 panes" = "يلزم جزآن على الأقل";
@@ -53,7 +51,6 @@
 "Speed Bubble" = "فقاعة السرعة";
 "Split Screen" = "تقسيم الشاشة";
 "Startup Screen" = "شاشة البدء";
-"Stop the car to watch again" = "أوقف السيارة للمشاهدة مجددًا";
 "This app can't be split" = "لا يمكن تقسيم هذا التطبيق";
 "This app doesn't support CarPlay" = "هذا التطبيق لا يدعم CarPlay";
 "This pane has no app" = "لا يوجد تطبيق في هذا الجزء";
@@ -76,3 +73,19 @@
 "Background" = "في الخلفية";
 "Quit app" = "إنهاء التطبيق";
 "Split" = "تقسيم";
+"Your car is ready" = "سيارتك جاهزة";
+"Your car is ready, %@" = "سيارتك جاهزة، %@";
+"iPhone apps cannot float" = "لا يمكن جعل تطبيقات iPhone عائمة";
+
+/* Speed Bubble: spoken over-speed warnings ({L} = the limit) */
+"You are over the speed limit" = "أنت تتجاوز حد السرعة";
+"Too fast, the limit is {L}" = "سريع جدًا، الحد هو {L}";
+"Please slow down" = "يرجى تخفيف السرعة";
+"Hey, this is a car, not a plane!" = "مهلًا، هذه سيارة وليست طائرة!";
+"Easy now, the road is long and the wallet is thin" = "على مهلك، الطريق طويل والمحفظة خفيفة";
+"The speed camera is smiling at you" = "كاميرا السرعة تبتسم لك";
+"What's the rush? Dinner at home is still hot" = "ما العجلة؟ العشاء في البيت ما زال ساخنًا";
+"Easy on the gas, speeding won't make you any better looking" = "خفّف على دواسة الوقود، السرعة لن تجعلك أكثر وسامة";
+"Choose an app for the floating window" = "اختر تطبيقًا للنافذة العائمة";
+"Choose an app for pane %d" = "اختر تطبيقًا للجزء %d";
+"Tap an app to open it here" = "اضغط على تطبيق لفتحه هنا";

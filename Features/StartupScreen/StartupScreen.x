@@ -424,12 +424,51 @@ static UIImage *SSDecodeFrame(NSString *path) {
 // location request, nothing when location access is off. The position is rounded to 2 decimals
 // (about 1 km) before it leaves the phone. done(nil) when there is no location or no answer within
 // kWeatherTimeout; a good answer is cached in SS_WEATHER_CACHE first. done runs on the main queue.
+static void SSWeatherFetchAt(double latitude, double longitude, void (^done)(NSDictionary *weather));
+
+// CarPlay.app: own location when it happens to be authorised (never seen so far); otherwise SpringBoard fetches
+// (SSWeatherAskSpringBoard) and the answer comes back through the shared cache.
+static void (^gWeatherWaiter)(NSDictionary *weather);   // CarPlay: completion of the SpringBoard request in flight
+static int gWeatherReadyToken, gWeatherSeq;
+
+static void SSWeatherAskSpringBoard(void (^done)(NSDictionary *weather)) {
+	if (!gWeatherReadyToken) {
+		notify_register_dispatch(SS_NOTIFY_WEATHER_READY_C, &gWeatherReadyToken, dispatch_get_main_queue(), ^(int t) {
+			void (^waiter)(NSDictionary *) = gWeatherWaiter;
+			gWeatherWaiter = nil;
+			if (!waiter) return;
+			NSDictionary *weather = SSWeatherLoadCache(kWeatherMaxAge);
+			SSLog(@"weather: SpringBoard answered (%@)", weather ? @"cache loaded" : @"nothing usable in the cache");
+			waiter(weather);
+		});
+	}
+	int seq = ++gWeatherSeq;
+	gWeatherWaiter = done;
+	SSLog(@"weather: no location access here, asking SpringBoard");
+	notify_post(SS_NOTIFY_WEATHER_REQUEST_C);
+	// After a respring CarPlay.app and its splash come up before SpringBoard has registered the observer (log 18/10
+	// 11:56: asked at 40.5s, SpringBoard loaded the tweak at 40.7s, no answer) -> ask again at 2 s and 5 s while waiting.
+	for (NSNumber *delay in @[@2, @5]) {
+		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delay.doubleValue * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+			if (gWeatherSeq != seq || !gWeatherWaiter) return;
+			SSLog(@"weather: no answer yet, asking SpringBoard again");
+			notify_post(SS_NOTIFY_WEATHER_REQUEST_C);
+		});
+	}
+	dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+		if (gWeatherSeq != seq || !gWeatherWaiter) return;
+		void (^waiter)(NSDictionary *) = gWeatherWaiter;
+		gWeatherWaiter = nil;
+		SSLog(@"weather: SpringBoard did not answer in 10s");
+		waiter(nil);
+	});
+}
+
 static void SSWeatherFetch(void (^done)(NSDictionary *weather)) {
 	CLLocationManager *manager = [CLLocationManager new];
 	CLAuthorizationStatus status = manager.authorizationStatus;
 	if (status != kCLAuthorizationStatusAuthorizedAlways && status != kCLAuthorizationStatusAuthorizedWhenInUse) {
-		SSLog(@"weather: no location access (status %d), using the cache", (int)status);
-		done(nil);
+		SSWeatherAskSpringBoard(done);
 		return;
 	}
 	CLLocation *location = manager.location;
@@ -438,8 +477,156 @@ static void SSWeatherFetch(void (^done)(NSDictionary *weather)) {
 		done(nil);
 		return;
 	}
-	double lat = round(location.coordinate.latitude * 100.0) / 100.0;
-	double lon = round(location.coordinate.longitude * 100.0) / 100.0;
+	SSWeatherFetchAt(location.coordinate.latitude, location.coordinate.longitude, done);
+}
+
+// SpringBoard: pre-authorised for location. Last fix if under 30 min old, else one fresh fix (Kilometer accuracy, 6 s
+// at most, then whatever fix exists), then Open-Meteo -> SS_WEATHER_CACHE -> READY (also when nothing was found, so
+// CarPlay stops waiting).
+@interface SSLocationOnce : NSObject <CLLocationManagerDelegate>
+@property (nonatomic, strong) CLLocationManager *manager;
+@property (nonatomic, copy) void (^done)(CLLocation *location);
+@end
+@implementation SSLocationOnce
+- (void)locationManager:(CLLocationManager *)m didUpdateLocations:(NSArray<CLLocation *> *)locations { [self finish:locations.lastObject]; }
+- (void)locationManager:(CLLocationManager *)m didFailWithError:(NSError *)error {
+	SSLog(@"weather: location failed: %@", error.localizedDescription);
+	[self finish:m.location];
+}
+- (void)finish:(CLLocation *)location {
+	[self.manager stopUpdatingLocation];
+	void (^done)(CLLocation *) = self.done;
+	self.done = nil;
+	if (done) done(location);
+}
+@end
+static SSLocationOnce *gLocating;
+static BOOL gServing;   // a request is being answered (location lookup / fetch in flight)
+
+// Position relayed by the navigation app (OMC_DARWIN_LOCATION, Speed Bubble's GPS): kept in SS_LOCATION_CACHE so it
+// survives a respring. SpringBoard itself is not authorised for location on iOS 16.6 (log 18/10 12:07: status 0,
+// kCLErrorDomain 1), so this is the usual source once the user has driven with the nav app.
+static NSNumber *SSNum(id value) {   // plist / JSON number (SSNumber in SSStartupView.m is file-local)
+	if ([value isKindOfClass:[NSNumber class]]) return value;
+	if ([value isKindOfClass:[NSString class]] && [(NSString *)value length]) return @([(NSString *)value doubleValue]);
+	return nil;
+}
+
+static void SSLocationStore(double lat, double lon) {
+	NSDictionary *d = @{@"lat": @(lat), @"lon": @(lon), @"date": [NSDate date]};
+	[[NSFileManager defaultManager] createDirectoryAtPath:[SS_LOCATION_CACHE stringByDeletingLastPathComponent] withIntermediateDirectories:YES attributes:nil error:nil];
+	[d writeToURL:[NSURL fileURLWithPath:SS_LOCATION_CACHE] error:nil];
+}
+
+static BOOL SSLocationRelayed(NSTimeInterval maxAge, double *lat, double *lon, NSTimeInterval *age) {
+	NSDictionary *d = [NSDictionary dictionaryWithContentsOfFile:SS_LOCATION_CACHE];
+	NSDate *date = d[@"date"];
+	if (![date isKindOfClass:[NSDate class]] || !SSNum(d[@"lat"]) || !SSNum(d[@"lon"])) return NO;
+	NSTimeInterval a = -[date timeIntervalSinceNow];
+	if (a < 0 || a > maxAge) return NO;
+	*lat = [d[@"lat"] doubleValue]; *lon = [d[@"lon"] doubleValue];
+	if (age) *age = a;
+	return YES;
+}
+
+static void SSLocationRelayNotification(int token) {
+	uint64_t state = 0;
+	notify_get_state(token, &state);
+	double lat = 0, lon = 0;
+	if (!OMCLocationUnpack(state, &lat, &lon)) return;
+	SSLocationStore(lat, lon);
+}
+
+// Last resort when no fix of any kind exists: the phone's public IP located by ipapi.co (city level, enough for the
+// weather). Only the IP leaves the phone. done(NAN, NAN, nil) on failure.
+static void SSIPLocate(void (^done)(double lat, double lon, NSString *city)) {
+	NSURLSessionConfiguration *config = [NSURLSessionConfiguration ephemeralSessionConfiguration];
+	config.timeoutIntervalForRequest = 4.0;
+	config.timeoutIntervalForResource = 4.0;
+	config.waitsForConnectivity = NO;
+	NSURLSession *session = [NSURLSession sessionWithConfiguration:config];
+	NSURLSessionDataTask *task = [session dataTaskWithURL:[NSURL URLWithString:@"https://ipapi.co/json/"] completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+		NSDictionary *json = data ? [NSJSONSerialization JSONObjectWithData:data options:0 error:nil] : nil;
+		NSNumber *lat = [json isKindOfClass:[NSDictionary class]] ? SSNum(json[@"latitude"]) : nil;
+		NSNumber *lon = [json isKindOfClass:[NSDictionary class]] ? SSNum(json[@"longitude"]) : nil;
+		NSString *city = [json[@"city"] isKindOfClass:[NSString class]] ? json[@"city"] : nil;
+		if (!lat || !lon) SSLog(@"weather: IP location failed (%@)", error.localizedDescription ?: @"no coordinates in the answer");
+		dispatch_async(dispatch_get_main_queue(), ^{
+			if (lat && lon) done(lat.doubleValue, lon.doubleValue, city ?: @"?");
+			else done(NAN, NAN, nil);
+		});
+	}];
+	[task resume];
+	[session finishTasksAndInvalidate];
+}
+
+static void SSWeatherServeAt(double lat, double lon, NSString *source) {
+	SSLog(@"weather: SpringBoard fetching with the %@ position", source);
+	SSWeatherFetchAt(lat, lon, ^(NSDictionary *weather) {
+		gServing = NO;
+		notify_post(SS_NOTIFY_WEATHER_READY_C);
+	});
+}
+
+// No usable CoreLocation fix: the nav app's relayed position (under 24 h), else the IP; nothing -> answer anyway so
+// CarPlay stops waiting (it keeps the greeting).
+static void SSWeatherServeFallback(void) {
+	double lat = 0, lon = 0;
+	NSTimeInterval age = 0;
+	if (SSLocationRelayed(24 * 3600, &lat, &lon, &age)) {
+		SSWeatherServeAt(lat, lon, [NSString stringWithFormat:@"nav app's (%.0f min old)", age / 60]);
+		return;
+	}
+	SSLog(@"weather: no position from the nav app yet, trying the IP");
+	SSIPLocate(^(double ipLat, double ipLon, NSString *city) {
+		if (!city) {
+			SSLog(@"weather: SpringBoard has no position at all, answering without weather");
+			gServing = NO;
+			notify_post(SS_NOTIFY_WEATHER_READY_C);
+			return;
+		}
+		SSWeatherServeAt(ipLat, ipLon, [NSString stringWithFormat:@"IP (%@)", city]);
+	});
+}
+
+static void SSWeatherServe(void) {
+	if (gServing) { SSLog(@"weather: request while another is being answered, ignored"); return; }
+	gServing = YES;
+	CLLocationManager *manager = [CLLocationManager new];
+	CLAuthorizationStatus status = manager.authorizationStatus;
+	CLLocation *last = manager.location;
+	BOOL authorised = (status == kCLAuthorizationStatusAuthorizedAlways || status == kCLAuthorizationStatusAuthorizedWhenInUse);
+	SSLog(@"weather: SpringBoard location status %d, last fix %@", (int)status,
+		last ? [NSString stringWithFormat:@"%.0fs old", -[last.timestamp timeIntervalSinceNow]] : @"none");
+	if (!authorised) { SSWeatherServeFallback(); return; }
+	if (last && -[last.timestamp timeIntervalSinceNow] < 1800) { SSWeatherServeAt(last.coordinate.latitude, last.coordinate.longitude, @"last CoreLocation"); return; }
+	// Authorised but no recent fix: one fresh fix, Kilometer accuracy, 6 s at most
+	SSLocationOnce *once = [SSLocationOnce new];
+	manager.desiredAccuracy = kCLLocationAccuracyKilometer;
+	manager.delegate = once;
+	once.manager = manager;
+	once.done = ^(CLLocation *location) {
+		gLocating = nil;
+		if (location) SSWeatherServeAt(location.coordinate.latitude, location.coordinate.longitude, @"fresh CoreLocation");
+		else SSWeatherServeFallback();
+	};
+	gLocating = once;
+	[manager startUpdatingLocation];
+	__weak SSLocationOnce *weakOnce = once;
+	dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(6 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+		SSLocationOnce *o = weakOnce;
+		if (o && gLocating == o) { SSLog(@"weather: no fresh fix in 6s, using the last one"); [o finish:o.manager.location]; }
+	});
+}
+
+static void SSWeatherRequestNotification(CFNotificationCenterRef center, void *observer, CFNotificationName name, const void *object, CFDictionaryRef info) {
+	dispatch_async(dispatch_get_main_queue(), ^{ SSWeatherServe(); });
+}
+
+// Open-Meteo at a position rounded to 2 decimals (about 1 km) - the only thing that leaves the phone.
+static void SSWeatherFetchAt(double latitude, double longitude, void (^done)(NSDictionary *weather)) {
+	double lat = round(latitude * 100.0) / 100.0;
+	double lon = round(longitude * 100.0) / 100.0;
 	NSString *query = [NSString stringWithFormat:@"https://api.open-meteo.com/v1/forecast?latitude=%.2f&longitude=%.2f"
 		"&current=temperature_2m,weather_code,is_day"
 		"&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max"
@@ -500,7 +687,11 @@ static void SSWeatherFetch(void (^done)(NSDictionary *weather)) {
 @property (nonatomic, assign) CFTimeInterval startTime;
 @property (nonatomic, strong) CADisplayLink *displayLink;
 @property (nonatomic, assign) BOOL finished;
+@property (nonatomic, copy) NSString *endReason;             // why it ended (log + auto test): tap, timer, ...
+@property (nonatomic, assign) CFTimeInterval shownAt;        // window put on screen (CACurrentMediaTime)
 @end
+
+static NSString *gSSLastEnd;   // the last splash's end, "<reason> after <s>s" (auto test reports it when a splash ends too early)
 
 @implementation SSSplash
 
@@ -573,7 +764,7 @@ static void SSWeatherFetch(void (^done)(NSDictionary *weather)) {
 		_window.rootViewController = vc;
 
 		if (tapSkip) {
-			UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(dismiss)];
+			UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapped:)];
 			[root addGestureRecognizer:tap];
 		}
 	}
@@ -581,6 +772,7 @@ static void SSWeatherFetch(void (^done)(NSDictionary *weather)) {
 }
 
 - (void)start {
+	self.shownAt = CACurrentMediaTime();
 	self.window.hidden = NO;
 	SSLog(@"splash window shown: style=%ld frame=%@ level=%.0f scene=%@ frames=%lu fps=%.0f loop=%d", (long)self.style,
 		NSStringFromCGRect(self.window.frame), self.window.windowLevel,
@@ -596,7 +788,7 @@ static void SSWeatherFetch(void (^done)(NSDictionary *weather)) {
 	dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
 		if (weakSelf && !weakSelf.shownFrames) {
 			SSLog(@"no frame shown after 10s (failed=%lu), giving up", (unsigned long)weakSelf.failedFrames);
-			[weakSelf dismiss];
+			[weakSelf dismissBecause:@"no frame after 10s"];
 		}
 	});
 }
@@ -673,7 +865,7 @@ static void SSWeatherFetch(void (^done)(NSDictionary *weather)) {
 		[self.displayLink invalidate];
 		__weak __typeof(self) weakSelf = self;
 		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(NSEC_PER_SEC / self.fps)), dispatch_get_main_queue(), ^{
-			[weakSelf dismiss];
+			[weakSelf dismissBecause:@"video ended"];
 		});
 		return;
 	}
@@ -691,14 +883,25 @@ static void SSWeatherFetch(void (^done)(NSDictionary *weather)) {
 
 	__weak __typeof(self) weakSelf = self;
 	dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(limit * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-		[weakSelf dismiss];
+		[weakSelf dismissBecause:[NSString stringWithFormat:@"%.0fs timer", limit]];
 	});
 }
 
+// Tap to skip. A knob / button press also fires a tap recognizer (no touches), so the log says which one it was.
+- (void)tapped:(UITapGestureRecognizer *)tap {
+	[self dismissBecause:tap.numberOfTouches ? @"tap" : @"press (knob / button)"];
+}
+
 - (void)dismiss {
+	[self dismissBecause:@"skip"];
+}
+
+- (void)dismissBecause:(NSString *)reason {
 	if (self.finished) return;
 	self.finished = YES;
-	SSLog(@"dismissing after %lu frames", (unsigned long)self.shownFrames);
+	self.endReason = reason;
+	gSSLastEnd = [NSString stringWithFormat:@"%@ after %.1fs", reason, CACurrentMediaTime() - self.shownAt];
+	SSLog(@"dismissing after %lu frames: %@", (unsigned long)self.shownFrames, gSSLastEnd);
 	SSPostNotification(SS_NOTIFY_AUDIO_STOP);
 
 	[UIView animateWithDuration:kFadeDuration animations:^{
@@ -711,14 +914,21 @@ static void SSWeatherFetch(void (^done)(NSDictionary *weather)) {
 - (void)tearDown {
 	// Skipped by dismiss when CarPlay disconnects mid-splash.
 	if (!self.finished && self.shownFrames) SSPostNotification(SS_NOTIFY_AUDIO_STOP);
+	if (!self.finished) {
+		self.endReason = @"torn down";
+		gSSLastEnd = [NSString stringWithFormat:@"torn down after %.1fs", CACurrentMediaTime() - self.shownAt];
+	}
 	self.finished = YES;
 	[self.displayLink invalidate];
 	self.displayLink = nil;
 	[self.buffer removeAllObjects];
 	self.window.hidden = YES;
 	self.window = nil;
+	// Only our own slot: an older splash fading out (or its late timer) must not unhook a newer one on the same screen
+	// (a replay, or the next connection), which would free it and blank the car screen mid-play.
 	UIScreen *screen = self.screen;
-	if (screen) objc_setAssociatedObject(screen, &kSplashKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+	if (screen && objc_getAssociatedObject(screen, &kSplashKey) == self)
+		objc_setAssociatedObject(screen, &kSplashKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
 @end
@@ -817,6 +1027,7 @@ static NSString *SSTestReplay(void) {
 	UIScreen *screen = SSTestCarScreen(&scene);
 	if (!screen) return @"khong thay man xe";
 	[SSTestSplash() tearDown];
+	gSSLastEnd = nil;
 	objc_setAssociatedObject(screen, &kShownKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 	// Le / sinh nhat: bo qua man hinh dip dac biet de kiem dung kieu da chon (va khong tieu luot hien trong ngay)
 	gSSTestNoOccasion = YES;
@@ -832,7 +1043,8 @@ static NSDictionary *SSTestFramesInfo(void) {
 
 static NSString *SSTestShowing(void) {
 	SSSplash *sp = SSTestSplash();
-	if (!sp || sp.finished) return @"khong co man hinh khoi dong dang phat";
+	if (!sp || sp.finished)
+		return OMCTestFormat(@"khong co man hinh khoi dong dang phat (da tat: %@)", gSSLastEnd ?: @"khong ro, chua goi dismiss");
 	if (!sp.window || sp.window.hidden || sp.window.alpha < 0.5) return @"cua so man hinh khoi dong dang an";
 	if (!sp.shownFrames) return OMCTestFormat(@"chua hien khung nao (giai ma loi %lu)", (unsigned long)sp.failedFrames);
 	return nil;
@@ -945,11 +1157,23 @@ static void SSTestInstall(void) {
 	@autoreleasepool {
 		NSString *bundleID = [NSBundle mainBundle].bundleIdentifier;
 
-		// SpringBoard side: only the soundtrack player.
+		// SpringBoard side: the soundtrack player and the weather fetch (location) for the Weather / Briefing styles.
 		if ([bundleID isEqualToString:@"com.apple.springboard"]) {
 			CFNotificationCenterRef darwin = CFNotificationCenterGetDarwinNotifyCenter();
 			CFNotificationCenterAddObserver(darwin, NULL, SSAudioNotification, SS_NOTIFY_AUDIO_PLAY, NULL, CFNotificationSuspensionBehaviorDeliverImmediately);
 			CFNotificationCenterAddObserver(darwin, NULL, SSAudioNotification, SS_NOTIFY_AUDIO_STOP, NULL, CFNotificationSuspensionBehaviorDeliverImmediately);
+			CFNotificationCenterAddObserver(darwin, NULL, SSWeatherRequestNotification, CFSTR(SS_NOTIFY_WEATHER_REQUEST_C), NULL, CFNotificationSuspensionBehaviorDeliverImmediately);
+			// Position relayed by the navigation app (Speed Bubble GPS) -> kept on disk for the weather; the state is also
+			// read once now in case the nav app posted before this respring.
+			static int tokLocation = 0;
+			notify_register_dispatch(OMC_DARWIN_LOCATION, &tokLocation, dispatch_get_main_queue(), ^(int t) { SSLocationRelayNotification(t); });
+			if (tokLocation) SSLocationRelayNotification(tokLocation);
+			// Warm the weather cache once SpringBoard is up: the first splash after a respring then has today's weather
+			// even if its own request raced the registration above.
+			dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(15 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+				SSLog(@"weather: warming the cache at startup");
+				SSWeatherServe();
+			});
 			// Create the call observer once SpringBoard is up, so its call list is filled in by the time a car connects.
 			dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
 				if (!gCallObserver) gCallObserver = [CXCallObserver new];

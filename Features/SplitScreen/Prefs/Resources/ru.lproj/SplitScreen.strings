@@ -3,12 +3,8 @@
 "SPLITSCREEN" = "Разделённый экран";
 "SPLITSCREEN_ENABLE" = "Разделённый экран";
 "SPLITSCREEN_AUTO_LAUNCH" = "Открывать при подключении";
-"SPLITSCREEN_DRIVER_SIDE" = "Сторона водителя";
-"SPLITSCREEN_DRIVER_AUTO" = "Автоматически";
-"SPLITSCREEN_DRIVER_LEFT" = "Слева";
-"SPLITSCREEN_DRIVER_RIGHT" = "Справа";
 "SPLITSCREEN_PINNED" = "Закреплённая панель";
-"SPLITSCREEN_DRIVER_FOOTER" = "Правый руль: текущее приложение открывается на правой панели, ближе к водителю. Автоматически = как сообщает автомобиль.\nЗакреплённая панель (обычно карта): это приложение остаётся на своей панели при смене раскладки или других приложений.";
+"SPLITSCREEN_PINNED_FOOTER" = "Закреплённая панель (обычно карта): это приложение остаётся на своей панели при смене раскладки или других приложений.";
 
 "SPLITSCREEN_PANEL_GROUP" = "Панель OmniCar в авто";
 "SPLITSCREEN_SHOW_RECENT" = "Недавние";
@@ -44,3 +40,15 @@
 "SPLITSCREEN_SHORTCUTS_GROUP" = "Siri / Команды (Открыть URL)";
 "SPLITSCREEN_SHORTCUTS_FOOTER" = "omnicar://splitscreen/open?left=com.apple.Maps&right=com.spotify.client\nomnicar://splitscreen/fav?n=1\nomnicar://splitscreen/close\nomnicar://splitscreen/layout?id=3 · ratio?r=70 · swap · zoom?pane=1\nomnicar://feature/speedBubble?on=toggle\nomnicar://lite?mode=auto\nomnicar://cleanram";
 "SPLITSCREEN_CREDITS_FOOTER" = "Ранее CarDuo. Размещение приложений основано на carplay-cast (Ethan Arbuckle).";
+
+/* Settings page (OMCSplitScreenController) */
+"SPLITSCREEN_ENABLE_SUB" = "Кнопка OmniCar в доке CarPlay";
+"SPLITSCREEN_AUTO_LAUNCH_SUB" = "Открывает последнюю раскладку";
+"SPLITSCREEN_OFF" = "Разделение экрана выключено";
+"SPLITSCREEN_PANEL_SHOW" = "Показывать в панели";
+"SPLITSCREEN_GESTURES" = "Жесты в машине";
+"SPLITSCREEN_SIRI" = "Siri / Быстрые команды";
+"SPLITSCREEN_COPY" = "Копировать";
+"SPLITSCREEN_COPIED" = "URL скопирован";
+"SPLITSCREEN_FAV_APPS_HINT" = "Коснитесь ячейки, чтобы сменить приложение";
+"SPLITSCREEN_FAV_DONE" = "Готово";

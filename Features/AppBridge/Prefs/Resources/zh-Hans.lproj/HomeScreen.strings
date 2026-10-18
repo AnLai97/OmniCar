@@ -1,0 +1,54 @@
+/* OmniCar - CarPlay home screen (OMCAppBridgeAppsController) */
+
+"HOMESCREEN_ICON_SIZE" = "图标大小";
+"HOMESCREEN_WALLPAPER" = "壁纸";
+"HOMESCREEN_BLUR" = "模糊";
+"HOMESCREEN_DIM" = "暗度";
+"HOMESCREEN_WALLPAPER_DEFAULT" = "默认";
+
+/* One page: Apps on the car screen */
+"APPS_TITLE" = "车机上的应用";
+"APPS_SYSTEM" = "系统";
+"APPS_WALL_0" = "默认";
+"APPS_WALL_1" = "海洋";
+"APPS_WALL_2" = "日落";
+"APPS_WALL_3" = "OmniCar";
+"APPS_WALL_4" = "夜晚";
+"APPS_WALL_5" = "黎明";
+"APPS_WALL_6" = "森林";
+"APPS_WALL_7" = "你的照片";
+
+"APPS_WALL_8" = "你的视频";
+"APPS_FROM_PHOTOS" = "从照片（图片或视频）";
+"APPS_VIDEO_WORKING" = "正在准备视频…";
+"APPS_VIDEO_FAILED" = "无法使用此视频。";
+"APPS_WALL_FOOTER" = "图片会按车机屏幕裁剪；调高变暗以保证图标清晰可读。视频无声循环播放（前 20 秒），并在手机发热、开启轻量模式、分屏或有 App 遮住主屏幕时暂停。";
+"APPS_PHONE" = "iPhone App";
+"HOMESCREEN_ICON_SIZE_FOOTER" = "自动 = CarPlay 自己的列数和行数。100 % 为 CarPlay 的图标大小；列数或行数增加时请缩小图标，以免名称重叠。";
+
+/* App tren man xe: tren xe + 2 tab */
+"APPS_ON_CAR" = "车机上显示";
+"APPS_ALL" = "选择 App";
+"APPS_TAB_CARPLAY" = "CarPlay App";
+"APPS_TAB_OMNICAR" = "App Bridge";
+"APPS_ON_CAR_FOOTER" = "带 iPhone 标记的 App 是通过 App Bridge 放到车机上的 iPhone App。";
+"APPS_CARPLAY_FOOTER" = "移除某个 CarPlay App 可让它的图标离开车机主屏幕；来电、导航或 Siri 时它仍会自动打开。还原即回到 iPhone 设置 › 通用 › CarPlay 的状态。";
+"APPS_CARPLAY_LOCKED" = "始终显示在 CarPlay";
+"APPS_IOS_REMOVED" = "已在 iPhone 设置中移除";
+"APPS_INCLUDED" = "已包括";
+"APPS_OTHER" = "其他 App";
+"APPS_RESET" = "还原";
+"APPS_REMOVE" = "移除";
+"APPS_RESET_CONFIRM" = "重新按 iPhone 设置 › 通用 › CarPlay 显示 CarPlay App？通过 App Bridge 的 iPhone App 保留。";
+"APPS_OTHER_FOOTER" = "轻点 + 将 App 放到车机上。iPhone App 通过 App Bridge。";
+"APPS_CARPLAY_GUESS_FOOTER" = "尚未连接车辆：CarPlay App 根据 CarPlay 支持情况推测。";
+
+/* Man chinh CarPlay: luoi icon */
+"HOMESCREEN_GRID" = "图标网格";
+"HOMESCREEN_COLS" = "列数";
+"HOMESCREEN_ROWS" = "行数";
+"HOMESCREEN_AUTO" = "自动";
+"HOMESCREEN_NAMES" = "App 名称";
+
+/* Man chinh CarPlay: nut Dat lai */
+"HOMESCREEN_RESET_CONFIRM" = "恢复 CarPlay 原本的主屏幕：列数和行数自动、图标大小 100 %、显示 App 名称、CarPlay 壁纸？车机上的 App 保留。";

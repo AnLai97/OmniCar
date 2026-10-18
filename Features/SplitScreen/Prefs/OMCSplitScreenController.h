@@ -1,7 +1,9 @@
-#import "OMCFeatureListController.h"
+#import "OMCCardPage.h"
 
-// Split Screen settings page (Resources/FeatureSplitScreen.plist): on/off, open on connect, dock panel
-// sections, one row per favorite layout (OMCSplitFavCell) opening SplitScreenFav<n>.plist (name, layout,
-// one app per box picked in OMCSplitScreenAppPicker.m), and a Guide page (SplitScreenGuide.plist).
-@interface OMCSplitScreenController : OMCFeatureListController
+// Trang Cai dat Chia man hinh (ban duyet: tools/preview/index.html#settings): xem truoc man xe (o ghim + app dung gan
+// nhat), cong tac + tu mo khi cam xe, o ghim (icon app, cham de chon), 3 bo cuc yeu thich co so do thu nho va khung sua
+// ngay tren trang (ten, bo cuc, cham tung o de doi app), Gan day / Yeu thich trong bang tren xe, cu chi + URL Siri gap
+// lai. Chon app dung OMCSplitScreenAppPickerController (OMCSplitScreenAppPicker.m). Resources/FeatureSplitScreen.plist
+// chi con cong tac cho trang goc.
+@interface OMCSplitScreenController : OMCCardPage
 @end

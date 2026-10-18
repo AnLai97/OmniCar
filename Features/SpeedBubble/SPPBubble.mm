@@ -1,7 +1,7 @@
 #import "SPPBubble.h"
+#import "SPPBubbleView.h"
 #import "SPPPrefs.h"
 #import "SPPWarn.h"
-#import "SPPGPS.h"
 #import <notify.h>
 
 // Lite mode (OMCLiteActive): shadows without a path are drawn off screen on every frame; the card goes flat
@@ -18,9 +18,9 @@ static void SPPStripShadows(CALayer *layer)
 #define SPP_SCALE_BASE  0.9   // ti le ung voi 100% trong Cai dat (Kich thuoc tren iPhone / CarPlay)
 #define SPP_SIZE_MIN    60.0  // % (Cai dat + chum 2 ngon)
 #define SPP_SIZE_MAX    220.0
-#define SPP_HOLD_QUIT   2.0   // giay giu bong bong de thoat han app
-#define SPP_HOLD_BEGIN  0.2   // giay giu toi thieu truoc khi bat dau dem (de khong nham voi cham / keo)
-#define SPP_STYLE_COUNT 18
+#define SPP_HOLD_BEGIN  0.6   // giay giu bong bong -> menu nhan giu (nho / to, canh bao, am thanh, tat app)
+#define SPP_MENU_BTN    36.0  // o kinh tron cua menu
+#define SPP_MENU_HIDE   4.0   // giay khong cham -> menu tu dong
 
 // ---------------------------------------------------------------------
 //  Cua so: man xe (UIRootSceneWindow tren CADisplay cua CarPlay) hoac man iPhone
@@ -131,30 +131,17 @@ static UIImage *SPPAppIcon(int app)
     if (!cache) cache = [NSMutableDictionary dictionary];
     UIImage *img = cache[@(app)];
     if (img) return img;
-    if (SPPIsGPSSource(app)) {
-        // GPS iPhone khong phai app: o xanh co mui ten vi tri (SF Symbol)
-        UIImageSymbolConfiguration *cfg = [UIImageSymbolConfiguration configurationWithPointSize:30 weight:UIImageSymbolWeightBold];
-        UIImage *glyph = [[UIImage systemImageNamed:@"location.fill" withConfiguration:cfg]
-                          imageWithTintColor:[UIColor whiteColor] renderingMode:UIImageRenderingModeAlwaysOriginal];
-        if (glyph) {
-            CGFloat d = 60;
-            UIGraphicsImageRenderer *r = [[UIGraphicsImageRenderer alloc] initWithSize:CGSizeMake(d, d)];
-            img = [r imageWithActions:^(UIGraphicsImageRendererContext *ctx) {
-                [[UIColor colorWithRed:10 / 255.0 green:132 / 255.0 blue:1 alpha:1] setFill];
-                UIRectFill(CGRectMake(0, 0, d, d));
-                CGSize gs = glyph.size;
-                [glyph drawInRect:CGRectMake((d - gs.width) / 2, (d - gs.height) / 2, gs.width, gs.height)];
-            }];
-        }
-    } else if ([UIImage respondsToSelector:@selector(_applicationIconImageForBundleIdentifier:format:scale:)])
+    if ([UIImage respondsToSelector:@selector(_applicationIconImageForBundleIdentifier:format:scale:)])
         img = [UIImage _applicationIconImageForBundleIdentifier:SPPNavAppBundle(app) format:2 scale:[UIScreen mainScreen].scale];
     if (!img) {
         CGFloat d = 60;
         UIGraphicsImageRenderer *r = [[UIGraphicsImageRenderer alloc] initWithSize:CGSizeMake(d, d)];
         img = [r imageWithActions:^(UIGraphicsImageRendererContext *ctx) {
-            UIColor *bg = app == 1 ? [UIColor colorWithRed:0.0 green:0.6 blue:0.45 alpha:1] : [UIColor colorWithRed:0.1 green:0.4 blue:0.85 alpha:1];
+            UIColor *bg = app == 1 ? [UIColor colorWithRed:0.0 green:0.6 blue:0.45 alpha:1]
+                        : app == 2 ? [UIColor colorWithRed:0.2 green:0.75 blue:0.95 alpha:1] : [UIColor colorWithRed:0.1 green:0.4 blue:0.85 alpha:1];
             [bg setFill]; UIRectFill(CGRectMake(0, 0, d, d));
-            NSString *t = SPPIsGPSSource(app) ? @"GPS" : (app == 1 ? @"GO" : @"VM");
+            NSArray *abbr = @[@"VM", @"GO", @"WZ"];
+            NSString *t = (app >= 0 && app < (int)abbr.count) ? abbr[app] : @"?";
             NSDictionary *a = @{NSFontAttributeName: [UIFont systemFontOfSize:26 weight:UIFontWeightHeavy], NSForegroundColorAttributeName: [UIColor whiteColor]};
             CGSize ts = [t sizeWithAttributes:a];
             [t drawAtPoint:CGPointMake((d - ts.width) / 2, (d - ts.height) / 2) withAttributes:a];
@@ -165,248 +152,8 @@ static UIImage *SPPAppIcon(int app)
     return img;
 }
 
-// ---------------------------------------------------------------------
-//  Thanh phan ve bong bong (mau, font, nen kinh, icon app, bien gioi han)
-// ---------------------------------------------------------------------
-static UIColor *SPPRGB(int r, int g, int b, CGFloat a) { return [UIColor colorWithRed:r / 255.0 green:g / 255.0 blue:b / 255.0 alpha:a]; }
-static UIColor *SPPSignRed(void) { return SPPRGB(229, 38, 45, 1); }
-static UIColor *SPPRed(void)     { return SPPRGB(255, 69, 58, 1); }
-static UIColor *SPPOrange(void)  { return SPPRGB(255, 159, 10, 1); }
-static UIColor *SPPGreen(void)   { return SPPRGB(48, 209, 88, 1); }
-static UIColor *SPPUnitGray(void){ return SPPRGB(235, 235, 245, 0.6); }   // km/h tren nen toi (Neon, Vo lang, Banh xe, Live View)
-// Giao dien moi (DESIGN.md, tools/preview/theme.html): kinh trang, chu mau muc, nhan = gradient tim -> xanh troi, bong tim nhat
-static UIColor *SPPInk(void)     { return SPPRGB(0x1F, 0x22, 0x33, 1); }
-static UIColor *SPPInk2(void)    { return SPPRGB(0x6B, 0x70, 0x90, 1); }
-static UIColor *SPPUnitInk(void) { return SPPRGB(0x6B, 0x70, 0x90, 0.9); }   // km/h tren kinh trang
-static UIColor *SPPAccent(void)  { return SPPRGB(0x8B, 0x7C, 0xFF, 1); }
-static UIColor *SPPAccent2(void) { return SPPRGB(0x5A, 0xB8, 0xFF, 1); }
-static UIColor *SPPMint(void)    { return SPPRGB(0x9D, 0xF2, 0xD8, 1); }
-static UIColor *SPPShadow(void)  { return SPPRGB(70, 60, 140, 1); }
-
-// Tron 2 mau: t = 0 -> a, 1 -> b
-static UIColor *SPPMix(UIColor *a, UIColor *b, CGFloat t)
-{
-    CGFloat r1 = 0, g1 = 0, b1 = 0, a1 = 1, r2 = 0, g2 = 0, b2 = 0, a2 = 1;
-    [a getRed:&r1 green:&g1 blue:&b1 alpha:&a1]; [b getRed:&r2 green:&g2 blue:&b2 alpha:&a2];
-    return [UIColor colorWithRed:r1 + (r2 - r1) * t green:g1 + (g2 - g1) * t blue:b1 + (b2 - b1) * t alpha:a1 + (a2 - a1) * t];
-}
-
-// So: SF Rounded dam, chu so cung do rong (khong nhay khi doi so)
-static UIFont *SPPNumFont(CGFloat size)
-{
-    UIFont *f = [UIFont systemFontOfSize:size weight:UIFontWeightHeavy];
-    UIFontDescriptor *d = [f.fontDescriptor fontDescriptorWithDesign:UIFontDescriptorSystemDesignRounded] ?: f.fontDescriptor;
-    d = [d fontDescriptorByAddingAttributes:@{UIFontDescriptorFeatureSettingsAttribute:
-            @[@{@"CTFeatureTypeIdentifier": @6, @"CTFeatureSelectorIdentifier": @0}]}];   // kNumberSpacingType / kMonospacedNumbersSelector
-    return [UIFont fontWithDescriptor:d size:size];
-}
-
-static UIFont *SPPUnitFont(CGFloat size)
-{
-    UIFont *f = [UIFont systemFontOfSize:size weight:UIFontWeightSemibold];
-    UIFontDescriptor *d = [f.fontDescriptor fontDescriptorWithDesign:UIFontDescriptorSystemDesignRounded] ?: f.fontDescriptor;
-    return [UIFont fontWithDescriptor:d size:size];
-}
-
-static UILabel *SPPLabel(UIFont *font, UIColor *color, NSTextAlignment align)
-{
-    UILabel *l = [[UILabel alloc] init];
-    l.font = font; l.textColor = color; l.textAlignment = align;
-    l.adjustsFontSizeToFitWidth = YES; l.minimumScaleFactor = 0.6;
-    return l;
-}
-
-// Nen kinh trang: gradient doc + vien sang + bong tim nhat (bong do o view ngoai, gradient cat theo goc bo o layer trong)
-@interface SPPGlassView : UIView
-@property (nonatomic, strong) CAGradientLayer *fill;
-@property (nonatomic, strong) CAGradientLayer *sheen;   // anh sang mem nua tren (do sau cua kinh)
-@property (nonatomic) CGFloat corner;
-- (void)setTop:(UIColor *)top bottom:(UIColor *)bottom;
-@end
-
-@implementation SPPGlassView
-- (instancetype)initWithFrame:(CGRect)frame
-{
-    if ((self = [super initWithFrame:frame])) {
-        self.userInteractionEnabled = NO;
-        _fill = [CAGradientLayer layer];
-        _fill.masksToBounds = YES;
-        _fill.borderWidth = 1;
-        _fill.borderColor = [UIColor colorWithWhite:1 alpha:0.85].CGColor;
-        if (@available(iOS 13.0, *)) _fill.cornerCurve = kCACornerCurveContinuous;
-        [self.layer addSublayer:_fill];
-        _sheen = [CAGradientLayer layer];
-        _sheen.colors = @[(id)[UIColor colorWithWhite:1 alpha:0.5].CGColor, (id)[UIColor colorWithWhite:1 alpha:0].CGColor];
-        [_fill addSublayer:_sheen];
-        [self setTop:SPPRGB(255, 255, 255, 0.9) bottom:SPPRGB(0xF1, 0xF0, 0xFB, 0.9)];
-        self.layer.shadowColor = SPPShadow().CGColor;
-        self.layer.shadowOpacity = 0.22; self.layer.shadowRadius = 10; self.layer.shadowOffset = CGSizeMake(0, 4);
-    }
-    return self;
-}
-- (void)setTop:(UIColor *)top bottom:(UIColor *)bottom { self.fill.colors = @[(id)top.CGColor, (id)bottom.CGColor]; }
-- (void)setCorner:(CGFloat)corner { _corner = corner; [self setNeedsLayout]; }
-- (void)layoutSubviews
-{
-    [super layoutSubviews];
-    [CATransaction begin]; [CATransaction setDisableActions:YES];
-    self.fill.frame = self.bounds;
-    self.fill.cornerRadius = self.corner;
-    self.sheen.frame = CGRectMake(0, 0, self.bounds.size.width, self.bounds.size.height * 0.55);
-    [CATransaction commit];
-    self.layer.shadowPath = [UIBezierPath bezierPathWithRoundedRect:self.bounds cornerRadius:self.corner].CGPath;
-}
-@end
-
-// Icon app: o vuong bo goc kieu iOS, vien sang mong, bong do nhe
-typedef NS_ENUM(NSInteger, SPPIconShape) {
-    SPPIconSquircle = 0,   // o vuong bo goc kieu iOS, co vien + bong
-    SPPIconCircle,         // tron (kieu vien thuoc / dong ho)
-    SPPIconTile,           // o lon phu kin 1 canh cua the, bo theo goc the (tileCorner + tileMask), khong vien / bong
-};
-
-@interface SPPIconView : UIView
-@property (nonatomic, strong) UIImageView *imageView;
-@property (nonatomic) SPPIconShape shape;
-@property (nonatomic) CGFloat tileCorner;
-@property (nonatomic) CACornerMask tileMask;
-@end
-
-@implementation SPPIconView
-- (instancetype)initWithFrame:(CGRect)frame
-{
-    if ((self = [super initWithFrame:frame])) {
-        self.userInteractionEnabled = NO;
-        _imageView = [[UIImageView alloc] init];
-        _imageView.layer.masksToBounds = YES;
-        _imageView.contentMode = UIViewContentModeScaleAspectFill;
-        _imageView.layer.minificationFilter = kCAFilterTrilinear;   // icon lon thu nho van muot
-        _imageView.layer.borderWidth = 0.75;
-        _imageView.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.3].CGColor;
-        if (@available(iOS 13.0, *)) _imageView.layer.cornerCurve = kCACornerCurveContinuous;
-        [self addSubview:_imageView];
-        self.layer.shadowColor = [UIColor blackColor].CGColor;
-        self.layer.shadowOpacity = 0.4; self.layer.shadowRadius = 2.5; self.layer.shadowOffset = CGSizeMake(0, 1.5);
-    }
-    return self;
-}
-- (void)setShape:(SPPIconShape)shape { _shape = shape; [self setNeedsLayout]; }
-- (void)layoutSubviews
-{
-    [super layoutSubviews];
-    CGSize sz = self.bounds.size;
-    CGFloat r = sz.width * 0.225;
-    CACornerMask mask = kCALayerMinXMinYCorner | kCALayerMaxXMinYCorner | kCALayerMinXMaxYCorner | kCALayerMaxXMaxYCorner;
-    if (self.shape == SPPIconCircle) r = MIN(sz.width, sz.height) / 2;
-    else if (self.shape == SPPIconTile) { r = self.tileCorner; mask = self.tileMask; }
-    self.imageView.frame = self.bounds;
-    self.imageView.layer.cornerRadius = r;
-    self.imageView.layer.maskedCorners = mask;
-    self.imageView.layer.borderWidth = (self.shape == SPPIconTile) ? 0 : 0.75;
-    if (self.shape == SPPIconTile) { self.layer.shadowOpacity = 0; self.layer.shadowPath = nil; }
-    else self.layer.shadowPath = [UIBezierPath bezierPathWithRoundedRect:self.bounds cornerRadius:r].CGPath;
-}
-@end
-
-// Bien gioi han toc do: tron trang, vien do (12% duong kinh), so den dam (Vienna, mac dinh)
-// Kieu My (usStyle): tam chu nhat trang dung (rong ~0.8 cao), vien den, "SPEED / LIMIT" nho tren so lon -
-// ve trong cung o vuong voi kieu Vienna nen bo cuc cac kieu bong bong khong doi
-@interface SPPSignView : UIView
-@property (nonatomic, strong) UILabel *label;
-@property (nonatomic) BOOL muted;   // khong doc duoc gioi han: vien xam, "--"
-@property (nonatomic) BOOL usStyle;
-@property (nonatomic, strong) UIView *plate;       // kieu My: tam bien chu nhat
-@property (nonatomic, strong) UILabel *titleLabel; // kieu My: "SPEED LIMIT"
-- (CGRect)plateRect;   // hinh bien that trong bounds (kieu My: chu nhat o giua; Vienna: ca o)
-@end
-
-@implementation SPPSignView
-- (instancetype)initWithFrame:(CGRect)frame
-{
-    if ((self = [super initWithFrame:frame])) {
-        self.userInteractionEnabled = NO;
-        self.backgroundColor = [UIColor whiteColor];
-        self.layer.borderColor = SPPSignRed().CGColor;
-        self.layer.shadowColor = [UIColor blackColor].CGColor;
-        self.layer.shadowOpacity = 0.4; self.layer.shadowRadius = 3; self.layer.shadowOffset = CGSizeMake(0, 1.5);
-        _plate = [[UIView alloc] init];
-        _plate.userInteractionEnabled = NO;
-        _plate.backgroundColor = [UIColor whiteColor];
-        _plate.layer.borderColor = SPPRGB(20, 20, 20, 1).CGColor;
-        _plate.hidden = YES;
-        [self addSubview:_plate];
-        _titleLabel = SPPLabel(SPPUnitFont(8), SPPRGB(20, 20, 20, 1), NSTextAlignmentCenter);
-        _titleLabel.numberOfLines = 2;
-        _titleLabel.text = @"SPEED\nLIMIT";
-        _titleLabel.hidden = YES;
-        [self addSubview:_titleLabel];
-        _label = SPPLabel(SPPNumFont(20), SPPRGB(20, 20, 20, 1), NSTextAlignmentCenter);
-        [self addSubview:_label];
-    }
-    return self;
-}
-- (void)applyColors
-{
-    UIColor *ink = self.muted ? SPPRGB(120, 124, 134, 1) : SPPRGB(20, 20, 20, 1);
-    self.layer.borderColor = self.usStyle ? [UIColor clearColor].CGColor : (self.muted ? SPPRGB(174, 178, 188, 1) : SPPSignRed()).CGColor;
-    self.plate.layer.borderColor = (self.muted ? SPPRGB(174, 178, 188, 1) : SPPRGB(20, 20, 20, 1)).CGColor;
-    self.label.textColor = ink;
-    self.titleLabel.textColor = ink;
-}
-- (void)setMuted:(BOOL)muted
-{
-    if (muted == _muted && self.layer.borderColor) return;
-    _muted = muted;
-    [self applyColors];
-}
-- (void)setUsStyle:(BOOL)usStyle
-{
-    if (usStyle == _usStyle) return;
-    _usStyle = usStyle;
-    self.backgroundColor = usStyle ? [UIColor clearColor] : [UIColor whiteColor];
-    self.plate.hidden = !usStyle;
-    self.titleLabel.hidden = !usStyle;
-    [self applyColors];
-    [self setNeedsLayout];
-}
-- (CGRect)plateRect
-{
-    CGSize b = self.bounds.size;
-    if (!self.usStyle) return self.bounds;
-    CGFloat h = b.height, w = MIN(b.width, h * 0.8);
-    return CGRectMake((b.width - w) / 2, (b.height - h) / 2, w, h);
-}
-- (void)layoutSubviews
-{
-    [super layoutSubviews];
-    CGFloat d = self.bounds.size.width;
-    if (self.usStyle) {
-        // Kieu My: khong ve vong tron cua view, bong do lay theo tam bien
-        CGRect pr = [self plateRect];
-        CGFloat h = pr.size.height, bw = MAX(1.5, h * 0.045), inset = bw + h * 0.04;
-        self.layer.cornerRadius = 0;
-        self.layer.borderWidth = 0;
-        self.plate.frame = pr;
-        self.plate.layer.cornerRadius = h * 0.08;
-        self.plate.layer.borderWidth = bw;
-        self.layer.shadowPath = [UIBezierPath bezierPathWithRoundedRect:pr cornerRadius:h * 0.08].CGPath;
-        CGFloat iw = pr.size.width - 2 * inset;
-        self.titleLabel.font = SPPUnitFont(h * 0.13);
-        self.titleLabel.frame = CGRectMake(pr.origin.x + inset, pr.origin.y + inset, iw, h * 0.32);
-        self.label.font = SPPNumFont(h * (self.label.text.length >= 3 ? 0.34 : 0.44));
-        CGFloat ny = CGRectGetMaxY(self.titleLabel.frame);
-        self.label.frame = CGRectMake(pr.origin.x + inset, ny, iw, CGRectGetMaxY(pr) - inset - ny);
-        return;
-    }
-    CGFloat bw = d * 0.12;
-    self.layer.shadowPath = nil;
-    self.layer.cornerRadius = d / 2;
-    self.layer.borderWidth = bw;
-    self.label.font = SPPNumFont(d * (self.label.text.length >= 3 ? 0.36 : 0.46));
-    self.label.frame = CGRectInset(self.bounds, bw * 0.9, bw);
-}
-@end
-
+// Mau do cua vien "giu de thoat" (cac thanh phan ve bong bong nam trong SPPBubbleView.m)
+static UIColor *SPPRed(void) { return [UIColor colorWithRed:1 green:69 / 255.0 blue:58 / 255.0 alpha:1]; }
 
 @interface SpringBoard : UIApplication
 - (BOOL)launchApplicationWithIdentifier:(NSString *)identifier suspended:(BOOL)suspended;
@@ -415,10 +162,7 @@ typedef NS_ENUM(NSInteger, SPPIconShape) {
 @interface SPPBubble ()
 @property (nonatomic, strong) UIWindow *window;
 @property (nonatomic, strong) UIView *card;
-@property (nonatomic, strong) SPPGlassView *glass;   // nen kinh cua kieu dang ve
-@property (nonatomic, strong) SPPIconView *iconView; // icon app dang cap toc do
-@property (nonatomic, strong) SPPSignView *sign;     // bien gioi han toc do
-@property (nonatomic, strong) UILabel *speedLabel, *unitLabel;
+@property (nonatomic, strong) SPPBubbleView *bubbleView;   // bong bong theo kieu da chon (SPPBubbleView.m)
 @property (nonatomic, strong) NSTimer *timer;
 @property (nonatomic) NSTimeInterval timerInterval;  // 0.5 s, 1 s in lite mode
 @property (nonatomic) BOOL builtLite;                // card built in lite mode (no shadows)
@@ -427,31 +171,18 @@ typedef NS_ENUM(NSInteger, SPPIconShape) {
 @property (nonatomic) CFAbsoluteTime speedAt, limitAt; // lan cuoi doc duoc toc do / gioi han
 @property (nonatomic) CFAbsoluteTime carLostAt;        // luc bat dau mat man xe (0 = dang co)
 @property (nonatomic) BOOL onPhone;
-@property (nonatomic) BOOL carBusy;                  // Split Screen dang chia / mo bang tren man xe -> an bong bong tren xe
+@property (nonatomic) BOOL carBusy;                  // Split Screen dang mo bang tren man xe -> an bong bong tren xe
 @property (nonatomic) CGFloat scale;                 // ti le dang ap = SPP_SCALE_BASE * % trong Cai dat (rieng iPhone / xe)
 @property (nonatomic) BOOL pinching;                 // dang chum 2 ngon: khong nap lai ti le tu Cai dat
 @property (nonatomic) int app;                       // chi so SPP_NAV_APPS cua app dang cap toc do (cham / X dung app nay)
 @property (nonatomic) int iconApp;                   // app dang ve tren iconView (-1 = chua ve)
-@property (nonatomic, strong) CAShapeLayer *holdRing;   // giu bong bong: vien do chay quanh, du 3 giay -> thoat app
-@property (nonatomic, strong) NSTimer *holdTimer;
+@property (nonatomic, strong) UIView *menu;              // menu nhan giu (vien nen logo + 5 o): nho / to / canh bao / am thanh / tat app
+@property (nonatomic, strong) UIView *menuShield;        // lop chan mong phu cua so khi menu mo: cham cho khac -> dong menu
+@property (nonatomic, strong) NSTimer *menuTimer;        // tu dong sau SPP_MENU_HIDE giay
 @property (nonatomic) CGPoint holdStart;                // diem bat dau giu (keo xa -> chuyen sang di chuyen the)
 @property (nonatomic) BOOL holdDragging;
 @property (nonatomic) CGRect outlineRect;               // hinh chinh cua kieu dang ve (vien giu chay quanh)
 @property (nonatomic) CGFloat outlineCorner;
-@property (nonatomic) NSInteger builtStyle;          // kieu dang ve trong the (-1 = chua ve)
-@property (nonatomic, strong) CAShapeLayer *gaugeTrack, *gaugeArc;   // kieu Dong ho (gaugeArc = mat na cua gaugeFill)
-@property (nonatomic, strong) CAGradientLayer *gaugeFill;            // kieu Dong ho: gradient non xanh -> do
-@property (nonatomic, strong) CAShapeLayer *stateRing;               // kieu Dia nho: vien mau trang thai
-@property (nonatomic, strong) CAGradientLayer *glow;                 // kieu HUD: anh mau trang thai ben trai
-@property (nonatomic, strong) UIView *separator;                     // kieu HUD / Cot doc: vach ngan truoc bien
-@property (nonatomic, strong) CALayer *panel;                        // kieu Vien thuoc doi: nua phai mau trang
-@property (nonatomic, strong) UIView *meterTrack, *meterFill, *meterMark;   // kieu Thanh do / The HarmonyOS / Live View
-@property (nonatomic, strong) UIView *deco;                          // kieu 12..17: lop ve rieng (vanh, lop, vach...) duoi chu
-@property (nonatomic, strong) NSMutableDictionary<NSString *, CALayer *> *parts;   // cac lop trong deco theo ten
-@property (nonatomic, strong) NSArray<UILabel *> *tickLabels;        // kieu Dong ho kim: so tren mat
-@property (nonatomic, strong) UILabel *nameLabel;                    // kieu The HarmonyOS: ten app
-@property (nonatomic) CGFloat spinRate;                              // kieu Banh xe: vong/giay dang quay
-@property (nonatomic, strong) UIView *flashView;     // nen / quang do nhay khi vuot gioi han (moi kieu)
 @property (nonatomic, strong) NSTimer *demoTimer;    // "Xem thu bong bong" trong Cai dat
 @property (nonatomic, strong) NSTimer *staleTimer;   // canh so cu ca khi bong bong an (canh bao qua toc do, SB_DARWIN_SPEED_NOW)
 @property (nonatomic) CGFloat appliedRotation;       // goc xoay dang ap cho cua so tren iPhone
@@ -465,7 +196,7 @@ typedef NS_ENUM(NSInteger, SPPIconShape) {
 {
     static SPPBubble *s; static dispatch_once_t once;
     dispatch_once(&once, ^{
-        s = [SPPBubble new]; s.speed = -1; s.limit = -1; s.builtStyle = -1;
+        s = [SPPBubble new]; s.speed = -1; s.limit = -1; s.iconApp = -1;
         s.scale = SPP_SCALE_BASE * [SPPPrefs sizePercentForCar:NO] / 100.0;
         s.phoneFraction = CGPointMake(-1, -1); s.carFraction = CGPointMake(-1, -1);
         [s startOrientationTracking];
@@ -483,13 +214,13 @@ typedef NS_ENUM(NSInteger, SPPIconShape) {
 - (void)applySavedScale
 {
     CGFloat want = [self savedScale];
-    if (self.pinching || self.holdRing || fabs(want - self.scale) < 0.001) return;
+    if (self.pinching || fabs(want - self.scale) < 0.001) return;
     self.scale = want;
     if (self.card) { self.card.transform = [self baseTransform]; [self clampCard]; [self applyCrispScale]; }
 }
 - (CGAffineTransform)baseScaled:(CGFloat)k { return CGAffineTransformMakeScale(self.scale * k, self.scale * k); }
 
-// Toc do hien tai cho tinh nang khac (vd Che do lai): Darwin SB_DARWIN_SPEED_NOW, state = km/h, SB_SPEED_UNKNOWN = khong
+// Toc do hien tai cho tinh nang khac: Darwin SB_DARWIN_SPEED_NOW, state = km/h, SB_SPEED_UNKNOWN = khong
 // biet. Chi gui khi doi.
 static void SPPPublishSpeed(int kmh)
 {
@@ -532,7 +263,7 @@ static void SPPPublishSpeed(int kmh)
     }];
 }
 
-// Nguon ngung han (GPS iPhone tat vi xe ngat / doi nguon / tat tinh nang): bo so, an ngay - khong cho SPP_SOURCE_GONE
+// Nguon ngung han (doi nguon / tat tinh nang): bo so, an ngay - khong cho SPP_SOURCE_GONE
 - (void)sourceStopped:(int)app
 {
     if ((app & 7) != (self.app & 7) || self.demoTimer) return;
@@ -567,14 +298,20 @@ static int sPreferredApp = -1;   // app mo gan nhat (nguon uu tien)
     return NO;
 }
 
+#if OMC_AUTOTEST
+static BOOL sSPPTestMute;   // bo test: dang kiem "mat nguon -> an", app dan duong that (Vietmap...) gui toc do thi bo qua
+#endif
+
 - (void)updateSpeed:(int)speed limit:(int)limit appForeground:(BOOL)fg app:(int)app
 {
+#if OMC_AUTOTEST
+    if (sSPPTestMute) return;
+#endif
     app &= 7;
     CFAbsoluteTime now = CFAbsoluteTimeGetCurrent();
     if (fg != sAppFg[app]) SPPLog("bubble: %@ %@", SPPNavAppName(app), fg ? @"dang hien -> an bong bong" : @"chay nen -> hien bong bong");
     if (fg && !sAppFg[app]) sAppFgSince[app] = now;
     sAppFg[app] = fg; sAppSeenAt[app] = now;
-    if (SPPIsGPSSource(app)) sAppOpened[app] = YES;   // GPS iPhone: khong co app de mo, co so la hien
     // Chi tinh la "da mo" khi app hien lien tuc >= 1.5 giay (bo qua lan active thoang qua luc he thong khoi chay app)
     if (fg && !sAppOpened[app] && now - sAppFgSince[app] >= 1.5) {
         sAppOpened[app] = YES; SPPLog("bubble: %@ da duoc mo", SPPNavAppName(app));
@@ -615,7 +352,6 @@ static BOOL sSeenRunning[8];
 - (int)sourceAppState
 {
     int app = self.app & 7;
-    if (SPPIsGPSSource(app)) return [SPPPhoneGPS shared].running ? 1 : 0;   // GPS iPhone: theo CLLocationManager trong SpringBoard
     id ctl = objcInvoke(objc_getClass("SBApplicationController"), @"sharedInstance");
     id sbApp = ctl ? objcInvoke_1(ctl, @"applicationWithBundleIdentifier:", SPPNavAppBundle(app)) : nil;
     if (!sbApp) return -1;
@@ -640,7 +376,7 @@ static BOOL sSeenRunning[8];
     if (now - self.limitAt > SPP_SPEED_STALE) self.limit = -1;
     int run = (self.lastUpdate > 0 && !self.demoTimer) ? [self sourceAppState] : 1;
     BOOL alive = self.lastUpdate > 0 && (run == 1 || now - self.lastUpdate < SPP_SOURCE_GONE);
-    // Split Screen dang chiem man xe (bang chon app, dang chia): bong bong tren xe de len cho dang cham -> tam an
+    // Split Screen dang mo bang bo cuc / bang chon app: bong bong tren xe de len cho dang cham -> tam an (chia man thi van hien)
     BOOL carBusy = self.carBusy && SPPGetCarPlayCADisplay() != nil;
     BOOL show = alive && [SPPPrefs enabled] && ![self anyAppForeground] && !carBusy;
     // App vua bi tat (vuot khoi da nhiem / bi he thong dong) -> an ngay
@@ -662,25 +398,22 @@ static BOOL sSeenRunning[8];
     if (self.onPhone) [self applyPhoneOrientationForce:NO];
 
     [self applySavedScale];
-    NSInteger style = [SPPPrefs style];
-    BOOL lite = OMCLiteActive();
-    if (style != self.builtStyle || lite != self.builtLite) { self.builtLite = lite; [self buildStyle:style]; }
     // So doi muot: chi dat text, khong animation (cap nhat lien tuc)
-    [self renderStyle];
+    [self renderBubble];
     [self applyCrispScale];
-    if (lite) SPPStripShadows(self.card.layer);
+    if (self.builtLite) SPPStripShadows(self.card.layer);
 
     if (self.window.hidden) {
         self.window.hidden = NO;
         self.card.alpha = 0; self.card.transform = [self baseScaled:0.7];
         [UIView animateWithDuration:0.45 delay:0 usingSpringWithDamping:0.7 initialSpringVelocity:0.5 options:0
                          animations:^{ self.card.alpha = 1; self.card.transform = [self baseTransform]; } completion:nil];
-    } else if (self.card.alpha < 1 && !self.holdRing) {
+    } else if (self.card.alpha < 1) {
         // Dang mo dan (hide) thi co du lieu lai -> hien lai ngay, khong de cua so bi an roi moi hien
         [UIView animateWithDuration:0.2 delay:0 options:UIViewAnimationOptionBeginFromCurrentState
                          animations:^{ self.card.alpha = 1; self.card.transform = [self baseTransform]; } completion:nil];
     }
-    NSTimeInterval every = lite ? 1.0 : 0.5;   // lite mode: half the redraws
+    NSTimeInterval every = self.builtLite ? 1.0 : 0.5;   // lite mode: half the redraws
     if (self.timer && self.timerInterval != every) { [self.timer invalidate]; self.timer = nil; }
     if (!self.timer) {
         __weak SPPBubble *weakSelf = self;
@@ -702,882 +435,60 @@ static BOOL sSeenRunning[8];
 {
     if (self.window && !self.window.hidden) {
         UIView *card = self.card; UIWindow *win = self.window;
-        [self cancelHold];
+        [self hideMenu];
         [UIView animateWithDuration:0.18 animations:^{ card.alpha = 0; card.transform = [self baseScaled:0.8]; }
                          completion:^(BOOL f) { if (card.alpha < 0.01) win.hidden = YES; }];
     }
     [self.timer invalidate]; self.timer = nil;
 }
 
-// =====================================================================
-//  Cac kieu bong bong (Settings > OmniCar > Speed Bubble > Style). Moi kieu deu co icon app dang cap toc do.
-//    0 The ngang     : the kinh toi [icon] [toc do / km/h] [bien gioi han]
-//    1 Dia nho       : dia tron, vien mau theo trang thai, icon nho tren so, bien goc tren phai
-//    2 Bien bao      : bien gioi han lon + vien toc do (icon + so) o goc duoi phai
-//    3 Dong ho       : cung 270 do mau xanh -> cam -> do, icon o khe duoi, bien goc tren phai
-//    4 Thanh HUD     : thanh ngang [icon] [so km/h] | [bien], anh mau trang thai ben trai
-//    5 Mau toc do    : dia to mau xanh / cam / do, icon nho tren so, bien goc tren phai
-//    6 Cot doc       : cot dung [icon] [so / km/h] --- [bien]
-//    7 Vien thuoc doi: nua trai mau trang thai (icon + so), nua phai trang (bien)
-//    8 Neon          : nen den, so phat sang theo mau trang thai, vien mau
-//    9 Thanh do      : [icon] [so km/h] [bien] + thanh tien do, vach o muc gioi han
-//   10 Chu noi       : khong nen, so lon co bong, icon + km/h nho, bien ben canh
-//   11 The sang      : nhu The ngang nhung nen trang chu toi
-//   --- Lay y tuong tu xe hoi, phong cach HarmonyOS ---
-//   12 Vo lang       : vanh toi co vung cam mau trang thai, 3 nan, so tren tam vo lang, icon tren nan duoi
-//   13 Banh xe       : lop co gai, mam bac 5 chau quay theo toc do, so + icon tren nap giua
-//   14 The HarmonyOS : the vuong bo lon gradient xanh (cam / do khi gan / vuot), icon + ten app, so lon, thanh tien do
-//   15 Dong ho kim   : mat dong ho 0..160 co vach, cung do tu muc gioi han, kim mau trang thai, icon lam chot kim
-//   16 Vong kep      : dia sang, vong ngoai = toc do (gradient xanh -> tim), vong trong = gioi han
-//   17 Live View     : vien thuoc den nhu cua so truc tiep, icon + so + thanh tien do mong + bien
-// =====================================================================
-// 0 = binh thuong, 1 = sap cham gioi han (>= 90%), 2 = vuot
-- (int)speedState
+// Kieu bong bong ve trong SPPBubbleView (dung chung voi trang Cai dat): 0 binh thuong, 1 sap cham gioi han, 2 vuot
+- (int)speedState { return [self.bubbleView speedState]; }
+
+// Dat so / kieu / tuy chon vao bong bong, ve lai, giu tam the co dinh
+- (void)renderBubble
 {
-    if (self.limit <= 0) return 0;
-    if (self.speed > self.limit) return 2;
-    if (self.speed >= self.limit * 0.9) return 1;
-    return 0;
-}
-
-- (UIColor *)stateColor
-{
-    switch ([self speedState]) {
-        case 2: return SPPRed();
-        case 1: return SPPOrange();
-        default: return self.limit > 0 ? SPPGreen() : SPPAccent();
-    }
-}
-
-// Mau so toc do tren kinh trang: muc / cam / do
-- (UIColor *)numberColor
-{
-    switch ([self speedState]) {
-        case 2: return SPPRed();
-        case 1: return SPPRGB(230, 130, 0, 1);
-        default: return SPPInk();
-    }
-}
-
-- (void)buildStyle:(NSInteger)style
-{
-    UIView *card = self.card;
-    for (UIView *v in [card.subviews copy]) [v removeFromSuperview];
-    for (CALayer *l in [card.layer.sublayers copy]) [l removeFromSuperlayer];
-    self.glass = nil; self.iconView = nil; self.sign = nil; self.flashView = nil; self.separator = nil;
-    self.speedLabel = nil; self.unitLabel = nil;
-    self.gaugeTrack = nil; self.gaugeArc = nil; self.gaugeFill = nil; self.stateRing = nil; self.glow = nil;
-    self.panel = nil; self.meterTrack = nil; self.meterFill = nil; self.meterMark = nil;
-    self.deco = nil; self.parts = nil; self.tickLabels = nil; self.nameLabel = nil; self.spinRate = 0;
-    if (style < 0 || style >= SPP_STYLE_COUNT) style = 0;
-
-    UIView *flash = [[UIView alloc] init];
-    flash.backgroundColor = SPPRed();
-    flash.alpha = 0;
-    flash.userInteractionEnabled = NO;
-    self.flashView = flash;
-
-    // Nen kinh (kieu 2: chi la vien toc do nho; kieu 10: khong co nen). Kieu tron (1 / 2 / 3 / 5 / 10): quang do nhay
-    // quanh hinh chinh (nam sau nen); kieu the / thanh: nhay phu kin nen (tren nen, duoi chu - chu la view them sau)
-    SPPGlassView *g = [[SPPGlassView alloc] init];
-    BOOL flashInside = (style == 0 || style == 4 || style == 6 || style == 7 || style == 8 || style == 9 || style == 11
-                        || style == 14 || style == 17);
-    if (flashInside) { [card addSubview:g]; [g addSubview:flash]; }
-    else { [card addSubview:flash]; [card addSubview:g]; }
-    g.hidden = (style == 10 || style == 12 || style == 13);   // Vo lang / Banh xe tu ve ca hinh
-    self.glass = g;
-    if (style >= 12) {
-        UIView *deco = [[UIView alloc] init];
-        deco.userInteractionEnabled = NO;
-        [card addSubview:deco];
-        self.deco = deco;
-        self.parts = [NSMutableDictionary dictionary];
-    }
-
-    // Kieu nen toi (Neon, Vo lang, Banh xe, Live View) giu km/h xam sang; con lai tren kinh trang -> mau muc
-    BOOL darkStyle = (style == 8 || style == 12 || style == 13 || style == 17);
-    UIColor *unitColor = darkStyle ? SPPUnitGray() : SPPUnitInk();
-    switch (style) {
-    case 0:     // The ngang
-        self.speedLabel = SPPLabel(SPPNumFont(30), SPPInk(), NSTextAlignmentCenter);
-        self.unitLabel = SPPLabel(SPPUnitFont(11), unitColor, NSTextAlignmentCenter);
-        break;
-    case 1: {   // Dia nho: vong gradient tim -> xanh troi -> bac ha (tools/preview/theme.html); gan / vuot: mau trang thai
-        self.speedLabel = SPPLabel(SPPNumFont(28), SPPInk(), NSTextAlignmentCenter);
-        self.unitLabel = SPPLabel(SPPUnitFont(10), unitColor, NSTextAlignmentCenter);
-        CAShapeLayer *ring = [CAShapeLayer layer];
-        ring.fillColor = [UIColor clearColor].CGColor; ring.lineWidth = 3;
-        ring.strokeColor = [UIColor blackColor].CGColor;   // chi lam mat na cho gradient
-        CAGradientLayer *fill = [CAGradientLayer layer];
-        fill.type = kCAGradientLayerConic;
-        fill.startPoint = CGPointMake(0.5, 0.5); fill.endPoint = CGPointMake(0.5, 0);
-        fill.mask = ring;
-        [self.glass.layer addSublayer:fill];
-        self.stateRing = ring; self.gaugeFill = fill;
-        break;
-    }
-    case 2:     // Bien bao: vien toc do
-        self.speedLabel = SPPLabel(SPPNumFont(20), SPPInk(), NSTextAlignmentLeft);
-        self.unitLabel = SPPLabel(SPPUnitFont(9), unitColor, NSTextAlignmentLeft);
-        self.speedLabel.adjustsFontSizeToFitWidth = NO; self.unitLabel.adjustsFontSizeToFitWidth = NO;
-        break;
-    case 3: {   // Dong ho
-        self.speedLabel = SPPLabel(SPPNumFont(32), SPPInk(), NSTextAlignmentCenter);
-        self.unitLabel = SPPLabel(SPPUnitFont(10), unitColor, NSTextAlignmentCenter);
-        CAShapeLayer *track = [CAShapeLayer layer], *arc = [CAShapeLayer layer];
-        for (CAShapeLayer *l in @[track, arc]) { l.fillColor = [UIColor clearColor].CGColor; l.lineWidth = 8; l.lineCap = kCALineCapRound; }
-        track.strokeColor = [SPPInk() colorWithAlphaComponent:0.1].CGColor;
-        arc.strokeColor = [UIColor blackColor].CGColor;   // chi lam mat na cho gradient
-        // Gradient non xanh -> cam -> do chay theo cung (bat dau o 125 do de dau tron cua cung van mau xanh)
-        CAGradientLayer *fill = [CAGradientLayer layer];
-        fill.type = kCAGradientLayerConic;
-        fill.startPoint = CGPointMake(0.5, 0.5);
-        fill.endPoint = CGPointMake(0.5 + cos(125 * M_PI / 180), 0.5 + sin(125 * M_PI / 180));
-        CGFloat lead = 10.0 / 360, sweep = 270.0 / 360;
-        fill.colors = @[(id)SPPGreen().CGColor, (id)SPPGreen().CGColor, (id)SPPOrange().CGColor, (id)SPPRed().CGColor, (id)SPPRed().CGColor];
-        fill.locations = @[@0, @(lead), @(lead + sweep * 0.6), @(lead + sweep), @1];
-        fill.mask = arc;
-        [self.glass.layer addSublayer:track];
-        [self.glass.layer addSublayer:fill];
-        self.gaugeTrack = track; self.gaugeArc = arc; self.gaugeFill = fill;
-        break;
-    }
-    case 4: {   // Thanh HUD
-        self.speedLabel = SPPLabel(SPPNumFont(26), SPPInk(), NSTextAlignmentRight);
-        self.unitLabel = SPPLabel(SPPUnitFont(11), unitColor, NSTextAlignmentLeft);
-        CAGradientLayer *glow = [CAGradientLayer layer];
-        glow.startPoint = CGPointMake(0, 0.5); glow.endPoint = CGPointMake(1, 0.5);
-        [self.glass.fill addSublayer:glow];   // bi cat theo vien bo tron cua nen
-        self.glow = glow;
-        UIView *sep = [[UIView alloc] init];
-        sep.backgroundColor = [SPPInk() colorWithAlphaComponent:0.12];
-        sep.userInteractionEnabled = NO;
-        [card addSubview:sep];
-        self.separator = sep;
-        break;
-    }
-    case 5:     // Mau toc do
-        self.speedLabel = SPPLabel(SPPNumFont(30), [UIColor whiteColor], NSTextAlignmentCenter);
-        self.unitLabel = SPPLabel(SPPUnitFont(9.5), [UIColor colorWithWhite:1 alpha:0.85], NSTextAlignmentCenter);
-        self.glass.fill.borderWidth = 3;
-        self.glass.fill.borderColor = [UIColor whiteColor].CGColor;
-        break;
-    case 6: {   // Cot doc
-        self.speedLabel = SPPLabel(SPPNumFont(30), SPPInk(), NSTextAlignmentCenter);
-        self.unitLabel = SPPLabel(SPPUnitFont(10), unitColor, NSTextAlignmentCenter);
-        UIView *sep = [[UIView alloc] init];
-        sep.backgroundColor = [SPPInk() colorWithAlphaComponent:0.12];
-        sep.userInteractionEnabled = NO;
-        [card addSubview:sep];
-        self.separator = sep;
-        break;
-    }
-    case 7: {   // Vien thuoc doi
-        self.speedLabel = SPPLabel(SPPNumFont(26), [UIColor whiteColor], NSTextAlignmentCenter);
-        self.unitLabel = SPPLabel(SPPUnitFont(9.5), [UIColor colorWithWhite:1 alpha:0.85], NSTextAlignmentCenter);
-        self.glass.fill.borderWidth = 0;
-        CALayer *panel = [CALayer layer];
-        panel.backgroundColor = SPPRGB(250, 250, 252, 1).CGColor;
-        [self.glass.fill addSublayer:panel];   // bi cat theo vien bo tron cua nen
-        self.panel = panel;
-        break;
-    }
-    case 8:     // Neon
-        self.speedLabel = SPPLabel(SPPNumFont(32), [UIColor whiteColor], NSTextAlignmentCenter);
-        self.unitLabel = SPPLabel(SPPUnitFont(8), unitColor, NSTextAlignmentCenter);
-        [self.glass setTop:SPPRGB(6, 6, 10, 0.94) bottom:SPPRGB(2, 2, 4, 0.94)];
-        self.glass.fill.borderWidth = 1.5;
-        self.speedLabel.layer.shadowOffset = CGSizeZero;
-        self.speedLabel.layer.shadowRadius = 6;
-        self.speedLabel.layer.shadowOpacity = 1;
-        break;
-    case 9: {   // Thanh do
-        self.speedLabel = SPPLabel(SPPNumFont(30), SPPInk(), NSTextAlignmentLeft);
-        self.unitLabel = SPPLabel(SPPUnitFont(10), unitColor, NSTextAlignmentLeft);
-        self.speedLabel.adjustsFontSizeToFitWidth = NO;
-        UIView *track = [[UIView alloc] init], *fill = [[UIView alloc] init], *mark = [[UIView alloc] init];
-        track.backgroundColor = [SPPInk() colorWithAlphaComponent:0.1];
-        mark.backgroundColor = [SPPInk() colorWithAlphaComponent:0.8];
-        for (UIView *v in @[track, fill, mark]) { v.userInteractionEnabled = NO; [card addSubview:v]; }
-        self.meterTrack = track; self.meterFill = fill; self.meterMark = mark;
-        break;
-    }
-    case 10:    // Chu noi: so co bong do de doc duoc tren nen ban do
-        self.speedLabel = SPPLabel(SPPNumFont(40), [UIColor whiteColor], NSTextAlignmentCenter);
-        self.unitLabel = SPPLabel(SPPUnitFont(11), [UIColor colorWithWhite:1 alpha:0.92], NSTextAlignmentLeft);
-        for (UILabel *l in @[self.speedLabel, self.unitLabel]) {
-            l.layer.shadowColor = [UIColor blackColor].CGColor;
-            l.layer.shadowOffset = CGSizeMake(0, 1); l.layer.shadowRadius = 3; l.layer.shadowOpacity = 0.75;
-        }
-        break;
-    case 11:    // The sang: trang dac (khong trong nhu kinh)
-        self.speedLabel = SPPLabel(SPPNumFont(30), SPPInk(), NSTextAlignmentCenter);
-        self.unitLabel = SPPLabel(SPPUnitFont(11), unitColor, NSTextAlignmentCenter);
-        [self.glass setTop:SPPRGB(255, 255, 255, 0.98) bottom:SPPRGB(238, 239, 243, 0.98)];
-        break;
-    case 12: {  // Vo lang
-        self.speedLabel = SPPLabel(SPPNumFont(24), [UIColor whiteColor], NSTextAlignmentCenter);
-        self.unitLabel = SPPLabel(SPPUnitFont(8), unitColor, NSTextAlignmentCenter);
-        self.deco.layer.shadowColor = [UIColor blackColor].CGColor;
-        self.deco.layer.shadowOpacity = 0.4; self.deco.layer.shadowRadius = 6; self.deco.layer.shadowOffset = CGSizeMake(0, 3);
-        [self shapePart:@"rim" stroke:SPPRGB(28, 30, 36, 1) width:14];
-        [self shapePart:@"sheen" stroke:SPPRGB(62, 66, 78, 1) width:14];
-        [self shapePart:@"gripL" stroke:SPPGreen() width:14];
-        [self shapePart:@"gripR" stroke:SPPGreen() width:14];
-        CAShapeLayer *spokes = [self shapePart:@"spokes" stroke:nil width:0];
-        spokes.fillColor = SPPRGB(74, 78, 92, 1).CGColor;
-        [self gradientPart:@"hub" top:SPPRGB(74, 78, 92, 1) bottom:SPPRGB(24, 26, 32, 1)];
-        break;
-    }
-    case 13: {  // Banh xe
-        self.speedLabel = SPPLabel(SPPNumFont(22), [UIColor whiteColor], NSTextAlignmentCenter);
-        self.unitLabel = SPPLabel(SPPUnitFont(8), unitColor, NSTextAlignmentCenter);
-        self.deco.layer.shadowColor = [UIColor blackColor].CGColor;
-        self.deco.layer.shadowOpacity = 0.4; self.deco.layer.shadowRadius = 6; self.deco.layer.shadowOffset = CGSizeMake(0, 3);
-        CAShapeLayer *tire = [self shapePart:@"tire" stroke:nil width:0];
-        tire.fillColor = SPPRGB(22, 22, 24, 1).CGColor;
-        [self shapePart:@"tread" stroke:SPPRGB(50, 50, 55, 1) width:6];
-        CAGradientLayer *rim = [self gradientPart:@"rim" top:SPPRGB(214, 218, 226, 1) bottom:SPPRGB(146, 152, 164, 1)];
-        rim.type = kCAGradientLayerRadial; rim.startPoint = CGPointMake(0.5, 0.5); rim.endPoint = CGPointMake(1, 1);
-        rim.borderWidth = 0;
-        CAShapeLayer *well = [self shapePart:@"well" stroke:nil width:0];
-        well.fillColor = SPPRGB(40, 42, 48, 1).CGColor;
-        CAShapeLayer *spokes = [self shapePart:@"spokes" stroke:nil width:0];
-        spokes.fillColor = SPPRGB(198, 202, 212, 1).CGColor;
-        CABasicAnimation *spin = [CABasicAnimation animationWithKeyPath:@"transform.rotation.z"];
-        spin.fromValue = @0; spin.toValue = @(2 * M_PI); spin.duration = 1; spin.repeatCount = HUGE_VALF;
-        spin.removedOnCompletion = NO;
-        [spokes addAnimation:spin forKey:@"sppSpin"];
-        spokes.speed = 0;   // dung yen toi khi co toc do
-        [self shapePart:@"state" stroke:SPPGreen() width:2];
-        [self gradientPart:@"cap" top:SPPRGB(60, 64, 76, 1) bottom:SPPRGB(20, 22, 26, 1)];
-        break;
-    }
-    case 14: {  // The HarmonyOS
-        self.speedLabel = SPPLabel(SPPNumFont(44), [UIColor whiteColor], NSTextAlignmentLeft);
-        self.unitLabel = SPPLabel(SPPUnitFont(12), [UIColor colorWithWhite:1 alpha:0.8], NSTextAlignmentLeft);
-        self.speedLabel.adjustsFontSizeToFitWidth = NO;
-        self.glass.fill.borderColor = [UIColor colorWithWhite:1 alpha:0.28].CGColor;
-        UILabel *name = SPPLabel(SPPUnitFont(11), [UIColor colorWithWhite:1 alpha:0.92], NSTextAlignmentLeft);
-        [card addSubview:name];
-        self.nameLabel = name;
-        UIView *track = [[UIView alloc] init], *fill = [[UIView alloc] init];
-        track.backgroundColor = [UIColor colorWithWhite:1 alpha:0.25];
-        fill.backgroundColor = [UIColor colorWithWhite:1 alpha:0.95];
-        for (UIView *v in @[track, fill]) { v.userInteractionEnabled = NO; [card addSubview:v]; }
-        self.meterTrack = track; self.meterFill = fill;
-        break;
-    }
-    case 15: {  // Dong ho kim
-        self.speedLabel = SPPLabel(SPPNumFont(20), SPPInk(), NSTextAlignmentCenter);
-        self.unitLabel = SPPLabel(SPPUnitFont(8), unitColor, NSTextAlignmentCenter);
-        [self shapePart:@"minor" stroke:[SPPInk() colorWithAlphaComponent:0.3] width:1.2];
-        [self shapePart:@"major" stroke:[SPPInk() colorWithAlphaComponent:0.75] width:2];
-        [self shapePart:@"zone" stroke:[SPPRed() colorWithAlphaComponent:0.9] width:3];
-        CAShapeLayer *needle = [self shapePart:@"needle" stroke:SPPGreen() width:3];
-        needle.lineCap = kCALineCapRound;
-        NSMutableArray *labels = [NSMutableArray array];
-        for (int v = 0; v <= 160; v += 40) {
-            UILabel *l = SPPLabel(SPPUnitFont(7.5), SPPInk2(), NSTextAlignmentCenter);
-            l.text = [NSString stringWithFormat:@"%d", v];
-            [self.deco addSubview:l];
-            [labels addObject:l];
-        }
-        self.tickLabels = labels;
-        break;
-    }
-    case 16: {  // Vong kep
-        self.speedLabel = SPPLabel(SPPNumFont(22), SPPInk(), NSTextAlignmentCenter);
-        self.unitLabel = SPPLabel(SPPUnitFont(9), unitColor, NSTextAlignmentCenter);
-        [self shapePart:@"outerTrack" stroke:[SPPAccent() colorWithAlphaComponent:0.14] width:9];
-        CAGradientLayer *outer = [self gradientPart:@"outerFill" top:SPPAccent() bottom:SPPAccent2()];
-        outer.type = kCAGradientLayerConic; outer.startPoint = CGPointMake(0.5, 0.5); outer.endPoint = CGPointMake(0.5, 0);
-        outer.borderWidth = 0; outer.masksToBounds = NO; outer.cornerRadius = 0;
-        CAShapeLayer *mask = [CAShapeLayer layer];
-        mask.fillColor = [UIColor clearColor].CGColor; mask.strokeColor = [UIColor blackColor].CGColor;
-        mask.lineWidth = 9; mask.lineCap = kCALineCapRound;
-        outer.mask = mask;
-        self.parts[@"outerMask"] = mask;
-        [self shapePart:@"innerTrack" stroke:[SPPRed() colorWithAlphaComponent:0.12] width:7];
-        CAShapeLayer *inner = [self shapePart:@"innerFill" stroke:SPPRed() width:7];
-        inner.lineCap = kCALineCapRound;
-        break;
-    }
-    case 17: {  // Live View
-        self.speedLabel = SPPLabel(SPPNumFont(24), [UIColor whiteColor], NSTextAlignmentLeft);
-        self.unitLabel = SPPLabel(SPPUnitFont(10), unitColor, NSTextAlignmentLeft);
-        self.speedLabel.adjustsFontSizeToFitWidth = NO;
-        [self.glass setTop:SPPRGB(0, 0, 0, 0.97) bottom:SPPRGB(0, 0, 0, 0.97)];
-        self.glass.fill.borderColor = [UIColor colorWithWhite:1 alpha:0.1].CGColor;
-        UIView *track = [[UIView alloc] init], *fill = [[UIView alloc] init];
-        track.backgroundColor = [UIColor colorWithWhite:1 alpha:0.16];
-        for (UIView *v in @[track, fill]) { v.userInteractionEnabled = NO; [card addSubview:v]; }
-        self.meterTrack = track; self.meterFill = fill;
-        break;
-    }
-    }
-    // Co so toc do theo kieu: du lon de doc khi lai xe (o 100% ~ 26..43pt tren man)
-    static const CGFloat kSpeedFont[SPP_STYLE_COUNT] = {34, 32, 29, 36, 32, 34, 36, 32, 38, 34, 46, 34, 28, 26, 48, 26, 28, 30};
-    self.speedLabel.font = SPPNumFont(kSpeedFont[style]);
-    self.unitLabel.text = (style == 8) ? @"KM/H" : @"km/h";   // renderStyle dat lai theo don vi (km/h / mph)
-    [card addSubview:self.speedLabel];
-    [card addSubview:self.unitLabel];
-    self.sign = [[SPPSignView alloc] init];
-    [card addSubview:self.sign];
-    self.iconView = [[SPPIconView alloc] init];
-    // Dang logo (nho, khong lan at so): kieu vien thuoc / dong ho = tron; con lai = o bo goc iOS
-    switch (style) {
-    case 2: case 3: case 4: case 7: case 8: case 10: case 12: case 13: case 15: case 17: self.iconView.shape = SPPIconCircle; break;
-    default: self.iconView.shape = SPPIconSquircle; break;
-    }
-    [card addSubview:self.iconView];
-    self.iconApp = -1;
-    self.builtStyle = style;
-    SPPLog("bubble: kieu %ld", (long)style);
-}
-
-// Lop ve rieng trong deco (thu tu tao = thu tu chong)
-- (CAShapeLayer *)shapePart:(NSString *)key stroke:(UIColor *)stroke width:(CGFloat)w
-{
-    CAShapeLayer *l = [CAShapeLayer layer];
-    l.fillColor = [UIColor clearColor].CGColor;
-    l.strokeColor = stroke.CGColor;
-    l.lineWidth = w;
-    [self.deco.layer addSublayer:l];
-    self.parts[key] = l;
-    return l;
-}
-
-// Hinh tron gradient (tam vo lang, nap banh xe, mam...): dat frame + cornerRadius khi ve
-- (CAGradientLayer *)gradientPart:(NSString *)key top:(UIColor *)top bottom:(UIColor *)bottom
-{
-    CAGradientLayer *g = [CAGradientLayer layer];
-    g.colors = @[(id)top.CGColor, (id)bottom.CGColor];
-    g.masksToBounds = YES;
-    g.borderWidth = 1; g.borderColor = [UIColor colorWithWhite:1 alpha:0.2].CGColor;
-    [self.deco.layer addSublayer:g];
-    self.parts[key] = g;
-    return g;
-}
-
-static UIBezierPath *SPPCircle(CGPoint c, CGFloat r) { return [UIBezierPath bezierPathWithArcCenter:c radius:r startAngle:0 endAngle:2 * M_PI clockwise:YES]; }
-static UIBezierPath *SPPArc(CGPoint c, CGFloat r, CGFloat deg0, CGFloat deg1)
-{
-    return [UIBezierPath bezierPathWithArcCenter:c radius:r startAngle:deg0 * M_PI / 180 endAngle:deg1 * M_PI / 180 clockwise:YES];
-}
-static void SPPCirclePart(CALayer *l, CGPoint c, CGFloat r)
-{
-    l.frame = CGRectMake(c.x - r, c.y - r, 2 * r, 2 * r);
-    l.cornerRadius = r;
-}
-
-// Kieu Banh xe: doi toc do quay cua mam ma khong giat (doi speed cua lop, giu nguyen goc hien tai)
-- (void)setSpin:(CGFloat)rate
-{
-    CALayer *l = self.parts[@"spokes"];
-    if (!l || fabs(rate - self.spinRate) < 0.02) return;
-    CFTimeInterval now = CACurrentMediaTime();
-    l.timeOffset = [l convertTime:now fromLayer:nil];
-    l.beginTime = now;
-    l.speed = rate;
-    self.spinRate = rate;
-}
-
-// Vuot gioi han (moi kieu): nen / quang do nhay, bien gioi han dap theo nhip
-- (void)setOverLimitWarning:(BOOL)on
-{
-    UIView *f = self.flashView;
-    BOOL running = [f.layer animationForKey:@"sppFlash"] != nil;
-    if (on == running) return;
-    if (on) {
-        CABasicAnimation *blink = [CABasicAnimation animationWithKeyPath:@"opacity"];
-        blink.fromValue = @0.0; blink.toValue = @0.55;
-        blink.duration = 0.35; blink.autoreverses = YES; blink.repeatCount = HUGE_VALF;
-        blink.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
-        f.alpha = 1; f.layer.opacity = 0;
-        [f.layer addAnimation:blink forKey:@"sppFlash"];
-        CABasicAnimation *pulse = [CABasicAnimation animationWithKeyPath:@"transform.scale"];
-        pulse.fromValue = @1.0; pulse.toValue = @1.15;
-        pulse.duration = 0.35; pulse.autoreverses = YES; pulse.repeatCount = HUGE_VALF;
-        [self.sign.layer addAnimation:pulse forKey:@"sppPulse"];
-        SPPLog("bubble: vuot gioi han -> nhay canh bao");
-    } else {
-        [f.layer removeAnimationForKey:@"sppFlash"];
-        f.alpha = 0;
-        [self.sign.layer removeAnimationForKey:@"sppPulse"];
-    }
-}
-
-// Mau so theo kieu: nen mau (5, 7, 14) -> trang; Neon -> mau trang thai nhat; nen toi (Vo lang, Banh xe, Live View)
-// -> trang / cam / do; kinh trang (con lai) -> muc / cam / do
-- (UIColor *)numberColorForStyle:(NSInteger)style
-{
-    int st = [self speedState];
-    switch (style) {
-    case 5: case 7: case 14: return [UIColor whiteColor];
-    case 8: return SPPMix([self stateColor], [UIColor whiteColor], 0.55);
-    case 12: case 13: case 17: return st == 2 ? SPPRed() : (st == 1 ? SPPOrange() : [UIColor whiteColor]);
-    default: return [self numberColor];
-    }
-}
-
-// km/h cung dong day (baseline) voi so toc do dang can giua theo chieu doc tai midY
-static void SPPAlignUnit(UILabel *unit, UILabel *number, CGFloat x, CGFloat midY, CGFloat w)
-{
-    CGFloat base = midY + number.font.capHeight / 2;
-    unit.frame = CGRectMake(x, base - unit.font.ascender, w, unit.font.lineHeight);
-}
-
-// So hien tren bong bong: app nguon luon gui km/h; mph thi doi + lam tron. So sanh gan / vuot gioi han van tren
-// km/h goc (self.speed / self.limit) nen khong lech do lam tron
-static int SPPShown(int kmh, BOOL mph)
-{
-    if (kmh < 0 || !mph) return kmh;
-    return (int)lround(kmh / 1.609344);
-}
-
-static void SPPPlace(UIView *v, CGFloat cx, CGFloat cy, CGFloat size)
-{
-    v.bounds = CGRectMake(0, 0, size, size);
-    v.center = CGPointMake(cx, cy);
-    [v setNeedsLayout];
-}
-
-// Dat so + mau + bo cuc theo kieu, giu tam the co dinh
-- (void)renderStyle
-{
-    BOOL hasLimit = self.limit > 0;
-    const BOOL withSign = YES;   // bien luon co cho (khong co gioi han -> "--" mau xam), the khong doi kich thuoc
-    BOOL showIcon = [SPPPrefs showAppIcon];
-    int state = [self speedState];
-    UIColor *sc = [self stateColor];
-    BOOL mph = [SPPPrefs useMph];
-    self.speedLabel.text = self.speed >= 0 ? [NSString stringWithFormat:@"%d", SPPShown(self.speed, mph)] : @"--";
-    self.speedLabel.textColor = [self numberColorForStyle:self.builtStyle];
-    self.unitLabel.text = (self.builtStyle == 8) ? (mph ? @"MPH" : @"KM/H") : (mph ? @"mph" : @"km/h");
-    self.sign.usStyle = [SPPPrefs usSign];
-    self.sign.label.text = hasLimit ? [NSString stringWithFormat:@"%d", SPPShown(self.limit, mph)] : @"--";
-    self.sign.muted = !hasLimit;
-    self.sign.hidden = NO;
-    self.iconView.hidden = !showIcon;
-    if (showIcon && self.iconApp != self.app) { self.iconView.imageView.image = SPPAppIcon(self.app); self.iconApp = self.app; }
-
-    [CATransaction begin]; [CATransaction setDisableActions:YES];
+    SPPBubbleView *bv = self.bubbleView;
+    BOOL lite = OMCLiteActive();
+    if (lite != self.builtLite) { self.builtLite = lite; [bv rebuild]; }
+    bv.style = [SPPPrefs style];
+    bv.speed = self.speed; bv.limit = self.limit;
+    bv.showIcon = [SPPPrefs showAppIcon];
+    bv.color = [SPPPrefs color];
+    if (bv.showIcon && self.iconApp != self.app) { bv.iconImage = SPPAppIcon(self.app); self.iconApp = self.app; }
     CGPoint c = self.card.center;
-    CGSize size;
-    UIView *halo = nil;   // hinh chinh de ve quang do nhay xung quanh (nil = nhay trong nen)
-    switch (self.builtStyle) {
-    case 1: {   // Dia nho: logo o vi tri 12 gio, so o giua
-        CGFloat d = 80, r = d / 2, sg = 62;
-        size = CGSizeMake(withSign ? d + 6 + sg : d, d);
-        self.glass.frame = CGRectMake(0, 0, d, d); self.glass.corner = r;
-        self.stateRing.path = [UIBezierPath bezierPathWithOvalInRect:CGRectMake(3, 3, d - 6, d - 6)].CGPath;
-        self.stateRing.frame = CGRectMake(0, 0, d, d);
-        self.gaugeFill.frame = CGRectMake(0, 0, d, d);
-        self.gaugeFill.colors = state == 0 ? @[(id)SPPAccent().CGColor, (id)SPPAccent2().CGColor, (id)SPPMint().CGColor, (id)SPPAccent().CGColor]
-                                           : @[(id)sc.CGColor, (id)sc.CGColor];
-        CGFloat dy = showIcon ? 0 : -7;
-        SPPPlace(self.iconView, r, 19, 16);
-        self.speedLabel.frame = CGRectMake(6, 28 + dy, d - 12, 36);
-        self.unitLabel.frame = CGRectMake(9, 61 + dy, d - 18, 12);
-        SPPPlace(self.sign, d + 6 + sg / 2, r, sg);
-        halo = self.glass;
-        break;
-    }
-    case 2: {   // Bien bao
-        CGFloat sd = 78, ch = 52;
-        CGFloat ic = showIcon ? 22 : 0;
-        self.speedLabel.font = SPPNumFont(ch * 0.56);
-        self.unitLabel.font = SPPUnitFont(ch * 0.26);
-        CGFloat nw = ceil([self.speedLabel sizeThatFits:CGSizeMake(200, ch)].width);
-        CGFloat uw = ceil([self.unitLabel sizeThatFits:CGSizeMake(200, ch)].width);
-        CGFloat cw = (showIcon ? 12 + ic + 6 : 12) + nw + 14;   // khong hien km/h
-        CGFloat x = withSign ? sd - 28 : 0, y = withSign ? sd - 24 : 0;
-        if (withSign) SPPPlace(self.sign, sd / 2, sd / 2, sd);
-        self.glass.frame = CGRectMake(x, y, cw, ch); self.glass.corner = ch / 2;
-        if (showIcon) SPPPlace(self.iconView, x + 12 + ic / 2, y + ch / 2, ic);
-        CGFloat tx = x + (showIcon ? 12 + ic + 6 : 12);
-        self.speedLabel.frame = CGRectMake(tx, y, nw, ch);
-        SPPAlignUnit(self.unitLabel, self.speedLabel, tx + nw + 3, y + ch / 2, uw);
-        size = CGSizeMake(MAX(x + cw, withSign ? sd : 0), y + ch);
-        halo = withSign ? self.sign : self.glass;
-        break;
-    }
-    case 3: {   // Dong ho
-        CGFloat d = 108, r = d / 2, sg = 80;
-        size = CGSizeMake(withSign ? d + 6 + sg : d, d);
-        self.glass.frame = CGRectMake(0, 0, d, d); self.glass.corner = r;
-        UIBezierPath *path = [UIBezierPath bezierPathWithArcCenter:CGPointMake(r, r) radius:r - 11
-                                                        startAngle:M_PI * 0.75 endAngle:M_PI * 2.25 clockwise:YES];
-        self.gaugeTrack.path = path.CGPath; self.gaugeArc.path = path.CGPath;
-        self.gaugeTrack.frame = CGRectMake(0, 0, d, d); self.gaugeFill.frame = CGRectMake(0, 0, d, d);
-        self.gaugeArc.frame = self.gaugeFill.bounds;
-        CGFloat maxV = hasLimit ? MAX(self.limit * 1.4, 40) : 140;
-        [CATransaction setDisableActions:NO]; [CATransaction setAnimationDuration:0.4];
-        self.gaugeArc.strokeEnd = MIN(1.0, MAX(0.0, self.speed / maxV));
-        [CATransaction setDisableActions:YES];
-        self.speedLabel.frame = CGRectMake(12, 28, d - 24, 44);
-        self.unitLabel.frame = CGRectMake(16, 68, d - 32, 12);
-        SPPPlace(self.iconView, r, d - 15, 18);
-        SPPPlace(self.sign, d + 6 + sg / 2, r, sg);
-        halo = self.glass;
-        break;
-    }
-    case 4: {   // Thanh HUD
-        CGFloat h = 52, x = showIcon ? 14 + 24 + 8 : 16, sg = 46;
-        CGFloat sx = x + 54 + 10;   // khong hien km/h
-        size = CGSizeMake(withSign ? sx + 8 + sg + 3 : sx, h);
-        self.glass.frame = CGRectMake(0, 0, size.width, h); self.glass.corner = h / 2;
-        self.glow.frame = CGRectMake(0, 0, 110, h);
-        self.glow.colors = @[(id)[sc colorWithAlphaComponent:0.34].CGColor, (id)[sc colorWithAlphaComponent:0].CGColor];
-        SPPPlace(self.iconView, 14 + 12, h / 2, 24);
-        self.speedLabel.frame = CGRectMake(x, 4, 54, h - 8);
-        SPPAlignUnit(self.unitLabel, self.speedLabel, x + 58, h / 2, 30);
-        self.separator.hidden = !withSign;
-        self.separator.frame = CGRectMake(sx, 12, 1, h - 24);
-        SPPPlace(self.sign, sx + 8 + sg / 2, h / 2, sg);
-        break;
-    }
-    case 5: {   // Mau toc do: icon nho ben trong, tren so
-        CGFloat d = 86, r = d / 2, sg = 66;
-        size = CGSizeMake(withSign ? d + 6 + sg : d, d);
-        self.glass.frame = CGRectMake(0, 0, d, d); self.glass.corner = r;
-        CGFloat hh, ss, bb, aa;
-        UIColor *top = sc, *bottom = sc;
-        if ([sc getHue:&hh saturation:&ss brightness:&bb alpha:&aa]) {
-            top = [UIColor colorWithHue:hh saturation:ss * 0.8 brightness:MIN(1, bb * 1.12) alpha:1];
-            bottom = [UIColor colorWithHue:hh saturation:MIN(1, ss * 1.05) brightness:bb * 0.72 alpha:1];
-        }
-        [self.glass setTop:top bottom:bottom];
-        CGFloat dy = showIcon ? 0 : -7;
-        SPPPlace(self.iconView, r, 19, 16);
-        self.speedLabel.frame = CGRectMake(7, 29 + dy, d - 14, 40);
-        self.unitLabel.frame = CGRectMake(10, 66 + dy, d - 20, 12);
-        SPPPlace(self.sign, d + 6 + sg / 2, r, sg);
-        halo = self.glass;
-        break;
-    }
-    case 6: {   // Cot doc
-        CGFloat w = 74, top = showIcon ? 12 + 24 + 4 : 12;
-        CGFloat y2 = top + 40 + 12;
-        size = CGSizeMake(w, withSign ? y2 + 8 + 60 + 7 : y2 + 2);
-        self.glass.frame = CGRectMake(0, 0, w, size.height); self.glass.corner = 22;
-        SPPPlace(self.iconView, w / 2, 12 + 12, 24);
-        self.speedLabel.frame = CGRectMake(4, top - 3, w - 8, 42);
-        self.unitLabel.frame = CGRectMake(5, top + 36, w - 10, 13);
-        self.separator.hidden = !withSign;
-        self.separator.frame = CGRectMake(14, y2, w - 28, 1);
-        SPPPlace(self.sign, w / 2, y2 + 8 + 30, 60);
-        break;
-    }
-    case 7: {   // Vien thuoc doi
-        CGFloat h = 58, x = showIcon ? 12 + 26 + 6 : 14;
-        CGFloat lw = x + 58 + 12, rw = withSign ? 68 : 0;
-        size = CGSizeMake(lw + rw, h);
-        self.glass.frame = CGRectMake(0, 0, size.width, h); self.glass.corner = h / 2;
-        CGFloat hh, ss, bb, aa;
-        UIColor *top = sc, *bottom = sc;
-        if ([sc getHue:&hh saturation:&ss brightness:&bb alpha:&aa]) {
-            top = [UIColor colorWithHue:hh saturation:ss * 0.85 brightness:MIN(1, bb * 1.1) alpha:1];
-            bottom = [UIColor colorWithHue:hh saturation:MIN(1, ss * 1.05) brightness:bb * 0.75 alpha:1];
-        }
-        [self.glass setTop:top bottom:bottom];
-        self.panel.hidden = !withSign;
-        self.panel.frame = CGRectMake(lw, 0, rw, h);
-        SPPPlace(self.iconView, 12 + 13, h / 2, 26);
-        self.speedLabel.frame = CGRectMake(x, 4, 58, 38);
-        self.unitLabel.frame = CGRectMake(x, 41, 58, 12);
-        SPPPlace(self.sign, lw + rw / 2 - 3, h / 2, 52);
-        break;
-    }
-    case 8: {   // Neon
-        CGFloat h = 62, x = showIcon ? 12 + 24 + 8 : 12;
-        size = CGSizeMake(x + 72 + (withSign ? 6 + 54 + 5 : 12), h);
-        self.glass.frame = CGRectMake(0, 0, size.width, h); self.glass.corner = 18;
-        self.iconView.layer.shadowColor = sc.CGColor;
-        self.iconView.layer.shadowRadius = 6; self.iconView.layer.shadowOpacity = 0.95; self.iconView.layer.shadowOffset = CGSizeZero;
-        self.glass.fill.borderColor = [sc colorWithAlphaComponent:0.8].CGColor;
-        self.speedLabel.layer.shadowColor = sc.CGColor;
-        self.unitLabel.textColor = sc;
-        SPPPlace(self.iconView, 12 + 12, h / 2, 24);
-        self.speedLabel.frame = CGRectMake(x, 4, 72, 44);
-        self.unitLabel.frame = CGRectMake(x, h - 15, 72, 11);
-        SPPPlace(self.sign, size.width - 5 - 27, h / 2, 54);
-        break;
-    }
-    case 9: {   // Thanh do
-        CGFloat h = 74, x = showIcon ? 12 + 24 + 8 : 14, mid = 29;
-        size = CGSizeMake(x + 66 + (withSign ? 8 + 54 + 8 : 10), h);   // khong hien km/h
-        self.glass.frame = CGRectMake(0, 0, size.width, h); self.glass.corner = 18;
-        SPPPlace(self.iconView, 12 + 12, mid, 24);
-        CGFloat nw = ceil([self.speedLabel sizeThatFits:CGSizeMake(200, 44)].width);
-        self.speedLabel.frame = CGRectMake(x, mid - 21, nw, 42);
-        SPPAlignUnit(self.unitLabel, self.speedLabel, x + nw + 3, mid, 34);
-        SPPPlace(self.sign, size.width - 8 - 27, mid + 1, 54);
-        CGFloat bx = 12, bw = size.width - 24, by = h - 16;
-        CGFloat maxV = hasLimit ? self.limit * 1.3 : 140;
-        self.meterTrack.frame = CGRectMake(bx, by, bw, 6);
-        self.meterTrack.layer.cornerRadius = 3;
-        self.meterFill.layer.cornerRadius = 3;
-        self.meterFill.backgroundColor = sc;
-        [CATransaction setDisableActions:NO];
-        [UIView animateWithDuration:0.35 animations:^{
-            self.meterFill.frame = CGRectMake(bx, by, MAX(6, bw * MIN(1.0, self.speed / maxV)), 6);
-        }];
-        [CATransaction setDisableActions:YES];
-        self.meterMark.hidden = !hasLimit;
-        self.meterMark.frame = CGRectMake(bx + bw * (self.limit / maxV) - 1.25, by - 3, 2.5, 12);
-        self.meterMark.layer.cornerRadius = 1.25;
-        break;
-    }
-    case 10: {  // Chu noi
-        CGFloat nw = 76;
-        size = CGSizeMake(withSign ? nw + 8 + 58 : nw, 76);
-        SPPPlace(self.iconView, 13, 65, 15);
-        self.speedLabel.frame = CGRectMake(0, 0, nw, 56);
-        self.unitLabel.frame = showIcon ? CGRectMake(26, 58, 46, 14) : CGRectMake(8, 58, 60, 14);
-        self.unitLabel.textAlignment = showIcon ? NSTextAlignmentLeft : NSTextAlignmentCenter;
-        SPPPlace(self.sign, nw + 8 + 29, 34, 58);
-        halo = self.speedLabel;
-        break;
-    }
-    case 12: {  // Vo lang
-        CGFloat d = 112, r = d / 2, sg = 80; CGPoint m = CGPointMake(r, r);
-        size = CGSizeMake(withSign ? d + 6 + sg : d, d);
-        self.glass.frame = CGRectMake(0, 0, d, d); self.glass.corner = r;
-        self.deco.frame = self.glass.frame;
-        self.deco.layer.shadowPath = SPPCircle(m, r).CGPath;
-        ((CAShapeLayer *)self.parts[@"rim"]).path = SPPCircle(m, r - 7).CGPath;
-        ((CAShapeLayer *)self.parts[@"sheen"]).path = SPPArc(m, r - 7, 200, 340).CGPath;
-        ((CAShapeLayer *)self.parts[@"gripL"]).path = SPPArc(m, r - 7, 205, 245).CGPath;
-        ((CAShapeLayer *)self.parts[@"gripR"]).path = SPPArc(m, r - 7, 295, 335).CGPath;
-        ((CAShapeLayer *)self.parts[@"gripL"]).strokeColor = sc.CGColor;
-        ((CAShapeLayer *)self.parts[@"gripR"]).strokeColor = sc.CGColor;
-        UIBezierPath *sp = [UIBezierPath bezierPathWithRoundedRect:CGRectMake(r - 43, r - 4, 16, 12) cornerRadius:4];
-        [sp appendPath:[UIBezierPath bezierPathWithRoundedRect:CGRectMake(r + 27, r - 4, 16, 12) cornerRadius:4]];
-        [sp appendPath:[UIBezierPath bezierPathWithRoundedRect:CGRectMake(r - 7, r + 27, 14, 16) cornerRadius:4]];
-        ((CAShapeLayer *)self.parts[@"spokes"]).path = sp.CGPath;
-        SPPCirclePart(self.parts[@"hub"], m, 30);
-        self.speedLabel.frame = CGRectMake(r - 30, r - 21, 60, 34);
-        self.unitLabel.frame = CGRectMake(r - 30, r + 11, 60, 11);
-        SPPPlace(self.iconView, r, r + 40, 16);
-        SPPPlace(self.sign, d + 6 + sg / 2, r, sg);
-        halo = self.glass;
-        break;
-    }
-    case 13: {  // Banh xe
-        CGFloat d = 112, r = d / 2, sg = 80; CGPoint m = CGPointMake(r, r);
-        size = CGSizeMake(withSign ? d + 6 + sg : d, d);
-        self.glass.frame = CGRectMake(0, 0, d, d); self.glass.corner = r;
-        self.deco.frame = self.glass.frame;
-        self.deco.layer.shadowPath = SPPCircle(m, r).CGPath;
-        ((CAShapeLayer *)self.parts[@"tire"]).path = SPPCircle(m, r).CGPath;
-        CAShapeLayer *tread = (CAShapeLayer *)self.parts[@"tread"];
-        tread.path = SPPCircle(m, r - 4).CGPath;
-        CGFloat period = 2 * M_PI * (r - 4) / 28;
-        tread.lineDashPattern = @[@2.5, @(period - 2.5)];
-        SPPCirclePart(self.parts[@"rim"], m, r - 12);
-        ((CAShapeLayer *)self.parts[@"well"]).path = SPPCircle(m, r - 17).CGPath;
-        // 5 chau mam (hinh thang tu ban kinh 30 toi r - 18), ve trong lop phu kin dia de quay quanh tam
-        CAShapeLayer *spokes = (CAShapeLayer *)self.parts[@"spokes"];
-        spokes.frame = CGRectMake(0, 0, d, d);
-        UIBezierPath *sp = [UIBezierPath bezierPath];
-        for (int i = 0; i < 5; i++) {
-            CGFloat a = (i * 72 - 90) * M_PI / 180, r0 = 30, r1 = r - 18;
-            CGFloat w0 = 9 * M_PI / 180, w1 = w0 * r0 / r1 * 0.6;
-            [sp moveToPoint:CGPointMake(r + r0 * cos(a - w0), r + r0 * sin(a - w0))];
-            [sp addLineToPoint:CGPointMake(r + r0 * cos(a + w0), r + r0 * sin(a + w0))];
-            [sp addLineToPoint:CGPointMake(r + r1 * cos(a + w1), r + r1 * sin(a + w1))];
-            [sp addLineToPoint:CGPointMake(r + r1 * cos(a - w1), r + r1 * sin(a - w1))];
-            [sp closePath];
-        }
-        spokes.path = sp.CGPath;
-        CAShapeLayer *st = (CAShapeLayer *)self.parts[@"state"];
-        st.path = SPPCircle(m, r - 12.5).CGPath;
-        st.strokeColor = sc.CGColor;
-        SPPCirclePart(self.parts[@"cap"], m, 29);
-        [self setSpin:MAX(0, self.speed) / 75.0];   // 75 km/h ~ 1 vong/giay
-        CGFloat dy = showIcon ? 0 : -6;
-        SPPPlace(self.iconView, r, r - 17, 14);
-        self.speedLabel.frame = CGRectMake(r - 28, r - 15 + dy, 56, 30);
-        self.unitLabel.frame = CGRectMake(r - 28, r + 13 + dy, 56, 10);
-        SPPPlace(self.sign, d + 6 + sg / 2, r, sg);
-        halo = self.glass;
-        break;
-    }
-    case 14: {  // The HarmonyOS
-        CGFloat w = withSign ? 186 : 136, h = 132, sg = 62;
-        size = CGSizeMake(w, h);
-        self.glass.frame = CGRectMake(0, 0, w, h); self.glass.corner = 30;
-        UIColor *top = SPPRGB(0x8B, 0x7C, 0xFF, 0.96), *bottom = SPPRGB(0x5A, 0xB8, 0xFF, 0.96);   // gradient nhan tim -> xanh troi
-        if (state == 2) { top = SPPRGB(255, 112, 96, 0.96); bottom = SPPRGB(230, 40, 40, 0.96); }
-        else if (state == 1) { top = SPPRGB(255, 186, 70, 0.96); bottom = SPPRGB(245, 128, 10, 0.96); }
-        [self.glass setTop:top bottom:bottom];
-        CGFloat nx = showIcon ? 16 + 18 + 6 : 16;
-        SPPPlace(self.iconView, 16 + 9, 26, 18);
-        self.nameLabel.text = SPPNavAppName(self.app);
-        self.nameLabel.frame = CGRectMake(nx, 18, w - 14 - nx, 16);
-        CGFloat nw = ceil([self.speedLabel sizeThatFits:CGSizeMake(200, 60)].width);
-        self.speedLabel.frame = CGRectMake(14, 36, nw, 56);
-        SPPAlignUnit(self.unitLabel, self.speedLabel, 14 + nw + 4, 64, 40);
-        CGFloat maxV = hasLimit ? self.limit * 1.3 : 140, bw = w - 28;
-        self.meterTrack.frame = CGRectMake(14, 100, bw, 18);
-        self.meterTrack.layer.cornerRadius = 9; self.meterFill.layer.cornerRadius = 9;
-        [CATransaction setDisableActions:NO];
-        [UIView animateWithDuration:0.35 animations:^{
-            self.meterFill.frame = CGRectMake(14, 100, MAX(18, bw * MIN(1.0, self.speed / maxV)), 18);
-        }];
-        [CATransaction setDisableActions:YES];
-        SPPPlace(self.sign, w - 14 - sg / 2, 64, sg);
-        break;
-    }
-    case 15: {  // Dong ho kim
-        // Mat 0..160 km/h hoac 0..100 mph (vach chia theo ti le, maxV doi ra km/h de so voi self.speed / self.limit)
-        CGFloat top = mph ? 100 : 160, maxV = mph ? top * 1.609344 : top;
-        CGFloat d = 112, r = d / 2, R = r - 6, a0 = 150, a1 = 390, sg = 80;
-        CGPoint m = CGPointMake(r, r + 4);
-        size = CGSizeMake(withSign ? d + 6 + sg : d, d);
-        self.glass.frame = CGRectMake(0, 0, d, d); self.glass.corner = r;
-        self.deco.frame = self.glass.frame;
-        UIBezierPath *minor = [UIBezierPath bezierPath], *major = [UIBezierPath bezierPath];
-        for (int k = 0; k <= 16; k++) {   // 16 khoang (10 km/h hoac 6.25 mph), vach lon cach 1
-            CGFloat a = (a0 + (a1 - a0) * k / 16.0) * M_PI / 180;
-            BOOL big = (k % 2 == 0);
-            UIBezierPath *bp = big ? major : minor;
-            CGFloat rr = R - (big ? 9 : 5);
-            [bp moveToPoint:CGPointMake(m.x + rr * cos(a), m.y + rr * sin(a))];
-            [bp addLineToPoint:CGPointMake(m.x + (R - 1) * cos(a), m.y + (R - 1) * sin(a))];
-        }
-        ((CAShapeLayer *)self.parts[@"minor"]).path = minor.CGPath;
-        ((CAShapeLayer *)self.parts[@"major"]).path = major.CGPath;
-        for (NSUInteger i = 0; i < self.tickLabels.count; i++) {
-            CGFloat a = (a0 + (a1 - a0) * i / 4.0) * M_PI / 180, rt = R - 18;
-            self.tickLabels[i].text = [NSString stringWithFormat:@"%d", (int)(top * i / 4)];
-            self.tickLabels[i].frame = CGRectMake(m.x + rt * cos(a) - 11, m.y + rt * sin(a) - 5, 22, 10);
-        }
-        CAShapeLayer *zone = (CAShapeLayer *)self.parts[@"zone"];
-        zone.hidden = !hasLimit;
-        if (hasLimit) zone.path = SPPArc(m, R - 1, a0 + (a1 - a0) * MIN(self.limit, maxV) / maxV, a1).CGPath;
-        // Kim: ve chi ve ben phai tam (goc 0), xoay ca lop quanh tam
-        CAShapeLayer *needle = (CAShapeLayer *)self.parts[@"needle"];
-        needle.bounds = CGRectMake(0, 0, 2 * R, 2 * R);   // lop dang xoay: dat bounds + position (khong dat frame)
-        needle.position = m;
-        UIBezierPath *np = [UIBezierPath bezierPath];
-        [np moveToPoint:CGPointMake(R - 8, R)]; [np addLineToPoint:CGPointMake(2 * R - 8, R)];
-        needle.path = np.CGPath;
-        needle.strokeColor = sc.CGColor;
-        CGFloat ang = (a0 + (a1 - a0) * MIN(MAX(self.speed, 0), maxV) / maxV) * M_PI / 180;
-        [CATransaction setDisableActions:NO]; [CATransaction setAnimationDuration:0.4];
-        needle.transform = CATransform3DMakeRotation(ang, 0, 0, 1);
-        [CATransaction setDisableActions:YES];
-        SPPPlace(self.iconView, m.x, m.y, 16);   // logo lam chot kim
-        self.speedLabel.frame = CGRectMake(r - 32, m.y + 12, 64, 32);
-        self.unitLabel.hidden = YES;
-        SPPPlace(self.sign, d + 6 + sg / 2, r, sg);
-        halo = self.glass;
-        break;
-    }
-    case 16: {  // Vong kep
-        CGFloat d = 108, r = d / 2; CGPoint m = CGPointMake(r, r);
-        size = CGSizeMake(d, d);
-        self.glass.frame = CGRectMake(0, 0, d, d); self.glass.corner = r;
-        self.deco.frame = self.glass.frame;
-        CGFloat maxV = hasLimit ? self.limit * 1.3 : 140;
-        UIBezierPath *outer = SPPArc(m, 44, -90, 270), *inner = SPPArc(m, 32, -90, 270);
-        ((CAShapeLayer *)self.parts[@"outerTrack"]).path = outer.CGPath;
-        CAGradientLayer *of = (CAGradientLayer *)self.parts[@"outerFill"];
-        of.frame = CGRectMake(0, 0, d, d);
-        UIColor *endColor = state == 0 ? SPPAccent2() : sc;
-        of.colors = @[(id)SPPAccent().CGColor, (id)endColor.CGColor];
-        CAShapeLayer *om = (CAShapeLayer *)self.parts[@"outerMask"];
-        om.frame = of.bounds; om.path = outer.CGPath;
-        ((CAShapeLayer *)self.parts[@"innerTrack"]).path = inner.CGPath;
-        CAShapeLayer *inf = (CAShapeLayer *)self.parts[@"innerFill"];
-        inf.path = inner.CGPath;
-        inf.hidden = !hasLimit;
-        [CATransaction setDisableActions:NO]; [CATransaction setAnimationDuration:0.4];
-        om.strokeEnd = MIN(1.0, MAX(0.0, self.speed / maxV));
-        inf.strokeEnd = hasLimit ? MIN(1.0, self.limit / maxV) : 0;
-        [CATransaction setDisableActions:YES];
-        CGFloat dy = showIcon ? 2 : -4;
-        SPPPlace(self.iconView, r, r - 18, 14);
-        self.speedLabel.frame = CGRectMake(r - 27, r - 16 + dy, 54, 32);
-        self.unitLabel.frame = withSign ? CGRectMake(r - 26, r + 13 + dy, 52, 22) : CGRectMake(r - 26, r + 14 + dy, 52, 11);
-        self.unitLabel.font = withSign ? SPPNumFont(20) : SPPUnitFont(9);
-        self.unitLabel.text = hasLimit ? [NSString stringWithFormat:@"%d", SPPShown(self.limit, mph)] : @"--";
-        self.unitLabel.textColor = hasLimit ? SPPSignRed() : SPPRGB(60, 60, 67, 0.45);
-        self.sign.hidden = YES;   // gioi han da the hien o vong trong + so do
-        halo = self.glass;
-        break;
-    }
-    case 17: {  // Live View
-        CGFloat h = 52, x = showIcon ? 14 + 24 + 8 : 16, mid = 23, sg = 46;
-        size = CGSizeMake(x + 62 + (withSign ? 6 + sg + 3 : 10), h);   // khong hien km/h
-        self.glass.frame = CGRectMake(0, 0, size.width, h); self.glass.corner = h / 2;
-        SPPPlace(self.iconView, 14 + 12, h / 2, 24);
-        CGFloat nw = ceil([self.speedLabel sizeThatFits:CGSizeMake(200, 36)].width);
-        self.speedLabel.frame = CGRectMake(x, mid - 18, nw, 36);
-        SPPAlignUnit(self.unitLabel, self.speedLabel, x + nw + 3, mid, 34);
-        CGFloat maxV = hasLimit ? self.limit * 1.3 : 140;
-        self.meterTrack.frame = CGRectMake(x, h - 11, 56, 3);
-        self.meterTrack.layer.cornerRadius = 1.5; self.meterFill.layer.cornerRadius = 1.5;
-        self.meterFill.backgroundColor = sc;
-        [CATransaction setDisableActions:NO];
-        [UIView animateWithDuration:0.35 animations:^{
-            self.meterFill.frame = CGRectMake(x, h - 11, MAX(3, 56 * MIN(1.0, self.speed / maxV)), 3);
-        }];
-        [CATransaction setDisableActions:YES];
-        SPPPlace(self.sign, size.width - 3 - sg / 2, h / 2, sg);
-        break;
-    }
-    case 11:    // The sang: bo cuc nhu The ngang
-    default: {  // 0 The ngang
-        CGFloat h = 60, nw = 66, sg = 52;
-        CGFloat x = showIcon ? 12 + 26 + 4 : 14;
-        size = CGSizeMake(x + nw + (withSign ? 4 + sg + 4 : 10), h);
-        self.glass.frame = CGRectMake(0, 0, size.width, h); self.glass.corner = 18;
-        SPPPlace(self.iconView, 12 + 13, h / 2, 26);
-        self.speedLabel.frame = CGRectMake(x, 4, nw, 42);
-        self.unitLabel.frame = CGRectMake(x, 42, nw, 14);
-        SPPPlace(self.sign, x + nw + 4 + sg / 2, h / 2, sg);
-        break;
-    }
-    }
-    // Khong hien don vi km/h (kieu Vong kep van dung nhan nay cho so gioi han mau do)
-    BOOL unitIsLimit = (self.builtStyle == 16);
-    if (!unitIsLimit && self.builtStyle != 15) {
-        CGRect sf = self.speedLabel.frame, uf = self.unitLabel.frame;
-        if (CGRectGetMinY(uf) >= CGRectGetMaxY(sf) - 6)
-            self.speedLabel.center = CGPointMake(self.speedLabel.center.x, CGRectGetMidY(CGRectUnion(sf, uf)));
-    }
-    self.unitLabel.hidden = !unitIsLimit;
-
-    // Vung nhay: quang tron quanh hinh chinh, hoac phu kin nen
-    if (halo == self.sign && self.sign.usStyle) {   // bien kieu My: quang chu nhat bo goc quanh tam bien
-        CGRect hr = CGRectInset([self.sign convertRect:[self.sign plateRect] toView:self.card], -6, -6);
-        self.flashView.frame = hr;
-        self.flashView.layer.cornerRadius = 10;
-    } else if (halo) {
-        CGRect hr = CGRectInset(halo.frame, -6, -6);
-        self.flashView.frame = hr;
-        self.flashView.layer.cornerRadius = MIN(hr.size.width, hr.size.height) / 2;
-    } else {
-        self.flashView.frame = self.glass.bounds;
-        self.flashView.layer.cornerRadius = self.glass.corner;
-    }
-    // Hinh chinh de ve vien "giu de thoat": bien (kieu 2), ca the (kieu 10), con lai la nen
-    if (self.builtStyle == 2 && withSign && self.sign.usStyle) {
-        self.outlineRect = [self.sign convertRect:[self.sign plateRect] toView:self.card];
-        self.outlineCorner = self.outlineRect.size.height * 0.08;
-    }
-    else if (self.builtStyle == 2 && withSign) { self.outlineRect = self.sign.frame; self.outlineCorner = self.sign.frame.size.width / 2; }
-    else if (self.builtStyle == 10) { self.outlineRect = CGRectMake(0, 0, size.width, size.height); self.outlineCorner = 16; }
-    else { self.outlineRect = self.glass.frame; self.outlineCorner = self.glass.corner; }
-    [CATransaction commit];
+    CGSize size = [bv render];
     self.card.bounds = CGRectMake(0, 0, size.width, size.height);
     self.card.center = c;
-    [self setOverLimitWarning:(state == 2)];
+    bv.frame = self.card.bounds;
+    self.outlineRect = bv.outlineRect; self.outlineCorner = bv.outlineCorner;
     [self clampCard];
+}
+
+// Canh bao qua toc do kieu "Bong bong": bong bong phong to 1.12 + nghieng +-3 do theo nhip 0.7 s, quang do quanh hinh
+// (nhu .bshake trong tools/preview/index.html#bubble). Ap tren bubbleView (trong the) nen khong dung toi ti le / vi tri the.
+- (void)setWarnShake:(BOOL)on
+{
+    CALayer *l = self.bubbleView.layer;
+    if (!l || on == ([l animationForKey:@"sppShake"] != nil)) return;
+    if (!on) {
+        [l removeAnimationForKey:@"sppShake"];
+        l.shadowOpacity = 0;
+        return;
+    }
+    CAKeyframeAnimation *a = [CAKeyframeAnimation animationWithKeyPath:@"transform"];
+    CATransform3D big = CATransform3DMakeScale(1.12, 1.12, 1);
+    a.values = @[[NSValue valueWithCATransform3D:CATransform3DIdentity], [NSValue valueWithCATransform3D:CATransform3DRotate(big, -3 * M_PI / 180, 0, 0, 1)],
+                 [NSValue valueWithCATransform3D:CATransform3DIdentity], [NSValue valueWithCATransform3D:CATransform3DRotate(big, 3 * M_PI / 180, 0, 0, 1)],
+                 [NSValue valueWithCATransform3D:CATransform3DIdentity]];
+    a.keyTimes = @[@0, @0.25, @0.5, @0.75, @1];
+    a.duration = 0.7; a.repeatCount = HUGE_VALF;
+    a.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
+    [l addAnimation:a forKey:@"sppShake"];
+    if (!OMCLiteActive()) {
+        l.shadowColor = [UIColor colorWithRed:1 green:0.23 blue:0.19 alpha:1].CGColor;
+        l.shadowOffset = CGSizeZero; l.shadowRadius = 12; l.shadowOpacity = 0.85;
+    }
 }
 
 // Cai dat > Dat lai: ti le mac dinh, vi tri mac dinh tren ca iPhone lan xe
@@ -1619,73 +530,203 @@ static void SPPPlace(UIView *v, CGFloat cx, CGFloat cy, CGFloat size)
 // ---------------------------------------------------------------------
 //  Cham / giu / keo / 2 ngon
 // ---------------------------------------------------------------------
-// Giu bong bong: sau SPP_HOLD_BEGIN giay hien vien do chay quanh hinh chinh, du SPP_HOLD_QUIT giay -> thoat han app.
-// Tha tay som -> huy. Dang giu ma keo di -> huy dem, chuyen sang di chuyen the.
+// Giu bong bong SPP_HOLD_BEGIN giay -> menu nhan giu ngay tren bong bong (duoi neu sat mep tren): vien nen logo 4 mau
+// (OMCLogoMeshImage, nhu thanh ••• cua Split Screen) voi 5 o kinh tron: nho lai / to len (10 % moi lan, SPP_SIZE_MIN..MAX,
+// luu vao Cai dat cho man dang dung), canh bao / am thanh (2 bit SB_KEY_WARN_MODE = 2 cong tac trong Cai dat; tat = icon mo
+// + gach cheo do), vach trang, tat app (X do: thoat han app nguon, bong bong an). Tu dong sau SPP_MENU_HIDE giay khong cham
+// hoac cham cho khac (lop chan); dang giu ma keo di -> dong menu, di chuyen the. Thay cho "giu 2 giay de thoat app" cu.
+// Ban duyet: tools/preview/index.html#bubble (giu bong bong tren man xe).
+typedef NS_ENUM(NSInteger, SPPMenuItem) { SPPMenuSmaller = 0, SPPMenuLarger, SPPMenuWarn, SPPMenuSound, SPPMenuQuit };
+#define SPP_MENU_TAG 100
+
+static UIColor *SPPMenuInk(void) { return [UIColor colorWithRed:74 / 255.0 green:79 / 255.0 blue:128 / 255.0 alpha:1]; }   // muc HarmonyOS (--mk)
+
 - (void)longPressed:(UILongPressGestureRecognizer *)g
 {
     CGPoint p = [g locationInView:self.window];
     switch (g.state) {
     case UIGestureRecognizerStateBegan:
         self.holdStart = p; self.holdDragging = NO;
-        if (!SPPIsGPSSource(self.app)) [self startHold];   // GPS iPhone: khong co app de thoat, giu chi de keo
+        [self showMenu];
         break;
     case UIGestureRecognizerStateChanged:
-        if (!self.holdDragging && hypot(p.x - self.holdStart.x, p.y - self.holdStart.y) > 12) { self.holdDragging = YES; [self cancelHold]; }
+        if (!self.holdDragging && hypot(p.x - self.holdStart.x, p.y - self.holdStart.y) > 12) { self.holdDragging = YES; [self hideMenu]; }
         if (self.holdDragging) {
             self.card.center = CGPointMake(self.card.center.x + p.x - self.holdStart.x, self.card.center.y + p.y - self.holdStart.y);
             self.holdStart = p;
             [self clampCard];
         }
         break;
-    default:   // Ended / Cancelled / Failed
+    default:   // Ended / Cancelled / Failed: menu van mo (tu dong / cham cho khac)
         if (self.holdDragging) [self saveCardPosition];
         self.holdDragging = NO;
-        [self cancelHold];
         break;
     }
 }
 
-- (void)startHold
+// O kinh tron cua menu: icon SF Symbol mau muc (Tat app: do)
+- (UIButton *)menuButton:(SPPMenuItem)item
 {
-    [self cancelHold];
-    CGFloat remain = SPP_HOLD_QUIT - SPP_HOLD_BEGIN;
-    CGRect r = CGRectInset(self.outlineRect, -5, -5);
-    CAShapeLayer *ring = [CAShapeLayer layer];
-    ring.path = [UIBezierPath bezierPathWithRoundedRect:r cornerRadius:self.outlineCorner + 5].CGPath;
-    ring.fillColor = [UIColor clearColor].CGColor;
-    ring.strokeColor = SPPRed().CGColor;
-    ring.lineWidth = 4; ring.lineCap = kCALineCapRound;
-    ring.shadowColor = SPPRed().CGColor; ring.shadowRadius = 4; ring.shadowOpacity = 0.8; ring.shadowOffset = CGSizeZero;
-    ring.strokeEnd = 1;
-    CABasicAnimation *a = [CABasicAnimation animationWithKeyPath:@"strokeEnd"];
-    a.fromValue = @0; a.toValue = @1; a.duration = remain;
-    [ring addAnimation:a forKey:@"sppHold"];
-    [self.card.layer addSublayer:ring];
-    [self applyCrispScale];
-    self.holdRing = ring;
-    [UIView animateWithDuration:remain delay:0 options:UIViewAnimationOptionCurveEaseIn | UIViewAnimationOptionAllowUserInteraction
-                     animations:^{ self.card.transform = [self baseScaled:0.92]; } completion:nil];
+    NSArray *names = @[@"minus", @"plus", @"exclamationmark.triangle", @"speaker.wave.2", @"xmark"];
+    UIButton *b = [UIButton buttonWithType:UIButtonTypeCustom];
+    b.bounds = CGRectMake(0, 0, SPP_MENU_BTN, SPP_MENU_BTN);
+    b.tag = SPP_MENU_TAG + item;
+    b.layer.cornerRadius = SPP_MENU_BTN / 2;
+    b.backgroundColor = [UIColor colorWithWhite:1 alpha:0.55];
+    b.layer.borderWidth = 1; b.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.95].CGColor;
+    b.layer.shadowColor = [UIColor colorWithRed:70 / 255.0 green:60 / 255.0 blue:140 / 255.0 alpha:1].CGColor;
+    b.layer.shadowOpacity = 0.14; b.layer.shadowRadius = 3; b.layer.shadowOffset = CGSizeMake(0, 2);
+    UIImageSymbolConfiguration *cfg = [UIImageSymbolConfiguration configurationWithPointSize:17 weight:UIImageSymbolWeightMedium];
+    UIImage *img = [[UIImage systemImageNamed:names[item] withConfiguration:cfg] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+    [b setImage:img forState:UIControlStateNormal];
+    b.tintColor = item == SPPMenuQuit ? SPPRed() : SPPMenuInk();
+    [b addTarget:self action:@selector(menuTapped:) forControlEvents:UIControlEventTouchUpInside];
+    return b;
+}
+
+// Canh bao / am thanh dang tat: icon mo + gach cheo do (vien trang) de len
+- (void)setMenuButton:(UIButton *)b off:(BOOL)off
+{
+    for (CALayer *l in [b.layer.sublayers copy]) if ([l.name isEqualToString:@"slash"]) [l removeFromSuperlayer];
+    b.tintColor = off ? [SPPMenuInk() colorWithAlphaComponent:0.45] : SPPMenuInk();
+    if (!off) return;
+    UIBezierPath *p = [UIBezierPath bezierPath];
+    [p moveToPoint:CGPointMake(8, SPP_MENU_BTN - 8)]; [p addLineToPoint:CGPointMake(SPP_MENU_BTN - 8, 8)];
+    for (int i = 0; i < 2; i++) {
+        CAShapeLayer *l = [CAShapeLayer layer];
+        l.name = @"slash";
+        l.path = p.CGPath; l.fillColor = nil; l.lineCap = kCALineCapRound;
+        l.strokeColor = (i == 0 ? [UIColor colorWithWhite:1 alpha:0.95] : SPPRed()).CGColor;
+        l.lineWidth = i == 0 ? 5.4 : 2.4;
+        [b.layer addSublayer:l];
+    }
+}
+
+- (void)showMenu
+{
+    [self hideMenu];
+    UIWindow *w = self.window;
+    if (!w || !self.card) return;
+    // Lop chan phu cua so: cham bat ky cho khac -> dong menu. Phai co ve (trang alpha 0.02, mat khong thay): cua so pass-through,
+    // khong co lop nay thi cham roi xuong CarPlay / app, SpringBoard khong biet. Cham do chi de dong menu (nhu popup iOS).
+    UIView *shield = [[UIView alloc] initWithFrame:w.bounds];
+    shield.backgroundColor = [UIColor colorWithWhite:1 alpha:0.02];
+    shield.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    [shield addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(hideMenu)]];
+    [w insertSubview:shield belowSubview:self.card];
+    self.menuShield = shield;
+
+    NSInteger warn = [SPPPrefs warnMode];
+    UIView *m = [[UIView alloc] init];
+    CGFloat pad = 5, gap = 6, sep = 9, x = pad;
+    for (NSInteger i = SPPMenuSmaller; i <= SPPMenuQuit; i++) {
+        if (i == SPPMenuQuit) {   // vach trang tach nut Tat app (nhu thanh ••• cua Split Screen)
+            UIView *line = [[UIView alloc] initWithFrame:CGRectMake(x + (sep - 1) / 2, pad + 5, 1, SPP_MENU_BTN - 10)];
+            line.backgroundColor = [UIColor colorWithWhite:1 alpha:0.95];
+            [m addSubview:line];
+            x += sep;
+        }
+        UIButton *b = [self menuButton:(SPPMenuItem)i];
+        b.frame = CGRectMake(x, pad, SPP_MENU_BTN, SPP_MENU_BTN);
+        if (i == SPPMenuWarn) [self setMenuButton:b off:!(warn & 1)];
+        if (i == SPPMenuSound) [self setMenuButton:b off:!(warn & 2)];
+        [m addSubview:b];
+        x += SPP_MENU_BTN + (i == SPPMenuQuit ? 0 : gap);
+    }
+    m.bounds = CGRectMake(0, 0, x + pad, SPP_MENU_BTN + 2 * pad);
+    // Nen logo 4 mau + vien trang + bong tim nhat (DESIGN.md: bang tren man xe)
+    UIImageView *mesh = [[UIImageView alloc] initWithImage:OMCLogoMeshImage(NO)];
+    mesh.frame = m.bounds; mesh.contentMode = UIViewContentModeScaleToFill;
+    mesh.layer.cornerRadius = m.bounds.size.height / 2; mesh.clipsToBounds = YES;
+    mesh.layer.borderWidth = 1; mesh.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.92].CGColor;
+    [m insertSubview:mesh atIndex:0];
+    m.layer.shadowColor = [UIColor colorWithRed:90 / 255.0 green:70 / 255.0 blue:170 / 255.0 alpha:1].CGColor;
+    m.layer.shadowOpacity = 0.28; m.layer.shadowRadius = 12; m.layer.shadowOffset = CGSizeMake(0, 6);
+    [w addSubview:m];
+    self.menu = m;
+    [self placeMenuAnimated:NO];
+    m.alpha = 0; m.transform = CGAffineTransformConcat(CGAffineTransformMakeScale(0.85, 0.85), CGAffineTransformMakeTranslation(0, 6));   // tha xuong, lo xo
+    [UIView animateWithDuration:0.45 delay:0 usingSpringWithDamping:0.8 initialSpringVelocity:0.5 options:UIViewAnimationOptionAllowUserInteraction
+                     animations:^{ m.alpha = 1; m.transform = CGAffineTransformIdentity; } completion:nil];
     [[[UIImpactFeedbackGenerator alloc] initWithStyle:UIImpactFeedbackStyleLight] impactOccurred];
-    __weak SPPBubble *weakSelf = self;
-    self.holdTimer = [NSTimer scheduledTimerWithTimeInterval:remain repeats:NO block:^(NSTimer *t) { [weakSelf quitSourceApp]; }];
+    [self armMenuTimer];
+    SPPLog("bubble: giu -> menu nhan giu (canh bao %@, am thanh %@)", (warn & 1) ? @"bat" : @"tat", (warn & 2) ? @"bat" : @"tat");
 }
 
-- (void)cancelHold
+- (void)armMenuTimer
 {
-    [self.holdTimer invalidate]; self.holdTimer = nil;
-    if (!self.holdRing) return;
-    [self.holdRing removeFromSuperlayer]; self.holdRing = nil;
-    [UIView animateWithDuration:0.2 delay:0 options:UIViewAnimationOptionBeginFromCurrentState
-                     animations:^{ self.card.transform = [self baseTransform]; } completion:nil];
+    [self.menuTimer invalidate];
+    __weak SPPBubble *weakSelf = self;
+    self.menuTimer = [NSTimer scheduledTimerWithTimeInterval:SPP_MENU_HIDE repeats:NO block:^(NSTimer *t) { [weakSelf hideMenu]; }];
 }
 
-// Du 3 giay: thoat han app dang cap toc do, an bong bong ngay
+// Menu ngay tren bong bong, giua theo the; sat mep tren thi xuong duoi; khong lo khoi mep ngang. Neo o phia bong bong (lo xo tu do).
+- (void)placeMenuAnimated:(BOOL)animated
+{
+    UIView *m = self.menu;
+    if (!m) return;
+    CGRect b = self.window.bounds, c = self.card.frame;   // frame da tinh ti le
+    CGSize s = m.bounds.size;
+    CGFloat x = MIN(CGRectGetMaxX(b) - s.width / 2 - 6, MAX(s.width / 2 + 6, CGRectGetMidX(c)));
+    BOOL above = CGRectGetMinY(c) - 10 - s.height >= 4;
+    m.layer.anchorPoint = CGPointMake(0.5, above ? 1 : 0);
+    CGPoint center = CGPointMake(x, above ? CGRectGetMinY(c) - 10 : CGRectGetMaxY(c) + 10);
+    if (!animated) { m.center = center; return; }
+    [UIView animateWithDuration:0.3 delay:0 usingSpringWithDamping:0.85 initialSpringVelocity:0.3
+                        options:UIViewAnimationOptionBeginFromCurrentState | UIViewAnimationOptionAllowUserInteraction
+                     animations:^{ m.center = center; } completion:nil];
+}
+
+- (void)hideMenu
+{
+    [self.menuTimer invalidate]; self.menuTimer = nil;
+    [self.menuShield removeFromSuperview]; self.menuShield = nil;
+    UIView *m = self.menu;
+    if (!m) return;
+    self.menu = nil;
+    [UIView animateWithDuration:0.18 delay:0 options:UIViewAnimationOptionCurveEaseIn | UIViewAnimationOptionBeginFromCurrentState
+                     animations:^{ m.alpha = 0; m.transform = CGAffineTransformMakeScale(0.9, 0.9); } completion:^(BOOL f) { [m removeFromSuperview]; }];
+}
+
+- (void)menuTapped:(UIButton *)b
+{
+    [self armMenuTimer];
+    SPPMenuItem item = (SPPMenuItem)(b.tag - SPP_MENU_TAG);
+    [UIView animateWithDuration:0.1 animations:^{ b.transform = CGAffineTransformMakeScale(0.9, 0.9); }
+                     completion:^(BOOL f) { [UIView animateWithDuration:0.2 animations:^{ b.transform = CGAffineTransformIdentity; }]; }];
+    switch (item) {
+    case SPPMenuSmaller: case SPPMenuLarger: {
+        double pct = round(self.scale / SPP_SCALE_BASE * 100) + (item == SPPMenuLarger ? 10 : -10);
+        pct = MIN(SPP_SIZE_MAX, MAX(SPP_SIZE_MIN, pct));
+        [SPPPrefs setSizePercent:pct forCar:!self.onPhone];
+        self.scale = [self savedScale];
+        [UIView animateWithDuration:0.3 delay:0 usingSpringWithDamping:0.8 initialSpringVelocity:0.3
+                            options:UIViewAnimationOptionBeginFromCurrentState | UIViewAnimationOptionAllowUserInteraction
+                         animations:^{ self.card.transform = [self baseTransform]; [self clampCard]; }
+                         completion:^(BOOL f) { [self applyCrispScale]; [self saveCardPosition]; }];
+        [self placeMenuAnimated:YES];
+        SPPLog("bubble: menu -> co %.0f %% (%@)", pct, self.onPhone ? @"iPhone" : @"xe");
+        break;
+    }
+    case SPPMenuWarn: case SPPMenuSound: {
+        NSInteger bit = item == SPPMenuWarn ? 1 : 2, mode = [SPPPrefs warnMode] ^ bit;
+        [SPPPrefs setWarnMode:mode];
+        [self setMenuButton:b off:!(mode & bit)];
+        SPPLog("bubble: menu -> %@ %@", item == SPPMenuWarn ? @"canh bao" : @"am thanh", (mode & bit) ? @"bat" : @"tat");
+        break;
+    }
+    case SPPMenuQuit:
+        [self quitSourceApp];
+        break;
+    }
+}
+
+// Tat app (menu nhan giu): thoat han app dang cap toc do, an bong bong ngay
 - (void)quitSourceApp
 {
-    [self cancelHold];
-    if (SPPIsGPSSource(self.app)) return;
+    [self hideMenu];
     NSString *bid = SPPNavAppBundle(self.app);
-    SPPLog("bubble: giu %.0f giay -> thoat han %@", SPP_HOLD_QUIT, bid);
+    SPPLog("bubble: menu -> thoat han %@", bid);
     [[[UINotificationFeedbackGenerator alloc] init] notificationOccurred:UINotificationFeedbackTypeSuccess];
     SPPKillApp(bid);
     self.speed = -1; self.limit = -1;
@@ -1697,7 +738,7 @@ static void SPPPlace(UIView *v, CGFloat cx, CGFloat cy, CGFloat size)
 - (void)pinched:(UIPinchGestureRecognizer *)g
 {
     static CGFloat startScale = 1;
-    if (g.state == UIGestureRecognizerStateBegan) { startScale = self.scale; self.pinching = YES; [self cancelHold]; }
+    if (g.state == UIGestureRecognizerStateBegan) { startScale = self.scale; self.pinching = YES; [self hideMenu]; }
     if (g.state == UIGestureRecognizerStateBegan || g.state == UIGestureRecognizerStateChanged) {
         CGFloat lo = SPP_SCALE_BASE * SPP_SIZE_MIN / 100, hi = SPP_SCALE_BASE * SPP_SIZE_MAX / 100;
         self.scale = MIN(hi, MAX(lo, startScale * g.scale));
@@ -1716,7 +757,7 @@ static void SPPPlace(UIView *v, CGFloat cx, CGFloat cy, CGFloat size)
 
 - (void)panned:(UIPanGestureRecognizer *)g
 {
-    if (g.state == UIGestureRecognizerStateBegan) [self cancelHold];
+    if (g.state == UIGestureRecognizerStateBegan) [self hideMenu];
     CGPoint t = [g translationInView:self.window];
     self.card.center = CGPointMake(self.card.center.x + t.x, self.card.center.y + t.y);
     [self clampCard];
@@ -1727,9 +768,9 @@ static void SPPPlace(UIView *v, CGFloat cx, CGFloat cy, CGFloat size)
 // Cham bong bong -> mo lai app dan duong (tren xe: giao dien CarPlay cua app; khong co xe: tren iPhone)
 - (void)tapped:(UITapGestureRecognizer *)g
 {
+    if (self.menu) { [self hideMenu]; return; }   // menu dang mo: cham bong bong chi dong menu
     [UIView animateWithDuration:0.1 animations:^{ self.card.transform = [self baseScaled:0.92]; }
                      completion:^(BOOL f) { [UIView animateWithDuration:0.15 animations:^{ self.card.transform = [self baseTransform]; }]; }];
-    if (SPPIsGPSSource(self.app)) return;   // GPS iPhone: khong co app de mo
     if (!self.onPhone) {
         SPPLog("bubble: cham -> mo %@ tren CarPlay", SPPNavAppName(self.app));
         static int tokOpen = 0;
@@ -1758,7 +799,7 @@ static void SPPPlace(UIView *v, CGFloat cx, CGFloat cy, CGFloat size)
     }
     self.carLostAt = 0;
     if (self.window && self.onPhone == !car) return;
-    if (self.window) { self.window.hidden = YES; [self.window removeFromSuperview]; self.window = nil; }
+    if (self.window) { [self hideMenu]; self.window.hidden = YES; [self.window removeFromSuperview]; self.window = nil; }
     CGFloat ds = [UIScreen mainScreen].scale;
     UIWindow *w = car ? SPPMakeCarWindow(&ds) : SPPMakePhoneWindow();   // iPhone: xoay theo huong may (applyPhoneOrientation)
     if (!w) return;
@@ -1769,8 +810,11 @@ static void SPPPlace(UIView *v, CGFloat cx, CGFloat cy, CGFloat size)
     w.windowLevel = UIWindowLevelStatusBar + 70;
     w.backgroundColor = [UIColor clearColor];
 
-    // The chua noi dung theo kieu da chon (xem buildStyle:)
+    // The chua bong bong theo kieu da chon (SPPBubbleView) + cu chi
     UIView *card = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 10, 10)];
+    SPPBubbleView *bv = [[SPPBubbleView alloc] initWithFrame:card.bounds];
+    bv.log = ^(NSString *line) { SPPLogWrite(line); };
+    [card addSubview:bv];
     [card addGestureRecognizer:[[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panned:)]];
     [card addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapped:)]];
     [card addGestureRecognizer:[[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(pinched:)]];
@@ -1781,8 +825,8 @@ static void SPPPlace(UIView *v, CGFloat cx, CGFloat cy, CGFloat size)
     card.transform = [self baseTransform];
     [w addSubview:card];
 
-    self.window = w; self.card = card;
-    self.builtStyle = -1;   // ve lai noi dung trong the moi
+    self.window = w; self.card = card; self.bubbleView = bv;
+    self.iconApp = -1;   // the moi: ve lai icon
     if (!car) [self applyPhoneOrientationForce:YES];
     [self restoreCardPosition];
     w.hidden = YES;
@@ -1900,7 +944,7 @@ static void SPPSetContentsScale(CALayer *l, CGFloat s)
 
 // Bo test "speedBubble" (Core/OMCTest.h), chay trong SpringBoard khi xe da ket noi: bom toc do gia vao dung duong
 // app dan duong gui (updateSpeed:...), kiem bong bong hien tren xe, so dung, trang thai gan / vuot gioi han, an khi
-// Split Screen chiem man xe, ve dung ca 18 kieu, co lon, an khi mat nguon. Kieu / co lon cua nguoi dung duoc tra lai.
+// Split Screen chiem man xe, ve dung moi kieu, co lon, an khi mat nguon. Kieu / co lon cua nguoi dung duoc tra lai.
 static NSTimer *sSPPTestTimer;   // gia lam "Xem thu" (demoTimer): bo qua dieu kien "app da duoc mo"
 static id sSPPTestStyle, sSPPTestSizeCar;
 
@@ -1931,7 +975,7 @@ static NSString *SPPTestState(void)
 {
     SPPBubble *b = [SPPBubble shared];
     return OMCTestFormat(@"window=%d hidden=%d alpha=%.2f onPhone=%d speed=%d limit=%d state=%d style=%ld/%ld scale=%.2f card=%@ carBusy=%d fg=%d",
-        b.window != nil, b.window.hidden, b.card.alpha, b.onPhone, b.speed, b.limit, [b speedState], (long)b.builtStyle, (long)[SPPPrefs style],
+        b.window != nil, b.window.hidden, b.card.alpha, b.onPhone, b.speed, b.limit, [b speedState], (long)b.bubbleView.builtStyle, (long)[SPPPrefs style],
         b.scale, NSStringFromCGRect(b.card.frame), b.carBusy, [b anyAppForeground]);
 }
 
@@ -1967,8 +1011,8 @@ static NSArray<NSDictionary *> *SPPTestSteps(void)
     [steps addObject:OMCTestStep(@"So toc do dung", 0.5, 3, ^NSString *{ SPPTestFeed(57, 60); return nil; }, ^NSString *{
         SPPTestFeed(57, 60);
         if (b.speed != 57 || b.limit != 60) return SPPTestWhy(@"toc do / gioi han khong khop");
-        NSString *want = [NSString stringWithFormat:@"%d", SPPShown(57, [SPPPrefs useMph])];   // mph: 35
-        if (b.speedLabel && ![b.speedLabel.text isEqualToString:want]) return SPPTestWhy(OMCTestFormat(@"chu hien '%@', can %@", b.speedLabel.text, want));
+        NSString *want = @"57";
+        if (b.bubbleView.speedLabel && ![b.bubbleView.speedLabel.text isEqualToString:want]) return SPPTestWhy(OMCTestFormat(@"chu hien '%@', can %@", b.bubbleView.speedLabel.text, want));
         return nil;
     })];
     [steps addObject:OMCTestStep(@"Gan gioi han (57 / 60) -> canh bao", 0.5, 3, nil, ^NSString *{
@@ -1990,19 +1034,19 @@ static NSArray<NSDictionary *> *SPPTestSteps(void)
     [steps addObject:OMCTestStep(@"Man xe ranh -> hien lai", 0.8, 4, ^NSString *{ [b setCarBusy:NO]; return nil; },
         ^NSString *{ SPPTestFeed(40, 60); return SPPTestVisibleOnCar(); })];
 
-    for (NSInteger style = 0; style < 18; style++) {
+    for (NSInteger style = 0; style < SB_STYLE_COUNT; style++) {
         [steps addObject:OMCTestStep(OMCTestFormat(@"Kieu %ld", (long)style), 0.8, 4, ^NSString *{
             SPPTestSetPref(SB_KEY_STYLE, @(style));
             SPPTestFeed(style % 3 == 2 ? 72 : 48, 60);   // vai kieu ve luc vuot gioi han
             return nil;
         }, ^NSString *{
             SPPTestFeed(style % 3 == 2 ? 72 : 48, 60);
-            if (b.builtStyle != style) return SPPTestWhy(OMCTestFormat(@"dang ve kieu %ld", (long)b.builtStyle));
+            if (b.bubbleView.builtStyle != style) return SPPTestWhy(OMCTestFormat(@"dang ve kieu %ld", (long)b.bubbleView.builtStyle));
             return SPPTestVisibleOnCar();
         })];
     }
     [steps addObject:OMCTestStep(@"Tra lai kieu cua nguoi dung", 0.5, 3, ^NSString *{ SPPTestSetPref(SB_KEY_STYLE, sSPPTestStyle); return nil; },
-        ^NSString *{ SPPTestFeed(48, 60); return b.builtStyle == [SPPPrefs style] ? nil : SPPTestWhy(@"kieu chua ve lai"); })];
+        ^NSString *{ SPPTestFeed(48, 60); return b.bubbleView.builtStyle == [SPPPrefs style] ? nil : SPPTestWhy(@"kieu chua ve lai"); })];
 
     for (NSNumber *pct in @[@60, @220]) {
         [steps addObject:OMCTestStep(OMCTestFormat(@"Co %@%% tren xe", pct), 0.8, 4, ^NSString *{ SPPTestSetPref(SB_KEY_SIZE_CAR, pct); return nil; },
@@ -2016,8 +1060,11 @@ static NSArray<NSDictionary *> *SPPTestSteps(void)
     [steps addObject:OMCTestStep(@"Tra lai co cua nguoi dung", 0.5, 3, ^NSString *{ SPPTestSetPref(SB_KEY_SIZE_CAR, sSPPTestSizeCar); return nil; },
         ^NSString *{ SPPTestFeed(48, 60); return SPPTestVisibleOnCar(); })];
 
-    [steps addObject:OMCTestStep(@"Mat nguon toc do -> an", 1, 4, ^NSString *{ SPPTestEnd(); return nil; },
+    // App dan duong that dang chay (Vietmap tren iOS 15, log 17/10 22:55) gui toc do ngay sau khi bo so -> bong bong hien lai
+    // va buoc nay FAIL oan: tam chan moi ban tin toc do trong luc kiem, buoc sau mo lai
+    [steps addObject:OMCTestStep(@"Mat nguon toc do -> an", 1, 4, ^NSString *{ sSPPTestMute = YES; SPPTestEnd(); return nil; },
         ^NSString *{ return (!b.window || b.window.hidden || b.card.alpha < 0.1) ? nil : SPPTestWhy(@"van hien khi khong con nguon"); })];
+    [steps addObject:OMCTestStep(@"Nhan lai toc do tu app dan duong", 0, 0, ^NSString *{ sSPPTestMute = NO; return nil; }, nil)];
     return steps;
 }
 

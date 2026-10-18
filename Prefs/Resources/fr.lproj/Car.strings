@@ -26,7 +26,6 @@
 "Couldn't reopen %@" = "Impossible de rouvrir %@";
 "Couldn't show %@ on the car" = "Impossible d’afficher %@ dans la voiture";
 "Done" = "OK";
-"Driving · sound only" = "En conduite · son uniquement";
 "Drizzle" = "Bruine";
 "Exit split" = "Quitter le partage";
 "Favorites" = "Favoris";
@@ -37,7 +36,6 @@
 "Good evening" = "Bonsoir";
 "Good morning" = "Bonjour";
 "Heavy rain" = "Forte pluie";
-"Late night" = "Il se fait tard";
 "Layout" = "Disposition";
 "Layouts" = "Dispositions";
 "Needs at least 2 panes" = "Au moins 2 volets requis";
@@ -53,7 +51,6 @@
 "Speed Bubble" = "Bulle de vitesse";
 "Split Screen" = "Écran partagé";
 "Startup Screen" = "Écran de démarrage";
-"Stop the car to watch again" = "Arrêtez la voiture pour regarder à nouveau";
 "This app can't be split" = "Cette app ne peut pas être partagée";
 "This app doesn't support CarPlay" = "Cette app n’est pas compatible avec CarPlay";
 "This pane has no app" = "Ce volet n’a pas d’app";
@@ -76,3 +73,19 @@
 "Background" = "Arrière-plan";
 "Quit app" = "Quitter l'app";
 "Split" = "Diviser";
+"Your car is ready" = "Votre voiture est prête";
+"Your car is ready, %@" = "Votre voiture est prête, %@";
+"iPhone apps cannot float" = "Les apps iPhone ne peuvent pas flotter";
+
+/* Speed Bubble: spoken over-speed warnings ({L} = the limit) */
+"You are over the speed limit" = "Vous dépassez la limite de vitesse";
+"Too fast, the limit is {L}" = "Trop vite, la limite est de {L}";
+"Please slow down" = "Veuillez ralentir";
+"Hey, this is a car, not a plane!" = "Hé, c’est une voiture, pas un avion !";
+"Easy now, the road is long and the wallet is thin" = "Doucement, la route est longue et le portefeuille est mince";
+"The speed camera is smiling at you" = "Le radar vous sourit";
+"What's the rush? Dinner at home is still hot" = "Pourquoi se presser ? Le dîner à la maison est encore chaud";
+"Easy on the gas, speeding won't make you any better looking" = "Doucement sur l’accélérateur, rouler vite ne vous rend pas plus beau";
+"Choose an app for the floating window" = "Choisir une app pour la fenêtre flottante";
+"Choose an app for pane %d" = "Choisir une app pour le volet %d";
+"Tap an app to open it here" = "Touchez une app pour l’ouvrir ici";
