@@ -18,7 +18,7 @@
 "SPEEDBUBBLE_SIZE_CAR" = "Taille sur CarPlay";
 "SPEEDBUBBLE_RESET_LAYOUT" = "Réinitialiser la position et la taille";
 "SPEEDBUBBLE_SOURCE" = "Source de vitesse";
-"SPEEDBUBBLE_GESTURES_FOOTER" = "À l’écran : faites glisser pour déplacer · pincez pour redimensionner · touchez pour ouvrir l’app · maintenez 2 s pour quitter l’app.";
+"SPEEDBUBBLE_GESTURES_FOOTER" = "À l’écran : faites glisser pour déplacer · pincez pour redimensionner · touchez pour ouvrir l’app · maintenez pour le menu rapide (taille ±, alerte, son, quitter l’app).";
 "SPEEDBUBBLE_WARN" = "Alerte de survitesse";
 
 /* Settings page (OMCSpeedBubbleController) */

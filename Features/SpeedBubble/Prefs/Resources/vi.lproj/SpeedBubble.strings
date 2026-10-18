@@ -18,7 +18,7 @@
 "SPEEDBUBBLE_SIZE_CAR" = "Cỡ trên CarPlay";
 "SPEEDBUBBLE_RESET_LAYOUT" = "Đặt lại vị trí và cỡ";
 "SPEEDBUBBLE_SOURCE" = "Nguồn tốc độ";
-"SPEEDBUBBLE_GESTURES_FOOTER" = "Trên màn: kéo để dời · chụm 2 ngón đổi cỡ · chạm để mở app · giữ 2 giây để thoát app.";
+"SPEEDBUBBLE_GESTURES_FOOTER" = "Trên màn: kéo để dời · chụm 2 ngón đổi cỡ · chạm để mở app · giữ để mở menu nhanh (cỡ ±, cảnh báo, âm thanh, tắt app).";
 "SPEEDBUBBLE_WARN" = "Cảnh báo quá tốc độ";
 
 /* Settings page (OMCSpeedBubbleController) */

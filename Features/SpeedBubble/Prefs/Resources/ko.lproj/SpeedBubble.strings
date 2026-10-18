@@ -18,7 +18,7 @@
 "SPEEDBUBBLE_SIZE_CAR" = "CarPlay에서 크기";
 "SPEEDBUBBLE_RESET_LAYOUT" = "위치 및 크기 재설정";
 "SPEEDBUBBLE_SOURCE" = "속도 출처";
-"SPEEDBUBBLE_GESTURES_FOOTER" = "화면에서: 드래그하여 이동 · 핀치하여 크기 조절 · 탭하여 앱 열기 · 2초간 길게 눌러 앱 종료.";
+"SPEEDBUBBLE_GESTURES_FOOTER" = "화면에서: 드래그하여 이동 · 핀치하여 크기 조절 · 탭하여 앱 열기 · 길게 눌러 빠른 메뉴 (크기 ±, 경고, 소리, 앱 종료).";
 "SPEEDBUBBLE_WARN" = "과속 경고";
 
 /* Settings page (OMCSpeedBubbleController) */

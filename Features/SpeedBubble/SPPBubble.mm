@@ -18,8 +18,9 @@ static void SPPStripShadows(CALayer *layer)
 #define SPP_SCALE_BASE  0.9   // ti le ung voi 100% trong Cai dat (Kich thuoc tren iPhone / CarPlay)
 #define SPP_SIZE_MIN    60.0  // % (Cai dat + chum 2 ngon)
 #define SPP_SIZE_MAX    220.0
-#define SPP_HOLD_QUIT   2.0   // giay giu bong bong de thoat han app
-#define SPP_HOLD_BEGIN  0.2   // giay giu toi thieu truoc khi bat dau dem (de khong nham voi cham / keo)
+#define SPP_HOLD_BEGIN  0.6   // giay giu bong bong -> menu nhan giu (nho / to, canh bao, am thanh, tat app)
+#define SPP_MENU_BTN    36.0  // o kinh tron cua menu
+#define SPP_MENU_HIDE   4.0   // giay khong cham -> menu tu dong
 
 // ---------------------------------------------------------------------
 //  Cua so: man xe (UIRootSceneWindow tren CADisplay cua CarPlay) hoac man iPhone
@@ -175,8 +176,9 @@ static UIColor *SPPRed(void) { return [UIColor colorWithRed:1 green:69 / 255.0 b
 @property (nonatomic) BOOL pinching;                 // dang chum 2 ngon: khong nap lai ti le tu Cai dat
 @property (nonatomic) int app;                       // chi so SPP_NAV_APPS cua app dang cap toc do (cham / X dung app nay)
 @property (nonatomic) int iconApp;                   // app dang ve tren iconView (-1 = chua ve)
-@property (nonatomic, strong) CAShapeLayer *holdRing;   // giu bong bong: vien do chay quanh, du 3 giay -> thoat app
-@property (nonatomic, strong) NSTimer *holdTimer;
+@property (nonatomic, strong) UIView *menu;              // menu nhan giu (vien nen logo + 5 o): nho / to / canh bao / am thanh / tat app
+@property (nonatomic, strong) UIView *menuShield;        // lop chan mong phu cua so khi menu mo: cham cho khac -> dong menu
+@property (nonatomic, strong) NSTimer *menuTimer;        // tu dong sau SPP_MENU_HIDE giay
 @property (nonatomic) CGPoint holdStart;                // diem bat dau giu (keo xa -> chuyen sang di chuyen the)
 @property (nonatomic) BOOL holdDragging;
 @property (nonatomic) CGRect outlineRect;               // hinh chinh cua kieu dang ve (vien giu chay quanh)
@@ -212,7 +214,7 @@ static UIColor *SPPRed(void) { return [UIColor colorWithRed:1 green:69 / 255.0 b
 - (void)applySavedScale
 {
     CGFloat want = [self savedScale];
-    if (self.pinching || self.holdRing || fabs(want - self.scale) < 0.001) return;
+    if (self.pinching || fabs(want - self.scale) < 0.001) return;
     self.scale = want;
     if (self.card) { self.card.transform = [self baseTransform]; [self clampCard]; [self applyCrispScale]; }
 }
@@ -406,7 +408,7 @@ static BOOL sSeenRunning[8];
         self.card.alpha = 0; self.card.transform = [self baseScaled:0.7];
         [UIView animateWithDuration:0.45 delay:0 usingSpringWithDamping:0.7 initialSpringVelocity:0.5 options:0
                          animations:^{ self.card.alpha = 1; self.card.transform = [self baseTransform]; } completion:nil];
-    } else if (self.card.alpha < 1 && !self.holdRing) {
+    } else if (self.card.alpha < 1) {
         // Dang mo dan (hide) thi co du lieu lai -> hien lai ngay, khong de cua so bi an roi moi hien
         [UIView animateWithDuration:0.2 delay:0 options:UIViewAnimationOptionBeginFromCurrentState
                          animations:^{ self.card.alpha = 1; self.card.transform = [self baseTransform]; } completion:nil];
@@ -433,7 +435,7 @@ static BOOL sSeenRunning[8];
 {
     if (self.window && !self.window.hidden) {
         UIView *card = self.card; UIWindow *win = self.window;
-        [self cancelHold];
+        [self hideMenu];
         [UIView animateWithDuration:0.18 animations:^{ card.alpha = 0; card.transform = [self baseScaled:0.8]; }
                          completion:^(BOOL f) { if (card.alpha < 0.01) win.hidden = YES; }];
     }
@@ -528,72 +530,203 @@ static BOOL sSeenRunning[8];
 // ---------------------------------------------------------------------
 //  Cham / giu / keo / 2 ngon
 // ---------------------------------------------------------------------
-// Giu bong bong: sau SPP_HOLD_BEGIN giay hien vien do chay quanh hinh chinh, du SPP_HOLD_QUIT giay -> thoat han app.
-// Tha tay som -> huy. Dang giu ma keo di -> huy dem, chuyen sang di chuyen the.
+// Giu bong bong SPP_HOLD_BEGIN giay -> menu nhan giu ngay tren bong bong (duoi neu sat mep tren): vien nen logo 4 mau
+// (OMCLogoMeshImage, nhu thanh ••• cua Split Screen) voi 5 o kinh tron: nho lai / to len (10 % moi lan, SPP_SIZE_MIN..MAX,
+// luu vao Cai dat cho man dang dung), canh bao / am thanh (2 bit SB_KEY_WARN_MODE = 2 cong tac trong Cai dat; tat = icon mo
+// + gach cheo do), vach trang, tat app (X do: thoat han app nguon, bong bong an). Tu dong sau SPP_MENU_HIDE giay khong cham
+// hoac cham cho khac (lop chan); dang giu ma keo di -> dong menu, di chuyen the. Thay cho "giu 2 giay de thoat app" cu.
+// Ban duyet: tools/preview/index.html#bubble (giu bong bong tren man xe).
+typedef NS_ENUM(NSInteger, SPPMenuItem) { SPPMenuSmaller = 0, SPPMenuLarger, SPPMenuWarn, SPPMenuSound, SPPMenuQuit };
+#define SPP_MENU_TAG 100
+
+static UIColor *SPPMenuInk(void) { return [UIColor colorWithRed:74 / 255.0 green:79 / 255.0 blue:128 / 255.0 alpha:1]; }   // muc HarmonyOS (--mk)
+
 - (void)longPressed:(UILongPressGestureRecognizer *)g
 {
     CGPoint p = [g locationInView:self.window];
     switch (g.state) {
     case UIGestureRecognizerStateBegan:
         self.holdStart = p; self.holdDragging = NO;
-        [self startHold];
+        [self showMenu];
         break;
     case UIGestureRecognizerStateChanged:
-        if (!self.holdDragging && hypot(p.x - self.holdStart.x, p.y - self.holdStart.y) > 12) { self.holdDragging = YES; [self cancelHold]; }
+        if (!self.holdDragging && hypot(p.x - self.holdStart.x, p.y - self.holdStart.y) > 12) { self.holdDragging = YES; [self hideMenu]; }
         if (self.holdDragging) {
             self.card.center = CGPointMake(self.card.center.x + p.x - self.holdStart.x, self.card.center.y + p.y - self.holdStart.y);
             self.holdStart = p;
             [self clampCard];
         }
         break;
-    default:   // Ended / Cancelled / Failed
+    default:   // Ended / Cancelled / Failed: menu van mo (tu dong / cham cho khac)
         if (self.holdDragging) [self saveCardPosition];
         self.holdDragging = NO;
-        [self cancelHold];
         break;
     }
 }
 
-- (void)startHold
+// O kinh tron cua menu: icon SF Symbol mau muc (Tat app: do)
+- (UIButton *)menuButton:(SPPMenuItem)item
 {
-    [self cancelHold];
-    CGFloat remain = SPP_HOLD_QUIT - SPP_HOLD_BEGIN;
-    CGRect r = CGRectInset(self.outlineRect, -5, -5);
-    CAShapeLayer *ring = [CAShapeLayer layer];
-    ring.path = [UIBezierPath bezierPathWithRoundedRect:r cornerRadius:self.outlineCorner + 5].CGPath;
-    ring.fillColor = [UIColor clearColor].CGColor;
-    ring.strokeColor = SPPRed().CGColor;
-    ring.lineWidth = 4; ring.lineCap = kCALineCapRound;
-    ring.shadowColor = SPPRed().CGColor; ring.shadowRadius = 4; ring.shadowOpacity = 0.8; ring.shadowOffset = CGSizeZero;
-    ring.strokeEnd = 1;
-    CABasicAnimation *a = [CABasicAnimation animationWithKeyPath:@"strokeEnd"];
-    a.fromValue = @0; a.toValue = @1; a.duration = remain;
-    [ring addAnimation:a forKey:@"sppHold"];
-    [self.card.layer addSublayer:ring];
-    [self applyCrispScale];
-    self.holdRing = ring;
-    [UIView animateWithDuration:remain delay:0 options:UIViewAnimationOptionCurveEaseIn | UIViewAnimationOptionAllowUserInteraction
-                     animations:^{ self.card.transform = [self baseScaled:0.92]; } completion:nil];
+    NSArray *names = @[@"minus", @"plus", @"exclamationmark.triangle", @"speaker.wave.2", @"xmark"];
+    UIButton *b = [UIButton buttonWithType:UIButtonTypeCustom];
+    b.bounds = CGRectMake(0, 0, SPP_MENU_BTN, SPP_MENU_BTN);
+    b.tag = SPP_MENU_TAG + item;
+    b.layer.cornerRadius = SPP_MENU_BTN / 2;
+    b.backgroundColor = [UIColor colorWithWhite:1 alpha:0.55];
+    b.layer.borderWidth = 1; b.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.95].CGColor;
+    b.layer.shadowColor = [UIColor colorWithRed:70 / 255.0 green:60 / 255.0 blue:140 / 255.0 alpha:1].CGColor;
+    b.layer.shadowOpacity = 0.14; b.layer.shadowRadius = 3; b.layer.shadowOffset = CGSizeMake(0, 2);
+    UIImageSymbolConfiguration *cfg = [UIImageSymbolConfiguration configurationWithPointSize:17 weight:UIImageSymbolWeightMedium];
+    UIImage *img = [[UIImage systemImageNamed:names[item] withConfiguration:cfg] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+    [b setImage:img forState:UIControlStateNormal];
+    b.tintColor = item == SPPMenuQuit ? SPPRed() : SPPMenuInk();
+    [b addTarget:self action:@selector(menuTapped:) forControlEvents:UIControlEventTouchUpInside];
+    return b;
+}
+
+// Canh bao / am thanh dang tat: icon mo + gach cheo do (vien trang) de len
+- (void)setMenuButton:(UIButton *)b off:(BOOL)off
+{
+    for (CALayer *l in [b.layer.sublayers copy]) if ([l.name isEqualToString:@"slash"]) [l removeFromSuperlayer];
+    b.tintColor = off ? [SPPMenuInk() colorWithAlphaComponent:0.45] : SPPMenuInk();
+    if (!off) return;
+    UIBezierPath *p = [UIBezierPath bezierPath];
+    [p moveToPoint:CGPointMake(8, SPP_MENU_BTN - 8)]; [p addLineToPoint:CGPointMake(SPP_MENU_BTN - 8, 8)];
+    for (int i = 0; i < 2; i++) {
+        CAShapeLayer *l = [CAShapeLayer layer];
+        l.name = @"slash";
+        l.path = p.CGPath; l.fillColor = nil; l.lineCap = kCALineCapRound;
+        l.strokeColor = (i == 0 ? [UIColor colorWithWhite:1 alpha:0.95] : SPPRed()).CGColor;
+        l.lineWidth = i == 0 ? 5.4 : 2.4;
+        [b.layer addSublayer:l];
+    }
+}
+
+- (void)showMenu
+{
+    [self hideMenu];
+    UIWindow *w = self.window;
+    if (!w || !self.card) return;
+    // Lop chan phu cua so: cham bat ky cho khac -> dong menu. Phai co ve (trang alpha 0.02, mat khong thay): cua so pass-through,
+    // khong co lop nay thi cham roi xuong CarPlay / app, SpringBoard khong biet. Cham do chi de dong menu (nhu popup iOS).
+    UIView *shield = [[UIView alloc] initWithFrame:w.bounds];
+    shield.backgroundColor = [UIColor colorWithWhite:1 alpha:0.02];
+    shield.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    [shield addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(hideMenu)]];
+    [w insertSubview:shield belowSubview:self.card];
+    self.menuShield = shield;
+
+    NSInteger warn = [SPPPrefs warnMode];
+    UIView *m = [[UIView alloc] init];
+    CGFloat pad = 5, gap = 6, sep = 9, x = pad;
+    for (NSInteger i = SPPMenuSmaller; i <= SPPMenuQuit; i++) {
+        if (i == SPPMenuQuit) {   // vach trang tach nut Tat app (nhu thanh ••• cua Split Screen)
+            UIView *line = [[UIView alloc] initWithFrame:CGRectMake(x + (sep - 1) / 2, pad + 5, 1, SPP_MENU_BTN - 10)];
+            line.backgroundColor = [UIColor colorWithWhite:1 alpha:0.95];
+            [m addSubview:line];
+            x += sep;
+        }
+        UIButton *b = [self menuButton:(SPPMenuItem)i];
+        b.frame = CGRectMake(x, pad, SPP_MENU_BTN, SPP_MENU_BTN);
+        if (i == SPPMenuWarn) [self setMenuButton:b off:!(warn & 1)];
+        if (i == SPPMenuSound) [self setMenuButton:b off:!(warn & 2)];
+        [m addSubview:b];
+        x += SPP_MENU_BTN + (i == SPPMenuQuit ? 0 : gap);
+    }
+    m.bounds = CGRectMake(0, 0, x + pad, SPP_MENU_BTN + 2 * pad);
+    // Nen logo 4 mau + vien trang + bong tim nhat (DESIGN.md: bang tren man xe)
+    UIImageView *mesh = [[UIImageView alloc] initWithImage:OMCLogoMeshImage(NO)];
+    mesh.frame = m.bounds; mesh.contentMode = UIViewContentModeScaleToFill;
+    mesh.layer.cornerRadius = m.bounds.size.height / 2; mesh.clipsToBounds = YES;
+    mesh.layer.borderWidth = 1; mesh.layer.borderColor = [UIColor colorWithWhite:1 alpha:0.92].CGColor;
+    [m insertSubview:mesh atIndex:0];
+    m.layer.shadowColor = [UIColor colorWithRed:90 / 255.0 green:70 / 255.0 blue:170 / 255.0 alpha:1].CGColor;
+    m.layer.shadowOpacity = 0.28; m.layer.shadowRadius = 12; m.layer.shadowOffset = CGSizeMake(0, 6);
+    [w addSubview:m];
+    self.menu = m;
+    [self placeMenuAnimated:NO];
+    m.alpha = 0; m.transform = CGAffineTransformConcat(CGAffineTransformMakeScale(0.85, 0.85), CGAffineTransformMakeTranslation(0, 6));   // tha xuong, lo xo
+    [UIView animateWithDuration:0.45 delay:0 usingSpringWithDamping:0.8 initialSpringVelocity:0.5 options:UIViewAnimationOptionAllowUserInteraction
+                     animations:^{ m.alpha = 1; m.transform = CGAffineTransformIdentity; } completion:nil];
     [[[UIImpactFeedbackGenerator alloc] initWithStyle:UIImpactFeedbackStyleLight] impactOccurred];
-    __weak SPPBubble *weakSelf = self;
-    self.holdTimer = [NSTimer scheduledTimerWithTimeInterval:remain repeats:NO block:^(NSTimer *t) { [weakSelf quitSourceApp]; }];
+    [self armMenuTimer];
+    SPPLog("bubble: giu -> menu nhan giu (canh bao %@, am thanh %@)", (warn & 1) ? @"bat" : @"tat", (warn & 2) ? @"bat" : @"tat");
 }
 
-- (void)cancelHold
+- (void)armMenuTimer
 {
-    [self.holdTimer invalidate]; self.holdTimer = nil;
-    if (!self.holdRing) return;
-    [self.holdRing removeFromSuperlayer]; self.holdRing = nil;
-    [UIView animateWithDuration:0.2 delay:0 options:UIViewAnimationOptionBeginFromCurrentState
-                     animations:^{ self.card.transform = [self baseTransform]; } completion:nil];
+    [self.menuTimer invalidate];
+    __weak SPPBubble *weakSelf = self;
+    self.menuTimer = [NSTimer scheduledTimerWithTimeInterval:SPP_MENU_HIDE repeats:NO block:^(NSTimer *t) { [weakSelf hideMenu]; }];
 }
 
-// Du 3 giay: thoat han app dang cap toc do, an bong bong ngay
+// Menu ngay tren bong bong, giua theo the; sat mep tren thi xuong duoi; khong lo khoi mep ngang. Neo o phia bong bong (lo xo tu do).
+- (void)placeMenuAnimated:(BOOL)animated
+{
+    UIView *m = self.menu;
+    if (!m) return;
+    CGRect b = self.window.bounds, c = self.card.frame;   // frame da tinh ti le
+    CGSize s = m.bounds.size;
+    CGFloat x = MIN(CGRectGetMaxX(b) - s.width / 2 - 6, MAX(s.width / 2 + 6, CGRectGetMidX(c)));
+    BOOL above = CGRectGetMinY(c) - 10 - s.height >= 4;
+    m.layer.anchorPoint = CGPointMake(0.5, above ? 1 : 0);
+    CGPoint center = CGPointMake(x, above ? CGRectGetMinY(c) - 10 : CGRectGetMaxY(c) + 10);
+    if (!animated) { m.center = center; return; }
+    [UIView animateWithDuration:0.3 delay:0 usingSpringWithDamping:0.85 initialSpringVelocity:0.3
+                        options:UIViewAnimationOptionBeginFromCurrentState | UIViewAnimationOptionAllowUserInteraction
+                     animations:^{ m.center = center; } completion:nil];
+}
+
+- (void)hideMenu
+{
+    [self.menuTimer invalidate]; self.menuTimer = nil;
+    [self.menuShield removeFromSuperview]; self.menuShield = nil;
+    UIView *m = self.menu;
+    if (!m) return;
+    self.menu = nil;
+    [UIView animateWithDuration:0.18 delay:0 options:UIViewAnimationOptionCurveEaseIn | UIViewAnimationOptionBeginFromCurrentState
+                     animations:^{ m.alpha = 0; m.transform = CGAffineTransformMakeScale(0.9, 0.9); } completion:^(BOOL f) { [m removeFromSuperview]; }];
+}
+
+- (void)menuTapped:(UIButton *)b
+{
+    [self armMenuTimer];
+    SPPMenuItem item = (SPPMenuItem)(b.tag - SPP_MENU_TAG);
+    [UIView animateWithDuration:0.1 animations:^{ b.transform = CGAffineTransformMakeScale(0.9, 0.9); }
+                     completion:^(BOOL f) { [UIView animateWithDuration:0.2 animations:^{ b.transform = CGAffineTransformIdentity; }]; }];
+    switch (item) {
+    case SPPMenuSmaller: case SPPMenuLarger: {
+        double pct = round(self.scale / SPP_SCALE_BASE * 100) + (item == SPPMenuLarger ? 10 : -10);
+        pct = MIN(SPP_SIZE_MAX, MAX(SPP_SIZE_MIN, pct));
+        [SPPPrefs setSizePercent:pct forCar:!self.onPhone];
+        self.scale = [self savedScale];
+        [UIView animateWithDuration:0.3 delay:0 usingSpringWithDamping:0.8 initialSpringVelocity:0.3
+                            options:UIViewAnimationOptionBeginFromCurrentState | UIViewAnimationOptionAllowUserInteraction
+                         animations:^{ self.card.transform = [self baseTransform]; [self clampCard]; }
+                         completion:^(BOOL f) { [self applyCrispScale]; [self saveCardPosition]; }];
+        [self placeMenuAnimated:YES];
+        SPPLog("bubble: menu -> co %.0f %% (%@)", pct, self.onPhone ? @"iPhone" : @"xe");
+        break;
+    }
+    case SPPMenuWarn: case SPPMenuSound: {
+        NSInteger bit = item == SPPMenuWarn ? 1 : 2, mode = [SPPPrefs warnMode] ^ bit;
+        [SPPPrefs setWarnMode:mode];
+        [self setMenuButton:b off:!(mode & bit)];
+        SPPLog("bubble: menu -> %@ %@", item == SPPMenuWarn ? @"canh bao" : @"am thanh", (mode & bit) ? @"bat" : @"tat");
+        break;
+    }
+    case SPPMenuQuit:
+        [self quitSourceApp];
+        break;
+    }
+}
+
+// Tat app (menu nhan giu): thoat han app dang cap toc do, an bong bong ngay
 - (void)quitSourceApp
 {
-    [self cancelHold];
+    [self hideMenu];
     NSString *bid = SPPNavAppBundle(self.app);
-    SPPLog("bubble: giu %.0f giay -> thoat han %@", SPP_HOLD_QUIT, bid);
+    SPPLog("bubble: menu -> thoat han %@", bid);
     [[[UINotificationFeedbackGenerator alloc] init] notificationOccurred:UINotificationFeedbackTypeSuccess];
     SPPKillApp(bid);
     self.speed = -1; self.limit = -1;
@@ -605,7 +738,7 @@ static BOOL sSeenRunning[8];
 - (void)pinched:(UIPinchGestureRecognizer *)g
 {
     static CGFloat startScale = 1;
-    if (g.state == UIGestureRecognizerStateBegan) { startScale = self.scale; self.pinching = YES; [self cancelHold]; }
+    if (g.state == UIGestureRecognizerStateBegan) { startScale = self.scale; self.pinching = YES; [self hideMenu]; }
     if (g.state == UIGestureRecognizerStateBegan || g.state == UIGestureRecognizerStateChanged) {
         CGFloat lo = SPP_SCALE_BASE * SPP_SIZE_MIN / 100, hi = SPP_SCALE_BASE * SPP_SIZE_MAX / 100;
         self.scale = MIN(hi, MAX(lo, startScale * g.scale));
@@ -624,7 +757,7 @@ static BOOL sSeenRunning[8];
 
 - (void)panned:(UIPanGestureRecognizer *)g
 {
-    if (g.state == UIGestureRecognizerStateBegan) [self cancelHold];
+    if (g.state == UIGestureRecognizerStateBegan) [self hideMenu];
     CGPoint t = [g translationInView:self.window];
     self.card.center = CGPointMake(self.card.center.x + t.x, self.card.center.y + t.y);
     [self clampCard];
@@ -635,6 +768,7 @@ static BOOL sSeenRunning[8];
 // Cham bong bong -> mo lai app dan duong (tren xe: giao dien CarPlay cua app; khong co xe: tren iPhone)
 - (void)tapped:(UITapGestureRecognizer *)g
 {
+    if (self.menu) { [self hideMenu]; return; }   // menu dang mo: cham bong bong chi dong menu
     [UIView animateWithDuration:0.1 animations:^{ self.card.transform = [self baseScaled:0.92]; }
                      completion:^(BOOL f) { [UIView animateWithDuration:0.15 animations:^{ self.card.transform = [self baseTransform]; }]; }];
     if (!self.onPhone) {
@@ -665,7 +799,7 @@ static BOOL sSeenRunning[8];
     }
     self.carLostAt = 0;
     if (self.window && self.onPhone == !car) return;
-    if (self.window) { self.window.hidden = YES; [self.window removeFromSuperview]; self.window = nil; }
+    if (self.window) { [self hideMenu]; self.window.hidden = YES; [self.window removeFromSuperview]; self.window = nil; }
     CGFloat ds = [UIScreen mainScreen].scale;
     UIWindow *w = car ? SPPMakeCarWindow(&ds) : SPPMakePhoneWindow();   // iPhone: xoay theo huong may (applyPhoneOrientation)
     if (!w) return;

@@ -18,7 +18,7 @@
 "SPEEDBUBBLE_SIZE_CAR" = "Ukuran di CarPlay";
 "SPEEDBUBBLE_RESET_LAYOUT" = "Atur ulang posisi dan ukuran";
 "SPEEDBUBBLE_SOURCE" = "Sumber kecepatan";
-"SPEEDBUBBLE_GESTURES_FOOTER" = "Di layar: seret untuk memindah · cubit untuk mengubah ukuran · ketuk untuk membuka app · tahan 2 dtk untuk keluar dari app.";
+"SPEEDBUBBLE_GESTURES_FOOTER" = "Di layar: seret untuk memindah · cubit untuk mengubah ukuran · ketuk untuk membuka app · tahan untuk menu cepat (ukuran ±, peringatan, suara, tutup app).";
 "SPEEDBUBBLE_WARN" = "Peringatan kecepatan berlebih";
 
 /* Settings page (OMCSpeedBubbleController) */

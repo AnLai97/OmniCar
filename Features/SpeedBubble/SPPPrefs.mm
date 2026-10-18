@@ -1,6 +1,7 @@
 #import "SPPPrefs.h"
 #import "common.h"
 #import "OmniCar.h"
+#import <notify.h>
 
 // Reads the OmniCar prefs domain (written by the settings bundle through cfprefsd); every read
 // re-synchronizes so changes apply at once.
@@ -30,6 +31,17 @@ static id value(NSString *key)
     NSString *key = car ? SB_KEY_SIZE_CAR : SB_KEY_SIZE_PHONE;
     CFPreferencesSetAppValue((__bridge CFStringRef)key, (__bridge CFPropertyListRef)@(round(MIN(220, MAX(60, pct)))), OMC_PREFS_DOMAIN);
     CFPreferencesAppSynchronize(OMC_PREFS_DOMAIN);
+}
+
+// Menu nhan giu tren bong bong bat / tat Canh bao (bit 1) / Am thanh (bit 2): ghi nhu 2 cong tac trong Cai dat (kem
+// SB_KEY_WARN_MODE_V2 de gia tri 2 khong bi doc thanh 3) roi bao SPPOverspeed nap lai (SB_DARWIN_PREFS)
++ (void)setWarnMode:(NSInteger)mode
+{
+    mode = MIN(3, MAX(0, mode));
+    CFPreferencesSetAppValue((__bridge CFStringRef)SB_KEY_WARN_MODE, (__bridge CFPropertyListRef)@(mode), OMC_PREFS_DOMAIN);
+    CFPreferencesSetAppValue((__bridge CFStringRef)SB_KEY_WARN_MODE_V2, kCFBooleanTrue, OMC_PREFS_DOMAIN);
+    CFPreferencesAppSynchronize(OMC_PREFS_DOMAIN);
+    notify_post(SB_DARWIN_PREFS);
 }
 
 // Canh bao qua toc do: 0 tat, 1 canh bao (vien do, im lang), 2 am thanh (tieng ngan, khong vien), 3 ca hai (mac dinh).

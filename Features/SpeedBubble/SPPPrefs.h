@@ -9,6 +9,7 @@
 + (BOOL)appEnabled:(int)appIndex;   // = appIndex == source
 + (double)sizePercentForCar:(BOOL)car;               // kich thuoc bong bong (%), rieng iPhone / CarPlay; 100 = mac dinh
 + (void)setSizePercent:(double)pct forCar:(BOOL)car;  // ghi tu SpringBoard (chum 2 ngon / dat lai)
++ (void)setWarnMode:(NSInteger)mode;             // ghi tu SpringBoard (menu nhan giu: bat / tat canh bao / am thanh), bao SB_DARWIN_PREFS
 + (NSInteger)warnMode;    // canh bao qua toc do: 0 tat, 1 canh bao (vien), 2 am thanh (tieng), 3 vien + tieng (SB_KEY_WARN_MODE)
 + (NSInteger)warnFx;      // kieu canh bao (SB_KEY_WARN_FX): 0 vien nhay, 1 phat sang, 2 nhay man, 3 bong bong rung
 + (BOOL)warnVoice;        // am thanh la giong noi (SB_KEY_WARN_SOUND = 1), khong thi am bao
