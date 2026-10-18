@@ -2884,7 +2884,7 @@ function showHold() {
     if (k === 'minus' || k === 'plus') { S.size = Math.max(60, Math.min(220, S.size + (k === 'plus' ? 10 : -10))); renderSettings(); renderCar(); placeHold(h); }
     if (k === 'warn') { S.warn ^= 1; b.classList.toggle('off', !(S.warn & 1)); renderSettings(); renderCar(); }
     if (k === 'snd') { S.warn ^= 2; b.classList.toggle('off', !(S.warn & 2)); renderSettings(); renderCar(); }
-    if (k === 'quit') { hideHold(); S.on = false; renderSettings(); renderCar(); 197609'stateTxt') && (197609'stateTxt').textContent = 'Đã tắt app nguồn: bong bóng ẩn (bật lại bằng công tắc trong Cài đặt)'); return; }
+    if (k === 'quit') { hideHold(); S.on = false; renderSettings(); renderCar(); $('stateTxt') && ($('stateTxt').textContent = 'Đã tắt app nguồn: bong bóng ẩn (bật lại bằng công tắc trong Cài đặt)'); return; }
     arm();
   });
 }
