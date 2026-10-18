@@ -2492,6 +2492,26 @@ h2 { margin: 0 0 4px; font-size: 16px; }
   background: rgba(30,32,48,.82); color: #fff; font-size: 12px; font-weight: 600; pointer-events: none; }
 .beep.on { display: flex; animation: beep 2.6s ease-out both; }
 @keyframes beep { 0% { transform: scale(.6); opacity: 0; } 8% { transform: scale(1.06); opacity: 1; } 12% { transform: none; } 88% { opacity: 1; } 100% { opacity: 0; } }
+/* Menu nhan giu (thay "giu 2 giay de thoat app"): giu bong bong ~0,6 s -> vien nen logo 4 mau (nhu thanh ••• cua Split Screen) voi 4 o
+   kinh tron: nho lai / to len / canh bao / am thanh. Tat = icon co gach cheo do. Tu dong sau 4 s khong cham hoac cham cho khac. */
+.hold { position: absolute; z-index: 9; display: flex; gap: 6px; padding: 5px; border-radius: 24px; border: 1px solid rgba(255,255,255,.92);
+  background: radial-gradient(at 0 0, #C9BAFC, transparent 62%), radial-gradient(at 100% 0, #A6DDFD, transparent 62%),
+    radial-gradient(at 0 100%, #FEC4D8, transparent 62%), radial-gradient(at 100% 100%, #A0F1D9, transparent 62%), #e8e6fb;
+  box-shadow: 0 10px 24px rgba(90,70,170,.28), 0 1px 2px rgba(70,60,140,.12); transform-origin: 50% 100%; animation: holdin .45s var(--hm-spring) both; }
+.hold.below { transform-origin: 50% 0; }
+@keyframes holdin { from { transform: translate(-50%, 6px) scale(.85); opacity: 0; } to { transform: translate(-50%, 0) scale(1); opacity: 1; } }
+.hold { transform: translate(-50%, 0); }
+.hold .b { width: 36px; height: 36px; border-radius: 18px; display: grid; place-items: center; position: relative; cursor: pointer; color: var(--mk);
+  background: rgba(255,255,255,.55); box-shadow: inset 0 0 0 1px rgba(255,255,255,.95), 0 2px 6px rgba(70,60,140,.14); transition: transform .2s var(--hm-spring), background .15s; }
+.hold .b:active { transform: scale(.9); background: rgba(255,255,255,.8); }
+.hold .b svg { width: 21px; height: 21px; stroke: currentColor; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.hold .b.off { color: var(--mk2); }
+.hold .b.off::after { content: ""; position: absolute; left: 7px; top: 17px; width: 22px; height: 2.4px; border-radius: 2px; background: #f0323a;
+  transform: rotate(-45deg); box-shadow: 0 0 0 1.5px rgba(255,255,255,.95); }
+.slot.holding { filter: drop-shadow(0 0 10px rgba(139,124,255,.75)); transition: filter .2s; }
+.holddemo { display: flex; gap: 22px; align-items: center; flex-wrap: wrap; margin-top: 8px; }
+.holddemo .hold { position: static; transform: none; animation: none; }
+.holddemo small { display: block; color: var(--ink2); margin-top: 6px; text-align: center; }
 </style>
 </head>
 <body>
@@ -2511,6 +2531,11 @@ h2 { margin: 0 0 4px; font-size: 16px; }
       <div class="beep" id="beep">🔊 Bíp</div>
     </div></div></div>
     <div class="sim glass" id="sim"></div>
+    <div class="note"><b>Menu nhấn giữ (mới)</b>: bỏ "giữ 2 giây để thoát app". Giữ bong bóng ~0,6 s (thử ngay trên màn xe bên trên) → bong bóng sáng viền và một
+      viên nền logo 4 màu thả xuống ngay trên nó (dưới nếu sát mép trên) với 4 ô kính tròn: <b>nhỏ lại</b> · <b>to lên</b> (mỗi lần 10 %, 60–220 %, bong bóng đổi cỡ ngay)
+      · <b>cảnh báo</b> · <b>âm thanh</b> (hai công tắc Cảnh báo / Âm thanh trong Cài đặt). Tắt = icon mờ đi và có gạch chéo đỏ, không chữ. Tự đóng sau 4 s không chạm
+      hoặc khi chạm chỗ khác; kéo bong bóng thì đóng. Chạm vẫn mở app nguồn, chụm 2 ngón vẫn đổi cỡ.
+      <div class="holddemo" id="holddemo"></div></div>
     <div class="note"><b>Trang Cài đặt mới</b> (khung iPhone): xem trước sống ở đầu trang, chọn kiểu bằng dải hình chạm là đổi, nguồn tốc độ là các ô có icon app
       kèm một dòng giải thích, Đơn vị / Biển / Cảnh báo dùng nút chọn ngay trên trang (không mở trang con), thứ tự: Giao diện (kiểu, màu nền, icon) → Cỡ và vị trí → Nguồn → Cảnh báo → Hiển thị (ít đổi nên để cuối).
       Chỉnh trên iPhone → màn xe bên trái đổi theo; thanh <b>Mô phỏng</b> chỉ để thử tốc độ.</div>
@@ -2522,7 +2547,7 @@ h2 { margin: 0 0 4px; font-size: 16px; }
   <h2>9 kiểu · mỗi thẻ: dưới giới hạn · sắp chạm · vượt</h2>
   <div class="gallery" id="gallery"></div>
   <div class="note"><b>Giữ nguyên từ bản cũ:</b> icon app nguồn (Vietmap Live / GOFA / Waze), biển tròn viền đỏ và km/h (cố định, không còn lựa chọn),
-    cỡ trên iPhone và CarPlay (60–220 %), kéo để dời chỗ, chụm 2 ngón đổi cỡ, giữ 2 giây để thoát app, cảnh báo quá tốc độ (viền màn xe) chạy riêng.
+    cỡ trên iPhone và CarPlay (60–220 %), kéo để dời chỗ, chụm 2 ngón đổi cỡ, cảnh báo quá tốc độ (viền màn xe) chạy riêng. Mới: giữ bong bóng mở menu nhanh (xem dưới), không còn giữ để thoát app.
     Không có giới hạn: biển hiện “--” màu xám, không đổi màu theo trạng thái. Màu nền: Mặc định (như hiện tại) / Trắng / Đen / Tím / Xanh dương / Bạc hà / Hồng. Cảnh báo: 2 công tắc Cảnh báo (Viền nháy / Phát sáng / Nháy màn / Bong bóng) và Âm thanh (Âm báo: Bíp / Bíp đôi / Bíp gấp / Chuông / Ping / Radar, hoặc Giọng nói: câu nghiêm túc, câu vui, câu tự nhập), bật cái nào có cái đó; ngưỡng −10…+10 so với giới hạn. Icon app nguồn: ô vuông bo góc.</div>
 </div>
 
@@ -2747,7 +2772,7 @@ function renderSettings() {
       <div class="r">${tile('▭', 'linear-gradient(135deg,#9DF2D8,#2BC79A)')}<span class="lab" style="flex:none;width:64px">CarPlay</span><input type="range" min="60" max="220" value="${S.size}" data-range="size"><span class="v" id="v-size">${S.size}%</span></div>
       <div class="r">${tile('▯', 'linear-gradient(135deg,#9DF2D8,#2BC79A)')}<span class="lab" style="flex:none;width:64px">iPhone</span><input type="range" min="60" max="220" value="${S.sizePhone}" data-range="sizePhone"><span class="v" id="v-sizePhone">${S.sizePhone}%</span></div>
       <div class="r"><span class="link" id="resetpos">Đặt lại vị trí và cỡ</span></div></div>
-    <div class="foot">Trên màn: kéo để dời · chụm 2 ngón đổi cỡ · chạm để mở app · giữ 2 giây để thoát app.</div>
+    <div class="foot">Trên màn: kéo để dời · chụm 2 ngón đổi cỡ · chạm để mở app · giữ để mở menu nhanh (cỡ ± · cảnh báo · âm thanh).</div>
     <div class="lbl">Nguồn tốc độ</div>
     <div class="pc glass ${off}"><div class="srcs">${Object.entries(SOURCES).map(([k, [g, c, n]]) => `<div class="src ${S.src === k ? 'on' : ''}" data-src="${k}"><span class="ico" style="background:${c}">${g}</span>${n.replace(' iPhone', '<br>iPhone').replace(' Live', '')}</div>`).join('')}</div>
       <div class="hint">ⓘ <span>${SRC_HINT[S.src]}</span></div></div>
@@ -2819,12 +2844,65 @@ function toggleDrive() {
   renderSim(); renderCar(); renderLive();
 }
 
-// Keo bong bong tren man xe
+// Menu nhan giu tren bong bong: 4 o kinh tron (nho lai / to len / canh bao / am thanh), tat = gach cheo do
+const HOLD_ICON = {
+  minus: '<svg viewBox="0 0 24 24"><path d="M6 12h12"/></svg>',
+  plus: '<svg viewBox="0 0 24 24"><path d="M12 6v12M6 12h12"/></svg>',
+  warn: '<svg viewBox="0 0 24 24"><path d="M12 4.5 20 18.5H4z"/><path d="M12 10v4M12 16.6v.1"/></svg>',
+  snd: '<svg viewBox="0 0 24 24"><path d="M4 9.5v5h3.2L12 18.5v-13L7.2 9.5z"/><path d="M15.5 9.2a4 4 0 0 1 0 5.6M18.2 6.6a7.8 7.8 0 0 1 0 10.8"/></svg>',
+};
+const holdHtml = (warnOn, sndOn) => `<span class="b" data-h="minus" title="Nhỏ lại">${HOLD_ICON.minus}</span><span class="b" data-h="plus" title="To lên">${HOLD_ICON.plus}</span>` +
+  `<span class="b ${warnOn ? '' : 'off'}" data-h="warn" title="Cảnh báo">${HOLD_ICON.warn}</span><span class="b ${sndOn ? '' : 'off'}" data-h="snd" title="Âm thanh">${HOLD_ICON.snd}</span>`;
+let holdTimer;
+function hideHold() { const h = $('cs').querySelector('.hold'); if (h) h.remove(); $('slot').classList.remove('holding'); clearTimeout(holdTimer); }
+function placeHold(h) {
+  const slot = $('slot'), k = S.size / 100, w = slot.offsetWidth * k, hgt = slot.offsetHeight * k;
+  const bottom = slot.offsetTop + slot.offsetHeight, top = bottom - hgt;   // transform-origin 0 100%: hinh that nam tren goc duoi trai
+  const cx = Math.max(100, Math.min(780, slot.offsetLeft + w / 2));
+  const above = top - 10 - 48 >= 0;
+  h.classList.toggle('below', !above);
+  h.style.left = cx + 'px';
+  h.style.top = (above ? top - 10 - 48 : bottom + 10) + 'px';
+}
+function showHold() {
+  hideHold();
+  const h = document.createElement('div');
+  h.className = 'hold';
+  h.innerHTML = holdHtml(S.warn & 1, S.warn & 2);
+  $('cs').appendChild(h);
+  $('slot').classList.add('holding');
+  placeHold(h);
+  const arm = () => { clearTimeout(holdTimer); holdTimer = setTimeout(hideHold, 4000); };
+  arm();
+  h.onpointerdown = e => e.stopPropagation();
+  h.querySelectorAll('[data-h]').forEach(b => b.onclick = () => {
+    const k = b.dataset.h;
+    if (k === 'minus' || k === 'plus') { S.size = Math.max(60, Math.min(220, S.size + (k === 'plus' ? 10 : -10))); renderSettings(); renderCar(); placeHold(h); }
+    if (k === 'warn') { S.warn ^= 1; b.classList.toggle('off', !(S.warn & 1)); renderSettings(); renderCar(); }
+    if (k === 'snd') { S.warn ^= 2; b.classList.toggle('off', !(S.warn & 2)); renderSettings(); renderCar(); }
+    arm();
+  });
+}
+$('holddemo').innerHTML = `<div><div class="hold">${holdHtml(true, true)}</div><small>Cảnh báo + âm thanh đang bật</small></div>` +
+  `<div><div class="hold">${holdHtml(false, false)}</div><small>Cả hai đang tắt: gạch chéo đỏ</small></div>` +
+  `<div><div class="hold">${holdHtml(true, false)}</div><small>Chỉ tắt âm thanh</small></div>`;
+
+// Keo bong bong tren man xe; giu ~0,6 s khong keo -> menu nhan giu; cham cho khac -> dong menu
 (() => {
-  const slot = $('slot'); let sx, sy, ox, oy, k;
-  slot.onpointerdown = e => { k = $('fit').clientWidth / 800; sx = e.clientX; sy = e.clientY; ox = slot.offsetLeft; oy = slot.offsetTop; slot.setPointerCapture(e.pointerId); };
-  slot.onpointermove = e => { if (sx === undefined) return; slot.style.left = Math.max(64, Math.min(760, ox + (e.clientX - sx) / k)) + 'px'; slot.style.top = Math.max(0, Math.min(280, oy + (e.clientY - sy) / k)) + 'px'; };
-  slot.onpointerup = () => { sx = undefined; };
+  const slot = $('slot'); let sx, sy, ox, oy, k, press, moved;
+  slot.onpointerdown = e => {
+    hideHold();
+    k = $('fit').clientWidth / 800; sx = e.clientX; sy = e.clientY; ox = slot.offsetLeft; oy = slot.offsetTop; moved = false; slot.setPointerCapture(e.pointerId);
+    clearTimeout(press); press = setTimeout(() => { if (!moved) { sx = undefined; showHold(); } }, 600);
+  };
+  slot.onpointermove = e => {
+    if (sx === undefined) return;
+    if (Math.hypot(e.clientX - sx, e.clientY - sy) > 6) { moved = true; clearTimeout(press); }
+    if (!moved) return;
+    slot.style.left = Math.max(64, Math.min(760, ox + (e.clientX - sx) / k)) + 'px'; slot.style.top = Math.max(0, Math.min(280, oy + (e.clientY - sy) / k)) + 'px';
+  };
+  slot.onpointerup = slot.onpointercancel = () => { sx = undefined; clearTimeout(press); };
+  $('cs').addEventListener('pointerdown', e => { if (!e.target.closest('.hold') && !e.target.closest('#slot')) hideHold(); });
 })();
 function fit() { $('cs').style.setProperty('--k', $('fit').clientWidth / 800); }
 window.addEventListener('resize', fit);
