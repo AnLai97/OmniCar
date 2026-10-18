@@ -1,3 +1,5 @@
+    if ([key isEqualToString:SB_KEY_SHOW_APP_ICON]) { self.stripOffset = self.styleStrip.contentOffset.x; [self reloadSection:SBStyle]; }
+    if ([key isEqualToString:SB_KEY_SHOW_APP_ICON]) { self.stripOffset = self.styleStrip.contentOffset.x; [self reloadSection:SBStyle]; }
 #import "OMCSpeedBubbleController.h"
 #import "OMCTheme.h"
 #import "../SpeedBubble.h"
@@ -109,7 +111,7 @@ static void OMCSBRing(UIView *v, BOOL on, CGFloat corner)
 }
 
 // Thu tu nhu ban duyet: Giao dien (kieu, mau nen, icon), Co va vi tri, Nguon, Canh bao, Hien thi
-enum { SBPreview = 0, SBEnable, SBStyle, SBSize, SBSource, SBWarn, SBDisplay, SBCount };
+enum { SBPreview = 0, SBEnable, SBStyle, SBSize, SBSource, SBWarn, SBCount };
 static char kOMCSBIndex;
 
 // Mau nen (SB_KEY_COLOR, cung bang mau voi SPPBubbleView applyColor:): o chon tron; 0 = mac dinh (vong 4 mau logo)
@@ -193,26 +195,7 @@ static NSString *OMCSBFxSymbol(NSInteger i)
 - (NSInteger)tone { return [self ranged:SB_KEY_WARN_TONE def:0 count:SB_TONE_COUNT]; }
 - (NSInteger)voiceLine { return [self ranged:SB_KEY_WARN_VOICE def:0 count:SB_VOICE_CUSTOM + 1]; }
 - (NSString *)voiceText { id v = [self prefForKey:SB_KEY_WARN_VOICE_TEXT def:@""]; return [v isKindOfClass:[NSString class]] ? v : @""; }
-- (int)shownLimit { return [self useMph] ? 40 : 60; }   // so tren bien trong cau "gioi han {L}" (nghe thu / danh sach)
-
-// Cung quy tac SPPPrefs: tu dong = mph / bien My o vung dung
-- (BOOL)useMph
-{
-    NSInteger u = [self intForKey:SB_KEY_UNIT def:0];
-    if (u == 1) return NO;
-    if (u == 2) return YES;
-    NSString *cc = [[NSLocale currentLocale] countryCode].uppercaseString ?: @"";
-    return ![[NSLocale currentLocale] usesMetricSystem] || [@[@"US", @"GB", @"LR", @"MM"] containsObject:cc];
-}
-
-- (BOOL)usSign
-{
-    NSInteger s = [self intForKey:SB_KEY_SIGN def:0];
-    if (s == 1) return NO;
-    if (s == 2) return YES;
-    NSString *cc = [[NSLocale currentLocale] countryCode].uppercaseString ?: @"";
-    return [@[@"US", @"PR", @"LR", @"MM"] containsObject:cc];
-}
+- (int)shownLimit { return 60; }   // so tren bien trong cau "gioi han {L}" (nghe thu / danh sach)
 
 // Dong giai thich nguon dang chon
 - (NSString *)sourceHint
@@ -231,7 +214,6 @@ static NSString *OMCSBFxSymbol(NSInteger i)
     bv.style = style;
     bv.speed = speed; bv.limit = limit;
     bv.showIcon = [self showIcon];
-    bv.mph = [self useMph]; bv.usSign = [self usSign];
     bv.iconImage = OMCSBSourceIcon([self source]);
     bv.color = [self color];
 }
@@ -249,11 +231,7 @@ static NSString *OMCSBFxSymbol(NSInteger i)
 - (void)prefChanged:(NSString *)key
 {
     if ([key isEqualToString:SB_KEY_ENABLED]) { [self.table reloadData]; return; }
-    if ([key isEqualToString:SB_KEY_SHOW_APP_ICON] || [key isEqualToString:SB_KEY_UNIT] || [key isEqualToString:SB_KEY_SIGN]) {
-        self.stripOffset = self.styleStrip.contentOffset.x;
-        [self reloadSection:SBStyle];
-        [self reloadSection:SBWarn];   // nguong theo don vi
-    }
+    if ([key isEqualToString:SB_KEY_SHOW_APP_ICON]) { self.stripOffset = self.styleStrip.contentOffset.x; [self reloadSection:SBStyle]; }
     if ([key isEqualToString:SB_KEY_COLOR]) { self.stripOffset = self.styleStrip.contentOffset.x; [self reloadSection:SBStyle]; }
     if ([@[SB_KEY_WARN_MODE, SB_KEY_WARN_FX, SB_KEY_WARN_SOUND, SB_KEY_WARN_TONE, SB_KEY_WARN_VOICE] containsObject:key]) [self reloadSection:SBWarn];
     if ([key isEqualToString:SB_KEY_WARN_OVER]) [self reloadSection:SBWarn];   // chu thich theo nguong moi (tha tay)
@@ -267,7 +245,7 @@ static NSString *OMCSBFxSymbol(NSInteger i)
 - (NSInteger)tableView:(UITableView *)tv numberOfRowsInSection:(NSInteger)s
 {
     switch (s) {
-        case SBSource: case SBDisplay: return 2;
+        case SBSource: return 2;
         case SBStyle: case SBSize: return 3;   // Kieu: dai kieu, mau nen, icon
         case SBWarn: return [self buildWarnRows].count;
         default: return 1;
@@ -279,7 +257,6 @@ static NSString *OMCSBFxSymbol(NSInteger i)
     switch (s) {
         case SBStyle: return L(@"SPEEDBUBBLE_APPEARANCE");
         case SBSource: return L(@"SPEEDBUBBLE_SOURCE");
-        case SBDisplay: return L(@"SPEEDBUBBLE_DISPLAY");
         case SBWarn: return L(@"SPEEDBUBBLE_WARN");
         case SBSize: return L(@"SPEEDBUBBLE_SIZE_GROUP");
     }
@@ -290,13 +267,12 @@ static NSString *OMCSBFxSymbol(NSInteger i)
 {
     switch (s) {
         case SBStyle: return L(@"SPEEDBUBBLE_COLOR_FOOTER");
-        case SBDisplay: return L(@"SPEEDBUBBLE_DISPLAY_FOOTER");
         case SBWarn: {
             NSInteger m = [self warnMode];
             if (!m) return L(@"SPEEDBUBBLE_WARN_OFF_FOOTER");
             // Nguong: +5 = qua gioi han 5, -5 = bao tu 5 duoi gioi han, 0 = ngay khi cham gioi han
             NSInteger margin = [self intForKey:SB_KEY_WARN_OVER def:5];
-            NSString *amount = [NSString stringWithFormat:@"%ld %@", labs(margin), [self useMph] ? @"mph" : @"km/h"];
+            NSString *amount = [NSString stringWithFormat:@"%ld km/h", labs(margin)];
             NSString *when = margin > 0 ? [NSString stringWithFormat:L(@"SPEEDBUBBLE_WARN_TH_OVER"), amount]
                            : margin < 0 ? [NSString stringWithFormat:L(@"SPEEDBUBBLE_WARN_TH_UNDER"), amount] : L(@"SPEEDBUBBLE_WARN_TH_AT");
             // Khi chay <nguong>: <kieu canh bao> + <am thanh>
@@ -414,17 +390,6 @@ static NSString *OMCSBFxSymbol(NSInteger i)
             l.frame = CGRectMake(16, 8, w - 32, [self tableView:tv heightForRowAtIndexPath:ip] - 16);
         }
         break;
-    case SBDisplay: {
-        BOOL unit = ip.row == 0;
-        c = [self cellWithId:unit ? @"unit" : @"sign"];
-        c.textLabel.text = L(unit ? @"SPEEDBUBBLE_UNIT_SHORT" : @"SPEEDBUBBLE_SIGN_SHORT");
-        c.imageView.image = OMCIcon(unit ? @"speedometer" : @"nosign", OMCColorFromHex(unit ? @"#5AB8FF" : @"#E5262D"));
-        UISegmentedControl *seg = unit ? [self segmentForKey:SB_KEY_UNIT titles:@[L(@"SPEEDBUBBLE_AUTO"), @"km/h", @"mph"] def:0]
-                                       : [self segmentForKey:SB_KEY_SIGN titles:@[L(@"SPEEDBUBBLE_AUTO"), L(@"SPEEDBUBBLE_SIGN_ROUND"), L(@"SPEEDBUBBLE_SIGN_US")] def:0];
-        [seg sizeToFit];
-        [self setAccessory:seg onCell:c];
-        break;
-    }
     case SBWarn:
         c = [self warnCell:self.warnRows[ip.row] width:w];
         break;
@@ -595,8 +560,7 @@ static NSString *OMCSBFxSymbol(NSInteger i)
         c.textLabel.text = L(@"SPEEDBUBBLE_WARN_WHEN");
         c.imageView.image = OMCIcon(@"exclamationmark.triangle.fill", OMCColorFromHex(@"#FFB340"));
         // -10..10: am = canh bao tu truoc khi cham gioi han
-        NSString *fmt = [NSString stringWithFormat:@"%%+ld %@", [self useMph] ? @"mph" : @"km/h"];
-        [self setAccessory:[self sliderForKey:SB_KEY_WARN_OVER min:-10 max:10 def:5 format:fmt width:MIN(210, w - 140)] onCell:c];
+        [self setAccessory:[self sliderForKey:SB_KEY_WARN_OVER min:-10 max:10 def:5 format:@"%+ld km/h" width:MIN(210, w - 140)] onCell:c];
     }
     return c;
 }

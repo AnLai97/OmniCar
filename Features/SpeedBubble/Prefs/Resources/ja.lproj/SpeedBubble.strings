@@ -19,27 +19,12 @@
 "SPEEDBUBBLE_RESET_LAYOUT" = "位置とサイズをリセット";
 "SPEEDBUBBLE_SOURCE" = "速度の取得元";
 "SPEEDBUBBLE_GESTURES_FOOTER" = "画面上：ドラッグで移動 · ピンチでサイズ変更 · タップでAppを開く · 2秒長押しでAppを終了。";
-"SPEEDBUBBLE_UNIT" = "速度の単位";
-"SPEEDBUBBLE_UNIT_0" = "自動（地域に合わせる）";
-"SPEEDBUBBLE_UNIT_1" = "km/h";
-"SPEEDBUBBLE_UNIT_2" = "mph";
-"SPEEDBUBBLE_SIGN" = "制限速度標識";
-"SPEEDBUBBLE_SIGN_0" = "自動（地域に合わせる）";
-"SPEEDBUBBLE_SIGN_1" = "円形（ウィーン条約）";
-"SPEEDBUBBLE_SIGN_2" = "長方形（米国）";
 "SPEEDBUBBLE_WARN" = "速度超過警告";
 
 /* Settings page (OMCSpeedBubbleController) */
 "SPEEDBUBBLE_ENABLE_SUB" = "ナビ App がバックグラウンドで動作中に表示";
 "SPEEDBUBBLE_TRY" = "車で試す";
 "SPEEDBUBBLE_TRY_SENT" = "車に 10 秒間バブルを表示中";
-"SPEEDBUBBLE_DISPLAY" = "表示";
-"SPEEDBUBBLE_UNIT_SHORT" = "単位";
-"SPEEDBUBBLE_SIGN_SHORT" = "標識";
-"SPEEDBUBBLE_AUTO" = "自動";
-"SPEEDBUBBLE_SIGN_ROUND" = "丸形";
-"SPEEDBUBBLE_SIGN_US" = "米国式";
-"SPEEDBUBBLE_DISPLAY_FOOTER" = "自動：iPhone の地域に合わせます。";
 "SPEEDBUBBLE_SRC_HINT_0" = "速度 + 制限標識。Vietmap Live を一度開いてバックグラウンドのままにします。";
 "SPEEDBUBBLE_SRC_HINT_1" = "速度 + 制限標識。GOFA を一度開いてバックグラウンドのままにします。";
 "SPEEDBUBBLE_SRC_HINT_2" = "速度は GPS から。制限は Waze が標識を表示しているときのみ（試験的）。";

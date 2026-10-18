@@ -25,14 +25,6 @@
 		</dict>
 		<dict>
 			<key>symbol</key>
-			<string>speedometer</string>
-			<key>titleKey</key>
-			<string>WN_UNITS_TITLE</string>
-			<key>textKey</key>
-			<string>WN_UNITS_TEXT</string>
-		</dict>
-		<dict>
-			<key>symbol</key>
 			<string>globe</string>
 			<key>titleKey</key>
 			<string>WN_LANG_TITLE</string>

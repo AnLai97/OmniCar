@@ -4,7 +4,7 @@
 @interface SPPBubbleView : UIView
 @property (nonatomic) NSInteger style;            // 0..SB_STYLE_COUNT-1 (SPPStyle)
 @property (nonatomic) int speed, limit;           // km/h, -1 = khong biet / khong co
-@property (nonatomic) BOOL showIcon, mph, usSign; // icon app nguon, don vi mph, bien kieu My
+@property (nonatomic) BOOL showIcon;   // icon app nguon
 @property (nonatomic, strong) UIImage *iconImage; // icon app nguon (nguoi goi lay)
 @property (nonatomic) NSInteger color;            // mau nen luc binh thuong (SB_KEY_COLOR), 0 = theo kieu
 @property (nonatomic, copy) void (^log)(NSString *line);

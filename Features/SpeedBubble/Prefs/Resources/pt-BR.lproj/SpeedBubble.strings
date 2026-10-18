@@ -19,27 +19,12 @@
 "SPEEDBUBBLE_RESET_LAYOUT" = "Redefinir posição e tamanho";
 "SPEEDBUBBLE_SOURCE" = "Origem da velocidade";
 "SPEEDBUBBLE_GESTURES_FOOTER" = "Na tela: arraste para mover · faça pinça para redimensionar · toque para abrir o app · segure 2 s para fechar o app.";
-"SPEEDBUBBLE_UNIT" = "Unidade de velocidade";
-"SPEEDBUBBLE_UNIT_0" = "Automática (por região)";
-"SPEEDBUBBLE_UNIT_1" = "km/h";
-"SPEEDBUBBLE_UNIT_2" = "mph";
-"SPEEDBUBBLE_SIGN" = "Placa de limite de velocidade";
-"SPEEDBUBBLE_SIGN_0" = "Automática (por região)";
-"SPEEDBUBBLE_SIGN_1" = "Redonda (Viena)";
-"SPEEDBUBBLE_SIGN_2" = "Retangular (EUA)";
 "SPEEDBUBBLE_WARN" = "Alerta de excesso de velocidade";
 
 /* Settings page (OMCSpeedBubbleController) */
 "SPEEDBUBBLE_ENABLE_SUB" = "Aparece enquanto o app de navegação roda em segundo plano";
 "SPEEDBUBBLE_TRY" = "Testar no carro";
 "SPEEDBUBBLE_TRY_SENT" = "Mostrando a bolha no carro por 10 segundos";
-"SPEEDBUBBLE_DISPLAY" = "Exibição";
-"SPEEDBUBBLE_UNIT_SHORT" = "Unidade";
-"SPEEDBUBBLE_SIGN_SHORT" = "Placa";
-"SPEEDBUBBLE_AUTO" = "Auto";
-"SPEEDBUBBLE_SIGN_ROUND" = "Redonda";
-"SPEEDBUBBLE_SIGN_US" = "EUA";
-"SPEEDBUBBLE_DISPLAY_FOOTER" = "Auto: segue a região do iPhone.";
 "SPEEDBUBBLE_SRC_HINT_0" = "Velocidade + placa de limite. Abra o Vietmap Live uma vez e deixe em segundo plano.";
 "SPEEDBUBBLE_SRC_HINT_1" = "Velocidade + placa de limite. Abra o GOFA uma vez e deixe em segundo plano.";
 "SPEEDBUBBLE_SRC_HINT_2" = "Velocidade pelo GPS; o limite só quando o Waze mostra a placa (experimental).";

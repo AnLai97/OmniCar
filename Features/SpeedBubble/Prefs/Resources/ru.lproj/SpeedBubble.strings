@@ -19,27 +19,12 @@
 "SPEEDBUBBLE_RESET_LAYOUT" = "Сбросить положение и размер";
 "SPEEDBUBBLE_SOURCE" = "Источник скорости";
 "SPEEDBUBBLE_GESTURES_FOOTER" = "На экране: перетаскивайте для перемещения · сводите пальцы для изменения размера · коснитесь, чтобы открыть приложение · удерживайте 2 с, чтобы выйти из приложения.";
-"SPEEDBUBBLE_UNIT" = "Единицы скорости";
-"SPEEDBUBBLE_UNIT_0" = "Автоматически (по региону)";
-"SPEEDBUBBLE_UNIT_1" = "км/ч";
-"SPEEDBUBBLE_UNIT_2" = "миль/ч";
-"SPEEDBUBBLE_SIGN" = "Знак ограничения скорости";
-"SPEEDBUBBLE_SIGN_0" = "Автоматически (по региону)";
-"SPEEDBUBBLE_SIGN_1" = "Круглый (Вена)";
-"SPEEDBUBBLE_SIGN_2" = "Прямоугольный (США)";
 "SPEEDBUBBLE_WARN" = "Предупреждение о превышении";
 
 /* Settings page (OMCSpeedBubbleController) */
 "SPEEDBUBBLE_ENABLE_SUB" = "Показывается, пока навигатор работает в фоне";
 "SPEEDBUBBLE_TRY" = "Проверить в машине";
 "SPEEDBUBBLE_TRY_SENT" = "Пузырь показан в машине на 10 секунд";
-"SPEEDBUBBLE_DISPLAY" = "Отображение";
-"SPEEDBUBBLE_UNIT_SHORT" = "Единицы";
-"SPEEDBUBBLE_SIGN_SHORT" = "Знак";
-"SPEEDBUBBLE_AUTO" = "Авто";
-"SPEEDBUBBLE_SIGN_ROUND" = "Круглый";
-"SPEEDBUBBLE_SIGN_US" = "США";
-"SPEEDBUBBLE_DISPLAY_FOOTER" = "Авто: по региону iPhone.";
 "SPEEDBUBBLE_SRC_HINT_0" = "Скорость + знак ограничения. Откройте Vietmap Live один раз и оставьте в фоне.";
 "SPEEDBUBBLE_SRC_HINT_1" = "Скорость + знак ограничения. Откройте GOFA один раз и оставьте в фоне.";
 "SPEEDBUBBLE_SRC_HINT_2" = "Скорость по GPS; ограничение только когда Waze показывает знак (эксперимент).";

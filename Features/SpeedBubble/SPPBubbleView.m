@@ -136,16 +136,10 @@ typedef NS_ENUM(NSInteger, SPPIconShape) {
 }
 @end
 
-// Bien gioi han toc do: tron trang, vien do (12% duong kinh), so den dam (Vienna, mac dinh)
-// Kieu My (usStyle): tam chu nhat trang dung (rong ~0.8 cao), vien den, "SPEED / LIMIT" nho tren so lon -
-// ve trong cung o vuong voi kieu Vienna nen bo cuc cac kieu bong bong khong doi
+// Bien gioi han toc do: tron trang, vien do (12% duong kinh), so den dam (Vienna) - luon kieu nay
 @interface SPPSignView : UIView
 @property (nonatomic, strong) UILabel *label;
 @property (nonatomic) BOOL muted;   // khong doc duoc gioi han: vien xam, "--"
-@property (nonatomic) BOOL usStyle;
-@property (nonatomic, strong) UIView *plate;       // kieu My: tam bien chu nhat
-@property (nonatomic, strong) UILabel *titleLabel; // kieu My: "SPEED LIMIT"
-- (CGRect)plateRect;   // hinh bien that trong bounds (kieu My: chu nhat o giua; Vienna: ca o)
 @end
 
 @implementation SPPSignView
@@ -157,17 +151,6 @@ typedef NS_ENUM(NSInteger, SPPIconShape) {
         self.layer.borderColor = SPPSignRed().CGColor;
         self.layer.shadowColor = [UIColor blackColor].CGColor;
         self.layer.shadowOpacity = 0.4; self.layer.shadowRadius = 3; self.layer.shadowOffset = CGSizeMake(0, 1.5);
-        _plate = [[UIView alloc] init];
-        _plate.userInteractionEnabled = NO;
-        _plate.backgroundColor = [UIColor whiteColor];
-        _plate.layer.borderColor = SPPRGB(20, 20, 20, 1).CGColor;
-        _plate.hidden = YES;
-        [self addSubview:_plate];
-        _titleLabel = SPPLabel(SPPUnitFont(8), SPPRGB(20, 20, 20, 1), NSTextAlignmentCenter);
-        _titleLabel.numberOfLines = 2;
-        _titleLabel.text = @"SPEED\nLIMIT";
-        _titleLabel.hidden = YES;
-        [self addSubview:_titleLabel];
         _label = SPPLabel(SPPNumFont(20), SPPRGB(20, 20, 20, 1), NSTextAlignmentCenter);
         [self addSubview:_label];
     }
@@ -176,10 +159,8 @@ typedef NS_ENUM(NSInteger, SPPIconShape) {
 - (void)applyColors
 {
     UIColor *ink = self.muted ? SPPRGB(120, 124, 134, 1) : SPPRGB(20, 20, 20, 1);
-    self.layer.borderColor = self.usStyle ? [UIColor clearColor].CGColor : (self.muted ? SPPRGB(174, 178, 188, 1) : SPPSignRed()).CGColor;
-    self.plate.layer.borderColor = (self.muted ? SPPRGB(174, 178, 188, 1) : SPPRGB(20, 20, 20, 1)).CGColor;
+    self.layer.borderColor = (self.muted ? SPPRGB(174, 178, 188, 1) : SPPSignRed()).CGColor;
     self.label.textColor = ink;
-    self.titleLabel.textColor = ink;
 }
 - (void)setMuted:(BOOL)muted
 {
@@ -187,47 +168,11 @@ typedef NS_ENUM(NSInteger, SPPIconShape) {
     _muted = muted;
     [self applyColors];
 }
-- (void)setUsStyle:(BOOL)usStyle
-{
-    if (usStyle == _usStyle) return;
-    _usStyle = usStyle;
-    self.backgroundColor = usStyle ? [UIColor clearColor] : [UIColor whiteColor];
-    self.plate.hidden = !usStyle;
-    self.titleLabel.hidden = !usStyle;
-    [self applyColors];
-    [self setNeedsLayout];
-}
-- (CGRect)plateRect
-{
-    CGSize b = self.bounds.size;
-    if (!self.usStyle) return self.bounds;
-    CGFloat h = b.height, w = MIN(b.width, h * 0.8);
-    return CGRectMake((b.width - w) / 2, (b.height - h) / 2, w, h);
-}
 - (void)layoutSubviews
 {
     [super layoutSubviews];
     CGFloat d = self.bounds.size.width;
-    if (self.usStyle) {
-        // Kieu My: khong ve vong tron cua view, bong do lay theo tam bien
-        CGRect pr = [self plateRect];
-        CGFloat h = pr.size.height, bw = MAX(1.5, h * 0.045), inset = bw + h * 0.04;
-        self.layer.cornerRadius = 0;
-        self.layer.borderWidth = 0;
-        self.plate.frame = pr;
-        self.plate.layer.cornerRadius = h * 0.08;
-        self.plate.layer.borderWidth = bw;
-        self.layer.shadowPath = [UIBezierPath bezierPathWithRoundedRect:pr cornerRadius:h * 0.08].CGPath;
-        CGFloat iw = pr.size.width - 2 * inset;
-        self.titleLabel.font = SPPUnitFont(h * 0.13);
-        self.titleLabel.frame = CGRectMake(pr.origin.x + inset, pr.origin.y + inset, iw, h * 0.32);
-        self.label.font = SPPNumFont(h * (self.label.text.length >= 3 ? 0.34 : 0.44));
-        CGFloat ny = CGRectGetMaxY(self.titleLabel.frame);
-        self.label.frame = CGRectMake(pr.origin.x + inset, ny, iw, CGRectGetMaxY(pr) - inset - ny);
-        return;
-    }
     CGFloat bw = d * 0.12;
-    self.layer.shadowPath = nil;
     self.layer.cornerRadius = d / 2;
     self.layer.borderWidth = bw;
     self.label.font = SPPNumFont(d * (self.label.text.length >= 3 ? 0.36 : 0.46));
@@ -276,7 +221,7 @@ typedef NS_ENUM(NSInteger, SPPIconShape) {
 //    5 Toi gian     : khong nen, so lon co quang trang, gach mong theo toc do, bien ben canh
 //    6 Kinh dem     : vien thuoc dung kinh khoi, vien neon cau vong, bien tren, so duoi
 //    7 Dai HUD      : thanh ngang [icon] [so / km/h] [vach sang tien toi gioi han] [bien]; cham gioi han la canh bao
-//    8 Dong ho taplo: mat dong ho kim 0..160 km/h (0..100 mph), vung do tu muc gioi han, so dien tu duoi tam
+//    8 Dong ho taplo: mat dong ho kim 0..160 km/h, vung do tu muc gioi han, so dien tu duoi tam
 // =====================================================================
 
 static UIColor *SPPMk(void)       { return SPPRGB(0x4A, 0x4F, 0x80, 1); }      // chu cham (DESIGN.md)
@@ -657,14 +602,6 @@ static void SPPGlow(UILabel *l, UIColor *color, CGFloat radius)
     if (dark) for (NSString *k in @[@"bar", @"ticks"]) [self bit:k].backgroundColor = [UIColor colorWithWhite:1 alpha:0.28];
 }
 
-// So hien tren bong bong: app nguon luon gui km/h; mph thi doi + lam tron. So sanh gan / vuot gioi han van tren
-// km/h goc (self.speed / self.limit) nen khong lech do lam tron
-static int SPPShown(int kmh, BOOL mph)
-{
-    if (kmh < 0 || !mph) return kmh;
-    return (int)lround(kmh / 1.609344);
-}
-
 static void SPPPlace(UIView *v, CGFloat cx, CGFloat cy, CGFloat size)
 {
     v.bounds = CGRectMake(0, 0, size, size);
@@ -705,13 +642,11 @@ static void SPPAnimateWidth(UIView *fill, CGFloat w, NSTimeInterval duration)
     BOOL showIcon = self.showIcon;
     int state = [self speedState];
     UIColor *sc = [self stateColor];
-    BOOL mph = self.mph;
     CGFloat ratio = [self speedRatio];
-    self.speedLabel.text = self.speed >= 0 ? [NSString stringWithFormat:@"%d", SPPShown(self.speed, mph)] : @"--";
+    self.speedLabel.text = self.speed >= 0 ? [NSString stringWithFormat:@"%d", self.speed] : @"--";
     self.speedLabel.textColor = [self numberColor];
-    self.unitLabel.text = mph ? @"mph" : @"km/h";
-    self.sign.usStyle = self.usSign;
-    self.sign.label.text = hasLimit ? [NSString stringWithFormat:@"%d", SPPShown(self.limit, mph)] : @"--";
+    self.unitLabel.text = @"km/h";
+    self.sign.label.text = hasLimit ? [NSString stringWithFormat:@"%d", self.limit] : @"--";
     self.sign.muted = !hasLimit;
     self.iconView.hidden = !showIcon;
     if (showIcon && self.iconView.imageView.image != self.iconImage) self.iconView.imageView.image = self.iconImage;
@@ -871,7 +806,7 @@ static void SPPAnimateWidth(UIView *fill, CGFloat w, NSTimeInterval duration)
     }
     case SPPStyleDash: {
         // Goc 150 do (duoi trai) -> 390 do (duoi phai), quet 240 do theo chieu kim dong ho
-        CGFloat d = 140, r = d / 2, sg = 66, top = mph ? 100 : 160;
+        CGFloat d = 140, r = d / 2, sg = 66, top = 160;
         CGPoint m = CGPointMake(r, r);
         CGFloat (^ang)(CGFloat) = ^CGFloat(CGFloat v) { return 150 + 240 * MIN(1.04, MAX(0, v) / top); };
         CGPoint (^pt)(CGFloat, CGFloat) = ^CGPoint(CGFloat rad, CGFloat deg) { return CGPointMake(r + rad * cos(deg * M_PI / 180), r + rad * sin(deg * M_PI / 180)); };
@@ -900,7 +835,7 @@ static void SPPAnimateWidth(UIView *fill, CGFloat w, NSTimeInterval duration)
         for (; li < (NSInteger)self.tickLabels.count; li++) self.tickLabels[li].hidden = YES;
         ((CAShapeLayer *)self.parts[@"minor"]).path = minor.CGPath;
         ((CAShapeLayer *)self.parts[@"major"]).path = major.CGPath;
-        CGFloat cl = hasLimit ? SPPShown(self.limit, mph) : 0, cv = MAX(0, SPPShown(self.speed, mph));
+        CGFloat cl = hasLimit ? self.limit : 0, cv = MAX(0, self.speed);
         CAShapeLayer *zone = (CAShapeLayer *)self.parts[@"zone"], *limTick = (CAShapeLayer *)self.parts[@"limTick"];
         zone.hidden = limTick.hidden = !(hasLimit && cl < top);
         if (!zone.hidden) {

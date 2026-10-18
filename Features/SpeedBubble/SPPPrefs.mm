@@ -56,14 +56,13 @@ static NSInteger ranged(NSString *key, NSInteger def, NSInteger count)
 + (NSString *)warnVoiceText { id v = value(SB_KEY_WARN_VOICE_TEXT); return [v isKindOfClass:[NSString class]] ? v : @""; }
 + (NSInteger)color         { return ranged(SB_KEY_COLOR, 0, SB_COLOR_COUNT); }
 
-// Nguong -10..10 (mac dinh 5) so voi gioi han, theo don vi dang hien tren bong bong (am = bao tu truoc khi cham gioi han):
-// mph -> doi ra km/h de so voi toc do goc
+// Nguong -10..10 km/h (mac dinh 5) so voi gioi han (am = bao tu truoc khi cham gioi han)
 + (double)warnMarginKmh
 {
     id v = value(SB_KEY_WARN_OVER);
     double m = v ? round([v doubleValue]) : 5;
     m = MIN(10, MAX(-10, m));
-    return [self useMph] ? m * 1.609344 : m;
+    return m;
 }
 
 // Index in SPP_NAV_APPS: Vietmap Live, GOFA, Waze. Chi 1 nguon. Gia tri cua ban 6 nguon (chua co SB_KEY_SOURCE_V2): 4 (Waze)
@@ -82,34 +81,5 @@ static NSInteger ranged(NSString *key, NSInteger def, NSInteger count)
 }
 
 + (BOOL)appEnabled:(int)appIndex { return appIndex == [self source]; }
-
-// Ma vung hien tai (vd "VN", "US"); rong neu khong biet
-static NSString *regionCode(void)
-{
-    NSString *cc = [[NSLocale currentLocale] countryCode];
-    return cc ? cc.uppercaseString : @"";
-}
-
-// Don vi: 0 tu dong (mph khi vung khong dung he met, hoac US/GB/LR/MM - Anh dung he met nhung bien duong ghi mph),
-// 1 km/h, 2 mph
-+ (BOOL)useMph
-{
-    id v = value(SB_KEY_UNIT);
-    NSInteger i = v ? [v integerValue] : 0;
-    if (i == 1) return NO;
-    if (i == 2) return YES;
-    if (![[NSLocale currentLocale] usesMetricSystem]) return YES;
-    return [@[@"US", @"GB", @"LR", @"MM"] containsObject:regionCode()];
-}
-
-// Bien gioi han: 0 tu dong (kieu My o US/PR/LR/MM, con lai Vienna), 1 Vienna, 2 My
-+ (BOOL)usSign
-{
-    id v = value(SB_KEY_SIGN);
-    NSInteger i = v ? [v integerValue] : 0;
-    if (i == 1) return NO;
-    if (i == 2) return YES;
-    return [@[@"US", @"PR", @"LR", @"MM"] containsObject:regionCode()];
-}
 
 @end

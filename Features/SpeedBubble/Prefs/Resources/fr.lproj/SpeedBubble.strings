@@ -19,27 +19,12 @@
 "SPEEDBUBBLE_RESET_LAYOUT" = "Réinitialiser la position et la taille";
 "SPEEDBUBBLE_SOURCE" = "Source de vitesse";
 "SPEEDBUBBLE_GESTURES_FOOTER" = "À l’écran : faites glisser pour déplacer · pincez pour redimensionner · touchez pour ouvrir l’app · maintenez 2 s pour quitter l’app.";
-"SPEEDBUBBLE_UNIT" = "Unité de vitesse";
-"SPEEDBUBBLE_UNIT_0" = "Automatique (selon la région)";
-"SPEEDBUBBLE_UNIT_1" = "km/h";
-"SPEEDBUBBLE_UNIT_2" = "mph";
-"SPEEDBUBBLE_SIGN" = "Panneau de limitation";
-"SPEEDBUBBLE_SIGN_0" = "Automatique (selon la région)";
-"SPEEDBUBBLE_SIGN_1" = "Rond (Vienne)";
-"SPEEDBUBBLE_SIGN_2" = "Rectangulaire (États-Unis)";
 "SPEEDBUBBLE_WARN" = "Alerte de survitesse";
 
 /* Settings page (OMCSpeedBubbleController) */
 "SPEEDBUBBLE_ENABLE_SUB" = "Visible quand l'app de navigation tourne en arrière-plan";
 "SPEEDBUBBLE_TRY" = "Essayer dans la voiture";
 "SPEEDBUBBLE_TRY_SENT" = "Bulle affichée 10 secondes dans la voiture";
-"SPEEDBUBBLE_DISPLAY" = "Affichage";
-"SPEEDBUBBLE_UNIT_SHORT" = "Unité";
-"SPEEDBUBBLE_SIGN_SHORT" = "Panneau";
-"SPEEDBUBBLE_AUTO" = "Auto";
-"SPEEDBUBBLE_SIGN_ROUND" = "Rond";
-"SPEEDBUBBLE_SIGN_US" = "US";
-"SPEEDBUBBLE_DISPLAY_FOOTER" = "Auto : selon la région de l'iPhone.";
 "SPEEDBUBBLE_SRC_HINT_0" = "Vitesse + panneau de limite. Ouvrez Vietmap Live une fois puis laissez-la en arrière-plan.";
 "SPEEDBUBBLE_SRC_HINT_1" = "Vitesse + panneau de limite. Ouvrez GOFA une fois puis laissez-la en arrière-plan.";
 "SPEEDBUBBLE_SRC_HINT_2" = "Vitesse par GPS ; la limite seulement quand Waze affiche le panneau (expérimental).";

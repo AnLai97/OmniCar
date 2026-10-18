@@ -2266,12 +2266,9 @@ h2 { margin: 0 0 4px; font-size: 16px; }
 .num { font-weight: 700; letter-spacing: -.5px; color: var(--stx); }
 .unit { font-size: 10px; font-weight: 600; color: var(--mk2); letter-spacing: .3px; }
 .dark .unit { color: rgba(255,255,255,.6); }
-/* bien gioi han: Vienna (tron vien do) / My (chu nhat "SPEED LIMIT") */
+/* bien gioi han: Vienna (tron vien do) - luon kieu nay */
 .sign { display: grid; place-items: center; background: #fff; color: #111; font-weight: 800; flex: none; }
 .sign.vi { border-radius: 50%; border: calc(var(--sz) * .12) solid var(--sign); width: var(--sz); height: var(--sz); font-size: calc(var(--sz) * .42); }
-.sign.us { width: calc(var(--sz) * .82); height: var(--sz); border-radius: calc(var(--sz) * .1); border: calc(var(--sz) * .045) solid #111; outline: calc(var(--sz) * .035) solid #fff;
-  font-size: calc(var(--sz) * .4); grid-template-rows: auto 1fr; padding-top: calc(var(--sz) * .08); }
-.sign.us i { font-style: normal; font-size: calc(var(--sz) * .13); line-height: 1.05; text-align: center; font-weight: 700; letter-spacing: .2px; }
 .sign.none { color: #9aa0ad; }
 .sign.vi.none { border-color: #c4c8d2; }
 .ico { width: var(--isz, 22px); height: var(--isz, 22px); border-radius: 22.5%; display: grid; place-items: center; color: #fff; font-weight: 800; font-size: calc(var(--isz, 22px) * .5); flex: none;
@@ -2376,7 +2373,7 @@ h2 { margin: 0 0 4px; font-size: 16px; }
 .s-hud .sign { --sz: 50px; }
 .s-hud .ico { --isz: 22px; margin-left: -4px; }
 
-/* 9 Dong ho taplo: mat dong ho kim 240 do nhu cum dong ho xe, vach / so 0-160 km/h (0-100 mph), vung do tu muc gioi han, so dien tu duoi tam */
+/* 9 Dong ho taplo: mat dong ho kim 240 do nhu cum dong ho xe, vach / so 0-160 km/h, vung do tu muc gioi han, so dien tu duoi tam */
 .s-dash { position: relative; width: 140px; height: 140px; border-radius: 50%; }
 .s-dash svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
 .s-dash .rd { position: absolute; left: 0; right: 0; top: 88px; display: flex; flex-direction: column; align-items: center; gap: 1px; }
@@ -2524,8 +2521,8 @@ h2 { margin: 0 0 4px; font-size: 16px; }
   </div>
   <h2>9 kiểu · mỗi thẻ: dưới giới hạn · sắp chạm · vượt</h2>
   <div class="gallery" id="gallery"></div>
-  <div class="note"><b>Giữ nguyên từ bản cũ:</b> icon app nguồn (Vietmap Live / GOFA / Waze), biển Viên / Mỹ tự theo vùng,
-    km/h / mph, cỡ trên iPhone và CarPlay (60–220 %), kéo để dời chỗ, chụm 2 ngón đổi cỡ, giữ 2 giây để thoát app, cảnh báo quá tốc độ (viền màn xe) chạy riêng.
+  <div class="note"><b>Giữ nguyên từ bản cũ:</b> icon app nguồn (Vietmap Live / GOFA / Waze), biển tròn viền đỏ và km/h (cố định, không còn lựa chọn),
+    cỡ trên iPhone và CarPlay (60–220 %), kéo để dời chỗ, chụm 2 ngón đổi cỡ, giữ 2 giây để thoát app, cảnh báo quá tốc độ (viền màn xe) chạy riêng.
     Không có giới hạn: biển hiện “--” màu xám, không đổi màu theo trạng thái. Màu nền: Mặc định (như hiện tại) / Trắng / Đen / Tím / Xanh dương / Bạc hà / Hồng. Cảnh báo: 2 công tắc Cảnh báo (Viền nháy / Phát sáng / Nháy màn / Bong bóng) và Âm thanh (Âm báo: Bíp / Bíp đôi / Bíp gấp / Chuông / Ping / Radar, hoặc Giọng nói: câu nghiêm túc, câu vui, câu tự nhập), bật cái nào có cái đó; ngưỡng −10…+10 so với giới hạn. Icon app nguồn: ô vuông bo góc.</div>
 </div>
 
@@ -2547,7 +2544,7 @@ const SRC_HINT = {
   vietmap: '<b>Tốc độ + biển giới hạn.</b> Mở Vietmap Live một lần rồi để chạy nền.', gofa: '<b>Tốc độ + biển giới hạn.</b> Mở GOFA một lần rồi để chạy nền.',
   waze: '<b>Tốc độ từ GPS,</b> biển chỉ có khi Waze đang hiện biển (thử nghiệm).' };
 const S = { style: 'drop', speed: 47, limit: 50, unit: 'kmh', sign: 'vi', icon: true, src: 'vietmap', size: 100, map: 'light',
-  on: true, unitPref: 'auto', signPref: 'auto', warn: 3, over: 5, sizePhone: 100,   // warn: bit 1 = canh bao, bit 2 = am thanh
+  on: true, warn: 3, over: 5, sizePhone: 100,   // warn: bit 1 = canh bao, bit 2 = am thanh
   bg: 'def', fx: 'rim', sndKind: 'tone', tone: 'beep', voice: 'v_over', voiceText: 'Tới rồi, chạy chậm thôi!' };
 // Mau nen: [ten, nen, mau dac, chu trang]
 const BGS = { def: ['Mặc định'], white: ['Trắng', 'rgba(255,255,255,.94)', '#ffffff', 0], black: ['Đen', 'rgba(20,22,34,.88)', '#16182A', 1],
@@ -2583,17 +2580,17 @@ function playSnd() {
   if (k === 'chime') { tone(988, 0, .7, 'sine', .3); tone(784, .28, .9, 'sine', .3); }
   if (k === 'ping') tone(1760, 0, .9, 'sine', .28);
   if (k === 'radar') [0, .2, .4, .6].forEach((at, i) => tone(900 + i * 220, at, .1, 'triangle', .2));
-}   // unitPref / signPref 'auto' = theo vung (VN: km/h, bien tron)
+}   // luon km/h + bien tron
 
 const state = (v, lim) => !lim ? 'normal' : v > lim ? 'over' : v >= lim * .9 ? 'near' : 'normal';
 // Dai HUD: canh bao ngay khi cham gioi han
 const hudState = (v, lim) => !lim ? 'normal' : v >= lim ? 'over' : v >= lim * .9 ? 'near' : 'normal';
 const hudFill = (v, lim) => Math.min(100, v / (lim || 160) * 100);
-const conv = v => S.unit === 'mph' ? Math.round(v * 0.621371) : v;
-const unitTxt = () => S.unit === 'mph' ? 'mph' : 'km/h';
+const conv = v => v;
+const unitTxt = () => 'km/h';
 function signHtml(lim) {
   const t = lim ? conv(lim) : '--', none = lim ? '' : 'none';
-  return S.sign === 'us' ? `<span class="sign us ${none}"><i>SPEED<br>LIMIT</i>${t}</span>` : `<span class="sign vi ${none}">${t}</span>`;
+  return `<span class="sign vi ${none}">${t}</span>`;
 }
 const icoHtml = () => S.icon ? `<span class="ico" style="background:${SOURCES[S.src][1]}">${SOURCES[S.src][0]}</span>` : '';
 
@@ -2626,7 +2623,7 @@ function bubble0(style, v, lim) {
     }
     case 'dash': {
       // goc 150 do (duoi trai) -> 390 do (duoi phai), quet 240 do theo chieu kim dong ho; truc y man hinh huong xuong
-      const mph = S.unit === 'mph', MAX = mph ? 100 : 160, MINOR = 10, MAJOR = 20;
+      const MAX = 160, MINOR = 10, MAJOR = 20;
       const ang = x => 150 + 240 * Math.min(1.04, x / MAX);
       const pt = (r, a) => `${(70 + r * Math.cos(a * Math.PI / 180)).toFixed(2)} ${(70 + r * Math.sin(a * Math.PI / 180)).toFixed(2)}`;
       const arcD = (r, a1, a2) => `M${pt(r, a1)} A${r} ${r} 0 ${a2 - a1 > 180 ? 1 : 0} 1 ${pt(r, a2)}`;
@@ -2660,7 +2657,7 @@ function renderCar() {
   $('map').className = 'map ' + S.map;
   $('cs').classList.toggle('mapdark', S.map === 'dark');
   // Dai HUD: chi cap nhat so / trang thai / do dai thanh (giu nguyen phan tu de thanh chay muot)
-  const key = [S.style, S.unit, S.sign, S.icon, S.src, S.limit, S.bg].join('|'), hud = $('slot').querySelector('.s-hud');
+  const key = [S.style, S.icon, S.src, S.limit, S.bg].join('|'), hud = $('slot').querySelector('.s-hud');
   if (S.style === 'hud' && hud && $('slot').dataset.key === key) {
     const st = hudState(S.speed, S.limit);
     hud.className = `bub${bgCls()} s-hud lglass ${st} ${st === 'over' ? 'pulse' : ''}`;
@@ -2669,8 +2666,7 @@ function renderCar() {
   } else { $('slot').innerHTML = bubble(S.style, S.speed, S.limit); $('slot').dataset.key = key; }
   $('slot').style.transform = `scale(${S.size / 100})`;
   $('slot').style.display = S.on ? '' : 'none';
-  const overBy = S.unit === 'mph' ? S.over * 1.609 : S.over;
-  const isOver = S.on && S.warn > 0 && S.limit > 0 && S.speed > S.limit + overBy;
+  const isOver = S.on && S.warn > 0 && S.limit > 0 && S.speed > S.limit + S.over;
   const fx = S.warn & 1 ? S.fx : '';
   $('fit').dataset.fx = fx;
   $('fit').classList.toggle('warn', isOver && !!fx && fx !== 'bubble');
@@ -2705,7 +2701,6 @@ function renderGallery() {
 }
 // Thanh mo phong (khong thuoc Cai dat): toc do, gioi han, ban do, chay thu
 function renderSim() {
-  const seg = (k, opts) => `<span class="seg">${opts.map(([v, t]) => `<span class="${S[k] === v ? 'on' : ''}" data-sim="${k}" data-v="${v}">${t}</span>`).join('')}</span>`;
   $('sim').innerHTML = `<b>Mô phỏng</b>
     <div class="ctl"><span>Tốc độ</span><input type="range" min="0" max="140" value="${S.speed}" id="spd"><span class="val" id="spdv" style="width:62px">${conv(S.speed)} ${unitTxt()}</span></div>
     <div class="ctl"><span>Giới hạn</span>${seg('limit', [[0, '—'], [40, '40'], [50, '50'], [60, '60'], [80, '80'], [100, '100']])}</div>
@@ -2719,10 +2714,9 @@ function renderSim() {
 // Trang Cai dat Bong bong toc do (ban moi)
 function renderSettings() {
   const pg = $('page'), top = pg.scrollTop, sx = pg.querySelector('.styles') ? pg.querySelector('.styles').scrollLeft : 0;
-  const seg = (k, opts) => `<span class="seg">${opts.map(([v, t]) => `<span class="${S[k] === v ? 'on' : ''}" data-pref="${k}" data-v="${v}">${t}</span>`).join('')}</span>`;
   const tile = (g, c) => `<span class="ptile" style="background:${c}">${g}</span>`;
   const off = S.on ? '' : 'off';
-  const ou = S.unit === 'mph' ? 'mph' : 'km/h';
+  const ou = 'km/h';
   // Nguong -10..10 so voi gioi han: duong = qua gioi han, am = bao tu truoc khi cham, 0 = ngay khi cham
   const thTxt = () => S.over > 0 ? `quá giới hạn ${S.over} ${ou}` : S.over < 0 ? `dưới giới hạn ${-S.over} ${ou}` : 'chạm giới hạn';
   const thVal = () => `${S.over > 0 ? '+' : ''}${S.over} ${ou}`;
@@ -2764,12 +2758,7 @@ function renderSettings() {
       <div class="r">${tile('🔊', 'linear-gradient(135deg,#8FD3FF,#5AB8FF)')}<span class="lab">Âm thanh<small>Chạm một mục để nghe thử</small></span><span class="swi ${S.warn & 2 ? 'on' : ''}" data-wbit="2"></span></div>
       ${S.warn & 2 ? sndList() : ''}
       ${S.warn ? `<div class="r">${tile('!', 'linear-gradient(135deg,#FFD58A,#FFB340)')}<span class="lab" style="flex:none">Ngưỡng</span><input type="range" min="-10" max="10" value="${S.over}" data-range="over"><span class="v" id="v-over">${thVal()}</span></div>` : ''}</div>
-    <div class="foot" id="warnfoot">${warnFoot()}</div>
-    <div class="lbl">Hiển thị</div>
-    <div class="pc glass ${off}">
-      <div class="r">${tile('km', 'linear-gradient(135deg,#8FD3FF,#5AB8FF)')}<span class="lab">Đơn vị</span>${seg('unitPref', [['auto', 'Tự động'], ['kmh', 'km/h'], ['mph', 'mph']])}</div>
-      <div class="r">${tile('⊘', 'linear-gradient(135deg,#FF9A9E,#E5262D)')}<span class="lab">Biển</span>${seg('signPref', [['auto', 'Tự động'], ['vi', 'Tròn'], ['us', 'Mỹ']])}</div></div>
-    <div class="foot">Tự động: theo vùng của iPhone (Việt Nam: km/h, biển tròn).</div>`;
+    <div class="foot" id="warnfoot">${warnFoot()}</div>`;
   pg.scrollTop = top;
   if (pg.querySelector('.styles')) pg.querySelector('.styles').scrollLeft = sx;
   pg.querySelectorAll('[data-tog]').forEach(e => e.onclick = () => { S[e.dataset.tog] = !S[e.dataset.tog]; renderAll(); });
@@ -2781,11 +2770,6 @@ function renderSettings() {
   if ($('vtext')) $('vtext').oninput = e => { S.voiceText = e.target.value; S.voice = 'custom'; $('warnfoot').textContent = warnFoot(); };
   pg.querySelectorAll('[data-wbit]').forEach(e => e.onclick = () => { S.warn ^= +e.dataset.wbit; renderAll(); });   // 2 cong tac = 2 bit
   pg.querySelectorAll('[data-src]').forEach(e => e.onclick = () => { S.src = e.dataset.src; if (!S.limit) S.limit = 50; renderAll(); });
-  pg.querySelectorAll('[data-pref]').forEach(e => e.onclick = () => {
-    const k = e.dataset.pref, v = e.dataset.v; S[k] = isNaN(+v) ? v : +v;
-    S.unit = S.unitPref === 'mph' ? 'mph' : 'kmh'; S.sign = S.signPref === 'us' ? 'us' : 'vi';
-    renderAll();
-  });
   pg.querySelectorAll('[data-range]').forEach(e => e.oninput = () => {
     const k = e.dataset.range; S[k] = +e.value;
     $('v-' + k).textContent = k === 'over' ? thVal() : S[k] + '%';

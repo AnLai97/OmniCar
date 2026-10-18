@@ -19,27 +19,12 @@
 "SPEEDBUBBLE_RESET_LAYOUT" = "Position und Größe zurücksetzen";
 "SPEEDBUBBLE_SOURCE" = "Geschwindigkeitsquelle";
 "SPEEDBUBBLE_GESTURES_FOOTER" = "Auf dem Display: ziehen zum Bewegen · Aufziehen/Zuziehen zum Skalieren · tippen öffnet die App · 2 s halten, um die App zu beenden.";
-"SPEEDBUBBLE_UNIT" = "Tempo-Einheit";
-"SPEEDBUBBLE_UNIT_0" = "Automatisch (nach Region)";
-"SPEEDBUBBLE_UNIT_1" = "km/h";
-"SPEEDBUBBLE_UNIT_2" = "mph";
-"SPEEDBUBBLE_SIGN" = "Tempolimit-Schild";
-"SPEEDBUBBLE_SIGN_0" = "Automatisch (nach Region)";
-"SPEEDBUBBLE_SIGN_1" = "Rund (Wien)";
-"SPEEDBUBBLE_SIGN_2" = "Rechteckig (USA)";
 "SPEEDBUBBLE_WARN" = "Tempowarnung";
 
 /* Settings page (OMCSpeedBubbleController) */
 "SPEEDBUBBLE_ENABLE_SUB" = "Erscheint, solange die Navi-App im Hintergrund läuft";
 "SPEEDBUBBLE_TRY" = "Im Auto testen";
 "SPEEDBUBBLE_TRY_SENT" = "Die Blase erscheint 10 Sekunden im Auto";
-"SPEEDBUBBLE_DISPLAY" = "Anzeige";
-"SPEEDBUBBLE_UNIT_SHORT" = "Einheit";
-"SPEEDBUBBLE_SIGN_SHORT" = "Schild";
-"SPEEDBUBBLE_AUTO" = "Auto";
-"SPEEDBUBBLE_SIGN_ROUND" = "Rund";
-"SPEEDBUBBLE_SIGN_US" = "USA";
-"SPEEDBUBBLE_DISPLAY_FOOTER" = "Auto: richtet sich nach der Region des iPhone.";
 "SPEEDBUBBLE_SRC_HINT_0" = "Tempo + Limitschild. Vietmap Live einmal öffnen und im Hintergrund lassen.";
 "SPEEDBUBBLE_SRC_HINT_1" = "Tempo + Limitschild. GOFA einmal öffnen und im Hintergrund lassen.";
 "SPEEDBUBBLE_SRC_HINT_2" = "Tempo per GPS; Limit nur, wenn Waze das Schild zeigt (experimentell).";

@@ -19,27 +19,12 @@
 "SPEEDBUBBLE_RESET_LAYOUT" = "إعادة تعيين الموضع والحجم";
 "SPEEDBUBBLE_SOURCE" = "مصدر السرعة";
 "SPEEDBUBBLE_GESTURES_FOOTER" = "على الشاشة: اسحب للتحريك · اقرص لتغيير الحجم · اضغط لفتح التطبيق · اضغط مطولًا ثانيتين للخروج من التطبيق.";
-"SPEEDBUBBLE_UNIT" = "وحدة السرعة";
-"SPEEDBUBBLE_UNIT_0" = "تلقائي (حسب المنطقة)";
-"SPEEDBUBBLE_UNIT_1" = "كم/س";
-"SPEEDBUBBLE_UNIT_2" = "ميل/س";
-"SPEEDBUBBLE_SIGN" = "لافتة حد السرعة";
-"SPEEDBUBBLE_SIGN_0" = "تلقائي (حسب المنطقة)";
-"SPEEDBUBBLE_SIGN_1" = "دائرية (فيينا)";
-"SPEEDBUBBLE_SIGN_2" = "مستطيلة (الولايات المتحدة)";
 "SPEEDBUBBLE_WARN" = "تحذير تجاوز السرعة";
 
 /* Settings page (OMCSpeedBubbleController) */
 "SPEEDBUBBLE_ENABLE_SUB" = "تظهر أثناء عمل تطبيق الملاحة في الخلفية";
 "SPEEDBUBBLE_TRY" = "جرّب في السيارة";
 "SPEEDBUBBLE_TRY_SENT" = "تظهر الفقاعة في السيارة لمدة 10 ثوانٍ";
-"SPEEDBUBBLE_DISPLAY" = "العرض";
-"SPEEDBUBBLE_UNIT_SHORT" = "الوحدة";
-"SPEEDBUBBLE_SIGN_SHORT" = "الإشارة";
-"SPEEDBUBBLE_AUTO" = "تلقائي";
-"SPEEDBUBBLE_SIGN_ROUND" = "دائرية";
-"SPEEDBUBBLE_SIGN_US" = "أمريكية";
-"SPEEDBUBBLE_DISPLAY_FOOTER" = "تلقائي: حسب منطقة iPhone.";
 "SPEEDBUBBLE_SRC_HINT_0" = "السرعة + إشارة الحد. افتح Vietmap Live مرة ثم اتركه في الخلفية.";
 "SPEEDBUBBLE_SRC_HINT_1" = "السرعة + إشارة الحد. افتح GOFA مرة ثم اتركه في الخلفية.";
 "SPEEDBUBBLE_SRC_HINT_2" = "السرعة من GPS؛ الحد فقط عندما يعرض Waze الإشارة (تجريبي).";

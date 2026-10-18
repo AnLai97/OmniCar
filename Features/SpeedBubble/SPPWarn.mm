@@ -75,7 +75,6 @@ static UIImage *SPPWarnSoftImage(void)
 @property (nonatomic) BOOL voice;                   // am thanh: giong noi (khong thi am bao)
 @property (nonatomic) NSInteger tone, voiceLine;
 @property (nonatomic, copy) NSString *voiceText;
-@property (nonatomic) BOOL mph;                     // gioi han doc theo don vi dang hien
 @property (nonatomic) BOOL over;                    // dang vuot (dang hien vien)
 @property (nonatomic) BOOL armed;                   // lan vuot ke tiep duoc keu
 @property (nonatomic) CFAbsoluteTime belowSince;    // luc bat dau xuong duoi gioi han (0 = dang tren / khong biet)
@@ -104,7 +103,6 @@ static UIImage *SPPWarnSoftImage(void)
     self.tone = [SPPPrefs warnTone];
     self.voiceLine = [SPPPrefs warnVoiceLine];
     self.voiceText = [SPPPrefs warnVoiceText];
-    self.mph = [SPPPrefs useMph];
 }
 
 - (void)reloadPrefs
@@ -147,7 +145,7 @@ static UIImage *SPPWarnSoftImage(void)
     if (over) {
         if (self.armed && (self.mode & 2)) {
             if (self.voice) {
-                NSString *line = SPPVoiceLine(self.voiceLine, self.voiceText, self.mph ? (int)lround(limit / 1.609344) : limit);
+                NSString *line = SPPVoiceLine(self.voiceLine, self.voiceText, limit);
                 SPPSpeak(line);
                 SPPLog("canh bao: noi \"%@\"", line);
             } else {

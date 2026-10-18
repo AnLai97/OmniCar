@@ -17,8 +17,8 @@
 #define SB_KEY_SHOW_APP_ICON @"speedBubbleShowAppIcon"   // BOOL, default YES
 #define SB_KEY_SIZE_PHONE    @"speedBubbleSizePhone"     // 60..220 %, default 100
 #define SB_KEY_SIZE_CAR      @"speedBubbleSizeCar"       // 60..220 %, default 100
-#define SB_KEY_UNIT          @"speedBubbleUnit"          // don vi: 0 tu dong theo vung, 1 km/h, 2 mph (app nguon luon gui km/h)
-#define SB_KEY_SIGN          @"speedBubbleSign"          // bien gioi han: 0 tu dong theo vung, 1 Vienna (tron vien do), 2 My (chu nhat "SPEED LIMIT")
+// Don vi luon km/h, bien gioi han luon kieu Vienna (tron vien do): khong con lua chon (key cu speedBubbleUnit /
+// speedBubbleSign khong doc nua).
 #define SB_KEY_SOURCE        @"speedBubbleSource"        // nguon toc do duy nhat: 0 Vietmap Live, 1 GOFA, 2 Waze (chi so SPP_NAV_APPS)
 // Ban truoc co 6 nguon (2 GPS iPhone, 3 Google Maps, 4 Waze, 5 Apple Maps): lan dau doc sau ban nay, SPPPrefs / Cai dat doi
 // 4 -> 2 (Waze), cac so khac ngoai 0..1 -> 0, roi ghi SB_KEY_SOURCE_V2 = YES.

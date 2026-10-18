@@ -19,27 +19,12 @@
 "SPEEDBUBBLE_RESET_LAYOUT" = "Reset position and size";
 "SPEEDBUBBLE_SOURCE" = "Speed source";
 "SPEEDBUBBLE_GESTURES_FOOTER" = "On screen: drag to move · pinch to resize · tap to open the app · hold 2 s to quit the app.";
-"SPEEDBUBBLE_UNIT" = "Speed unit";
-"SPEEDBUBBLE_UNIT_0" = "Automatic (by region)";
-"SPEEDBUBBLE_UNIT_1" = "km/h";
-"SPEEDBUBBLE_UNIT_2" = "mph";
-"SPEEDBUBBLE_SIGN" = "Speed limit sign";
-"SPEEDBUBBLE_SIGN_0" = "Automatic (by region)";
-"SPEEDBUBBLE_SIGN_1" = "Round (Vienna)";
-"SPEEDBUBBLE_SIGN_2" = "Rectangle (US)";
 "SPEEDBUBBLE_WARN" = "Overspeed warning";
 
 /* Settings page (OMCSpeedBubbleController) */
 "SPEEDBUBBLE_ENABLE_SUB" = "Shows while the navigation app runs in the background";
 "SPEEDBUBBLE_TRY" = "Try on the car";
 "SPEEDBUBBLE_TRY_SENT" = "Showing the bubble on the car for 10 seconds";
-"SPEEDBUBBLE_DISPLAY" = "Display";
-"SPEEDBUBBLE_UNIT_SHORT" = "Unit";
-"SPEEDBUBBLE_SIGN_SHORT" = "Sign";
-"SPEEDBUBBLE_AUTO" = "Auto";
-"SPEEDBUBBLE_SIGN_ROUND" = "Round";
-"SPEEDBUBBLE_SIGN_US" = "US";
-"SPEEDBUBBLE_DISPLAY_FOOTER" = "Auto: follows the iPhone's region.";
 "SPEEDBUBBLE_SRC_HINT_0" = "Speed + limit sign. Open Vietmap Live once, then leave it in the background.";
 "SPEEDBUBBLE_SRC_HINT_1" = "Speed + limit sign. Open GOFA once, then leave it in the background.";
 "SPEEDBUBBLE_SRC_HINT_2" = "Speed from GPS; the limit only when Waze shows its sign (experimental).";

@@ -19,27 +19,12 @@
 "SPEEDBUBBLE_RESET_LAYOUT" = "รีเซ็ตตำแหน่งและขนาด";
 "SPEEDBUBBLE_SOURCE" = "แหล่งข้อมูลความเร็ว";
 "SPEEDBUBBLE_GESTURES_FOOTER" = "บนหน้าจอ: ลากเพื่อย้าย · จีบนิ้วเพื่อปรับขนาด · แตะเพื่อเปิดแอป · แตะค้าง 2 วินาทีเพื่อออกจากแอป";
-"SPEEDBUBBLE_UNIT" = "หน่วยความเร็ว";
-"SPEEDBUBBLE_UNIT_0" = "อัตโนมัติ (ตามภูมิภาค)";
-"SPEEDBUBBLE_UNIT_1" = "กม./ชม.";
-"SPEEDBUBBLE_UNIT_2" = "ไมล์/ชม.";
-"SPEEDBUBBLE_SIGN" = "ป้ายจำกัดความเร็ว";
-"SPEEDBUBBLE_SIGN_0" = "อัตโนมัติ (ตามภูมิภาค)";
-"SPEEDBUBBLE_SIGN_1" = "วงกลม (เวียนนา)";
-"SPEEDBUBBLE_SIGN_2" = "สี่เหลี่ยม (สหรัฐฯ)";
 "SPEEDBUBBLE_WARN" = "เตือนความเร็วเกิน";
 
 /* Settings page (OMCSpeedBubbleController) */
 "SPEEDBUBBLE_ENABLE_SUB" = "แสดงขณะแอปนำทางทำงานเบื้องหลัง";
 "SPEEDBUBBLE_TRY" = "ลองบนรถ";
 "SPEEDBUBBLE_TRY_SENT" = "กำลังแสดงบับเบิลบนรถ 10 วินาที";
-"SPEEDBUBBLE_DISPLAY" = "การแสดงผล";
-"SPEEDBUBBLE_UNIT_SHORT" = "หน่วย";
-"SPEEDBUBBLE_SIGN_SHORT" = "ป้าย";
-"SPEEDBUBBLE_AUTO" = "อัตโนมัติ";
-"SPEEDBUBBLE_SIGN_ROUND" = "วงกลม";
-"SPEEDBUBBLE_SIGN_US" = "แบบสหรัฐฯ";
-"SPEEDBUBBLE_DISPLAY_FOOTER" = "อัตโนมัติ: ตามภูมิภาคของ iPhone";
 "SPEEDBUBBLE_SRC_HINT_0" = "ความเร็ว + ป้ายจำกัด เปิด Vietmap Live หนึ่งครั้งแล้วปล่อยให้ทำงานเบื้องหลัง";
 "SPEEDBUBBLE_SRC_HINT_1" = "ความเร็ว + ป้ายจำกัด เปิด GOFA หนึ่งครั้งแล้วปล่อยให้ทำงานเบื้องหลัง";
 "SPEEDBUBBLE_SRC_HINT_2" = "ความเร็วจาก GPS; ป้ายจำกัดเฉพาะเมื่อ Waze แสดงป้าย (ทดลอง)";

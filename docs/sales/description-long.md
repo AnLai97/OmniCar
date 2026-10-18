@@ -24,7 +24,7 @@ OmniCar takes CarPlay beyond what Apple allows: run several apps side by side, b
 
 **Speed Bubble**
 - A floating bubble with your current speed and the posted limit, read from Vietmap Live or GOFA while the app runs in the background.
-- On the CarPlay screen, or on the iPhone when no car is connected. 9 styles; drag, pinch to resize, tap to reopen the navigation app. km/h or mph.
+- On the CarPlay screen, or on the iPhone when no car is connected. 9 styles; drag, pinch to resize, tap to reopen the navigation app..
 
 **Startup Screen**
 - Play your own video on the car screen every time you connect.
@@ -78,7 +78,7 @@ OmniCar đưa CarPlay vượt khỏi giới hạn của Apple: chạy nhiều ap
 
 **Bong bóng tốc độ**
 - Bong bóng nổi hiện tốc độ hiện tại và biển giới hạn, đọc từ Vietmap Live hoặc GOFA khi app chạy nền.
-- Trên màn CarPlay, hoặc trên iPhone khi không cắm xe. 9 kiểu; kéo, chụm để đổi cỡ, chạm để mở lại app dẫn đường. km/h hoặc mph.
+- Trên màn CarPlay, hoặc trên iPhone khi không cắm xe. 9 kiểu; kéo, chụm để đổi cỡ, chạm để mở lại app dẫn đường..
 
 **Màn hình khởi động**
 - Phát video của bạn trên màn xe mỗi lần cắm.

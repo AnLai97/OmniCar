@@ -451,7 +451,7 @@ static BOOL sSeenRunning[8];
     if (lite != self.builtLite) { self.builtLite = lite; [bv rebuild]; }
     bv.style = [SPPPrefs style];
     bv.speed = self.speed; bv.limit = self.limit;
-    bv.showIcon = [SPPPrefs showAppIcon]; bv.mph = [SPPPrefs useMph]; bv.usSign = [SPPPrefs usSign];
+    bv.showIcon = [SPPPrefs showAppIcon];
     bv.color = [SPPPrefs color];
     if (bv.showIcon && self.iconApp != self.app) { bv.iconImage = SPPAppIcon(self.app); self.iconApp = self.app; }
     CGPoint c = self.card.center;
@@ -877,7 +877,7 @@ static NSArray<NSDictionary *> *SPPTestSteps(void)
     [steps addObject:OMCTestStep(@"So toc do dung", 0.5, 3, ^NSString *{ SPPTestFeed(57, 60); return nil; }, ^NSString *{
         SPPTestFeed(57, 60);
         if (b.speed != 57 || b.limit != 60) return SPPTestWhy(@"toc do / gioi han khong khop");
-        NSString *want = [NSString stringWithFormat:@"%d", (int)([SPPPrefs useMph] ? lround(57 / 1.609344) : 57)];   // mph: 35
+        NSString *want = @"57";
         if (b.bubbleView.speedLabel && ![b.bubbleView.speedLabel.text isEqualToString:want]) return SPPTestWhy(OMCTestFormat(@"chu hien '%@', can %@", b.bubbleView.speedLabel.text, want));
         return nil;
     })];

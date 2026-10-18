@@ -19,27 +19,12 @@
 "SPEEDBUBBLE_RESET_LAYOUT" = "Atur ulang posisi dan ukuran";
 "SPEEDBUBBLE_SOURCE" = "Sumber kecepatan";
 "SPEEDBUBBLE_GESTURES_FOOTER" = "Di layar: seret untuk memindah · cubit untuk mengubah ukuran · ketuk untuk membuka app · tahan 2 dtk untuk keluar dari app.";
-"SPEEDBUBBLE_UNIT" = "Satuan kecepatan";
-"SPEEDBUBBLE_UNIT_0" = "Otomatis (menurut wilayah)";
-"SPEEDBUBBLE_UNIT_1" = "km/j";
-"SPEEDBUBBLE_UNIT_2" = "mph";
-"SPEEDBUBBLE_SIGN" = "Rambu batas kecepatan";
-"SPEEDBUBBLE_SIGN_0" = "Otomatis (menurut wilayah)";
-"SPEEDBUBBLE_SIGN_1" = "Bulat (Wina)";
-"SPEEDBUBBLE_SIGN_2" = "Persegi panjang (AS)";
 "SPEEDBUBBLE_WARN" = "Peringatan kecepatan berlebih";
 
 /* Settings page (OMCSpeedBubbleController) */
 "SPEEDBUBBLE_ENABLE_SUB" = "Muncul saat app navigasi berjalan di latar belakang";
 "SPEEDBUBBLE_TRY" = "Coba di mobil";
 "SPEEDBUBBLE_TRY_SENT" = "Gelembung tampil di mobil 10 detik";
-"SPEEDBUBBLE_DISPLAY" = "Tampilan";
-"SPEEDBUBBLE_UNIT_SHORT" = "Satuan";
-"SPEEDBUBBLE_SIGN_SHORT" = "Rambu";
-"SPEEDBUBBLE_AUTO" = "Otomatis";
-"SPEEDBUBBLE_SIGN_ROUND" = "Bulat";
-"SPEEDBUBBLE_SIGN_US" = "AS";
-"SPEEDBUBBLE_DISPLAY_FOOTER" = "Otomatis: mengikuti wilayah iPhone.";
 "SPEEDBUBBLE_SRC_HINT_0" = "Kecepatan + rambu batas. Buka Vietmap Live sekali lalu biarkan di latar belakang.";
 "SPEEDBUBBLE_SRC_HINT_1" = "Kecepatan + rambu batas. Buka GOFA sekali lalu biarkan di latar belakang.";
 "SPEEDBUBBLE_SRC_HINT_2" = "Kecepatan dari GPS; batas hanya saat Waze menampilkan rambu (uji coba).";
