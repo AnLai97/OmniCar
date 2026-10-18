@@ -45,6 +45,7 @@
 - (UIColor *)homeInk;
 - (NSString *)launcherWhere;
 - (BOOL)launcherBare;
+- (void)refreshHomeButton;
 - (void)setBarVisible:(BOOL)visible forPane:(id)pane;   // thanh nut cua o (cham "•••")
 - (void)hideBarsForTouchOn:(UIView *)v;                   // cham vao view v (hitTest cua container): thanh nut dang mo o cho khac -> an ngay
 @end
