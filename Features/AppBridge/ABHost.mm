@@ -115,12 +115,31 @@ static UIWindow *ABMakeCarWindow(void)
     return w;
 }
 
+// Dau vet cham (log 19/10 16:04: chia man thi khong nhan duoc video YouTube, log khong co dong nao ve cham trong o):
+// toi da 1 dong / 0.2 s (UIKit goi hitTest vai lan cho moi lan dat tay)
+static BOOL ABTouchLogDue(void)
+{
+    static CFAbsoluteTime last;
+    CFAbsoluteTime now = CFAbsoluteTimeGetCurrent();
+    if (now - last < 0.2) return NO;
+    last = now;
+    return YES;
+}
+
 // Cua so phu kin man xe nhung cho cham xuyen qua o moi cho khong co o app (doi class cua instance luc chay)
 static UIView *ABPassThroughHitTest(id self, SEL _cmd, CGPoint p, UIEvent *e)
 {
     struct objc_super sup = { self, class_getSuperclass(object_getClass(self)) };
     UIView *v = ((UIView *(*)(struct objc_super *, SEL, CGPoint, UIEvent *))objc_msgSendSuper)(&sup, _cmd, p, e);
-    return (v == self) ? nil : v;
+    if (v == self) v = nil;
+    // Cham toi cua so host (backboardd chon SpringBoard tai diem nay): view nao nhan, thuoc o nao; nil = SpringBoard bo cham
+    if (e.type == UIEventTypeTouches && ABTouchLogDue()) {
+        NSString *pane = @"";
+        for (UIView *a = v; a; a = a.superview)
+            if ([a isKindOfClass:NSClassFromString(@"ABBoxView")]) { pane = [NSString stringWithFormat:@" (o %@)", [a valueForKey:@"appID"]]; break; }
+        ABLog("cham cua so host tai %@ -> %@%@", NSStringFromCGPoint(p), v ? NSStringFromClass(v.class) : @"khong view nao: SpringBoard bo cham", pane);
+    }
+    return v;
 }
 
 static void ABMakeWindowPassThrough(UIWindow *w)
@@ -173,6 +192,7 @@ static void ABPostOrientation(NSString *bid, long long orientation)
 @property (nonatomic, weak) UIView *handleHit;
 @property (nonatomic, weak) UIView *bar;           // thanh nut ve de len app: luon nhan cham
 @property (nonatomic) CGRect hole;
+@property (nonatomic, copy) NSString *appID;       // app trong o (dau vet cham)
 @end
 @implementation ABBoxView
 - (BOOL)pointInside:(CGPoint)p withEvent:(UIEvent *)e
@@ -391,6 +411,7 @@ static void ABPostOrientation(NSString *bid, long long orientation)
     long long base = [OMCPref(AB_KEY_ORIENTATION, @1) longLongValue];
     pane.orientation = (base == UIInterfaceOrientationLandscapeLeft || base == UIInterfaceOrientationLandscapeRight) ? base : UIInterfaceOrientationPortrait;
     pane.box = [[ABBoxView alloc] initWithFrame:frame];
+    pane.box.appID = bid;
     pane.box.backgroundColor = [UIColor blackColor];
     pane.box.clipsToBounds = YES;
     pane.box.alpha = 0;   // hien dan khi app san sang (afterLaunch), khong nhay cuc

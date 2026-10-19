@@ -303,6 +303,42 @@ static void ABSetFpsCap(int fps)
     }
 }
 
+// Dau vet cham khi dang tren xe (log 19/10 16:04: chia man thi khong nhan duoc video YouTube, log khong co dong nao ve
+// cham trong o): moi lan dat tay / nhac tay / bi huy, ghi vi tri trong cua so, khung cua so va man hinh, view nhan cham.
+// Khong co dong nao = cham chua toi app (SpringBoard / CarPlay giu, hay backboardd bo).
+- (void)sendEvent:(UIEvent *)event
+{
+    if (orientationOverride > 0 && event.type == UIEventTypeTouches) {
+        for (UITouch *t in event.allTouches) {
+            NSString *phase = t.phase == UITouchPhaseBegan ? @"xuong" : t.phase == UITouchPhaseEnded ? @"len" : t.phase == UITouchPhaseCancelled ? @"huy" : nil;
+            if (!phase) continue;
+            UIView *v = t.view;
+            ABLog("cham %@ tai %@ trong %@ %@ (key=%d, man %@, app state %ld) -> %@ trong %@",
+                  phase, NSStringFromCGPoint([t locationInView:self]), NSStringFromClass(self.class), NSStringFromCGRect(self.bounds),
+                  self.isKeyWindow, NSStringFromCGSize(self.screen.bounds.size), (long)[UIApplication sharedApplication].applicationState,
+                  v ? NSStringFromClass(v.class) : @"khong view nao", v.superview ? NSStringFromClass(v.superview.class) : @"-");
+        }
+    }
+    %orig;
+}
+
+%end
+
+// Dau vet man hinh: VC chiem >= nua cua so vua hien (trang xem video cua YouTube co mo sau khi cham hay khong)
+%hook UIViewController
+
+- (void)viewDidAppear:(BOOL)animated
+{
+    %orig;
+    if (orientationOverride <= 0 || !self.isViewLoaded) return;
+    UIWindow *w = self.view.window;
+    if (!w) return;
+    CGRect r = [self.view convertRect:self.view.bounds toView:w];
+    CGFloat area = w.bounds.size.width * w.bounds.size.height;
+    if (area <= 0 || r.size.width * r.size.height < area * 0.5) return;
+    ABLog("man hinh %@ hien: %@ trong cua so %@", NSStringFromClass(self.class), NSStringFromCGRect(r), NSStringFromCGRect(w.bounds));
+}
+
 %end
 
 // App cu: ep xoay bang [UIDevice setOrientation:]; app hoi huong thiet bi -> tra loi theo huong dang ap

@@ -44,6 +44,17 @@
 #define SCPC_BG_TOAST_TAG      0x5C9B   // thong bao "dang chay nen" (chi 1 cai mot luc)
 typedef NS_ENUM(NSInteger, SCPCLayoutKind) { SCPCLayoutColumns = 0, SCPCLayoutMainStack = 1, SCPCLayoutMainRight = 2 };
 
+// Dau vet cham (log 19/10 16:04: chia man thi khong nhan duoc video YouTube, log khong co dong nao ve cham trong o):
+// toi da 1 dong / 0.2 s (UIKit goi hitTest vai lan cho moi lan dat tay)
+static BOOL SCPCTouchLogDue(void)
+{
+    static CFAbsoluteTime last;
+    CFAbsoluteTime now = CFAbsoluteTimeGetCurrent();
+    if (now - last < 0.2) return NO;
+    last = now;
+    return YES;
+}
+
 static BOOL SCPCIsStackLayout(int layoutID) { return layoutID == SCPC_LAYOUT_MAIN_STACK || layoutID == SCPC_LAYOUT_MAIN_RIGHT; }
 static int SCPCPanesForLayout(int layoutID)
 {
@@ -859,7 +870,10 @@ static void SCPCFrame(UIView *v) { v.layer.borderWidth = 0; }
 {
     if ((!e || e.type == UIEventTypeTouches) && [self pointInside:p withEvent:e] && self.outside) {
         CGPoint wp = [self convertPoint:p toView:nil];
-        if (!self.exempt || !self.exempt(wp)) self.outside();
+        BOOL exempt = self.exempt && self.exempt(wp);
+        // Dau vet: lop chan bat cham ma sau do khong co "dong bang" = lop chan con lai khi khong bang nao mo (nuot cham vao app)
+        if (SCPCTouchLogDue()) SCPLog("CarSplit: lop chan bat cham tai %@ (%@)", NSStringFromCGPoint(wp), exempt ? @"trong bang, cho qua" : @"ngoai bang -> dong, nuot");
+        if (!exempt) self.outside();
     }
     return nil;
 }
@@ -903,11 +917,33 @@ static void SCPCFrame(UIView *v) { v.layer.borderWidth = 0; }
 
 // VC gia dai dien app iPhone do SpringBoard host (App Bridge) trong o: tra loi cac selector ma split goi tren
 // VC cua DashBoard (background / foreground scene, applicationInfo...) de bo cuc dung chung, khong lam gi.
+// View cua VC gia: cua so host cua SpringBoard nam tren o nay nen cham vao app iPhone khong bao gio toi day. Toi day
+// = tai diem do cua so host khong o tren / khong co lop ve, backboardd dua cham cho CarPlay -> ghi log (dau vet cham)
+@interface SCPHostedPlaceholderView : UIView
+@property (nonatomic, copy) NSString *bundleID;
+@end
+@implementation SCPHostedPlaceholderView
+- (UIView *)hitTest:(CGPoint)p withEvent:(UIEvent *)e
+{
+    UIView *v = [super hitTest:p withEvent:e];
+    if (e.type == UIEventTypeTouches && SCPCTouchLogDue())
+        SCPLog("CarSplit: cham roi vao o app iPhone %@ PHIA CARPLAY tai %@ (cua so host SpringBoard khong nhan) -> %@",
+               self.bundleID, NSStringFromCGPoint([self convertPoint:p toView:nil]), v ? NSStringFromClass(v.class) : @"nil");
+    return v;
+}
+@end
+
 @interface SCPHostedAppVC : UIViewController
 @property (nonatomic, copy) NSString *bundleID;
 @end
 @implementation SCPHostedAppVC
-- (void)viewDidLoad { [super viewDidLoad]; self.view.backgroundColor = [UIColor colorWithWhite:0.08 alpha:1]; }
+- (void)loadView { self.view = [SCPHostedPlaceholderView new]; }
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+    self.view.backgroundColor = [UIColor colorWithWhite:0.08 alpha:1];
+    ((SCPHostedPlaceholderView *)self.view).bundleID = self.bundleID;
+}
 - (void)backgroundSceneWithCompletion:(id)completion { if (completion) ((void (^)(void))completion)(); }
 - (void)foregroundSceneWithSettings:(id)settings completion:(id)completion { if (completion) ((void (^)(void))completion)(); }
 - (id)applicationInfo { return nil; }
