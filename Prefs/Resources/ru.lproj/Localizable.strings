@@ -4,6 +4,7 @@
 "HEADER_TAGLINE" = "Вся мощь CarPlay";
 "STATUS_ON" = "Вкл.";
 "STATUS_OFF" = "Выкл.";
+"STATUS_EXPIRED" = "Срок истёк";
 "OK" = "OK";
 "CANCEL" = "Отменить";
 

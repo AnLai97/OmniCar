@@ -4,6 +4,7 @@
 "HEADER_TAGLINE" = "The power of CarPlay";
 "STATUS_ON" = "On";
 "STATUS_OFF" = "Off";
+"STATUS_EXPIRED" = "Expired";
 "OK" = "OK";
 "CANCEL" = "Cancel";
 

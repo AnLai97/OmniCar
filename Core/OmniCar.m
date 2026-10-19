@@ -27,7 +27,7 @@ id OMCPref(NSString *key, id fallback) {
 }
 
 BOOL OMCEnabled(void) {
-	return [OMCPref(@"enabled", @YES) boolValue];
+	return !OMCExpired() && [OMCPref(@"enabled", @YES) boolValue];
 }
 
 BOOL OMCFeatureEnabled(NSString *feature) {

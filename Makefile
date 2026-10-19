@@ -27,6 +27,11 @@ FEATURES := $(notdir $(wildcard Features/*))
 ifneq ($(OMC_AUTOTEST),)
 OMC_TEST_CFLAGS = -DOMC_AUTOTEST=$(OMC_AUTOTEST)
 endif
+# Free period (Core/OmniCar.h, default 2027-04-30): `make package OMC_EXPIRY=2027-06-30` moves it,
+# `make package OMC_EXPIRY=` builds without one.
+ifneq ($(origin OMC_EXPIRY),undefined)
+OMC_TEST_CFLAGS += -DOMC_EXPIRY=\"$(OMC_EXPIRY)\"
+endif
 
 # --- Core dylib (SpringBoard only: log relay) + one tweak dylib per feature ---------------------
 TWEAK_NAME = OmniCarCore $(foreach f,$(FEATURES),OmniCar$(f))

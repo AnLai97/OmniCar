@@ -4,6 +4,7 @@
 "HEADER_TAGLINE" = "CarPlay의 힘";
 "STATUS_ON" = "켬";
 "STATUS_OFF" = "끔";
+"STATUS_EXPIRED" = "만료됨";
 "OK" = "확인";
 "CANCEL" = "취소";
 

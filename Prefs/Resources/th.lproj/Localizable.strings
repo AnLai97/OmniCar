@@ -4,6 +4,7 @@
 "HEADER_TAGLINE" = "พลังของ CarPlay";
 "STATUS_ON" = "เปิด";
 "STATUS_OFF" = "ปิด";
+"STATUS_EXPIRED" = "หมดอายุแล้ว";
 "OK" = "ตกลง";
 "CANCEL" = "ยกเลิก";
 

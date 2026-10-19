@@ -4,6 +4,7 @@
 "HEADER_TAGLINE" = "释放 CarPlay 的全部潜能";
 "STATUS_ON" = "开";
 "STATUS_OFF" = "关";
+"STATUS_EXPIRED" = "已过期";
 "OK" = "好";
 "CANCEL" = "取消";
 

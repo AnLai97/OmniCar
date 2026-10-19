@@ -4,6 +4,7 @@
 "HEADER_TAGLINE" = "Kekuatan CarPlay";
 "STATUS_ON" = "Nyala";
 "STATUS_OFF" = "Mati";
+"STATUS_EXPIRED" = "Kedaluwarsa";
 "OK" = "OKE";
 "CANCEL" = "Batal";
 
