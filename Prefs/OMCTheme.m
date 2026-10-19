@@ -181,6 +181,7 @@ void OMCStyleGlassCard(UIView *card) {
 }
 
 BOOL OMCEnabled(void) {
+	if (OMCExpired()) return NO;
 	id value = (__bridge_transfer id)CFPreferencesCopyAppValue(kEnabledKey, kPrefsDomain);
 	return value ? [value boolValue] : YES;
 }

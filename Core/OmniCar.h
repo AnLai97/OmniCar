@@ -21,6 +21,12 @@
 #define OMC_AUTOTEST 0
 #endif
 
+// Free period: every feature works through this day (yyyy-MM-dd, Vietnam time) and turns itself off after it,
+// with no notice before. "" = never expires. `make package OMC_EXPIRY=2027-06-30` (or OMC_EXPIRY=) overrides it.
+#ifndef OMC_EXPIRY
+#define OMC_EXPIRY "2026-12-31"
+#endif
+
 #define OMC_PREFS_DOMAIN  CFSTR("com.anlai.omnicar")
 #define OMC_PREFS_CHANGED CFSTR("com.anlai.omnicar/prefschanged")
 // Data root; features keep their files under OMC_DATA_ROOT/<Name>/.
@@ -33,8 +39,16 @@ extern "C" {
 // Re-read the prefs domain (call before reading a batch of values at a decision point).
 void OMCPrefsSync(void);
 id OMCPref(NSString *key, id fallback);
-// Master switch ("enabled", default YES).
+// Master switch ("enabled", default YES); NO once the free period is over (OMCExpired).
 BOOL OMCEnabled(void);
+// Past the end of OMC_EXPIRY. "Now" is the later of the device clock and the last time read from a web
+// server (OMC_KEY_TRUSTED_TIME, kept by SpringBoard), so setting the clock back does not reopen it.
+// Shared by every dylib and the settings bundle (Core/OMCCommon.m).
+BOOL OMCExpired(void);
+#define OMC_KEY_TRUSTED_TIME @"trustedTime"   // NSNumber, seconds since 1970
+// SpringBoard only: read the time from a web server now and every few hours, store it, and post
+// OMC_PREFS_CHANGED the moment the free period ends so running features stop.
+void OMCTrustedTimeStart(void);
 // Master switch AND "<feature>Enabled" (default YES). `feature` is the key prefix, e.g. @"startupScreen".
 BOOL OMCFeatureEnabled(NSString *feature);
 

@@ -4,6 +4,7 @@
 "HEADER_TAGLINE" = "قوة CarPlay";
 "STATUS_ON" = "تشغيل";
 "STATUS_OFF" = "إيقاف";
+"STATUS_EXPIRED" = "منتهي الصلاحية";
 "OK" = "حسنًا";
 "CANCEL" = "إلغاء";
 

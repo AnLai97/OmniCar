@@ -4,6 +4,7 @@
 "HEADER_TAGLINE" = "Sức mạnh của CarPlay";
 "STATUS_ON" = "Đang bật";
 "STATUS_OFF" = "Đang tắt";
+"STATUS_EXPIRED" = "Đã hết hạn";
 "OK" = "OK";
 "CANCEL" = "Huỷ";
 

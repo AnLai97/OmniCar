@@ -147,6 +147,52 @@ static void OMCCleanRam(BOOL force) {
 	});
 }
 
+#pragma mark - Free period (OMC_EXPIRY): time from a web server
+
+// The Date header of any HTTPS answer is the server's clock; the latest one seen is kept so a device clock set
+// back cannot reopen an expired build. Offline: the stored value and the device clock still apply.
+static void OMCTrustedTimeFetch(void) {
+	if (!strlen(OMC_EXPIRY)) return;
+	NSMutableURLRequest *req = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://www.apple.com/"]];
+	req.HTTPMethod = @"HEAD";
+	req.timeoutInterval = 15;
+	req.cachePolicy = NSURLRequestReloadIgnoringLocalCacheData;
+	[[[NSURLSession sharedSession] dataTaskWithRequest:req completionHandler:^(NSData *data, NSURLResponse *resp, NSError *err) {
+		NSString *date = [resp isKindOfClass:[NSHTTPURLResponse class]] ? ((NSHTTPURLResponse *)resp).allHeaderFields[@"Date"] : nil;
+		if (![date isKindOfClass:[NSString class]]) return;
+		NSDateFormatter *f = [NSDateFormatter new];
+		f.locale = [NSLocale localeWithLocaleIdentifier:@"en_US_POSIX"];
+		f.timeZone = [NSTimeZone timeZoneForSecondsFromGMT:0];
+		f.dateFormat = @"EEE, dd MMM yyyy HH:mm:ss zzz";
+		NSDate *d = [f dateFromString:date];
+		if (!d) return;
+		dispatch_async(dispatch_get_main_queue(), ^{
+			OMCPrefsSync();
+			NSTimeInterval t = d.timeIntervalSince1970, old = [OMCPref(OMC_KEY_TRUSTED_TIME, @0) doubleValue];
+			if (t <= old) return;
+			CFPreferencesSetAppValue((__bridge CFStringRef)OMC_KEY_TRUSTED_TIME, (__bridge CFPropertyListRef)@(t), OMC_PREFS_DOMAIN);
+			CFPreferencesAppSynchronize(OMC_PREFS_DOMAIN);
+		});
+	}] resume];
+}
+
+void OMCTrustedTimeStart(void) {
+	if (!strlen(OMC_EXPIRY)) return;
+	static BOOL wasExpired;
+	wasExpired = OMCExpired();
+	if (wasExpired) OMCLog(@"Core", @"free period over (%s)", OMC_EXPIRY);
+	OMCTrustedTimeFetch();
+	// Server time every 6 h; the free period checked every minute so features stop on time
+	[NSTimer scheduledTimerWithTimeInterval:6 * 3600 repeats:YES block:^(NSTimer *t) { OMCTrustedTimeFetch(); }];
+	[NSTimer scheduledTimerWithTimeInterval:60 repeats:YES block:^(NSTimer *t) {
+		if (wasExpired || !OMCExpired()) return;
+		wasExpired = YES;
+		OMCLog(@"Core", @"free period over (%s): features off", OMC_EXPIRY);
+		notify_post("com.anlai.omnicar/prefschanged");
+		[t invalidate];
+	}];
+}
+
 #pragma mark - Shortcuts / Siri (omnicar:// URLs that are not one feature's)
 
 // omnicar://feature/<splitScreen | appBridge | speedBubble | startupScreen | all>?on=1|0|toggle
@@ -195,6 +241,7 @@ static void OMCCoreHandleURL(NSString *urlString) {
 	@autoreleasepool {
 		OMCLogRelayStart();
 		OMCLog(@"Core", @"loaded into %@ enabled=%d", [NSBundle mainBundle].bundleIdentifier, OMCEnabled());
+		OMCTrustedTimeStart();
 		static int token;
 		notify_register_dispatch(OMC_DARWIN_RESCUE, &token, dispatch_get_main_queue(), ^(int t) { OMCShowRescueNotice(); });
 		// The car just connected: wait until CarPlay has launched its apps (and recorded them), then free memory

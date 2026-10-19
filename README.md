@@ -106,6 +106,14 @@ Không phải sửa Root.plist hay Makefile: trang chính tự liệt kê, Makef
 
 Kết quả thử theo iOS và theo app: `COMPATIBILITY.md`.
 
+### Hạn dùng miễn phí
+
+`OMC_EXPIRY` trong `Core/OmniCar.h` (mặc định `"2026-12-31"`, giờ Việt Nam): dùng bình thường đến hết ngày đó, không báo
+trước; sang ngày hôm sau mọi tính năng tự tắt (`OMCExpired()` → `OMCEnabled()` = NO), cài đặt người dùng giữ nguyên,
+thẻ đầu trang Cài đặt hiện "Đã hết hạn" và khoá công tắc. "Bây giờ" = giờ máy hoặc giờ máy chủ lớn nhất từng thấy
+(SpringBoard đọc header `Date` của https://www.apple.com mỗi 6 giờ, lưu `trustedTime`), nên chỉnh lùi giờ máy không mở lại.
+Đổi ngày: `make package OMC_EXPIRY=2027-06-30`; bỏ hạn: `make package OMC_EXPIRY=`.
+
 ### Tự kiểm tra trên xe (chỉ bản dev)
 
 `OMC_AUTOTEST` trong `Core/OmniCar.h` (mặc định 0 = tắt; cần thử trên xe thì đặt 1 hoặc `make package OMC_AUTOTEST=1`): bật thì

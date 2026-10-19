@@ -3,6 +3,36 @@
 #import "OmniCar.h"
 #import <UIKit/UIKit.h>
 
+#pragma mark - Free period
+
+static NSTimeInterval OMCExpiryDeadline(void) {
+	static NSTimeInterval deadline;
+	static dispatch_once_t once;
+	dispatch_once(&once, ^{
+		NSString *day = @OMC_EXPIRY;
+		if (!day.length) return;
+		NSDateFormatter *f = [NSDateFormatter new];
+		f.locale = [NSLocale localeWithLocaleIdentifier:@"en_US_POSIX"];
+		f.timeZone = [NSTimeZone timeZoneForSecondsFromGMT:7 * 3600];
+		f.dateFormat = @"yyyy-MM-dd";
+		NSDate *d = [f dateFromString:day];
+		if (d) deadline = d.timeIntervalSince1970 + 24 * 3600;   // through the whole day
+	});
+	return deadline;
+}
+
+BOOL OMCExpired(void) {
+	static BOOL expired;
+	if (expired) return YES;
+	NSTimeInterval deadline = OMCExpiryDeadline();
+	if (deadline <= 0) return NO;
+	NSTimeInterval now = [NSDate date].timeIntervalSince1970;
+	id trusted = CFBridgingRelease(CFPreferencesCopyAppValue((__bridge CFStringRef)OMC_KEY_TRUSTED_TIME, OMC_PREFS_DOMAIN));
+	if ([trusted isKindOfClass:[NSNumber class]]) now = MAX(now, [trusted doubleValue]);
+	if (now >= deadline) expired = YES;
+	return expired;
+}
+
 #pragma mark - Car profiles
 
 // What a car profile keeps: split layout and side, Speed Bubble on the car, startup screen, iPhone app zoom

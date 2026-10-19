@@ -4,6 +4,7 @@
 "HEADER_TAGLINE" = "CarPlayをもっとパワフルに";
 "STATUS_ON" = "オン";
 "STATUS_OFF" = "オフ";
+"STATUS_EXPIRED" = "期限切れ";
 "OK" = "OK";
 "CANCEL" = "キャンセル";
 

@@ -379,7 +379,11 @@
 }
 
 - (void)updateHeaderStatusEnabled:(BOOL)enabled {
-	[self.headerCard updateWithTagline:L(@"HEADER_TAGLINE") status:L(enabled ? @"STATUS_ON" : @"STATUS_OFF") enabled:enabled];
+	// Free period over (OMCExpired): status "Expired", the master switch off and locked
+	BOOL expired = OMCExpired();
+	[self.headerCard updateWithTagline:L(@"HEADER_TAGLINE") status:L(expired ? @"STATUS_EXPIRED" : (enabled ? @"STATUS_ON" : @"STATUS_OFF"))
+		enabled:enabled && !expired];
+	self.headerCard.toggle.enabled = !expired;
 }
 
 // Master switch: same key and notification as the old "Enable OmniCar" row.
