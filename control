@@ -3,8 +3,7 @@ Name: OmniCar
 Version: 1.0.2
 Architecture: iphoneos-arm64
 Description: The power of CarPlay.
- OmniCar takes CarPlay beyond what Apple allows: more freedom, more
- features and everything you need on the road, in one package.
+ OmniCar takes CarPlay beyond what Apple allows: more freedom, more features and everything you need on the road, in one package.
  .
  APP BRIDGE
   - iPhone apps without CarPlay, such as YouTube or TikTok, on the car screen
