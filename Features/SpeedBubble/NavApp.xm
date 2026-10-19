@@ -861,8 +861,9 @@ static void SPPScanSpeed(BOOL doLog)
     UIView *limitView = nil, *speedView = nil;
     NSMutableString *desc = [NSMutableString string];
     for (UILabel *l in labels) {
-        // Ten lop: Vietmap SpeedLimitView2 / CurrentSpeedView; app khac thuong co "Limit" (MaxSpeed, LimitSign...)
-        UIView *lv = SPPAncestorNamed(l, @"Limit") ?: SPPAncestorNamed(l, @"MaxSpeed");
+        // Ten lop: Vietmap SpeedLimitView2 / CurrentSpeedView; app khac thuong co "Limit" (MaxSpeed, LimitSign...);
+        // Waze: so nam trong UIImageView "speedlimit_world" cua WZSpeedSignView
+        UIView *lv = SPPAncestorNamed(l, @"Limit") ?: SPPAncestorNamed(l, @"MaxSpeed") ?: SPPAncestorNamed(l, @"SpeedSign");
         UIView *cv = lv ? nil : (SPPAncestorNamed(l, @"CurrentSpeed") ?: SPPAncestorNamed(l, @"Speedometer"));
         UIView *circle = SPPCircleAround(l);
         int kind = lv ? 1 : (cv ? 2 : 0);
