@@ -31,7 +31,7 @@ Format: 16:9, 1080p or higher, 30 fps. No voice-over needed; short on-screen cap
 
 | Time | Shot | Caption |
 |---|---|---|
-| 0:00–0:04 | Car parked, phone plugged in (or wireless connects). Startup Screen video plays on the car screen, tap to skip. | OmniCar – Unlock every limit of CarPlay |
+| 0:00–0:04 | Car parked, phone plugged in (or wireless connects). Startup Screen video plays on the car screen, tap to skip. | OmniCar – The power of CarPlay |
 | 0:04–0:10 | CarPlay home screen; open the layout tray, pick 2 panes: Maps + music. | Split Screen: two CarPlay apps side by side |
 | 0:10–0:16 | Switch to 3 panes, then 1 large + 2. Drag the divider knob to resize. | Two or three apps, drag to resize |
 | 0:16–0:20 | Swap two panes; pop one app into the floating window. | Swap panes, floating window |

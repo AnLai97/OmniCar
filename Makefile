@@ -57,7 +57,7 @@ OmniCarPrefs_INSTALL_PATH = /Library/PreferenceBundles
 # Theos rsyncs the *contents* of each dir into the bundle, so feature plists and
 # <lang>.lproj/<Feature>.strings land next to the core ones.
 OmniCarPrefs_RESOURCE_DIRS = Prefs/Resources $(wildcard Features/*/Prefs/Resources)
-# TWEAK_VERSION is shown in the footer card, read from control.
+# TWEAK_VERSION is shown next to the name in the header card, read from control.
 OmniCarPrefs_CFLAGS = -fobjc-arc -ICore -IPrefs -DTWEAK_VERSION=\"$(TWEAK_VERSION)\" -DOMC_BUILD=\"$(OMC_BUILD)\" $(OMC_TEST_CFLAGS)
 
 # --- Companion app: the omnicar:// URL scheme for Shortcuts / Siri (App/main.m) -------------------

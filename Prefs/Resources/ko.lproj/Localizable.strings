@@ -4,8 +4,6 @@
 "HEADER_TAGLINE" = "CarPlay의 힘";
 "STATUS_ON" = "켬";
 "STATUS_OFF" = "끔";
-"VERSION_FORMAT" = "버전: %@";
-"COPYRIGHT" = "Copyright © 2026 AnLai";
 "OK" = "확인";
 "CANCEL" = "취소";
 

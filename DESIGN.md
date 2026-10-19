@@ -19,7 +19,7 @@ logo: `tools/preview/index.html#logo`; bàn phím: `tools/preview/index.html#key
 - Chữ / icon trên màn xe: chàm dịu #4A4F80 (phụ 55%).
 - **Công tắc bật: xanh lá** (`OMCSwitchColor`, systemGreen).
 - **Dấu X đóng / tắt: đỏ** #FF5A5F (nút tắt có nền đỏ nhạt), luôn ở cuối.
-- Logo tác giả "AL" (`Prefs/Resources/avatar*.png`) giữ nguyên, không vẽ lại.
+- Cài đặt không có thẻ cuối trang (đã bỏ logo tác giả "AL" và dòng bản quyền); số phiên bản nằm cạnh chữ OmniCar ở thẻ đầu trang.
 
 ## Hình
 - Bo góc: bảng lớn 24 (khay bố cục, bảng chọn app, bàn phím), thẻ Cài đặt 20, thanh = viên thuốc, ô bố cục 14,

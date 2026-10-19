@@ -4,8 +4,6 @@
 "HEADER_TAGLINE" = "The power of CarPlay";
 "STATUS_ON" = "On";
 "STATUS_OFF" = "Off";
-"VERSION_FORMAT" = "Version: %@";
-"COPYRIGHT" = "Copyright © 2026 AnLai";
 "OK" = "OK";
 "CANCEL" = "Cancel";
 

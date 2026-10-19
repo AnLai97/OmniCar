@@ -7,7 +7,7 @@ Free vs Pro is not decided yet: fill in the TODO blocks before publishing.
 
 ## English
 
-### OmniCar – Unlock every limit of CarPlay
+### OmniCar – The power of CarPlay
 
 OmniCar takes CarPlay beyond what Apple allows: run several apps side by side, bring iPhone apps without CarPlay to the car screen, see your speed and the speed limit at a glance, and greet every drive with your own video. One package, every feature with its own switch and settings page under **Settings > OmniCar**.
 
@@ -61,7 +61,7 @@ Full compatibility list: `<TODO: public URL of docs/compatibility.html>`
 
 ## Tiếng Việt
 
-### OmniCar – Mở khoá mọi giới hạn của CarPlay
+### OmniCar – Sức mạnh của CarPlay
 
 OmniCar đưa CarPlay vượt khỏi giới hạn của Apple: chạy nhiều app cạnh nhau, đưa app iPhone chưa có CarPlay lên màn xe, xem tốc độ và biển giới hạn trong nháy mắt, và mở đầu mỗi chuyến đi bằng video của riêng bạn. Một gói duy nhất, mỗi tính năng có công tắc và trang cài đặt riêng trong **Cài đặt > OmniCar**.
 

@@ -13,13 +13,13 @@
 
 // Glass card in the OmniCar look (DESIGN.md, tools/preview/index.html#overview): frosted glass tinted with the pastel
 // liquid colors, logo, name, slogan, status line ("● On", the dot glows green when on) and the master switch,
-// so the enable row is gone. The version lives in the footer card, not here.
+// so the enable row is gone. The version sits right after the name; there is no footer card.
 @interface OMCHeaderCard : UIView
 @property (nonatomic, strong) UIView *card, *clip, *dot;
 @property (nonatomic, strong) CAGradientLayer *gradient, *sheen;
 @property (nonatomic, strong) UIImageView *logo;
 @property (nonatomic, strong) UIVisualEffectView *glass;
-@property (nonatomic, strong) UILabel *nameLabel, *taglineLabel, *statusLabel;
+@property (nonatomic, strong) UILabel *nameLabel, *versionLabel, *taglineLabel, *statusLabel;
 @property (nonatomic, strong) UISwitch *toggle;
 - (void)updateWithTagline:(NSString *)tagline status:(NSString *)status enabled:(BOOL)enabled;
 @end
@@ -70,6 +70,12 @@
 	_nameLabel.font = [UIFont systemFontOfSize:21 weight:UIFontWeightBold];
 	_nameLabel.textColor = [UIColor labelColor];
 	[_clip addSubview:_nameLabel];
+
+	_versionLabel = [UILabel new];
+	_versionLabel.text = @TWEAK_VERSION;
+	_versionLabel.font = [UIFont systemFontOfSize:13 weight:UIFontWeightMedium];
+	_versionLabel.textColor = [UIColor secondaryLabelColor];
+	[_clip addSubview:_versionLabel];
 
 	_taglineLabel = [UILabel new];
 	_taglineLabel.font = [UIFont systemFontOfSize:13 weight:UIFontWeightRegular];
@@ -128,7 +134,10 @@
 	CGFloat x = CGRectGetMaxX(_logo.frame) + 14, w = CGRectGetMinX(_toggle.frame) - 10 - x;
 	// Name, slogan and status as one block (28 + 18 + 18), centered vertically
 	CGFloat top = (H - 64) / 2;
-	_nameLabel.frame = CGRectMake(x, top, w, 28);
+	CGFloat nameW = MIN(ceil([_nameLabel sizeThatFits:CGSizeZero].width), w);
+	_nameLabel.frame = CGRectMake(x, top, nameW, 28);
+	// Version on the name's baseline
+	_versionLabel.frame = CGRectMake(x + nameW + 6, top + 8, MAX(0, w - nameW - 6), 18);
 	_taglineLabel.frame = CGRectMake(x, top + 28, w, 18);
 	_statusLabel.frame = CGRectMake(x + 13, top + 46, w - 13, 18);
 	_dot.frame = CGRectMake(x, top + 46 + 5.5, 7, 7);
@@ -322,7 +331,6 @@
 	OMCLoadStrings();
 	self.title = @"OmniCar";
 	self.table.tableHeaderView = [self headerView];
-	self.table.tableFooterView = [self footerView];
 	// Respring and Language as two small nav bar buttons instead of rows (rightmost first)
 	UIBarButtonItem *respring = [[UIBarButtonItem alloc] initWithImage:[UIImage systemImageNamed:@"arrow.clockwise"] style:UIBarButtonItemStylePlain target:self action:@selector(respring)];
 	respring.tintColor = [UIColor labelColor];
@@ -380,71 +388,6 @@
 	CFPreferencesAppSynchronize(kPrefsDomain);
 	notify_post("com.anlai.omnicar/prefschanged");
 	[self updateHeaderStatusEnabled:sw.on];
-}
-
-// A full-width table footer holding one rounded card: an image beside a column of text lines.
-// The card follows the table's layout margins so it lines up with the inset-grouped rows.
-- (UIView *)cardContainerWithHeight:(CGFloat)height insets:(UIEdgeInsets)insets image:(UIImage *)image side:(CGFloat)side lines:(NSArray<UILabel *> *)lines {
-	UIView *container = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, height)];
-	container.autoresizingMask = UIViewAutoresizingFlexibleWidth;
-	container.preservesSuperviewLayoutMargins = YES;
-
-	UIView *card = [UIView new];
-	OMCStyleGlassCard(card);
-	card.layer.cornerRadius = 20;
-	card.layer.cornerCurve = kCACornerCurveContinuous;
-	card.translatesAutoresizingMaskIntoConstraints = NO;
-	[container addSubview:card];
-
-	UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
-	imageView.layer.cornerRadius = side * 0.22;
-	imageView.layer.cornerCurve = kCACornerCurveContinuous;
-	imageView.clipsToBounds = YES;
-	imageView.translatesAutoresizingMaskIntoConstraints = NO;
-
-	UIStackView *text = [[UIStackView alloc] initWithArrangedSubviews:lines];
-	text.axis = UILayoutConstraintAxisVertical;
-	text.spacing = 3;
-
-	UIStackView *row = [[UIStackView alloc] initWithArrangedSubviews:@[imageView, text]];
-	row.alignment = UIStackViewAlignmentCenter;
-	row.spacing = 14;
-	row.translatesAutoresizingMaskIntoConstraints = NO;
-	[card addSubview:row];
-
-	UILayoutGuide *margins = container.layoutMarginsGuide;
-	[NSLayoutConstraint activateConstraints:@[
-		[card.leadingAnchor constraintEqualToAnchor:margins.leadingAnchor],
-		[card.trailingAnchor constraintEqualToAnchor:margins.trailingAnchor],
-		[card.topAnchor constraintEqualToAnchor:container.topAnchor constant:insets.top],
-		[card.bottomAnchor constraintEqualToAnchor:container.bottomAnchor constant:-insets.bottom],
-		[imageView.widthAnchor constraintEqualToConstant:side],
-		[imageView.heightAnchor constraintEqualToConstant:side],
-		[row.leadingAnchor constraintEqualToAnchor:card.leadingAnchor constant:16],
-		[row.trailingAnchor constraintLessThanOrEqualToAnchor:card.trailingAnchor constant:-16],
-		[row.centerYAnchor constraintEqualToAnchor:card.centerYAnchor],
-	]];
-	return container;
-}
-
-- (UILabel *)labelWithText:(NSString *)text size:(CGFloat)size weight:(UIFontWeight)weight color:(UIColor *)color {
-	UILabel *label = [UILabel new];
-	label.text = text;
-	label.font = [UIFont systemFontOfSize:size weight:weight];
-	label.textColor = color;
-	label.numberOfLines = 0;
-	return label;
-}
-
-// Bottom card: author logo (AL), app name, version and copyright.
-- (UIView *)footerView {
-	NSBundle *bundle = [NSBundle bundleForClass:[self class]];
-	UIImage *avatar = [UIImage imageNamed:@"avatar" inBundle:bundle compatibleWithTraitCollection:nil];
-	return [self cardContainerWithHeight:136 insets:UIEdgeInsetsMake(8, 0, 32, 0) image:avatar side:56 lines:@[
-		[self labelWithText:@"OmniCar" size:16 weight:UIFontWeightSemibold color:[UIColor labelColor]],
-		[self labelWithText:[NSString stringWithFormat:L(@"VERSION_FORMAT"), @TWEAK_VERSION] size:13 weight:UIFontWeightRegular color:[UIColor secondaryLabelColor]],
-		[self labelWithText:L(@"COPYRIGHT") size:13 weight:UIFontWeightRegular color:[UIColor secondaryLabelColor]],
-	]];
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {

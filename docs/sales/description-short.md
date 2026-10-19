@@ -12,5 +12,5 @@ Chia màn CarPlay 2-3 app, đưa app iPhone như YouTube lên màn xe, thêm bon
 
 ## Tagline (from the control file)
 
-- EN: Unlock every limit of CarPlay.
-- VI: Mở khoá mọi giới hạn của CarPlay.
+- EN: The power of CarPlay.
+- VI: Sức mạnh của CarPlay.

@@ -4,8 +4,6 @@
 "HEADER_TAGLINE" = "CarPlayをもっとパワフルに";
 "STATUS_ON" = "オン";
 "STATUS_OFF" = "オフ";
-"VERSION_FORMAT" = "バージョン: %@";
-"COPYRIGHT" = "Copyright © 2026 AnLai";
 "OK" = "OK";
 "CANCEL" = "キャンセル";
 

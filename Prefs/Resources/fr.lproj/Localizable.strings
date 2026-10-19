@@ -4,8 +4,6 @@
 "HEADER_TAGLINE" = "La puissance de CarPlay";
 "STATUS_ON" = "Oui";
 "STATUS_OFF" = "Non";
-"VERSION_FORMAT" = "Version : %@";
-"COPYRIGHT" = "Copyright © 2026 AnLai";
 "OK" = "OK";
 "CANCEL" = "Annuler";
 
