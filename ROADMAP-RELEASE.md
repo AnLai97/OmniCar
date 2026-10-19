@@ -21,10 +21,13 @@ Mức 1 xong thì mở repo miễn phí; Mức 2 xong phần lớn thì bán Pro
 - [ ] [ ] **Tên gói và định danh** · Thấp
   OmniCar (miễn phí, có dùng thử Pro) và OmniCar Pro (gói mở khoá trả phí). Chốt bundle id trước khi mở repo để
   người dùng thời kỳ miễn phí lên bản chính thức không mất cài đặt.
-- [ ] [ ] **Repo riêng** · Thấp
+- [x] [ ] **Repo riêng** · Thấp
   `repo.<tên miền>` (APT repo cho Sileo / Zebra): Release ký, ảnh bìa, trang mô tả (depiction) kiểu Sileo cho từng gói,
   nhánh beta tách khỏi nhánh chính. Đặt sau Cloudflare / máy chủ có log để đếm lượt tải.
   Xong khi: thêm repo trên Sileo và Zebra, cài / cập nhật / gỡ OmniCar chạy đúng trên rootless và roothide.
+  Code: repo riêng `../OmniCarRepo` (GitHub Pages `omnicarrepo.github.io`, đổi sang tên miền trong `repo.conf`):
+  `scripts/build.py` dựng Packages + Release (ký GPG nếu có secret), depiction Sileo + HTML, ảnh bìa, banner nổi bật,
+  workflow tự xuất bản khi push. Chưa có: roothide, nhánh beta (repo thứ hai), Cloudflare. Thử: thêm repo trên Sileo / Zebra, cài 1.0.2.
 - [ ] [ ] **Trang giới thiệu một trang** · Thấp
   Video, ảnh màn xe, so sánh Lite / Pro, trang tương thích, FAQ, nút "Thêm repo", liên hệ hỗ trợ.
 - [ ] [ ] **Bộ nhận diện** · Thấp

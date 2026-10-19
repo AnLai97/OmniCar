@@ -30,8 +30,8 @@ Description: Unlock every limit of CarPlay.
  Compatibility: iOS 15 and later, rootless jailbreaks (Dopamine, palera1n).
  Replaces the standalone CarSplash, CarSpeed and CarDuo tweaks.
 Icon: file:///var/jb/Library/PreferenceBundles/OmniCarPrefs.bundle/PackageIcon.png
-Maintainer: AnLai <laihoangan123456@gmail.com>
-Author: AnLai <laihoangan123456@gmail.com>
+Maintainer: OmniCar <omnicartweak@gmail.com>
+Author: OmniCar <omnicartweak@gmail.com>
 Section: Tweaks
 Depends: mobilesubstrate (>= 0.9.5000), preferenceloader, firmware (>= 15.0)
 Conflicts: carsplash-rootless, carspeed, com.anlai97.speedpop, com.anlai97.carduo, com.anpham.splitcarplay
