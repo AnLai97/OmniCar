@@ -15,10 +15,10 @@
 #endif
 
 // Developer auto test on the car (Core/OMCTest.h): 1 = the test runner, every feature's test cases and the
-// Settings page are built in; 0 (default) leaves all of it out. Turn it on with `make package OMC_AUTOTEST=1`
-// (or set 1 here) when testing on the car.
+// Settings page are built in; 0 leaves all of it out. 1 while the author tests on the car (since 19/10/2026);
+// `make package OMC_AUTOTEST=0` for a release build.
 #ifndef OMC_AUTOTEST
-#define OMC_AUTOTEST 0
+#define OMC_AUTOTEST 1
 #endif
 
 // Free period: every feature works through this day (yyyy-MM-dd, Vietnam time) and turns itself off after it,
@@ -109,6 +109,21 @@ BOOL OMCCrashGuard(NSString *feature);
 #define OMC_KEY_AUTOTEST_AVAIL @"autoTestAvail."   // + suite: {process, date}, written when a suite registers
 #define OMC_DARWIN_AUTOTEST    "com.anlai.omnicar/autotest"
 #define OMC_AUTOTEST_DIR       @"/var/mobile/Documents/OmniCar-AutoTest"   // autotest.txt
+// A touch inside an app on the car, made by the app itself (OMCTestTouch* in OMCTest.m; Features/AppBridge/App.xm, loaded
+// into every app, listens). CarPlay process -> app (distributed notification, object = bundle id, userInfo):
+//   seq      number, echoed in the reply
+//   kind     tap | drag
+//   target   host (the iPhone window App Bridge shows on the car) | car (the app's own CarPlay window)
+//   fx, fy   0..1 of the window (tap point / drag start); fx2, fy2: drag end; back = 1: drag there and back
+//   find     video: tap the first video thumbnail found in the window instead of fx / fy (YouTube)
+// The app draws a finger at the point, sends the touch through UIKit and replies with a Darwin notification whose state is
+// (ABBundleHash(bundle id) << 24) | (seq << 8) | result bits.
+#define OMC_NOTIF_AUTOTEST_TOUCH  @"com.anlai.omnicar/autotest.touch"
+#define OMC_DARWIN_AUTOTEST_TOUCH "com.anlai.omnicar/autotest.touchdone"
+#define OMC_AT_TOUCH_HIT       1   // the touch reached a view of the app
+#define OMC_AT_TOUCH_GESTURE   2   // a gesture recognizer of that view (or a parent) took it: the map panned / the cell was tapped
+#define OMC_AT_TOUCH_CHANGED   4   // the screen changed within 3 s of a tap (another view at the point / a big view controller appeared)
+#define OMC_AT_TOUCH_NOWINDOW  8   // the app has no such window (not on the car)
 #endif
 // Diagnostics written by the tweak, read by Settings (Diagnostics page, Send log):
 // last car screen and session (dictionary, see OMCRecordCarScreen in OmniCar.m) ...

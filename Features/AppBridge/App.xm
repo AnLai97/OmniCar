@@ -1,4 +1,5 @@
 #import "common.h"
+#import "OMCTest.h"
 #import <notify.h>
 
 // Phan cua App Bridge chay TRONG app (dylib nap vao moi process UIKit, xem Filter.plist). Port tu CarDuo 1.0
@@ -255,6 +256,119 @@ static void ABSetFpsCap(int fps)
     ABLog("gioi han khung hinh: %d", fps);
 }
 
+
+#if OMC_AUTOTEST
+// ---- Tu kiem tra (Core/OMCTest.h): cham TRONG app theo lenh cua process CarPlay (OMC_NOTIF_AUTOTEST_TOUCH) ----
+// App tu ve ngon tay va gui cham qua UIKit (OMCTestTouch*), roi tra loi bang Darwin notify + state
+// (hash bundle << 24 | seq << 8 | bit ket qua OMC_AT_TOUCH_*). Khong lien quan toi viec app co duoc host hay khong:
+// app CarPlay (Google Maps, GOFA) nhan cham vao cua so CarPlay cua no (target = car), app iPhone tren xe nhan vao cua so
+// App Bridge dang hien (target = host).
+static NSTimeInterval abScreenAppearedAt;   // luc VC chiem >= nua cua so vua hien (hook viewDidAppear, chi khi dang host)
+
+static void ABAutoTestReply(NSUInteger seq, NSUInteger bits)
+{
+    static int token = 0;
+    if (!token) notify_register_check(OMC_DARWIN_AUTOTEST_TOUCH, &token);
+    notify_set_state(token, (ABBundleHash([[NSBundle mainBundle] bundleIdentifier]) << 24) | ((uint64_t)(seq & 0xFFFF) << 8) | (bits & 0xFF));
+    notify_post(OMC_DARWIN_AUTOTEST_TOUCH);
+    ABLog("tu kiem tra: tra loi seq %lu bit %lu", (unsigned long)seq, (unsigned long)bits);
+}
+
+// Cua so de cham: car = cua so tren man xe (scene khong phai man iPhone: CPWindow cua app CarPlay), host = cua so iPhone
+// App Bridge dang hien
+static UIWindow *ABAutoTestWindow(NSString *target)
+{
+    if ([target isEqualToString:@"car"]) {
+        UIWindow *best = nil;
+        for (UIScene *sc in [UIApplication sharedApplication].connectedScenes) {
+            if (![sc isKindOfClass:[UIWindowScene class]] || ((UIWindowScene *)sc).screen == [UIScreen mainScreen]) continue;
+            for (UIWindow *w in ((UIWindowScene *)sc).windows) {
+                if (w.hidden || w.bounds.size.width < 50) continue;
+                if (!best || w.bounds.size.width * w.bounds.size.height > best.bounds.size.width * best.bounds.size.height) best = w;
+            }
+        }
+        return best;
+    }
+    return ABBestWindow();
+}
+
+// YouTube: view giong o video nhat trong cua so (nhan tro nang "play video" / "phat video" / "views" / "luot xem", hay lop
+// co "Thumbnail" / "Video"), tron ven trong cua so, cao nhat man. nil = khong thay
+static UIView *ABAutoTestFindVideo(UIView *v, CGRect win, UIView *best, int depth)
+{
+    if (depth > 40 || v.hidden || v.alpha < 0.05) return best;
+    CGRect r = [v convertRect:v.bounds toView:nil];
+    CGFloat area = r.size.width * r.size.height, winArea = win.size.width * win.size.height;
+    if (area >= winArea * 0.04 && area <= winArea * 0.7 && CGRectContainsRect(CGRectInset(win, -2, -2), r) && CGRectGetMinY(r) > 40) {
+        NSString *label = [v.accessibilityLabel lowercaseString] ?: @"";
+        NSString *cls = NSStringFromClass(v.class);
+        id node = [v respondsToSelector:NSSelectorFromString(@"asyncdisplaykit_node")] ? [v valueForKey:@"asyncdisplaykit_node"] : nil;
+        if (node) cls = [cls stringByAppendingFormat:@"/%@", NSStringFromClass([node class])];
+        BOOL video = [label containsString:@"play video"] || [label containsString:@"phát video"] || [label containsString:@"phat video"]
+                  || [label containsString:@" views"] || [label containsString:@"lượt xem"]
+                  || [cls containsString:@"Thumbnail"] || [cls containsString:@"VideoWithContext"] || [cls containsString:@"VideoCell"];
+        if (video && (!best || CGRectGetMinY(r) < CGRectGetMinY([best convertRect:best.bounds toView:nil]))) best = v;
+    }
+    for (UIView *c in v.subviews) best = ABAutoTestFindVideo(c, win, best, depth + 1);
+    return best;
+}
+
+static void ABAutoTestTouch(NSDictionary *info)
+{
+    NSUInteger seq = [info[@"seq"] unsignedIntegerValue];
+    NSString *kind = info[@"kind"] ?: @"tap", *target = info[@"target"] ?: @"host";
+    UIWindow *w = ABAutoTestWindow(target);
+    if (!w) {
+        ABLog("tu kiem tra: khong co cua so %@ de cham (%@)", target, kind);
+        ABAutoTestReply(seq, OMC_AT_TOUCH_NOWINDOW);
+        return;
+    }
+    CGRect b = w.bounds;
+    CGPoint p = CGPointMake(b.size.width * [info[@"fx"] doubleValue], b.size.height * [info[@"fy"] doubleValue]);
+    CGPoint p2 = CGPointMake(b.size.width * [info[@"fx2"] doubleValue], b.size.height * [info[@"fy2"] doubleValue]);
+    NSString *found = @"";
+    if ([info[@"find"] isEqualToString:@"video"]) {
+        UIView *v = ABAutoTestFindVideo(w, b, nil, 0);
+        if (v) {
+            CGRect r = [v convertRect:v.bounds toView:nil];
+            p = CGPointMake(CGRectGetMidX(r), CGRectGetMidY(r));
+            found = [NSString stringWithFormat:@", o video %@ \"%@\" %@", NSStringFromClass(v.class), v.accessibilityLabel ?: @"", NSStringFromCGRect(r)];
+        } else found = @", khong thay o video nao -> cham diem mac dinh";
+    }
+    ABLog("tu kiem tra: %@ tai %@ trong %@ %@ (%@)%@", kind, NSStringFromCGPoint(p), NSStringFromClass(w.class), NSStringFromCGRect(b), target, found);
+    NSString *(^name)(UIView *) = ^NSString *(UIView *v) { return v ? NSStringFromClass(v.class) : @"khong view nao"; };
+    if ([kind isEqualToString:@"finger"]) { OMCTestFingerTap(w, p, nil); return; }   // chi ngon tay: CarPlay tu lam viec con lai
+    if ([kind isEqualToString:@"drag"]) {
+        BOOL back = [info[@"back"] boolValue];
+        OMCTestTouchDrag(w, p, p2, 0.7, ^(UIView *hit, BOOL gesture) {
+            NSUInteger bits = (hit ? OMC_AT_TOUCH_HIT : 0) | (gesture ? OMC_AT_TOUCH_GESTURE : 0);
+            ABLog("tu kiem tra: keo %@ -> %@ toi %@, gesture %d", NSStringFromCGPoint(p), NSStringFromCGPoint(p2), name(hit), gesture);
+            if (!back) { ABAutoTestReply(seq, bits); return; }
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.6 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                OMCTestTouchDrag(w, p2, p, 0.7, ^(UIView *hit2, BOOL gesture2) {
+                    ABLog("tu kiem tra: keo ve toi %@, gesture %d", name(hit2), gesture2);
+                    ABAutoTestReply(seq, bits | (hit2 ? OMC_AT_TOUCH_HIT : 0) | (gesture2 ? OMC_AT_TOUCH_GESTURE : 0));
+                });
+            });
+        });
+        return;
+    }
+    NSTimeInterval t0 = [[NSProcessInfo processInfo] systemUptime];
+    UIView *before = [w hitTest:p withEvent:nil];
+    OMCTestTouchTap(w, p, ^(UIView *hit, BOOL gesture) {
+        // 3 s sau: man hinh co doi khong (VC lon vua hien, hay view khac tai diem do)
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            UIView *after = [w hitTest:p withEvent:nil];
+            BOOL changed = abScreenAppearedAt > t0 || (after && before && after.class != before.class);
+            NSUInteger bits = (hit ? OMC_AT_TOUCH_HIT : 0) | (gesture ? OMC_AT_TOUCH_GESTURE : 0) | (changed ? OMC_AT_TOUCH_CHANGED : 0);
+            ABLog("tu kiem tra: cham toi %@ (trong %@), gesture %d, man hinh %@ (truoc %@, sau %@)", name(hit), name(hit.superview), gesture,
+                  changed ? @"da doi" : @"khong doi", name(before), name(after));
+            ABAutoTestReply(seq, bits);
+        });
+    });
+}
+#endif
+
 %group APPS
 
 %hook CADisplayLink
@@ -337,6 +451,9 @@ static void ABSetFpsCap(int fps)
     CGFloat area = w.bounds.size.width * w.bounds.size.height;
     if (area <= 0 || r.size.width * r.size.height < area * 0.5) return;
     ABLog("man hinh %@ hien: %@ trong cua so %@", NSStringFromClass(self.class), NSStringFromCGRect(r), NSStringFromCGRect(w.bounds));
+#if OMC_AUTOTEST
+    abScreenAppearedAt = [[NSProcessInfo processInfo] systemUptime];
+#endif
 }
 
 %end
@@ -480,4 +597,12 @@ static void ABSetFpsCap(int fps)
         addObserverForName:AB_NOTIF_KEY object:bid queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *note) {
         @try { ABHandleKey(note.userInfo); } @catch (NSException *e) { ABLog("%@: phim loi %@", bid, e); }
     }];
+#if OMC_AUTOTEST
+    // Tu kiem tra: process CarPlay nho app cham vao chinh no (cua so CarPlay hay cua so App Bridge)
+    [[objc_getClass("NSDistributedNotificationCenter") defaultCenter]
+        addObserverForName:OMC_NOTIF_AUTOTEST_TOUCH object:bid queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *note) {
+        @try { ABAutoTestTouch(note.userInfo); }
+        @catch (NSException *e) { ABLog("%@: cham tu kiem tra loi %@", bid, e); ABAutoTestReply([note.userInfo[@"seq"] unsignedIntegerValue], 0); }
+    }];
+#endif
 }

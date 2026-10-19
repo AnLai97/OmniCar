@@ -61,6 +61,11 @@ Thiếu một trong các mục này thì khách quốc tế không mua, hoặc m
   Xong khi: một lần chạy trên xe ra đủ kết quả từng bước, gửi log có ảnh, sửa lỗi không cần thử tay lại từng ca.
   Code: Core/OMCTest.h (khung), Features/SplitScreen/SCPAutoTest.mm, cuối StartupScreen.x, cuối SPPBubble.mm,
   Prefs/OMCAutoTestController.m. Chờ chạy thử trên xe.
+  19/10/2026: bật lại (OMC_AUTOTEST 1). Chạy chậm (3 s giữa hai bước), ngón tay vẽ ở chỗ mỗi bước chạm (OMCTestStepAt;
+  trên ô app iPhone thì app tự vẽ vì cửa sổ host của SpringBoard che). Chạm trong app do app tự gửi qua UIKit
+  (OMC_NOTIF_AUTOTEST_TOUCH → App.xm → OMCTestTouchTap / Drag, trả lời Darwin notify): YouTube chạm vào một video (mở app
+  toàn màn, trong ô, giữa 3 ô), Google Maps kéo bản đồ qua lại (toàn màn, trong ô). Ưu tiên app: mở YouTube / Google Maps;
+  chia màn YouTube | Google Maps | GOFA.
 - [ ] [ ] **1.1.7 Thử với nhiều app hơn** · Vừa
   Danh sách tối thiểu: YouTube, TikTok, Facebook, Instagram, Chrome, Safari, Zalo, Grab, Shopee, X, Twitch, Plex.
   Xong khi: có bảng app chạy tốt / chạy được / không chạy kèm lý do, đưa lên trang tương thích.
