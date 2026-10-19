@@ -108,7 +108,7 @@ Kết quả thử theo iOS và theo app: `COMPATIBILITY.md`.
 
 ### Hạn dùng miễn phí
 
-`OMC_EXPIRY` trong `Core/OmniCar.h` (mặc định `"2026-12-31"`, giờ Việt Nam): dùng bình thường đến hết ngày đó, không báo
+`OMC_EXPIRY` trong `Core/OmniCar.h` (mặc định `"2027-04-30"`, giờ Việt Nam): dùng bình thường đến hết ngày đó, không báo
 trước; sang ngày hôm sau mọi tính năng tự tắt (`OMCExpired()` → `OMCEnabled()` = NO), cài đặt người dùng giữ nguyên,
 thẻ đầu trang Cài đặt hiện "Đã hết hạn" và khoá công tắc. "Bây giờ" = giờ máy hoặc giờ máy chủ lớn nhất từng thấy
 (SpringBoard đọc header `Date` của https://www.apple.com mỗi 6 giờ, lưu `trustedTime`), nên chỉnh lùi giờ máy không mở lại.

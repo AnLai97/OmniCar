@@ -24,7 +24,7 @@
 // Free period: every feature works through this day (yyyy-MM-dd, Vietnam time) and turns itself off after it,
 // with no notice before. "" = never expires. `make package OMC_EXPIRY=2027-06-30` (or OMC_EXPIRY=) overrides it.
 #ifndef OMC_EXPIRY
-#define OMC_EXPIRY "2026-12-31"
+#define OMC_EXPIRY "2027-04-30"
 #endif
 
 #define OMC_PREFS_DOMAIN  CFSTR("com.anlai.omnicar")
