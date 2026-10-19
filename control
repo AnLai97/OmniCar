@@ -28,7 +28,6 @@ Description: The power of CarPlay.
  Changes apply the next time CarPlay connects; respring once after installing.
  .
  Compatibility: iOS 15 and later, rootless jailbreaks (Dopamine, palera1n).
- Replaces the standalone CarSplash, CarSpeed and CarDuo tweaks.
 Icon: file:///var/jb/Library/PreferenceBundles/OmniCarPrefs.bundle/PackageIcon.png
 Maintainer: OmniCar <omnicartweak@gmail.com>
 Author: OmniCar <omnicartweak@gmail.com>

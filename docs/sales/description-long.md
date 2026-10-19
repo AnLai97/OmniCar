@@ -53,7 +53,6 @@ Full compatibility list: `<TODO: public URL of docs/compatibility.html>`
 > Trial: TODO
 
 ### Notes
-- Replaces the standalone CarSplash, CarSpeed and CarDuo tweaks (they are removed on install).
 - Video apps with DRM (Netflix, Disney+…) are expected to show a black picture on the car screen.
 - Watching video while driving may be illegal where you live. Use video apps only when parked.
 
@@ -107,6 +106,5 @@ Danh sách tương thích đầy đủ: `<TODO: link công khai của docs/compa
 > Dùng thử: TODO
 
 ### Lưu ý
-- Thay cho các tweak lẻ CarSplash, CarSpeed, CarDuo (tự gỡ khi cài).
 - App video có DRM (Netflix, Disney+…) dự kiến hiện màn đen trên màn xe.
 - Xem video khi đang lái có thể vi phạm luật. Chỉ dùng app video khi đỗ xe.
