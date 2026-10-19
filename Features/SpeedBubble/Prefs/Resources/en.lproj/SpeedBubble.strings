@@ -28,6 +28,7 @@
 "SPEEDBUBBLE_SRC_HINT_0" = "Speed + limit sign. Open Vietmap Live once, then leave it in the background.";
 "SPEEDBUBBLE_SRC_HINT_1" = "Speed + limit sign. Open GOFA once, then leave it in the background.";
 "SPEEDBUBBLE_SRC_HINT_2" = "Speed from GPS; the limit only when Waze shows its sign (experimental).";
+"SPEEDBUBBLE_SRC_HINT_3" = "Speed from GPS; the limit when Wyn shows it (experimental). Open Wyn once, then leave it in the background.";
 "SPEEDBUBBLE_WARN_SHORT_1" = "Warning";
 "SPEEDBUBBLE_WARN_SHORT_2" = "Sound";
 "SPEEDBUBBLE_WARN_WHEN" = "Threshold";

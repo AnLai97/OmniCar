@@ -718,7 +718,7 @@ NSArray<NSDictionary *> *OMCDiagChecks(void) {
 
 	NSString *bubbleName = OMCFeatureDisplayName(SB_FEATURE);
 	// same order as SPP_NAV_APPS
-	NSArray *sources = SB_SOURCE_NAMES, *sourceIDs = @[@"vn.vietmap.live", @"com.lumi.GOFA", @"com.waze.iphone"];
+	NSArray *sources = SB_SOURCE_NAMES, *sourceIDs = @[@"vn.vietmap.live", @"com.lumi.GOFA", @"com.waze.iphone", @"com.wynauto.wyn"];
 	NSInteger src = [OMCDiagPref(SB_KEY_SOURCE) integerValue];
 	if (src < 0 || src >= (NSInteger)sources.count) src = 0;
 	NSString *srcText = [NSString stringWithFormat:L(@"CHK_BUBBLE_SOURCE"), sources[src]];

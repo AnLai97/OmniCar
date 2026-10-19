@@ -19,13 +19,13 @@
 #define SB_KEY_SIZE_CAR      @"speedBubbleSizeCar"       // 60..220 %, default 100
 // Don vi luon km/h, bien gioi han luon kieu Vienna (tron vien do): khong con lua chon (key cu speedBubbleUnit /
 // speedBubbleSign khong doc nua).
-#define SB_KEY_SOURCE        @"speedBubbleSource"        // nguon toc do duy nhat: 0 Vietmap Live, 1 GOFA, 2 Waze (chi so SPP_NAV_APPS)
+#define SB_KEY_SOURCE        @"speedBubbleSource"        // nguon toc do duy nhat: 0 Vietmap Live, 1 GOFA, 2 Waze, 3 Wyn (chi so SPP_NAV_APPS)
 // Ban truoc co 6 nguon (2 GPS iPhone, 3 Google Maps, 4 Waze, 5 Apple Maps): lan dau doc sau ban nay, SPPPrefs / Cai dat doi
 // 4 -> 2 (Waze), cac so khac ngoai 0..1 -> 0, roi ghi SB_KEY_SOURCE_V2 = YES.
 #define SB_KEY_SOURCE_V2     @"speedBubbleSourceV2"
 // Ten cac nguon cho danh sach "Nguon" trong Cai dat, cung thu tu SPP_NAV_APPS (common.h): them app dan duong moi
 // thi them ten vao CUOI ca hai.
-#define SB_SOURCE_NAMES      (@[@"Vietmap Live", @"GOFA", @"Waze"])
+#define SB_SOURCE_NAMES      (@[@"Vietmap Live", @"GOFA", @"Waze", @"Wyn"])
 // Canh bao qua toc do (chi tren man xe): toc do > gioi han + nguong -> vien do phat sang nhay quanh man CarPlay (nguong am:
 // bao tu truoc khi cham gioi han)
 #define SB_KEY_WARN_MODE     @"speedBubbleWarnMode"      // 2 bit (Cai dat: 2 cong tac Canh bao / Am thanh): 0 tat, 1 canh bao (vien do, im lang), 2 am thanh (1 tieng ngan, khong vien),

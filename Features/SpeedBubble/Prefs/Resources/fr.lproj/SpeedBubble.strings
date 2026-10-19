@@ -28,6 +28,7 @@
 "SPEEDBUBBLE_SRC_HINT_0" = "Vitesse + panneau de limite. Ouvrez Vietmap Live une fois puis laissez-la en arrière-plan.";
 "SPEEDBUBBLE_SRC_HINT_1" = "Vitesse + panneau de limite. Ouvrez GOFA une fois puis laissez-la en arrière-plan.";
 "SPEEDBUBBLE_SRC_HINT_2" = "Vitesse par GPS ; la limite seulement quand Waze affiche le panneau (expérimental).";
+"SPEEDBUBBLE_SRC_HINT_3" = "Vitesse par GPS ; la limite quand Wyn l’affiche (expérimental). Ouvrez Wyn une fois, puis laissez-le en arrière-plan.";
 "SPEEDBUBBLE_WARN_SHORT_1" = "Alerte";
 "SPEEDBUBBLE_WARN_SHORT_2" = "Son";
 "SPEEDBUBBLE_WARN_WHEN" = "Seuil";

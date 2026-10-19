@@ -28,6 +28,7 @@
 "SPEEDBUBBLE_SRC_HINT_0" = "Скорость + знак ограничения. Откройте Vietmap Live один раз и оставьте в фоне.";
 "SPEEDBUBBLE_SRC_HINT_1" = "Скорость + знак ограничения. Откройте GOFA один раз и оставьте в фоне.";
 "SPEEDBUBBLE_SRC_HINT_2" = "Скорость по GPS; ограничение только когда Waze показывает знак (эксперимент).";
+"SPEEDBUBBLE_SRC_HINT_3" = "Скорость по GPS; ограничение, когда Wyn его показывает (экспериментально). Откройте Wyn один раз и оставьте в фоне.";
 "SPEEDBUBBLE_WARN_SHORT_1" = "Предупреждение";
 "SPEEDBUBBLE_WARN_SHORT_2" = "Звук";
 "SPEEDBUBBLE_WARN_WHEN" = "Порог";

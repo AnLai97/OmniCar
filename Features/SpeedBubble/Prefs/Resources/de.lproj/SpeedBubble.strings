@@ -28,6 +28,7 @@
 "SPEEDBUBBLE_SRC_HINT_0" = "Tempo + Limitschild. Vietmap Live einmal öffnen und im Hintergrund lassen.";
 "SPEEDBUBBLE_SRC_HINT_1" = "Tempo + Limitschild. GOFA einmal öffnen und im Hintergrund lassen.";
 "SPEEDBUBBLE_SRC_HINT_2" = "Tempo per GPS; Limit nur, wenn Waze das Schild zeigt (experimentell).";
+"SPEEDBUBBLE_SRC_HINT_3" = "Tempo per GPS; Limit, wenn Wyn es zeigt (experimentell). Wyn einmal öffnen, dann im Hintergrund lassen.";
 "SPEEDBUBBLE_WARN_SHORT_1" = "Warnung";
 "SPEEDBUBBLE_WARN_SHORT_2" = "Ton";
 "SPEEDBUBBLE_WARN_WHEN" = "Schwelle";

@@ -1,4 +1,4 @@
-// Speed Bubble (ex CarSpeed) - floating speed + limit bubble fed by the nav app (Vietmap Live, GOFA).
+// Speed Bubble (ex CarSpeed) - floating speed + limit bubble fed by the nav app (Vietmap Live, GOFA, Waze, Wyn).
 #pragma once
 #import "SpeedBubble.h"
 #import "OmniCar.h"
@@ -19,9 +19,13 @@
 // Waze: toc do tu GPS rieng trong app, gioi han quet tren man hinh (vong do / ten anh / chu); chi quet khi app la nguon
 // dang chon (SPP_DARWIN_SOURCE) vi gan nhu may nao cung co.
 #define SPP_APP_WAZE            @"com.waze.iphone"
-#define SPP_NAV_APPS            (@[SPP_APP_VIETMAP, SPP_APP_GOFA, SPP_APP_WAZE])
-#define SPP_NAV_APP_NAMES       (@[@"Vietmap", @"GOFA", @"Waze"])
-#define SPP_NAV_APP_COUNT       3
+// Wyn (WYN Auto, Flutter "Runner" nhu Vietmap): toc do tu GPS rieng, gioi han tu cay accessibility / kenh Flutter.
+// Chua biet kenh nao co toc do -> nghe moi kenh (SPPListenAllChannels) va ghi ten kenh + method lan dau ra log.
+#define SPP_APP_WYN             @"com.wynauto.wyn"
+#define SPP_APP_INDEX_WYN       3
+#define SPP_NAV_APPS            (@[SPP_APP_VIETMAP, SPP_APP_GOFA, SPP_APP_WAZE, SPP_APP_WYN])
+#define SPP_NAV_APP_NAMES       (@[@"Vietmap", @"GOFA", @"Waze", @"Wyn"])
+#define SPP_NAV_APP_COUNT       4
 // Nguon dang chon de app quet biet (app sandbox khong doc duoc prefs): SpringBoard dat state = chi so SB_KEY_SOURCE,
 // 0xFF = Bong bong toc do dang tat. App tu index SPP_FIRST_GATED_APP tro di chi quet khi state = chinh no.
 #define SPP_DARWIN_SOURCE       "com.anlai.omnicar/speedbubble.source"

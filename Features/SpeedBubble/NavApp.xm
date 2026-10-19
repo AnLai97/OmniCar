@@ -369,14 +369,22 @@ static NSSet<NSString *> *SPPSpeedChannels(void)
     return s;
 }
 
+// App chua biet kenh nao co toc do (Wyn): nghe moi kenh, log ten kenh + method lan dau de chon kenh cho ban sau
+static BOOL SPPListenAllChannels(void) { return sAppIndex == SPP_APP_INDEX_WYN; }
+
 // Ban tin tren kenh da chon: giai ma method call (codec chuan), lay gioi han / toc do. Chay tren luong chinh.
 static void SPPHandleChannelCall(NSString *channel, NSData *msg)
 {
     if (!msg.length || msg.length > 4096) return;
-    Class std = objc_getClass("FlutterStandardMethodCodec");
-    if (!std) return;
+    // Codec chuan; kenh dung JSON (MethodChannel JSONMethodCodec) thu tiep codec JSON
     id call = nil;
-    @try { call = objcInvoke_1(objcInvoke(std, @"sharedInstance"), @"decodeMethodCall:", msg); } @catch (NSException *e) { return; }
+    for (NSString *codec in @[@"FlutterStandardMethodCodec", @"FlutterJSONMethodCodec"]) {
+        Class c = objc_getClass(codec.UTF8String);
+        if (!c) continue;
+        @try { call = objcInvoke_1(objcInvoke(c, @"sharedInstance"), @"decodeMethodCall:", msg); } @catch (NSException *e) { call = nil; }
+        if ([objcInvoke(call, @"method") isKindOfClass:[NSString class]]) break;
+        call = nil;
+    }
     NSString *method = call ? objcInvoke(call, @"method") : nil;
     if (![method isKindOfClass:[NSString class]]) return;
     id args = objcInvoke(call, @"arguments");
@@ -384,8 +392,9 @@ static void SPPHandleChannelCall(NSString *channel, NSData *msg)
     // Log: moi method lan dau (de biet kenh co nhung gi)
     static NSMutableSet *seen;
     if (!seen) seen = [NSMutableSet set];
-    if (![seen containsObject:method]) {
-        [seen addObject:method];
+    NSString *seenKey = [NSString stringWithFormat:@"%@/%@", channel, method];
+    if (![seen containsObject:seenKey] && seen.count < 300) {
+        [seen addObject:seenKey];
         NSString *d = [[args description] ?: @"(nil)" stringByReplacingOccurrencesOfString:@"\n" withString:@" "];
         if (d.length > 200) d = [[d substringToIndex:200] stringByAppendingString:@"..."];
         SPPLog("kenh %@ %@: %@", channel, method, d);
@@ -408,7 +417,8 @@ typedef void (^SPPBinaryHandler)(NSData *message, id reply);
 // Chi boc handler cua kenh can doc; kenh khac giu nguyen (khong giai ma, khong log)
 static SPPBinaryHandler SPPWrapHandler(NSString *channel, SPPBinaryHandler handler)
 {
-    if (!handler || ![SPPSpeedChannels() containsObject:channel]) return handler;
+    if (!handler || !channel) return handler;
+    if (![SPPSpeedChannels() containsObject:channel] && !SPPListenAllChannels()) return handler;
     SPPLog("kenh: nghe %@", channel);
     NSString *ch = [channel copy];
     return ^(NSData *message, id reply) {

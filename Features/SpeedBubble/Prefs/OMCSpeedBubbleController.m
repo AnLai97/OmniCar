@@ -14,7 +14,7 @@
 // Cung thu tu SB_SOURCE_NAMES / SPP_NAV_APPS
 static NSArray<NSString *> *OMCSBSourceBundles(void)
 {
-    return @[@"vn.vietmap.live", @"com.lumi.GOFA", @"com.waze.iphone"];
+    return @[@"vn.vietmap.live", @"com.lumi.GOFA", @"com.waze.iphone", @"com.wynauto.wyn"];
 }
 
 static UIImage *OMCSBRounded(UIImage *img, CGFloat side, CGFloat corner)
@@ -37,8 +37,8 @@ static UIImage *OMCSBSourceIcon(NSInteger i)
     if (bid.length && [UIImage respondsToSelector:@selector(_applicationIconImageForBundleIdentifier:format:scale:)])
         img = [UIImage _applicationIconImageForBundleIdentifier:bid format:2 scale:[UIScreen mainScreen].scale];
     if (!img) {
-        UIColor *bg = @[OMCColorFromHex(@"#F07A12"), OMCColorFromHex(@"#1AA260"), OMCColorFromHex(@"#33CCFF")][MAX(0, MIN(2, i))];
-        NSString *abbr = @[@"V", @"G", @"W"][MAX(0, MIN(2, i))];
+        UIColor *bg = @[OMCColorFromHex(@"#F07A12"), OMCColorFromHex(@"#1AA260"), OMCColorFromHex(@"#33CCFF"), OMCColorFromHex(@"#E5322D")][MAX(0, MIN(3, i))];
+        NSString *abbr = @[@"V", @"G", @"W", @"Y"][MAX(0, MIN(3, i))];
         img = [[[UIGraphicsImageRenderer alloc] initWithSize:CGSizeMake(60, 60)] imageWithActions:^(UIGraphicsImageRendererContext *ctx) {
             [bg setFill]; UIRectFill(CGRectMake(0, 0, 60, 60));
             NSDictionary *a = @{NSFontAttributeName: [UIFont systemFontOfSize:28 weight:UIFontWeightHeavy], NSForegroundColorAttributeName: [UIColor whiteColor]};
@@ -775,11 +775,11 @@ static NSString *OMCSBFxSymbol(NSInteger i)
 
 #pragma mark - Nguon
 
-// 3 o (1 hang): icon app + ten, o dang chon co vien cau vong
+// Moi nguon 1 o, tat ca tren 1 hang: icon app + ten, o dang chon co vien cau vong
 - (void)layoutSourcesIn:(UIView *)box width:(CGFloat)w
 {
     for (UIView *v in [box.subviews copy]) [v removeFromSuperview];
-    NSInteger n = SB_SOURCE_NAMES.count, cols = 3, chosen = [self source];
+    NSInteger n = SB_SOURCE_NAMES.count, cols = n, chosen = [self source];
     CGFloat pad = 12, gap = 8, cw = floor((w - pad * 2 - gap * (cols - 1)) / cols), ch = 70;
     for (NSInteger i = 0; i < n; i++) {
         UIControl *t = [[UIControl alloc] initWithFrame:CGRectMake(pad + (i % cols) * (cw + gap), 12 + (i / cols) * (ch + gap), cw, ch)];

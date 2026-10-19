@@ -28,6 +28,7 @@
 "SPEEDBUBBLE_SRC_HINT_0" = "ความเร็ว + ป้ายจำกัด เปิด Vietmap Live หนึ่งครั้งแล้วปล่อยให้ทำงานเบื้องหลัง";
 "SPEEDBUBBLE_SRC_HINT_1" = "ความเร็ว + ป้ายจำกัด เปิด GOFA หนึ่งครั้งแล้วปล่อยให้ทำงานเบื้องหลัง";
 "SPEEDBUBBLE_SRC_HINT_2" = "ความเร็วจาก GPS; ป้ายจำกัดเฉพาะเมื่อ Waze แสดงป้าย (ทดลอง)";
+"SPEEDBUBBLE_SRC_HINT_3" = "ความเร็วจาก GPS ขีดจำกัดเมื่อ Wyn แสดง (ทดลอง) เปิด Wyn หนึ่งครั้งแล้วปล่อยไว้เบื้องหลัง";
 "SPEEDBUBBLE_WARN_SHORT_1" = "เตือน";
 "SPEEDBUBBLE_WARN_SHORT_2" = "เสียง";
 "SPEEDBUBBLE_WARN_WHEN" = "เกณฑ์";

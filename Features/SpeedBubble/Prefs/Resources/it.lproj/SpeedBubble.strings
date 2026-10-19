@@ -28,6 +28,7 @@
 "SPEEDBUBBLE_SRC_HINT_0" = "Velocità + cartello del limite. Apri Vietmap Live una volta e lasciala in background.";
 "SPEEDBUBBLE_SRC_HINT_1" = "Velocità + cartello del limite. Apri GOFA una volta e lasciala in background.";
 "SPEEDBUBBLE_SRC_HINT_2" = "Velocità dal GPS; limite solo quando Waze mostra il cartello (sperimentale).";
+"SPEEDBUBBLE_SRC_HINT_3" = "Velocità dal GPS; il limite quando Wyn lo mostra (sperimentale). Apri Wyn una volta, poi lascialo in background.";
 "SPEEDBUBBLE_WARN_SHORT_1" = "Avviso";
 "SPEEDBUBBLE_WARN_SHORT_2" = "Suono";
 "SPEEDBUBBLE_WARN_WHEN" = "Soglia";

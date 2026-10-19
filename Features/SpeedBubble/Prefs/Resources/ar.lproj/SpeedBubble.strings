@@ -28,6 +28,7 @@
 "SPEEDBUBBLE_SRC_HINT_0" = "السرعة + إشارة الحد. افتح Vietmap Live مرة ثم اتركه في الخلفية.";
 "SPEEDBUBBLE_SRC_HINT_1" = "السرعة + إشارة الحد. افتح GOFA مرة ثم اتركه في الخلفية.";
 "SPEEDBUBBLE_SRC_HINT_2" = "السرعة من GPS؛ الحد فقط عندما يعرض Waze الإشارة (تجريبي).";
+"SPEEDBUBBLE_SRC_HINT_3" = "السرعة من GPS؛ الحد عندما يعرضه Wyn (تجريبي). افتح Wyn مرة ثم اتركه في الخلفية.";
 "SPEEDBUBBLE_WARN_SHORT_1" = "تنبيه";
 "SPEEDBUBBLE_WARN_SHORT_2" = "صوت";
 "SPEEDBUBBLE_WARN_WHEN" = "الحد";

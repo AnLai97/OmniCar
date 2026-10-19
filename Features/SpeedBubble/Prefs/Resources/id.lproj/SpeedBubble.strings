@@ -28,6 +28,7 @@
 "SPEEDBUBBLE_SRC_HINT_0" = "Kecepatan + rambu batas. Buka Vietmap Live sekali lalu biarkan di latar belakang.";
 "SPEEDBUBBLE_SRC_HINT_1" = "Kecepatan + rambu batas. Buka GOFA sekali lalu biarkan di latar belakang.";
 "SPEEDBUBBLE_SRC_HINT_2" = "Kecepatan dari GPS; batas hanya saat Waze menampilkan rambu (uji coba).";
+"SPEEDBUBBLE_SRC_HINT_3" = "Kecepatan dari GPS; batas saat Wyn menampilkannya (eksperimental). Buka Wyn sekali, lalu biarkan di latar belakang.";
 "SPEEDBUBBLE_WARN_SHORT_1" = "Peringatan";
 "SPEEDBUBBLE_WARN_SHORT_2" = "Suara";
 "SPEEDBUBBLE_WARN_WHEN" = "Ambang";

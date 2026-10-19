@@ -77,7 +77,7 @@ static NSInteger ranged(NSString *key, NSInteger def, NSInteger count)
     return m;
 }
 
-// Index in SPP_NAV_APPS: Vietmap Live, GOFA, Waze. Chi 1 nguon. Gia tri cua ban 6 nguon (chua co SB_KEY_SOURCE_V2): 4 (Waze)
+// Index in SPP_NAV_APPS: Vietmap Live, GOFA, Waze, Wyn. Chi 1 nguon. Gia tri cua ban 6 nguon (chua co SB_KEY_SOURCE_V2): 4 (Waze)
 // -> 2, con lai ngoai 0..1 -> 0 (OMCSpeedBubbleController ghi lai khi mo trang cai dat). Chua chon lan nao: lay tu 2 cong
 // tac cu (chi tat Vietmap -> GOFA).
 + (int)source

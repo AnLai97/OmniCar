@@ -28,6 +28,7 @@
 "SPEEDBUBBLE_SRC_HINT_0" = "速度 + 限速标志。打开 Vietmap Live 一次后让它在后台运行。";
 "SPEEDBUBBLE_SRC_HINT_1" = "速度 + 限速标志。打开 GOFA 一次后让它在后台运行。";
 "SPEEDBUBBLE_SRC_HINT_2" = "速度来自 GPS；仅当 Waze 显示限速标志时才有限速（试验）。";
+"SPEEDBUBBLE_SRC_HINT_3" = "速度来自 GPS；限速仅在 Wyn 显示时可用（实验性）。打开 Wyn 一次后让它在后台运行。";
 "SPEEDBUBBLE_WARN_SHORT_1" = "警告";
 "SPEEDBUBBLE_WARN_SHORT_2" = "声音";
 "SPEEDBUBBLE_WARN_WHEN" = "阈值";

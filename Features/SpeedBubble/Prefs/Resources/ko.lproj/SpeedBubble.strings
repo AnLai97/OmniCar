@@ -28,6 +28,7 @@
 "SPEEDBUBBLE_SRC_HINT_0" = "속도 + 제한 표지판. Vietmap Live를 한 번 열고 백그라운드에 두십시오.";
 "SPEEDBUBBLE_SRC_HINT_1" = "속도 + 제한 표지판. GOFA를 한 번 열고 백그라운드에 두십시오.";
 "SPEEDBUBBLE_SRC_HINT_2" = "GPS 속도; Waze가 표지판을 표시할 때만 제한 표시(실험적).";
+"SPEEDBUBBLE_SRC_HINT_3" = "속도는 GPS에서, 제한 속도는 Wyn이 표시할 때만(실험적). Wyn을 한 번 연 뒤 백그라운드에 두세요.";
 "SPEEDBUBBLE_WARN_SHORT_1" = "경고";
 "SPEEDBUBBLE_WARN_SHORT_2" = "소리";
 "SPEEDBUBBLE_WARN_WHEN" = "기준";

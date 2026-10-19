@@ -28,6 +28,7 @@
 "SPEEDBUBBLE_SRC_HINT_0" = "Velocidade + placa de limite. Abra o Vietmap Live uma vez e deixe em segundo plano.";
 "SPEEDBUBBLE_SRC_HINT_1" = "Velocidade + placa de limite. Abra o GOFA uma vez e deixe em segundo plano.";
 "SPEEDBUBBLE_SRC_HINT_2" = "Velocidade pelo GPS; o limite só quando o Waze mostra a placa (experimental).";
+"SPEEDBUBBLE_SRC_HINT_3" = "Velocidade pelo GPS; o limite quando o Wyn o mostra (experimental). Abra o Wyn uma vez e deixe em segundo plano.";
 "SPEEDBUBBLE_WARN_SHORT_1" = "Aviso";
 "SPEEDBUBBLE_WARN_SHORT_2" = "Som";
 "SPEEDBUBBLE_WARN_WHEN" = "Limiar";

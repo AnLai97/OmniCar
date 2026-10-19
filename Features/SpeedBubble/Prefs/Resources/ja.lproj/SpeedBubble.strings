@@ -28,6 +28,7 @@
 "SPEEDBUBBLE_SRC_HINT_0" = "速度 + 制限標識。Vietmap Live を一度開いてバックグラウンドのままにします。";
 "SPEEDBUBBLE_SRC_HINT_1" = "速度 + 制限標識。GOFA を一度開いてバックグラウンドのままにします。";
 "SPEEDBUBBLE_SRC_HINT_2" = "速度は GPS から。制限は Waze が標識を表示しているときのみ（試験的）。";
+"SPEEDBUBBLE_SRC_HINT_3" = "速度は GPS から。制限速度は Wyn が表示しているときのみ（試験的）。Wyn を一度開き、バックグラウンドのままにします。";
 "SPEEDBUBBLE_WARN_SHORT_1" = "警告";
 "SPEEDBUBBLE_WARN_SHORT_2" = "音";
 "SPEEDBUBBLE_WARN_WHEN" = "しきい値";
