@@ -22,8 +22,8 @@ OMC_BUILD := $(shell git rev-parse --short HEAD 2>/dev/null || echo dev)
 
 FEATURES := $(notdir $(wildcard Features/*))
 
-# Developer auto test (Core/OMCTest.h): on by default in Core/OmniCar.h; `make package OMC_AUTOTEST=0` builds
-# without the runner, the test cases and the Settings page (release).
+# Developer auto test (Core/OMCTest.h): off by default in Core/OmniCar.h; `make package OMC_AUTOTEST=1` builds
+# with the runner, the test cases and the Settings page.
 ifneq ($(OMC_AUTOTEST),)
 OMC_TEST_CFLAGS = -DOMC_AUTOTEST=$(OMC_AUTOTEST)
 endif

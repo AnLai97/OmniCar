@@ -108,7 +108,7 @@ Kết quả thử theo iOS và theo app: `COMPATIBILITY.md`.
 
 ### Tự kiểm tra trên xe (chỉ bản dev)
 
-`OMC_AUTOTEST` trong `Core/OmniCar.h` (mặc định 1; bản phát hành đặt 0 hoặc `make package OMC_AUTOTEST=0`): bật thì
+`OMC_AUTOTEST` trong `Core/OmniCar.h` (mặc định 0 = tắt; cần thử trên xe thì đặt 1 hoặc `make package OMC_AUTOTEST=1`): bật thì
 có khung chạy test `Core/OMCTest.h`, bộ test của từng tính năng và trang Hỗ trợ > Tự kiểm tra (dev); tắt thì không
 biên dịch dòng nào trong số đó. Mỗi tính năng đăng ký bộ test của nó trong process chạy được nó:
 

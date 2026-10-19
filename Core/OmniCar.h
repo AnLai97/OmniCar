@@ -15,9 +15,10 @@
 #endif
 
 // Developer auto test on the car (Core/OMCTest.h): 1 = the test runner, every feature's test cases and the
-// Settings page are built in; 0 for a release build. `make OMC_AUTOTEST=0` overrides it without editing.
+// Settings page are built in; 0 (default) leaves all of it out. Turn it on with `make package OMC_AUTOTEST=1`
+// (or set 1 here) when testing on the car.
 #ifndef OMC_AUTOTEST
-#define OMC_AUTOTEST 1
+#define OMC_AUTOTEST 0
 #endif
 
 #define OMC_PREFS_DOMAIN  CFSTR("com.anlai.omnicar")

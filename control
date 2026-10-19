@@ -6,13 +6,6 @@ Description: The power of CarPlay.
  OmniCar takes CarPlay beyond what Apple allows: more freedom, more
  features and everything you need on the road, in one package.
  .
- SPLIT SCREEN
-  - Two or three CarPlay apps side by side, each with its real interface
-  - Layouts: 2 panes, 3 panes or 1 large + 2
-  - Drag the divider to resize, swap panes, floating window
-  - Three favorite layouts; the last split reopens on connect
-  - Siri and Shortcuts through the omnicar:// URL scheme
- .
  APP BRIDGE
   - iPhone apps without CarPlay, such as YouTube or TikTok, on the car screen
   - In a Split Screen pane or full screen, resized live
@@ -28,6 +21,13 @@ Description: The power of CarPlay.
   - Your own video every time CarPlay connects
   - Clips from Photos or Files, duration, Fill or Fit
   - Sound through the car speakers, tap to skip
+ .
+ SPLIT SCREEN
+  - Two or three CarPlay apps side by side, each with its real interface
+  - Layouts: 2 panes, 3 panes or 1 large + 2
+  - Drag the divider to resize, swap panes, floating window
+  - Three favorite layouts; the last split reopens on connect
+  - Siri and Shortcuts through the omnicar:// URL scheme
  .
  SETTINGS
   - Every feature has its own switch and page under Settings > OmniCar
