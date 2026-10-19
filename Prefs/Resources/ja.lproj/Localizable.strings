@@ -71,7 +71,7 @@
 "DIAG_CONFLICT_ACTIVE" = "実行中";
 "DIAG_CONFLICT_INSTALLED" = "インストール済み、オフ";
 "DIAG_CONFLICTS_NONE" = "見つかりません";
-"DIAG_CONFLICTS_FOOTER" = "CarBridge, DuoDash, TrueDash, CarPlayEnable.";
+"DIAG_CONFLICTS_FOOTER" = "CarBridge など CarPlay を変更する他の tweak。";
 
 /* Auto test: dev builds only (OMC_AUTOTEST) */
 "AUTOTEST" = "自動テスト";

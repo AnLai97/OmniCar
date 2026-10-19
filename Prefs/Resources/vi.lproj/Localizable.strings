@@ -71,7 +71,7 @@
 "DIAG_CONFLICT_ACTIVE" = "Đang chạy";
 "DIAG_CONFLICT_INSTALLED" = "Đã cài, đang tắt";
 "DIAG_CONFLICTS_NONE" = "Không thấy";
-"DIAG_CONFLICTS_FOOTER" = "CarBridge, DuoDash, TrueDash, CarPlayEnable.";
+"DIAG_CONFLICTS_FOOTER" = "CarBridge và các tweak khác cũng sửa CarPlay.";
 
 /* Tự kiểm tra: chỉ bản dev (OMC_AUTOTEST) */
 "AUTOTEST" = "Kiểm thử tự động";

@@ -71,7 +71,7 @@
 "DIAG_CONFLICT_ACTIVE" = "In esecuzione";
 "DIAG_CONFLICT_INSTALLED" = "Installato, disattivato";
 "DIAG_CONFLICTS_NONE" = "Nessuno trovato";
-"DIAG_CONFLICTS_FOOTER" = "CarBridge, DuoDash, TrueDash, CarPlayEnable.";
+"DIAG_CONFLICTS_FOOTER" = "CarBridge e altri tweak che modificano CarPlay.";
 
 /* Auto test: dev builds only (OMC_AUTOTEST) */
 "AUTOTEST" = "Test automatico";

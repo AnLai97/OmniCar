@@ -71,7 +71,7 @@
 "DIAG_CONFLICT_ACTIVE" = "실행 중";
 "DIAG_CONFLICT_INSTALLED" = "설치됨, 꺼짐";
 "DIAG_CONFLICTS_NONE" = "없음";
-"DIAG_CONFLICTS_FOOTER" = "CarBridge, DuoDash, TrueDash, CarPlayEnable.";
+"DIAG_CONFLICTS_FOOTER" = "CarBridge 등 CarPlay를 바꾸는 다른 트윅.";
 
 /* Auto test: dev builds only (OMC_AUTOTEST) */
 "AUTOTEST" = "자동 테스트";

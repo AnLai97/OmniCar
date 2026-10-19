@@ -71,7 +71,7 @@
 "DIAG_CONFLICT_ACTIVE" = "正在运行";
 "DIAG_CONFLICT_INSTALLED" = "已安装，已关闭";
 "DIAG_CONFLICTS_NONE" = "未发现";
-"DIAG_CONFLICTS_FOOTER" = "CarBridge, DuoDash, TrueDash, CarPlayEnable.";
+"DIAG_CONFLICTS_FOOTER" = "CarBridge 及其他修改 CarPlay 的插件。";
 
 /* Auto test: dev builds only (OMC_AUTOTEST) */
 "AUTOTEST" = "自动测试";

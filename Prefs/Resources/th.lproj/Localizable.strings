@@ -71,7 +71,7 @@
 "DIAG_CONFLICT_ACTIVE" = "กำลังทำงาน";
 "DIAG_CONFLICT_INSTALLED" = "ติดตั้งแล้ว, ปิดอยู่";
 "DIAG_CONFLICTS_NONE" = "ไม่พบ";
-"DIAG_CONFLICTS_FOOTER" = "CarBridge, DuoDash, TrueDash, CarPlayEnable.";
+"DIAG_CONFLICTS_FOOTER" = "CarBridge และทวีกอื่นที่แก้ไข CarPlay";
 
 /* Auto test: dev builds only (OMC_AUTOTEST) */
 "AUTOTEST" = "ทดสอบอัตโนมัติ";

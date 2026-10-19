@@ -71,7 +71,7 @@
 "DIAG_CONFLICT_ACTIVE" = "Berjalan";
 "DIAG_CONFLICT_INSTALLED" = "Terinstal, mati";
 "DIAG_CONFLICTS_NONE" = "Tidak ditemukan";
-"DIAG_CONFLICTS_FOOTER" = "CarBridge, DuoDash, TrueDash, CarPlayEnable.";
+"DIAG_CONFLICTS_FOOTER" = "CarBridge dan tweak lain yang mengubah CarPlay.";
 
 /* Auto test: dev builds only (OMC_AUTOTEST) */
 "AUTOTEST" = "Uji otomatis";

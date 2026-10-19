@@ -71,7 +71,7 @@
 "DIAG_CONFLICT_ACTIVE" = "قيد التشغيل";
 "DIAG_CONFLICT_INSTALLED" = "مثبّت، متوقف";
 "DIAG_CONFLICTS_NONE" = "لم يُعثر على شيء";
-"DIAG_CONFLICTS_FOOTER" = "CarBridge, DuoDash, TrueDash, CarPlayEnable.";
+"DIAG_CONFLICTS_FOOTER" = "CarBridge وأي تعديلات أخرى تغيّر CarPlay.";
 
 /* Auto test: dev builds only (OMC_AUTOTEST) */
 "AUTOTEST" = "الاختبار التلقائي";

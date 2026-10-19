@@ -40,7 +40,7 @@ OmniCar takes CarPlay beyond what Apple allows: run several apps side by side, b
 - Rootless jailbreak: Dopamine or palera1n (rootless). roothide and rootful are not supported.
 - A car or head unit with CarPlay (wired or wireless).
 - Speed Bubble needs Vietmap Live or GOFA.
-- Do not run together with CarBridge, DuoDash, TrueDash or CarPlayEnable.
+- Do not run together with CarBridge or other tweaks that change CarPlay.
 - Respring once after installing. Settings changes apply the next time CarPlay connects.
 
 Full compatibility list: `<TODO: public URL of docs/compatibility.html>`
@@ -93,7 +93,7 @@ OmniCar đưa CarPlay vượt khỏi giới hạn của Apple: chạy nhiều ap
 - Jailbreak rootless: Dopamine hoặc palera1n (rootless). Không hỗ trợ roothide và rootful.
 - Xe hoặc đầu xe có CarPlay (có dây hoặc không dây).
 - Bong bóng tốc độ cần Vietmap Live hoặc GOFA.
-- Không chạy chung với CarBridge, DuoDash, TrueDash, CarPlayEnable.
+- Không chạy chung với CarBridge hoặc tweak khác cũng sửa CarPlay.
 - Respring một lần sau khi cài. Đổi cài đặt có hiệu lực ở lần cắm xe sau.
 
 Danh sách tương thích đầy đủ: `<TODO: link công khai của docs/compatibility.html>`

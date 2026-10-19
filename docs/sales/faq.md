@@ -25,7 +25,7 @@ OmniCar draws on whatever screen size the car reports, so it is made for any Car
 Video apps with DRM block their picture on any external screen, including CarPlay. You may hear sound but see a black picture. This is the app's protection, not something OmniCar can turn off.
 
 **7. Do I still need CarBridge?**
-No. App Bridge puts iPhone apps on the car screen by itself. Please turn off CarBridge, DuoDash, TrueDash and CarPlayEnable: they also change CarPlay and running them together can break it. OmniCar shows a warning when it finds them, but never removes other tweaks.
+No. App Bridge puts iPhone apps on the car screen by itself. Please turn off CarBridge and any other tweak that changes CarPlay: running them together can break it. OmniCar shows a warning when it finds them, but never removes other tweaks.
 
 **8. CarPlay crashed and a feature turned itself off. What happened?**
 That is rescue mode. If CarPlay crashes twice in a row within a minute of connecting, OmniCar turns off the feature that caused it so CarPlay keeps working, and tells you on the iPhone. Turn it back on from the OmniCar main page (after an update), and please send the log so the bug can be fixed.
@@ -74,7 +74,7 @@ OmniCar vẽ theo kích thước màn mà xe báo nên dùng cho mọi đầu xe
 App video có DRM chặn hình trên mọi màn ngoài, kể cả CarPlay. Có thể nghe tiếng nhưng hình đen. Đây là bảo vệ của app, OmniCar không tắt được.
 
 **7. Còn cần CarBridge không?**
-Không. App Bridge tự đưa app iPhone lên màn xe. Hãy tắt CarBridge, DuoDash, TrueDash, CarPlayEnable: chúng cũng sửa CarPlay, chạy chung có thể làm hỏng CarPlay. OmniCar cảnh báo khi thấy chúng nhưng không bao giờ tự gỡ tweak khác.
+Không. App Bridge tự đưa app iPhone lên màn xe. Hãy tắt CarBridge và các tweak khác cũng sửa CarPlay: chạy chung có thể làm hỏng CarPlay. OmniCar cảnh báo khi thấy chúng nhưng không bao giờ tự gỡ tweak khác.
 
 **8. CarPlay sập rồi một tính năng tự tắt, chuyện gì vậy?**
 Đó là chế độ cứu. CarPlay sập 2 lần liền trong một phút sau khi cắm thì OmniCar tắt tính năng gây lỗi để CarPlay vẫn dùng được, và báo trên iPhone. Bật lại ở trang chính OmniCar (sau khi cập nhật), và gửi log giúp tác giả sửa lỗi.
