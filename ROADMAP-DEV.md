@@ -245,6 +245,13 @@ xem trước ngay trong Cài đặt. Âm thanh phát qua loa xe khi CarPlay kế
   Code: Waze là nguồn 2 (NavApp.xm chạy trong app): tốc độ từ GPS riêng trong app, giới hạn quét trên màn hình như
   Vietmap / GOFA (vòng đỏ, tên ảnh, chữ); chỉ quét khi là nguồn đang chọn (SPP_DARWIN_SOURCE). Chờ thử trên xe: log
   "chan doan" của NavApp khi chưa thấy biển cho biết giao diện Waze để chỉnh cách đọc giới hạn.
+  Sửa 20/10/2026 (log 20/10 07:40, GOFA): bong bóng lấy nhầm tốc độ GPS của GOFA làm giới hạn, vì nhãn tốc độ hiện tại
+  của GOFA nằm trong view có tên gợi ý giới hạn (ứng viên "17(f28 UIView gioi-han)" đổi mỗi lần quét theo GPS), còn biển
+  thật của GOFA là ảnh. Nay: vòng viền đỏ = giới hạn (biển luôn viền đỏ), viền xanh = tốc độ, thắng tên lớp; nhãn chỉ
+  có tên lớp (không viền đỏ) là ứng viên yếu: thua biển dạng ảnh đang hiện, chỉ được tin khi số giữ nguyên ≥ 1,5 s, và
+  nếu số đổi 3 lần trong 15 s mà lần nào cũng sát tốc độ GPS (≤ 6 km/h) thì học view đó là ô tốc độ (sNamedSpeedView,
+  từ đó đọc là tốc độ). Log "speed scan" ghi thêm tên lớp view cha sau "gioi-han:" / "toc-do:" và tên ảnh biển
+  "(anh ...)". Chờ thử trên xe với GOFA: giới hạn trên bong bóng phải là số trên biển đỏ, không chạy theo tốc độ.
   Còn thiếu: giới hạn tốc độ OSM tải sẵn theo vùng.
 
 ### 2.5 Cài đặt và hiệu năng

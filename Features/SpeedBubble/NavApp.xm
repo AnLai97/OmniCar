@@ -660,6 +660,34 @@ static NSArray<UIWindow *> *SPPAllWindows(void)
 // ...CurrentSpeedView). Giu tham chieu yeu de doc tiep ca khi app chay nen (luc bong bong dang hien).
 static __weak UIView *sLimitView, *sSpeedView;
 
+// View co ten goi y gioi han (Limit / MaxSpeed / SpeedSign) nhung thuc ra chua TOC DO HIEN TAI (GOFA: o canh bao
+// gom toc do hien tai + bien dang anh). Hoc 1 lan trong tien trinh; tu do nhan trong view nay doc la toc do.
+static __weak UIView *sNamedSpeedView;
+
+static void SPPLearnNamedSpeedView(UIView *v, NSString *why)
+{
+    if (!v || v == sNamedSpeedView) return;
+    sNamedSpeedView = v;
+    if (sLimitView == v) sLimitView = nil;
+    SPPLog("speed scan: view %@ ten goi y gioi han nhung chua toc do (%@) -> doc la toc do", NSStringFromClass([v class]), why);
+}
+
+// Theo doi so trong view ten "Limit" (ung vien yeu). Tra ve: 2 = so chay theo GPS (3 lan doi trong 15 s, moi lan cach
+// toc do GPS <= 6 km/h -> la o toc do), 1 = so da giu nguyen >= 1.5 s (tin la bien), 0 = so vua doi (cho on dinh).
+// Bien bao doi gia tri thua (qua bien moi) va khong bam theo GPS; toc do hien tai thi doi lien tuc khi dang chay.
+static int SPPNamedLabelTrack(UIView *v, int value)
+{
+    static __weak UIView *watch; static int last = -1, moves = 0; static CFAbsoluteTime firstMove = 0, changedAt = 0;
+    CFAbsoluteTime now = CFAbsoluteTimeGetCurrent();
+    if (v != watch) { watch = v; last = value; moves = 0; changedAt = now; return 0; }
+    if (value == last) return now - changedAt >= 1.5 ? 1 : 0;
+    last = value; changedAt = now;
+    int gps = SPPGPSSpeed(NULL);
+    if (gps < 0 || abs(value - gps) > 6) { moves = 0; return 0; }
+    if (moves == 0 || now - firstMove > 15) { moves = 0; firstMove = now; }
+    return ++moves >= 3 ? 2 : 0;
+}
+
 // To tien gan nhat (toi da 6 cap) co ten lop chua `part`
 static UIView *SPPAncestorNamed(UIView *v, NSString *part)
 {
@@ -865,41 +893,70 @@ static void SPPScanSpeed(BOOL doLog)
         return;
     }
 
-    // Uu tien theo ten lop view cua plugin (SpeedLimitView / CurrentSpeedView);
-    // khong co thi theo vong tron: vien DO = gioi han, vien XANH (+ "km/h") = toc do hien tai
+    // Uu tien theo vong tron: vien DO = gioi han (bien bao luon co vien do), vien XANH (+ "km/h") = toc do hien tai.
+    // Khong co vong: theo ten lop view cha (Vietmap SpeedLimitView2 / CurrentSpeedView; Waze: so nam trong UIImageView
+    // "speedlimit_world" cua WZSpeedSignView). Ten lop chi la ung vien YEU: GOFA de toc do hien tai trong o canh bao
+    // co ten goi y gioi han, con bien that la ANH -> nhan ten-ma-khong-vien-do thua bien dang anh, va neu so cua no
+    // chay theo GPS thi hoc view do la o toc do (sNamedSpeedView), tu do doc la toc do.
     UILabel *speedL = nil, *limitL = nil, *bigPlain = nil;
-    UIView *limitView = nil, *speedView = nil;
+    UIView *limitView = nil, *speedView = nil, *namedLimitView = nil;
+    BOOL limitByNameOnly = NO;
     NSMutableString *desc = [NSMutableString string];
     for (UILabel *l in labels) {
-        // Ten lop: Vietmap SpeedLimitView2 / CurrentSpeedView; app khac thuong co "Limit" (MaxSpeed, LimitSign...);
-        // Waze: so nam trong UIImageView "speedlimit_world" cua WZSpeedSignView
         UIView *lv = SPPAncestorNamed(l, @"Limit") ?: SPPAncestorNamed(l, @"MaxSpeed") ?: SPPAncestorNamed(l, @"SpeedSign");
         UIView *cv = lv ? nil : (SPPAncestorNamed(l, @"CurrentSpeed") ?: SPPAncestorNamed(l, @"Speedometer"));
+        if (lv && lv == sNamedSpeedView) { cv = lv; lv = nil; }   // da hoc: view ten "Limit" nay chua toc do
         UIView *circle = SPPCircleAround(l);
-        int kind = lv ? 1 : (cv ? 2 : 0);
-        if (!kind && circle) {
-            kind = SPPClassifyRing(SPPRingColor(circle, 0));
-            if (kind == 0 && SPPHasUnitLabel(circle)) kind = 2;
+        int ring = circle ? SPPClassifyRing(SPPRingColor(circle, 0)) : 0;
+        if (ring == 0 && circle && SPPHasUnitLabel(circle)) ring = 2;
+        int kind = ring ? ring : (lv ? 1 : (cv ? 2 : 0));           // vien mau thang ten lop
+        BOOL byName = (kind == 1 && ring != 1);
+        [desc appendFormat:@" %@(f%.0f %@%@%@)", l.text, l.font.pointSize, NSStringFromClass([l.superview class]),
+             kind == 1 ? @" gioi-han" : (kind == 2 ? @" toc-do" : (circle ? @" vong" : @"")),
+             (lv || cv) && !ring ? [NSString stringWithFormat:@":%@", NSStringFromClass([(lv ?: cv) class])] : @""];
+        if (kind == 1) {
+            if (!limitL || (byName == limitByNameOnly && l.font.pointSize > limitL.font.pointSize) || (!byName && limitByNameOnly)) {
+                limitL = l; limitView = lv; limitByNameOnly = byName; namedLimitView = byName ? lv : nil;
+            }
         }
-        [desc appendFormat:@" %@(f%.0f %@%@)", l.text, l.font.pointSize, NSStringFromClass([l.superview class]),
-             kind == 1 ? @" gioi-han" : (kind == 2 ? @" toc-do" : (circle ? @" vong" : @""))];
-        if (kind == 1)      { if (!limitL || l.font.pointSize > limitL.font.pointSize) { limitL = l; limitView = lv; } }
         else if (kind == 2) { if (!speedL || l.font.pointSize > speedL.font.pointSize) { speedL = l; speedView = cv; } }
         else if (!circle)   { if (!bigPlain || l.font.pointSize > bigPlain.font.pointSize) bigPlain = l; }
     }
+    int limit = limitL ? limitL.text.intValue : -1;
+    if (limit > 200 || limit < 5) limit = -1;
+    NSString *limitSrc = nil;
+
+    // Ung vien yeu (ten lop, khong vien do): bien dang anh tren man hinh thang; so khac nhau -> view ten do la o toc do
+    if (!limitL || limitByNameOnly) {
+        int img = SPPScanLimitImages(wins);
+        if (img >= 0) {
+            if (limitByNameOnly && img != limitL.text.intValue) SPPLearnNamedSpeedView(namedLimitView, @"co bien dang anh khac so");
+            if (limitByNameOnly) { limitL = nil; limitView = nil; }
+            limit = img; limitSrc = SPPImageName(sLimitImageView.image);
+        }
+    }
+    // Ung vien yeu: so chay theo GPS -> cung la o toc do; so vua doi -> chua tin (bien that giu nguyen, gia tri cu con 2 s)
+    if (limitL && limitByNameOnly) {
+        int track = SPPNamedLabelTrack(namedLimitView, limitL.text.intValue);
+        if (track == 2) SPPLearnNamedSpeedView(namedLimitView, @"so chay theo GPS");
+        else if (track == 0) limit = -1;
+    }
+    if (limitL && limitByNameOnly && namedLimitView == sNamedSpeedView) {   // vua hoc xong: nhan nay la toc do
+        if (!speedL || limitL.font.pointSize > speedL.font.pointSize) { speedL = limitL; speedView = namedLimitView; }
+        limitL = nil; limitView = nil; limit = -1;
+    }
+
     if (limitView) sLimitView = limitView;
     if (speedView) sSpeedView = speedView;
     if (!speedL) speedL = bigPlain;   // du phong: khong nhan ra vong xanh -> so to nhat ngoai vong tron
     int speed = speedL ? speedL.text.intValue : -1;
-    int limit = limitL ? limitL.text.intValue : -1;
     if (speed > 300) speed = -1;
-    if (limit > 200 || limit < 5) limit = -1;
 
-    if (limit < 0) limit = SPPScanLimitImages(wins);   // bien dang anh (vd GOFA)
     SPPNoteScan(speed, limit);
     // Da tung thay view gioi han ma lan nay khong thay so -> duong hien tai khong co bien
     if (limit < 0 && sLimitView && !limitL) { sScanLimit = -1; sScanLimitAt = CFAbsoluteTimeGetCurrent(); }
-    if (doLog) SPPLog("speed scan: toc do=%d gioi han=%d; ung vien:%@", speed, limit, desc);
+    if (doLog) SPPLog("speed scan: toc do=%d gioi han=%d%@; ung vien:%@", speed, limit,
+                      limitSrc ? [NSString stringWithFormat:@" (anh %@)", limitSrc] : @"", desc);
     if (doLog && limit < 0) SPPLogScreenDump(wins);
 }
 
