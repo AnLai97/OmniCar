@@ -490,21 +490,25 @@ static void ABAutoTestTouch(NSDictionary *info)
 {
     if (orientationOverride > 0) {
         long long want = (orientation == UIInterfaceOrientationLandscapeLeft || orientation == UIInterfaceOrientationLandscapeRight) ? orientation : 0;
+        BOOL skip = NO;
         if (abLegacyRotation) {
             // iOS 15: UIKit goi ham nay cho moi lan cam bien doi (1 doc, 5 nam ngua, 6 up, 0 khong ro), khong chi khi app ep xoay.
             // Chi bao SpringBoard khi huong app muon thuc su doi; gia tri khong phai doc / ngang bo qua (log 19/10 17:45:
             // 14 cap 1 / 5 trong 6 s tu cam bien lam scene lac lien tuc)
+            // (mot %orig duy nhat o cuoi: Logos khong dich duoc "%orig; return;" nam trong ngoac con)
             BOOL interface = orientation >= UIDeviceOrientationPortrait && orientation <= UIDeviceOrientationLandscapeRight;
-            if (!interface) { %orig; return; }
-            if (want == appWantsOrientation) {
+            if (!interface) skip = YES;
+            else if (want == appWantsOrientation) {
                 // App roi trinh phat toan man (cho doc lai) ma khong gui tin nao khac -> bao lai theo mask hien tai
                 if (abToldLandscape && (ABAppEffectiveMask() & UIInterfaceOrientationMaskPortrait)) { ABTellSpringBoard(0xFF); abToldLandscape = NO; }
-                %orig; return;
+                skip = YES;
             }
         }
-        appWantsOrientation = want;
-        ABLog("app setOrientation %lld -> %lld", orientation, appWantsOrientation);
-        ABTellSpringBoard(appWantsOrientation);
+        if (!skip) {
+            appWantsOrientation = want;
+            ABLog("app setOrientation %lld -> %lld", orientation, appWantsOrientation);
+            ABTellSpringBoard(appWantsOrientation);
+        }
     }
     %orig;
 }
