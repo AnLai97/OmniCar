@@ -15,11 +15,16 @@ static int (*orig_BKSDisplayServicesSetScreenBlanked)(int) = NULL;
 #ifndef TWEAK_VERSION
 #define TWEAK_VERSION "dev"
 #endif
+#ifndef OMC_BUILD
+#define OMC_BUILD "dev"
+#endif
 
 // ---- Cau dao chong treo may (log 19/10 20:36, 7 Plus 15.7.7: SpringBoard ghi "loaded into SpringBoard" roi chet, may treo tao) ----
-// Ghi "dang cai" vao prefs truoc buoc nguy hiem, xoa khi xong / khi SpringBoard len. Lan khoi dong sau ma con "dang cai" = lan
-// truoc SpringBoard khong len duoc sau buoc do -> ghi version, khong lam buoc do nua o ban nay; doi cai dat (prefschanged) hay
-// cai ban moi thi thu lai (nhu cau dao chen icon cua AppIcons).
+// Ghi "dang cai" (= ban + build) vao prefs truoc buoc nguy hiem, xoa khi xong / khi SpringBoard len. Lan khoi dong sau ma con
+// "dang cai" CUA CHINH BUILD NAY = lan truoc SpringBoard khong len duoc sau buoc do -> ghi lai, khong lam buoc do nua o build nay;
+// doi cai dat (prefschanged) hay cai build moi thi thu lai.
+// Theo build, khong theo version (log 20/10 21:45): build e258fb5 treo vi OMCLogFlush, cau dao ghi "1.0.3"; ban sua 0518440 cung
+// la 1.0.3 nen van bo hook SpringBoard -> App Bridge khong mo duoc app nao trong chia man hinh.
 static void ABStore(NSString *key, id value)
 {
     CFPreferencesSetAppValue((__bridge CFStringRef)key, (__bridge CFPropertyListRef)value, OMC_PREFS_DOMAIN);
@@ -30,14 +35,17 @@ static void ABStore(NSString *key, id value)
 static BOOL ABBreakerArm(NSString *pendingKey, NSString *crashedKey, NSString *what)
 {
     OMCPrefsSync();
-    NSString *ver = @TWEAK_VERSION;
-    if ([OMCPref(pendingKey, nil) boolValue]) {
-        ABLog("lan truoc SpringBoard khong len duoc sau khi %@ -> bo buoc nay o ban %@ (doi cai dat App Bridge de thu lai)", what, ver);
+    NSString *ver = @TWEAK_VERSION " " OMC_BUILD;
+    id pending = OMCPref(pendingKey, nil);
+    if ([pending isEqual:ver]) {
+        ABLog("lan truoc SpringBoard khong len duoc sau khi %@ -> bo buoc nay o build %@ (doi cai dat App Bridge de thu lai)", what, ver);
         ABStore(crashedKey, ver);
-        ABStore(pendingKey, nil);
+    } else if (pending) {
+        ABLog("co dau \"dang cai\" cu (%@) cua build khac, khong tinh cho build %@", pending, ver);
     }
-    if ([OMCPref(crashedKey, nil) isEqual:ver]) { ABLog("bo qua %@: tung lam SpringBoard khong len o ban %@", what, ver); OMCLogFlush(); return NO; }
-    ABStore(pendingKey, @YES);
+    if (pending) ABStore(pendingKey, nil);
+    if ([OMCPref(crashedKey, nil) isEqual:ver]) { ABLog("bo qua %@: tung lam SpringBoard khong len o build %@", what, ver); OMCLogFlush(); return NO; }
+    ABStore(pendingKey, ver);
     OMCLogFlush();
     return YES;
 }

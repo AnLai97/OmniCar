@@ -102,6 +102,9 @@ Thiếu một trong các mục này thì khách quốc tế không mua, hoặc m
   Nghi OMCLogFlush: dispatch_sync trong %ctor khi dyld giữ khoá, mà khối ghi log trong SpringBoard gọi NSFileManager. Sửa: lúc
   các hàm khởi tạo chạy (tới khi main queue chạy lần đầu) OMCLogWrite ghi thẳng file bằng open/write trên luồng gọi, OMCLogFlush
   trả về ngay; sau đó mới chờ hàng đợi. Chờ: thử lại trên máy đó, stackshot / WatchdogTimeoutReport lúc 21:20 nếu còn.
+- [x] 20/10 21:45, cùng máy, bản 0518440: SpringBoard lên được nhưng app App Bridge không mở trong chia màn hình. Cầu dao đã ghi
+  "1.0.3" từ lần treo của e258fb5, bản sửa cũng là 1.0.3 nên vẫn bỏ hook SpringBoard. Sửa: cầu dao ghi "version build", dấu
+  "đang cài" của build khác chỉ bị xoá, không tính là treo.
 
 ### 1.2 Bán quốc tế
 
