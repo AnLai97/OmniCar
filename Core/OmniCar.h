@@ -15,10 +15,10 @@
 #endif
 
 // Developer auto test on the car (Core/OMCTest.h): 1 = the test runner, every feature's test cases and the
-// Settings page are built in; 0 leaves all of it out. 1 while the author tests on the car (since 19/10/2026);
-// `make package OMC_AUTOTEST=0` for a release build.
+// Settings page are built in; 0 leaves all of it out. Off since 20/10/2026 (builds also go to other people's cars);
+// `make package OMC_AUTOTEST=1` while the author tests on the car.
 #ifndef OMC_AUTOTEST
-#define OMC_AUTOTEST 1
+#define OMC_AUTOTEST 0
 #endif
 
 // Free period: every feature works through this day (yyyy-MM-dd, Vietnam time) and turns itself off after it,
