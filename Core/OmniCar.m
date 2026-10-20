@@ -267,12 +267,16 @@ static BOOL OMCIsCarPlay(void) {
 	return is;
 }
 
-// First OmniCar<Name>.dylib in the backtrace -> <Name>.
+// First OmniCar<Name>.dylib in the backtrace -> <Name>. Frames of the crash guard itself are skipped: the signal handler
+// runs in whichever feature dylib installed it (frame 0 of every crash), which named Speed Bubble for a Split Screen
+// assert on 19/10 (log 21:59, iPhone 8 15.6: frame 0 OmniCarSpeedBubble OMCCrashGuard, frame 4 OmniCarSplitScreen).
 static void OMCGuardSuspect(void *const *frames, int count, char *out, size_t size) {
 	out[0] = 0;
 	for (int i = 0; i < count; i++) {
 		Dl_info info;
 		if (!dladdr(frames[i], &info) || !info.dli_fname) continue;
+		if (info.dli_sname && strncmp(info.dli_sname, "OMCGuard", 8) == 0) continue;
+		if (info.dli_sname && strncmp(info.dli_sname, "OMCCrashGuard", 13) == 0) continue;
 		const char *base = strrchr(info.dli_fname, '/');
 		base = base ? base + 1 : info.dli_fname;
 		size_t len = strlen(base);

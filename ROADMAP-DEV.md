@@ -75,6 +75,19 @@ Thiếu một trong các mục này thì khách quốc tế không mua, hoặc m
   Kiểm tra lại luôn app có giao diện CarPlay riêng chạy trong ô.
   Xong khi: thử đủ 4 bố cục + YouTube / TikTok qua App Bridge trên iOS 15, 16, 17, 18 (rootless), ghi kết quả.
   Chẩn đoán hiện hook thiếu trên từng iOS; ghi kết quả vào COMPATIBILITY.md.
+  iOS 15, nhánh Dev-IOS15 (20/10/2026, từ log 19/10 17:45 iPhone 7 Plus 15.8.4 + video, log 19/10 21:59 iPhone 8 15.6 + video):
+  App Bridge (App.xm, chỉ khi nhóm APPS15 được cài, cờ abLegacyRotation): (1) hook UIDevice setOrientation bỏ qua giá trị
+  cảm biến (nằm ngửa / úp / không rõ) và chỉ báo SpringBoard khi hướng app muốn thật sự đổi, hết cảnh scene lắc 0,3 s một
+  lần khi máy ngả trên giá; (2) khi ép về hướng ô bị bỏ qua vì app chỉ cho ngang (YouTube ở trình phát toàn màn, mask 24)
+  thì báo SpringBoard mã 0xFF kèm mask để scene xoay ngang và đổi khung, và báo lại khi app cho dọc trở lại (cờ
+  abToldLandscape), hết cảnh YouTube vẽ xoay 90° (màn 640 × 240) hoặc video thu vào một góc (màn 512 × 300). Chia màn hình
+  (CarPlay.xm, nhóm LAYOUT chỉ iOS 15): bộ lọc khai báo trùng FBSDisplayLayoutPublisher tự theo dõi phần tử đang giữ
+  (sLiveLayout, token giữ yếu, swizzle invalidate của lớp token) thay vì chỉ quét ivar, vì 19:29:46 CarPlay sập assert
+  "already have an element ... com.google.Maps" sau khi scene Maps bị huỷ mà quét ivar không thấy. Core: nghi phạm crash
+  bỏ qua frame của chính OMCCrashGuard (báo cáo từng đổ cho Bong bóng tốc độ trong khi frame 4 là SplitScreen). Chờ thử:
+  YouTube phát video toàn màn rồi vào ô trên máy iOS 15, thoát chia màn sau khi một app CarPlay thoát. Còn mở: app iPhone
+  bị giết liên tục trên iPhone 8 (cần crash log máy), AIMap không theo cỡ ô (cần log có dấu vết cửa sổ), YouTube có lần
+  được mở theo đường app CarPlay (19:25:35).
 
 ### 1.2 Bán quốc tế
 

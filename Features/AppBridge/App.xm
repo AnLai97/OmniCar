@@ -15,6 +15,12 @@ static int orientationOverride = -1;        // huong goc cua o SpringBoard gui, 
 static int fpsCap = 0;                      // khung hinh / giay toi da khi tren xe (SpringBoard gui, AB_KEY_FPS), 0 = khong gioi han
 static long long appWantsOrientation = 0;   // huong app TU XIN (fullscreen video -> ngang); 0 = theo huong cua o
 static int fakeDeviceOrientation = 0;       // huong "thiet bi" gia (SpringBoard gui), 0 = dung huong that
+// iOS 15 (nhom APPS15): khong co requestGeometryUpdate / setNeedsUpdateOfSupportedInterfaceOrientations, nen SpringBoard
+// chi biet app doi huong qua hook UIDevice setOrientation va luc ep xoay bi bo qua. Co nay bat cac duong bao rieng cho iOS 15;
+// iOS 16 giu nguyen (log 19/10 17:45 va 21:59, 7 Plus 15.8.4 + iPhone 8 15.6: YouTube ve xoay 90 do / video thu vao 1 goc
+// vi trinh phat chi cho ngang ma scene van doc; cam bien doc / nam ngua lam scene lac 0.3 s mot lan).
+static BOOL abLegacyRotation = NO;
+static BOOL abToldLandscape = NO;           // iOS 15: da bao SpringBoard "app chi cho ngang" -> khi app cho doc lai thi bao lai
 static NSUInteger ABAppEffectiveMask(void);
 
 // Phat su kien "thiet bi vua xoay" (gia) sau `delay` giay
@@ -210,7 +216,13 @@ static void ABHandleOrientationRequest(NSDictionary *info)
     if (o == -1) o = MAX(1, (int)[[UIDevice currentDevice] orientation]);
     // Khong ep sang huong app dang khong cho phep (vd fullscreen video chi ngang)
     NSUInteger mask = ABAppEffectiveMask();
-    if (o > 0 && !(mask & (1u << o))) { ABLog("bo qua ep xoay %d: app chi cho mask %lu", o, (unsigned long)mask); return; }
+    if (o > 0 && !(mask & (1u << o))) {
+        ABLog("bo qua ep xoay %d: app chi cho mask %lu", o, (unsigned long)mask);
+        // iOS 15: app chi cho ngang (YouTube dang o trinh phat toan man) ma khong co API nao bao SpringBoard -> bao ngay
+        // de scene xoay ngang va doi khung theo (iOS 16 lam viec nay qua setNeedsUpdateOfSupportedInterfaceOrientations)
+        if (abLegacyRotation && !(mask & UIInterfaceOrientationMaskPortrait)) { ABTellSpringBoard(0xFF); abToldLandscape = YES; }
+        return;
+    }
     UIWindow *key = ABBestWindow();
     SEL sel = NSSelectorFromString(@"_setRotatableViewOrientation:duration:force:");
     if (key && [key respondsToSelector:sel]) ((void (*)(id, SEL, long long, double, BOOL))objc_msgSend)(key, sel, (long long)o, 0.0, YES);
@@ -414,6 +426,13 @@ static void ABAutoTestTouch(NSDictionary *info)
         %orig(target, duration, force);
     } else {
         %orig;
+        // iOS 15: UIKit tu xoay cua so sang huong app cho phep (khong phai huong o) -> SpringBoard phai xoay scene theo,
+        // khong thi noi dung ve xoay 90 do trong o (log 19/10 17:45)
+        if (abLegacyRotation && orientationOverride > 0) {
+            // chi bao 1 lan (SpringBoard lay scene -> app bo cuc lai -> UIKit goi lai ham nay: khong duoc bao vong)
+            if (!canForce && orientation != target && orientation > 0 && !abToldLandscape) { ABTellSpringBoard(0xFF); abToldLandscape = YES; }
+            else if (canForce && abToldLandscape) { ABTellSpringBoard(0xFF); abToldLandscape = NO; }   // app cho doc lai -> ve huong o
+        }
     }
 }
 
@@ -470,7 +489,20 @@ static void ABAutoTestTouch(NSDictionary *info)
 - (void)setOrientation:(long long)orientation animated:(BOOL)animated
 {
     if (orientationOverride > 0) {
-        appWantsOrientation = (orientation == UIInterfaceOrientationLandscapeLeft || orientation == UIInterfaceOrientationLandscapeRight) ? orientation : 0;
+        long long want = (orientation == UIInterfaceOrientationLandscapeLeft || orientation == UIInterfaceOrientationLandscapeRight) ? orientation : 0;
+        if (abLegacyRotation) {
+            // iOS 15: UIKit goi ham nay cho moi lan cam bien doi (1 doc, 5 nam ngua, 6 up, 0 khong ro), khong chi khi app ep xoay.
+            // Chi bao SpringBoard khi huong app muon thuc su doi; gia tri khong phai doc / ngang bo qua (log 19/10 17:45:
+            // 14 cap 1 / 5 trong 6 s tu cam bien lam scene lac lien tuc)
+            BOOL interface = orientation >= UIDeviceOrientationPortrait && orientation <= UIDeviceOrientationLandscapeRight;
+            if (!interface) { %orig; return; }
+            if (want == appWantsOrientation) {
+                // App roi trinh phat toan man (cho doc lai) ma khong gui tin nao khac -> bao lai theo mask hien tai
+                if (abToldLandscape && (ABAppEffectiveMask() & UIInterfaceOrientationMaskPortrait)) { ABTellSpringBoard(0xFF); abToldLandscape = NO; }
+                %orig; return;
+            }
+        }
+        appWantsOrientation = want;
         ABLog("app setOrientation %lld -> %lld", orientation, appWantsOrientation);
         ABTellSpringBoard(appWantsOrientation);
     }
@@ -587,7 +619,7 @@ static void ABAutoTestTouch(NSDictionary *info)
             hooked = YES;
             %init(APPS);
             if (OMCHasMethod("UIWindowScene", @"requestGeometryUpdateWithPreferences:errorHandler:")) %init(APPS16);
-            else %init(APPS15);
+            else { %init(APPS15); abLegacyRotation = YES; }
             ABLog("%@: dua len xe, cai hook", bid);
         }
         @try { ABHandleOrientationRequest(note.userInfo); } @catch (NSException *e) { ABLog("%@: xoay loi %@", bid, e); }

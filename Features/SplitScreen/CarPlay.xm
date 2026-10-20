@@ -209,12 +209,48 @@ static void SCPHookError(const char *where, NSException *e)
 // Split dua lai app con lai len (dong 1 o, keo o ra) -> CarPlay khai bao app do lan nua -> iOS 15 assert
 // "already have an element with identifier=Car[2-3]:com.apple.mobilephone" (SIGTRAP, log 12/10 21:21). iOS 16 bo qua.
 // Phan tu da co thi giu nguyen, tra 1 token rong cho CarPlay (no se goi invalidate khi app roi man).
+// Log 19/10 21:59 (iPhone 8, 15.6): quet ivar cua publisher KHONG thay phan tu cu cua Google Maps (scene Maps da bi huy
+// 19:28:53, CarPlay khong rut khai bao) -> 19:29:46 thoat chia man giu Navitel, CarPlay khai bao Maps lan nua -> assert.
+// Nay tu theo doi: moi khai bao di qua addElement duoc ghi vao sLiveLayout (identifier -> token that) va bo ra khi token
+// that bi invalidate (swizzle lop token luc gap lan dau); quet ivar chi con la du phong.
 @interface SCPNoopLayoutAssertion : NSObject
 - (void)invalidate;
 @end
 @implementation SCPNoopLayoutAssertion
 - (void)invalidate {}
 @end
+
+// identifier -> token CarPlay dang giu, giu YEU (token dealloc = CarPlay da bo khai bao, khong duoc giu no song). Chi tren luong chinh.
+static NSMapTable<NSString *, id> *sLiveLayout;
+static NSArray<NSString *> *SCPLiveLayoutIDs(void)
+{
+    NSMutableArray *ids = [NSMutableArray array];
+    for (NSString *k in sLiveLayout) if ([sLiveLayout objectForKey:k]) [ids addObject:k];
+    return ids;
+}
+
+// Token that bi invalidate -> phan tu roi publisher -> bo khoi sLiveLayout. Swizzle 1 lan cho lop cua token.
+static void SCPLayoutWatchTokenClass(id token)
+{
+    static NSMutableSet *done;
+    if (!done) done = [NSMutableSet set];
+    Class cls = object_getClass(token);
+    NSString *name = NSStringFromClass(cls);
+    if (!cls || [done containsObject:name]) return;
+    [done addObject:name];
+    SEL sel = @selector(invalidate);
+    Method m = class_getInstanceMethod(cls, sel);
+    if (!m) { SCPLog("CarSplit: token khai bao %@ khong co invalidate -> khong theo doi duoc", name); return; }
+    IMP orig = method_getImplementation(m);
+    IMP mine = imp_implementationWithBlock(^(id self_) {
+        NSMutableArray *gone = [NSMutableArray array];
+        for (NSString *k in sLiveLayout) if ([sLiveLayout objectForKey:k] == self_) [gone addObject:k];
+        for (NSString *k in gone) [sLiveLayout removeObjectForKey:k];
+        ((void (*)(id, SEL))orig)(self_, sel);
+    });
+    method_setImplementation(m, mine);
+    SCPLog("CarSplit: theo doi token khai bao lop %@", name);
+}
 
 static BOOL SCPLayoutIs(id obj, NSString *identifier)
 {
@@ -262,15 +298,23 @@ static BOOL SCPLayoutHasElement(id publisher, NSString *identifier)
 
 - (id)addElement:(id)element
 {
+    NSString *identifier = nil;
     @try {
         SEL s = @selector(identifier);
-        id identifier = [element respondsToSelector:s] ? ((id (*)(id, SEL))objc_msgSend)(element, s) : nil;
-        if ([identifier isKindOfClass:[NSString class]] && SCPLayoutHasElement(self, identifier)) {
-            SCPLog("CarSplit: bo khai bao trung %@ (tranh assert cua iOS 15)", identifier);
+        id v = [element respondsToSelector:s] ? ((id (*)(id, SEL))objc_msgSend)(element, s) : nil;
+        if ([v isKindOfClass:[NSString class]]) identifier = v;
+        if (!sLiveLayout) sLiveLayout = [NSMapTable strongToWeakObjectsMapTable];
+        if (identifier && ([sLiveLayout objectForKey:identifier] || SCPLayoutHasElement(self, identifier))) {
+            SCPLog("CarSplit: bo khai bao trung %@ (tranh assert cua iOS 15; dang giu: %@)", identifier,
+                   [SCPLiveLayoutIDs() componentsJoinedByString:@" "]);
             return [SCPNoopLayoutAssertion new];
         }
     } @catch (NSException *e) { SCPHookError("addElement", e); }
-    return %orig;
+    id token = %orig;
+    @try {
+        if (identifier && token) { [sLiveLayout setObject:token forKey:identifier]; SCPLayoutWatchTokenClass(token); }
+    } @catch (NSException *e) { SCPHookError("addElement/theo doi", e); }
+    return token;
 }
 
 %end
