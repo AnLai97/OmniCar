@@ -116,7 +116,7 @@ thẻ đầu trang Cài đặt hiện "Đã hết hạn" và khoá công tắc. 
 
 ### Tự kiểm tra trên xe (chỉ bản dev)
 
-`OMC_AUTOTEST` trong `Core/OmniCar.h` (mặc định 0 = tắt; cần thử trên xe thì đặt 1 hoặc `make package OMC_AUTOTEST=1`): bật thì
+`OMC_AUTOTEST` trong `Core/OmniCar.h` (đang là 1 khi tác giả thử trên xe; bản phát hành build `make package OMC_AUTOTEST=0`): bật thì
 có khung chạy test `Core/OMCTest.h`, bộ test của từng tính năng và trang Hỗ trợ > Tự kiểm tra (dev); tắt thì không
 biên dịch dòng nào trong số đó. Mỗi tính năng đăng ký bộ test của nó trong process chạy được nó:
 
@@ -130,6 +130,13 @@ OMCTestRegister(@"<tiền tố key>", ^BOOL { return <sẵn sàng>; }, ^NSArray<
 
 Bộ test hiện có: `Features/SplitScreen/SCPAutoTest.mm` (Chia màn hình, App Bridge), cuối `StartupScreen.x`,
 cuối `SPPBubble.mm` (Bong bóng tốc độ, chạy trong SpringBoard).
+
+Chạy chậm để người xem kịp nhìn (3 s giữa hai bước) và vẽ ngón tay ở chỗ mỗi bước chạm: bước tạo bằng `OMCTestStepAt` nêu điểm
+trên màn xe, ngón tay đi tới, ấn rồi bước mới chạy. Chạm bên trong app (chạm một video YouTube, kéo bản đồ Google Maps) do
+chính app làm: process CarPlay gửi `OMC_NOTIF_AUTOTEST_TOUCH`, dylib App Bridge trong app (`App.xm`) vẽ ngón tay, gửi chạm
+qua UIKit của app (`OMCTestTouchTap` / `OMCTestTouchDrag`, cách của KIF) và trả lời bằng Darwin notify (bit `OMC_AT_TOUCH_*`).
+Bộ test ưu tiên app: mở app thì YouTube (phải chạm vào một video) và Google Maps (kéo bản đồ qua lại); chia màn thì
+YouTube | Google Maps | GOFA.
 
 Build chỉ chạy trên CI (GitHub Actions, macOS): push lên `main` để lấy `OmniCar_<Version>_rootless.deb`,
 tag `v<Version>` để ra Release.

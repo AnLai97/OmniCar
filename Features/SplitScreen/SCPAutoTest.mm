@@ -54,6 +54,14 @@
 
 #define SCPATF OMCTestFormat
 static NSMutableDictionary<NSString *, NSString *> *sBridgeStates;   // AB_NOTIF_STATE moi nhat cua tung app iPhone
+static NSMutableDictionary<NSString *, NSDictionary *> *sTouchReplies;   // bundle -> {seq, bits}: app tra loi cham (OMC_DARWIN_AUTOTEST_TOUCH)
+static NSMutableDictionary<NSString *, NSNumber *> *sTouchSeq;           // seq cua lan cham moi nhat gui cho app
+static NSUInteger sTouchCounter;
+
+// App uu tien (19/10/2026): mo app thi YouTube va Google Maps truoc, chia man thi YouTube | Google Maps | GOFA
+#define SCPAT_GMAPS @"com.google.Maps"
+#define SCPAT_GOFA  @"com.lumi.GOFA"
+#define SCPAT_YT    @"com.google.ios.youtube"
 
 #pragma mark - Doc trang thai CarPlay
 
@@ -298,26 +306,140 @@ static NSString *SCPATExpectDockButton(void)
     return nil;
 }
 
+#pragma mark - Ngon tay (OMCTestStepAt): diem tren man xe ma buoc cham vao
+
+// p trong toa do cua v -> diem man xe (toa do man hinh), nil neu v khong tren man
+static NSValue *SCPATScreenPoint(UIView *v, CGPoint p)
+{
+    if (!v || !v.window) return nil;
+    return [NSValue valueWithCGPoint:[v.window convertPoint:[v convertPoint:p toView:nil] toWindow:nil]];
+}
+
+static NSValue *SCPATAtView(UIView *v) { return v ? SCPATScreenPoint(v, CGPointMake(CGRectGetMidX(v.bounds), CGRectGetMidY(v.bounds))) : nil; }
+
+// Nut Home cua CarPlay tren dock (luoi app)
+static NSValue *SCPATAtHome(void)
+{
+    SCPCarSplit *s = [SCPCarSplit shared];
+    CGRect g = [s homeGlyph];
+    if (![s tabParent] || CGRectIsNull(g) || g.size.width < 4) return nil;
+    return SCPATScreenPoint([s tabParent], CGPointMake(CGRectGetMidX(g), CGRectGetMidY(g)));
+}
+
+static NSValue *SCPATAtDock(void) { return SCPATAtView([[SCPCarSplit shared] homeButton]); }   // nut Split Screen tren dock
+
+// O slot: top = thanh "•••" o giua mep tren, khong thi giua o. (O app iPhone: cua so host cua SpringBoard che ngon tay nay,
+// dung SCPATFingerThen de app tu ve.)
+static NSValue *SCPATAtSlot(int slot, BOOL top)
+{
+    SCPCarSplit *s = [SCPCarSplit shared];
+    if (!s.active || slot >= [s paneCount]) return nil;
+    UIView *v = SCPATPane([s slots][slot], @"view");
+    return v ? SCPATScreenPoint(v, CGPointMake(CGRectGetMidX(v.bounds), top ? 14 : CGRectGetMidY(v.bounds))) : nil;
+}
+
+static NSValue *SCPATAtDivider(void)   // cham tron cua vach giua o 1 va o 2
+{
+    SCPCarSplit *s = [SCPCarSplit shared];
+    if (!s.active || [s paneCount] < 2 || ![s container]) return nil;
+    CGRect a = [s frameForSlot:0], b = [s frameForSlot:1];
+    CGPoint p = [s vertical] ? CGPointMake(CGRectGetMidX(a), (CGRectGetMaxY(a) + CGRectGetMinY(b)) / 2)
+                             : CGPointMake((CGRectGetMaxX(a) + CGRectGetMinX(b)) / 2, CGRectGetMidY(a));
+    return SCPATScreenPoint([s container], p);
+}
+
+static NSValue *SCPATAtFloat(void) { return SCPATAtView(SCPATPane([[SCPCarSplit shared] floatPane], @"view")); }
+
+#pragma mark - Cham trong app (Core/OMCTest.h, Features/AppBridge/App.xm)
+// Process CarPlay khong cham duoc vao app (app CarPlay nhan cham thang tu backboardd, app iPhone nam trong cua so host cua
+// SpringBoard), nen nho app tu cham: gui OMC_NOTIF_AUTOTEST_TOUCH, app ve ngon tay, gui cham qua UIKit cua no, tra loi
+// bang Darwin notify (bit OMC_AT_TOUCH_*).
+
+static void SCPATPostTouch(NSString *bid, NSDictionary *params)
+{
+    NSMutableDictionary *info = [params mutableCopy];
+    info[@"seq"] = @(++sTouchCounter);
+    sTouchSeq[bid] = info[@"seq"];
+    [sTouchReplies removeObjectForKey:bid];
+    [[objc_getClass("NSDistributedNotificationCenter") defaultCenter] postNotificationName:OMC_NOTIF_AUTOTEST_TOUCH object:bid userInfo:info];
+}
+
+// Chi ngon tay (khong cham) trong app iPhone dang hien tren xe, roi `then` sau 1 s: buoc tren o app iPhone (thanh nut, doi
+// cho, cua so noi ...) ve ngon tay trong app vi cua so host cua SpringBoard che ngon tay cua process CarPlay
+static NSString *SCPATFingerThen(NSString *bid, CGFloat fx, CGFloat fy, dispatch_block_t then)
+{
+    [[objc_getClass("NSDistributedNotificationCenter") defaultCenter] postNotificationName:OMC_NOTIF_AUTOTEST_TOUCH object:bid
+        userInfo:@{@"kind": @"finger", @"target": @"host", @"fx": @(fx), @"fy": @(fy)}];
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        @try { then(); } @catch (NSException *e) { OMCTestLog(@"buoc loi: %@", e); }
+    });
+    return nil;
+}
+
+// Bit tra loi cua app cho lan cham moi nhat (nil = chua tra loi)
+static NSNumber *SCPATTouchBits(NSString *bid)
+{
+    NSDictionary *r = sTouchReplies[bid];
+    return (r && [r[@"seq"] isEqual:sTouchSeq[bid]]) ? r[@"bits"] : nil;
+}
+
+static NSString *SCPATTouchWhy(NSString *bid, NSNumber *b, NSString *notEnough)
+{
+    if (!b) return SCPATWhy(SCPATF(@"%@ khong tra loi (dylib App Bridge chua nap vao app, hay app khong nhan thong bao)", SCPATShort(bid)));
+    NSUInteger bits = b.unsignedIntegerValue;
+    if (bits & OMC_AT_TOUCH_NOWINDOW) return SCPATWhy(SCPATF(@"%@ khong co cua so tren xe de cham", SCPATShort(bid)));
+    if (!(bits & OMC_AT_TOUCH_HIT)) return SCPATWhy(SCPATF(@"cham khong toi view nao cua %@", SCPATShort(bid)));
+    return SCPATWhy(notEnough);
+}
+
+// Buoc: cham vao 1 video trong YouTube (app tu tim o video, ve ngon tay, cham) -> man hinh phai doi (trang xem video mo)
+static NSDictionary *SCPATTapVideoStep(NSString *bid, NSString *name)
+{
+    return OMCTestStep(name, 4.5, 16, ^NSString *{
+        if (![bid isEqualToString:SCPAT_YT]) return @"chi thu voi YouTube";
+        if (![sBridgeStates[bid] isEqualToString:@"ready"]) return SCPATF(@"%@ chua hien tren xe", SCPATShort(bid));
+        SCPATPostTouch(bid, @{@"kind": @"tap", @"target": @"host", @"find": @"video", @"fx": @0.5, @"fy": @0.42});
+        return nil;
+    }, ^NSString *{
+        NSNumber *b = SCPATTouchBits(bid);
+        if (b && (b.unsignedIntegerValue & OMC_AT_TOUCH_CHANGED)) return nil;
+        return SCPATTouchWhy(bid, b, @"cham toi app nhung man hinh khong doi (trang xem video khong mo; log AppBridge ghi view nhan cham)");
+    });
+}
+
+// Buoc: keo ban do qua lai trong cua so CarPlay cua app (app tu ve ngon tay, keo sang phai roi keo ve)
+static NSDictionary *SCPATDragMapStep(NSString *bid, NSString *name)
+{
+    return OMCTestStep(name, 4, 15, ^NSString *{
+        SCPATPostTouch(bid, @{@"kind": @"drag", @"target": @"car", @"fx": @0.35, @"fy": @0.5, @"fx2": @0.65, @"fy2": @0.5, @"back": @1});
+        return nil;
+    }, ^NSString *{
+        NSNumber *b = SCPATTouchBits(bid);
+        if (b && (b.unsignedIntegerValue & OMC_AT_TOUCH_GESTURE)) return nil;
+        return SCPATTouchWhy(bid, b, @"cham toi ban do nhung khong gesture nao nhan keo (ban do co the khong di chuyen; xem log AppBridge)");
+    });
+}
+
 #pragma mark - App de thu
 
-// App CarPlay: uu tien app Apple (luon co, it bat ngo), roi app khac tren man chinh
+// App CarPlay: Google Maps va GOFA truoc (uu tien khi mo / chia man), roi app Apple (luon co, it bat ngo), roi app khac
 static NSArray<NSString *> *SCPATCarApps(void)
 {
     NSArray *all = [SCPPrefs carPlayApps] ?: @[];
     NSMutableArray *out = [NSMutableArray array];
-    for (NSString *b in @[@"com.apple.Maps", @"com.apple.Music", @"com.apple.podcasts", @"com.apple.MobileSMS", @"com.apple.mobilephone"])
+    for (NSString *b in @[SCPAT_GMAPS, SCPAT_GOFA, @"com.apple.Maps", @"com.apple.Music", @"com.apple.podcasts", @"com.apple.MobileSMS", @"com.apple.mobilephone"])
         if ([all containsObject:b]) [out addObject:b];
     for (NSString *b in all) if (![out containsObject:b]) [out addObject:b];
     return out;
 }
 
-// App iPhone (App Bridge): app da chon, YouTube / TikTok truoc, toi da 3
+// App iPhone (App Bridge): app da chon, YouTube truoc (cham vao video), roi TikTok, toi da 3
 static NSArray<NSString *> *SCPATPhoneApps(void)
 {
     NSArray *chosen = OMCPref(AB_KEY_APPS, @[]);
     if (![chosen isKindOfClass:[NSArray class]]) return @[];
     NSMutableArray *out = [NSMutableArray array];
-    for (NSString *b in @[@"com.google.ios.youtube", @"com.zhiliaoapp.musically"]) if ([chosen containsObject:b]) [out addObject:b];
+    for (NSString *b in @[SCPAT_YT, @"com.zhiliaoapp.musically"]) if ([chosen containsObject:b]) [out addObject:b];
     for (NSString *b in chosen) if (![out containsObject:b] && out.count < 3) [out addObject:b];
     return out;
 }
@@ -337,6 +459,8 @@ static NSArray<NSDictionary *> *SCPATSplitSteps(void)
     NSMutableArray *steps = [NSMutableArray array];
     OMCTestBlock home = ^NSString *{ SCPATHome(); return nil; };
     OMCTestBlock atHome = ^NSString *{ return SCPATExpectHome(); };
+    OMCTestPointBlock fHome = ^NSValue *{ return SCPATAtHome(); }, fDock = ^NSValue *{ return SCPATAtDock(); };
+    OMCTestPointBlock fDivider = ^NSValue *{ return SCPATAtDivider(); };
 
     [steps addObject:OMCTestStep(@"Moi truong: hook va app CarPlay", 0, 0, nil, ^NSString *{
         NSDictionary *hooks = OMCPref([NSString stringWithFormat:@"%@SplitScreen@%@", OMC_KEY_DIAG_HOOKS, [NSProcessInfo processInfo].processName], nil);
@@ -345,7 +469,17 @@ static NSArray<NSDictionary *> *SCPATSplitSteps(void)
         if (car.count < 2) return SCPATF(@"chi co %lu app CarPlay, can it nhat 2", (unsigned long)car.count);
         return missing.count ? SCPATF(@"thieu hook: %@", [missing componentsJoinedByString:@", "]) : nil;
     })];
-    [steps addObject:OMCTestStep(@"Ve man chinh", 1.5, 6, home, atHome)];
+    [steps addObject:OMCTestStepAt(@"Ve man chinh", 1.5, 6, fHome, home, atHome)];
+
+    // --- Mo app: Google Maps toan man tu man chinh, keo ban do qua lai (cham do app tu gui), ve Home
+    if ([car containsObject:SCPAT_GMAPS]) {
+        [steps addObject:OMCTestStep(@"Mo Google Maps toan man (icon tren man chinh)", 3, 14, ^NSString *{ SCPCarLaunchApp(SCPAT_GMAPS); return nil; },
+            ^NSString *{ return SCPATExpectSolo(SCPAT_GMAPS); })];
+        [steps addObject:SCPATDragMapStep(SCPAT_GMAPS, @"Google Maps: keo ban do qua lai")];
+        [steps addObject:OMCTestStepAt(@"Home tu Google Maps", 1.5, 8, fHome, home, atHome)];
+    } else {
+        [steps addObject:SCPATSkip(@"Mo Google Maps toan man, keo ban do", @"Google Maps khong co tren man chinh CarPlay")];
+    }
 
     // --- Nut Split Screen tren dock: hinh 2 o theo nut Home, bam mo / dong bang bo cuc
     OMCTestBlock tapDock = ^NSString *{
@@ -354,10 +488,15 @@ static NSArray<NSDictionary *> *SCPATSplitSteps(void)
     };
     [steps addObject:OMCTestStep(@"Nut Split Screen tren dock (2 o theo nut Home)", 1.5, 8, ^NSString *{ [s refreshHomeButton]; return nil; },
         ^NSString *{ return SCPATExpectDockButton(); })];
-    [steps addObject:OMCTestStep(@"Bam nut Split Screen: hien bang bo cuc", 1.5, 6, tapDock,
+    [steps addObject:OMCTestStepAt(@"Bam nut Split Screen: hien bang bo cuc", 1.5, 6, fDock, tapDock,
         ^NSString *{ return [s tray] ? nil : SCPATWhy(@"bang bo cuc khong hien"); })];
     // Bang dang mo: cham bat ky cho khac (goc duoi vung app, ngoai bang) -> dong ngay (lop nhin cham, hitTest nhu cham that)
-    [steps addObject:OMCTestStep(@"Bang bo cuc mo, cham cho khac -> dong ngay", 1, 5, ^NSString *{
+    OMCTestPointBlock fCorner = ^NSValue *{
+        UIView *parent = [s tabParent];
+        CGRect area = [s appAreaInParent:parent];
+        return SCPATScreenPoint(parent, CGPointMake(CGRectGetMinX(area) + 12, CGRectGetMaxY(area) - 12));
+    };
+    [steps addObject:OMCTestStepAt(@"Bang bo cuc mo, cham cho khac -> dong ngay", 1, 5, fCorner, ^NSString *{
         UIView *shield = [s popupShield];
         if (![s tray]) return @"bang bo cuc chua mo";
         if (!shield || !shield.window) return SCPATWhy(@"khong co lop nhin cham khi bang mo");
@@ -367,31 +506,32 @@ static NSArray<NSDictionary *> *SCPATSplitSteps(void)
         [shield hitTest:p withEvent:nil];
         return nil;
     }, ^NSString *{ return [s tray] ? SCPATWhy(@"bang bo cuc van con sau khi cham cho khac") : nil; })];
-    [steps addObject:OMCTestStep(@"Bam nut Split Screen: hien lai bang bo cuc", 1.5, 6, tapDock,
+    [steps addObject:OMCTestStepAt(@"Bam nut Split Screen: hien lai bang bo cuc", 1.5, 6, fDock, tapDock,
         ^NSString *{ return [s tray] ? nil : SCPATWhy(@"bang bo cuc khong hien"); })];
-    [steps addObject:OMCTestStep(@"Bam lai nut Split Screen: dong bang bo cuc", 1, 5, tapDock,
+    [steps addObject:OMCTestStepAt(@"Bam lai nut Split Screen: dong bang bo cuc", 1, 5, fDock, tapDock,
         ^NSString *{ return [s tray] ? SCPATWhy(@"bang bo cuc van con") : nil; })];
     if (!A || !B) return steps;
     NSString *a = SCPATShort(A), *b = SCPATShort(B);
 
-    // --- 2 o: mo, ti le, doi cho
-    [steps addObject:OMCTestStep(SCPATF(@"2 o: %@ | %@", a, b), 3, 12, ^NSString *{ [s openSetupLayout:2 apps:@[A, B]]; return nil; },
+    // --- 2 o: mo (Google Maps | GOFA khi co), keo ban do trong o, ti le, doi cho
+    [steps addObject:OMCTestStepAt(SCPATF(@"2 o: %@ | %@", a, b), 3, 12, fDock, ^NSString *{ [s openSetupLayout:2 apps:@[A, B]]; return nil; },
         ^NSString *{ return SCPATExpectLayout(2, @[A, B]); })];
+    if ([A isEqualToString:SCPAT_GMAPS]) [steps addObject:SCPATDragMapStep(A, @"Google Maps trong o: keo ban do qua lai")];
     [steps addObject:OMCTestStep(@"Nut Split Screen van hien khi dang chia", 1, 6, nil,
         ^NSString *{ return SCPATExpectDockButton() ?: SCPATExpectLayout(2, @[A, B]); })];
     for (NSNumber *r in @[@0.3, @0.7, @0.5]) {
         CGFloat first = r.doubleValue;
-        [steps addObject:OMCTestStep(SCPATF(@"Ti le %.0f / %.0f (scene doi theo)", first * 100, (1 - first) * 100), 1.5, 6, ^NSString *{
+        [steps addObject:OMCTestStepAt(SCPATF(@"Ti le %.0f / %.0f (scene doi theo)", first * 100, (1 - first) * 100), 1.5, 6, fDivider, ^NSString *{
             if (!s.active) return @"split chua bat";
             [s setFractions:[NSMutableArray arrayWithObjects:@(first), @(1 - first), nil]];
             [s relayoutAnimated:NO];
             return nil;
         }, ^NSString *{ return SCPATExpectRatio(first); })];
     }
-    [steps addObject:OMCTestStep(@"Doi cho 2 o", 1.5, 8, ^NSString *{ [s swapSlot:0 with:1]; return nil; },
+    [steps addObject:OMCTestStepAt(@"Doi cho 2 o", 1.5, 8, ^NSValue *{ return SCPATAtSlot(0, YES); }, ^NSString *{ [s swapSlot:0 with:1]; return nil; },
         ^NSString *{ return SCPATExpectLayout(2, @[B, A]); })];
     // Thanh nut (cham "•••") dang mo: cham bat ky cho khac tren man (o ben canh) -> an ngay, khong cho het 4 giay
-    [steps addObject:OMCTestStep(@"Thanh nut mo, cham o ben canh -> an ngay", 1, 5, ^NSString *{
+    [steps addObject:OMCTestStepAt(@"Thanh nut mo, cham o ben canh -> an ngay", 1, 5, ^NSValue *{ return SCPATAtSlot(1, NO); }, ^NSString *{
         if (!s.active || [s paneCount] < 2) return @"split chua bat";
         id p0 = [s slots][0], p1 = [s slots][1];
         [s setBarVisible:YES forPane:p0];
@@ -407,27 +547,27 @@ static NSArray<NSDictionary *> *SCPATSplitSteps(void)
     // --- 3 o va 2 kieu 1 lon + 2
     if (C) {
         NSString *c = SCPATShort(C);
-        [steps addObject:OMCTestStep(SCPATF(@"3 o: %@ | %@ | %@", b, a, c), 3, 14, ^NSString *{ [s openSetupLayout:3 apps:@[B, A, C]]; return nil; },
+        [steps addObject:OMCTestStepAt(SCPATF(@"3 o: %@ | %@ | %@", b, a, c), 3, 14, fDock, ^NSString *{ [s openSetupLayout:3 apps:@[B, A, C]]; return nil; },
             ^NSString *{ return SCPATExpectLayout(3, @[B, A, C]); })];
-        [steps addObject:OMCTestStep(@"Doi sang 1 lon + 2", 2, 10, ^NSString *{ [s switchToLayout:13]; return nil; },
+        [steps addObject:OMCTestStepAt(@"Doi sang 1 lon + 2", 2, 10, fDock, ^NSString *{ [s switchToLayout:13]; return nil; },
             ^NSString *{ return SCPATExpectLayout(13, @[B, A, C]); })];
-        [steps addObject:OMCTestStep(@"1 lon + 2: doi cho o lon voi o nho", 2, 10, ^NSString *{ [s swapSlot:0 with:2]; return nil; },
+        [steps addObject:OMCTestStepAt(@"1 lon + 2: doi cho o lon voi o nho", 2, 10, ^NSValue *{ return SCPATAtSlot(0, YES); }, ^NSString *{ [s swapSlot:0 with:2]; return nil; },
             ^NSString *{ return SCPATExpectLayout(13, @[C, A, B]); })];
-        [steps addObject:OMCTestStep(@"Doi sang 2 + 1 lon", 2, 10, ^NSString *{ [s switchToLayout:31]; return nil; },
+        [steps addObject:OMCTestStepAt(@"Doi sang 2 + 1 lon", 2, 10, fDock, ^NSString *{ [s switchToLayout:31]; return nil; },
             ^NSString *{ return SCPATExpectLayout(31, @[C, A, B]); })];
-        [steps addObject:OMCTestStep(@"Doi ve 3 o deu", 2, 10, ^NSString *{ [s switchToLayout:3]; return nil; },
+        [steps addObject:OMCTestStepAt(@"Doi ve 3 o deu", 2, 10, fDock, ^NSString *{ [s switchToLayout:3]; return nil; },
             ^NSString *{ return SCPATExpectLayout(3, @[C, A, B]); })];
-        [steps addObject:OMCTestStep(@"Dong o cuoi (3 -> 2)", 2, 10, ^NSString *{ [s closeSlot:2 background:YES]; return nil; },
+        [steps addObject:OMCTestStepAt(@"Dong o cuoi (3 -> 2)", 2, 10, ^NSValue *{ return SCPATAtSlot(2, YES); }, ^NSString *{ [s closeSlot:2 background:YES]; return nil; },
             ^NSString *{ return SCPATExpectLayout(2, @[C, A]); })];
-        [steps addObject:OMCTestStep(@"Dong them 1 o (con 1 -> toan man)", 3, 12, ^NSString *{ [s closeSlot:1 background:YES]; return nil; },
+        [steps addObject:OMCTestStepAt(@"Dong them 1 o (con 1 -> toan man)", 3, 12, ^NSValue *{ return SCPATAtSlot(1, YES); }, ^NSString *{ [s closeSlot:1 background:YES]; return nil; },
             ^NSString *{ return SCPATExpectSolo(C); })];
-        [steps addObject:OMCTestStep(@"Home tu app toan man", 1.5, 8, home, atHome)];
+        [steps addObject:OMCTestStepAt(@"Home tu app toan man", 1.5, 8, fHome, home, atHome)];
     } else {
         [steps addObject:SCPATSkip(@"3 o / 1 lon + 2 / 2 + 1 lon", @"can 3 app CarPlay")];
     }
 
     // --- Cua so noi
-    [steps addObject:OMCTestStep(@"Cua so noi: dua o 2 ra", 3, 12, ^NSString *{
+    [steps addObject:OMCTestStepAt(@"Cua so noi: dua o 2 ra", 3, 12, fDock, ^NSString *{
         [s openSetupLayout:2 apps:@[A, B]];
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(4 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             @try { if (s.active && [s paneCount] == 2) [s popOutPane:[s slots][1]]; } @catch (NSException *e) {}
@@ -439,13 +579,13 @@ static NSArray<NSDictionary *> *SCPATSplitSteps(void)
         if (![SCPATPane(fp, @"bundleID") isEqualToString:B] || !SCPATPane(fp, @"vc")) return SCPATWhy(SCPATF(@"cua so noi khong chua %@", b));
         return nil;
     })];
-    [steps addObject:OMCTestStep(@"Cua so noi: dua ve o", 2.5, 10, ^NSString *{
+    [steps addObject:OMCTestStepAt(@"Cua so noi: dua ve o", 2.5, 10, ^NSValue *{ return SCPATAtFloat(); }, ^NSString *{
         if (![s floatPane]) return @"khong co cua so noi";
         [s floatDockBack]; return nil;
     }, ^NSString *{ return SCPATExpectLayout(2, nil); })];
 
     // --- Bang chon app, bang bo cuc
-    [steps addObject:OMCTestStep(@"O trong hien bang chon app", 2, 8, ^NSString *{
+    [steps addObject:OMCTestStepAt(@"O trong hien bang chon app", 2, 8, fDock, ^NSString *{
         if (!s.active) return @"split chua bat";
         [s switchToLayout:3]; return nil;
     }, ^NSString *{
@@ -453,19 +593,19 @@ static NSArray<NSDictionary *> *SCPATSplitSteps(void)
         for (id p in [s slots]) if (SCPATPane(p, @"picker")) return nil;
         return SCPATWhy(@"khong thay bang chon app");
     })];
-    [steps addObject:OMCTestStep(@"Dong bang chon, ve 2 o", 2, 8, ^NSString *{ [s removePickerSheet]; [s switchToLayout:2]; return nil; },
+    [steps addObject:OMCTestStepAt(@"Dong bang chon, ve 2 o", 2, 8, fDock, ^NSString *{ [s removePickerSheet]; [s switchToLayout:2]; return nil; },
         ^NSString *{ return SCPATExpectLayout(2, nil); })];
-    [steps addObject:OMCTestStep(@"Toan man tu split (giu o 1)", 3, 10, ^NSString *{
+    [steps addObject:OMCTestStepAt(@"Toan man tu split (giu o 1)", 3, 10, ^NSValue *{ return SCPATAtSlot(0, YES); }, ^NSString *{
         if (!SCPATPaneBundle(0)) return @"o 1 khong co app";
         [s soloBundle:SCPATPaneBundle(0)]; return nil;
     }, ^NSString *{
         NSString *base = SCPATBaseBundle();
         return (!s.active && base) ? nil : SCPATWhy(@"khong ve app toan man");
     })];
-    [steps addObject:OMCTestStep(@"Home", 1.5, 8, home, atHome)];
-    [steps addObject:OMCTestStep(@"Bang bo cuc (nut Split Screen)", 1.5, 6, ^NSString *{ [s showLayoutPanelForApp:nil]; return nil; },
+    [steps addObject:OMCTestStepAt(@"Home", 1.5, 8, fHome, home, atHome)];
+    [steps addObject:OMCTestStepAt(@"Bang bo cuc (nut Split Screen)", 1.5, 6, fDock, ^NSString *{ [s showLayoutPanelForApp:nil]; return nil; },
         ^NSString *{ return [s tray] ? nil : SCPATWhy(@"bang bo cuc khong hien"); })];
-    [steps addObject:OMCTestStep(@"Dong bang bo cuc", 1, 5, ^NSString *{ [s collapseAppTray]; return nil; },
+    [steps addObject:OMCTestStepAt(@"Dong bang bo cuc", 1, 5, fDock, ^NSString *{ [s collapseAppTray]; return nil; },
         ^NSString *{ return [s tray] ? SCPATWhy(@"bang bo cuc van con") : nil; })];
 
     // --- Lenh URL / Siri / Shortcuts (cung duong SpringBoard gui sang)
@@ -486,7 +626,7 @@ static NSArray<NSDictionary *> *SCPATSplitSteps(void)
         int layout = [fav[@"layout"] intValue];
         [steps addObject:OMCTestStep(SCPATF(@"Yeu thich %ld (bo cuc %d)", (long)n, layout), 3.5, 16, ^NSString *{ [s openFavorite:n]; return nil; },
             ^NSString *{ return SCPATExpectLayout(layout, apps); })];
-        [steps addObject:OMCTestStep(SCPATF(@"Home sau yeu thich %ld", (long)n), 1.5, 8, home, atHome)];
+        [steps addObject:OMCTestStepAt(SCPATF(@"Home sau yeu thich %ld", (long)n), 1.5, 8, fHome, home, atHome)];
     }
     NSDictionary *recent = [SCPPrefs recentLayouts].firstObject;
     if (recent) {
@@ -494,11 +634,11 @@ static NSArray<NSDictionary *> *SCPATSplitSteps(void)
         NSArray *apps = recent[@"apps"];
         [steps addObject:OMCTestStep(SCPATF(@"Gan day (bo cuc %d)", layout), 3.5, 16, ^NSString *{ [s openSetupLayout:layout apps:apps]; return nil; },
             ^NSString *{ return SCPATExpectLayout(layout, apps); })];
-        [steps addObject:OMCTestStep(@"Home sau gan day", 1.5, 8, home, atHome)];
+        [steps addObject:OMCTestStepAt(@"Home sau gan day", 1.5, 8, fHome, home, atHome)];
     }
 
     // --- Bam lien tuc nhu nguoi dung vo y: cuoi cung split phai on dinh
-    [steps addObject:OMCTestStep(@"Bam nhanh lien tuc (doi bo cuc 5 lan)", 5, 16, ^NSString *{
+    [steps addObject:OMCTestStepAt(@"Bam nhanh lien tuc (doi bo cuc 5 lan)", 5, 16, fDock, ^NSString *{
         [s openSetupLayout:2 apps:@[A, B]];
         double d = 0.7;
         for (int i = 0; i < 5; i++, d += 0.6) {
@@ -512,7 +652,7 @@ static NSArray<NSDictionary *> *SCPATSplitSteps(void)
         });
         return nil;
     }, ^NSString *{ return SCPATExpectLayout(2, @[A, B]); })];
-    [steps addObject:OMCTestStep(@"Mo / tat split lien tuc 3 lan", 4, 14, ^NSString *{
+    [steps addObject:OMCTestStepAt(@"Mo / tat split lien tuc 3 lan", 4, 14, fDock, ^NSString *{
         double d = 0;
         for (int i = 0; i < 3; i++, d += 1.6) {
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(d * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
@@ -524,7 +664,7 @@ static NSArray<NSDictionary *> *SCPATSplitSteps(void)
         }
         return nil;
     }, atHome)];
-    [steps addObject:OMCTestStep(@"Ket thuc: ve man chinh", 1.5, 8, home, atHome)];
+    [steps addObject:OMCTestStepAt(@"Ket thuc: ve man chinh", 1.5, 8, fHome, home, atHome)];
     [steps addObject:OMCTestStep(@"Nut Split Screen ve lai tren dock sau khi tat split", 1.5, 8, nil, ^NSString *{ return SCPATExpectDockButton(); })];
     return steps;
 }
@@ -539,6 +679,8 @@ static NSArray<NSDictionary *> *SCPATBridgeSteps(void)
     NSMutableArray *steps = [NSMutableArray array];
     OMCTestBlock home = ^NSString *{ SCPATHome(); return nil; };
     OMCTestBlock atHome = ^NSString *{ return SCPATExpectHome(); };
+    OMCTestPointBlock fHome = ^NSValue *{ return SCPATAtHome(); }, fDock = ^NSValue *{ return SCPATAtDock(); };
+    OMCTestPointBlock fDivider = ^NSValue *{ return SCPATAtDivider(); };
 
     [steps addObject:OMCTestStep(@"Moi truong: App Bridge va app iPhone", 0, 0, nil, ^NSString *{
         OMCTestLog(@"app iPhone: %@", [phone componentsJoinedByString:@", "]);
@@ -547,24 +689,28 @@ static NSArray<NSDictionary *> *SCPATBridgeSteps(void)
         return A ? nil : @"khong co app CarPlay nao de ghep";
     })];
     if (!phone.count || !A || !OMCFeatureEnabled(AB_FEATURE)) return steps;
-    [steps addObject:OMCTestStep(@"Ve man chinh", 1.5, 6, home, atHome)];
+    [steps addObject:OMCTestStepAt(@"Ve man chinh", 1.5, 6, fHome, home, atHome)];
 
     for (NSString *P in phone) {
         NSString *p = SCPATShort(P);
-        [steps addObject:OMCTestStep(SCPATF(@"%@ trong o (ghep %@)", p, SCPATShort(A)), 3, 16, ^NSString *{
+        // Chia man: Google Maps | YouTube (A = Google Maps khi co). YouTube: cham vao 1 video nhu khi mo app; Google Maps: keo ban do
+        [steps addObject:OMCTestStepAt(SCPATF(@"%@ trong o (ghep %@)", p, SCPATShort(A)), 3, 16, fDock, ^NSString *{
             [sBridgeStates removeObjectForKey:P];
             [s openSetupLayout:2 apps:@[A, P]]; return nil;
         }, ^NSString *{ return SCPATExpectLayout(2, @[A, P]); })];
+        if ([P isEqualToString:SCPAT_YT]) [steps addObject:SCPATTapVideoStep(P, @"YouTube trong o: cham vao 1 video (mo xem)")];
+        if ([A isEqualToString:SCPAT_GMAPS]) [steps addObject:SCPATDragMapStep(A, @"Google Maps trong o: keo ban do qua lai")];
         for (NSNumber *r in @[@0.7, @0.3]) {
             CGFloat first = r.doubleValue;
-            [steps addObject:OMCTestStep(SCPATF(@"%@: ti le %.0f / %.0f", p, first * 100, (1 - first) * 100), 2, 8, ^NSString *{
+            [steps addObject:OMCTestStepAt(SCPATF(@"%@: ti le %.0f / %.0f", p, first * 100, (1 - first) * 100), 2, 8, fDivider, ^NSString *{
                 if (!s.active) return @"split chua bat";
                 [s setFractions:[NSMutableArray arrayWithObjects:@(first), @(1 - first), nil]];
                 [s relayoutAnimated:NO]; return nil;
             }, ^NSString *{ return SCPATExpectRatio(first) ?: SCPATExpectLayout(2, @[A, P]); })];
         }
-        [steps addObject:OMCTestStep(SCPATF(@"%@: doi cho voi app CarPlay", p), 2, 10, ^NSString *{ [s swapSlot:0 with:1]; return nil; },
-            ^NSString *{ return SCPATExpectLayout(2, @[P, A]); })];
+        [steps addObject:OMCTestStep(SCPATF(@"%@: doi cho voi app CarPlay", p), 3, 11, ^NSString *{
+            return SCPATFingerThen(P, 0.5, 0.03, ^{ [s swapSlot:0 with:1]; });
+        }, ^NSString *{ return SCPATExpectLayout(2, @[P, A]); })];
         // Moi app deu ra cua so noi duoc (tu 18/10): app iPhone noi (SpringBoard dua o len tren), roi app CarPlay noi tren o app
         // iPhone (SpringBoard khoet lo trong o). Cua so noi phai con sau khi lang (khong bi "che thi dong" nhu truoc).
         OMCTestBlock (^expectFloat)(NSString *, NSString *) = ^OMCTestBlock(NSString *floating, NSString *inSlot) {
@@ -576,68 +722,74 @@ static NSArray<NSDictionary *> *SCPATBridgeSteps(void)
                 return nil;
             };
         };
-        [steps addObject:OMCTestStep(SCPATF(@"%@: app iPhone ra cua so noi", p), 3, 10, ^NSString *{
+        [steps addObject:OMCTestStep(SCPATF(@"%@: app iPhone ra cua so noi", p), 4, 11, ^NSString *{
             if (!s.active) return @"split chua bat";
-            [s popOutPane:[s slots][0]]; return nil;
+            return SCPATFingerThen(P, 0.5, 0.03, ^{ [s popOutPane:[s slots][0]]; });
         }, expectFloat(P, A))];
-        [steps addObject:OMCTestStep(SCPATF(@"%@: cua so noi dua ve o", p), 2.5, 10, ^NSString *{
+        [steps addObject:OMCTestStep(SCPATF(@"%@: cua so noi dua ve o", p), 3.5, 11, ^NSString *{
             if (![s floatPane]) return @"khong co cua so noi";
-            [s floatDockBack]; return nil;
+            return SCPATFingerThen(P, 0.5, 0.05, ^{ [s floatDockBack]; });
         }, ^NSString *{ return SCPATExpectLayout(2, @[P, A]); })];
-        [steps addObject:OMCTestStep(SCPATF(@"%@ trong o, app CarPlay noi tren (khoet lo)", SCPATShort(A)), 3, 10, ^NSString *{
+        [steps addObject:OMCTestStepAt(SCPATF(@"%@ trong o, app CarPlay noi tren (khoet lo)", SCPATShort(A)), 3, 10, ^NSValue *{ return SCPATAtSlot(1, YES); }, ^NSString *{
             if (!s.active || [s paneCount] != 2) return @"split khong phai 2 o";
             [s popOutPane:[s slots][1]]; return nil;
         }, expectFloat(A, P))];
-        [steps addObject:OMCTestStep(SCPATF(@"%@: cua so noi dua ve o", SCPATShort(A)), 2.5, 10, ^NSString *{
+        [steps addObject:OMCTestStepAt(SCPATF(@"%@: cua so noi dua ve o", SCPATShort(A)), 2.5, 10, ^NSValue *{ return SCPATAtFloat(); }, ^NSString *{
             if (![s floatPane]) return @"khong co cua so noi";
             [s floatDockBack]; return nil;
         }, ^NSString *{ return SCPATExpectLayout(2, @[P, A]); })];
         if (B) {
-            [steps addObject:OMCTestStep(SCPATF(@"%@ o giua 3 o", p), 3, 16, ^NSString *{ [s openSetupLayout:3 apps:@[A, P, B]]; return nil; },
+            // 3 o: Google Maps | YouTube | GOFA khi co
+            [steps addObject:OMCTestStepAt(SCPATF(@"%@ o giua 3 o (%@ | %@ | %@)", p, SCPATShort(A), p, SCPATShort(B)), 3, 16, fDock,
+                ^NSString *{ [s openSetupLayout:3 apps:@[A, P, B]]; return nil; },
                 ^NSString *{ return SCPATExpectLayout(3, @[A, P, B]); })];
-            [steps addObject:OMCTestStep(SCPATF(@"%@ trong 1 lon + 2", p), 2.5, 12, ^NSString *{ [s switchToLayout:13]; return nil; },
+            if ([P isEqualToString:SCPAT_YT]) [steps addObject:SCPATTapVideoStep(P, @"YouTube o giua 3 o: cham vao 1 video")];
+            [steps addObject:OMCTestStepAt(SCPATF(@"%@ trong 1 lon + 2", p), 2.5, 12, fDock, ^NSString *{ [s switchToLayout:13]; return nil; },
                 ^NSString *{ return SCPATExpectLayout(13, @[A, P, B]); })];
-            [steps addObject:OMCTestStep(SCPATF(@"Ve 2 o (%@ | %@)", SCPATShort(A), p), 2.5, 12, ^NSString *{ [s closeSlot:2 background:YES]; return nil; },
+            [steps addObject:OMCTestStepAt(SCPATF(@"Ve 2 o (%@ | %@)", SCPATShort(A), p), 2.5, 12, ^NSValue *{ return SCPATAtSlot(2, YES); },
+                ^NSString *{ [s closeSlot:2 background:YES]; return nil; },
                 ^NSString *{ return SCPATExpectLayout(2, @[A, P]); })];
         }
         // Nut "1 man hinh / chia man hinh": khi dang chia chi phong to tam o (split giu nguyen), bam lai thi thu nho
         NSArray *pair = B ? @[A, P] : @[P, A];
-        [steps addObject:OMCTestStep(SCPATF(@"%@: nut 1 man hinh tren thanh nut (phong to o)", p), 2, 10, ^NSString *{
+        [steps addObject:OMCTestStep(SCPATF(@"%@: nut 1 man hinh tren thanh nut (phong to o)", p), 3, 11, ^NSString *{
             if (![s isCarPlayApp:P] || !s.active) return @"app khong o trong split";
-            [s bridgeBarAction:@"full" forBundle:P]; return nil;
+            return SCPATFingerThen(P, 0.5, 0.03, ^{ [s bridgeBarAction:@"full" forBundle:P]; });
         }, ^NSString *{ return SCPATExpectZoomed(P); })];
-        [steps addObject:OMCTestStep(SCPATF(@"%@: bam lai -> ve chia man", p), 2, 10, ^NSString *{
+        [steps addObject:OMCTestStep(SCPATF(@"%@: bam lai -> ve chia man", p), 3, 11, ^NSString *{
             if (!s.active) return @"split chua bat";
-            [s bridgeBarAction:@"full" forBundle:P]; return nil;
+            return SCPATFingerThen(P, 0.5, 0.03, ^{ [s bridgeBarAction:@"full" forBundle:P]; });
         }, ^NSString *{ return [s zoomedSlot] ? SCPATWhy(@"o van phong to") : SCPATExpectLayout(2, pair); })];
-        [steps addObject:OMCTestStep(SCPATF(@"Home tu %@ trong split", p), 1.5, 8, home, atHome)];
-        [steps addObject:OMCTestStep(SCPATF(@"%@: nut dong tren thanh nut", p), 4, 16, ^NSString *{
+        [steps addObject:OMCTestStepAt(SCPATF(@"Home tu %@ trong split", p), 1.5, 8, fHome, home, atHome)];
+        [steps addObject:OMCTestStepAt(SCPATF(@"%@: nut dong tren thanh nut", p), 5, 18, fDock, ^NSString *{
             [sBridgeStates removeObjectForKey:P];
             [s openSetupLayout:2 apps:@[A, P]];
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-                @try { [s bridgeBarAction:@"close" forBundle:P]; } @catch (NSException *e) {}
+                SCPATFingerThen(P, 0.5, 0.03, ^{ [s bridgeBarAction:@"close" forBundle:P]; });
             });
             return nil;
         }, ^NSString *{ return SCPATExpectSolo(A); })];   // con 1 o -> app CarPlay toan man
-        [steps addObject:OMCTestStep(@"Home", 1.5, 8, home, atHome)];
+        [steps addObject:OMCTestStepAt(@"Home", 1.5, 8, fHome, home, atHome)];
     }
 
+    // Mo app: YouTube toan man tu icon tren man chinh, cham vao 1 video, roi chia man tu do
     NSString *P = phone[0];
     [steps addObject:OMCTestStep(SCPATF(@"Icon %@ tren man chinh (toan man)", SCPATShort(P)), 3, 14, ^NSString *{
         [sBridgeStates removeObjectForKey:P];
         return [s launchPhoneAppIfNeeded:P] ? nil : @"khong phai app App Bridge";
     }, ^NSString *{ return SCPATExpectHostedSolo(P); })];
-    [steps addObject:OMCTestStep(@"Mo split tu app iPhone toan man (app vao o 1)", 3, 14, ^NSString *{
+    if ([P isEqualToString:SCPAT_YT]) [steps addObject:SCPATTapVideoStep(P, @"YouTube toan man: cham vao 1 video (mo xem)")];
+    [steps addObject:OMCTestStepAt(@"Mo split tu app iPhone toan man (app vao o 1)", 3, 14, fDock, ^NSString *{
         [s openSetupLayout:2 apps:@[P, A]]; return nil;
     }, ^NSString *{ return SCPATExpectLayout(2, @[P, A]); })];
-    [steps addObject:OMCTestStep(@"Home", 1.5, 8, home, atHome)];
+    [steps addObject:OMCTestStepAt(@"Home", 1.5, 8, fHome, home, atHome)];
     if (phone.count >= 2) {
         NSString *Q = phone[1];
-        [steps addObject:OMCTestStep(SCPATF(@"2 app iPhone cung luc: %@ | %@", SCPATShort(P), SCPATShort(Q)), 3, 18, ^NSString *{
+        [steps addObject:OMCTestStepAt(SCPATF(@"2 app iPhone cung luc: %@ | %@", SCPATShort(P), SCPATShort(Q)), 3, 18, fDock, ^NSString *{
             [sBridgeStates removeObjectForKey:P]; [sBridgeStates removeObjectForKey:Q];
             [s openSetupLayout:2 apps:@[P, Q]]; return nil;
         }, ^NSString *{ return SCPATExpectLayout(2, @[P, Q]); })];
-        [steps addObject:OMCTestStep(@"Home", 1.5, 8, home, atHome)];
+        [steps addObject:OMCTestStepAt(@"Home", 1.5, 8, fHome, home, atHome)];
     }
     return steps;
 }
@@ -735,6 +887,19 @@ static NSArray<NSDictionary *> *SCPATHomeSteps(void)
 void SCPAutoTestInstall(void)
 {
     sBridgeStates = [NSMutableDictionary dictionary];
+    sTouchReplies = [NSMutableDictionary dictionary];
+    sTouchSeq = [NSMutableDictionary dictionary];
+    // App tra loi cham tu kiem tra (OMC_DARWIN_AUTOTEST_TOUCH): state = hash bundle << 24 | seq << 8 | bit ket qua
+    static int touchToken;
+    notify_register_dispatch(OMC_DARWIN_AUTOTEST_TOUCH, &touchToken, dispatch_get_main_queue(), ^(int t) {
+        uint64_t st = 0;
+        notify_get_state(t, &st);
+        for (NSString *bid in sTouchSeq.allKeys) {
+            if (ABBundleHash(bid) != (st >> 24)) continue;
+            sTouchReplies[bid] = @{@"seq": @((st >> 8) & 0xFFFF), @"bits": @(st & 0xFF)};
+            OMCTestLog(@"%@ tra loi cham: seq %llu, bit %llu", SCPATShort(bid), (st >> 8) & 0xFFFF, st & 0xFF);
+        }
+    });
     // Trang thai App Bridge (SpringBoard bao): ready / failed / gone cua tung app iPhone
     [[objc_getClass("NSDistributedNotificationCenter") defaultCenter] addObserverForName:AB_NOTIF_STATE object:nil
         queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *note) {

@@ -61,6 +61,11 @@ Thiếu một trong các mục này thì khách quốc tế không mua, hoặc m
   Xong khi: một lần chạy trên xe ra đủ kết quả từng bước, gửi log có ảnh, sửa lỗi không cần thử tay lại từng ca.
   Code: Core/OMCTest.h (khung), Features/SplitScreen/SCPAutoTest.mm, cuối StartupScreen.x, cuối SPPBubble.mm,
   Prefs/OMCAutoTestController.m. Chờ chạy thử trên xe.
+  19/10/2026: bật lại (OMC_AUTOTEST 1). Chạy chậm (3 s giữa hai bước), ngón tay vẽ ở chỗ mỗi bước chạm (OMCTestStepAt;
+  trên ô app iPhone thì app tự vẽ vì cửa sổ host của SpringBoard che). Chạm trong app do app tự gửi qua UIKit
+  (OMC_NOTIF_AUTOTEST_TOUCH → App.xm → OMCTestTouchTap / Drag, trả lời Darwin notify): YouTube chạm vào một video (mở app
+  toàn màn, trong ô, giữa 3 ô), Google Maps kéo bản đồ qua lại (toàn màn, trong ô). Ưu tiên app: mở YouTube / Google Maps;
+  chia màn YouTube | Google Maps | GOFA.
 - [ ] [ ] **1.1.7 Thử với nhiều app hơn** · Vừa
   Danh sách tối thiểu: YouTube, TikTok, Facebook, Instagram, Chrome, Safari, Zalo, Grab, Shopee, X, Twitch, Plex.
   Xong khi: có bảng app chạy tốt / chạy được / không chạy kèm lý do, đưa lên trang tương thích.
@@ -240,6 +245,17 @@ xem trước ngay trong Cài đặt. Âm thanh phát qua loa xe khi CarPlay kế
   Code: Waze là nguồn 2 (NavApp.xm chạy trong app): tốc độ từ GPS riêng trong app, giới hạn quét trên màn hình như
   Vietmap / GOFA (vòng đỏ, tên ảnh, chữ); chỉ quét khi là nguồn đang chọn (SPP_DARWIN_SOURCE). Chờ thử trên xe: log
   "chan doan" của NavApp khi chưa thấy biển cho biết giao diện Waze để chỉnh cách đọc giới hạn.
+  Sửa 20/10/2026 (log 20/10 07:40, GOFA): bong bóng lấy nhầm tốc độ GPS của GOFA làm giới hạn. Ô cảnh báo của GOFA có
+  tên lớp gợi ý giới hạn nhưng số bên trong là tốc độ hiện tại (ứng viên "17(f28 UIView gioi-han)" đổi theo GPS mỗi lần
+  quét), còn biển thật là ảnh. Lỗi có từ đầu (luật "view cha tên Limit = giới hạn" dùng chung cho mọi nguồn), 18/10
+  không lộ vì chỉ thử GOFA lúc xe đứng yên (nhãn 0 → bỏ, rơi xuống ảnh → 50 đúng); 19-20/10 chạy xe là sai.
+  Nay NavApp.xm đọc màn hình theo TỪNG NGUỒN, mỗi nguồn một hàm với luật riêng, chọn theo SPP_APP_INDEX_* (common.h):
+  SPPScanVietmap (view plugin SpeedLimitView2 / CurrentSpeedView, không có nhãn thì cây AX, rồi ảnh), SPPScanGOFA (giới
+  hạn = nhãn trong vòng viền đỏ hoặc tên ảnh biển; nhãn trong view tên Limit / Speed là tốc độ, không bao giờ là giới
+  hạn), SPPScanWaze (giới hạn = nhãn trong WZSpeedSignView / vòng đỏ), SPPScanGeneric cho Wyn và nguồn mới (vòng đỏ =
+  giới hạn, vòng xanh = tốc độ, rồi tên lớp, AX, ảnh). Thêm nguồn mới = thêm 1 case + 1 hàm, không sửa hàm nguồn cũ.
+  Log "speed scan" ghi tên lớp view cha sau "gioi-han:" / "toc-do:" và "[anh ... gioi-han]" khi lấy từ ảnh. Chờ thử trên
+  xe với GOFA (giới hạn phải là số trên biển đỏ), Waze và Vietmap (không đổi gì về hành vi).
   Còn thiếu: giới hạn tốc độ OSM tải sẵn theo vùng.
 
 ### 2.5 Cài đặt và hiệu năng
