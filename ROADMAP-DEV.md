@@ -105,6 +105,14 @@ Thiếu một trong các mục này thì khách quốc tế không mua, hoặc m
 - [x] 20/10 21:45, cùng máy, bản 0518440: SpringBoard lên được nhưng app App Bridge không mở trong chia màn hình. Cầu dao đã ghi
   "1.0.3" từ lần treo của e258fb5, bản sửa cũng là 1.0.3 nên vẫn bỏ hook SpringBoard. Sửa: cầu dao ghi "version build", dấu
   "đang cài" của build khác chỉ bị xoá, không tính là treo.
+- [x] 20/10 22:05, cùng máy, bản 4d04cdd (chỉ iOS 15, iOS 16 không đổi):
+  - Chia màn hình: CarPlay mở lại GOFA toàn màn lúc cắm xe, bấm nút Split Screen vẫn "man chinh" (currentBaseViewController
+    rỗng) nên phải chọn lại cả 2 ô. Sửa: nhớ VC DashBoard vừa trình bày (presentBaseViewController), dùng khi
+    currentBaseViewController rỗng mà VC đó còn trên màn xe (currentBaseVC:); log "khong thay app dang mo" ghi lý do nếu vẫn hụt.
+  - App Bridge: kéo vạch thì scene đổi khung nhưng cửa sổ trong app giữ cỡ cũ (TikTok 371x300); YouTube giữ cửa sổ 414x736
+    trong scene ngang (xoay 90°), mở lại thì 1190x480 trong ô 297. Sửa: SpringBoard gửi cỡ ô (AB_NOTIF_SIZE) sau mỗi lần đổi
+    scene, app (nhóm APPS15) đặt lại mọi cửa sổ toàn màn theo cỡ đó, cả sau khi UIKit xoay cửa sổ; rời xe thì trả về cỡ màn.
+  Chờ: log bản mới, xem dòng "iOS 15: N cua so -> ..." và "app dang mo lay tu VC vua trinh bay".
 
 ### 1.2 Bán quốc tế
 

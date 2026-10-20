@@ -75,6 +75,11 @@
 //   SpringBoard -> app (distributed notification, object = bundle id): orientation = the box's base
 //   UIInterfaceOrientation (-1 = no longer hosted), device = the fake device orientation the app should report.
 #define AB_NOTIF_ORIENTATION @"com.anlai.omnicar/appbridge.orientation"
+//   iOS 15 only, SpringBoard -> app (object = bundle id): w, h = the pane in points as the app should lay out (car
+//   width x height / zoom), sent after every scene resize. iOS 15 resizes the scene but leaves windows already on screen
+//   at their old size (log 20/10 22:05, 7 Plus 15.8.4: TikTok stayed 371x300 when its pane grew, YouTube kept a 414x736
+//   window in a landscape scene = drawn 90 degrees off), so the app side sets its full-screen windows to this size.
+#define AB_NOTIF_SIZE        @"com.anlai.omnicar/appbridge.size"
 //   app -> SpringBoard (Darwin notify with state, gets through the app sandbox): the app just changed what it wants.
 //   state = (ABBundleHash(bundle id) << 24) | (supported orientation mask << 8) | code
 //   code = the UIInterfaceOrientation the app asks for, 0 = back to the box's orientation, 0xFF = the supported mask

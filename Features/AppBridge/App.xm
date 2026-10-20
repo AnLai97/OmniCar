@@ -84,6 +84,62 @@ static UIWindow *ABBestWindow(void)
     return best;
 }
 
+// ---- iOS 15: co cua so theo co o (AB_NOTIF_SIZE) ----
+// iOS 15 doi khung scene nhung cua so DA CO trong app giu co cu (log 20/10 22:05, 7 Plus 15.8.4): keo vach thi TikTok van
+// 371x300, YouTube giu cua so 414x736 trong scene ngang (ve lech 90 do), YouTube mo lai giu 1190x480 trong o 297 diem.
+// SpringBoard gui co o (diem, theo giao dien) sau moi lan doi scene; app dat lai moi cua so "toan man" cua scene.
+// Chi chay khi abLegacyRotation (nhom APPS15); iOS 16 khong bao gio vao day.
+static CGSize abPaneSize;      // co o SpringBoard gui gan nhat, zero = chua co / khong host
+
+static BOOL ABSizeNear(CGSize a, CGSize b) { return fabs(a.width - b.width) < 1 && fabs(a.height - b.height) < 1; }
+
+static void ABApplyPaneSize(NSString *why)
+{
+    if (!abLegacyRotation || orientationOverride <= 0 || abPaneSize.width < 2 || abPaneSize.height < 2) return;
+    UIWindow *key = ABBestWindow();
+    UIWindowScene *scene = key.windowScene;
+    if (!scene) return;
+    CGSize screen = scene.screen.bounds.size, old = key.bounds.size;
+    int n = 0;
+    for (UIWindow *w in scene.windows) {
+        CGSize s = w.bounds.size;
+        if (ABSizeNear(s, abPaneSize)) continue;
+        // Cua so toan man: cua so chinh, hay cung co voi no, hay co man iPhone (2 chieu). Cua so nho (popup, PiP) giu nguyen.
+        BOOL full = w == key || ABSizeNear(s, old) || ABSizeNear(s, screen) || ABSizeNear(s, CGSizeMake(screen.height, screen.width));
+        if (!full) continue;
+        w.frame = CGRectMake(0, 0, abPaneSize.width, abPaneSize.height);
+        n++;
+    }
+    if (n) ABLog("iOS 15: %d cua so -> %@ (%@, cua so chinh truoc %@, man %@)", n, NSStringFromCGSize(abPaneSize), why,
+                 NSStringFromCGSize(old), NSStringFromCGSize(screen));
+}
+
+// Roi xe: cua so dang co co o tra ve co man iPhone
+static void ABRestoreScreenSize(void)
+{
+    CGSize pane = abPaneSize;
+    abPaneSize = CGSizeZero;
+    if (!abLegacyRotation || pane.width < 2) return;
+    for (UIScene *sc in [UIApplication sharedApplication].connectedScenes) {
+        if (![sc isKindOfClass:[UIWindowScene class]]) continue;
+        UIWindowScene *ws = (UIWindowScene *)sc;
+        CGSize screen = ws.screen.bounds.size;
+        for (UIWindow *w in ws.windows) if (ABSizeNear(w.bounds.size, pane)) w.frame = CGRectMake(0, 0, screen.width, screen.height);
+    }
+    ABLog("iOS 15: roi xe, cua so ve co man %@", NSStringFromCGSize([UIScreen mainScreen].bounds.size));
+}
+
+static void ABHandleSize(NSDictionary *info)
+{
+    if (!abLegacyRotation) return;
+    CGSize s = CGSizeMake([info[@"w"] doubleValue], [info[@"h"] doubleValue]);
+    if (s.width < 2 || s.height < 2) return;
+    abPaneSize = s;
+    // Scene settings toi app cung luc voi tin nay: dat ngay, roi dat lai sau khi UIKit xu ly xong doi scene / xoay
+    ABApplyPaneSize(@"o doi co");
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{ ABApplyPaneSize(@"sau 0.3s"); });
+}
+
 // Mask hieu luc cua ca app: uu tien VC chi-cho-ngang dang hien, khong thi VC tren cung cua cua so key
 static NSUInteger ABAppEffectiveMask(void)
 {
@@ -208,6 +264,7 @@ static void ABHandleOrientationRequest(NSDictionary *info)
     appWantsOrientation = 0;
     fakeDeviceOrientation = (orientationOverride > 0) ? [info[@"device"] intValue] : 0;
     ABLog("huong o %d, thiet bi gia %d (doi=%d)", orientationOverride, fakeDeviceOrientation, (int)changed);
+    if (orientationOverride <= 0) ABRestoreScreenSize();   // iOS 15: cua so ve co man iPhone
     if (!changed) return;   // khong doi -> khong ep xoay, khong phat su kien xoay (tranh YouTube tu vao/ra fullscreen)
     // YouTube chi xin ngang khi bam fullscreen neu truoc do DA nhan 1 su kien xoay thiet bi. Phat vai lan sau khi app len
     if (fakeDeviceOrientation > 0) for (NSNumber *d in @[@0.3, @1.5, @4.0]) ABPostFakeDeviceRotation(d.doubleValue);
@@ -434,6 +491,10 @@ static void ABAutoTestTouch(NSDictionary *info)
             else if (canForce && abToldLandscape) { ABTellSpringBoard(0xFF); abToldLandscape = NO; }   // app cho doc lai -> ve huong o
         }
     }
+    // iOS 15: UIKit xoay cua so thi dat lai co theo man iPhone (YouTube: cua so 414x736 trong scene ngang) -> ve co o
+    if (abLegacyRotation && orientationOverride > 0) {
+        dispatch_async(dispatch_get_main_queue(), ^{ ABApplyPaneSize(@"sau xoay"); });
+    }
 }
 
 // Dau vet cham khi dang tren xe (log 19/10 16:04: chia man thi khong nhan duoc video YouTube, log khong co dong nao ve
@@ -628,6 +689,10 @@ static void ABAutoTestTouch(NSDictionary *info)
         }
         @try { ABHandleOrientationRequest(note.userInfo); } @catch (NSException *e) { ABLog("%@: xoay loi %@", bid, e); }
         ABSetFpsCap([note.userInfo[@"orientation"] intValue] > 0 ? [note.userInfo[@"fps"] intValue] : 0);
+    }];
+    [[objc_getClass("NSDistributedNotificationCenter") defaultCenter]
+        addObserverForName:AB_NOTIF_SIZE object:bid queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *note) {
+        @try { ABHandleSize(note.userInfo); } @catch (NSException *e) { ABLog("%@: co o loi %@", bid, e); }
     }];
     [[objc_getClass("NSDistributedNotificationCenter") defaultCenter]
         addObserverForName:AB_NOTIF_KEY object:bid queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *note) {

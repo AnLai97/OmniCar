@@ -1661,8 +1661,7 @@ static NSString *SCPCPinnedApp(void)
     if (![SCPPrefs enabled]) return NO;
     [self removeAppTab];
     if (self.active && self.container.superview) { [self raise]; return YES; }
-    UIViewController *root = SCPCRootVC();
-    UIViewController *cur = objcInvoke(root, @"currentBaseViewController");
+    UIViewController *cur = [self currentBaseVC:NO];   // iOS 16: = currentBaseViewController
     // App dang mo toan man: KHONG nhet VC cua no vao ngan tai cho (DashBoard van tuong app dang toan man
     // -> scene khong doi kich thuoc, nut Home ve man chinh bi ket). Ve Home truoc roi mo lai app do vao
     // ngan trai qua duong mo app binh thuong.
@@ -4369,11 +4368,44 @@ static UIImage *SCPCRatioGlyph(NSArray<NSNumber *> *fr, BOOL mainStack, BOOL mir
     return base.superview ?: root.view;
 }
 
+// iOS 15 (CarPlay.app, lop CAR*): VC DashBoard trinh bay toan man gan nhat. Log 20/10 22:05, 7 Plus 15.8.4: CarPlay tu mo lai
+// GOFA toan man luc cam xe (presentBaseViewController nguon 0), bam nut Split Screen thi van ra "man chinh" va GOFA khong vao
+// o 1. iOS 16 khong dung bien nay.
+static __weak UIViewController *sLegacyBaseVC;
+
+- (void)noteBaseViewController:(UIViewController *)vc
+{
+    if (objc_getClass("DBDashboard")) return;   // iOS 16+: giu nguyen
+    sLegacyBaseVC = vc;
+}
+
+// VC app dang trinh bay toan man. iOS 15: currentBaseViewController co the rong khi app dang hien (GOFA mo lai luc cam xe)
+// -> dung VC vua trinh bay neu no con tren man xe va khong nam trong o chia. iOS 16+: dung nhu cu.
+- (UIViewController *)currentBaseVC:(BOOL)log
+{
+    UIViewController *cur = objcInvoke(SCPCRootVC(), @"currentBaseViewController");
+    if (objc_getClass("DBDashboard") || (cur && [self isAdoptableViewController:cur])) return cur;
+    UIViewController *last = sLegacyBaseVC;
+    BOOL lastShown = last && last.isViewLoaded && last.view.window && !last.view.hidden
+                     && !(self.container && [last.view isDescendantOfView:self.container]);
+    if (lastShown && [self isAdoptableViewController:last]) {
+        if (log) SCPLog("CarSplit: iOS 15: app dang mo lay tu VC vua trinh bay %@ (currentBaseViewController=%@)", last, cur);
+        return last;
+    }
+    if (log) {
+        id info = last ? objcInvoke(last, @"applicationInfo") : nil;
+        SCPLog("CarSplit: iOS 15: khong thay app dang mo: current=%@ | vua trinh bay=%@ hien=%d adopt=%d bundle=%@ fullScreen=%d",
+               cur, last, lastShown, last ? [self isAdoptableViewController:last] : 0,
+               last ? SCPRealBundleForInfos(info, objcInvoke(last, @"proxyApplicationInfo")) : nil, info ? SCPCBool(info, @"presentsFullScreen") : 0);
+    }
+    return cur;
+}
+
 // App CarPlay dang mo toan man (co the dua vao ngan), nil neu dang o man chinh / app khong ho tro
 - (NSString *)fullscreenAppBundle
 {
     if (self.soloHostedBundle) return self.soloHostedBundle;   // app iPhone toan man qua App Bridge
-    UIViewController *cur = objcInvoke(SCPCRootVC(), @"currentBaseViewController");
+    UIViewController *cur = [self currentBaseVC:YES];
     if (!cur || ![self isAdoptableViewController:cur]) return nil;
     return SCPRealBundleForInfos(objcInvoke(cur, @"applicationInfo"), objcInvoke(cur, @"proxyApplicationInfo"));
 }

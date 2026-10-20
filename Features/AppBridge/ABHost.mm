@@ -176,6 +176,15 @@ static int ABFpsCap(void)
     return (OMCLiteActive() || OMCCarWireless() == 1) ? 30 : 0;
 }
 
+// iOS 14 / 15 (khong co -[UIWindowScene requestGeometryUpdateWithPreferences:errorHandler:]): scene doi khung nhung cua so
+// trong app khong doi theo, phai bao co o cho app (AB_NOTIF_SIZE). iOS 16+ khong gui gi them.
+static BOOL ABLegacyScenes(void)
+{
+    static int legacy = -1;
+    if (legacy < 0) legacy = !OMCHasMethod("UIWindowScene", @"requestGeometryUpdateWithPreferences:errorHandler:");
+    return legacy == 1;
+}
+
 static void ABPostOrientation(NSString *bid, long long orientation)
 {
     if (!bid) return;
@@ -612,6 +621,10 @@ static double ABFreeMemoryMB(void)
         });
     } @catch (NSException *e) { ABLog("updateSettings %@ loi %@", pane.bundleID, e); }
     pane.sceneBox = boxSize;
+    // iOS 15: cua so trong app khong tu theo khung scene moi -> bao app co o de no tu dat (AB_NOTIF_SIZE, App.xm)
+    if (ABLegacyScenes())
+        [[objc_getClass("NSDistributedNotificationCenter") defaultCenter] postNotificationName:AB_NOTIF_SIZE object:pane.bundleID
+            userInfo:@{@"w": @(paneSize.width), @"h": @(paneSize.height), @"orientation": @(orient)}];
 }
 
 - (long long)effectiveOrientation:(ABPane *)pane

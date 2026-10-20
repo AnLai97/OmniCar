@@ -109,6 +109,7 @@ static void SCPHookError(const char *where, NSException *e)
     %orig;
     @try {
         SCPLog("CarSplit: DashBoard trinh bay %@ toan man (nguon %llu)", vc, source);
+        if ([vc isKindOfClass:[UIViewController class]]) [sp noteBaseViewController:vc];   // iOS 15: nho VC dang toan man
         [sp baseViewControllerPresented];   // bo the icon che luc thoat chia / toan man hinh, dong app iPhone toan man
         [sp refreshAppTabSoon];   // app vua mo toan man -> tab icon o mep tren
         // App tung nam trong ngan: DashBoard co the trinh bay lai view dang bi an -> man den, cham khong vao.
@@ -137,6 +138,7 @@ static void SCPHookError(const char *where, NSException *e)
             [sp closeGoingHome:NO];
         }
         [sp removeAppTab];
+        [sp noteBaseViewController:nil];   // iOS 15: ve man chinh
     } @catch (NSException *e) { SCPHookError("dismissBaseViewController", e); }
     %orig;
     @try { [sp refreshAppTabSoon]; } @catch (NSException *e) { SCPHookError("refreshAppTabSoon", e); }
