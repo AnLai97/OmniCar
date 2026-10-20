@@ -2,6 +2,8 @@
 #import "ABKeyboard.h"
 #import "common.h"
 #import <objc/runtime.h>
+#import <mach/mach.h>
+#import <signal.h>
 
 // =====================================================================
 //  ABHost - iPhone apps on the car screen, hosted by SpringBoard.
@@ -262,6 +264,7 @@ static void ABPostOrientation(NSString *bid, long long orientation)
 @property (nonatomic) CGRect frame;                    // khung muon (live hay khong)
 @property (nonatomic) CGSize sceneBox;                 // kich thuoc o da bao cho scene lan cuoi
 @property (nonatomic) BOOL ready;
+@property (nonatomic) int pid;                         // tien trinh app luc host xong (0 = chua biet), de biet app bi giet hay chi scene bi huy
 @property (nonatomic, strong) UIView *handle;          // thanh "•••" mo tren app
 @property (nonatomic, strong) UIView *handleHit;       // vung cham cua thanh
 @property (nonatomic, strong) UIView *bar;             // thanh nut cua o (doi app / noi / toan man / dong) ve de len app
@@ -432,7 +435,7 @@ static void ABPostOrientation(NSString *bid, long long orientation)
         return;
     }
     [self layoutPane:pane];
-    ABLog("host %@ tai %@ (huong %lld, zoom %.2f)", bid, NSStringFromCGRect(frame), pane.orientation, [self zoom]);
+    ABLog("host %@ tai %@ (huong %lld, zoom %.2f, bo nho trong %.0f MB)", bid, NSStringFromCGRect(frame), pane.orientation, [self zoom], ABFreeMemoryMB());
     // Khong co tin "launch xong" (app da chay san) thi van bao ready sau 2.5s
     __weak ABPane *weakPane = pane;
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
@@ -504,6 +507,8 @@ static void ABPostOrientation(NSString *bid, long long orientation)
                 ABPane *p = weakPane;
                 ABHost *me = weakSelf;
                 if (!p || !me || ![me.panes containsObject:p]) return;
+                SEL pidSel = NSSelectorFromString(@"pid");
+                if (process && [process respondsToSelector:pidSel]) p.pid = ((int (*)(id, SEL))objc_msgSend)(process, pidSel);
                 ABPostOrientation(p.bundleID, p.orientation);   // App.xm trong app: huong cua o + huong "thiet bi" gia
                 [me layoutPane:p];
                 [me revealPane:p];
@@ -537,12 +542,23 @@ static void ABPostOrientation(NSString *bid, long long orientation)
     }
 }
 
+// Bo nho vat ly con trong (MB), de doi chieu khi app trong o bi giet (jetsam) - log 19/10 21:59: iPhone 8 2 GB, YouTube va
+// VTVGo doi pid 3 lan trong 7 phut, "scene bi huy" 4 s sau khi host
+static double ABFreeMemoryMB(void)
+{
+    vm_statistics64_data_t vm; mach_msg_type_number_t n = HOST_VM_INFO64_COUNT;
+    if (host_statistics64(mach_host_self(), HOST_VM_INFO64, (host_info64_t)&vm, &n) != KERN_SUCCESS) return -1;
+    return (double)(vm.free_count + vm.inactive_count) * (double)vm_kernel_page_size / (1024.0 * 1024.0);
+}
+
 // FBSceneMonitorDelegate: app thoat / scene bi huy -> bo o, bao CarPlay
 - (void)sceneMonitor:(id)monitor sceneWasDestroyed:(id)scene
 {
     for (ABPane *p in [self.panes copy]) {
         if (p.sceneMonitor != monitor) continue;
-        ABLog("scene cua %@ bi huy -> bo o", p.bundleID);
+        BOOL alive = p.pid > 0 && kill(p.pid, 0) == 0;
+        ABLog("scene cua %@ bi huy -> bo o (pid %d %@, bo nho trong %.0f MB)", p.bundleID, p.pid,
+              p.pid <= 0 ? @"khong ro" : (alive ? @"van chay: app tu huy scene" : @"da chet: app sap hay bi he thong giet"), ABFreeMemoryMB());
         NSString *bid = p.bundleID;
         [self teardownPane:p];
         [self.panes removeObject:p];

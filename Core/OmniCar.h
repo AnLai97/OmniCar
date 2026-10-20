@@ -189,6 +189,18 @@ NSArray<NSString *> *OMCProfileKeys(void);
 // OMCCurrentLanguage: the "language" pref (Settings), else the device language when OmniCar has it, else "en".
 // OMCTr: text shown on the car / in notices, written as OMCTr(@"Vietnamese", @"English"); other languages look the
 // English text up in <lang>.lproj/Car.strings (keys are the English text), falling back to English.
+// App cua jailbreak (Dopamine, Sileo, Zebra, Filza, palera1n, NewTerm...) khong bao gio dua len man xe: bo khoi bang chon app
+// cua App Bridge, danh sach app iPhone cua Chia man hinh va danh sach chen icon (log 19/10 21:59: nguoi dung chon app Dopamine,
+// CarPlay chet ngay sau khi chen icon). bid theo tien to; path (bundle, co the nil) nam trong goc rootless cung tinh.
+static inline BOOL OMCIsJailbreakApp(NSString *bid, NSString *path) {
+	static NSArray<NSString *> *prefixes;
+	if (!prefixes) prefixes = @[@"com.opa334.", @"org.coolstar.", @"xyz.willy.", @"com.saurik.", @"org.palera1n", @"com.palera1n",
+	                            @"com.tigisoftware.", @"ws.hbang.", @"com.rpetrich.", @"com.anlai.omnicar", @"com.roothide.", @"io.roothide.",
+	                            @"com.serena.", @"com.nito.", @"com.ichitaso.", @"net.angelxwind."];
+	for (NSString *p in prefixes) if ([bid hasPrefix:p]) return YES;
+	return path.length > 0 && ([path containsString:@"/.jbroot"] || [path hasPrefix:@"/var/jb/"] || [path containsString:@"/procursus/"]);
+}
+
 NSArray<NSString *> *OMCSupportedLanguages(void);
 NSString *OMCCurrentLanguage(void);
 NSString *OMCTr(NSString *vi, NSString *en);

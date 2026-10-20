@@ -97,6 +97,7 @@ static NSArray<NSDictionary *> *OMCABHostableApps(void)
     for (id proxy in all) {
         NSString *bid = OMCABGet(proxy, @"bundleIdentifier");
         if (![bid isKindOfClass:[NSString class]] || !bid.length || [skip containsObject:bid]) continue;
+        if (OMCIsJailbreakApp(bid, [OMCABGet(proxy, @"bundleURL") path])) continue;   // app cua jailbreak khong len xe
         NSString *type = OMCABGet(proxy, @"applicationType");
         BOOL user = [type isEqualToString:@"User"];
         if (!user && ![type isEqualToString:@"System"]) continue;

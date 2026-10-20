@@ -86,8 +86,12 @@ Thiếu một trong các mục này thì khách quốc tế không mua, hoặc m
   "already have an element ... com.google.Maps" sau khi scene Maps bị huỷ mà quét ivar không thấy. Core: nghi phạm crash
   bỏ qua frame của chính OMCCrashGuard (báo cáo từng đổ cho Bong bóng tốc độ trong khi frame 4 là SplitScreen). Chờ thử:
   YouTube phát video toàn màn rồi vào ô trên máy iOS 15, thoát chia màn sau khi một app CarPlay thoát. Còn mở: app iPhone
-  bị giết liên tục trên iPhone 8 (cần crash log máy), AIMap không theo cỡ ô (cần log có dấu vết cửa sổ), YouTube có lần
-  được mở theo đường app CarPlay (19:25:35).
+  bị giết liên tục trên iPhone 8 (cần crash log máy), AIMap không theo cỡ ô (cần log có dấu vết cửa sổ). Thêm cùng ngày:
+  app của jailbreak (OMCIsJailbreakApp trong OmniCar.h: tiền tố bundle id và app nằm trong gốc rootless) bị loại khỏi bảng
+  chọn app, danh sách app iPhone của Chia màn hình và danh sách chèn icon; app đã chọn cho App Bridge luôn được coi là app
+  iPhone trước khi xét khai báo CarPlay (YouTube từng bị mở theo đường app CarPlay lúc 19:25:35 vì khai báo giả còn trong
+  thư viện); ABHost ghi pid app lúc host và khi "scene bi huy" ghi app còn chạy hay đã chết kèm bộ nhớ trống, để lần sau
+  biết app bị jetsam hay tự sập.
 
 ### 1.2 Bán quốc tế
 

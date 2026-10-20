@@ -4926,7 +4926,9 @@ static NSSet<NSString *> *SCPCPhoneAppSet(void)
         NSArray *all = ws ? objcInvoke(objcInvoke(ws, @"defaultWorkspace"), @"allInstalledApplications") : nil;
         for (id proxy in all) {
             NSString *bid = objcInvoke(proxy, @"bundleIdentifier");
-            if (bid.length && [want containsObject:bid]) [s addObject:bid];
+            if (!bid.length || ![want containsObject:bid]) continue;
+            if (OMCIsJailbreakApp(bid, [objcInvoke(proxy, @"bundleURL") path])) continue;   // app cua jailbreak (da chon tu truoc) khong len xe
+            [s addObject:bid];
         }
     }
     set = s;
@@ -4938,8 +4940,10 @@ static BOOL SCPCIsBridgedApp(NSString *bid)
 {
     if (!bid.length || !OMCFeatureEnabled(AB_FEATURE)) return NO;
     if (SCPIsInjectedPhoneApp(bid)) return YES;   // icon chen vao thu vien CarPlay: info gia, khong phai app CarPlay that
-    if (SCPCInfoIsCarPlayApp(SCPCAppInfo(bid))) return NO;
-    return [SCPCPhoneAppSet() containsObject:bid];
+    // App nguoi dung chon cho App Bridge luon la app iPhone, ke ca khi thu vien CarPlay con giu khai bao gia tu lan chen icon
+    // truoc (CarPlay khoi dong lai, sInjected rong): log 19/10 21:59 19:25:35 YouTube bi mo theo duong app CarPlay
+    if ([SCPCPhoneAppSet() containsObject:bid]) return YES;
+    return NO;
 }
 
 // Danh sach app iPhone cho bang chon / Settings: @{ id, name }, xep theo ten

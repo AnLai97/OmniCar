@@ -35,7 +35,10 @@ NSSet<NSString *> *SCPChosenPhoneApps(void)
     if (!OMCFeatureEnabled(AB_FEATURE)) return [NSSet set];
     OMCPrefsSync();
     id v = OMCPref(AB_KEY_APPS, nil);
-    return [v isKindOfClass:[NSArray class]] ? [NSSet setWithArray:v] : [NSSet set];
+    if (![v isKindOfClass:[NSArray class]]) return [NSSet set];
+    NSMutableSet *s = [NSMutableSet set];
+    for (id bid in v) if ([bid isKindOfClass:[NSString class]] && !OMCIsJailbreakApp(bid, nil)) [s addObject:bid];   // app jailbreak khong chen icon
+    return s;
 }
 
 static id SCPTryGet(id obj, NSString *sel)
