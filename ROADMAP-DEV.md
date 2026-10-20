@@ -98,6 +98,10 @@ Thiếu một trong các mục này thì khách quốc tế không mua, hoặc m
   hook ObjC lẫn lệnh vá (AB_KEY_SB_* / AB_KEY_HOOK_*: còn "đang cài" ở lần khởi động sau thì bỏ bước đó ở bản này, đổi cài
   đặt thì thử lại); OMCLogFlush ghi log đồng bộ cuối mỗi hàm khởi tạo và trước bước nguy hiểm; control Conflicts thêm
   com.leemin.carbridge và com.ethanarbuckle.carplay-cast. Chờ: crash / panic log của máy đó, danh sách tweak, thử lại bản mới.
+- [x] 20/10 21:20, 7 Plus 15.8.4: bản e258fb5 treo táo, log không có dòng SpringBoard nào (bản 566af6c lúc 21:18 lên bình thường).
+  Nghi OMCLogFlush: dispatch_sync trong %ctor khi dyld giữ khoá, mà khối ghi log trong SpringBoard gọi NSFileManager. Sửa: lúc
+  các hàm khởi tạo chạy (tới khi main queue chạy lần đầu) OMCLogWrite ghi thẳng file bằng open/write trên luồng gọi, OMCLogFlush
+  trả về ngay; sau đó mới chờ hàng đợi. Chờ: thử lại trên máy đó, stackshot / WatchdogTimeoutReport lúc 21:20 nếu còn.
 
 ### 1.2 Bán quốc tế
 

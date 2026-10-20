@@ -57,6 +57,7 @@ BOOL OMCFeatureEnabled(NSString *feature);
 void OMCLogWrite(NSString *feature, NSString *message);
 // Lines are written on a queue; a process that dies right after logging loses its last lines (19/10 20:36, 7 Plus 15.7.7:
 // SpringBoard left only "loaded into SpringBoard"). Call at the end of a constructor and before a risky step.
+// While constructors run, lines are written directly and this returns at once; it never blocks under dyld's lock.
 void OMCLogFlush(void);
 #define OMCLog(feature, fmt, ...) OMCLogWrite(feature, [NSString stringWithFormat:fmt, ##__VA_ARGS__])
 #define OMC_LOG_RELAY     @"com.anlai.omnicar/log"

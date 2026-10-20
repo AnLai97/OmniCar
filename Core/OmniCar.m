@@ -90,6 +90,32 @@ static dispatch_queue_t OMCLogQueue(void) {
 	return queue;
 }
 
+static BOOL OMCLogOnQueue(void) {
+	return dispatch_get_specific(&OMCLogQueue) != NULL;
+}
+
+// YES until the main queue first runs, i.e. while dylib constructors run under dyld's lock. Set up from the first log line.
+static atomic_bool sLogDirectOver;
+static BOOL OMCLogDirect(void) {
+	static dispatch_once_t once;
+	dispatch_once(&once, ^{
+		dispatch_queue_set_specific(OMCLogQueue(), &OMCLogQueue, (void *)1, NULL);
+		dispatch_async(dispatch_get_main_queue(), ^{ atomic_store(&sLogDirectOver, true); });
+	});
+	return !atomic_load(&sLogDirectOver);
+}
+
+// Plain C, one write() with O_APPEND: no Foundation file API, no lock, so it is safe inside a constructor.
+static BOOL OMCLogAppendDirect(const char *s) {
+	if (!s) return NO;
+	int fd = open("/var/mobile/Documents/OmniCar.log", O_WRONLY | O_APPEND | O_CREAT, 0644);
+	if (fd < 0) return NO;
+	size_t len = strlen(s);
+	BOOL ok = write(fd, s, len) == (ssize_t)len;
+	close(fd);
+	return ok;
+}
+
 static BOOL OMCLogAppend(NSString *line) {
 	FILE *f = fopen(kLogPath.fileSystemRepresentation, "a");
 	if (!f) return NO;
@@ -135,6 +161,9 @@ void OMCLogWrite(NSString *feature, NSString *message) {
 	});
 	NSString *line = [NSString stringWithFormat:@"%@ [%@:%d] %@: %@\n", [df stringFromDate:[NSDate date]],
 		[NSProcessInfo processInfo].processName, getpid(), feature, message];
+	// Constructor phase: write on this thread, never wait for the queue (see OMCLogFlush). A sandboxed process that
+	// cannot open the file falls through to the queue, which relays the line to SpringBoard.
+	if (OMCLogDirect() && OMCLogAppendDirect(line.UTF8String)) return;
 	dispatch_async(OMCLogQueue(), ^{
 		if (OMCIsSpringBoard()) OMCLogRotateIfNeeded();
 		if (OMCLogAppend(line) || OMCIsSpringBoard()) return;
@@ -142,8 +171,14 @@ void OMCLogWrite(NSString *feature, NSString *message) {
 	});
 }
 
+// 20/10 21:20, iPhone 7 Plus 15.8.4: build e258fb5 hung SpringBoard at the Apple logo without one SpringBoard line in the
+// log. OMCLogFlush was a dispatch_sync on the log queue called from %ctor, i.e. while dyld runs initializers holding its
+// lock, and in SpringBoard the queued block goes through NSFileManager (log rotation), which can need that same lock.
+// Now nothing in a constructor waits on another thread: lines are already on disk (OMCLogWrite writes them directly),
+// so flushing is a no-op then, and only later, outside dyld's lock, it waits for the queue.
 void OMCLogFlush(void) {
-	dispatch_sync(OMCLogQueue(), ^{});
+	if (OMCLogDirect()) return;
+	if (!OMCLogOnQueue()) dispatch_sync(OMCLogQueue(), ^{});
 }
 
 void OMCLogRelayStart(void) {
