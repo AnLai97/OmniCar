@@ -245,13 +245,17 @@ xem trước ngay trong Cài đặt. Âm thanh phát qua loa xe khi CarPlay kế
   Code: Waze là nguồn 2 (NavApp.xm chạy trong app): tốc độ từ GPS riêng trong app, giới hạn quét trên màn hình như
   Vietmap / GOFA (vòng đỏ, tên ảnh, chữ); chỉ quét khi là nguồn đang chọn (SPP_DARWIN_SOURCE). Chờ thử trên xe: log
   "chan doan" của NavApp khi chưa thấy biển cho biết giao diện Waze để chỉnh cách đọc giới hạn.
-  Sửa 20/10/2026 (log 20/10 07:40, GOFA): bong bóng lấy nhầm tốc độ GPS của GOFA làm giới hạn, vì nhãn tốc độ hiện tại
-  của GOFA nằm trong view có tên gợi ý giới hạn (ứng viên "17(f28 UIView gioi-han)" đổi mỗi lần quét theo GPS), còn biển
-  thật của GOFA là ảnh. Nay: vòng viền đỏ = giới hạn (biển luôn viền đỏ), viền xanh = tốc độ, thắng tên lớp; nhãn chỉ
-  có tên lớp (không viền đỏ) là ứng viên yếu: thua biển dạng ảnh đang hiện, chỉ được tin khi số giữ nguyên ≥ 1,5 s, và
-  nếu số đổi 3 lần trong 15 s mà lần nào cũng sát tốc độ GPS (≤ 6 km/h) thì học view đó là ô tốc độ (sNamedSpeedView,
-  từ đó đọc là tốc độ). Log "speed scan" ghi thêm tên lớp view cha sau "gioi-han:" / "toc-do:" và tên ảnh biển
-  "(anh ...)". Chờ thử trên xe với GOFA: giới hạn trên bong bóng phải là số trên biển đỏ, không chạy theo tốc độ.
+  Sửa 20/10/2026 (log 20/10 07:40, GOFA): bong bóng lấy nhầm tốc độ GPS của GOFA làm giới hạn. Ô cảnh báo của GOFA có
+  tên lớp gợi ý giới hạn nhưng số bên trong là tốc độ hiện tại (ứng viên "17(f28 UIView gioi-han)" đổi theo GPS mỗi lần
+  quét), còn biển thật là ảnh. Lỗi có từ đầu (luật "view cha tên Limit = giới hạn" dùng chung cho mọi nguồn), 18/10
+  không lộ vì chỉ thử GOFA lúc xe đứng yên (nhãn 0 → bỏ, rơi xuống ảnh → 50 đúng); 19-20/10 chạy xe là sai.
+  Nay NavApp.xm đọc màn hình theo TỪNG NGUỒN, mỗi nguồn một hàm với luật riêng, chọn theo SPP_APP_INDEX_* (common.h):
+  SPPScanVietmap (view plugin SpeedLimitView2 / CurrentSpeedView, không có nhãn thì cây AX, rồi ảnh), SPPScanGOFA (giới
+  hạn = nhãn trong vòng viền đỏ hoặc tên ảnh biển; nhãn trong view tên Limit / Speed là tốc độ, không bao giờ là giới
+  hạn), SPPScanWaze (giới hạn = nhãn trong WZSpeedSignView / vòng đỏ), SPPScanGeneric cho Wyn và nguồn mới (vòng đỏ =
+  giới hạn, vòng xanh = tốc độ, rồi tên lớp, AX, ảnh). Thêm nguồn mới = thêm 1 case + 1 hàm, không sửa hàm nguồn cũ.
+  Log "speed scan" ghi tên lớp view cha sau "gioi-han:" / "toc-do:" và "[anh ... gioi-han]" khi lấy từ ảnh. Chờ thử trên
+  xe với GOFA (giới hạn phải là số trên biển đỏ), Waze và Vietmap (không đổi gì về hành vi).
   Còn thiếu: giới hạn tốc độ OSM tải sẵn theo vùng.
 
 ### 2.5 Cài đặt và hiệu năng

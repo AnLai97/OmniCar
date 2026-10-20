@@ -22,6 +22,10 @@
 // Wyn (WYN Auto, Flutter "Runner" nhu Vietmap): toc do tu GPS rieng, gioi han tu cay accessibility / kenh Flutter.
 // Chua biet kenh nao co toc do -> nghe moi kenh (SPPListenAllChannels) va ghi ten kenh + method lan dau ra log.
 #define SPP_APP_WYN             @"com.wynauto.wyn"
+// Chi so tung nguon (= vi tri trong SPP_NAV_APPS); NavApp.xm chon ham doc man hinh rieng cho tung nguon theo chi so nay
+#define SPP_APP_INDEX_VIETMAP   0
+#define SPP_APP_INDEX_GOFA      1
+#define SPP_APP_INDEX_WAZE      2
 #define SPP_APP_INDEX_WYN       3
 #define SPP_NAV_APPS            (@[SPP_APP_VIETMAP, SPP_APP_GOFA, SPP_APP_WAZE, SPP_APP_WYN])
 #define SPP_NAV_APP_NAMES       (@[@"Vietmap", @"GOFA", @"Waze", @"Wyn"])
