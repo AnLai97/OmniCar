@@ -150,6 +150,12 @@ static inline BOOL HSIsLockedCarPlayApp(NSString *bid)
 // A video (style 8) plays muted in a loop and pauses while the phone is hot, Lite mode is on, the screen is split or the
 // home screen is covered.
 // Base scene orientation for hosted apps: 1 portrait (default), 3 landscape.
+// Cau dao chong treo may trong SpringBoard (SpringBoard.xm): "dang cai" ghi truoc buoc nguy hiem, xoa khi xong; lan khoi dong sau
+// con "dang cai" = lan truoc SpringBoard khong len duoc sau buoc do -> ghi version vao *Crashed, bo buoc do o ban nay
+#define AB_KEY_SB_PENDING    @"appBridgeSpringBoardPending"   // BOOL: dang cai hook ObjC trong SpringBoard (xoa khi SpringBoard len)
+#define AB_KEY_SB_CRASHED    @"appBridgeSpringBoardCrashed"   // version bi treo sau khi cai hook
+#define AB_KEY_HOOK_PENDING  @"appBridgeBlankHookPending"     // BOOL: dang va ham BKSDisplayServicesSetScreenBlanked
+#define AB_KEY_HOOK_CRASHED  @"appBridgeBlankHookCrashed"     // version bi treo sau khi va ham
 #define AB_KEY_ORIENTATION   @"appBridgeOrientation"
 static inline unsigned long long ABBundleHash(NSString *bid)
 {

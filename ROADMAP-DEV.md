@@ -92,6 +92,12 @@ Thiếu một trong các mục này thì khách quốc tế không mua, hoặc m
   iPhone trước khi xét khai báo CarPlay (YouTube từng bị mở theo đường app CarPlay lúc 19:25:35 vì khai báo giả còn trong
   thư viện); ABHost ghi pid app lúc host và khi "scene bi huy" ghi app còn chạy hay đã chết kèm bộ nhớ trống, để lần sau
   biết app bị jetsam hay tự sập.
+  Treo táo 7 Plus 15.7.7 (log 19/10 20:36 chỉ có "AppBridge: loaded into SpringBoard"): điểm chết ngay sau dòng đó, nghi nhất là
+  MSHookFunction BKSDisplayServicesSetScreenBlanked (chỗ duy nhất vá mã máy trong SpringBoard). Sửa: không vá lúc khởi động, chỉ
+  vá khi lần đầu host app (ABInstallScreenBlankHook), bỏ qua nếu SpringBoard đã nạp CarBridge / carplay-cast; cầu dao cho cả
+  hook ObjC lẫn lệnh vá (AB_KEY_SB_* / AB_KEY_HOOK_*: còn "đang cài" ở lần khởi động sau thì bỏ bước đó ở bản này, đổi cài
+  đặt thì thử lại); OMCLogFlush ghi log đồng bộ cuối mỗi hàm khởi tạo và trước bước nguy hiểm; control Conflicts thêm
+  com.leemin.carbridge và com.ethanarbuckle.carplay-cast. Chờ: crash / panic log của máy đó, danh sách tweak, thử lại bản mới.
 
 ### 1.2 Bán quốc tế
 

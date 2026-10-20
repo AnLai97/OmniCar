@@ -3,12 +3,46 @@
 #import "ABKeyboard.h"
 #import <substrate.h>
 #import <notify.h>
+#import <dlfcn.h>
+#import <mach-o/dyld.h>
 
 // Dylib nap vao moi process UIKit (Filter: com.apple.UIKit): phan SpringBoard o day, phan trong app (ep huong) o App.xm.
 // Inject vao SpringBoard: nhan AB_NOTIF_* tu process CarPlay (Split Screen) va giu app dang host song:
 // khong bi dua ve nen khi khoa may / mo app khac tren iPhone, man iPhone tat van render (carplay-cast).
 
 static int (*orig_BKSDisplayServicesSetScreenBlanked)(int) = NULL;
+
+#ifndef TWEAK_VERSION
+#define TWEAK_VERSION "dev"
+#endif
+
+// ---- Cau dao chong treo may (log 19/10 20:36, 7 Plus 15.7.7: SpringBoard ghi "loaded into SpringBoard" roi chet, may treo tao) ----
+// Ghi "dang cai" vao prefs truoc buoc nguy hiem, xoa khi xong / khi SpringBoard len. Lan khoi dong sau ma con "dang cai" = lan
+// truoc SpringBoard khong len duoc sau buoc do -> ghi version, khong lam buoc do nua o ban nay; doi cai dat (prefschanged) hay
+// cai ban moi thi thu lai (nhu cau dao chen icon cua AppIcons).
+static void ABStore(NSString *key, id value)
+{
+    CFPreferencesSetAppValue((__bridge CFStringRef)key, (__bridge CFPropertyListRef)value, OMC_PREFS_DOMAIN);
+    CFPreferencesAppSynchronize(OMC_PREFS_DOMAIN);
+}
+
+// YES = duoc lam buoc nay (va da danh dau "dang cai", log da ghi xuong file)
+static BOOL ABBreakerArm(NSString *pendingKey, NSString *crashedKey, NSString *what)
+{
+    OMCPrefsSync();
+    NSString *ver = @TWEAK_VERSION;
+    if ([OMCPref(pendingKey, nil) boolValue]) {
+        ABLog("lan truoc SpringBoard khong len duoc sau khi %@ -> bo buoc nay o ban %@ (doi cai dat App Bridge de thu lai)", what, ver);
+        ABStore(crashedKey, ver);
+        ABStore(pendingKey, nil);
+    }
+    if ([OMCPref(crashedKey, nil) isEqual:ver]) { ABLog("bo qua %@: tung lam SpringBoard khong len o ban %@", what, ver); OMCLogFlush(); return NO; }
+    ABStore(pendingKey, @YES);
+    OMCLogFlush();
+    return YES;
+}
+
+static void ABBreakerDisarm(NSString *pendingKey) { ABStore(pendingKey, nil); }
 
 %group SPRINGBOARD
 
@@ -18,6 +52,7 @@ static int (*orig_BKSDisplayServicesSetScreenBlanked)(int) = NULL;
 {
     %orig;
     ABLog("SpringBoard ready");
+    ABBreakerDisarm(AB_KEY_SB_PENDING);   // SpringBoard len duoc voi hook da cai
     NSNotificationCenter *dnc = [objc_getClass("NSDistributedNotificationCenter") defaultCenter];
     NSOperationQueue *main = [NSOperationQueue mainQueue];
     [dnc addObserverForName:AB_NOTIF_OPEN object:nil queue:main usingBlock:^(NSNotification *note) {
@@ -147,14 +182,56 @@ static int hook_BKSDisplayServicesSetScreenBlanked(int blanked)
     return orig_BKSDisplayServicesSetScreenBlanked(blanked);
 }
 
+// Tweak khac cung va ham nay (CarBridge, carplay-cast) da nap vao SpringBoard? Hai tweak cung va mot ham C = SpringBoard de chet luc nap.
+static BOOL ABOtherCarPlayTweakLoaded(NSString **name)
+{
+    for (uint32_t i = 0; i < _dyld_image_count(); i++) {
+        const char *n = _dyld_get_image_name(i);
+        if (!n) continue;
+        NSString *s = [@(n) lowercaseString];
+        if ([s containsString:@"carbridge"] || [s containsString:@"carplay-cast"] || [s containsString:@"carplaycast"]) {
+            if (name) *name = [@(n) lastPathComponent];
+            return YES;
+        }
+    }
+    return NO;
+}
+
+// Va ham BKSDisplayServicesSetScreenBlanked (man iPhone tat van render app tren xe, carplay-cast). Day la cho DUY NHAT OmniCar va
+// ma may trong SpringBoard (MSHookFunction, ghi vao shared cache), phu thuoc jailbreak va ban ElleKit -> khong lam luc khoi dong
+// nua, chi lam khi lan dau host app len xe (ABHost openApp): co treo thi treo luc do, may van len. Co cau dao rieng.
+void ABInstallScreenBlankHook(void)
+{
+    static BOOL done;
+    if (done) return;
+    done = YES;
+    NSString *other = nil;
+    if (ABOtherCarPlayTweakLoaded(&other)) { ABLog("khong va BKSDisplayServicesSetScreenBlanked: SpringBoard da nap %@ (cung va ham nay)", other); return; }
+    void *fn = dlsym(RTLD_DEFAULT, "BKSDisplayServicesSetScreenBlanked");
+    if (!fn) { ABLog("khong tim thay BKSDisplayServicesSetScreenBlanked"); return; }
+    if (!ABBreakerArm(AB_KEY_HOOK_PENDING, AB_KEY_HOOK_CRASHED, @"va ham BKSDisplayServicesSetScreenBlanked")) return;
+    MSHookFunction(fn, (void *)hook_BKSDisplayServicesSetScreenBlanked, (void **)&orig_BKSDisplayServicesSetScreenBlanked);
+    ABBreakerDisarm(AB_KEY_HOOK_PENDING);
+    ABLog("da va BKSDisplayServicesSetScreenBlanked (lan dau host app)");
+}
+
 %ctor
 {
     if (![[[NSBundle mainBundle] bundleIdentifier] isEqualToString:@"com.apple.springboard"]) return;
     ABLog("loaded into SpringBoard");
+    // Doi cai dat -> cho cau dao thu lai o lan khoi dong sau
+    static int prefsToken;
+    notify_register_dispatch("com.anlai.omnicar/prefschanged", &prefsToken, dispatch_get_main_queue(), ^(int t) {
+        OMCPrefsSync();
+        if (OMCPref(AB_KEY_SB_CRASHED, nil) || OMCPref(AB_KEY_HOOK_CRASHED, nil)) {
+            ABStore(AB_KEY_SB_CRASHED, nil); ABStore(AB_KEY_HOOK_CRASHED, nil);
+            ABLog("doi cai dat -> lan khoi dong sau thu cai hook App Bridge lai");
+        }
+    });
+    if (!ABBreakerArm(AB_KEY_SB_PENDING, AB_KEY_SB_CRASHED, @"cai hook trong SpringBoard")) return;
     %init(SPRINGBOARD);
     OMCCheckHooks(@"AppBridge", @[@"SBSuspendedUnderLockManager -_shouldBeBackgroundUnderLockForScene:withSettings:",
         @"FBScene -updateSettings:withTransitionContext:completion:", @"SBSceneView -_updateReferenceSize:andOrientation:"]);
-    void *fn = dlsym(RTLD_DEFAULT, "BKSDisplayServicesSetScreenBlanked");
-    if (fn) MSHookFunction(fn, (void *)hook_BKSDisplayServicesSetScreenBlanked, (void **)&orig_BKSDisplayServicesSetScreenBlanked);
-    else ABLog("khong tim thay BKSDisplayServicesSetScreenBlanked");
+    // Ham BKSDisplayServicesSetScreenBlanked: khong va o day nua, xem ABInstallScreenBlankHook
+    OMCLogFlush();
 }

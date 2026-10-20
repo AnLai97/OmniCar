@@ -241,6 +241,7 @@ static void OMCCoreHandleURL(NSString *urlString) {
 	@autoreleasepool {
 		OMCLogRelayStart();
 		OMCLog(@"Core", @"loaded into %@ enabled=%d", [NSBundle mainBundle].bundleIdentifier, OMCEnabled());
+		OMCLogFlush();
 		OMCTrustedTimeStart();
 		static int token;
 		notify_register_dispatch(OMC_DARWIN_RESCUE, &token, dispatch_get_main_queue(), ^(int t) { OMCShowRescueNotice(); });

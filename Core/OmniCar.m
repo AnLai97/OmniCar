@@ -142,6 +142,10 @@ void OMCLogWrite(NSString *feature, NSString *message) {
 	});
 }
 
+void OMCLogFlush(void) {
+	dispatch_sync(OMCLogQueue(), ^{});
+}
+
 void OMCLogRelayStart(void) {
 	if (!OMCIsSpringBoard()) return;
 	[OMCDistributedCenter() addObserverForName:OMC_LOG_RELAY object:nil queue:nil usingBlock:^(NSNotification *note) {

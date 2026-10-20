@@ -436,6 +436,7 @@ static void ABPostOrientation(NSString *bid, long long orientation)
     }
     [self layoutPane:pane];
     ABLog("host %@ tai %@ (huong %lld, zoom %.2f, bo nho trong %.0f MB)", bid, NSStringFromCGRect(frame), pane.orientation, [self zoom], ABFreeMemoryMB());
+    ABInstallScreenBlankHook();   // lan dau host: va ham giu man iPhone render khi tat man (cau dao rieng, log da ghi xuong file truoc)
     // Khong co tin "launch xong" (app da chay san) thi van bao ready sau 2.5s
     __weak ABPane *weakPane = pane;
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{

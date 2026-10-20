@@ -2,6 +2,15 @@
 
 // SpringBoard-side host: one window on the car display, one box per hosted iPhone app (scene created
 // with SBAppViewController, carplay-cast style). Driven by the AB_NOTIF_* messages (AppBridge.h).
+// SpringBoard.xm: va ham BKSDisplayServicesSetScreenBlanked lan dau host app (khong va luc khoi dong, co cau dao chong treo may)
+#ifdef __cplusplus
+extern "C" {
+#endif
+void ABInstallScreenBlankHook(void);
+#ifdef __cplusplus
+}
+#endif
+
 @interface ABHost : NSObject
 + (instancetype)shared;
 - (void)openApp:(NSString *)bid frame:(CGRect)frame;                                    // frame in car-screen points

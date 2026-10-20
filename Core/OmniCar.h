@@ -55,6 +55,9 @@ BOOL OMCFeatureEnabled(NSString *feature);
 // Logs "[OmniCar/<feature>] message" to syslog and to /var/mobile/Documents/OmniCar.log. A process
 // that cannot write there (sandboxed app) relays the line to SpringBoard over OMC_LOG_RELAY.
 void OMCLogWrite(NSString *feature, NSString *message);
+// Lines are written on a queue; a process that dies right after logging loses its last lines (19/10 20:36, 7 Plus 15.7.7:
+// SpringBoard left only "loaded into SpringBoard"). Call at the end of a constructor and before a risky step.
+void OMCLogFlush(void);
 #define OMCLog(feature, fmt, ...) OMCLogWrite(feature, [NSString stringWithFormat:fmt, ##__VA_ARGS__])
 #define OMC_LOG_RELAY     @"com.anlai.omnicar/log"
 // Darwin notification a feature posts while it owns the car screen (Split Screen: split active, layout

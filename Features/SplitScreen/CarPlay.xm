@@ -327,6 +327,7 @@ static BOOL SCPLayoutHasElement(id publisher, NSString *identifier)
     // Rescue mode + crash logger (Core): a crash goes to OmniCar.log on the next launch ("CARPLAY SAP LAN TRUOC")
     if (!OMCCrashGuard(SPL_FEATURE)) return;
     SCPLog("loaded into CarPlay");
+    OMCLogFlush();
     %init(CARPLAY, DBDashboard = OMCCarClass("DBDashboard"), DBDashboardRootViewController = OMCCarClass("DBDashboardRootViewController"), DBApplicationSceneViewController = OMCCarClass("DBApplicationSceneViewController"));
     if (!objc_getClass("DBDashboard")) %init(LAYOUT);   // chi iOS 14-15 (CarPlay.app, lop CAR*); iOS 16+ giu nguyen
     OMCCheckHooks(@"SplitScreen", @[@"DBDashboard -sceneFrameForAppInfo:proxyAppInfo:", @"DBDashboard -safeAreaInsetsForAppInfo:proxyAppInfo:",

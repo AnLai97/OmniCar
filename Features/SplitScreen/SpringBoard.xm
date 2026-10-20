@@ -129,5 +129,6 @@ static void SCPHandleURL(NSString *urlString)
 {
     if (![[[NSBundle mainBundle] bundleIdentifier] isEqualToString:@"com.apple.springboard"]) return;
     SCPLog("loaded into SpringBoard");
+    OMCLogFlush();
     %init(SPRINGBOARD);
 }
