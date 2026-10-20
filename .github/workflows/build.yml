@@ -2,7 +2,7 @@ name: Build deb
 
 on:
   push:
-    branches: [main, Phase01, Developing]
+    branches: [main, Phase01, Developing, 'Dev-*']
     tags: ['v*']
   pull_request:
   workflow_dispatch:
