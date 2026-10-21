@@ -1,0 +1,481 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OmniCar Test Plan</title>
+<style>
+:root {
+  --bg: #f6f7fb; --card: #ffffff; --ink: #1b1d24; --muted: #5d6475; --line: #e3e6ee;
+  --accent: #2563eb; --accent-soft: #e6eeff; --auto: #0f8a5f; --auto-soft: #e3f6ee;
+  --hand: #b45309; --hand-soft: #fdf0dd; --warn: #b42318; --warn-soft: #fde8e6; --done: #9aa1b1;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1117; --card: #171a22; --ink: #e8eaf0; --muted: #9aa1b1; --line: #2a2f3b;
+    --accent: #7aa2ff; --accent-soft: #1c2640; --auto: #4cc79a; --auto-soft: #13291f;
+    --hand: #f0b35c; --hand-soft: #2d2213; --warn: #ff8a7a; --warn-soft: #2e1714; --done: #5d6475;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1117; --card: #171a22; --ink: #e8eaf0; --muted: #9aa1b1; --line: #2a2f3b;
+  --accent: #7aa2ff; --accent-soft: #1c2640; --auto: #4cc79a; --auto-soft: #13291f;
+  --hand: #f0b35c; --hand-soft: #2d2213; --warn: #ff8a7a; --warn-soft: #2e1714; --done: #5d6475;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+main { max-width: 920px; margin: 0 auto; padding: 24px 16px 64px; }
+h1 { font-size: 26px; margin: 0 0 4px; letter-spacing: -0.01em; }
+h2 { font-size: 19px; margin: 36px 0 10px; display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+h2 small { font-size: 13px; font-weight: 500; color: var(--muted); }
+p { margin: 6px 0; }
+code { font: 13px/1.4 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; background: var(--accent-soft); color: var(--ink); padding: 1px 5px; border-radius: 5px; overflow-wrap: anywhere; }
+.sub { color: var(--muted); margin-bottom: 18px; }
+.bar { position: sticky; top: 0; z-index: 2; background: var(--bg); padding: 10px 0; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; border-bottom: 1px solid var(--line); }
+.bar button { border: 1px solid var(--line); background: var(--card); color: var(--ink); border-radius: 999px; padding: 6px 12px; font: inherit; font-size: 14px; cursor: pointer; }
+.bar button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
+.bar .count { margin-left: auto; color: var(--muted); font-size: 14px; }
+.note { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; margin: 12px 0; }
+.note ol, .note ul { margin: 6px 0; padding-left: 20px; }
+.case { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; margin: 10px 0; display: grid; grid-template-columns: 28px 1fr; gap: 4px 12px; }
+.case input { width: 20px; height: 20px; margin: 2px 0 0; accent-color: var(--accent); cursor: pointer; }
+.case.done { opacity: 0.55; }
+.case.done .title { text-decoration: line-through; text-decoration-color: var(--done); }
+.head { display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+.id { font: 600 12px ui-monospace, Menlo, Consolas, monospace; color: var(--muted); }
+.title { font-weight: 650; }
+.tags { display: flex; gap: 6px; flex-wrap: wrap; margin: 4px 0 2px; }
+.tag { font-size: 12px; padding: 1px 8px; border-radius: 999px; border: 1px solid transparent; white-space: nowrap; }
+.tag.auto { background: var(--auto-soft); color: var(--auto); }
+.tag.hand { background: var(--hand-soft); color: var(--hand); }
+.tag.dev { background: var(--accent-soft); color: var(--accent); }
+.tag.warn { background: var(--warn-soft); color: var(--warn); }
+.body { grid-column: 2; }
+.body dl { display: grid; grid-template-columns: 92px 1fr; gap: 3px 10px; margin: 6px 0 0; }
+.body dt { color: var(--muted); font-size: 13px; padding-top: 1px; }
+.body dd { margin: 0; }
+.body ol { margin: 0; padding-left: 18px; }
+@media (max-width: 560px) {
+  .body dl { grid-template-columns: 1fr; }
+  .body dt { margin-top: 6px; }
+  h1 { font-size: 22px; }
+}
+.hidden { display: none; }
+footer { margin-top: 40px; color: var(--muted); font-size: 13px; }
+</style>
+</head>
+<body>
+<main>
+<h1>Kế hoạch thử OmniCar · 21/10/2026</h1>
+<p class="sub">Nhánh <code>Dev-IOS15</code>, các bản sửa từ log 19/10 – 21/10. Mỗi mục ghi rõ máy nào, làm gì, kết quả mong đợi, dòng log cần xem và có bước tự kiểm tra (autotest) hay phải thử tay. Ô đánh dấu chỉ lưu trên trình duyệt này.</p>
+
+<div class="bar" role="toolbar" aria-label="Lọc">
+  <button data-f="all" aria-pressed="true">Tất cả</button>
+  <button data-f="auto" aria-pressed="false">Autotest</button>
+  <button data-f="hand" aria-pressed="false">Thử tay</button>
+  <button data-f="open" aria-pressed="false">Chưa xong</button>
+  <span class="count" id="count"></span>
+</div>
+
+<h2>0. Chuẩn bị</h2>
+<div class="note">
+  <ol>
+    <li>Mở run CI mới nhất của nhánh <code>Dev-IOS15</code> trên GitHub Actions. Có 2 file:
+      <ul>
+        <li><code>OmniCar_1.0.3_rootless</code>: bản thường, dùng khi chỉ thử tay hoặc đưa cho người khác thử.</li>
+        <li><code>OmniCar_1.0.3_rootless_autotest</code>: bản có Kiểm thử tự động. Chỉ cài lên máy của bạn, không đưa cho người khác.</li>
+      </ul>
+    </li>
+    <li>Cài rồi respring. Vào Cài đặt &gt; OmniCar &gt; Chẩn đoán, kiểm tra dòng gói đúng mã build của run đó.</li>
+    <li>Cắm CarPlay (xe hoặc màn CarPlay để bàn). Mọi mục dưới đây đều cần màn CarPlay.</li>
+    <li>Chạy autotest: Cài đặt &gt; OmniCar &gt; Nhà phát triển &gt; Kiểm thử tự động, chọn các bộ <code>homeScreen</code>, <code>splitScreen</code>, <code>appBridge</code>, <code>startupScreen</code>, bấm chạy khi xe đỗ. Xong thì bấm <b>Gửi log</b>; mỗi bước ghi PASS / FAIL kèm lý do.</li>
+    <li>Mục ghi <span class="tag hand">Thử tay</span> thì làm theo các bước, quay video nếu thấy lỗi, rồi Gửi log ngay sau đó.</li>
+  </ol>
+</div>
+
+<h2>1. Lưới màn chính CarPlay <small>b892ba8 · 83f8641 · 3f54447 · mọi iOS</small></h2>
+
+<div class="case" data-id="HS-01" data-kind="auto">
+  <input type="checkbox" aria-label="Xong HS-01">
+  <div class="head"><span class="id">HS-01</span><span class="title">Lưới đều 4 × 2</span></div>
+  <div class="body">
+    <div class="tags"><span class="tag auto">Autotest: homeScreen · "Luoi deu 4 x 2 (co icon 100 %, co ten)"</span><span class="tag dev">iOS 15.8.8 + iOS 16</span></div>
+    <dl>
+      <dt>Làm</dt><dd>Cài đặt &gt; Màn xe &gt; Màn chính CarPlay &gt; Lưới icon: Số cột 4, Số hàng 2, Cỡ icon 100 %, Tên app bật.</dd>
+      <dt>Mong đợi</dt><dd>Mỗi trang tối đa 8 icon. Vùng icon chia thành 4 × 2 ô bằng nhau; tâm hình icon nằm đúng giữa ô, tên ngay dưới. Icon vừa ô, không chồng nhau, không tràn ra ngoài.</dd>
+      <dt>Log</dt><dd><code>HomeScreen: luoi deu 4x2 trong {W, H}</code>, <code>HomeScreen: o luoi WxH -&gt; canh icon N pt</code></dd>
+    </dl>
+  </div>
+</div>
+
+<div class="case" data-id="HS-02" data-kind="auto">
+  <input type="checkbox" aria-label="Xong HS-02">
+  <div class="head"><span class="id">HS-02</span><span class="title">Cỡ icon 60 %: thu nhỏ quanh tâm ô</span></div>
+  <div class="body">
+    <div class="tags"><span class="tag auto">Autotest: "Co icon 60 %: phong quanh tam o"</span></div>
+    <dl>
+      <dt>Làm</dt><dd>Vẫn 4 × 2, kéo Cỡ icon về 60 %.</dd>
+      <dt>Mong đợi</dt><dd>Icon nhỏ lại khoảng 60 % nhưng tâm không dịch (lệch ≤ 2 pt so với lúc 100 %).</dd>
+    </dl>
+  </div>
+</div>
+
+<div class="case" data-id="HS-03" data-kind="auto">
+  <input type="checkbox" aria-label="Xong HS-03">
+  <div class="head"><span class="id">HS-03</span><span class="title">Cỡ icon 130 %: phóng to quanh tâm ô</span></div>
+  <div class="body">
+    <div class="tags"><span class="tag auto">Autotest: "Co icon 130 %: phong quanh tam o"</span></div>
+    <dl>
+      <dt>Làm</dt><dd>Kéo Cỡ icon lên 130 %.</dd>
+      <dt>Mong đợi</dt><dd>Icon to ra quanh đúng tâm cũ. Ở 130 % icon được phép sát hoặc chồng nhẹ nhau (do bạn chọn to hơn ô).</dd>
+    </dl>
+  </div>
+</div>
+
+<div class="case" data-id="HS-04" data-kind="auto">
+  <input type="checkbox" aria-label="Xong HS-04">
+  <div class="head"><span class="id">HS-04</span><span class="title">Tắt tên app: icon to hơn, vẫn giữa ô</span></div>
+  <div class="body">
+    <div class="tags"><span class="tag auto">Autotest: "Tat ten app (4 x 2): icon to hon, van o tam o"</span></div>
+    <dl>
+      <dt>Làm</dt><dd>Cỡ icon 100 %, tắt Tên app.</dd>
+      <dt>Mong đợi</dt><dd>Tên mất. Icon to hơn hoặc bằng lúc có tên (không còn chừa chỗ cho tên), vẫn nằm giữa ô.</dd>
+    </dl>
+  </div>
+</div>
+
+<div class="case" data-id="HS-05" data-kind="auto">
+  <input type="checkbox" aria-label="Xong HS-05">
+  <div class="head"><span class="id">HS-05</span><span class="title">Lưới 6 × 3, 3 × 1, 5 × Tự động</span></div>
+  <div class="body">
+    <div class="tags"><span class="tag auto">Autotest: "Luoi deu 6 x 3" · "Luoi deu 3 x 1" · "Luoi deu 5 cot x hang Tu dong"</span></div>
+    <dl>
+      <dt>Làm</dt><dd>Lần lượt chọn 6 × 3, 3 × 1, rồi Số cột 5 và Số hàng Tự động.</dd>
+      <dt>Mong đợi</dt><dd>Mỗi lần icon cách đều trên toàn vùng; 3 × 1 là một hàng giữa màn; 5 × Tự động lấy số hàng như CarPlay nhưng vẫn chia đều. Icon 6 × 3 nhỏ hơn nhưng không chồng.</dd>
+    </dl>
+  </div>
+</div>
+
+<div class="case" data-id="HS-06" data-kind="hand">
+  <input type="checkbox" aria-label="Xong HS-06">
+  <div class="head"><span class="id">HS-06</span><span class="title">Tự động × Tự động = CarPlay gốc</span></div>
+  <div class="body">
+    <div class="tags"><span class="tag hand">Thử tay</span></div>
+    <dl>
+      <dt>Làm</dt><dd>Số cột và Số hàng đều Tự động, Cỡ icon 100 %.</dd>
+      <dt>Mong đợi</dt><dd>Màn chính y như CarPlay không có OmniCar; log không có dòng <code>luoi deu</code> mới.</dd>
+    </dl>
+  </div>
+</div>
+
+<div class="case" data-id="HS-07" data-kind="hand">
+  <input type="checkbox" aria-label="Xong HS-07">
+  <div class="head"><span class="id">HS-07</span><span class="title">Xem trước trong Cài đặt giống trên xe</span></div>
+  <div class="body">
+    <div class="tags"><span class="tag hand">Thử tay</span></div>
+    <dl>
+      <dt>Làm</dt><dd>Với 4 × 2 và 6 × 3, so ảnh xem trước trong Cài đặt với màn xe.</dd>
+      <dt>Mong đợi</dt><dd>Cùng cách chia: icon giữa ô, cỡ icon tương ứng; bên nào lệch thì chụp cả hai gửi lại.</dd>
+    </dl>
+  </div>
+</div>
+
+<div class="case" data-id="HS-08" data-kind="hand">
+  <input type="checkbox" aria-label="Xong HS-08">
+  <div class="head"><span class="id">HS-08</span><span class="title">Màn tỉ lệ khác: icon tự tính lại</span></div>
+  <div class="body">
+    <div class="tags"><span class="tag hand">Thử tay</span><span class="tag dev">Khi có màn thứ hai</span></div>
+    <dl>
+      <dt>Làm</dt><dd>Giữ 4 × 2, cắm sang một màn CarPlay khác tỉ lệ (ví dụ 1024 × 600 và 1920 × 720).</dd>
+      <dt>Mong đợi</dt><dd>Trên mỗi màn icon 100 % vừa ô và cân đối với tỉ lệ màn.</dd>
+      <dt>Log</dt><dd><code>o luoi WxH -&gt; canh icon N pt</code> khác nhau theo từng màn.</dd>
+    </dl>
+  </div>
+</div>
+
+<h2>2. App iPhone trong ô (App Bridge) <small>fa01741 · 80ac25d</small></h2>
+
+<div class="case" data-id="AB-01" data-kind="auto">
+  <input type="checkbox" aria-label="Xong AB-01">
+  <div class="head"><span class="id">AB-01</span><span class="title">YouTube trong ô: cửa sổ theo cỡ ô</span></div>
+  <div class="body">
+    <div class="tags"><span class="tag auto">Autotest: appBridge · "youtube trong o: cua so theo co o"</span><span class="tag dev">iOS 15</span></div>
+    <dl>
+      <dt>Làm</dt><dd>Chia 2 ô: Google Maps | YouTube.</dd>
+      <dt>Mong đợi</dt><dd>YouTube lấp kín ô, không lệch 90°, không có vệt xám hay phần đen.</dd>
+      <dt>Log</dt><dd><code>iOS 15: N cua so -&gt; {w, h}</code>; autotest: <code>tu kiem tra cua so: ... sai co: khong</code></dd>
+    </dl>
+  </div>
+</div>
+
+<div class="case" data-id="AB-02" data-kind="auto">
+  <input type="checkbox" aria-label="Xong AB-02">
+  <div class="head"><span class="id">AB-02</span><span class="title">Kéo vạch chia 70 / 30 rồi 30 / 70</span></div>
+  <div class="body">
+    <div class="tags"><span class="tag auto">Autotest: "ti le 70 / 30: cua so theo co o moi" · "ti le 30 / 70"</span></div>
+    <dl>
+      <dt>Làm</dt><dd>Kéo vạch chia sang trái, sang phải vài lần.</dd>
+      <dt>Mong đợi</dt><dd>Mỗi lần thả tay, app iPhone giãn / co theo ô mới, không kẹt ở cỡ cũ.</dd>
+    </dl>
+  </div>
+</div>
+
+<div class="case" data-id="AB-03" data-kind="auto">
+  <input type="checkbox" aria-label="Xong AB-03">
+  <div class="head"><span class="id">AB-03</span><span class="title">YouTube đang xem video vẫn đúng cỡ</span></div>
+  <div class="body">
+    <div class="tags"><span class="tag auto">Autotest: "YouTube dang xem video: cua so van theo co o"</span></div>
+    <dl>
+      <dt>Làm</dt><dd>Trong ô, chạm một video để mở trang xem.</dd>
+      <dt>Mong đợi</dt><dd>Trang xem video nằm gọn trong ô, đúng chiều.</dd>
+    </dl>
+  </div>
+</div>
+
+<div class="case" data-id="AB-04" data-kind="hand">
+  <input type="checkbox" aria-label="Xong AB-04">
+  <div class="head"><span class="id">AB-04</span><span class="title">YouTube trình phát toàn màn rồi thoát</span></div>
+  <div class="body">
+    <div class="tags"><span class="tag hand">Thử tay</span><span class="tag warn">Lỗi trong video 19/10</span></div>
+    <dl>
+      <dt>Làm</dt><dd>Trong ô, mở video, bấm nút toàn màn của trình phát, xem vài giây, thoát toàn màn.</dd>
+      <dt>Mong đợi</dt><dd>Video không bị xoay 90°, không thu vào một góc (lỗi màn 512 × 300), thoát ra thì về đúng ô.</dd>
+      <dt>Log</dt><dd><code>bao SpringBoard: ma 255</code>, <code>bo qua ep xoay ... mask 24</code></dd>
+    </dl>
+  </div>
+</div>
+
+<div class="case" data-id="AB-05" data-kind="auto">
+  <input type="checkbox" aria-label="Xong AB-05">
+  <div class="head"><span class="id">AB-05</span><span class="title">App iPhone toàn màn, rồi chia màn từ đó</span></div>
+  <div class="body">
+    <div class="tags"><span class="tag auto">Autotest: "toan man: cua so theo co vung app" · "tu toan man vao o: cua so thu theo o"</span></div>
+    <dl>
+      <dt>Làm</dt><dd>Chạm icon YouTube trên màn chính (toàn màn), rồi bấm nút Split Screen và chọn bố cục 2 ô.</dd>
+      <dt>Mong đợi</dt><dd>Toàn màn: lấp vùng app, không chỉ chiếm phần trái (lỗi video iPhone 8). Vào ô: thu đúng cỡ ô.</dd>
+    </dl>
+  </div>
+</div>
+
+<div class="case" data-id="AB-06" data-kind="auto">
+  <input type="checkbox" aria-label="Xong AB-06">
+  <div class="head"><span class="id">AB-06</span><span class="title">AIMap trong ô</span></div>
+  <div class="body">
+    <div class="tags"><span class="tag auto">Autotest: "ios trong o: cua so theo co o" (AIMap = vn.aimap.ios, tên ngắn "ios"; khi AIMap đã được chọn trong App trên màn xe)</span><span class="tag warn">Còn mở</span></div>
+    <dl>
+      <dt>Làm</dt><dd>Chọn AIMap trong App trên màn xe. Chia 2 ô và 3 ô có AIMap, kéo vạch chia, mở AIMap toàn màn rồi quay lại ô.</dd>
+      <dt>Mong đợi</dt><dd>Bản đồ AIMap lấp kín ô ở mọi cỡ.</dd>
+      <dt>Log</dt><dd><code>[Runner] AppBridge: iOS 15: N cua so -&gt; ...</code> (AIMap là app Flutter, tên process <code>Runner</code>)</dd>
+    </dl>
+  </div>
+</div>
+
+<div class="case" data-id="AB-07" data-kind="auto">
+  <input type="checkbox" aria-label="Xong AB-07">
+  <div class="head"><span class="id">AB-07</span><span class="title">TikTok / VTVgo trong ô</span></div>
+  <div class="body">
+    <div class="tags"><span class="tag auto">Autotest: cùng các bước như YouTube cho app iPhone thứ 2, thứ 3 đã chọn</span></div>
+    <dl>
+      <dt>Làm</dt><dd>Chia màn với TikTok hoặc VTVgo, kéo vạch chia.</dd>
+      <dt>Mong đợi</dt><dd>App lấp ô (trước đây TikTok kẹt 371 × 300, VTVgo chỉ chiếm phần trái).</dd>
+    </dl>
+  </div>
+</div>
+
+<h2>3. Chia màn hình <small>80ac25d · fa01741</small></h2>
+
+<div class="case" data-id="SP-01" data-kind="auto">
+  <input type="checkbox" aria-label="Xong SP-01">
+  <div class="head"><span class="id">SP-01</span><span class="title">App CarPlay toàn màn: nút Split Screen nhận ra</span></div>
+  <div class="body">
+    <div class="tags"><span class="tag auto">Autotest: splitScreen · "Nut Split Screen nhan ra GOFA dang toan man"</span></div>
+    <dl>
+      <dt>Làm</dt><dd>Mở GOFA toàn màn (không có GOFA thì Google Maps), bấm nút Split Screen.</dd>
+      <dt>Mong đợi</dt><dd>Bảng bố cục dành cho GOFA (GOFA giữ một ô), không phải "màn chính".</dd>
+    </dl>
+  </div>
+</div>
+
+<div class="case" data-id="SP-02" data-kind="hand">
+  <input type="checkbox" aria-label="Xong SP-02">
+  <div class="head"><span class="id">SP-02</span><span class="title">Cắm lại khi GOFA đang toàn màn</span></div>
+  <div class="body">
+    <div class="tags"><span class="tag hand">Thử tay</span><span class="tag dev">iOS 15</span></div>
+    <dl>
+      <dt>Làm</dt><dd>Mở GOFA toàn màn, rút cáp, cắm lại (CarPlay tự mở lại GOFA). Bấm nút Split Screen.</dd>
+      <dt>Mong đợi</dt><dd>Nút nhận ra GOFA, chỉ cần chọn app cho ô còn lại.</dd>
+      <dt>Log</dt><dd><code>app dang mo lay tu VC vua trinh bay</code>; nếu thấy <code>khong thay app dang mo</code> thì gửi log.</dd>
+    </dl>
+  </div>
+</div>
+
+<div class="case" data-id="SP-03" data-kind="hand">
+  <input type="checkbox" aria-label="Xong SP-03">
+  <div class="head"><span class="id">SP-03</span><span class="title">Google Maps thoát khi đang chia màn</span></div>
+  <div class="body">
+    <div class="tags"><span class="tag hand">Thử tay</span><span class="tag dev">iPhone 8 · 15.6</span><span class="tag warn">CarPlay từng sập 19:29</span></div>
+    <dl>
+      <dt>Làm</dt><dd>Chia màn có Google Maps. Vuốt tắt Google Maps trên iPhone, rồi thoát chia màn và mở lại cặp cũ.</dd>
+      <dt>Mong đợi</dt><dd>CarPlay không sập; Chẩn đoán không báo "Sập lúc ...".</dd>
+      <dt>Log</dt><dd>Không có <code>already have an element ... com.google.Maps</code>.</dd>
+    </dl>
+  </div>
+</div>
+
+<h2>4. Icon app iPhone trên màn chính <small>768b3b7</small></h2>
+
+<div class="case" data-id="IC-01" data-kind="auto">
+  <input type="checkbox" aria-label="Xong IC-01">
+  <div class="head"><span class="id">IC-01</span><span class="title">Cầu dao chèn icon theo build</span></div>
+  <div class="body">
+    <div class="tags"><span class="tag auto">Autotest: "Cau dao icon: dau cua build khac khong tinh" · "... cua chinh build nay thi tat"</span></div>
+    <dl>
+      <dt>Làm</dt><dd>Chỉ cần chạy bộ homeScreen.</dd>
+      <dt>Mong đợi</dt><dd>Dấu cũ của build khác không làm tắt icon; dấu của chính build này thì tắt (bảo vệ khi CarPlay sập).</dd>
+    </dl>
+  </div>
+</div>
+
+<div class="case" data-id="IC-02" data-kind="hand">
+  <input type="checkbox" aria-label="Xong IC-02">
+  <div class="head"><span class="id">IC-02</span><span class="title">Icon YouTube / VTVgo hiện sau khi cài build mới</span></div>
+  <div class="body">
+    <div class="tags"><span class="tag hand">Thử tay</span><span class="tag dev">iPhone 8 (từng bị tắt chèn icon)</span></div>
+    <dl>
+      <dt>Làm</dt><dd>Cài build mới, không đổi danh sách app, cắm CarPlay.</dd>
+      <dt>Mong đợi</dt><dd>Icon app iPhone đã chọn vẫn có trên màn chính CarPlay.</dd>
+      <dt>Log</dt><dd>Không có <code>AppIcons: dang tat vi tung sap o build</code>.</dd>
+    </dl>
+  </div>
+</div>
+
+<h2>5. Thời tiết khi tra vị trí theo IP <small>768b3b7</small></h2>
+
+<div class="case" data-id="WX-01" data-kind="auto">
+  <input type="checkbox" aria-label="Xong WX-01">
+  <div class="head"><span class="id">WX-01</span><span class="title">ipapi.co và ipwho.is trả toạ độ</span></div>
+  <div class="body">
+    <div class="tags"><span class="tag auto">Autotest: startupScreen · "Vi tri theo IP: ipapi.co tra toa do" · "... ipwho.is ..." · "chuoi du phong ra thanh pho"</span></div>
+    <dl>
+      <dt>Mong đợi</dt><dd>Ít nhất chuỗi dự phòng PASS. Nếu riêng ipapi.co FAIL, lý do trong log cho biết bị giới hạn (HTTP 429, "RateLimited") hay bị chặn.</dd>
+      <dt>Log</dt><dd><code>weather: IP location failed at https://... (..., HTTP ..., answer ...)</code></dd>
+    </dl>
+  </div>
+</div>
+
+<div class="case" data-id="WX-02" data-kind="hand">
+  <input type="checkbox" aria-label="Xong WX-02">
+  <div class="head"><span class="id">WX-02</span><span class="title">Màn khởi động có thời tiết khi không có vị trí</span></div>
+  <div class="body">
+    <div class="tags"><span class="tag hand">Thử tay</span></div>
+    <dl>
+      <dt>Làm</dt><dd>Kiểu khởi động Thời tiết. Tắt Dịch vụ định vị (hoặc quyền vị trí của CarPlay), không mở app bản đồ. Rút rồi cắm lại.</dd>
+      <dt>Mong đợi</dt><dd>Màn khởi động có nhiệt độ và tên thành phố.</dd>
+      <dt>Log</dt><dd><code>weather: SpringBoard fetching with the IP (...) position</code></dd>
+    </dl>
+  </div>
+</div>
+
+<h2>6. Máy khác và iOS 16</h2>
+
+<div class="case" data-id="DV-01" data-kind="auto">
+  <input type="checkbox" aria-label="Xong DV-01">
+  <div class="head"><span class="id">DV-01</span><span class="title">iOS 16: chạy lại toàn bộ autotest</span></div>
+  <div class="body">
+    <div class="tags"><span class="tag auto">Autotest: cả 4 bộ</span><span class="tag dev">iOS 16.6 / 16.7</span></div>
+    <dl>
+      <dt>Làm</dt><dd>Cài bản autotest lên máy iOS 16, chạy cả 4 bộ, làm thêm HS-06 và HS-07 bằng tay.</dd>
+      <dt>Mong đợi</dt><dd>Lưới đều, cỡ icon, cầu dao, thời tiết chạy trên mọi iOS nên phải PASS như iOS 15; các phần chỉ của iOS 15 không đổi gì.</dd>
+    </dl>
+  </div>
+</div>
+
+<div class="case" data-id="DV-02" data-kind="hand">
+  <input type="checkbox" aria-label="Xong DV-02">
+  <div class="head"><span class="id">DV-02</span><span class="title">iPhone 8 · 15.6: app iPhone bị tắt giữa chừng</span></div>
+  <div class="body">
+    <div class="tags"><span class="tag hand">Thử tay</span><span class="tag warn">Còn mở</span><span class="tag dev">Bản thường</span></div>
+    <dl>
+      <dt>Làm</dt><dd>Dùng YouTube và VTVgo toàn màn và trong ô 10–15 phút.</dd>
+      <dt>Mong đợi</dt><dd>Nếu app vẫn bị tắt: log có dòng <code>scene bi huy</code> kèm pid và bộ nhớ trống.</dd>
+      <dt>Gửi</dt><dd>Log + các file <code>JetsamEvent-...ips</code> (Cài đặt &gt; Quyền riêng tư &gt; Phân tích &amp; Cải tiến &gt; Dữ liệu phân tích).</dd>
+    </dl>
+  </div>
+</div>
+
+<div class="case" data-id="DV-03" data-kind="hand">
+  <input type="checkbox" aria-label="Xong DV-03">
+  <div class="head"><span class="id">DV-03</span><span class="title">7 Plus · 15.7.7: treo ở logo Apple</span></div>
+  <div class="body">
+    <div class="tags"><span class="tag hand">Thử tay</span><span class="tag warn">Còn mở</span><span class="tag dev">Bản thường</span></div>
+    <dl>
+      <dt>Làm</dt><dd>Cài build mới, respring.</dd>
+      <dt>Mong đợi</dt><dd>SpringBoard lên bình thường. Nếu treo: đợi 1–2 phút, khởi động lại.</dd>
+      <dt>Gửi</dt><dd><code>OmniCar.log</code> (dòng cuối là bước bị treo), các file <code>SpringBoard-</code>, <code>stacks-</code>, <code>WatchdogTimeoutReport-</code>, <code>panic-full-</code> đúng lúc treo, danh sách tweak trên máy.</dd>
+    </dl>
+  </div>
+</div>
+
+<div class="case" data-id="DV-04" data-kind="hand">
+  <input type="checkbox" aria-label="Xong DV-04">
+  <div class="head"><span class="id">DV-04</span><span class="title">7 Plus · 15.8.4: làm lại video 19/10</span></div>
+  <div class="body">
+    <div class="tags"><span class="tag hand">Thử tay</span><span class="tag dev">Bản thường</span></div>
+    <dl>
+      <dt>Làm</dt><dd>Chia màn có YouTube, chạm vào ô, mở video, kéo vạch chia.</dd>
+      <dt>Mong đợi</dt><dd>Không còn YouTube xoay 90° hay ô xám kéo vệt như trong video.</dd>
+    </dl>
+  </div>
+</div>
+
+<h2>Gửi kết quả</h2>
+<div class="note">
+  <ul>
+    <li>Mỗi máy một log (Cài đặt &gt; OmniCar &gt; Gửi log), bấm ngay sau khi thử, kèm video nếu có lỗi.</li>
+    <li>Ghi chú ngắn: máy, iOS, màn xe, mục nào FAIL hay thấy lạ (dùng mã như HS-03, AB-06).</li>
+    <li>Mục ổn thì tick ô "verified" trong <code>ROADMAP-DEV.md</code>, hoặc báo để ghi vào <code>COMPATIBILITY.md</code>.</li>
+  </ul>
+</div>
+
+<footer>Nguồn: ROADMAP-DEV.md 1.1.6, 1.1.8, 2.1.3, 2.2.5 · log 19/10 17:45, 19/10 20:36, 19/10 21:59, 20/10 22:05.</footer>
+</main>
+<script>
+(function () {
+  var KEY = 'omnicar-testplan-20261021';
+  var state = {};
+  try { state = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { state = {}; }
+  var cases = Array.prototype.slice.call(document.querySelectorAll('.case'));
+  var filter = 'all';
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+  function render() {
+    var done = 0, shown = 0;
+    cases.forEach(function (c) {
+      var id = c.getAttribute('data-id'), on = !!state[id];
+      c.classList.toggle('done', on);
+      c.querySelector('input').checked = on;
+      if (on) done++;
+      var kind = c.getAttribute('data-kind');
+      var show = filter === 'all' || filter === kind || (filter === 'open' && !on);
+      c.classList.toggle('hidden', !show);
+      if (show) shown++;
+    });
+    document.getElementById('count').textContent = done + ' / ' + cases.length + ' xong' + (filter === 'all' ? '' : ' · đang hiện ' + shown);
+  }
+  cases.forEach(function (c) {
+    c.querySelector('input').addEventListener('change', function (e) {
+      state[c.getAttribute('data-id')] = e.target.checked;
+      save(); render();
+    });
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('.bar button'), function (b) {
+    b.addEventListener('click', function () {
+      filter = b.getAttribute('data-f');
+      Array.prototype.forEach.call(document.querySelectorAll('.bar button'), function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+      render();
+    });
+  });
+  render();
+})();
+</script>
+</body>
+</html>
