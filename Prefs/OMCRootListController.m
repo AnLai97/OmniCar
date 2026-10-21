@@ -388,6 +388,8 @@
 
 // Master switch: same key and notification as the old "Enable OmniCar" row.
 - (void)masterToggled:(UISwitch *)sw {
+	// Het han: cong tac luon tat, khong bat lai duoc (ke ca khi nut kip nhan cham truoc khi bi khoa)
+	if (OMCExpired()) { [sw setOn:NO animated:YES]; [self updateHeaderStatusEnabled:NO]; return; }
 	CFPreferencesSetAppValue(kEnabledKey, (__bridge CFPropertyListRef)@(sw.on), kPrefsDomain);
 	CFPreferencesAppSynchronize(kPrefsDomain);
 	notify_post("com.anlai.omnicar/prefschanged");
