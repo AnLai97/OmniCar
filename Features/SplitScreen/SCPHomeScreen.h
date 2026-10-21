@@ -29,6 +29,9 @@ void SCPHomeRefresh(void);
 NSArray<NSString *> *SCPHomeVisibleBundles(void);
 NSInteger SCPHomeFirstPageIconCount(void);
 NSInteger SCPHomeVisibleLabelCount(void);
+// Luoi deu tren trang dang hien: nil = dung (tam anh dung tam o, canh = SCPHomeIconSide, khong tran / chong khi !allowOverlap);
+// wantCols / wantRows 0 = lay theo luoi that. outCenters / outSide: tam anh va canh do duoc
+NSString *SCPHomeGridCheck(NSInteger wantCols, NSInteger wantRows, BOOL allowOverlap, NSArray<NSValue *> **outCenters, CGFloat *outSide);
 #endif
 // Man chinh vua hien / bi app toan man che (viewDidAppear / viewDidDisappear): hinh nen dong chay / dung
 void SCPHomeSetVisible(BOOL visible);

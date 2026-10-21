@@ -382,10 +382,36 @@ static UIView *ABAutoTestFindVideo(UIView *v, CGRect win, UIView *best, int dept
     return best;
 }
 
+// kind "window": cua so toan man cua scene dang host co dung co scene khong (loi iOS 15: cua so giu co man iPhone / co o
+// cu / xoay 90 do trong khi scene da doi, log 20/10 22:05). Cua so nho (popup, PiP) khong tinh. Tra loi HIT | WINDOW_FITS.
+static void ABAutoTestWindowCheck(NSUInteger seq)
+{
+    UIWindow *key = ABBestWindow();
+    UIWindowScene *scene = key.windowScene;
+    if (!scene) { ABLog("tu kiem tra cua so: khong co cua so / scene"); ABAutoTestReply(seq, OMC_AT_TOUCH_NOWINDOW); return; }
+    CGSize want = scene.coordinateSpace.bounds.size, screen = scene.screen.bounds.size;
+    NSMutableArray *bad = [NSMutableArray array];
+    int full = 0;
+    for (UIWindow *w in scene.windows) {
+        if (w.hidden) continue;
+        CGSize s = w.bounds.size;
+        BOOL isFull = w == key || ABSizeNear(s, want) || ABSizeNear(s, screen) || ABSizeNear(s, CGSizeMake(screen.height, screen.width))
+                   || (s.width >= want.width * 0.8 && s.height >= want.height * 0.8);
+        if (!isFull) continue;
+        full++;
+        if (fabs(s.width - want.width) > 1.5 || fabs(s.height - want.height) > 1.5)
+            [bad addObject:[NSString stringWithFormat:@"%@ %@", NSStringFromClass(w.class), NSStringFromCGSize(s)]];
+    }
+    ABLog("tu kiem tra cua so: scene %@, o %@, %d cua so toan man, sai co: %@", NSStringFromCGSize(want), NSStringFromCGSize(abPaneSize), full,
+          bad.count ? [bad componentsJoinedByString:@", "] : @"khong");
+    ABAutoTestReply(seq, OMC_AT_TOUCH_HIT | (full && !bad.count ? OMC_AT_WINDOW_FITS : 0));
+}
+
 static void ABAutoTestTouch(NSDictionary *info)
 {
     NSUInteger seq = [info[@"seq"] unsignedIntegerValue];
     NSString *kind = info[@"kind"] ?: @"tap", *target = info[@"target"] ?: @"host";
+    if ([kind isEqualToString:@"window"]) { ABAutoTestWindowCheck(seq); return; }
     UIWindow *w = ABAutoTestWindow(target);
     if (!w) {
         ABLog("tu kiem tra: khong co cua so %@ de cham (%@)", target, kind);

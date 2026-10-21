@@ -66,6 +66,13 @@ Thiếu một trong các mục này thì khách quốc tế không mua, hoặc m
   (OMC_NOTIF_AUTOTEST_TOUCH → App.xm → OMCTestTouchTap / Drag, trả lời Darwin notify): YouTube chạm vào một video (mở app
   toàn màn, trong ô, giữa 3 ô), Google Maps kéo bản đồ qua lại (toàn màn, trong ô). Ưu tiên app: mở YouTube / Google Maps;
   chia màn YouTube | Google Maps | GOFA.
+  21/10/2026: thêm test cho các bản sửa 20–21/10 (danh sách: docs/test-plan-20261021.html). App Bridge: bước "cửa sổ theo cỡ ô"
+  (kind window, App.xm tự so mọi cửa sổ toàn màn với cỡ scene, bit OMC_AT_WINDOW_FITS) sau khi vào ô, sau mỗi tỉ lệ, khi
+  YouTube đang xem video, toàn màn và từ toàn màn vào ô; AIMap được ưu tiên trong danh sách app iPhone. Chia màn hình: mở
+  GOFA / Google Maps toàn màn thì nút Split Screen phải nhận ra app đó (fullscreenAppBundle). Màn chính: lưới đều 4 × 2,
+  6 × 3, 3 × 1, 5 × Tự động (SCPHomeGridCheck: tâm ảnh icon đúng tâm ô ±2 pt, cạnh = SCPHomeIconSide, không tràn / chồng),
+  Cỡ icon 60 / 130 % giữ tâm, tắt tên thì icon to hơn, cầu dao chèn icon theo build. Màn hình khởi động: hỏi riêng ipapi.co,
+  ipwho.is và cả chuỗi dự phòng (SSIPAsk).
 - [ ] [ ] **1.1.7 Thử với nhiều app hơn** · Vừa
   Danh sách tối thiểu: YouTube, TikTok, Facebook, Instagram, Chrome, Safari, Zalo, Grab, Shopee, X, Twitch, Plex.
   Xong khi: có bảng app chạy tốt / chạy được / không chạy kèm lý do, đưa lên trang tương thích.

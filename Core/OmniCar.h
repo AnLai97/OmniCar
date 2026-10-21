@@ -120,6 +120,7 @@ BOOL OMCCrashGuard(NSString *feature);
 //   target   host (the iPhone window App Bridge shows on the car) | car (the app's own CarPlay window)
 //   fx, fy   0..1 of the window (tap point / drag start); fx2, fy2: drag end; back = 1: drag there and back
 //   find     video: tap the first video thumbnail found in the window instead of fx / fy (YouTube)
+//   kind     window: no touch; the app compares its windows with the size of the scene it is hosted in (OMC_AT_WINDOW_FITS)
 // The app draws a finger at the point, sends the touch through UIKit and replies with a Darwin notification whose state is
 // (ABBundleHash(bundle id) << 24) | (seq << 8) | result bits.
 #define OMC_NOTIF_AUTOTEST_TOUCH  @"com.anlai.omnicar/autotest.touch"
@@ -128,6 +129,8 @@ BOOL OMCCrashGuard(NSString *feature);
 #define OMC_AT_TOUCH_GESTURE   2   // a gesture recognizer of that view (or a parent) took it: the map panned / the cell was tapped
 #define OMC_AT_TOUCH_CHANGED   4   // the screen changed within 3 s of a tap (another view at the point / a big view controller appeared)
 #define OMC_AT_TOUCH_NOWINDOW  8   // the app has no such window (not on the car)
+#define OMC_AT_WINDOW_FITS    16   // kind "window": every full-screen window of the hosted scene has the scene's size (not
+                                   // stuck at the iPhone size or at an older pane size, not 90 degrees off)
 #endif
 // Diagnostics written by the tweak, read by Settings (Diagnostics page, Send log):
 // last car screen and session (dictionary, see OMCRecordCarScreen in OmniCar.m) ...

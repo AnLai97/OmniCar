@@ -545,13 +545,8 @@ static NSArray<NSString *> *SSIPServices(void) {
 	return @[@"https://ipapi.co/json/", @"https://ipwho.is/"];
 }
 
-static void SSIPLocateFrom(NSUInteger index, void (^done)(double lat, double lon, NSString *city)) {
-	NSArray<NSString *> *services = SSIPServices();
-	if (index >= services.count) {
-		dispatch_async(dispatch_get_main_queue(), ^{ done(NAN, NAN, nil); });
-		return;
-	}
-	NSString *url = services[index];
+// One service. done (on the main queue): coordinates and city, or nil coordinates and why (also logged)
+static void SSIPAsk(NSString *url, void (^done)(NSNumber *lat, NSNumber *lon, NSString *city, NSString *why)) {
 	NSURLSessionConfiguration *config = [NSURLSessionConfiguration ephemeralSessionConfiguration];
 	config.timeoutIntervalForRequest = 4.0;
 	config.timeoutIntervalForResource = 4.0;
@@ -566,15 +561,28 @@ static void SSIPLocateFrom(NSUInteger index, void (^done)(double lat, double lon
 			NSInteger status = [response isKindOfClass:[NSHTTPURLResponse class]] ? ((NSHTTPURLResponse *)response).statusCode : 0;
 			NSString *body = data ? [[NSString alloc] initWithData:[data subdataWithRange:NSMakeRange(0, MIN(data.length, (NSUInteger)160))] encoding:NSUTF8StringEncoding] : nil;
 			body = [[body componentsSeparatedByCharactersInSet:[NSCharacterSet newlineCharacterSet]] componentsJoinedByString:@" "];
-			SSLog(@"weather: IP location failed at %@ (%@, HTTP %ld, answer %@)", url, error.localizedDescription ?: @"no coordinates in the answer",
-				(long)status, body ?: @"-");
-			SSIPLocateFrom(index + 1, done);
+			NSString *why = [NSString stringWithFormat:@"%@, HTTP %ld, answer %@", error.localizedDescription ?: @"no coordinates in the answer",
+				(long)status, body ?: @"-"];
+			SSLog(@"weather: IP location failed at %@ (%@)", url, why);
+			dispatch_async(dispatch_get_main_queue(), ^{ done(nil, nil, nil, why); });
 			return;
 		}
-		dispatch_async(dispatch_get_main_queue(), ^{ done(lat.doubleValue, lon.doubleValue, city ?: @"?"); });
+		dispatch_async(dispatch_get_main_queue(), ^{ done(lat, lon, city ?: @"?", nil); });
 	}];
 	[task resume];
 	[session finishTasksAndInvalidate];
+}
+
+static void SSIPLocateFrom(NSUInteger index, void (^done)(double lat, double lon, NSString *city)) {
+	NSArray<NSString *> *services = SSIPServices();
+	if (index >= services.count) {
+		dispatch_async(dispatch_get_main_queue(), ^{ done(NAN, NAN, nil); });
+		return;
+	}
+	SSIPAsk(services[index], ^(NSNumber *lat, NSNumber *lon, NSString *city, NSString *why) {
+		if (!lat || !lon) { SSIPLocateFrom(index + 1, done); return; }
+		done(lat.doubleValue, lon.doubleValue, city);
+	});
 }
 
 static void SSIPLocate(void (^done)(double lat, double lon, NSString *city)) {
@@ -1135,6 +1143,36 @@ static NSArray<NSDictionary *> *SSTestSteps(void) {
 		CFPreferencesSetAppValue((__bridge CFStringRef)SS_KEY_ENABLED, kCFBooleanTrue, OMC_PREFS_DOMAIN);
 		CFPreferencesAppSynchronize(OMC_PREFS_DOMAIN);
 		return shown ? @"van phat khi tinh nang tat" : nil;
+	})];
+
+	// Thoi tiet khi may khong co vi tri nao: tra vi tri theo IP (768b3b7). Hoi rieng tung dich vu (biet cai nao dang hong,
+	// vi du ipapi.co gioi han luot nhu log 19/10 21:59), roi ca chuoi du phong nhu SpringBoard dung.
+	for (NSString *url in SSIPServices()) {
+		__block NSString *answer = nil;
+		__block BOOL replied = NO;
+		[steps addObject:OMCTestStep(OMCTestFormat(@"Vi tri theo IP: %@ tra toa do", [NSURL URLWithString:url].host), 0.5, 8, ^NSString *{
+			SSIPAsk(url, ^(NSNumber *lat, NSNumber *lon, NSString *city, NSString *why) {
+				replied = YES;
+				answer = lat && lon ? nil : why;
+				if (lat && lon) OMCTestLog(@"%@: %@ (%.2f, %.2f)", url, city, lat.doubleValue, lon.doubleValue);
+			});
+			return nil;
+		}, ^NSString *{
+			if (!replied) return @"chua tra loi";
+			return answer;
+		})];
+	}
+	__block NSString *ipCity = nil;
+	__block BOOL ipDone = NO;
+	[steps addObject:OMCTestStep(@"Vi tri theo IP: chuoi du phong ra thanh pho", 0.5, 12, ^NSString *{
+		SSIPLocate(^(double lat, double lon, NSString *city) {
+			ipDone = YES; ipCity = city;
+			if (city) OMCTestLog(@"chuoi du phong: %@ (%.2f, %.2f)", city, lat, lon);
+		});
+		return nil;
+	}, ^NSString *{
+		if (!ipDone) return @"chua tra loi";
+		return ipCity ? nil : @"ca hai dich vu deu khong tra toa do (xem log \"IP location failed at\")";
 	})];
 	return steps;
 }

@@ -3,6 +3,9 @@
 #import "SCPAppIcons.h"
 #import <CoreImage/CoreImage.h>
 #import <AVFoundation/AVFoundation.h>
+#if OMC_AUTOTEST
+#import "OMCTest.h"
+#endif
 
 // =====================================================================
 //  Hinh nen + co icon tren man chinh GOC cua CarPlay (xem SCPHomeScreen.h). OmniCar khong ve luoi / dock rieng, khong an
@@ -316,24 +319,42 @@ static NSUInteger SCPHDistinct(NSArray<UIView *> *icons, BOOL xAxis)
     return seen.count;
 }
 
+// Khung anh icon trong icon view (nhan ten nam duoi anh); khong co iconImageFrame thi coi anh vuong o dinh
+static CGRect SCPHIconImageRect(UIView *v)
+{
+    CGRect b = v.bounds;
+    CGRect img = CGRectMake(0, 0, b.size.width, MIN(b.size.width, b.size.height));
+    SEL imgSel = NSSelectorFromString(@"iconImageFrame");   // objcInvokeT khong dung duoc voi CGRect ((t){0}: -Wmissing-braces)
+    if ([v respondsToSelector:imgSel]) {
+        @try { CGRect f = ((CGRect (*)(id, SEL))objc_msgSend)(v, imgSel); if (f.size.width > 1 && f.size.height > 1) img = f; } @catch (NSException *e) {}
+    }
+    return img;
+}
+
+// Icon cua mot luoi theo thu tu CarPlay da xep (tren xuong, trai sang)
+static NSMutableArray<UIView *> *SCPHGridIcons(UIView *list)
+{
+    NSMutableArray<UIView *> *icons = [NSMutableArray array];
+    for (UIView *v in list.subviews) {
+        NSString *cls = NSStringFromClass([v class]);
+        if (!v.hidden && [cls hasSuffix:@"IconView"] && ![cls hasSuffix:@"ListView"]) [icons addObject:v];
+    }
+    [icons sortUsingComparator:^NSComparisonResult(UIView *a, UIView *b) {
+        long ya = lround(a.center.y / 8.0), yb = lround(b.center.y / 8.0);
+        if (ya != yb) return ya < yb ? NSOrderedAscending : NSOrderedDescending;
+        return a.center.x < b.center.x ? NSOrderedAscending : (a.center.x > b.center.x ? NSOrderedDescending : NSOrderedSame);
+    }];
+    return icons;
+}
+
 void SCPHomeLayoutGrid(UIView *list)
 {
     NSInteger wantCols = SCPHomeGridColumns(), wantRows = SCPHomeGridRows();
     if (wantCols <= 0 && wantRows <= 0) return;
     UIViewController *home = sHomeVC;
     if (!home.isViewLoaded || !list.window || ![list isDescendantOfView:home.view]) return;
-    NSMutableArray<UIView *> *icons = [NSMutableArray array];
-    for (UIView *v in list.subviews) {
-        NSString *cls = NSStringFromClass([v class]);
-        if (!v.hidden && [cls hasSuffix:@"IconView"] && ![cls hasSuffix:@"ListView"]) [icons addObject:v];
-    }
+    NSMutableArray<UIView *> *icons = SCPHGridIcons(list);
     if (!icons.count) return;
-    // thu tu CarPlay da xep: theo hang (y lam tron) roi theo cot
-    [icons sortUsingComparator:^NSComparisonResult(UIView *a, UIView *b) {
-        long ya = lround(a.center.y / 8.0), yb = lround(b.center.y / 8.0);
-        if (ya != yb) return ya < yb ? NSOrderedAscending : NSOrderedDescending;
-        return a.center.x < b.center.x ? NSOrderedAscending : (a.center.x > b.center.x ? NSOrderedDescending : NSOrderedSame);
-    }];
     NSUInteger cols = wantCols > 0 ? (NSUInteger)wantCols : SCPHListCount(list, @"iconColumnsForCurrentOrientation");
     NSUInteger rows = wantRows > 0 ? (NSUInteger)wantRows : SCPHListCount(list, @"iconRowsForCurrentOrientation");
     if (!cols) cols = SCPHDistinct(icons, YES);
@@ -356,13 +377,7 @@ void SCPHomeLayoutGrid(UIView *list)
     for (NSUInteger i = 0; i < icons.count && i < cols * rows; i++) {
         UIView *v = icons[i];
         CGPoint target = CGPointMake(CGRectGetMinX(area) + (i % cols + 0.5) * cellW, CGRectGetMinY(area) + (i / cols + 0.5) * cellH);
-        // tam anh icon trong icon view (nhan ten nam duoi anh); khong co iconImageFrame thi coi anh vuong o dinh
-        CGRect b = v.bounds;
-        CGRect img = CGRectMake(0, 0, b.size.width, MIN(b.size.width, b.size.height));
-        SEL imgSel = NSSelectorFromString(@"iconImageFrame");   // objcInvokeT khong dung duoc voi CGRect ((t){0}: -Wmissing-braces)
-        if ([v respondsToSelector:imgSel]) {
-            @try { CGRect f = ((CGRect (*)(id, SEL))objc_msgSend)(v, imgSel); if (f.size.width > 1 && f.size.height > 1) img = f; } @catch (NSException *e) {}
-        }
+        CGRect b = v.bounds, img = SCPHIconImageRect(v);
         CGPoint c = CGPointMake(target.x - (CGRectGetMidX(img) - CGRectGetMidX(b)), target.y - (CGRectGetMidY(img) - CGRectGetMidY(b)));
         if (fabs(v.center.x - c.x) > 0.5 || fabs(v.center.y - c.y) > 0.5) { v.center = c; moved++; }
     }
@@ -511,6 +526,60 @@ static NSInteger SCPHCountLabels(UIView *v, int depth)
     NSInteger n = 0;
     for (UIView *c in v.subviews) n += SCPHCountLabels(c, depth + 1);
     return n;
+}
+
+// Luoi deu tren trang dang hien (bo test "homeScreen"): tam anh moi icon dung tam o (lech <= 2 pt), canh anh = SCPHomeIconSide,
+// anh nam trong vung luoi va khong chong nhau (tru khi allowOverlap: Co icon > 100 %). nil = dung; outCenters / outSide: tam
+// anh (toa do luoi) va canh anh do duoc, de buoc sau so sanh (doi Co icon thi tam phai giu nguyen).
+NSString *SCPHomeGridCheck(NSInteger wantCols, NSInteger wantRows, BOOL allowOverlap, NSArray<NSValue *> **outCenters, CGFloat *outSide)
+{
+    UIViewController *home = sHomeVC;
+    if (!home.isViewLoaded || !home.view.window) return @"man chinh CarPlay khong hien";
+    NSMutableArray<UIView *> *lists = [NSMutableArray array];
+    SCPHCollectLists(home.view, lists, 0);
+    UIView *list = nil;
+    CGFloat bestArea = 0;
+    for (UIView *l in lists) {   // trang dang hien = luoi chiem nhieu man chinh nhat
+        CGRect r = CGRectIntersection([l convertRect:l.bounds toView:home.view], home.view.bounds);
+        if (!CGRectIsNull(r) && r.size.width * r.size.height > bestArea) { bestArea = r.size.width * r.size.height; list = l; }
+    }
+    if (!list) return @"khong thay *IconListView nao dang hien";
+    NSMutableArray<UIView *> *icons = SCPHGridIcons(list);
+    if (!icons.count) return OMCTestFormat(@"%@ khong co icon", NSStringFromClass([list class]));
+    NSUInteger cols = wantCols > 0 ? (NSUInteger)wantCols : SCPHListCount(list, @"iconColumnsForCurrentOrientation");
+    NSUInteger rows = wantRows > 0 ? (NSUInteger)wantRows : SCPHListCount(list, @"iconRowsForCurrentOrientation");
+    if (!cols) cols = SCPHDistinct(icons, YES);
+    if (!rows) rows = SCPHDistinct(icons, NO);
+    CGRect area = list.bounds;
+    CGFloat cellW = area.size.width / cols, cellH = area.size.height / rows, want = SCPHomeIconSide(0);
+    NSMutableArray<NSValue *> *centers = [NSMutableArray array];
+    NSMutableArray<NSValue *> *rects = [NSMutableArray array];
+    CGFloat side = 0;
+    NSUInteger n = MIN(icons.count, cols * rows);
+    for (NSUInteger i = 0; i < n; i++) {
+        UIView *v = icons[i];
+        CGRect img = [v convertRect:SCPHIconImageRect(v) toView:list];
+        CGPoint c = CGPointMake(CGRectGetMidX(img), CGRectGetMidY(img));
+        CGPoint t = CGPointMake(CGRectGetMinX(area) + (i % cols + 0.5) * cellW, CGRectGetMinY(area) + (i / cols + 0.5) * cellH);
+        if (fabs(c.x - t.x) > 2 || fabs(c.y - t.y) > 2)
+            return OMCTestFormat(@"icon %lu (cot %lu hang %lu): tam anh %@, can %@ (luoi %lux%lu trong %@)", (unsigned long)i + 1, (unsigned long)(i % cols) + 1,
+                                 (unsigned long)(i / cols) + 1, NSStringFromCGPoint(c), NSStringFromCGPoint(t), (unsigned long)cols, (unsigned long)rows,
+                                 NSStringFromCGSize(area.size));
+        if (fabs(img.size.width - want) > 2)
+            return OMCTestFormat(@"icon %lu: canh anh %.1f pt, can %.1f (o %.0fx%.0f)", (unsigned long)i + 1, img.size.width, want, cellW, cellH);
+        if (!allowOverlap && !CGRectContainsRect(CGRectInset(area, -2, -2), img))
+            return OMCTestFormat(@"icon %lu: anh %@ tran ra ngoai vung luoi %@", (unsigned long)i + 1, NSStringFromCGRect(img), NSStringFromCGRect(area));
+        if (!allowOverlap) for (NSValue *o in rects) if (CGRectIntersectsRect(CGRectInset(o.CGRectValue, 1, 1), CGRectInset(img, 1, 1)))
+            return OMCTestFormat(@"icon %lu: anh %@ chong len icon khac %@", (unsigned long)i + 1, NSStringFromCGRect(img), NSStringFromCGRect(o.CGRectValue));
+        [rects addObject:[NSValue valueWithCGRect:img]];
+        [centers addObject:[NSValue valueWithCGPoint:c]];
+        side = img.size.width;
+    }
+    OMCTestLog(@"luoi %lux%lu trong %@: o %.0fx%.0f, %lu icon, canh anh %.1f pt", (unsigned long)cols, (unsigned long)rows, NSStringFromCGSize(area.size),
+               cellW, cellH, (unsigned long)n, side);
+    if (outCenters) *outCenters = centers;
+    if (outSide) *outSide = side;
+    return nil;
 }
 
 NSInteger SCPHomeVisibleLabelCount(void)

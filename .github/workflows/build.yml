@@ -85,6 +85,32 @@ jobs:
           path: src/out/*.deb
           if-no-files-found: error
 
+      # Developer build with the auto test compiled in (OMC_AUTOTEST=1, Core/OMCTest.h): also proves the test code builds.
+      # Dev branches only, never main or a release tag; a separate artifact so it is never handed out by mistake.
+      - name: Build autotest package
+        if: github.ref != 'refs/heads/main' && !startsWith(github.ref, 'refs/tags/')
+        working-directory: src
+        run: |
+          set -o pipefail
+          gmake clean >/dev/null
+          rm -f packages/*.deb
+          if ! gmake package FINALPACKAGE=1 OMC_AUTOTEST=1 2>&1 | tee build-autotest.log; then
+            grep -E 'error:|Error [0-9]|No such file|not found' build-autotest.log | head -4 | while IFS= read -r line; do
+              echo "::error::autotest: $line"
+            done
+            exit 1
+          fi
+          mkdir -p out-autotest
+          cp packages/*.deb "out-autotest/OmniCar_${VERSION}_rootless_$(git rev-parse --short HEAD)_autotest.deb"
+
+      - name: Upload autotest artifact
+        if: github.ref != 'refs/heads/main' && !startsWith(github.ref, 'refs/tags/')
+        uses: actions/upload-artifact@v4
+        with:
+          name: OmniCar_${{ env.VERSION }}_rootless_autotest
+          path: src/out-autotest/*.deb
+          if-no-files-found: error
+
       - name: Publish release
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
