@@ -80,12 +80,7 @@ footer { margin-top: 40px; color: var(--muted); font-size: 13px; }
 <h2>0. Chuẩn bị</h2>
 <div class="note">
   <ol>
-    <li>Mở run CI mới nhất của nhánh <code>Dev-IOS15</code> trên GitHub Actions. Có 2 file:
-      <ul>
-        <li><code>OmniCar_1.0.3_rootless</code>: bản thường, dùng khi chỉ thử tay hoặc đưa cho người khác thử.</li>
-        <li><code>OmniCar_1.0.3_rootless_autotest</code>: bản có Kiểm thử tự động. Chỉ cài lên máy của bạn, không đưa cho người khác.</li>
-      </ul>
-    </li>
+    <li>Mở run CI mới nhất của nhánh <code>Dev-IOS15</code> trên GitHub Actions, tải <code>OmniCar_1.0.3_rootless</code>. Trên nhánh này bản build đã có sẵn Kiểm thử tự động (<code>OMC_AUTOTEST 1</code>); đưa người khác thử cũng được, họ chỉ cần không bấm chạy autotest.</li>
     <li>Cài rồi respring. Vào Cài đặt &gt; OmniCar &gt; Chẩn đoán, kiểm tra dòng gói đúng mã build của run đó.</li>
     <li>Cắm CarPlay (xe hoặc màn CarPlay để bàn). Mọi mục dưới đây đều cần màn CarPlay.</li>
     <li>Chạy autotest: Cài đặt &gt; OmniCar &gt; Nhà phát triển &gt; Kiểm thử tự động, chọn các bộ <code>homeScreen</code>, <code>splitScreen</code>, <code>appBridge</code>, <code>startupScreen</code>, bấm chạy khi xe đỗ. Xong thì bấm <b>Gửi log</b>; mỗi bước ghi PASS / FAIL kèm lý do.</li>
