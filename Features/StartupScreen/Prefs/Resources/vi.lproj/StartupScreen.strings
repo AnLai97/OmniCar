@@ -55,7 +55,7 @@
 "STARTUPSCREEN_NAME" = "Tên của bạn";
 "STARTUPSCREEN_NAME_PLACEHOLDER" = "Không bắt buộc";
 
-"STARTUPSCREEN_WEATHER_FOOTER" = "Kiểu Thời tiết dùng mạng: mỗi lần cắm CarPlay, vị trí gần nhất của máy (làm tròn 2 chữ số thập phân, khoảng 1 km) được gửi tới Open-Meteo (open-meteo.com, không cần tài khoản). Không có mạng thì hiện số đo gần nhất kèm giờ cập nhật; không có quyền vị trí hoặc chưa có dữ liệu thì hiện lời chào.";
+"STARTUPSCREEN_WEATHER_FOOTER" = "Kiểu Thời tiết dùng mạng: mỗi lần cắm CarPlay, vị trí gần nhất của máy (làm tròn 2 chữ số thập phân, khoảng 1 km) được gửi tới Open-Meteo (open-meteo.com, không cần tài khoản); khi máy không có vị trí nào thì ipapi.co hoặc ipwho.is tìm thành phố theo địa chỉ IP. Không có mạng thì hiện số đo gần nhất kèm giờ cập nhật; không có quyền vị trí hoặc chưa có dữ liệu thì hiện lời chào.";
 "STARTUPSCREEN_WEATHER_LAST" = "Cập nhật gần nhất: %@";
 "STARTUPSCREEN_WEATHER_NONE" = "Chưa có dữ liệu thời tiết.";
 

@@ -537,27 +537,48 @@ static void SSLocationRelayNotification(int token) {
 	SSLocationStore(lat, lon);
 }
 
-// Last resort when no fix of any kind exists: the phone's public IP located by ipapi.co (city level, enough for the
-// weather). Only the IP leaves the phone. done(NAN, NAN, nil) on failure.
-static void SSIPLocate(void (^done)(double lat, double lon, NSString *city)) {
+// Last resort when no fix of any kind exists: the phone's public IP located by ipapi.co, else ipwho.is (city level,
+// enough for the weather). Both answer {latitude, longitude, city}. Only the IP leaves the phone. done(NAN, NAN, nil)
+// when every service fails. ipapi.co answered without coordinates 5 times out of 6 in log 19/10 21:59 (iPhone 8 15.6),
+// so a failure logs the HTTP status and the start of the answer to tell a rate limit from a wrong address.
+static NSArray<NSString *> *SSIPServices(void) {
+	return @[@"https://ipapi.co/json/", @"https://ipwho.is/"];
+}
+
+static void SSIPLocateFrom(NSUInteger index, void (^done)(double lat, double lon, NSString *city)) {
+	NSArray<NSString *> *services = SSIPServices();
+	if (index >= services.count) {
+		dispatch_async(dispatch_get_main_queue(), ^{ done(NAN, NAN, nil); });
+		return;
+	}
+	NSString *url = services[index];
 	NSURLSessionConfiguration *config = [NSURLSessionConfiguration ephemeralSessionConfiguration];
 	config.timeoutIntervalForRequest = 4.0;
 	config.timeoutIntervalForResource = 4.0;
 	config.waitsForConnectivity = NO;
 	NSURLSession *session = [NSURLSession sessionWithConfiguration:config];
-	NSURLSessionDataTask *task = [session dataTaskWithURL:[NSURL URLWithString:@"https://ipapi.co/json/"] completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+	NSURLSessionDataTask *task = [session dataTaskWithURL:[NSURL URLWithString:url] completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
 		NSDictionary *json = data ? [NSJSONSerialization JSONObjectWithData:data options:0 error:nil] : nil;
 		NSNumber *lat = [json isKindOfClass:[NSDictionary class]] ? SSNum(json[@"latitude"]) : nil;
 		NSNumber *lon = [json isKindOfClass:[NSDictionary class]] ? SSNum(json[@"longitude"]) : nil;
-		NSString *city = [json[@"city"] isKindOfClass:[NSString class]] ? json[@"city"] : nil;
-		if (!lat || !lon) SSLog(@"weather: IP location failed (%@)", error.localizedDescription ?: @"no coordinates in the answer");
-		dispatch_async(dispatch_get_main_queue(), ^{
-			if (lat && lon) done(lat.doubleValue, lon.doubleValue, city ?: @"?");
-			else done(NAN, NAN, nil);
-		});
+		NSString *city = [json isKindOfClass:[NSDictionary class]] && [json[@"city"] isKindOfClass:[NSString class]] ? json[@"city"] : nil;
+		if (!lat || !lon) {
+			NSInteger status = [response isKindOfClass:[NSHTTPURLResponse class]] ? ((NSHTTPURLResponse *)response).statusCode : 0;
+			NSString *body = data ? [[NSString alloc] initWithData:[data subdataWithRange:NSMakeRange(0, MIN(data.length, (NSUInteger)160))] encoding:NSUTF8StringEncoding] : nil;
+			body = [[body componentsSeparatedByCharactersInSet:[NSCharacterSet newlineCharacterSet]] componentsJoinedByString:@" "];
+			SSLog(@"weather: IP location failed at %@ (%@, HTTP %ld, answer %@)", url, error.localizedDescription ?: @"no coordinates in the answer",
+				(long)status, body ?: @"-");
+			SSIPLocateFrom(index + 1, done);
+			return;
+		}
+		dispatch_async(dispatch_get_main_queue(), ^{ done(lat.doubleValue, lon.doubleValue, city ?: @"?"); });
 	}];
 	[task resume];
 	[session finishTasksAndInvalidate];
+}
+
+static void SSIPLocate(void (^done)(double lat, double lon, NSString *city)) {
+	SSIPLocateFrom(0, done);
 }
 
 static void SSWeatherServeAt(double lat, double lon, NSString *source) {

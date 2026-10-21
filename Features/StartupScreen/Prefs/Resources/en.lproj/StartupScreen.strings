@@ -55,7 +55,7 @@
 "STARTUPSCREEN_NAME" = "Your name";
 "STARTUPSCREEN_NAME_PLACEHOLDER" = "Optional";
 
-"STARTUPSCREEN_WEATHER_FOOTER" = "The Weather style goes online: each time CarPlay connects it sends your last known location, rounded to 2 decimals (about 1 km), to Open-Meteo (open-meteo.com, no account). Offline it shows the last result with its time; without location access or data it shows the greeting.";
+"STARTUPSCREEN_WEATHER_FOOTER" = "The Weather style goes online: each time CarPlay connects it sends your last known location, rounded to 2 decimals (about 1 km), to Open-Meteo (open-meteo.com, no account); with no position at all, ipapi.co or ipwho.is finds the city from your IP address. Offline it shows the last result with its time; without location access or data it shows the greeting.";
 "STARTUPSCREEN_WEATHER_LAST" = "Last update: %@";
 "STARTUPSCREEN_WEATHER_NONE" = "No weather data yet.";
 

@@ -299,13 +299,17 @@ void SCPRefreshHiddenAppsSoon(void)
 
 // ---------------------------------------------------------------------
 //  Cau dao chong crash-loop: ghi "dang chen" vao prefs truoc khi them app vao thu vien, xoa khi man xe hien
-//  (carScreenAppeared). Lan khoi dong sau ma con "dang chen" = CarPlay sap sau khi chen -> ghi version bi sap, khong chen
-//  nua cho den khi nguoi dung doi danh sach app (prefschanged) hoac cai ban moi (version khac).
+//  (carScreenAppeared). Lan khoi dong sau ma con "dang chen" CUA CHINH BUILD NAY = CarPlay sap sau khi chen -> ghi build bi
+//  sap, khong chen nua cho den khi nguoi dung doi danh sach app (prefschanged) hoac cai build moi.
+//  Theo "version build" nhu cau dao App Bridge (4d04cdd): chi theo version thi ban sua cung so 1.0.3 van bi tat chen icon.
 // ---------------------------------------------------------------------
 #define SCP_KEY_ICONS_PENDING  @"splitScreenIconsPending"
 #define SCP_KEY_ICONS_CRASHED  @"splitScreenIconsCrashed"
 #ifndef TWEAK_VERSION
 #define TWEAK_VERSION "dev"
+#endif
+#ifndef OMC_BUILD
+#define OMC_BUILD "dev"
 #endif
 
 static void SCPIconsStore(NSString *key, id value)
@@ -318,24 +322,27 @@ static void SCPIconsStore(NSString *key, id value)
 BOOL SCPAppIconsBeginInjection(void)
 {
     OMCPrefsSync();
-    NSString *ver = @TWEAK_VERSION;
-    if ([OMCPref(SCP_KEY_ICONS_PENDING, nil) boolValue]) {
-        SCPLog("AppIcons: lan truoc CarPlay sap sau khi chen icon -> tat chen icon o ban %@ (doi danh sach app de thu lai)", ver);
+    NSString *ver = @TWEAK_VERSION " " OMC_BUILD;
+    id pending = OMCPref(SCP_KEY_ICONS_PENDING, nil);
+    if ([pending isEqual:ver]) {
+        SCPLog("AppIcons: lan truoc CarPlay sap sau khi chen icon -> tat chen icon o build %@ (doi danh sach app de thu lai)", ver);
         SCPIconsStore(SCP_KEY_ICONS_CRASHED, ver);
-        SCPIconsStore(SCP_KEY_ICONS_PENDING, nil);
+    } else if (pending) {
+        SCPLog("AppIcons: co dau \"dang chen\" cu (%@) cua build khac, khong tinh cho build %@", pending, ver);
     }
+    if (pending) SCPIconsStore(SCP_KEY_ICONS_PENDING, nil);
     if ([OMCPref(SCP_KEY_ICONS_CRASHED, nil) isEqual:ver]) {
-        SCPLog("AppIcons: dang tat vi tung sap o ban %@", ver);
+        SCPLog("AppIcons: dang tat vi tung sap o build %@", ver);
         return NO;
     }
-    SCPIconsStore(SCP_KEY_ICONS_PENDING, @YES);
+    SCPIconsStore(SCP_KEY_ICONS_PENDING, ver);
     return YES;
 }
 
 void SCPAppIconsCarScreenOK(void)
 {
     OMCPrefsSync();
-    if ([OMCPref(SCP_KEY_ICONS_PENDING, nil) boolValue]) {
+    if (OMCPref(SCP_KEY_ICONS_PENDING, nil)) {
         SCPIconsStore(SCP_KEY_ICONS_PENDING, nil);
         SCPLog("AppIcons: man xe hien binh thuong sau khi chen icon");
     }

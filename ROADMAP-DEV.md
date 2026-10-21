@@ -105,6 +105,8 @@ Thiếu một trong các mục này thì khách quốc tế không mua, hoặc m
 - [x] 20/10 21:45, cùng máy, bản 0518440: SpringBoard lên được nhưng app App Bridge không mở trong chia màn hình. Cầu dao đã ghi
   "1.0.3" từ lần treo của e258fb5, bản sửa cũng là 1.0.3 nên vẫn bỏ hook SpringBoard. Sửa: cầu dao ghi "version build", dấu
   "đang cài" của build khác chỉ bị xoá, không tính là treo.
+  21/10: cầu dao chèn icon của Chia màn hình (SCPAppIconsBeginInjection) cũng theo "version build" như vậy; trước đó nó
+  ghi "1.0.3" nên một máy từng sập (iPhone 8, 19/10 19:27) sẽ không được chèn icon ở mọi build 1.0.3 cho tới khi đổi danh sách app.
 - [x] 20/10 22:05, cùng máy, bản 4d04cdd (chỉ iOS 15, iOS 16 không đổi):
   - Chia màn hình: CarPlay mở lại GOFA toàn màn lúc cắm xe, bấm nút Split Screen vẫn "man chinh" (currentBaseViewController
     rỗng) nên phải chọn lại cả 2 ô. Sửa: nhớ VC DashBoard vừa trình bày (presentBaseViewController), dùng khi
@@ -248,6 +250,9 @@ xem trước ngay trong Cài đặt. Âm thanh phát qua loa xe khi CarPlay kế
   Nhiệt độ hiện tại, cao / thấp trong ngày, khả năng mưa, biểu tượng thời tiết; lấy từ WeatherKit / dữ liệu Thời tiết của iOS, không có mạng thì dùng số đo gần nhất.
   Code: Open-Meteo (cần mạng, toạ độ làm tròn 2 số, đã ghi trong Cài đặt), vị trí gần nhất của CarPlay, cache 12 h,
   không có dữ liệu thì về Lời chào. Chờ thử: CarPlay có quyền vị trí / mạng không. Cập nhật docs/sales/privacy.md.
+  21/10: tra vị trí theo IP (khi không có toạ độ nào) hỏi ipapi.co rồi ipwho.is nếu lỗi; lỗi ghi URL, mã HTTP và đầu câu trả lời
+  (log 19/10 21:59 iPhone 8: ipapi.co 5/6 lần không có toạ độ). privacy.md ghi thêm hai dịch vụ này. Chờ: log có dòng
+  "IP location failed at" để biết ipapi.co giới hạn hay chặn.
 
 ### 2.3 Chia màn hình
 

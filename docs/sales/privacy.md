@@ -14,7 +14,9 @@ TODO before publishing: contact address for privacy questions, and a note on wha
 - No analytics, no tracking, no ads, no account.
 - No data to the developer or anyone else. One exception, only if you choose the **Weather** startup style: the CarPlay
   process asks Open-Meteo (api.open-meteo.com, no account) for the forecast at your last known location, rounded to
-  2 decimals (about 1 km). Nothing else is sent; other styles make no network request.
+  2 decimals (about 1 km). When the phone has no position at all, it first asks ipapi.co, then ipwho.is if that fails,
+  for the city of your public IP address (only the IP is seen, no account). Nothing else is sent; other styles make no
+  network request.
 - It does not read your messages, photos, contacts or browsing.
 
 ### What stays on your iPhone
@@ -51,7 +53,8 @@ Uninstall OmniCar, then delete `/var/mobile/Documents/OmniCar.log*` and `/var/jb
 - Không thống kê, không theo dõi, không quảng cáo, không tài khoản.
 - Không gửi dữ liệu cho tác giả hay bất kỳ ai. Ngoại lệ duy nhất, chỉ khi bạn chọn kiểu khởi động **Thời tiết**: CarPlay hỏi
   Open-Meteo (api.open-meteo.com, không cần tài khoản) dự báo tại vị trí gần nhất của máy, làm tròn 2 chữ số thập phân
-  (khoảng 1 km). Không gửi gì khác; các kiểu khác không dùng mạng.
+  (khoảng 1 km). Khi máy không có vị trí nào, CarPlay hỏi ipapi.co (lỗi thì hỏi ipwho.is) thành phố theo địa chỉ IP công
+  khai của máy (họ chỉ thấy IP, không cần tài khoản). Không gửi gì khác; các kiểu khác không dùng mạng.
 - Không đọc tin nhắn, ảnh, danh bạ hay lịch sử duyệt web.
 
 ### Những gì nằm lại trên iPhone
