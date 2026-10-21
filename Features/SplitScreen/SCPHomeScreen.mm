@@ -279,6 +279,77 @@ static void SCPHApplyNames(UIView *root, BOOL show, BOOL log)
 }
 
 // ---------------------------------------------------------------------
+//  Luoi deu: khi chon so cot / hang, CarPlay doi so icon moi trang nhung van dat icon theo le / khoang cach cua luoi goc nen
+//  chia lech. Sau moi lan CarPlay xep (hook SBIconListView, AppIcons.xm) chia vung luoi icon thanh cot x hang o bang nhau
+//  theo kich thuoc that cua no, dat TAM ANH icon vao tam o (giao diem duong giua cot va duong giua hang); ten app treo
+//  ben duoi. Co icon doi (iconImageInfo) thi anh to / nho quanh chinh diem do. Thu tu icon = thu tu CarPlay da xep
+//  (tren xuong, trai sang). Tu dong x Tu dong = khong dong vao.
+// ---------------------------------------------------------------------
+static NSUInteger SCPHListCount(UIView *list, NSString *sel)
+{
+    SEL s = NSSelectorFromString(sel);
+    if (![list respondsToSelector:s]) return 0;
+    @try { return ((NSUInteger (*)(id, SEL))objc_msgSend)(list, s); } @catch (NSException *e) { return 0; }
+}
+
+// So o khac nhau theo mot truc (du phong khi luoi khong noi so cot / hang)
+static NSUInteger SCPHDistinct(NSArray<UIView *> *icons, BOOL xAxis)
+{
+    NSMutableSet *seen = [NSMutableSet set];
+    for (UIView *v in icons) [seen addObject:@(lround((xAxis ? v.center.x : v.center.y) / 8.0))];
+    return seen.count;
+}
+
+void SCPHomeLayoutGrid(UIView *list)
+{
+    NSInteger wantCols = SCPHomeGridColumns(), wantRows = SCPHomeGridRows();
+    if (wantCols <= 0 && wantRows <= 0) return;
+    UIViewController *home = sHomeVC;
+    if (!home.isViewLoaded || !list.window || ![list isDescendantOfView:home.view]) return;
+    NSMutableArray<UIView *> *icons = [NSMutableArray array];
+    for (UIView *v in list.subviews) {
+        NSString *cls = NSStringFromClass([v class]);
+        if (!v.hidden && [cls hasSuffix:@"IconView"] && ![cls hasSuffix:@"ListView"]) [icons addObject:v];
+    }
+    if (!icons.count) return;
+    // thu tu CarPlay da xep: theo hang (y lam tron) roi theo cot
+    [icons sortUsingComparator:^NSComparisonResult(UIView *a, UIView *b) {
+        long ya = lround(a.center.y / 8.0), yb = lround(b.center.y / 8.0);
+        if (ya != yb) return ya < yb ? NSOrderedAscending : NSOrderedDescending;
+        return a.center.x < b.center.x ? NSOrderedAscending : (a.center.x > b.center.x ? NSOrderedDescending : NSOrderedSame);
+    }];
+    NSUInteger cols = wantCols > 0 ? (NSUInteger)wantCols : SCPHListCount(list, @"iconColumnsForCurrentOrientation");
+    NSUInteger rows = wantRows > 0 ? (NSUInteger)wantRows : SCPHListCount(list, @"iconRowsForCurrentOrientation");
+    if (!cols) cols = SCPHDistinct(icons, YES);
+    if (!rows) rows = SCPHDistinct(icons, NO);
+    if (!cols || !rows) return;
+    CGRect area = list.bounds;
+    if (area.size.width < 120 || area.size.height < 120) return;   // dai hep kieu dock: de CarPlay
+    CGFloat cellW = area.size.width / cols, cellH = area.size.height / rows;
+    if (cellW < 1 || cellH < 1) return;
+    NSUInteger moved = 0;
+    for (NSUInteger i = 0; i < icons.count && i < cols * rows; i++) {
+        UIView *v = icons[i];
+        CGPoint target = CGPointMake(CGRectGetMinX(area) + (i % cols + 0.5) * cellW, CGRectGetMinY(area) + (i / cols + 0.5) * cellH);
+        // tam anh icon trong icon view (nhan ten nam duoi anh); khong co iconImageFrame thi coi anh vuong o dinh
+        CGRect b = v.bounds;
+        CGRect img = CGRectMake(0, 0, b.size.width, MIN(b.size.width, b.size.height));
+        if ([v respondsToSelector:NSSelectorFromString(@"iconImageFrame")]) {
+            @try { CGRect f = objcInvokeT(v, @"iconImageFrame", CGRect); if (f.size.width > 1 && f.size.height > 1) img = f; } @catch (NSException *e) {}
+        }
+        CGPoint c = CGPointMake(target.x - (CGRectGetMidX(img) - CGRectGetMidX(b)), target.y - (CGRectGetMidY(img) - CGRectGetMidY(b)));
+        if (fabs(v.center.x - c.x) > 0.5 || fabs(v.center.y - c.y) > 0.5) { v.center = c; moved++; }
+    }
+    static NSString *lastLog;
+    NSString *key = [NSString stringWithFormat:@"%lux%lu %@ %lu", (unsigned long)cols, (unsigned long)rows, NSStringFromCGSize(area.size), (unsigned long)icons.count];
+    if (moved && ![key isEqualToString:lastLog]) {
+        lastLog = key;
+        SCPLog("HomeScreen: luoi deu %lux%lu trong %@ (%@): o %.0fx%.0f, %lu icon, dat lai %lu", (unsigned long)cols, (unsigned long)rows,
+               NSStringFromCGSize(area.size), NSStringFromClass([list class]), cellW, cellH, (unsigned long)icons.count, (unsigned long)moved);
+    }
+}
+
+// ---------------------------------------------------------------------
 //  Danh sach app tren man chinh cho Cai dat (HS_KEY_CAR_APPS): lay tu mo hinh icon cua luoi (moi trang, thu tu cua xe),
 //  ten tu icon / thu vien app (app rieng cua CarPlay nhu Dang phat, Cai dat khong co trong LSApplicationProxy cua iPhone).
 //  Bo app iPhone OmniCar chen (App Bridge). App OmniCar dang an (HS_KEY_HIDDEN_APPS) giu cho cu tu danh sach truoc.

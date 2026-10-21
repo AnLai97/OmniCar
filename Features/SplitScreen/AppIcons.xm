@@ -184,6 +184,24 @@ static Class SCPIconModelClass(void)
 
 %end
 
+// Luoi deu (SCPHomeLayoutGrid, SCPHomeScreen.mm): CarPlay xep icon xong (layoutIconsNow hoac layoutSubviews) thi dat lai tam
+// icon vao tam o cua luoi cot x hang da chon. Ham tu bo qua luoi ngoai man chinh va khi so cot / hang de Tu dong.
+%hook SBIconListView
+
+- (void)layoutIconsNow
+{
+    %orig;
+    @try { SCPHomeLayoutGrid((UIView *)self); } @catch (NSException *e) { SCPIconsHookError("SCPHomeLayoutGrid", e); }
+}
+
+- (void)layoutSubviews
+{
+    %orig;
+    @try { SCPHomeLayoutGrid((UIView *)self); } @catch (NSException *e) { SCPIconsHookError("SCPHomeLayoutGrid", e); }
+}
+
+%end
+
 // Ten app duoi icon (Man chinh CarPlay > Ten app): tat thi moi lan CarPlay dat nhan deu thanh an
 %hook SBIconView
 
@@ -239,12 +257,13 @@ static Class SCPIconModelClass(void)
     if (!OMCCrashGuard(SPL_FEATURE)) return;
     %init(APPICONS, DashBoard = OMCCarClass("DashBoard"), DBApplicationInfo = OMCCarClass("DBApplicationInfo"), DBDashboardHomeViewController = OMCCarClass("DBDashboardHomeViewController"), DBApplicationLaunchInfo = OMCCarClass("DBApplicationLaunchInfo"),
           SBIconListGridLayoutConfiguration = objc_getClass("SBIconListGridLayoutConfiguration"), SBIconModel = SCPIconModelClass(),
-          SBIconView = objc_getClass("SBIconView"));
+          SBIconView = objc_getClass("SBIconView"), SBIconListView = objc_getClass("SBIconListView"));
     OMCCheckHooks(@"SplitScreen", @[@"DashBoard +_newApplicationLibrary", @"DBApplicationInfo -_loadFromProxy:",
         @"DBDashboardHomeViewController -initWithEnvironment:", @"DBDashboardHomeViewController -viewDidLayoutSubviews", @"DBApplicationLaunchInfo +launchInfoForApplication:",
         @"DBApplicationLaunchInfo +launchInfoForApplication:withActivationSettings:", @"SBIconListGridLayoutConfiguration -iconImageInfo",
         [NSString stringWithFormat:@"%s -isIconVisible:", class_getName(SCPIconModelClass())], @"SBIconListGridLayoutConfiguration -numberOfLandscapeColumns",
-        @"SBIconListGridLayoutConfiguration -numberOfLandscapeRows", @"SBIconView -setLabelHidden:"]);
+        @"SBIconListGridLayoutConfiguration -numberOfLandscapeRows", @"SBIconView -setLabelHidden:", @"SBIconListView -layoutIconsNow",
+        @"SBIconListView -layoutSubviews"]);
     // Ten app du phong: lop icon cua CarPlay (CARIconView iOS 13-15, DBIconView iOS 16) co +maxLabelSizeForIconImageSize:
     Class iconView = objc_getClass("CARIconView") ?: OMCCarClass("DBIconView");
     if (iconView && [iconView respondsToSelector:NSSelectorFromString(@"maxLabelSizeForIconImageSize:")]) {

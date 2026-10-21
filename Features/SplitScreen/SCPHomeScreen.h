@@ -15,6 +15,9 @@ CGFloat SCPHomeIconScale(void);
 // So cot / hang cua luoi man chinh (0 = Tu dong, nhu CarPlay) cho hook SBIconListGridLayoutConfiguration
 NSInteger SCPHomeGridColumns(void);
 NSInteger SCPHomeGridRows(void);
+// Sau khi CarPlay xep icon trong mot *IconListView: chia vung thanh cot x hang o deu, dat tam anh icon vao tam o
+// (chi khi da chon so cot / hang; Tu dong x Tu dong = de CarPlay)
+void SCPHomeLayoutGrid(UIView *list);
 // Hien ten app duoi icon (hook -[SBIconView setLabelHidden:])
 BOOL SCPHomeShowNames(void);
 // Cai dat doi (prefschanged): doc lai, ap lai

@@ -215,6 +215,13 @@ Thử: chọn hình nền + kéo cỡ icon 130 %, cắm xe, Gửi log (dòng "Ho
   không đọc. Chưa thử trên xe.
   Thử: 4 × 2 → mỗi trang 8 icon, log "HomeScreen: luoi ... cot 5 -> 4"; tắt Tên app → tên mất, log "ten app an";
   về Tự động → như CarPlay. Không thấy dòng "luoi" = CarPlay không đọc các getter này (cần cách khác).
+  21/10: chia lưới đều (tác giả: tỉ lệ chia chưa đúng khi chọn cột / hàng). CarPlay đổi số icon mỗi trang nhưng vẫn đặt theo
+  lề / khoảng cách của lưới gốc. SCPHomeLayoutGrid (SCPHomeScreen.mm, hook -[SBIconListView layoutIconsNow / layoutSubviews]
+  trong AppIcons.xm): sau mỗi lần CarPlay xếp, chia vùng lưới icon (bounds thật) thành cột × hàng ô bằng nhau, đặt tâm ảnh
+  icon (iconImageFrame) vào tâm ô, tên treo bên dưới; đổi cỡ icon thì phóng to / thu nhỏ quanh điểm đó. Chỉ khi đã chọn cột
+  hoặc hàng (Tự động × Tự động = như CarPlay), chỉ lưới trong màn chính, bỏ dải hẹp < 120 pt. Xem trước trong Cài đặt vẽ
+  cùng cách. Chạy trên mọi iOS (nhánh Dev-IOS15). Thử: 4 × 2, 6 × 3, 3 × 1, cỡ icon 60 % và 130 % → icon cách đều, phóng
+  quanh tâm; log "HomeScreen: luoi deu CxR trong {W, H}".
 - [x] [ ] **2.1.4 Hình nền màn chính** · Vừa
   Chọn hình dựng sẵn hoặc ảnh từ Ảnh (bỏ chọn từ Tệp), cắt theo tỉ lệ màn xe, chỉnh độ mờ và độ tối để icon vẫn dễ nhìn.
   Code: ô Mặc định + 6 hình dựng sẵn (gradient như bản xem trước, vẽ 1920 × 720) + ô ảnh / video của bạn, nút Từ Ảnh

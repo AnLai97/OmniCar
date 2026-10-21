@@ -367,15 +367,18 @@ static UIImage *OMCHSPresetImage(NSInteger i, CGSize size, CGFloat scale)
         [[UIColor colorWithWhite:0.8 alpha:1] setFill];
         UIRectFill(CGRectMake(18 + (i % 3) * 10, H - 30 + (i / 3) * 9, 7, 6));
     }
-    // luoi cua CarPlay (Tu dong = 5 x 2) hoac so cot / hang da chon; icon to / nho trong o (nhu hook iconImageInfo)
+    // luoi cua CarPlay (Tu dong = 5 x 2) hoac so cot / hang da chon; icon to / nho trong o (nhu hook iconImageInfo).
+    // Da chon cot / hang: nhu SCPHomeLayoutGrid tren xe, ca vung chia deu, tam anh icon dung tam o, ten treo ben duoi.
     NSInteger cols = self.cols > 0 ? self.cols : 5, rows = self.rows > 0 ? self.rows : 2, per = cols * rows;
-    CGFloat cellW = (area.size.width - 24) / cols, cellH = (H - 30) / rows, side = round(64 * self.size / 100.0);
+    BOOL even = self.cols > 0 || self.rows > 0;
+    CGFloat padX = even ? 0 : 12, padTop = even ? 0 : 6, lift = even || !self.names ? 0 : 10;
+    CGFloat cellW = (area.size.width - padX * 2) / cols, cellH = (H - (even ? 0 : 30)) / rows, side = round(64 * self.size / 100.0);
     NSInteger pages = MAX(1, ((NSInteger)self.items.count + per - 1) / per);
     NSDictionary *na = @{NSFontAttributeName: [UIFont systemFontOfSize:12 weight:UIFontWeightMedium], NSForegroundColorAttributeName: [UIColor whiteColor]};
     for (NSInteger i = 0; i < MIN(per, (NSInteger)self.items.count); i++) {
         NSString *bid = self.items[i];
         NSInteger r = i / cols, col = i % cols;
-        CGFloat cx = CGRectGetMinX(area) + 12 + col * cellW + cellW / 2, cy = 6 + r * cellH + cellH / 2 - (self.names ? 10 : 0);
+        CGFloat cx = CGRectGetMinX(area) + padX + col * cellW + cellW / 2, cy = padTop + r * cellH + cellH / 2 - lift;
         [self drawIcon:bid in:CGRectMake(cx - side / 2, cy - side / 2, side, side)];
         if (!self.names) continue;
         NSString *n = OMCHSName(bid);
