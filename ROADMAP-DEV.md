@@ -113,6 +113,8 @@ Thiếu một trong các mục này thì khách quốc tế không mua, hoặc m
     trong scene ngang (xoay 90°), mở lại thì 1190x480 trong ô 297. Sửa: SpringBoard gửi cỡ ô (AB_NOTIF_SIZE) sau mỗi lần đổi
     scene, app (nhóm APPS15) đặt lại mọi cửa sổ toàn màn theo cỡ đó, cả sau khi UIKit xoay cửa sổ; rời xe thì trả về cỡ màn.
   Chờ: log bản mới, xem dòng "iOS 15: N cua so -> ..." và "app dang mo lay tu VC vua trinh bay".
+  Thử 21/10 (tác giả, máy iOS 15.8.8, bản 80ac25d): YouTube trong ô không còn xoay 90°, cửa sổ theo cỡ ô (lỗi trong
+  video log 19/10 17:45) — OK. Chưa thử lại trên 7 Plus 15.8.4.
 
 ### 1.2 Bán quốc tế
 

@@ -45,7 +45,7 @@ Trên trang công khai: ✅ = Works · 🟡 = Partly · ❌ = Doesn't · ⬜ = U
 | Bố cục 2 + 1 lớn | ⬜ | ⬜ | ⬜ | ⬜ |
 | Chia dọc, kéo tỉ lệ, đóng / mở ô, về Home | ⬜ | ⬜ | ⬜ | ⬜ |
 | App có giao diện CarPlay riêng trong ô (Maps, Spotify…) | ⬜ | ⬜ | ⬜ | ⬜ |
-| YouTube qua App Bridge (phát, xoay, toàn màn) | ⬜ | ⬜ | ⬜ | ⬜ |
+| YouTube qua App Bridge (phát, xoay, toàn màn) | ✅ 15.8.8 | ⬜ | ⬜ | ⬜ |
 | TikTok qua App Bridge | ⬜ | ⬜ | ⬜ | ⬜ |
 | Icon app iPhone trên màn chính CarPlay | ⬜ | ⬜ | ⬜ | ⬜ |
 | Bong bóng tốc độ (Vietmap Live / GOFA) | ⬜ | ⬜ | ⬜ | ⬜ |
@@ -57,7 +57,7 @@ Trên trang công khai: ✅ = Works · 🟡 = Partly · ❌ = Doesn't · ⬜ = U
 
 | App | Kết quả | iOS đã thử | Ghi chú / lý do |
 |---|---|---|---|
-| YouTube | ⬜ | | |
+| YouTube | ✅ | 15.8.8 | 21/10/2026, bản 80ac25d: hết xoay 90° và cửa sổ theo cỡ ô |
 | TikTok | ⬜ | | |
 | Facebook | ⬜ | | |
 | Instagram | ⬜ | | |
