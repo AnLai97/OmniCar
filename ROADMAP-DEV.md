@@ -222,6 +222,9 @@ Thử: chọn hình nền + kéo cỡ icon 130 %, cắm xe, Gửi log (dòng "Ho
   hoặc hàng (Tự động × Tự động = như CarPlay), chỉ lưới trong màn chính, bỏ dải hẹp < 120 pt. Xem trước trong Cài đặt vẽ
   cùng cách. Chạy trên mọi iOS (nhánh Dev-IOS15). Thử: 4 × 2, 6 × 3, 3 × 1, cỡ icon 60 % và 130 % → icon cách đều, phóng
   quanh tâm; log "HomeScreen: luoi deu CxR trong {W, H}".
+  21/10: cỡ icon theo ô (tác giả: "scale cân đối với tỉ lệ màn hình"). Đã chọn cột / hàng thì iconImageInfo không còn là icon
+  gốc × %, mà cạnh = 80 % cạnh ngắn của ô (có tên: cao ô − 2 × 18 pt cho nhãn) × Cỡ icon (SCPHomeIconSide); ô đổi thì xếp lại
+  một lần. 100 % vừa ô trên mọi tỉ lệ màn; Tự động × Tự động vẫn là icon gốc × %. Log "o luoi WxH -> canh icon N pt".
 - [x] [ ] **2.1.4 Hình nền màn chính** · Vừa
   Chọn hình dựng sẵn hoặc ảnh từ Ảnh (bỏ chọn từ Tệp), cắt theo tỉ lệ màn xe, chỉnh độ mờ và độ tối để icon vẫn dễ nhìn.
   Code: ô Mặc định + 6 hình dựng sẵn (gradient như bản xem trước, vẽ 1920 × 720) + ô ảnh / video của bạn, nút Từ Ảnh

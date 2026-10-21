@@ -149,7 +149,12 @@ static Class SCPIconModelClass(void)
 {
     SCPIconImageInfo info = %orig;
     CGFloat k = 1;
-    @try { k = SCPHomeIconScale(); } @catch (NSException *e) { k = 1; }
+    @try {
+        // da chon cot / hang: canh icon theo o luoi deu (SCPHomeIconSide), chi luoi man chinh (khong dock)
+        if ((SCPHomeGridColumns() > 0 || SCPHomeGridRows() > 0) && info.size.width > 1 && SCPIsHomeGrid(self, YES))
+            k = SCPHomeIconSide(info.size.width) / info.size.width;
+        else k = SCPHomeIconScale();
+    } @catch (NSException *e) { k = 1; }
     if (k > 0 && fabs(k - 1) > 0.001) {
         info.size.width *= k;
         info.size.height *= k;

@@ -12,6 +12,8 @@ extern "C" {
 void SCPHomeApply(UIViewController *homeVC);
 // He so co icon (1 = nhu CarPlay) cho hook iconImageInfo
 CGFloat SCPHomeIconScale(void);
+// Canh anh icon (pt) khi da chon cot / hang: theo o luoi deu x Co icon; chua co o / Tu dong: origSide x Co icon
+CGFloat SCPHomeIconSide(CGFloat origSide);
 // So cot / hang cua luoi man chinh (0 = Tu dong, nhu CarPlay) cho hook SBIconListGridLayoutConfiguration
 NSInteger SCPHomeGridColumns(void);
 NSInteger SCPHomeGridRows(void);

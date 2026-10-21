@@ -373,6 +373,8 @@ static UIImage *OMCHSPresetImage(NSInteger i, CGSize size, CGFloat scale)
     BOOL even = self.cols > 0 || self.rows > 0;
     CGFloat padX = even ? 0 : 12, padTop = even ? 0 : 6, lift = even || !self.names ? 0 : 10;
     CGFloat cellW = (area.size.width - padX * 2) / cols, cellH = (H - (even ? 0 : 30)) / rows, side = round(64 * self.size / 100.0);
+    // luoi deu: canh icon theo o nhu SCPHomeIconSide (80 % canh ngan, co ten thi chua 2 lan cao nhan) x Co icon
+    if (even) side = MAX(12, floor(MIN(cellW * 0.8, self.names ? cellH - 2 * 18 : cellH * 0.8) * self.size / 100.0));
     NSInteger pages = MAX(1, ((NSInteger)self.items.count + per - 1) / per);
     NSDictionary *na = @{NSFontAttributeName: [UIFont systemFontOfSize:12 weight:UIFontWeightMedium], NSForegroundColorAttributeName: [UIColor whiteColor]};
     for (NSInteger i = 0; i < MIN(per, (NSInteger)self.items.count); i++) {

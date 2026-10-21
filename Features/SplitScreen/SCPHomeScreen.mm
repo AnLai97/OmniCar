@@ -54,6 +54,22 @@ CGFloat SCPHomeIconScale(void)
     return [hs[@"size"] doubleValue] / 100.0;
 }
 
+// O luoi deu lan xep gan nhat (SCPHomeLayoutGrid); 0 = chua co / dang Tu dong
+static CGSize sGridCell;
+
+// Co anh icon (canh, pt) khi da chon cot / hang: theo o luoi chu khong theo icon goc cua CarPlay, de 100 % vua o tren moi
+// ti le man (640 x 240, 512 x 300, 1920 x 720...). Canh = 80 % canh ngan cua o; co ten thi chua 2 lan cao nhan (tam anh
+// o tam o, ten treo duoi). Roi nhan Co icon (60-130 %). Chua do duoc o hoac Tu dong: icon goc x Co icon nhu truoc.
+CGFloat SCPHomeIconSide(CGFloat origSide)
+{
+    CGFloat k = SCPHomeIconScale();
+    if ((SCPHomeGridColumns() <= 0 && SCPHomeGridRows() <= 0) || sGridCell.width < 1 || sGridCell.height < 1) return origSide * k;
+    static const CGFloat kFill = 0.8, kLabelH = 18;
+    CGFloat byH = SCPHomeShowNames() ? sGridCell.height - 2 * kLabelH : sGridCell.height * kFill;
+    CGFloat side = MIN(sGridCell.width * kFill, byH);
+    return MAX(20, floor(side * k));
+}
+
 NSInteger SCPHomeGridColumns(void)
 {
     NSDictionary *hs = SCPHSettings();
@@ -327,6 +343,15 @@ void SCPHomeLayoutGrid(UIView *list)
     if (area.size.width < 120 || area.size.height < 120) return;   // dai hep kieu dock: de CarPlay
     CGFloat cellW = area.size.width / cols, cellH = area.size.height / rows;
     if (cellW < 1 || cellH < 1) return;
+    // o doi (lan dau, doi cot / hang, doi man) -> co icon tinh lai theo o (SCPHomeIconSide): bao CarPlay xep lai mot lan
+    if (fabs(sGridCell.width - cellW) > 1 || fabs(sGridCell.height - cellH) > 1) {
+        sGridCell = CGSizeMake(cellW, cellH);
+        SCPLog("HomeScreen: o luoi %.0fx%.0f -> canh icon %.0f pt (Co icon %.0f %%)", cellW, cellH, SCPHomeIconSide(60), SCPHomeIconScale() * 100);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            UIViewController *h = sHomeVC;
+            if (h.isViewLoaded) SCPHRelayoutIcons(h.view, [SCPHSettings()[@"size"] integerValue]);
+        });
+    }
     NSUInteger moved = 0;
     for (NSUInteger i = 0; i < icons.count && i < cols * rows; i++) {
         UIView *v = icons[i];
