@@ -17,8 +17,9 @@
 // Developer auto test on the car (Core/OMCTest.h): 1 = the test runner, every feature's test cases and the
 // Settings page are built in; 0 leaves all of it out. Off since 20/10/2026 (builds also go to other people's cars);
 // `make package OMC_AUTOTEST=1` while the author tests on the car.
+// Nhanh Dev-IOS15 (21/10/2026): bat san, CI build mot ban duy nhat co autotest. Truoc khi gop vao Developing / main tra ve 0.
 #ifndef OMC_AUTOTEST
-#define OMC_AUTOTEST 0
+#define OMC_AUTOTEST 1
 #endif
 
 // Free period: every feature works through this day (yyyy-MM-dd, Vietnam time) and turns itself off after it,
