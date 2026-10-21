@@ -133,6 +133,7 @@ Thiếu một trong các mục này thì khách quốc tế không mua, hoặc m
   Code: 14 ngôn ngữ (OMCSupportedLanguages, Core/OMCCommon.m), theo ngôn ngữ máy hoặc chọn trong Cài đặt; thiếu câu
   nào thì dùng tiếng Anh. Chữ trên xe: OMCTr(vi, en), ngôn ngữ khác tra `<lang>.lproj/Car.strings` (khoá = câu tiếng
   Anh). Bản dịch máy: cần người bản xứ đọc lại; chưa kiểm tra chữ bị cắt (de) và RTL (ar) trên máy.
+  Chờ dịch (đang thử chỉ sửa en + vi, dịch 12 ngôn ngữ còn lại một lần khi xong): STARTUPSCREEN_WEATHER_FOOTER (21/10, thêm ipapi.co / ipwho.is).
 - [x] [ ] **1.2.4 Trang tương thích công khai** · Thấp
   iOS, kiểu jailbreak (rootless / roothide), chip, đầu xe đã thử, app đã thử, giới hạn đã biết (DRM).
   Code: docs/compatibility.html (trang tĩnh, EN / VI), đồng bộ với COMPATIBILITY.md. Chưa có kết quả thử nào.
