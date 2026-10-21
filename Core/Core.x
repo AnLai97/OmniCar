@@ -176,11 +176,20 @@ static void OMCTrustedTimeFetch(void) {
 	}] resume];
 }
 
+// Free period over: the master switch is written off as well, so it shows off everywhere and stays off (Settings locks it)
+static void OMCExpiryLockSwitch(void) {
+	OMCPrefsSync();
+	if (![OMCPref(@"enabled", @YES) boolValue]) return;
+	CFPreferencesSetAppValue(CFSTR("enabled"), kCFBooleanFalse, OMC_PREFS_DOMAIN);
+	CFPreferencesAppSynchronize(OMC_PREFS_DOMAIN);
+	OMCLog(@"Core", @"free period over: master switch off");
+}
+
 void OMCTrustedTimeStart(void) {
 	if (!strlen(OMC_EXPIRY)) return;
 	static BOOL wasExpired;
 	wasExpired = OMCExpired();
-	if (wasExpired) OMCLog(@"Core", @"free period over (%s)", OMC_EXPIRY);
+	if (wasExpired) { OMCLog(@"Core", @"free period over (%s)", OMC_EXPIRY); OMCExpiryLockSwitch(); }
 	OMCTrustedTimeFetch();
 	// Server time every 6 h; the free period checked every minute so features stop on time
 	[NSTimer scheduledTimerWithTimeInterval:6 * 3600 repeats:YES block:^(NSTimer *t) { OMCTrustedTimeFetch(); }];
@@ -188,6 +197,7 @@ void OMCTrustedTimeStart(void) {
 		if (wasExpired || !OMCExpired()) return;
 		wasExpired = YES;
 		OMCLog(@"Core", @"free period over (%s): features off", OMC_EXPIRY);
+		OMCExpiryLockSwitch();
 		notify_post("com.anlai.omnicar/prefschanged");
 		[t invalidate];
 	}];

@@ -22,9 +22,10 @@
 #endif
 
 // Free period: every feature works through this day (yyyy-MM-dd, Vietnam time) and turns itself off after it,
-// with no notice before. "" = never expires. `make package OMC_EXPIRY=2027-06-30` (or OMC_EXPIRY=) overrides it.
+// with no notice before. "" = never expires. `make package OMC_EXPIRY=2027-06-30` (or OMC_EXPIRY=) overrides it;
+// "yyyy-MM-ddTHH:mm" (Vietnam time) ends at that minute instead. Once over, the master switch is written off and locked.
 #ifndef OMC_EXPIRY
-#define OMC_EXPIRY "2027-04-30"
+#define OMC_EXPIRY "2027-04-30"   // het ngay 30/04/2027 = het han luc 0h ngay 01/05/2027 gio Viet Nam
 #endif
 
 #define OMC_PREFS_DOMAIN  CFSTR("com.anlai.omnicar")

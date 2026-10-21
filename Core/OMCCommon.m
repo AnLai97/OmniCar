@@ -14,9 +14,11 @@ static NSTimeInterval OMCExpiryDeadline(void) {
 		NSDateFormatter *f = [NSDateFormatter new];
 		f.locale = [NSLocale localeWithLocaleIdentifier:@"en_US_POSIX"];
 		f.timeZone = [NSTimeZone timeZoneForSecondsFromGMT:7 * 3600];
-		f.dateFormat = @"yyyy-MM-dd";
+		// "yyyy-MM-ddTHH:mm" ends at that minute; "yyyy-MM-dd" runs through the whole day
+		BOOL moment = [day containsString:@"T"];
+		f.dateFormat = moment ? @"yyyy-MM-dd'T'HH:mm" : @"yyyy-MM-dd";
 		NSDate *d = [f dateFromString:day];
-		if (d) deadline = d.timeIntervalSince1970 + 24 * 3600;   // through the whole day
+		if (d) deadline = d.timeIntervalSince1970 + (moment ? 0 : 24 * 3600);
 	});
 	return deadline;
 }
