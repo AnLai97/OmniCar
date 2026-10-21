@@ -334,8 +334,9 @@ void SCPHomeLayoutGrid(UIView *list)
         // tam anh icon trong icon view (nhan ten nam duoi anh); khong co iconImageFrame thi coi anh vuong o dinh
         CGRect b = v.bounds;
         CGRect img = CGRectMake(0, 0, b.size.width, MIN(b.size.width, b.size.height));
-        if ([v respondsToSelector:NSSelectorFromString(@"iconImageFrame")]) {
-            @try { CGRect f = objcInvokeT(v, @"iconImageFrame", CGRect); if (f.size.width > 1 && f.size.height > 1) img = f; } @catch (NSException *e) {}
+        SEL imgSel = NSSelectorFromString(@"iconImageFrame");   // objcInvokeT khong dung duoc voi CGRect ((t){0}: -Wmissing-braces)
+        if ([v respondsToSelector:imgSel]) {
+            @try { CGRect f = ((CGRect (*)(id, SEL))objc_msgSend)(v, imgSel); if (f.size.width > 1 && f.size.height > 1) img = f; } @catch (NSException *e) {}
         }
         CGPoint c = CGPointMake(target.x - (CGRectGetMidX(img) - CGRectGetMidX(b)), target.y - (CGRectGetMidY(img) - CGRectGetMidY(b)));
         if (fabs(v.center.x - c.x) > 0.5 || fabs(v.center.y - c.y) > 0.5) { v.center = c; moved++; }
