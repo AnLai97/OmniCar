@@ -272,6 +272,7 @@ static void ABPostOrientation(NSString *bid, long long orientation)
 @property (nonatomic) long long requestedOrientation;  // huong app tu xin (YouTube fullscreen -> ngang), 0 = theo orientation
 @property (nonatomic) CGRect frame;                    // khung muon (live hay khong)
 @property (nonatomic) CGSize sceneBox;                 // kich thuoc o da bao cho scene lan cuoi
+@property (nonatomic) CGFloat zoomUsed;                // zoom thuc dang dung (zoomForBox:pane:), nho hon zoom nguoi chon khi o hep tren man vuong / doc
 @property (nonatomic) BOOL ready;
 @property (nonatomic) int pid;                         // tien trinh app luc host xong (0 = chua biet), de biet app bi giet hay chi scene bi huy
 @property (nonatomic, strong) UIView *handle;          // thanh "•••" mo tren app
@@ -581,13 +582,33 @@ static double ABFreeMemoryMB(void)
 #pragma mark - Bo cuc
 
 // Resize scene cua app theo dung kich thuoc o (app tu bo cuc lai, khong phai chieu thu nho tu man iPhone).
+// Zoom thuc cho mot o. Man ngang: dung zoom nguoi chon, khong dung toi (tac gia 22/10). Man vuong / doc (ti le man xe < 1.25,
+// cung nguong voi SCPCarSplit): canh ngan cua app (o / zoom) khong duoc duoi AB_MIN_SIDE pt, vi app iPhone khong xep duoc cho man
+// hep hon 320 pt (iPhone SE cu): o 212 pt tren man 850x800 voi zoom 0.8 cho app 265 pt -> YouTube xep theo 320 va bi cat mep
+// phai (anh 19/10). Ha zoom (0.66) thi chu nho di mot chut nhung khong mat gi. Khong xuong duoi 0.5.
+#define AB_MIN_SIDE 320.0
+- (CGFloat)zoomForBox:(CGSize)box pane:(ABPane *)pane
+{
+    CGFloat z = [self zoom];
+    CGSize full = self.window.bounds.size;
+    BOOL wide = full.height < 1 || full.width / full.height >= 1.25;
+    CGFloat side = MIN(box.width, box.height);
+    if (!wide && side > 1 && side / z < AB_MIN_SIDE) {
+        CGFloat zz = MAX(0.5, side / AB_MIN_SIDE);
+        if (fabs(zz - pane.zoomUsed) > 0.005) ABLog("o %@ %@ hep (man vuong / doc): zoom %.2f -> %.2f de app rong >= %.0f pt", pane.bundleID, NSStringFromCGSize(box), z, zz, AB_MIN_SIDE);
+        z = zz;
+    }
+    pane.zoomUsed = z;
+    return z;
+}
+
 // Noi dung ve o (o / zoom) roi thu nho bang transform de chu va nut khong qua to tren man xe.
 - (void)layoutPane:(ABPane *)pane
 {
     if (!pane.appViewController) return;
     CGSize boxSize = pane.box.bounds.size;
     if (boxSize.width < 2 || boxSize.height < 2) return;
-    CGFloat z = [self zoom];
+    CGFloat z = [self zoomForBox:boxSize pane:pane];
     CGSize paneSize = CGSizeMake(round(boxSize.width / z), round(boxSize.height / z));
     UIView *appView = [pane.appViewController view];
     appView.transform = CGAffineTransformIdentity;
@@ -675,8 +696,8 @@ static double ABFreeMemoryMB(void)
 {
     id scene = objcInvoke(objcInvoke(pane.appViewController, @"sceneHandle"), @"sceneIfExists");
     if (!scene) return;
-    CGFloat z = [self zoom];
     CGSize box = pane.box.bounds.size;
+    CGFloat z = [self zoomForBox:box pane:pane];
     CGSize sz = CGSizeMake(round(box.width / z), round(box.height / z));
     long long o = [self effectiveOrientation:pane];
     BOOL landscape = (o == UIInterfaceOrientationLandscapeLeft || o == UIInterfaceOrientationLandscapeRight);

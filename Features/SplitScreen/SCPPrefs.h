@@ -15,7 +15,7 @@
 + (BOOL)showFavorites;           // bang nut Split Screen: hien muc Yeu thich (mac dinh bat)
 + (NSInteger)paneOrientation;    // 1 = portrait, 3 = landscape
 + (CGFloat)splitRatio;           // ti le be rong ngan trai (0.2 - 0.8)
-+ (NSInteger)splitDirection;     // 0 trai/phai, 1 tren/duoi
++ (NSInteger)splitDirection;     // 0 tu dong (vung app cao hon rong: tren/duoi, con lai trai/phai), 1 tren/duoi, 2 trai/phai
 + (NSArray<NSString *> *)carPlayApps;   // app CarPlay hien duoc (CarPlay process ghi lai)
 + (void)setCarPlayApps:(NSArray<NSString *> *)ids;
 

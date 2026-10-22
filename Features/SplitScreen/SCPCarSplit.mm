@@ -1019,6 +1019,9 @@ static BOOL SCPCIsBridgedApp(NSString *bid);
 @property (nonatomic, strong) UIButton *homeButton;
 @property (nonatomic, weak) UIView *launcherHost;      // view dang chua nut Split Screen (view dai dock hoac tabParent)
 @property (nonatomic) BOOL dockTreeLogged;             // da ghi cay view dai dock (1 lan / tien trinh)
+@property (nonatomic) int loggedKind;                 // dang man da ghi log (screenKind), cung co man
+@property (nonatomic) CGSize loggedKindSize;
+@property (nonatomic) BOOL launcherHorizontal;        // nut Split Screen dang nam trong dai dock NGANG (duoi / tren man vuong / doc)
 @property (nonatomic, copy) NSString *launcherWhere;  // vi tri nut Split Screen lan truoc (chi de ghi log khi doi)
 @property (nonatomic, strong) UIColor *homeInk;       // mau nut Split Screen tren dock = mau luoi app cua nut Home: mau dong den (sang) / trang (toi), SCPCHomeInk()
 @property (nonatomic) CGRect homeGlyph;               // khung luoi app cua nut Home (toa do tabParent), Null neu khong thay -> co hinh nut Split Screen
@@ -1061,7 +1064,46 @@ static BOOL SCPCIsBridgedApp(NSString *bid);
     return n.length ? n : bid;
 }
 
-// Huong chia tu theo man xe: man ngang -> trai / phai, man doc (cao hon rong) -> tren / duoi
+// Dang man xe theo ti le rong / cao cua CA MAN (chua tru dock): >= 1.25 ngang, <= 0.8 doc, giua la vuong (tac gia 22/10:
+// man 850x800 cua tester = 1.06 la vuong, dock nam duoi). Man ngang giu moi luat cu; man vuong / doc chi khac o nut Split
+// Screen (dock ngang) va zoom App Bridge; huong chia giu luat cu cho ca ba (vertical).
+typedef NS_ENUM(int, SCPCScreenKind) { SCPCScreenWide = 0, SCPCScreenSquare = 1, SCPCScreenTall = 2 };
+static SCPCScreenKind SCPCScreenKindOf(CGSize full)
+{
+    if (full.width < 1 || full.height < 1) return SCPCScreenWide;
+    CGFloat r = full.width / full.height;
+    return r >= 1.25 ? SCPCScreenWide : (r <= 0.8 ? SCPCScreenTall : SCPCScreenSquare);
+}
+
+- (SCPCScreenKind)screenKind
+{
+    UIViewController *root = SCPCRootVC();
+    UIView *content = objcInvoke(root, @"contentView") ?: root.view;
+    CGSize full = content.bounds.size;
+    if (full.width < 1) full = content.window.screen.bounds.size;
+    SCPCScreenKind k = SCPCScreenKindOf(full);
+    if (k != self.loggedKind || !CGSizeEqualToSize(full, self.loggedKindSize)) {
+        self.loggedKind = k; self.loggedKindSize = full;
+        SCPLog("CarSplit: man xe %@ ti le %.2f -> dang %@", NSStringFromCGSize(full), full.height > 0 ? full.width / full.height : 0,
+               k == SCPCScreenWide ? @"ngang" : k == SCPCScreenTall ? @"doc" : @"vuong");
+    }
+    return k;
+}
+
+// Cai dat Huong chia (SPL_KEY_SPLIT_DIRECTION): 0 tu dong, 1 tren / duoi, 2 trai / phai. Doc prefs toi da 1 lan / giay (vertical
+// duoc goi moi lan layout).
+static NSInteger SCPCDirectionPref(void)
+{
+    static NSInteger cached = 0;
+    static CFAbsoluteTime at = 0;
+    CFAbsoluteTime now = CFAbsoluteTimeGetCurrent();
+    if (now - at > 1.0) { cached = [SCPPrefs splitDirection]; at = now; }
+    return cached;
+}
+
+// Huong chia. Tu dong = luat cu cho moi dang man: vung app cao hon rong (man doc) -> tren / duoi, con lai trai / phai. Man vuong
+// (850x800, vung app 425x355) van chia trai / phai thanh 2 o 212x355 cao hep nhu trong log 19/10: tac gia 22/10 muon giu vay;
+// YouTube trong o hep het bi cat nho ABHost ha zoom. Cai dat Huong chia cho nguoi dung ep tren / duoi hoac trai / phai.
 - (BOOL)vertical
 {
     CGSize sz = self.container ? self.container.bounds.size : CGSizeZero;
@@ -1069,7 +1111,11 @@ static BOOL SCPCIsBridgedApp(NSString *bid);
         UIView *parent = [self tabParent];
         if (parent) sz = [self appAreaInParent:parent].size;
     }
-    return sz.width > 1 && sz.height > sz.width;
+    if (sz.width < 1) return NO;
+    NSInteger dir = SCPCDirectionPref();
+    if (dir == 1) return YES;
+    if (dir == 2) return NO;
+    return sz.height > sz.width;
 }
 
 // Cac o chia + cua so noi (neu co)
@@ -1322,7 +1368,9 @@ static NSString *SCPCPinnedApp(void)
     // Xac dinh huong dock theo hinh dang cua chinh no va mep no bam vao, roi cat het chieu doc/ngang
     // o mep do. Gop voi statusBarInsets (lay max tung canh) de khong cat trung 2 lan.
     UIEdgeInsets cut = ins;
-    if (!CGRectIsNull(inter) && inter.size.width > 1 && inter.size.height > 1) {
+    // View dock nho hon 20 pt mot canh khong phai cum icon (log 19/10 20:53: 2 lan doc ra o 27x11 o giua man -> vung app bi cat con
+    // 425x238); bo qua, chi dung statusBarInsets
+    if (!CGRectIsNull(inter) && inter.size.width >= 20 && inter.size.height >= 20) {
         if (inter.size.height >= inter.size.width) {          // dock doc o mep trai/phai
             CGFloat leftGap = inter.origin.x - area.origin.x, rightGap = CGRectGetMaxX(area) - CGRectGetMaxX(inter);
             if (leftGap <= rightGap) cut.left = MAX(cut.left, CGRectGetMaxX(inter) - area.origin.x);
@@ -5415,8 +5463,26 @@ static void SCPCStatusBottom(UIView *v, UIView *parent, CGRect strip, int depth,
     for (UIView *c in v.subviews) SCPCStatusBottom(c, parent, strip, depth + 1, maxY);
 }
 
+// Dock NGANG (man vuong / doc, dai duoi hoac tren): mep cua dong ho / song / pin trong dai, phia ben nut Home (Home ben trai ->
+// maxX cua chung o nua trai; Home ben phai -> minX o nua phai). Nut Split Screen nam ngay sau dong ho, truoc cum icon.
+static void SCPCStatusEdgeX(UIView *v, UIView *parent, CGRect strip, int depth, BOOL homeLeft, CGFloat *edge)
+{
+    if (!v || depth > 20 || v.hidden || v.alpha < 0.05) return;
+    NSString *cls = NSStringFromClass([v class]);
+    if (([cls hasPrefix:@"_UIStatusBar"] || [cls hasPrefix:@"_UIBattery"]) && v.bounds.size.height < 40 && v.bounds.size.height > 2) {
+        CGRect r = [parent convertRect:v.bounds fromView:v];
+        if (CGRectContainsPoint(CGRectInset(strip, -4, -4), CGPointMake(CGRectGetMidX(r), CGRectGetMidY(r)))) {
+            if (homeLeft && CGRectGetMidX(r) < CGRectGetMidX(strip)) *edge = MAX(*edge, CGRectGetMaxX(r));
+            if (!homeLeft && CGRectGetMidX(r) > CGRectGetMidX(strip)) *edge = MIN(*edge, CGRectGetMinX(r));
+        }
+    }
+    for (UIView *c in v.subviews) SCPCStatusEdgeX(c, parent, strip, depth + 1, homeLeft, edge);
+}
+
 // Vi tri nut Split Screen: tren dock CarPlay (dai trai / phai), ngay duoi cum icon dock va tren nut Home. Khe khong du
 // thi day cum icon len (khong de len dong ho / song / pin) va thu nho nut; van khong du thi goc tren phai vung app.
+// Man vuong / doc (dock nam duoi hoac tren, launcherCenterInHorizontalStrip): nut nam trong dai dock, ben phai dong ho (sau Home
+// va dong ho, truoc cum icon); khong du cho thi goc tren phai vung app. Man ngang khong di qua nhanh nay.
 // *outShift = so pt can day cum icon dock len. Ghi log moi lan doi cho.
 - (CGPoint)launcherCenterInParent:(UIView *)parent size:(CGFloat *)outSize shift:(CGFloat *)outShift
 {
@@ -5433,7 +5499,19 @@ static void SCPCStatusBottom(UIView *v, UIView *parent, CGRect strip, int depth,
     CGPoint c = CGPointMake(CGRectGetMaxX(area) - size / 2 - 8, CGRectGetMinY(area) + size / 2 + 8);
     NSString *where = @"goc tren phai vung app (khong co dock doc)";
     CGRect cluster = CGRectNull, home = CGRectNull;
-    if (!CGRectIsNull(strip)) {
+    self.launcherHorizontal = NO;
+    if (CGRectIsNull(strip) && [self screenKind] != SCPCScreenWide) {   // man vuong / doc: dock nam duoi (hoac tren)
+        CGFloat topH = CGRectGetMinY(area) - CGRectGetMinY(full), bottomH = CGRectGetMaxY(full) - CGRectGetMaxY(area);
+        CGRect hstrip = CGRectNull;
+        if (bottomH >= 30) hstrip = CGRectMake(CGRectGetMinX(full), CGRectGetMaxY(area), full.size.width, bottomH);
+        else if (topH >= 30) hstrip = CGRectMake(CGRectGetMinX(full), CGRectGetMinY(full), full.size.width, topH);
+        if (!CGRectIsNull(hstrip)) {
+            CGPoint hc = [self launcherCenterInHorizontalStrip:hstrip parent:parent size:&size where:&where cluster:&cluster home:&home];
+            if (![where hasPrefix:@"goc"]) { c = hc; self.launcherHorizontal = YES; }
+            else size = SCPC_HOME_BTN;
+            strip = hstrip;
+        }
+    } else if (!CGRectIsNull(strip)) {
         size = MIN(SCPC_DOCK_BTN, strip.size.width - 8);
         CGFloat cx = CGRectGetMidX(strip);
         cluster = CGRectIntersection([self dockClusterInParent:parent], strip);
@@ -5474,6 +5552,38 @@ static void SCPCStatusBottom(UIView *v, UIView *parent, CGRect strip, int depth,
     if (outSize) *outSize = size;
     if (outShift) *outShift = shift;
     return c;
+}
+
+// Dock ngang (man vuong / doc): nut Split Screen giua dong ho va cum icon, phia nut Home. Tra ve where co "goc" khi khong du cho.
+- (CGPoint)launcherCenterInHorizontalStrip:(CGRect)strip parent:(UIView *)parent size:(CGFloat *)size where:(NSString **)where
+                                   cluster:(CGRect *)outCluster home:(CGRect *)outHome
+{
+    UIViewController *root = SCPCRootVC();
+    UIView *dock = nil;
+    @try { id dockVC = objcInvoke(root, @"appDockViewController"); dock = dockVC ? objcInvoke(dockVC, @"view") : nil; } @catch (NSException *e) {}
+    UIView *scan = dock.window ?: root.view;
+    CGRect cluster = CGRectIntersection([self dockClusterInParent:parent], strip), home = CGRectNull;
+    UIView *homeView = nil;
+    SCPCFindHomeButton(scan, parent, strip, 0, self.homeButton, &home, &homeView);
+    self.homeGlyph = home;
+    *outCluster = cluster; *outHome = home;
+    // Home ben trai (tay lai thuan) hay ben phai: khong thay nut Home thi coi la ben trai
+    BOOL homeLeft = CGRectIsNull(home) || CGRectGetMidX(home) < CGRectGetMidX(strip);
+    CGFloat edge = homeLeft ? CGRectGetMinX(strip) : CGRectGetMaxX(strip);   // mep cua dong ho / song phia Home
+    if (!CGRectIsNull(home)) edge = homeLeft ? CGRectGetMaxX(home) : CGRectGetMinX(home);
+    SCPCStatusEdgeX(scan, parent, strip, 0, homeLeft, &edge);
+    // Khoang trong tu mep do toi cum icon (khong thay cum icon: toi giua dai)
+    CGFloat limit = CGRectIsNull(cluster) ? CGRectGetMidX(strip) : (homeLeft ? CGRectGetMinX(cluster) : CGRectGetMaxX(cluster));
+    CGFloat room = (homeLeft ? limit - edge : edge - limit) - 8;
+    CGFloat s = MIN(MIN(SCPC_DOCK_BTN, strip.size.height - 8), floor(room));
+    if (s >= SCPC_DOCK_MIN) {
+        *size = s;
+        *where = [NSString stringWithFormat:@"trong dock %@, ben %@ dong ho, %.0fpt", CGRectGetMinY(strip) > CGRectGetMinY(parent.bounds) + 1 ? @"duoi" : @"tren",
+                  homeLeft ? @"phai" : @"trai", s];
+        return CGPointMake(homeLeft ? edge + 4 + s / 2 : edge - 4 - s / 2, CGRectGetMidY(strip));
+    }
+    *where = @"goc tren phai vung app (dock ngang khong con cho)";
+    return CGPointZero;
 }
 
 // Nut Split Screen tren dock CarPlay: luon hien (man chinh, app toan man, dang chia -> doi bo cuc)
@@ -5524,7 +5634,7 @@ static void SCPCStatusBottom(UIView *v, UIView *parent, CGRect strip, int depth,
     // Nut nam tren dai dock: gan vao chinh view ve dai dock (status bar CarPlay nam tren baseContainerView,
     // gan vao tabParent thi nut bi dai dock che mat). Ngoai dock (goc vung app) thi van gan vao tabParent.
     CGRect r = CGRectMake(c.x - size / 2, c.y - size / 2, size, size);
-    UIView *host = [self.launcherWhere hasPrefix:@"goc"] ? nil : [self dockHostForRect:r inParent:parent];
+    UIView *host = [self.launcherWhere hasPrefix:@"goc"] ? nil : [self dockHostForRect:r inParent:parent horizontal:self.launcherHorizontal];
     if (!host) host = parent;
     if (self.homeButton.superview != host) {
         [host addSubview:self.homeButton];
@@ -5568,7 +5678,8 @@ static void SCPCDumpTree(UIView *v, UIView *root, int depth, NSMutableString *ou
 
 // View to nhat chua cum icon dock ma van nam gon trong dai dock va bao tron khung r (toa do parent).
 // nil neu khong thay (dock chua layout / khac man hinh). Lan dau ghi cay view dai dock vao log.
-- (UIView *)dockHostForRect:(CGRect)r inParent:(UIView *)parent
+// horizontal: dai dock nam ngang (man vuong / doc) -> "ra ngoai dai dock" xet theo chieu cao thay vi be rong.
+- (UIView *)dockHostForRect:(CGRect)r inParent:(UIView *)parent horizontal:(BOOL)horizontal
 {
     UIView *dock = nil;
     @try { id dockVC = objcInvoke(SCPCRootVC(), @"appDockViewController"); dock = dockVC ? objcInvoke(dockVC, @"view") : nil; } @catch (NSException *e) {}
@@ -5580,7 +5691,7 @@ static void SCPCDumpTree(UIView *v, UIView *root, int depth, NSMutableString *ou
     UIView *best = nil;
     for (UIView *v = dock; v && ![v isKindOfClass:[UIWindow class]] && v != parent; v = v.superview) {
         CGRect mine = [v convertRect:v.bounds toCoordinateSpace:screen.coordinateSpace];
-        if (mine.size.width > full.size.width * 0.5) break;   // da ra ngoai dai dock (view toan man hinh)
+        if (horizontal ? mine.size.height > full.size.height * 0.5 : mine.size.width > full.size.width * 0.5) break;   // da ra ngoai dai dock (view toan man hinh)
         if (CGRectContainsRect(CGRectInset(mine, -0.5, -0.5), want)) { best = v; break; }
     }
     if (!self.dockTreeLogged && dock.bounds.size.height < full.size.height * 0.9) {   // dock da layout xong

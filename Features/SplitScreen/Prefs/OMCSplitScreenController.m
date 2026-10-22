@@ -167,6 +167,7 @@ static char kOMCSplitIndex;
 {
     switch (s) {
         case SPMain: return 2;
+        case SPLayout: return 2;   // o ghim, huong chia
         case SPFavs: return 3 + (self.editing ? 4 : 0);   // 3 yeu thich + khung sua (ten, bo cuc, app, xong) duoi dong dang sua
         case SPHelp: return 2 + (self.showGestures ? 1 : 0) + (self.showSiri ? (NSInteger)[self urls].count : 0);
         default: return 1;
@@ -186,7 +187,7 @@ static char kOMCSplitIndex;
 - (NSString *)tableView:(UITableView *)tv titleForFooterInSection:(NSInteger)s
 {
     switch (s) {
-        case SPLayout: return L(@"SPLITSCREEN_PINNED_FOOTER");
+        case SPLayout: return [NSString stringWithFormat:@"%@\n%@", L(@"SPLITSCREEN_PINNED_FOOTER"), L(@"SPLITSCREEN_DIRECTION_FOOTER")];
         case SPFavs: return L(@"SPLITSCREEN_FAV_FOOTER");
         case SPHelp: return L(@"SPLITSCREEN_CREDITS_FOOTER");
     }
@@ -269,6 +270,18 @@ static char kOMCSplitIndex;
         break;
     }
     case SPLayout: {
+        if (ip.row == 1) {   // Huong chia: Tu dong / Tren-duoi / Trai-phai (gia tri 0 / 1 / 2, SCPCarSplit vertical)
+            c = [self cellWithId:@"direction"];
+            c.textLabel.text = L(@"SPLITSCREEN_DIRECTION");
+            c.detailTextLabel.text = nil;
+            c.imageView.image = OMCIcon(@"rectangle.split.1x2.fill", OMCColorFromHex(@"#5AB8FF"));
+            UISegmentedControl *seg = [[UISegmentedControl alloc] initWithItems:@[L(@"SPLITSCREEN_DIRECTION_AUTO"), L(@"SPLITSCREEN_DIRECTION_TB"), L(@"SPLITSCREEN_DIRECTION_LR")]];
+            NSInteger d = [self intForKey:SPL_KEY_SPLIT_DIRECTION def:0];
+            seg.selectedSegmentIndex = (d == 1 || d == 2) ? d : 0;
+            [seg addTarget:self action:@selector(directionPicked:) forControlEvents:UIControlEventValueChanged];
+            [self setAccessory:seg onCell:c];
+            break;
+        }
         c = [self cellWithId:@"pinned"];
         NSString *pinned = [self stringForKey:SPL_KEY_PINNED_APP];
         c.textLabel.text = L(@"SPLITSCREEN_PINNED");
@@ -375,6 +388,12 @@ static char kOMCSplitIndex;
     objc_setAssociatedObject(b, &kOMCSplitIndex, key, OBJC_ASSOCIATION_COPY_NONATOMIC);
     [b addTarget:self action:@selector(chipTapped:) forControlEvents:UIControlEventTouchUpInside];
     return b;
+}
+
+- (void)directionPicked:(UISegmentedControl *)seg
+{
+    [[UISelectionFeedbackGenerator new] selectionChanged];
+    [self storeValue:@(seg.selectedSegmentIndex) forKey:SPL_KEY_SPLIT_DIRECTION];
 }
 
 - (void)chipTapped:(UIButton *)b
@@ -517,7 +536,7 @@ static char kOMCSplitIndex;
 - (void)tableView:(UITableView *)tv didSelectRowAtIndexPath:(NSIndexPath *)ip
 {
     [tv deselectRowAtIndexPath:ip animated:YES];
-    if (ip.section == SPLayout) { [self pickAppForKey:SPL_KEY_PINNED_APP title:L(@"SPLITSCREEN_PINNED")]; return; }
+    if (ip.section == SPLayout) { if (ip.row == 0) [self pickAppForKey:SPL_KEY_PINNED_APP title:L(@"SPLITSCREEN_PINNED")]; return; }
     if (ip.section == SPFavs) {
         NSInteger fav, part; [self favRow:ip.row fav:&fav part:&part];
         if (part >= 0) return;

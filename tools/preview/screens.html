@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OmniCar · Chia màn hình theo dạng màn</title>
+<!--
+  Ban review RIENG (khong nam trong index.html): Chia man hinh tren 3 dang man xe. Dang man xac dinh theo TI LE rong / cao
+  (tac gia 22/10): >= 1.25 = ngang, 0.8..1.25 = vuong, <= 0.8 = doc. Man ngang: dock dung o canh (trai / phai, chon duoc).
+  Man vuong / doc: dock nam duoi; khi do nut Split Screen nam trong dock, ben phai dong ho.
+  Moi cot: "Hien tai" = luat dang chay trong SCPCarSplit.mm, "De xuat" = luat moi de duyet.
+  So lieu man vuong lay tu log 19/10 20:53 (850x800 px = 425x400 pt, dock duoi 45 pt). Hai man con lai la so tieu bieu,
+  tweak doc kich thuoc that tu CarPlay luc cam. O "Thu kich thuoc" nhap px de xem xe khac roi vao dang nao.
+
+  Luat de xuat (the cuoi trang):
+   1. Huong chia: GIU luat cu (vung app cao hon rong moi tren / duoi) - man vuong van 2 o trai / phai nhu log (tac gia 22/10).
+      Cai dat: Tu dong / Tren-duoi / Trai-phai cho ai muon ep.
+   2. App iPhone (App Bridge): zoom thuc = min(zoom, canh ngan cua o / 320) de app khong xep duoi 320 pt.
+   3. Dock duoi: nut Split Screen nam trong dock, ben phai dong ho (dock dung: tren nut Home nhu cu).
+   4. Bo qua dock rect ti hon (< 20 pt) khi tinh vung app.
+-->
+<style>
+:root { --page: #eceef7; --card: #fff; --ink: #1f2233; --ink2: #6b7090; --line: #e1e4f0; --acc: #8b7cff; --acc2: #5ab8ff;
+  --ok: #157f3b; --ok-bg: #e3f6ea; --warn: #8a5a00; --warn-bg: #fff2d6; --bad: #b42318; --bad-bg: #fde8e6; }
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--page); color: var(--ink); font: 14px/1.45 "HarmonyOS Sans", -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif; }
+body { padding: 16px 16px 40px; }
+h1 { font-size: 18px; margin: 0 0 4px; }
+.sub { color: var(--ink2); max-width: 960px; margin: 0 0 14px; }
+.bar { display: flex; flex-wrap: wrap; gap: 10px 22px; align-items: center; background: var(--card); border-radius: 14px; padding: 10px 14px; margin-bottom: 16px; }
+.bar label { display: flex; align-items: center; gap: 6px; }
+select, input[type=range], input[type=number] { font: inherit; }
+select, input[type=number] { padding: 4px 8px; border-radius: 8px; border: 1px solid var(--line); background: #fff; color: var(--ink); }
+input[type=number] { width: 72px; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; }
+.seg button { border: 0; background: #fff; padding: 5px 12px; font: inherit; cursor: pointer; color: var(--ink2); }
+.seg button.on { background: var(--acc); color: #fff; }
+.kind { font-weight: 700; padding: 2px 10px; border-radius: 999px; background: #eef0f8; }
+.cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+.col { background: var(--card); border-radius: 16px; padding: 14px; }
+.col h2 { font-size: 15px; margin: 0 0 2px; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.col h2 small { color: var(--ink2); font-weight: 400; font-size: 12px; text-align: right; }
+.col .dockpick { font-size: 12px; color: var(--ink2); margin-bottom: 10px; display: flex; gap: 8px; align-items: center; min-height: 28px; }
+.variant { margin-top: 10px; }
+.variant .lbl { font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--ink2); margin: 0 0 6px; display: flex; gap: 8px; align-items: center; }
+.tag { font-size: 10px; font-weight: 700; padding: 1px 7px; border-radius: 999px; }
+.tag.ok { background: var(--ok-bg); color: var(--ok); } .tag.warn { background: var(--warn-bg); color: var(--warn); } .tag.bad { background: var(--bad-bg); color: var(--bad); }
+.bezel { background: #050506; border-radius: 14px; padding: 8px; display: inline-block; box-shadow: 0 10px 30px rgba(0,0,0,.25), inset 0 0 0 1px #1d1f24; }
+.screen { position: relative; background: #0b0d12; border-radius: 6px; overflow: hidden;
+  font-family: "HarmonyOS Sans", -apple-system, "SF Pro Text", "Segoe UI", Roboto, sans-serif; color: #fff; }
+.dock { position: absolute; background: #15171d; display: flex; align-items: center; }
+.dock .d { border-radius: 22%; display: grid; place-items: center; font-weight: 700; color: #fff; flex: none; }
+.dock .home { background: none; display: grid; grid-template-columns: repeat(2, 38%); gap: 12%; place-content: center; }
+.dock .home i { display: block; width: 100%; aspect-ratio: 1; background: #e9ecf2; border-radius: 15%; }
+.dock .t { font-weight: 600; white-space: nowrap; }
+.dock .cluster { display: flex; align-items: center; }
+.dock .slot { flex: none; }   /* cho nut Split Screen trong dock duoi (ben phai dong ho) */
+.pane { position: absolute; border-radius: 4px; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; }
+.pane b { font-size: 11px; }
+.pane small { font-size: 9px; opacity: .85; }
+.pane .yt { position: absolute; left: 0; top: 0; background: rgba(255,255,255,.14); border-right: 2px dashed #ff6b6b; display: flex; align-items: flex-end; padding: 2px 4px; font-size: 8px; color: #ffd0d0; }
+.sbtn { position: absolute; width: 18px; height: 18px; border-radius: 50%; background: rgba(255,255,255,.92); display: grid; grid-template-columns: repeat(2, 5px); gap: 2px; place-content: center; box-shadow: 0 1px 4px rgba(0,0,0,.4); z-index: 3; }
+.sbtn i { display: block; width: 5px; height: 8px; background: #111; border-radius: 1px; }
+.sbtn.bare { background: none; box-shadow: none; } .sbtn.bare i { background: #e9ecf2; }
+.info { font-size: 12px; color: var(--ink2); margin-top: 6px; line-height: 1.5; }
+.info b { color: var(--ink); }
+.notes { margin-top: 18px; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
+.note { background: var(--card); border-radius: 14px; padding: 12px 14px; font-size: 13px; }
+.note h3 { font-size: 13px; margin: 0 0 6px; }
+.note p { margin: 0 0 6px; color: var(--ink2); }
+.note code { font-size: 12px; background: #eef0f8; padding: 1px 5px; border-radius: 5px; }
+</style>
+</head>
+<body>
+<h1>Chia màn hình theo dạng màn xe</h1>
+<p class="sub">Dạng màn xác định theo <b>tỉ lệ rộng / cao</b>: ≥ 1,25 là <b>ngang</b>, 0,8–1,25 là <b>vuông</b>, ≤ 0,8 là <b>dọc</b>.
+  Màn ngang có dock dựng ở cạnh (trái / phải); màn vuông và dọc có dock nằm dưới, khi đó nút Split Screen nằm trong dock, bên phải đồng hồ.
+  Hướng chia giữ như cũ (màn vuông vẫn hai ô trái/phải); cột "đề xuất" chỉ khác ở nút Split Screen và zoom App Bridge. Số đo bằng pt như CarPlay báo; vạch đứt đỏ trong ô YouTube = phần app bị cắt khi ô hẹp hơn 320 pt sau zoom.</p>
+
+<div class="bar">
+  <label>Bố cục
+    <span class="seg" id="layouts">
+      <button data-l="2" class="on">2 ô</button><button data-l="3">3 ô</button><button data-l="13">1 lớn + 2</button><button data-l="31">2 + 1 lớn</button>
+    </span>
+  </label>
+  <label>Tỉ lệ ô 1 <input type="range" id="ratio" min="30" max="70" step="5" value="50"> <output id="ratioOut">50 %</output></label>
+  <label>Zoom App Bridge <input type="range" id="zoom" min="60" max="100" step="5" value="80"> <output id="zoomOut">80 %</output></label>
+  <label><input type="checkbox" id="yt" checked> Ô 2 là YouTube (App Bridge)</label>
+  <label>Thử kích thước (px) <input type="number" id="tw" value="850" min="100"> × <input type="number" id="th" value="800" min="100"> → <span class="kind" id="tk"></span></label>
+</div>
+
+<div class="cols" id="cols"></div>
+
+<div class="notes">
+  <div class="note"><h3>1 · Hướng chia theo dạng màn</h3>
+    <p><b>Hiện tại:</b> vùng app cao hơn rộng → trên/dưới, còn lại luôn trái/phải (<code>-[SCPCarSplit vertical]</code>). Màn vuông 425×400 sau khi trừ dock còn 425×355, vẫn "rộng hơn cao" nên bị chia trái/phải thành hai ô 212×355.</p>
+    <p><b>Chốt (22/10):</b> giữ luật cũ cho cả ba dạng: màn vuông vẫn chia trái/phải thành hai ô cao (như log), chỉ màn dọc chia trên/dưới. Ô hẹp hết cắt app nhờ mục 2. Thêm Cài đặt "Hướng chia: Tự động / Trên–dưới / Trái–phải" (key <code>splitScreenSplitDirection</code> đã có, nay mới dùng) cho ai muốn ép.</p></div>
+  <div class="note"><h3>2 · App iPhone không bị cắt</h3>
+    <p><b>Hiện tại:</b> App Bridge vẽ app ở cỡ ô ÷ zoom; ô 212 pt với zoom 0,8 → app 265 pt, YouTube xếp theo 320 pt rồi tràn mép phải (ảnh 19/10).</p>
+    <p><b>Đề xuất:</b> zoom thực = min(zoom, cạnh ngắn của ô ÷ 320), không dưới 0,5. Ô 212 pt → 0,66: chữ nhỏ hơn chút, không mất nội dung. Màn rộng không đổi. Vẫn cần cho bố cục 3 ô trên màn vuông.</p></div>
+  <div class="note"><h3>3 · Nút Split Screen khi dock nằm dưới</h3>
+    <p><b>Hiện tại:</b> chỉ biết gắn vào dock dọc (trên nút Home); dock dưới thì nút nổi góc trên phải vùng app, đè lên app.</p>
+    <p><b>Đề xuất:</b> nhận dải dock dưới, đặt nút trong dock ngay bên phải đồng hồ, cỡ như icon dock; dock dọc giữ như cũ. Hết chỗ mới ra góc.</p></div>
+  <div class="note"><h3>4 · Bỏ dock rect tí hon</h3>
+    <p>Log 19/10 có 2 lần view dock đọc thành ô 27×11 pt ở y = 238 → vùng app bị tính còn 425×238. Bỏ qua dock rect nhỏ hơn 20 pt một cạnh (<code>appAreaInParent:</code>).</p></div>
+</div>
+
+<script>
+(() => {
+  // pt. Man vuong = log 19/10 20:53. Dock dung 64 pt (man ngang, chua co log), dock duoi 45 pt (log).
+  const SCREENS = [
+    { id: 'wide', name: 'Màn ngang', sub: '1280×720 px · 640×360 pt', w: 640, h: 360, side: 'left' },
+    { id: 'square', name: 'Màn vuông', sub: '850×800 px · 425×400 pt (log 19/10)', w: 425, h: 400 },
+    { id: 'tall', name: 'Màn dọc', sub: '768×1024 px · 384×512 pt', w: 384, h: 512 },
+  ];
+  const KIND = { wide: 'ngang', square: 'vuông', tall: 'dọc' };
+  const kindOf = (w, h) => { const r = w / h; return r >= 1.25 ? 'wide' : r <= 0.8 ? 'tall' : 'square'; };
+  const dockOf = (sc) => kindOf(sc.w, sc.h) === 'wide' ? (sc.side || 'left') : 'bottom';
+  const S = { layout: 2, ratio: 0.5, zoom: 0.8, yt: true };
+  const COLORS = ['#1f9d55', '#d40000', '#1e3a8a'];
+  const NAMES = ['Bản đồ', 'YouTube', 'Zalo'];
+  const DOCK_SIDE = 64, DOCK_BOTTOM = 45;
+
+  const area = (sc, dock) => {
+    if (dock === 'left') return { x: DOCK_SIDE, y: 0, w: sc.w - DOCK_SIDE, h: sc.h };
+    if (dock === 'right') return { x: 0, y: 0, w: sc.w - DOCK_SIDE, h: sc.h };
+    return { x: 0, y: 0, w: sc.w, h: sc.h - DOCK_BOTTOM };
+  };
+  const vertCurrent = (sc, a) => a.h > a.w;                       // luat dang chay
+  const vertProposed = (sc, a) => a.h > a.w;                      // tac gia 22/10: man vuong van chia trai / phai nhu log; chi man doc tren / duoi
+
+  // frameForSlot / leftMainStackFrameForSlot (SCPCarSplit.mm), gap 1 pt
+  function frames(a, v, layout, r) {
+    const g = 1, out = [];
+    if (layout === 13 || layout === 31) {
+      const len = (v ? a.h : a.w) - g, mainLen = Math.floor(len * r);
+      const main = v ? { x: a.x, y: a.y, w: a.w, h: mainLen } : { x: a.x, y: a.y, w: mainLen, h: a.h };
+      const rest = v ? { x: a.x, y: a.y + mainLen + g, w: a.w, h: a.h - mainLen - g } : { x: a.x + mainLen + g, y: a.y, w: a.w - mainLen - g, h: a.h };
+      const first = Math.floor(((v ? rest.w : rest.h) - g) * 0.5);
+      const s1 = v ? { x: rest.x, y: rest.y, w: first, h: rest.h } : { x: rest.x, y: rest.y, w: rest.w, h: first };
+      const s2 = v ? { x: rest.x + first + g, y: rest.y, w: rest.w - first - g, h: rest.h } : { x: rest.x, y: rest.y + first + g, w: rest.w, h: rest.h - first - g };
+      out.push(main, s1, s2);
+      if (layout === 31) out.forEach(f => { if (v) f.y = 2 * a.y + a.h - (f.y + f.h); else f.x = 2 * a.x + a.w - (f.x + f.w); });
+      return out;
+    }
+    const n = layout === 3 ? 3 : 2, len = (v ? a.h : a.w) - g * (n - 1);
+    const fr = n === 2 ? [r, 1 - r] : [1 / 3, 1 / 3, 1 / 3];
+    let used = 0;
+    for (let i = 0; i < n; i++) {
+      const size = i === n - 1 ? len - used : Math.floor(len * fr[i]);
+      const start = used + g * i;
+      out.push(v ? { x: a.x, y: a.y + start, w: a.w, h: size } : { x: a.x + start, y: a.y, w: size, h: a.h });
+      used += size;
+    }
+    return out;
+  }
+
+  const zoomCurrent = () => S.zoom;
+  const zoomProposed = f => { const side = Math.min(f.w, f.h); return side / S.zoom < 320 ? Math.max(0.5, side / 320) : S.zoom; };
+
+  // Dock duoi (nhu anh 19/10): Home · dong ho · [cho nut Split Screen] · cum icon giua · 4G. Dock dung: dong ho tren, cum icon, Home duoi.
+  const BOTTOM = { pad: 10, gap: 10, home: 30, clock: 44, icon: 30 };
+  function dockHTML(dock, proposed) {
+    const icon = dock === 'bottom' ? BOTTOM.icon : 40;
+    const icons = [['#1f9d55', 'M'], ['#fa233b', '♪'], ['#28b14c', '☎']].map(([c, g]) => `<div class="d" style="background:${c};width:${icon}px;height:${icon}px;font-size:${icon * 0.45}px">${g}</div>`).join('');
+    const home = `<div class="d home" style="width:${icon}px;height:${icon}px"><i></i><i></i><i></i><i></i></div>`;
+    if (dock === 'bottom') {
+      const slot = proposed ? `<span class="slot" style="width:${BOTTOM.icon}px;height:${BOTTOM.icon}px"></span>` : '';
+      return `<div class="dock" style="left:0;right:0;bottom:0;height:${DOCK_BOTTOM}px;flex-direction:row;padding:0 ${BOTTOM.pad}px;gap:${BOTTOM.gap}px">
+        ${home}<span class="t" style="font-size:13px;width:${BOTTOM.clock}px">19:26</span>${slot}<div class="cluster" style="gap:12px;margin:0 auto">${icons}</div><span class="t" style="font-size:11px;opacity:.8">4G</span></div>`;
+    }
+    return `<div class="dock" style="top:0;bottom:0;${dock}:0;width:${DOCK_SIDE}px;flex-direction:column;justify-content:space-between;padding:8px 0">
+      <span class="t" style="font-size:13px">19:26</span><div class="cluster" style="flex-direction:column;gap:10px">${icons}</div>${home}</div>`;
+  }
+
+  // Nut Split Screen. Dock dung: tren nut Home (ca hai luat). Dock duoi: hien tai = goc tren phai vung app; de xuat = trong dock, ben phai dong ho.
+  function splitBtn(sc, dock, a, proposed) {
+    if (dock !== 'bottom') {
+      const x = dock === 'left' ? DOCK_SIDE / 2 : sc.w - DOCK_SIDE / 2, y = sc.h - 8 - 40 - 6 - 15;
+      return { x, y, bare: true, where: 'trên nút Home (dock dọc)' };
+    }
+    if (proposed) {
+      const x = BOTTOM.pad + BOTTOM.home + BOTTOM.gap + BOTTOM.clock + BOTTOM.gap + BOTTOM.icon / 2;
+      return { x, y: sc.h - DOCK_BOTTOM / 2, bare: true, where: 'trong dock dưới, bên phải đồng hồ' };
+    }
+    return { x: a.x + a.w - 8 - 17, y: a.y + 8 + 17, bare: false, where: 'góc trên phải vùng app (đè lên app)' };
+  }
+
+  function mock(sc, dock, proposed) {
+    const a = area(sc, dock);
+    const v = proposed ? vertProposed(sc, a) : vertCurrent(sc, a);
+    const fs = frames(a, v, S.layout, S.ratio);
+    const k = Math.min(290 / sc.w, 290 / sc.h);
+    const px = n => (n * k).toFixed(1) + 'px';
+    let panes = '';
+    fs.forEach((f, i) => {
+      const isYT = S.yt && i === 1;
+      let yt = '';
+      if (isYT) {
+        const z = proposed ? zoomProposed(f) : zoomCurrent();
+        const logical = Math.min(f.w, f.h) / z, need = 320;
+        if (logical < need) {
+          const cutW = f.w * (1 - logical / need);
+          yt = `<div class="yt" style="width:${px(f.w - cutW)};height:${px(f.h)}">mất ${Math.round(cutW)} pt</div>`;
+        }
+      }
+      panes += `<div class="pane" style="left:${px(f.x)};top:${px(f.y)};width:${px(f.w)};height:${px(f.h)};background:${COLORS[i]}">
+        ${yt}<b>${NAMES[i]}</b><small>${f.w}×${f.h} · ${(f.w / f.h).toFixed(2)}:1</small></div>`;
+    });
+    const b = splitBtn(sc, dock, a, proposed);
+    const btn = `<div class="sbtn${b.bare ? ' bare' : ''}" style="left:${px(b.x)};top:${px(b.y)};transform:translate(-50%,-50%)" title="${b.where}"><i></i><i></i></div>`;
+    const z1 = proposed ? zoomProposed(fs[1]) : zoomCurrent();
+    const cut = S.yt && Math.min(fs[1].w, fs[1].h) / z1 < 320;
+    const worst = Math.max(...fs.map(f => Math.abs(Math.log((f.w / f.h) / (4 / 3)))));
+    const tag = cut ? '<span class="tag bad">app bị cắt</span>' : worst > 0.9 ? '<span class="tag warn">ô méo</span>' : '<span class="tag ok">ổn</span>';
+    const zt = S.yt ? ` · zoom YouTube ${z1.toFixed(2)} → app ${Math.round(Math.min(fs[1].w, fs[1].h) / z1)} pt` : '';
+    return { html: `<div class="bezel"><div class="screen" style="width:${px(sc.w)};height:${px(sc.h)}">${dockHTML(dock, proposed)}${panes}${btn}</div></div>
+      <div class="info">Vùng app <b>${a.w}×${a.h}</b> → chia <b>${v ? 'trên/dưới' : 'trái/phải'}</b>${zt}<br>Nút Split Screen: ${b.where}</div>`, tag };
+  }
+
+  const cols = document.getElementById('cols');
+  function render() {
+    cols.innerHTML = SCREENS.map(sc => {
+      const kind = kindOf(sc.w, sc.h), dock = dockOf(sc);
+      const cur = mock(sc, dock, false), pro = mock(sc, dock, true);
+      const pick = kind === 'wide'
+        ? `Dock <select data-sc="${sc.id}"><option value="left"${dock === 'left' ? ' selected' : ''}>Trái</option><option value="right"${dock === 'right' ? ' selected' : ''}>Phải</option></select> (màn ngang: dock dựng ở cạnh)`
+        : `Dock dưới (màn ${KIND[kind]}: CarPlay đặt dock nằm dưới)`;
+      return `<div class="col"><h2>${sc.name} · ${(sc.w / sc.h).toFixed(2)}:1 <small>${sc.sub}</small></h2>
+        <div class="dockpick">${pick}</div>
+        <div class="variant"><p class="lbl">Hiện tại ${cur.tag}</p>${cur.html}</div>
+        <div class="variant"><p class="lbl">Đề xuất ${pro.tag}</p>${pro.html}</div></div>`;
+    }).join('');
+    cols.querySelectorAll('select').forEach(s => s.onchange = () => { SCREENS.find(x => x.id === s.dataset.sc).side = s.value; render(); });
+  }
+  document.querySelectorAll('#layouts button').forEach(b => b.onclick = () => {
+    document.querySelectorAll('#layouts button').forEach(x => x.classList.toggle('on', x === b));
+    S.layout = +b.dataset.l; render();
+  });
+  const ratio = document.getElementById('ratio'), zoom = document.getElementById('zoom');
+  ratio.oninput = () => { S.ratio = ratio.value / 100; document.getElementById('ratioOut').textContent = ratio.value + ' %'; render(); };
+  zoom.oninput = () => { S.zoom = zoom.value / 100; document.getElementById('zoomOut').textContent = zoom.value + ' %'; render(); };
+  document.getElementById('yt').onchange = e => { S.yt = e.target.checked; render(); };
+  const tw = document.getElementById('tw'), th = document.getElementById('th'), tk = document.getElementById('tk');
+  const tryKind = () => { const w = +tw.value, h = +th.value; if (w > 0 && h > 0) { const k = kindOf(w, h); tk.textContent = `${KIND[k]} (${(w / h).toFixed(2)}:1) · dock ${k === 'wide' ? 'cạnh' : 'dưới'}`; } };
+  tw.oninput = th.oninput = tryKind;
+  tryKind();
+  render();
+})();
+</script>
+</body>
+</html>

@@ -140,7 +140,8 @@ Thiếu một trong các mục này thì khách quốc tế không mua, hoặc m
   Code: 14 ngôn ngữ (OMCSupportedLanguages, Core/OMCCommon.m), theo ngôn ngữ máy hoặc chọn trong Cài đặt; thiếu câu
   nào thì dùng tiếng Anh. Chữ trên xe: OMCTr(vi, en), ngôn ngữ khác tra `<lang>.lproj/Car.strings` (khoá = câu tiếng
   Anh). Bản dịch máy: cần người bản xứ đọc lại; chưa kiểm tra chữ bị cắt (de) và RTL (ar) trên máy.
-  Chờ dịch (đang thử chỉ sửa en + vi, dịch 12 ngôn ngữ còn lại một lần khi xong): STARTUPSCREEN_WEATHER_FOOTER (21/10, thêm ipapi.co / ipwho.is).
+  Chờ dịch (đang thử chỉ sửa en + vi, dịch 12 ngôn ngữ còn lại một lần khi xong): STARTUPSCREEN_WEATHER_FOOTER (21/10, thêm ipapi.co / ipwho.is);
+  SPLITSCREEN_DIRECTION, _DIRECTION_AUTO, _DIRECTION_TB, _DIRECTION_LR, _DIRECTION_FOOTER (22/10, 2.3.5 Hướng chia).
 - [x] [ ] **1.2.4 Trang tương thích công khai** · Thấp
   iOS, kiểu jailbreak (rootless / roothide), chip, đầu xe đã thử, app đã thử, giới hạn đã biết (DRM).
   Code: docs/compatibility.html (trang tĩnh, EN / VI), đồng bộ với COMPATIBILITY.md. Chưa có kết quả thử nào.
@@ -288,6 +289,21 @@ xem trước ngay trong Cài đặt. Âm thanh phát qua loa xe khi CarPlay kế
 - [ ] [ ] **2.3.4 Gán nút giọng nói trên vô lăng** · Vừa
   Bấm giữ = Siri như cũ; bấm ngắn = mở bảng bố cục / một app / một lệnh OmniCar, người dùng chọn.
   Chưa làm: cần đường sự kiện nút Siri của DashBoard (bộ dò liệt kê DBEvent).
+- [x] [ ] **2.3.5 Màn vuông / màn dọc** · Vừa
+  Dạng màn theo tỉ lệ rộng / cao của cả màn: ≥ 1,25 ngang, 0,8–1,25 vuông, ≤ 0,8 dọc (log 19/10 20:53: tester 850×800 px =
+  425×400 pt, tỉ lệ 1,06, dock nằm dưới 45 pt; vùng app 425×355 bị chia trái/phải thành 2 ô 212×355 cao hẹp: bản đồ thành
+  dải, YouTube bị cắt mép phải vì app 212 ÷ 0,8 = 265 pt < 320). Màn ngang KHÔNG đụng tới (tác giả 22/10), mọi thay đổi chỉ
+  bật khi màn vuông / dọc. Bản duyệt: tools/preview/screens.html (3 dạng màn × vị trí dock, hiện tại / đề xuất).
+  Xong khi: trên xe 850×800, vẫn chia 2 ô trái/phải 212×355 (tác giả muốn giữ), YouTube không bị cắt, nút Split Screen nằm
+  trong dock dưới cạnh đồng hồ; màn ngang không đổi gì.
+  Code (22/10/2026, Dev-IOS15): SCPCarSplit `screenKind` (SCPCScreenKindOf, log "man xe WxH ti le r -> dang ..."), `vertical`:
+  Tự động = luật cũ cho cả ba dạng (vùng app cao hơn rộng mới trên/dưới, nên màn vuông vẫn trái/phải); Cài đặt > Chia màn hình >
+  Hướng chia (Tự động / Trên–dưới / Trái–phải, key splitScreenSplitDirection 0 / 1 / 2 có sẵn từ CarDuo, nay mới dùng, đọc tối
+  đa 1 lần/giây) cho ai muốn ép. Nút Split Screen: dock
+  ngang (màn vuông / dọc, dải dưới hoặc trên) → trong dock bên phải đồng hồ, trước cụm icon (launcherCenterInHorizontalStrip,
+  SCPCStatusEdgeX, dockHostForRect:…horizontal:), hết chỗ → góc như cũ. appAreaInParent bỏ qua dock rect < 20 pt. App Bridge
+  (ABHost zoomForBox:pane:): màn vuông / dọc thì zoom thực = min(zoom, cạnh ngắn ô ÷ 320), không dưới 0,5 (ô 212 → 0,66),
+  log "o ... hep (man vuong / doc): zoom a -> b". Chờ thử trên xe 850×800; chưa có log xe màn dọc nào.
 
 ### 2.4 Lái xe
 

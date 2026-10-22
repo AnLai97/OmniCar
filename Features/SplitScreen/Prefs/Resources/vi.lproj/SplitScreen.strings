@@ -52,3 +52,8 @@
 "SPLITSCREEN_COPIED" = "Đã chép URL";
 "SPLITSCREEN_FAV_APPS_HINT" = "Chạm ô để đổi app";
 "SPLITSCREEN_FAV_DONE" = "Xong";
+"SPLITSCREEN_DIRECTION" = "Hướng chia";
+"SPLITSCREEN_DIRECTION_AUTO" = "Tự động";
+"SPLITSCREEN_DIRECTION_TB" = "Trên–dưới";
+"SPLITSCREEN_DIRECTION_LR" = "Trái–phải";
+"SPLITSCREEN_DIRECTION_FOOTER" = "Hướng chia Tự động: màn ngang và màn vuông chia trái–phải, màn dọc chia trên–dưới.";

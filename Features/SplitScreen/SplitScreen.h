@@ -20,7 +20,7 @@
 #define SPL_KEY_TIP_COUNT        @"splitScreenTipCount"         // tips shown on the car screen so far (max 3)
 #define SPL_KEY_PANE_ORIENTATION @"splitScreenPaneOrientation"  // 1 portrait, 3 landscape
 #define SPL_KEY_SPLIT_RATIO      @"splitScreenSplitRatio"       // 0.2..0.8, width of the first pane
-#define SPL_KEY_SPLIT_DIRECTION  @"splitScreenSplitDirection"   // 0 left/right, 1 top/bottom
+#define SPL_KEY_SPLIT_DIRECTION  @"splitScreenSplitDirection"   // 0 auto (app area taller than wide: top/bottom, else left/right), 1 top/bottom, 2 left/right
 #define SPL_KEY_PINNED_APP       @"splitScreenPinnedApp"        // bundle id kept in its pane: never replaced by a layout change,
                                                                 // the app picker or a pane dropped when there are fewer panes
 #define SPL_KEY_LAST_LEFT        @"splitScreenLastLeft"         // last pair used on the car (reopened on connect)
