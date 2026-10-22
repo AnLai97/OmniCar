@@ -679,9 +679,10 @@ static double ABFreeMemoryMB(void)
         long long want = 0;
         if (code != 0xFF) want = code;
         else if (mask && !(mask & UIInterfaceOrientationMaskPortrait)) {
-            // App khong con cho phep doc (fullscreen video) -> xoay scene sang huong no cho phep
-            if (mask & UIInterfaceOrientationMaskLandscapeLeft)            want = UIInterfaceOrientationLandscapeLeft;
-            else if (mask & UIInterfaceOrientationMaskLandscapeRight)      want = UIInterfaceOrientationLandscapeRight;
+            // App khong con cho phep doc (fullscreen video) -> xoay scene sang huong no cho phep. Ca 2 huong ngang thi
+            // LandscapeRight nhu UIKit tren iPhone (chon Left lam YouTube lon nguoc 180 do, log 22/10 20:24:52)
+            if (mask & UIInterfaceOrientationMaskLandscapeRight)           want = UIInterfaceOrientationLandscapeRight;
+            else if (mask & UIInterfaceOrientationMaskLandscapeLeft)       want = UIInterfaceOrientationLandscapeLeft;
             else if (mask & UIInterfaceOrientationMaskPortraitUpsideDown)  want = UIInterfaceOrientationPortraitUpsideDown;
         }
         p.requestedOrientation = want;

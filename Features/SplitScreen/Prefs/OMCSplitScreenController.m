@@ -116,7 +116,7 @@ static UIImage *OMCSplitLayoutPicture(NSInteger layout, NSArray *apps, CGSize si
 }
 @end
 
-enum { SPPreview = 0, SPMain, SPLayout, SPFavs, SPPanel, SPHelp, SPCount };
+enum { SPPreview = 0, SPMain, SPLayout, SPFavs, SPHelp, SPCount };
 static char kOMCSplitIndex;
 
 @interface OMCSplitScreenController () <UITextFieldDelegate>
@@ -167,7 +167,7 @@ static char kOMCSplitIndex;
 {
     switch (s) {
         case SPMain: return 2;
-        case SPLayout: return 2;   // o ghim, huong chia
+        case SPLayout: return 3;   // o ghim, loai man hinh, hien trong bang
         case SPFavs: return 3 + (self.editing ? 4 : 0);   // 3 yeu thich + khung sua (ten, bo cuc, app, xong) duoi dong dang sua
         case SPHelp: return 2 + (self.showGestures ? 1 : 0) + (self.showSiri ? (NSInteger)[self urls].count : 0);
         default: return 1;
@@ -179,7 +179,6 @@ static char kOMCSplitIndex;
     switch (s) {
         case SPLayout: return L(@"SPLITSCREEN_LAYOUT_GROUP");
         case SPFavs: return L(@"SPLITSCREEN_FAV_GROUP");
-        case SPPanel: return L(@"SPLITSCREEN_PANEL_GROUP");
     }
     return nil;
 }
@@ -270,16 +269,32 @@ static char kOMCSplitIndex;
         break;
     }
     case SPLayout: {
-        if (ip.row == 1) {   // Huong chia: Tu dong / Tren-duoi / Trai-phai (gia tri 0 / 1 / 2, SCPCarSplit vertical)
+        if (ip.row == 1) {   // Loai man hinh: Tu dong / Ngang (chia trai-phai, gia tri 2) / Doc (chia tren-duoi, gia tri 1), SCPCarSplit vertical
             c = [self cellWithId:@"direction"];
             c.textLabel.text = L(@"SPLITSCREEN_DIRECTION");
             c.detailTextLabel.text = nil;
             c.imageView.image = OMCIcon(@"rectangle.split.1x2.fill", OMCColorFromHex(@"#5AB8FF"));
-            UISegmentedControl *seg = [[UISegmentedControl alloc] initWithItems:@[L(@"SPLITSCREEN_DIRECTION_AUTO"), L(@"SPLITSCREEN_DIRECTION_TB"), L(@"SPLITSCREEN_DIRECTION_LR")]];
             NSInteger d = [self intForKey:SPL_KEY_SPLIT_DIRECTION def:0];
-            seg.selectedSegmentIndex = (d == 1 || d == 2) ? d : 0;
-            [seg addTarget:self action:@selector(directionPicked:) forControlEvents:UIControlEventValueChanged];
-            [self setAccessory:seg onCell:c];
+            if (d != 1 && d != 2) d = 0;
+            UIStackView *chips = [[UIStackView alloc] initWithArrangedSubviews:@[[self chip:L(@"SPLITSCREEN_DIRECTION_AUTO") value:0 current:d],
+                                                                                 [self chip:L(@"SPLITSCREEN_DIRECTION_LR") value:2 current:d],
+                                                                                 [self chip:L(@"SPLITSCREEN_DIRECTION_TB") value:1 current:d]]];
+            chips.spacing = 6;
+            CGSize cs = [chips systemLayoutSizeFittingSize:UILayoutFittingCompressedSize];
+            chips.frame = CGRectMake(0, 0, cs.width, 30);
+            [self setAccessory:chips onCell:c];
+            break;
+        }
+        if (ip.row == 2) {   // Hien trong bang OmniCar tren xe: Gan day / Yeu thich
+            c = [self cellWithId:@"panel"];
+            c.textLabel.text = L(@"SPLITSCREEN_PANEL_SHOW");
+            c.imageView.image = OMCIcon(@"list.bullet.rectangle.fill", OMCColorFromHex(@"#FF7FA8"));
+            UIStackView *chips = [[UIStackView alloc] initWithArrangedSubviews:@[[self chip:L(@"SPLITSCREEN_SHOW_RECENT") key:SPL_KEY_SHOW_RECENT],
+                                                                                 [self chip:L(@"SPLITSCREEN_SHOW_FAVORITES") key:SPL_KEY_SHOW_FAVORITES]]];
+            chips.spacing = 6;
+            CGSize cs = [chips systemLayoutSizeFittingSize:UILayoutFittingCompressedSize];
+            chips.frame = CGRectMake(0, 0, cs.width, 30);
+            [self setAccessory:chips onCell:c];
             break;
         }
         c = [self cellWithId:@"pinned"];
@@ -309,18 +324,6 @@ static char kOMCSplitIndex;
             c.accessoryView = chev;
             c.selectionStyle = UITableViewCellSelectionStyleDefault;
         } else c = [self editorCell:part fav:fav width:w];
-        break;
-    }
-    case SPPanel: {
-        c = [self cellWithId:@"panel"];
-        c.textLabel.text = L(@"SPLITSCREEN_PANEL_SHOW");
-        c.imageView.image = OMCIcon(@"list.bullet.rectangle.fill", OMCColorFromHex(@"#FF7FA8"));
-        UIStackView *chips = [[UIStackView alloc] initWithArrangedSubviews:@[[self chip:L(@"SPLITSCREEN_SHOW_RECENT") key:SPL_KEY_SHOW_RECENT],
-                                                                             [self chip:L(@"SPLITSCREEN_SHOW_FAVORITES") key:SPL_KEY_SHOW_FAVORITES]]];
-        chips.spacing = 6;
-        CGSize cs = [chips systemLayoutSizeFittingSize:UILayoutFittingCompressedSize];
-        chips.frame = CGRectMake(0, 0, cs.width, 30);
-        [self setAccessory:chips onCell:c];
         break;
     }
     case SPHelp:
@@ -375,7 +378,23 @@ static char kOMCSplitIndex;
 // Nut bat / tat nho (Gan day / Yeu thich): nen gradient khi bat
 - (UIButton *)chip:(NSString *)title key:(NSString *)key
 {
-    BOOL on = [[self prefForKey:key def:@YES] boolValue];
+    UIButton *b = [self chip:title on:[[self prefForKey:key def:@YES] boolValue]];
+    objc_setAssociatedObject(b, &kOMCSplitIndex, key, OBJC_ASSOCIATION_COPY_NONATOMIC);
+    [b addTarget:self action:@selector(chipTapped:) forControlEvents:UIControlEventTouchUpInside];
+    return b;
+}
+
+// Nut chon 1 trong nhieu (Loai man hinh): cung kieu, nut dang chon sang
+- (UIButton *)chip:(NSString *)title value:(NSInteger)value current:(NSInteger)current
+{
+    UIButton *b = [self chip:title on:value == current];
+    b.tag = value;
+    [b addTarget:self action:@selector(directionPicked:) forControlEvents:UIControlEventTouchUpInside];
+    return b;
+}
+
+- (UIButton *)chip:(NSString *)title on:(BOOL)on
+{
     UIButton *b = [UIButton buttonWithType:UIButtonTypeCustom];
     [b setTitle:title forState:UIControlStateNormal];
     b.titleLabel.font = [UIFont systemFontOfSize:12.5 weight:UIFontWeightSemibold];
@@ -385,15 +404,14 @@ static char kOMCSplitIndex;
     CGFloat tw = ceil([title sizeWithAttributes:@{NSFontAttributeName: b.titleLabel.font}].width);
     [b.widthAnchor constraintEqualToConstant:tw + 20].active = YES;
     [b.heightAnchor constraintEqualToConstant:30].active = YES;
-    objc_setAssociatedObject(b, &kOMCSplitIndex, key, OBJC_ASSOCIATION_COPY_NONATOMIC);
-    [b addTarget:self action:@selector(chipTapped:) forControlEvents:UIControlEventTouchUpInside];
     return b;
 }
 
-- (void)directionPicked:(UISegmentedControl *)seg
+- (void)directionPicked:(UIButton *)b
 {
     [[UISelectionFeedbackGenerator new] selectionChanged];
-    [self storeValue:@(seg.selectedSegmentIndex) forKey:SPL_KEY_SPLIT_DIRECTION];
+    [self storeValue:@(b.tag) forKey:SPL_KEY_SPLIT_DIRECTION];
+    [self reloadSection:SPLayout];
 }
 
 - (void)chipTapped:(UIButton *)b
@@ -401,7 +419,7 @@ static char kOMCSplitIndex;
     NSString *key = objc_getAssociatedObject(b, &kOMCSplitIndex);
     [[UISelectionFeedbackGenerator new] selectionChanged];
     [self storeValue:@(![[self prefForKey:key def:@YES] boolValue]) forKey:key];
-    [self reloadSection:SPPanel];
+    [self reloadSection:SPLayout];
 }
 
 #pragma mark - Khung sua yeu thich

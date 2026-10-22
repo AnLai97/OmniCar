@@ -177,8 +177,8 @@ static void ABTellSpringBoard(long long o)
 static long long ABOrientationFromMask(NSUInteger mask)
 {
     if (mask & UIInterfaceOrientationMaskPortrait) return 0;
+    if (mask & UIInterfaceOrientationMaskLandscapeRight) return UIInterfaceOrientationLandscapeRight;   // ca 2 ngang: Right nhu ABHost
     if (mask & UIInterfaceOrientationMaskLandscapeLeft)  return UIInterfaceOrientationLandscapeLeft;
-    if (mask & UIInterfaceOrientationMaskLandscapeRight) return UIInterfaceOrientationLandscapeRight;
     if (mask & UIInterfaceOrientationMaskPortraitUpsideDown) return UIInterfaceOrientationPortraitUpsideDown;
     return 0;
 }
@@ -513,7 +513,10 @@ static void ABAutoTestTouch(NSDictionary *info)
         // khong thi noi dung ve xoay 90 do trong o (log 19/10 17:45)
         if (abLegacyRotation && orientationOverride > 0) {
             // chi bao 1 lan (SpringBoard lay scene -> app bo cuc lai -> UIKit goi lai ham nay: khong duoc bao vong)
-            if (!canForce && orientation != target && orientation > 0 && !abToldLandscape) { ABTellSpringBoard(0xFF); abToldLandscape = YES; }
+            // Bao dung huong UIKit vua xoay (khong chi mask): mask 24 cho ca 2 huong ngang, SpringBoard doan LandscapeLeft trong
+            // khi YouTube xoay LandscapeRight -> video lon nguoc 180 do (log 22/10 20:24:52)
+            BOOL side = orientation == UIInterfaceOrientationLandscapeLeft || orientation == UIInterfaceOrientationLandscapeRight;
+            if (!canForce && orientation != target && orientation > 0 && !abToldLandscape) { ABTellSpringBoard(side ? orientation : 0xFF); abToldLandscape = YES; }
             else if (canForce && abToldLandscape) { ABTellSpringBoard(0xFF); abToldLandscape = NO; }   // app cho doc lai -> ve huong o
         }
     }

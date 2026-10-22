@@ -52,8 +52,8 @@
 "SPLITSCREEN_COPIED" = "URL copied";
 "SPLITSCREEN_FAV_APPS_HINT" = "Tap a box to change its app";
 "SPLITSCREEN_FAV_DONE" = "Done";
-"SPLITSCREEN_DIRECTION" = "Split direction";
+"SPLITSCREEN_DIRECTION" = "Screen type";
 "SPLITSCREEN_DIRECTION_AUTO" = "Auto";
-"SPLITSCREEN_DIRECTION_TB" = "Top–bottom";
-"SPLITSCREEN_DIRECTION_LR" = "Left–right";
-"SPLITSCREEN_DIRECTION_FOOTER" = "Auto: wide and square screens split left–right, tall screens split top–bottom.";
+"SPLITSCREEN_DIRECTION_TB" = "Portrait";
+"SPLITSCREEN_DIRECTION_LR" = "Landscape";
+"SPLITSCREEN_DIRECTION_FOOTER" = "Screen type: Landscape splits left–right, Portrait splits top–bottom. Auto: wide and square screens split left–right, tall screens split top–bottom.";

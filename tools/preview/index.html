@@ -2029,7 +2029,7 @@ function flash(pg, text) { const d = document.createElement('div'); d.className 
 const nextApp = id => ORDER[(ORDER.indexOf(id) + 1) % ORDER.length];
 
 // =====================================================================  Chia man hinh
-const SP = { on: true, auto: true, pinned: 'maps', recent: true, favs: true, open: {},
+const SP = { on: true, auto: true, pinned: 'maps', recent: true, favs: true, dir: 0, open: {},
   fav: [{ name: 'Đi làm', layout: 2, apps: ['maps', 'spotify'] }, { name: 'Đi chơi', layout: 13, apps: ['vietmap', 'youtube', 'music'] }, { name: 'Đi xa', layout: 3, apps: ['maps', 'podcast', 'phone'] }] };
 const LAYOUTS = [[2, '2 ô'], [3, '3 ô'], [13, '1 lớn + 2'], [31, '2 + 1 lớn']];
 function layHtml(f, big) {
@@ -2060,15 +2060,16 @@ function renderSplit() {
       <div class="r ${off}">${tile('⚡', 'linear-gradient(135deg,#9DF2D8,#2BC79A)')}<span class="lab">Tự mở khi cắm xe<small>Mở bố cục dùng lần trước</small></span>${sw(SP, 'auto')}</div></div>
     <div class="lbl">Bố cục</div>
     <div class="pc glass ${off}">
-      <div class="r tap" data-pinapp>${tile('📌', 'linear-gradient(135deg,#FFD58A,#FFB340)')}<span class="lab">Ô ghim<small>Giữ nguyên ô khi đổi bố cục</small></span>${app(SP.pinned)}<span class="v" style="min-width:0">${APPS[SP.pinned][2]}</span><span class="chev">›</span></div></div>
-    <div class="foot">Thường ghim bản đồ: app đó không bị thay khi đổi bố cục hay chọn app khác.</div>
+      <div class="r tap" data-pinapp>${tile('📌', 'linear-gradient(135deg,#FFD58A,#FFB340)')}<span class="lab">Ô ghim<small>Giữ nguyên ô khi đổi bố cục</small></span>${app(SP.pinned)}<span class="v" style="min-width:0">${APPS[SP.pinned][2]}</span><span class="chev">›</span></div>
+      <div class="r">${tile('▤', 'linear-gradient(135deg,#8FD3FF,#5AB8FF)')}<span class="lab">Loại màn hình</span>
+        <span class="chips" style="padding:0">${[[0, 'Tự động'], [2, 'Ngang'], [1, 'Dọc']].map(([v, t]) => `<span class="chip ${SP.dir === v ? 'on' : ''}" data-dir="${v}">${t}</span>`).join('')}</span></div>
+      <div class="r">${tile('☰', 'linear-gradient(135deg,#FFC2D6,#FF7FA8)')}<span class="lab">Hiện trong bảng</span>
+        <span class="chips" style="padding:0"><span class="chip ${SP.recent ? 'on' : ''}" data-tog="recent">Gần đây</span><span class="chip ${SP.favs ? 'on' : ''}" data-tog="favs">Yêu thích</span></span></div></div>
+    <div class="foot">Thường ghim bản đồ: app đó không bị thay khi đổi bố cục hay chọn app khác.<br>Loại màn hình: Ngang chia ô trái–phải, Dọc chia ô trên–dưới. Tự động: màn ngang và màn vuông chia trái–phải, màn dọc chia trên–dưới.</div>
     <div class="lbl">Yêu thích</div>
     <div class="pc glass ${off}">${favRows}</div>
     ${editor}
     <div class="foot">Mở bằng Siri: omnicar://splitscreen/fav?n=1</div>
-    <div class="lbl">Bảng OmniCar trên xe</div>
-    <div class="pc glass ${off}"><div class="r">${tile('☰', 'linear-gradient(135deg,#FFC2D6,#FF7FA8)')}<span class="lab">Hiện trong bảng</span>
-      <span class="chips" style="padding:0"><span class="chip ${SP.recent ? 'on' : ''}" data-tog="recent">Gần đây</span><span class="chip ${SP.favs ? 'on' : ''}" data-tog="favs">Yêu thích</span></span></div></div>
     <div class="pc glass">
       <div class="fold ${SP.open.g ? 'open' : ''}"><div class="h" data-fold="g">${tile('?', 'linear-gradient(135deg,#B7A6FF,#5AB8FF)')}<span class="lab">Cử chỉ trên xe</span><span class="chev">›</span></div>
         <div class="body gest"><i>▥</i>Nút OmniCar: bố cục, Gần đây, Yêu thích, thoát<i>●</i>Chấm tròn: chạm chọn tỉ lệ · kéo đổi tỉ lệ · kéo sát mép đóng ô
@@ -2079,6 +2080,7 @@ function renderSplit() {
     <div class="foot">Trước đây là CarDuo. Host app dựa trên carplay-cast (Ethan Arbuckle).</div>`);
   bind(pg, SP, renderSplit);
   pg.querySelectorAll('[data-pinapp]').forEach(e => e.onclick = () => { SP.pinned = nextApp(SP.pinned); renderSplit(); });
+  pg.querySelectorAll('[data-dir]').forEach(e => e.onclick = () => { SP.dir = +e.dataset.dir; renderSplit(); });
   pg.querySelectorAll('[data-fav]').forEach(e => e.onclick = () => { SP.edit = SP.edit === +e.dataset.fav ? undefined : +e.dataset.fav; renderSplit(); });
   pg.querySelectorAll('[data-flay]').forEach(e => e.onclick = () => { SP.fav[SP.edit].layout = +e.dataset.flay; renderSplit(); });
   pg.querySelectorAll('[data-fapp]').forEach(e => e.onclick = () => { const f = SP.fav[SP.edit], k = +e.dataset.fapp; f.apps[k] = nextApp(f.apps[k]); renderSplit(); });
