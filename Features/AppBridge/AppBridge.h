@@ -70,8 +70,9 @@
 // Orientation model (from CarDuo 1.0, which ran YouTube fine): the scene of a hosted app is PORTRAIT by default
 // whatever the box shape (a wide box is a wide portrait window), because an app whose main UI is portrait-only
 // (YouTube, TikTok) draws sideways in a landscape scene. The app itself may ask for landscape (YouTube full-screen
-// video); then the host rotates the scene for it. The app side (App.xm, loaded into apps) never forces an
-// orientation the app does not allow.
+// video); then the host rotates the scene for it (iOS 16+; on iOS 15 the scene never rotates and the app stays in the
+// box orientation, full-screen video just fills the box). The app side (App.xm, loaded into apps) never forces an
+// orientation the app does not allow (iOS 16+).
 //   SpringBoard -> app (distributed notification, object = bundle id): orientation = the box's base
 //   UIInterfaceOrientation (-1 = no longer hosted), device = the fake device orientation the app should report.
 #define AB_NOTIF_ORIENTATION @"com.anlai.omnicar/appbridge.orientation"

@@ -15,12 +15,13 @@ static int orientationOverride = -1;        // huong goc cua o SpringBoard gui, 
 static int fpsCap = 0;                      // khung hinh / giay toi da khi tren xe (SpringBoard gui, AB_KEY_FPS), 0 = khong gioi han
 static long long appWantsOrientation = 0;   // huong app TU XIN (fullscreen video -> ngang); 0 = theo huong cua o
 static int fakeDeviceOrientation = 0;       // huong "thiet bi" gia (SpringBoard gui), 0 = dung huong that
-// iOS 15 (nhom APPS15): khong co requestGeometryUpdate / setNeedsUpdateOfSupportedInterfaceOrientations, nen SpringBoard
-// chi biet app doi huong qua hook UIDevice setOrientation va luc ep xoay bi bo qua. Co nay bat cac duong bao rieng cho iOS 15;
-// iOS 16 giu nguyen (log 19/10 17:45 va 21:59, 7 Plus 15.8.4 + iPhone 8 15.6: YouTube ve xoay 90 do / video thu vao 1 goc
-// vi trinh phat chi cho ngang ma scene van doc; cam bien doc / nam ngua lam scene lac 0.3 s mot lan).
+// iOS 15 (khong co requestGeometryUpdate): KHONG xoay gi ca. Giao dien app luon giu huong cua o, ke ca khi YouTube vao
+// trinh phat toan man (VC chi cho ngang): cua so van co o (ngang san tren man xe) nen video chi phong to. Xoay scene theo
+// app nhu iOS 16 thi iOS 15 lap vong: UIKit xoay cua so ngang -> scene ngang -> ~4 s sau UIKit xoay ve doc -> scene doc ->
+// YouTube ra / vao toan man lai (log 23/10 20:01-20:02, build fbe9cf3, 6 vong trong 25 s). App khong bao SpringBoard xoay;
+// huong app xin (setOrientation) chi dung de tra loi UIDevice.orientation cho YouTube khong tu thoat toan man.
+// iOS 16 giu nguyen.
 static BOOL abLegacyRotation = NO;
-static BOOL abToldLandscape = NO;           // iOS 15: da bao SpringBoard "app chi cho ngang" -> khi app cho doc lai thi bao lai
 static NSUInteger ABAppEffectiveMask(void);
 
 // Phat su kien "thiet bi vua xoay" (gia) sau `delay` giay
@@ -36,6 +37,7 @@ static void ABPostFakeDeviceRotation(double delay)
 
 static long long ABEffectiveOrientation(void)
 {
+    if (abLegacyRotation) return orientationOverride;   // iOS 15: giao dien khong theo huong app xin
     return appWantsOrientation > 0 ? appWantsOrientation : orientationOverride;
 }
 
@@ -88,7 +90,7 @@ static UIWindow *ABBestWindow(void)
 // iOS 15 doi khung scene nhung cua so DA CO trong app giu co cu (log 20/10 22:05, 7 Plus 15.8.4): keo vach thi TikTok van
 // 371x300, YouTube giu cua so 414x736 trong scene ngang (ve lech 90 do), YouTube mo lai giu 1190x480 trong o 297 diem.
 // SpringBoard gui co o (diem, theo giao dien) sau moi lan doi scene; app dat lai moi cua so "toan man" cua scene.
-// Chi chay khi abLegacyRotation (nhom APPS15); iOS 16 khong bao gio vao day.
+// Chi chay khi abLegacyRotation (iOS 15); iOS 16 khong bao gio vao day.
 static CGSize abPaneSize;      // co o SpringBoard gui gan nhat, zero = chua co / khong host
 
 static BOOL ABSizeNear(CGSize a, CGSize b) { return fabs(a.width - b.width) < 1 && fabs(a.height - b.height) < 1; }
@@ -164,6 +166,7 @@ static void ABTellSpringBoardNow(long long o)
 
 static void ABTellSpringBoard(long long o)
 {
+    if (abLegacyRotation) return;   // iOS 15: scene khong xoay theo app
     static dispatch_block_t pending = nil;
     if (pending) { dispatch_block_cancel(pending); pending = nil; }
     pending = dispatch_block_create((dispatch_block_flags_t)0, ^{
@@ -271,13 +274,10 @@ static void ABHandleOrientationRequest(NSDictionary *info)
 
     int o = orientationOverride;
     if (o == -1) o = MAX(1, (int)[[UIDevice currentDevice] orientation]);
-    // Khong ep sang huong app dang khong cho phep (vd fullscreen video chi ngang)
+    // Khong ep sang huong app dang khong cho phep (vd fullscreen video chi ngang); iOS 15 thi van ep (khong xoay)
     NSUInteger mask = ABAppEffectiveMask();
-    if (o > 0 && !(mask & (1u << o))) {
+    if (!abLegacyRotation && o > 0 && !(mask & (1u << o))) {
         ABLog("bo qua ep xoay %d: app chi cho mask %lu", o, (unsigned long)mask);
-        // iOS 15: app chi cho ngang (YouTube dang o trinh phat toan man) ma khong co API nao bao SpringBoard -> bao ngay
-        // de scene xoay ngang va doi khung theo (iOS 16 lam viec nay qua setNeedsUpdateOfSupportedInterfaceOrientations)
-        if (abLegacyRotation && !(mask & UIInterfaceOrientationMaskPortrait)) { ABTellSpringBoard(0xFF); abToldLandscape = YES; }
         return;
     }
     UIWindow *key = ABBestWindow();
@@ -503,22 +503,14 @@ static void ABAutoTestTouch(NSDictionary *info)
 {
     long long target = ABEffectiveOrientation();
     NSUInteger mask = ABWindowMask(self);
-    // Chi ep ve huong cua o khi app con cho phep huong do; app dang chi cho ngang (fullscreen video) -> theo app
-    BOOL canForce = target > 0 && (mask & (1u << target)) != 0;
+    // Chi ep ve huong cua o khi app con cho phep huong do; app dang chi cho ngang (fullscreen video) -> theo app.
+    // iOS 15: luon ep ve huong o (trinh phat toan man cua YouTube ve trong cua so ngang cua o, khong xoay)
+    BOOL canForce = target > 0 && (abLegacyRotation || (mask & (1u << target)) != 0);
     if (canForce && orientation != target) {
+        if (abLegacyRotation) ABLog("iOS 15: giu huong o %lld (UIKit muon xoay %lld, mask %lu)", target, orientation, (unsigned long)mask);
         %orig(target, duration, force);
     } else {
         %orig;
-        // iOS 15: UIKit tu xoay cua so sang huong app cho phep (khong phai huong o) -> SpringBoard phai xoay scene theo,
-        // khong thi noi dung ve xoay 90 do trong o (log 19/10 17:45)
-        if (abLegacyRotation && orientationOverride > 0) {
-            // chi bao 1 lan (SpringBoard lay scene -> app bo cuc lai -> UIKit goi lai ham nay: khong duoc bao vong)
-            // Bao dung huong UIKit vua xoay (khong chi mask): mask 24 cho ca 2 huong ngang, SpringBoard doan LandscapeLeft trong
-            // khi YouTube xoay LandscapeRight -> video lon nguoc 180 do (log 22/10 20:24:52)
-            BOOL side = orientation == UIInterfaceOrientationLandscapeLeft || orientation == UIInterfaceOrientationLandscapeRight;
-            if (!canForce && orientation != target && orientation > 0 && !abToldLandscape) { ABTellSpringBoard(side ? orientation : 0xFF); abToldLandscape = YES; }
-            else if (canForce && abToldLandscape) { ABTellSpringBoard(0xFF); abToldLandscape = NO; }   // app cho doc lai -> ve huong o
-        }
     }
     // iOS 15: UIKit xoay cua so thi dat lai co theo man iPhone (YouTube: cua so 414x736 trong scene ngang) -> ve co o
     if (abLegacyRotation && orientationOverride > 0) {
@@ -583,16 +575,11 @@ static void ABAutoTestTouch(NSDictionary *info)
         BOOL skip = NO;
         if (abLegacyRotation) {
             // iOS 15: UIKit goi ham nay cho moi lan cam bien doi (1 doc, 5 nam ngua, 6 up, 0 khong ro), khong chi khi app ep xoay.
-            // Chi bao SpringBoard khi huong app muon thuc su doi; gia tri khong phai doc / ngang bo qua (log 19/10 17:45:
-            // 14 cap 1 / 5 trong 6 s tu cam bien lam scene lac lien tuc)
+            // Gia tri khong phai doc / ngang bo qua (log 19/10 17:45: 14 cap 1 / 5 trong 6 s tu cam bien). Huong app xin chi
+            // de tra loi UIDevice.orientation (ABTellSpringBoard khong lam gi tren iOS 15, giao dien giu huong o)
             // (mot %orig duy nhat o cuoi: Logos khong dich duoc "%orig; return;" nam trong ngoac con)
             BOOL interface = orientation >= UIDeviceOrientationPortrait && orientation <= UIDeviceOrientationLandscapeRight;
-            if (!interface) skip = YES;
-            else if (want == appWantsOrientation) {
-                // App roi trinh phat toan man (cho doc lai) ma khong gui tin nao khac -> bao lai theo mask hien tai
-                if (abToldLandscape && (ABAppEffectiveMask() & UIInterfaceOrientationMaskPortrait)) { ABTellSpringBoard(0xFF); abToldLandscape = NO; }
-                skip = YES;
-            }
+            if (!interface || want == appWantsOrientation) skip = YES;
         }
         if (!skip) {
             appWantsOrientation = want;
@@ -680,21 +667,6 @@ static void ABAutoTestTouch(NSDictionary *info)
 
 %end // APPS16
 
-// iOS 15: the same signal before setNeedsUpdateOfSupportedInterfaceOrientations existed
-%group APPS15
-
-%hook UIViewController
-
-+ (void)attemptRotationToDeviceOrientation
-{
-    %orig;
-    if (orientationOverride > 0) ABTellSpringBoard(0xFF);
-}
-
-%end
-
-%end // APPS15
-
 %ctor
 {
     NSBundle *mb = [NSBundle mainBundle];
@@ -713,7 +685,7 @@ static void ABAutoTestTouch(NSDictionary *info)
             hooked = YES;
             %init(APPS);
             if (OMCHasMethod("UIWindowScene", @"requestGeometryUpdateWithPreferences:errorHandler:")) %init(APPS16);
-            else { %init(APPS15); abLegacyRotation = YES; }
+            else abLegacyRotation = YES;
             ABLog("%@: dua len xe, cai hook", bid);
         }
         @try { ABHandleOrientationRequest(note.userInfo); } @catch (NSException *e) { ABLog("%@: xoay loi %@", bid, e); }
