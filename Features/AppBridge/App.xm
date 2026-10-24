@@ -667,6 +667,51 @@ static void ABAutoTestTouch(NSDictionary *info)
 
 %end // APPS16
 
+// iOS 15: _setRotatableViewOrientation giu huong o, nhung UIKit van len ke hoach xoay truoc do (VC toan man cua YouTube chi
+// cho ngang) nen video quay 90 do roi moi ve dung (log 24/10 14:28, build 81a4018: "giu huong o 1 (UIKit muon xoay 3)").
+// Cho UIKit thay huong o luon duoc phep -> khong co ke hoach xoay nao. Ham public supportedInterfaceOrientations cua app
+// giu nguyen (ABWindowMask / ABAppEffectiveMask van doc mask that). Moi ham rieng 1 nhom, chi cai khi ham co that.
+%group APPS15MASK
+%hook UIViewController
+- (unsigned long long)__supportedInterfaceOrientations
+{
+    unsigned long long m = %orig;
+    if (orientationOverride > 0 && !(m & (1ull << orientationOverride))) m |= 1ull << orientationOverride;
+    return m;
+}
+%end
+%end // APPS15MASK
+
+%group APPS15PRESENT
+%hook UIViewController
+- (long long)_preferredInterfaceOrientationForPresentationInWindow:(id)window fromInterfaceOrientation:(long long)from
+{
+    long long o = %orig;
+    return orientationOverride > 0 ? orientationOverride : o;
+}
+%end
+%end // APPS15PRESENT
+
+static void ABInitLegacyRotationHooks(void)
+{
+    BOOL mask = OMCHasMethod("UIViewController", @"__supportedInterfaceOrientations");
+    BOOL present = OMCHasMethod("UIViewController", @"_preferredInterfaceOrientationForPresentationInWindow:fromInterfaceOrientation:");
+    if (mask) %init(APPS15MASK);
+    if (present) %init(APPS15PRESENT);
+    ABLog("iOS 15: hook __supportedInterfaceOrientations %d, _preferredInterfaceOrientationForPresentation %d", mask, present);
+    if (mask && present) return;
+    // Thieu ham: ghi ten cac ham huong cua UIViewController de lan sau sua dung ten
+    NSMutableArray *names = [NSMutableArray array];
+    unsigned int n = 0;
+    Method *list = class_copyMethodList([UIViewController class], &n);
+    for (unsigned int i = 0; i < n; i++) {
+        NSString *s = NSStringFromSelector(method_getName(list[i]));
+        if ([s rangeOfString:@"InterfaceOrientation" options:NSCaseInsensitiveSearch].location != NSNotFound) [names addObject:s];
+    }
+    free(list);
+    ABLog("iOS 15: ham huong cua UIViewController: %@", [names componentsJoinedByString:@" "]);
+}
+
 %ctor
 {
     NSBundle *mb = [NSBundle mainBundle];
@@ -685,7 +730,7 @@ static void ABAutoTestTouch(NSDictionary *info)
             hooked = YES;
             %init(APPS);
             if (OMCHasMethod("UIWindowScene", @"requestGeometryUpdateWithPreferences:errorHandler:")) %init(APPS16);
-            else abLegacyRotation = YES;
+            else { abLegacyRotation = YES; ABInitLegacyRotationHooks(); }
             ABLog("%@: dua len xe, cai hook", bid);
         }
         @try { ABHandleOrientationRequest(note.userInfo); } @catch (NSException *e) { ABLog("%@: xoay loi %@", bid, e); }
